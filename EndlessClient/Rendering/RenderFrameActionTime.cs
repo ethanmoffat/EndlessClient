@@ -1,5 +1,4 @@
-﻿using System;
-using EOLib;
+﻿using System.Diagnostics;
 
 namespace EndlessClient.Rendering
 {
@@ -7,17 +6,19 @@ namespace EndlessClient.Rendering
     {
         public int UniqueID { get; private set; }
 
-        public Optional<DateTime> ActionStartTime { get; private set; }
+        public Stopwatch ActionTimer { get; private set; }
 
-        public RenderFrameActionTime(int uniqueID, Optional<DateTime> actionStartTime)
+        public bool Replay { get; set; }
+
+        public RenderFrameActionTime(int uniqueID)
         {
             UniqueID = uniqueID;
-            ActionStartTime = actionStartTime;
+            UpdateActionStartTime();
         }
 
-        public void UpdateActionStartTime(Optional<DateTime> now)
+        public void UpdateActionStartTime()
         {
-            ActionStartTime = now;
+            ActionTimer = Stopwatch.StartNew();
         }
     }
 }

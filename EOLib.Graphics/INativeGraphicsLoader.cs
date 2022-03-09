@@ -1,4 +1,5 @@
-﻿using SixLabors.ImageSharp;
+﻿using PELoaderLib;
+using SixLabors.ImageSharp;
 
 namespace EOLib.Graphics
 {

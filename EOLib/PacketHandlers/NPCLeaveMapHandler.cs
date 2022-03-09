@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.Extensions;
 using EOLib.Net;
 using EOLib.Net.Handlers;
+using System;
+using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers
 {
@@ -108,18 +106,11 @@ namespace EOLib.PacketHandlers
 
                 _characterRepository.MainCharacter = updatedCharacter;
             }
-            else
+            else if (_currentMapStateRepository.Characters.ContainsKey(playerID))
             {
-                var character = _currentMapStateRepository.Characters.OptionalSingle(x => x.ID == playerID);
-
-                if (character.HasValue)
-                {
-                    var updatedRenderProps = character.Value.RenderProperties.WithDirection(playerDirection);
-                    var updatedCharacter = character.Value.WithRenderProperties(updatedRenderProps);
-
-                    _currentMapStateRepository.Characters.Remove(character.Value);
-                    _currentMapStateRepository.Characters.Add(updatedCharacter);
-                }
+                var updatedRenderProps = _currentMapStateRepository.Characters[playerID].RenderProperties.WithDirection(playerDirection);
+                var updatedCharacter = _currentMapStateRepository.Characters[playerID].WithRenderProperties(updatedRenderProps);
+                _currentMapStateRepository.Characters[playerID] = updatedCharacter;
             }
         }
 

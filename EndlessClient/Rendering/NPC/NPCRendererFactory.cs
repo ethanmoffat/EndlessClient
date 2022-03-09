@@ -1,6 +1,7 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Character;
+using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
 using EOLib.Domain.NPC;
@@ -19,6 +20,7 @@ namespace EndlessClient.Rendering.NPC
         private readonly INPCSpriteSheet _npcSpriteSheet;
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
         private readonly IHealthBarRendererFactory _healthBarRendererFactory;
+        private readonly IChatBubbleFactory _chatBubbleFactory;
 
         public NPCRendererFactory(INativeGraphicsManager nativeGraphicsManager,
                                   IEndlessGameProvider endlessGameProvider,
@@ -26,7 +28,8 @@ namespace EndlessClient.Rendering.NPC
                                   IENFFileProvider enfFileProvider,
                                   INPCSpriteSheet npcSpriteSheet,
                                   IRenderOffsetCalculator renderOffsetCalculator,
-                                  IHealthBarRendererFactory healthBarRendererFactory)
+                                  IHealthBarRendererFactory healthBarRendererFactory,
+                                  IChatBubbleFactory chatBubbleFactory)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _endlessGameProvider = endlessGameProvider;
@@ -35,6 +38,7 @@ namespace EndlessClient.Rendering.NPC
             _npcSpriteSheet = npcSpriteSheet;
             _renderOffsetCalculator = renderOffsetCalculator;
             _healthBarRendererFactory = healthBarRendererFactory;
+            _chatBubbleFactory = chatBubbleFactory;
         }
 
         public INPCRenderer CreateRendererFor(INPC npc)
@@ -46,6 +50,7 @@ namespace EndlessClient.Rendering.NPC
                                    _npcSpriteSheet,
                                    _renderOffsetCalculator,
                                    _healthBarRendererFactory,
+                                   _chatBubbleFactory,
                                    npc);
         }
     }

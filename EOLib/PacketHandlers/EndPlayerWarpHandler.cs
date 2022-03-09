@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
@@ -12,6 +10,8 @@ using EOLib.IO.Repositories;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 using EOLib.Net.Translators;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace EOLib.PacketHandlers
 {
@@ -55,7 +55,7 @@ namespace EOLib.PacketHandlers
             var updatedMainCharacter = warpAgreePacketData.Characters.Single(MainCharacterIDMatches);
 
             //character.renderproperties.isdead is set True by the attack handler
-            //the character needs to be brought back to life when the are taken to the home map
+            //the character needs to be brought back to life when they are taken to the home map
             var bringBackToLife = _characterRepository.MainCharacter.RenderProperties.WithAlive();
             _characterRepository.MainCharacter = _characterRepository.MainCharacter
                 .WithRenderProperties(bringBackToLife)
@@ -67,7 +67,7 @@ namespace EOLib.PacketHandlers
             var differentMapID = _currentMapStateRepository.CurrentMapID != warpAgreePacketData.MapID;
 
             _currentMapStateRepository.CurrentMapID = warpAgreePacketData.MapID;
-            _currentMapStateRepository.Characters = new HashSet<ICharacter>(warpAgreePacketData.Characters);
+            _currentMapStateRepository.Characters = warpAgreePacketData.Characters.ToDictionary(k => k.ID, v => v);
             _currentMapStateRepository.NPCs = new HashSet<INPC>(warpAgreePacketData.NPCs);
             _currentMapStateRepository.MapItems = new HashSet<IItem>(warpAgreePacketData.Items);
             _currentMapStateRepository.OpenDoors.Clear();

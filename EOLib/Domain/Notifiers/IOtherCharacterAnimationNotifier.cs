@@ -4,7 +4,7 @@ namespace EOLib.Domain.Notifiers
 {
     public interface IOtherCharacterAnimationNotifier
     {
-        void StartOtherCharacterWalkAnimation(int characterID);
+        void StartOtherCharacterWalkAnimation(int characterID, byte destinationX, byte destinationY, EODirection direction);
 
         void StartOtherCharacterAttackAnimation(int characterID);
 
@@ -18,7 +18,7 @@ namespace EOLib.Domain.Notifiers
     [AutoMappedType]
     public class NoOpOtherCharacterAnimationNotifier : IOtherCharacterAnimationNotifier
     {
-        public void StartOtherCharacterWalkAnimation(int characterID) { }
+        public void StartOtherCharacterWalkAnimation(int characterID, byte destinationX, byte destinationY, EODirection direction) { }
 
         public void StartOtherCharacterAttackAnimation(int characterID) { }
 

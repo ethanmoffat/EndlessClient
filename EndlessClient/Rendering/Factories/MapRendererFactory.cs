@@ -26,7 +26,6 @@ namespace EndlessClient.Rendering.Factories
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
         private readonly INPCRendererUpdater _npcRendererUpdater;
         private readonly IDynamicMapObjectUpdater _dynamicMapObjectUpdater;
-        private readonly IChatBubbleUpdater _chatBubbleUpdater;
 
         public MapRendererFactory(IEndlessGameProvider endlessGameProvider,
             IRenderTargetFactory renderTargetFactory,
@@ -37,7 +36,6 @@ namespace EndlessClient.Rendering.Factories
             ICharacterRendererUpdater characterRendererUpdater,
             INPCRendererUpdater npcRendererUpdater,
             IDynamicMapObjectUpdater dynamicMapObjectUpdater,
-            IChatBubbleUpdater chatBubbleUpdater,
             IConfigurationProvider configurationProvider,
             IMouseCursorRendererFactory mouseCursorRendererFactory,
             IRenderOffsetCalculator renderOffsetCalculator)
@@ -51,7 +49,6 @@ namespace EndlessClient.Rendering.Factories
             _characterRendererUpdater = characterRendererUpdater;
             _npcRendererUpdater = npcRendererUpdater;
             _dynamicMapObjectUpdater = dynamicMapObjectUpdater;
-            _chatBubbleUpdater = chatBubbleUpdater;
             _configurationProvider = configurationProvider;
             _mouseCursorRendererFactory = mouseCursorRendererFactory;
             _renderOffsetCalculator = renderOffsetCalculator;
@@ -68,7 +65,6 @@ namespace EndlessClient.Rendering.Factories
                                    _characterRendererUpdater,
                                    _npcRendererUpdater,
                                    _dynamicMapObjectUpdater,
-                                   _chatBubbleUpdater,
                                    _configurationProvider,
                                    _mouseCursorRendererFactory.Create(),
                                    _renderOffsetCalculator);

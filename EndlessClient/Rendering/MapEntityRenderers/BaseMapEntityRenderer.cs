@@ -27,7 +27,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
                 { MapRenderLayer.Roof, new Point(-32, -64) },
                 { MapRenderLayer.OnTop, new Point(-32, -32) },
                 { MapRenderLayer.Shadows, new Point(-24, -12) },
-                { MapRenderLayer.Overlay2, new Point(0, -64) },
+                { MapRenderLayer.Overlay2, new Point(-2, -2) },
                 { MapRenderLayer.MainCharacter, Point.Zero },
             };
         }

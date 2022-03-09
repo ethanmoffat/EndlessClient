@@ -30,7 +30,6 @@ namespace EndlessClient.Rendering.Map
         private readonly ICharacterRendererUpdater _characterRendererUpdater;
         private readonly INPCRendererUpdater _npcRendererUpdater;
         private readonly IDynamicMapObjectUpdater _dynamicMapObjectUpdater;
-        private readonly IChatBubbleUpdater _chatBubbleUpdater;
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IMouseCursorRenderer _mouseCursorRenderer;
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
@@ -61,7 +60,6 @@ namespace EndlessClient.Rendering.Map
                            ICharacterRendererUpdater characterRendererUpdater,
                            INPCRendererUpdater npcRendererUpdater,
                            IDynamicMapObjectUpdater dynamicMapObjectUpdater,
-                           IChatBubbleUpdater chatBubbleUpdater,
                            IConfigurationProvider configurationProvider,
                            IMouseCursorRenderer mouseCursorRenderer,
                            IRenderOffsetCalculator renderOffsetCalculator)
@@ -75,7 +73,6 @@ namespace EndlessClient.Rendering.Map
             _characterRendererUpdater = characterRendererUpdater;
             _npcRendererUpdater = npcRendererUpdater;
             _dynamicMapObjectUpdater = dynamicMapObjectUpdater;
-            _chatBubbleUpdater = chatBubbleUpdater;
             _configurationProvider = configurationProvider;
             _mouseCursorRenderer = mouseCursorRenderer;
             _renderOffsetCalculator = renderOffsetCalculator;
@@ -88,6 +85,8 @@ namespace EndlessClient.Rendering.Map
             _sb = new SpriteBatch(Game.GraphicsDevice);
 
             _mouseCursorRenderer.Initialize();
+
+            DrawOrder = -10;
 
             base.Initialize();
         }
@@ -111,7 +110,6 @@ namespace EndlessClient.Rendering.Map
                 _characterRendererUpdater.UpdateCharacters(gameTime);
                 _npcRendererUpdater.UpdateNPCs(gameTime);
                 _dynamicMapObjectUpdater.UpdateMapObjects(gameTime);
-                _chatBubbleUpdater.UpdateChatBubbles(gameTime);
 
                 if (MouseOver)
                     _mouseCursorRenderer.Update(gameTime);
@@ -144,6 +142,12 @@ namespace EndlessClient.Rendering.Map
         public void StartEarthquake(byte strength)
         {
             _quakeState = new MapQuakeState(strength);
+        }
+
+        public void RedrawGroundLayer()
+        {
+            _lastMapChecksum = null;
+            _mapTransitionState = new MapTransitionState(DateTime.Now - new TimeSpan(0, 5, 0), 255);
         }
 
         private void UpdateQuakeState()
@@ -210,7 +214,7 @@ namespace EndlessClient.Rendering.Map
             GraphicsDevice.SetRenderTarget(_mapObjectTarget);
             GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
 
-            var gfxToRenderLast = new SortedList<Point, List<MapRenderLayer>>(new PointComparer());
+            var gfxToRenderLast = new SortedList<MapCoordinate, List<IMapEntityRenderer>>();
 
             _sb.Begin();
 
@@ -228,11 +232,11 @@ namespace EndlessClient.Rendering.Map
 
                         if (renderer.ShouldRenderLast)
                         {
-                            var renderLaterKey = new Point(col, row);
+                            var renderLaterKey = new MapCoordinate(col, row);
                             if (gfxToRenderLast.ContainsKey(renderLaterKey))
-                                gfxToRenderLast[renderLaterKey].Add(renderer.RenderLayer);
+                                gfxToRenderLast[renderLaterKey].Add(renderer);
                             else
-                                gfxToRenderLast.Add(renderLaterKey, new List<MapRenderLayer> { renderer.RenderLayer });
+                                gfxToRenderLast.Add(renderLaterKey, new List<IMapEntityRenderer> { renderer });
                         }
                         else
                             renderer.RenderElementAt(_sb, row, col, alpha);
@@ -245,11 +249,9 @@ namespace EndlessClient.Rendering.Map
                 var pointKey = kvp.Key;
                 var alpha = GetAlphaForCoordinates(pointKey.X, pointKey.Y, immutableCharacter);
 
-                foreach (var layer in kvp.Value)
+                foreach (var renderer in kvp.Value)
                 {
-                    _mapEntityRendererProvider.MapEntityRenderers
-                                              .Single(x => x.RenderLayer == layer)
-                                              .RenderElementAt(_sb, pointKey.Y, pointKey.X, alpha);
+                    renderer.RenderElementAt(_sb, pointKey.Y, pointKey.X, alpha);
                 }
             }
 

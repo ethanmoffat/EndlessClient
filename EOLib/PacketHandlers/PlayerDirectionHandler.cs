@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using AutomaticTypeMapper;
-using EOLib.Domain.Character;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Net;
@@ -30,18 +27,15 @@ namespace EOLib.PacketHandlers
             var id = packet.ReadShort();
             var direction = (EODirection) packet.ReadChar();
 
-            ICharacter character;
-            try
-            {
-                character = _mapStateRepository.Characters.Single(x => x.ID == id);
-            }
-            catch (InvalidOperationException) { return false; } //more than 1 character with that ID - thrown by .Single()
+            if (!_mapStateRepository.Characters.ContainsKey(id))
+                return false;
+
+            var character = _mapStateRepository.Characters[id];
 
             var newRenderProps = character.RenderProperties.WithDirection(direction);
             var newCharacter = character.WithRenderProperties(newRenderProps);
 
-            _mapStateRepository.Characters.Remove(character);
-            _mapStateRepository.Characters.Add(newCharacter);
+            _mapStateRepository.Characters[id] = newCharacter;
 
             return true;
         }

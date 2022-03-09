@@ -46,9 +46,9 @@ namespace EndlessClient.Rendering.CharacterProperties
                 resX = -(float)Math.Floor(Math.Abs((float)_shieldSheet.SourceRectangle.Width - parentCharacterDrawArea.Width) / 2);
                 resY = -(float)Math.Floor(parentCharacterDrawArea.Height / 3f) - _renderProperties.Gender;
 
-                if (_renderProperties.AttackFrame == 2)
+                if (_renderProperties.RenderAttackFrame == 2)
                     resX += _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? 2 : -2;
-                else if (_renderProperties.IsRangedWeapon && _renderProperties.AttackFrame == 1)
+                else if (_renderProperties.IsRangedWeapon && _renderProperties.RenderAttackFrame == 1)
                 {
                     // This currently does *not* match up perfectly with the original client. The original client doesn't keep
                     // the arrows aligned on the attack frame, so they look like they are sliding across the back of the character.
@@ -89,7 +89,7 @@ namespace EndlessClient.Rendering.CharacterProperties
                 {
                     resX -= parentCharacterDrawArea.Width * 1.5f;
 
-                    if (_renderProperties.AttackFrame == 2)
+                    if (_renderProperties.RenderAttackFrame == 2)
                         resX -= 2;
 
                     resX += 2;
@@ -98,7 +98,7 @@ namespace EndlessClient.Rendering.CharacterProperties
                 {
                     resX -= parentCharacterDrawArea.Width / 1.5f;
 
-                    if (_renderProperties.AttackFrame == 2)
+                    if (_renderProperties.RenderAttackFrame == 2)
                         resX += 2;
 
                     resX -= 3;

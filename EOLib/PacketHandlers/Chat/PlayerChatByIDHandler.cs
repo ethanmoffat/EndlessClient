@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using EOLib.Domain.Character;
+﻿using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Net;
@@ -23,10 +22,10 @@ namespace EOLib.PacketHandlers.Chat
         public override bool HandlePacket(IPacket packet)
         {
             var fromPlayerID = packet.ReadShort();
-            if (_currentMapStateProvider.Characters.All(x => x.ID != fromPlayerID))
-                return true;
+            if (!_currentMapStateProvider.Characters.ContainsKey(fromPlayerID))
+                return false;
 
-            DoTalk(packet, _currentMapStateProvider.Characters.Single(x => x.ID == fromPlayerID));
+            DoTalk(packet, _currentMapStateProvider.Characters[fromPlayerID]);
 
             return true;
         }

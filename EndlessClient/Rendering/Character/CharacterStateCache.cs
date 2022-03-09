@@ -46,12 +46,12 @@ namespace EndlessClient.Rendering.Character
             _otherCharacters.Remove(id);
         }
 
-        public void AddDeathStartTime(int id, DateTime startTime)
+        public void AddDeathStartTime(int id)
         {
             if (_deathStartTimes.Any(x => x.UniqueID == id))
                 throw new ArgumentException("That character already started dying...", nameof(id));
 
-            _deathStartTimes.Add(new RenderFrameActionTime(id, DateTime.Now));
+            _deathStartTimes.Add(new RenderFrameActionTime(id));
         }
 
         public void RemoveDeathStartTime(int id)

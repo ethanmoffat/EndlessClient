@@ -2,6 +2,7 @@
 using System.Linq;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Character;
+using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
@@ -28,6 +29,7 @@ namespace EndlessClient.Rendering.NPC
         private readonly INPCSpriteSheet _npcSpriteSheet;
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
         private readonly IHealthBarRendererFactory _healthBarRendererFactory;
+        private readonly IChatBubbleFactory _chatBubbleFactory;
         private readonly Rectangle _baseTextureFrameRectangle;
         private readonly int _readonlyTopPixel, _readonlyBottomPixel;
         private readonly bool _hasStandingAnimation;
@@ -41,6 +43,7 @@ namespace EndlessClient.Rendering.NPC
         private MouseState _currentMouseState;
 
         private XNALabel _nameLabel;
+        private IChatBubble _chatBubble;
 
         public int TopPixel => _readonlyTopPixel;
 
@@ -67,6 +70,7 @@ namespace EndlessClient.Rendering.NPC
                            INPCSpriteSheet npcSpriteSheet,
                            IRenderOffsetCalculator renderOffsetCalculator,
                            IHealthBarRendererFactory healthBarRendererFactory,
+                           IChatBubbleFactory chatBubbleFactory,
                            INPC initialNPC)
             : base((Game)endlessGameProvider.Game)
         {
@@ -77,6 +81,7 @@ namespace EndlessClient.Rendering.NPC
             _npcSpriteSheet = npcSpriteSheet;
             _renderOffsetCalculator = renderOffsetCalculator;
             _healthBarRendererFactory = healthBarRendererFactory;
+            _chatBubbleFactory = chatBubbleFactory;
             _baseTextureFrameRectangle = GetStandingFrameRectangle();
             _readonlyTopPixel = GetTopPixel();
             _readonlyBottomPixel = GetBottomPixel();
@@ -100,9 +105,14 @@ namespace EndlessClient.Rendering.NPC
                 TextAlign = LabelAlignment.MiddleCenter,
                 ForeColor = Color.White,
                 AutoSize = true,
-                Text = _enfFileProvider.ENFFile[NPC.ID].Name
+                Text = _enfFileProvider.ENFFile[NPC.ID].Name,
+                DrawOrder = 30,
+                KeepInClientWindowBounds = false,
             };
             _nameLabel.Initialize();
+
+            if (!_nameLabel.Game.Components.Contains(_nameLabel))
+                _nameLabel.Game.Components.Add(_nameLabel);
 
             _nameLabel.DrawPosition = GetNameLabelPosition();
             _previousMouseState = _currentMouseState = Mouse.GetState();
@@ -120,9 +130,8 @@ namespace EndlessClient.Rendering.NPC
             UpdateStandingFrameAnimation();
             UpdateDeadState();
 
-            _nameLabel.Visible = DrawArea.Contains(_currentMouseState.Position) && !_healthBarRenderer.Visible;
+            _nameLabel.Visible = DrawArea.Contains(_currentMouseState.Position) && !_healthBarRenderer.Visible && !_isDying;
             _nameLabel.DrawPosition = GetNameLabelPosition();
-            _nameLabel.Update(gameTime);
 
             _effectRenderer.Update();
             _healthBarRenderer.Update(gameTime);
@@ -147,8 +156,6 @@ namespace EndlessClient.Rendering.NPC
             _effectRenderer.DrawInFrontOfTarget(spriteBatch);
 
             _healthBarRenderer.DrawToSpriteBatch(spriteBatch);
-
-            _nameLabel.Draw(new GameTime());
         }
 
         public void StartDying()
@@ -160,6 +167,13 @@ namespace EndlessClient.Rendering.NPC
         {
             var optionalDamage = damage == 0 ? Optional<int>.Empty : new Optional<int>(damage);
             _healthBarRenderer.SetDamage(optionalDamage, percentHealth);
+        }
+
+        public void ShowChatBubble(string message, bool isGroupChat)
+        {
+            if (_chatBubble == null)
+                _chatBubble = _chatBubbleFactory.CreateChatBubble(this);
+            _chatBubble.SetMessage(message, isGroupChat: false);
         }
 
         #region Effects
@@ -195,34 +209,27 @@ namespace EndlessClient.Rendering.NPC
         {
             var data = _enfFileProvider.ENFFile[NPC.ID];
             var frameTexture = _npcSpriteSheet.GetNPCTexture(data.Graphic, NPCFrame.Standing, EODirection.Down);
-            var frameTextureData = new Color[frameTexture.Width * frameTexture.Height];
-            frameTexture.GetData(frameTextureData);
+            var frameData = new Color[frameTexture.Width * frameTexture.Height];
+            frameTexture.GetData(frameData);
 
-            if (frameTextureData.All(x => x.A == 0))
-                return 0;
+            int i = 0;
+            while (i < frameData.Length && frameData[i].A == 0) i++;
 
-            var firstVisiblePixelIndex = frameTextureData.Select((color, index) => new { color, index })
-                                                            .Where(x => x.color.A != 0)
-                                                            .Select(x => x.index)
-                                                            .First();
-            return firstVisiblePixelIndex/frameTexture.Height;
+            return i == frameData.Length - 1 ? 0 : i / frameTexture.Height;
         }
 
         private int GetBottomPixel()
         {
             var data = _enfFileProvider.ENFFile[NPC.ID];
             var frameTexture = _npcSpriteSheet.GetNPCTexture(data.Graphic, NPCFrame.Standing, EODirection.Down);
-            var frameTextureData = new Color[frameTexture.Width * frameTexture.Height];
-            frameTexture.GetData(frameTextureData);
+            var frameData = new Color[frameTexture.Width * frameTexture.Height];
+            frameTexture.GetData(frameData);
 
-            if (frameTextureData.All(x => x.A == 0))
-                return frameTexture.Height;
 
-            var lastVisiblePixelIndex = frameTextureData.Select((color, index) => new { color, index })
-                                                            .Where(x => x.color.A != 0)
-                                                            .Select(x => x.index)
-                                                            .Last();
-            return lastVisiblePixelIndex / frameTexture.Height;
+            int i = frameData.Length - 1;
+            while (i >= 0 && frameData[i].A != 0) i--;
+
+            return i == frameData.Length - 1 ? frameTexture.Height : i / frameTexture.Height;
         }
 
         private bool GetHasStandingAnimation()
@@ -292,7 +299,7 @@ namespace EndlessClient.Rendering.NPC
         private Vector2 GetNameLabelPosition()
         {
             return new Vector2(MapProjectedDrawArea.X + (MapProjectedDrawArea.Width - _nameLabel.ActualWidth) / 2f,
-                               TopPixelWithOffset - _nameLabel.ActualHeight - 4);
+                               TopPixelWithOffset - _nameLabel.ActualHeight - 8);
 
         }
 

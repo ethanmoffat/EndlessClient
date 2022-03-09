@@ -21,7 +21,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 
             // Ranged weapon attack frame is offset based on the Left or Right border of the parent character draw area
             // Ranged weapon graphics do not use the centering approach
-            if (_renderProperties.IsRangedWeapon && _renderProperties.AttackFrame == 1)
+            if (_renderProperties.IsRangedWeapon && _renderProperties.RenderAttackFrame == 1)
             {
                 var isFlipped = _renderProperties.IsFacing(EODirection.Right, EODirection.Up);
                 var needsExtraOffset = _renderProperties.IsFacing(EODirection.Right, EODirection.Down);
@@ -70,7 +70,7 @@ namespace EndlessClient.Rendering.CharacterProperties
                     resY -= 2;
 
                 // This specific frame is a bitch
-                if (_renderProperties.Gender == 1 && _renderProperties.AttackFrame == 1)
+                if (_renderProperties.Gender == 1 && _renderProperties.RenderAttackFrame == 1)
                     resX += _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? 2 : -2;
 
                 resX += parentCharacterDrawArea.X;

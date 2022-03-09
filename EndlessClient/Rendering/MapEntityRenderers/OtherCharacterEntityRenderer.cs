@@ -1,29 +1,25 @@
-﻿using System;
-using System.Linq;
-using EndlessClient.Rendering.Character;
+﻿using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Linq;
 
 namespace EndlessClient.Rendering.MapEntityRenderers
 {
     public class OtherCharacterEntityRenderer : BaseMapEntityRenderer
     {
         private readonly ICharacterRendererProvider _characterRendererProvider;
-        private readonly IChatBubbleProvider _chatBubbleProvider;
         private readonly ICharacterStateCache _characterStateCache;
 
         public OtherCharacterEntityRenderer(ICharacterProvider characterProvider,
                                             ICharacterRendererProvider characterRendererProvider,
-                                            IChatBubbleProvider chatBubbleProvider,
                                             ICharacterStateCache characterStateCache,
                                             IRenderOffsetCalculator renderOffsetCalculator)
             : base(characterProvider, renderOffsetCalculator)
         {
             _characterRendererProvider = characterRendererProvider;
-            _chatBubbleProvider = chatBubbleProvider;
             _characterStateCache = characterStateCache;
         }
 
@@ -40,9 +36,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
         {
-            var idsToRender = _characterStateCache.OtherCharacters.Keys.Where(
-                key => _characterStateCache.OtherCharacters[key].RenderProperties.MapX == col &&
-                       _characterStateCache.OtherCharacters[key].RenderProperties.MapY == row);
+            var idsToRender = _characterStateCache.OtherCharacters.Keys.Where(k => IsAtPosition(k, row, col));
 
             foreach (var id in idsToRender)
             {
@@ -52,11 +46,12 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
                 var renderer = _characterRendererProvider.CharacterRenderers[id];
                 renderer.DrawToSpriteBatch(spriteBatch);
-
-                IChatBubble bubble;
-                if (_chatBubbleProvider.OtherCharacterChatBubbles.TryGetValue(id, out bubble))
-                    bubble.DrawToSpriteBatch(spriteBatch);
             }
+        }
+        private bool IsAtPosition(int characterId, int row, int col)
+        {
+            var rp = _characterStateCache.OtherCharacters[characterId].RenderProperties;
+            return row == rp.MapY && col == rp.MapX;
         }
     }
 }

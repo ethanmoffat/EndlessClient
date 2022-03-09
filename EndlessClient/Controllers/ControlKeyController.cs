@@ -41,10 +41,9 @@ namespace EndlessClient.Controllers
 
         private bool CanAttackAgain()
         {
-            return !_characterAnimationActions.IsAttacking(_characterProvider.MainCharacter.ID) &&
-                   (_characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Standing) ||
-                   _characterProvider.MainCharacter.RenderProperties.AttackFrame == CharacterRenderProperties.MAX_NUMBER_OF_ATTACK_FRAMES ||
-                   _characterProvider.MainCharacter.RenderProperties.IsRangedWeapon && _characterProvider.MainCharacter.RenderProperties.AttackFrame == CharacterRenderProperties.MAX_NUMBER_OF_RANGED_ATTACK_FRAMES);
+            var rp = _characterProvider.MainCharacter.RenderProperties;
+            return rp.IsActing(CharacterActionState.Standing) ||
+                   rp.RenderAttackFrame == CharacterRenderProperties.MAX_NUMBER_OF_ATTACK_FRAMES;
         }
 
         private void AttemptAttack()

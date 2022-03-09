@@ -6,7 +6,6 @@ using EOLib.Domain.Notifiers;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace EOLib.PacketHandlers.Effects
 {
@@ -36,11 +35,11 @@ namespace EOLib.PacketHandlers.Effects
             var isDead = packet.ReadChar() != 0;
             var damageTaken = packet.ReadThree();
 
-            var characterToUpdate = _currentMapStateRepository.Characters.Single(x => x.ID == characterId);
-            var updatedCharacter = characterToUpdate.WithDamage(damageTaken, isDead);
+            if (!_currentMapStateRepository.Characters.ContainsKey(characterId))
+                return false;
 
-            _currentMapStateRepository.Characters.Remove(characterToUpdate);
-            _currentMapStateRepository.Characters.Add(updatedCharacter);
+            var updatedCharacter = _currentMapStateRepository.Characters[characterId].WithDamage(damageTaken, isDead);
+            _currentMapStateRepository.Characters[characterId] = updatedCharacter;
 
             foreach (var notifier in _otherCharacterEventNotifiers)
             {

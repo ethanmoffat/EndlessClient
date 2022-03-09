@@ -34,26 +34,26 @@ namespace EOLib.PacketHandlers
         public override bool HandlePacket(IPacket packet)
         {
             var characterID = packet.ReadShort();
+
+            if (!_currentMapStateRepository.Characters.ContainsKey(characterID))
+                return false;
+
             var dir = (EODirection)packet.ReadChar();
             var x = packet.ReadChar();
             var y = packet.ReadChar();
 
-            ICharacter character;
-            try
+            var character = _currentMapStateRepository.Characters[characterID];
+
+            // if character is walking, that means animator is handling position of character
+            // if character is not walking (this is true in EOBot), update the domain model here
+            if (!character.RenderProperties.IsActing(CharacterActionState.Walking))
             {
-                character = _currentMapStateRepository.Characters.Single(cc => cc.ID == characterID);
+                var renderProperties = EnsureCorrectXAndY(character.RenderProperties.WithDirection(dir), x, y);
+                _currentMapStateRepository.Characters[characterID] = character.WithRenderProperties(renderProperties);
             }
-            catch (InvalidOperationException) { return false; }
-
-            var renderProperties = character.RenderProperties.WithDirection(dir);
-            renderProperties = EnsureCorrectXAndY(renderProperties, x, y);
-            var newCharacter = character.WithRenderProperties(renderProperties);
-
-            _currentMapStateRepository.Characters.Remove(character);
-            _currentMapStateRepository.Characters.Add(newCharacter);
 
             foreach (var notifier in _otherCharacterAnimationNotifiers)
-                notifier.StartOtherCharacterWalkAnimation(characterID);
+                notifier.StartOtherCharacterWalkAnimation(characterID, x, y, dir);
 
             return true;
         }

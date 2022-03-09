@@ -24,7 +24,8 @@ namespace EOLib.Domain.Character
 
         int ActualWalkFrame { get; }
         int RenderWalkFrame { get; }
-        int AttackFrame { get; }
+        int ActualAttackFrame { get; }
+        int RenderAttackFrame { get; }
         int EmoteFrame { get; }
         
         SitState SitState { get; }

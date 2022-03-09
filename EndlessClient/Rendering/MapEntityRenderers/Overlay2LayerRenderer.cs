@@ -38,7 +38,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             var gfx = _nativeGraphicsManager.TextureFromResource(GFXTypes.MapOverlay, gfxNum, true);
 
             var pos = GetDrawCoordinatesFromGridUnits(col, row);
-            pos -= new Vector2(gfx.Width / 2f, gfx.Height);
+            pos -= new Vector2((float)System.Math.Floor(gfx.Width / 2f), gfx.Height - 32);
 
             spriteBatch.Draw(gfx, pos + additionalOffset, Color.FromNonPremultiplied(255, 255, 255, alpha));
         }

@@ -1,11 +1,11 @@
-﻿using System.Linq;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.NPC;
 using EOLib.Extensions;
 using EOLib.IO.Map;
 using EOLib.IO.Repositories;
+using System.Linq;
 
 namespace EOLib.Domain.Map
 {
@@ -35,7 +35,7 @@ namespace EOLib.Domain.Map
             var chest = CurrentMap.Chests.FirstOrDefault(c => c.X == x && c.Y == y);
             var sign = CurrentMap.Signs.FirstOrDefault(s => s.X == x && s.Y == y);
 
-            var character = _mapStateProvider.Characters.Concat(new[] { _characterProvider.MainCharacter })
+            var character = _mapStateProvider.Characters.Values.Concat(new[] { _characterProvider.MainCharacter })
                 .OptionalFirst(c => CharacterAtCoordinates(c, x, y));
             var npc = _mapStateProvider.NPCs.OptionalFirst(n => NPCAtCoordinates(n, x, y));
             var items = _mapStateProvider.MapItems.Where(i => i.X == x && i.Y == y);

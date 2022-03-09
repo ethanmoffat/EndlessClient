@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Extensions;
@@ -12,6 +9,9 @@ using EOLib.Domain.NPC;
 using EOLib.IO.Repositories;
 using EOLib.Net;
 using EOLib.Net.Handlers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace EOLib.PacketHandlers
 {
@@ -133,13 +133,10 @@ namespace EOLib.PacketHandlers
                 foreach (var notifier in _mainCharacterNotifiers)
                     notifier.NotifyTakeDamage(damageTaken, playerPercentHealth, isHeal: false);
             }
-            else
+            else if (_currentMapStateRepository.Characters.ContainsKey(characterID))
             {
-                var characterToUpdate = _currentMapStateRepository.Characters.Single(x => x.ID == characterID);
-                var updatedCharacter = characterToUpdate.WithDamage(damageTaken, isDead);
-
-                _currentMapStateRepository.Characters.Remove(characterToUpdate);
-                _currentMapStateRepository.Characters.Add(updatedCharacter);
+                var updatedCharacter = _currentMapStateRepository.Characters[characterID].WithDamage(damageTaken, isDead);
+                _currentMapStateRepository.Characters[characterID] = updatedCharacter;
 
                 foreach (var notifier in _otherCharacterNotifiers)
                     notifier.OtherCharacterTakeDamage(characterID, playerPercentHealth, damageTaken);

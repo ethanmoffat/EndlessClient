@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AutomaticTypeMapper;
-using EOLib.Domain.Character;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.Net;
 using EOLib.Net.Handlers;
+using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers
 {
@@ -35,18 +32,15 @@ namespace EOLib.PacketHandlers
             var playerID = packet.ReadShort();
             var direction = (EODirection)packet.ReadChar();
 
-            ICharacter character;
-            try
+            if (!_currentMapStateRepository.Characters.ContainsKey(playerID))
+                return false;
+
+            var character = _currentMapStateRepository.Characters[playerID];
+            if (character.RenderProperties.Direction != direction)
             {
-                character = _currentMapStateRepository.Characters.Single(x => x.ID == playerID);
+                var renderProperties = character.RenderProperties.WithDirection(direction);
+                _currentMapStateRepository.Characters[playerID] = character.WithRenderProperties(renderProperties);
             }
-            catch (InvalidOperationException) { return false; }
-
-            var renderProperties = character.RenderProperties.WithDirection(direction);
-            var newCharacter = character.WithRenderProperties(renderProperties);
-
-            _currentMapStateRepository.Characters.Remove(character);
-            _currentMapStateRepository.Characters.Add(newCharacter);
 
             foreach (var notifier in _otherCharacterAnimationNotifiers)
                 notifier.StartOtherCharacterAttackAnimation(playerID);

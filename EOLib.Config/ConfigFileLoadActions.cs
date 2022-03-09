@@ -60,6 +60,8 @@ namespace EOLib.Config
             _configRepository.Interaction = !configFile.GetValue(ConfigStrings.Chat, ConfigStrings.Interaction, out tempBool) || tempBool;
             _configRepository.LogChatToFile = configFile.GetValue(ConfigStrings.Chat, ConfigStrings.LogChat, out tempBool) && tempBool;
 
+            _configRepository.MainCloneCompat = configFile.GetValue(ConfigStrings.Custom, ConfigStrings.MainCloneCompat, out tempBool) && tempBool;
+
             string host;
             _configRepository.Host = configFile.GetValue(ConfigStrings.Connection, ConfigStrings.Host, out host) ? host : ConfigDefaults.Host;
             _configRepository.Port = configFile.GetValue(ConfigStrings.Connection, ConfigStrings.Port, out tempInt) ? tempInt : ConfigDefaults.Port;

@@ -7,5 +7,7 @@ namespace EndlessClient.Rendering.Map
         void StartMapTransition();
 
         void StartEarthquake(byte strength);
+
+        void RedrawGroundLayer();
     }
 }

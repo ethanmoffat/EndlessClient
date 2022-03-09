@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
@@ -35,16 +33,12 @@ namespace EOLib.PacketHandlers
                 _characterRepository.MainCharacter = Hidden(_characterRepository.MainCharacter);
             else
             {
-                ICharacter character;
-                try
-                {
-                    character = _currentMapStateRepository.Characters.Single(x => x.ID == id);
-                }
-                catch (InvalidOperationException) { return false; }
+                if (!_currentMapStateRepository.Characters.ContainsKey(id))
+                    return false;
+                var character = _currentMapStateRepository.Characters[id];
 
                 var updatedCharacter = Hidden(character);
-                _currentMapStateRepository.Characters.Remove(character);
-                _currentMapStateRepository.Characters.Add(updatedCharacter);
+                _currentMapStateRepository.Characters[id] = updatedCharacter;
             }
 
             return true;

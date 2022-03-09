@@ -28,7 +28,8 @@ namespace EOLib.Domain.Character
 
         public int ActualWalkFrame { get; private set; }
         public int RenderWalkFrame { get; private set; }
-        public int AttackFrame { get; private set; }
+        public int ActualAttackFrame { get; private set; }
+        public int RenderAttackFrame { get; private set; }
         public int EmoteFrame { get; private set; }
 
         public SitState SitState { get; private set; }
@@ -147,8 +148,23 @@ namespace EOLib.Domain.Character
         public ICharacterRenderProperties WithNextAttackFrame()
         {
             var props = MakeCopy(this);
-            props.AttackFrame = (props.AttackFrame + 1) % (IsRangedWeapon ? MAX_NUMBER_OF_RANGED_ATTACK_FRAMES : MAX_NUMBER_OF_ATTACK_FRAMES);
-            props.CurrentAction = props.AttackFrame == 0 ? CharacterActionState.Standing : CharacterActionState.Attacking;
+            props.ActualAttackFrame = (props.ActualAttackFrame + 1) % MAX_NUMBER_OF_WALK_FRAMES;
+            props.RenderAttackFrame = props.ActualAttackFrame;
+
+            if (IsRangedWeapon)
+            {
+                // ranged attack ticks: 0 0 1 1 1
+                props.RenderAttackFrame /= MAX_NUMBER_OF_RANGED_ATTACK_FRAMES;
+                props.RenderAttackFrame = System.Math.Min(props.RenderAttackFrame, MAX_NUMBER_OF_RANGED_ATTACK_FRAMES - 1);
+            }
+            else
+            {
+                // melee attack ticks:  0 1 2 2 2
+                props.RenderAttackFrame = System.Math.Min(props.RenderAttackFrame, MAX_NUMBER_OF_ATTACK_FRAMES - 1);
+            }
+
+            props.CurrentAction = props.ActualAttackFrame == 0 ? CharacterActionState.Standing : CharacterActionState.Attacking;
+
             return props;
         }
 
@@ -173,9 +189,10 @@ namespace EOLib.Domain.Character
         {
             var props = MakeCopy(this);
             props.RenderWalkFrame = 0;
-            props.AttackFrame = 0;
+            props.ActualWalkFrame = 0;
+            props.RenderAttackFrame = 0;
             props.EmoteFrame = 0;
-            props.CurrentAction = CharacterActionState.Standing;
+            props.CurrentAction = props.SitState == SitState.Standing ? CharacterActionState.Standing : CharacterActionState.Sitting;
             return props;
         }
 
@@ -243,7 +260,8 @@ namespace EOLib.Domain.Character
 
                 ActualWalkFrame = other.ActualWalkFrame,
                 RenderWalkFrame = other.RenderWalkFrame,
-                AttackFrame = other.AttackFrame,
+                ActualAttackFrame = other.ActualAttackFrame,
+                RenderAttackFrame = other.RenderAttackFrame,
                 EmoteFrame = other.EmoteFrame,
 
                 SitState = other.SitState,
@@ -272,8 +290,9 @@ namespace EOLib.Domain.Character
                    MapX == properties.MapX &&
                    MapY == properties.MapY &&
                    ActualWalkFrame == properties.ActualWalkFrame &&
+                   ActualAttackFrame == properties.ActualAttackFrame &&
                    RenderWalkFrame == properties.RenderWalkFrame &&
-                   AttackFrame == properties.AttackFrame &&
+                   RenderAttackFrame == properties.RenderAttackFrame &&
                    EmoteFrame == properties.EmoteFrame &&
                    SitState == properties.SitState &&
                    Emote == properties.Emote &&
@@ -300,7 +319,8 @@ namespace EOLib.Domain.Character
             hashCode = hashCode * -1521134295 + MapY.GetHashCode();
             hashCode = hashCode * -1521134295 + ActualWalkFrame.GetHashCode();
             hashCode = hashCode * -1521134295 + RenderWalkFrame.GetHashCode();
-            hashCode = hashCode * -1521134295 + AttackFrame.GetHashCode();
+            hashCode = hashCode * -1521134295 + ActualAttackFrame.GetHashCode();
+            hashCode = hashCode * -1521134295 + RenderAttackFrame.GetHashCode();
             hashCode = hashCode * -1521134295 + EmoteFrame.GetHashCode();
             hashCode = hashCode * -1521134295 + SitState.GetHashCode();
             hashCode = hashCode * -1521134295 + Emote.GetHashCode();

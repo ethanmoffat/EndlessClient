@@ -33,8 +33,8 @@ namespace EndlessClient.Rendering.CharacterProperties
             var resX = -(float)Math.Floor(Math.Abs(_armorSheet.SourceRectangle.Width - parentCharacterSize.X) / 2);
             var resY = -(float)Math.Floor(Math.Abs(_armorSheet.SourceRectangle.Height - parentCharacterSize.Y) / 2);
 
-            if ((_renderProperties.AttackFrame == 2 && !_renderProperties.IsRangedWeapon) ||
-                (_renderProperties.AttackFrame == 1 && _renderProperties.IsRangedWeapon))
+            if ((_renderProperties.RenderAttackFrame == 2 && !_renderProperties.IsRangedWeapon) ||
+                (_renderProperties.RenderAttackFrame == 1 && _renderProperties.IsRangedWeapon))
             {
                 resX += _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? 4 : 0;
 

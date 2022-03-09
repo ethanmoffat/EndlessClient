@@ -64,6 +64,9 @@ namespace EndlessClient.Rendering.Map
             ShowMapTransition(differentMapID);
             AddSpikeTraps();
             ShowWarpBubbles(warpAnimation);
+
+            if (!differentMapID)
+                RedrawGroundLayer();
         }
 
         private void StopAllAnimations()
@@ -73,9 +76,6 @@ namespace EndlessClient.Rendering.Map
 
             var npcAnimator = _hudControlProvider.GetComponent<INPCAnimator>(HudControlIdentifier.NPCAnimator);
             npcAnimator.StopAllAnimations();
-
-            var clickWalkPathHandler = _hudControlProvider.GetComponent<IClickWalkPathHandler>(HudControlIdentifier.ClickWalkPathHandler);
-            clickWalkPathHandler.CancelWalking();
         }
 
         private void ClearCharacterRenderersAndCache()
@@ -117,7 +117,7 @@ namespace EndlessClient.Rendering.Map
 
         private void AddSpikeTraps()
         {
-            foreach (var character in _currentMapStateRepository.Characters)
+            foreach (var character in _currentMapStateRepository.Characters.Values)
             {
                 if (_currentMapProvider.CurrentMap.Tiles[character.RenderProperties.MapY, character.RenderProperties.MapX] == TileSpec.SpikesTrap)
                     _currentMapStateRepository.VisibleSpikeTraps.Add(new MapCoordinate(character.RenderProperties.MapX, character.RenderProperties.MapY));
@@ -130,6 +130,12 @@ namespace EndlessClient.Rendering.Map
             {
                 _characterRendererRepository.MainCharacterRenderer.ShowWarpArrive();
             }
+        }
+
+        private void RedrawGroundLayer()
+        {
+            var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
+            mapRenderer.RedrawGroundLayer();
         }
     }
 

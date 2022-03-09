@@ -11,7 +11,7 @@ namespace EOLib.Domain.Map
 
         bool ShowMiniMap { get; set; }
 
-        HashSet<ICharacter> Characters { get; set; }
+        Dictionary<int, ICharacter> Characters { get; set; }
 
         HashSet<INPC> NPCs { get; set; }
 
@@ -32,7 +32,7 @@ namespace EOLib.Domain.Map
 
         bool ShowMiniMap { get; }
 
-        IReadOnlyCollection<ICharacter> Characters { get; }
+        IReadOnlyDictionary<int, ICharacter> Characters { get; }
 
         IReadOnlyCollection<INPC> NPCs { get; }
 
@@ -54,7 +54,7 @@ namespace EOLib.Domain.Map
 
         public bool ShowMiniMap { get; set; }
 
-        public HashSet<ICharacter> Characters { get; set; }
+        public Dictionary<int, ICharacter> Characters { get; set; }
 
         public HashSet<INPC> NPCs { get; set; }
 
@@ -68,7 +68,7 @@ namespace EOLib.Domain.Map
 
         public WarpState MapWarpState { get; set; }
 
-        IReadOnlyCollection<ICharacter> ICurrentMapStateProvider.Characters => Characters;
+        IReadOnlyDictionary<int, ICharacter> ICurrentMapStateProvider.Characters => Characters;
 
         IReadOnlyCollection<INPC> ICurrentMapStateProvider.NPCs => NPCs;
 
@@ -90,7 +90,7 @@ namespace EOLib.Domain.Map
             CurrentMapID = 0;
             ShowMiniMap = false;
 
-            Characters = new HashSet<ICharacter>();
+            Characters = new Dictionary<int, ICharacter>();
             NPCs = new HashSet<INPC>();
             MapItems = new HashSet<IItem>();
             OpenDoors = new HashSet<IWarp>();

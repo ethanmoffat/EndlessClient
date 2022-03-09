@@ -29,7 +29,6 @@ namespace EndlessClient.Rendering.Map
                                          IConfigurationProvider configurationProvider,
                                          ICharacterRendererProvider characterRendererProvider,
                                          INPCRendererProvider npcRendererProvider,
-                                         IChatBubbleProvider chatBubbleProvider,
                                          ICharacterStateCache characterStateCache)
         {
             GroundRenderer =
@@ -68,7 +67,6 @@ namespace EndlessClient.Rendering.Map
                                            currentMapStateProvider),
                 new MainCharacterEntityRenderer(characterProvider,
                                                 characterRendererProvider,
-                                                chatBubbleProvider,
                                                 renderOffsetCalculator,
                                                 transparent: false),
                 new DownWallLayerRenderer(nativeGraphicsManager,
@@ -83,13 +81,11 @@ namespace EndlessClient.Rendering.Map
                                            currentMapStateProvider),
                 new OtherCharacterEntityRenderer(characterProvider,
                                                  characterRendererProvider,
-                                                 chatBubbleProvider,
                                                  characterStateCache,
                                                  renderOffsetCalculator),
                 new NPCEntityRenderer(characterProvider,
                                       renderOffsetCalculator,
-                                      npcRendererProvider,
-                                      chatBubbleProvider),
+                                      npcRendererProvider),
                 new Overlay2LayerRenderer(nativeGraphicsManager,
                                       currentMapProvider,
                                       characterProvider,
@@ -104,7 +100,6 @@ namespace EndlessClient.Rendering.Map
                                        renderOffsetCalculator),
                 new MainCharacterEntityRenderer(characterProvider,
                                                 characterRendererProvider,
-                                                chatBubbleProvider,
                                                 renderOffsetCalculator,
                                                 transparent: true)
             };

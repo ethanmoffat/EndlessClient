@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace EndlessClient.Rendering.Map
 {
@@ -60,12 +60,20 @@ namespace EndlessClient.Rendering.Map
 
         private void RemoveStaleSpikeTraps()
         {
-            _currentMapStateRepository.VisibleSpikeTraps.RemoveWhere(
-                spike => _currentMapStateRepository.Characters
-                                                   .Concat(new[] { _characterProvider.MainCharacter })
-                                                   .Select(x => x.RenderProperties)
-                                                   .All(x => x.MapX != spike.X && x.MapY != spike.Y));
+            var staleTraps = new List<MapCoordinate>();
 
+            foreach (var spikeTrap in _currentMapStateRepository.VisibleSpikeTraps)
+            {
+                if (_currentMapStateRepository.Characters.Values
+                    .Concat(new[] { _characterProvider.MainCharacter })
+                    .Select(x => x.RenderProperties)
+                    .All(x => x.MapX != spikeTrap.X && x.MapY != spikeTrap.Y))
+                {
+                    staleTraps.Add(spikeTrap);
+                }
+            }
+
+            _currentMapStateRepository.VisibleSpikeTraps.RemoveWhere(staleTraps.Contains);
         }
     }
 

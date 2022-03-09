@@ -251,7 +251,7 @@ namespace EOBot.Interpreter
             var ms = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICurrentMapStateProvider>();
 
             var mapStateObj = new RuntimeEvaluatedMemberObjectVariable();
-            mapStateObj.SymbolTable["characters"] = (true, () => new ArrayVariable(ms.Characters.Select(GetMapStateCharacter).ToList()));
+            mapStateObj.SymbolTable["characters"] = (true, () => new ArrayVariable(ms.Characters.Values.Select(GetMapStateCharacter).ToList()));
             mapStateObj.SymbolTable["npcs"] = (true, () => new ArrayVariable(ms.NPCs.Select(GetMapStateNPC).ToList()));
             mapStateObj.SymbolTable["items"] = (true, () => new ArrayVariable(ms.MapItems.Select(GetMapStateItem).ToList()));
 

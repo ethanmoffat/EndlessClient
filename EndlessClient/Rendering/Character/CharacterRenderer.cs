@@ -2,6 +2,7 @@
 using System.Linq;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering.CharacterProperties;
+using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
@@ -23,6 +24,7 @@ namespace EndlessClient.Rendering.Character
     {
         private readonly IRenderTargetFactory _renderTargetFactory;
         private readonly IHealthBarRendererFactory _healthBarRendererFactory;
+        private readonly IChatBubbleFactory _chatBubbleFactory;
         private readonly ICharacterProvider _characterProvider;
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
         private readonly ICharacterPropertyRendererBuilder _characterPropertyRendererBuilder;
@@ -46,6 +48,7 @@ namespace EndlessClient.Rendering.Character
         private DateTime? _spellCastTime;
 
         private IHealthBarRenderer _healthBarRenderer;
+        private IChatBubble _chatBubble;
 
         public ICharacter Character
         {
@@ -76,6 +79,7 @@ namespace EndlessClient.Rendering.Character
                                  Game game,
                                  IRenderTargetFactory renderTargetFactory,
                                  IHealthBarRendererFactory healthBarRendererFactory,
+                                 IChatBubbleFactory chatBubbleFactory,
                                  ICharacterProvider characterProvider,
                                  IRenderOffsetCalculator renderOffsetCalculator,
                                  ICharacterPropertyRendererBuilder characterPropertyRendererBuilder,
@@ -88,6 +92,7 @@ namespace EndlessClient.Rendering.Character
         {
             _renderTargetFactory = renderTargetFactory;
             _healthBarRendererFactory = healthBarRendererFactory;
+            _chatBubbleFactory = chatBubbleFactory;
             _characterProvider = characterProvider;
             _renderOffsetCalculator = renderOffsetCalculator;
             _characterPropertyRendererBuilder = characterPropertyRendererBuilder;
@@ -108,14 +113,19 @@ namespace EndlessClient.Rendering.Character
 
             _nameLabel = new BlinkingLabel(Constants.FontSize08pt5)
             {
-                Visible = true,
+                Visible = _gameStateProvider.CurrentState == GameStates.PlayingTheGame,
                 TextWidth = 89,
                 TextAlign = LabelAlignment.MiddleCenter,
                 ForeColor = Color.White,
                 AutoSize = true,
-                Text = _character?.Name ?? string.Empty
+                Text = _character?.Name ?? string.Empty,
+                DrawOrder = 30,
+                KeepInClientWindowBounds = false,
             };
             _nameLabel.Initialize();
+
+            if (!_nameLabel.Game.Components.Contains(_nameLabel))
+                _nameLabel.Game.Components.Add(_nameLabel);
 
             _nameLabel.DrawPosition = GetNameLabelPosition();
             _previousMouseState = _currentMouseState = Mouse.GetState();
@@ -129,11 +139,8 @@ namespace EndlessClient.Rendering.Character
         {
             _characterTextures.Refresh(_character.RenderProperties);
 
-            if (_gameStateProvider.CurrentState == GameStates.None)
-            {
-                _outline = new Texture2D(GraphicsDevice, 1, 1);
-                _outline.SetData(new[] { Color.White });
-            }
+            _outline = new Texture2D(GraphicsDevice, 1, 1);
+            _outline.SetData(new[] { Color.White });
 
             base.LoadContent();
         }
@@ -218,13 +225,6 @@ namespace EndlessClient.Rendering.Character
             _effectRenderer.DrawInFrontOfTarget(spriteBatch);
 
             _healthBarRenderer.DrawToSpriteBatch(spriteBatch);
-
-            if (Visible)
-            {
-                spriteBatch.End();
-                _nameLabel.Draw(new GameTime());
-                spriteBatch.Begin();
-            }
         }
 
         #endregion
@@ -239,10 +239,7 @@ namespace EndlessClient.Rendering.Character
             int i = 0;
             while (i < skinData.Length && skinData[i].A == 0) i++;
 
-            var firstPixelHeight = i == skinData.Length - 1 ? 0 : i/spriteForSkin.SourceRectangle.Height;
-            var genderOffset = renderProperties.Gender == 0 ? 12 : 13;
-
-            return genderOffset + firstPixelHeight;
+            return i == skinData.Length - 1 ? 0 : i/spriteForSkin.SourceRectangle.Height;
         }
 
         #endregion
@@ -348,13 +345,12 @@ namespace EndlessClient.Rendering.Character
             }
 
             _nameLabel.DrawPosition = GetNameLabelPosition();
-            _nameLabel.Update(gameTime);
         }
 
         private Vector2 GetNameLabelPosition()
         {
             return new Vector2(DrawArea.X - Math.Abs(DrawArea.Width - _nameLabel.ActualWidth) / 2,
-                               DrawArea.Y - 4 - _nameLabel.ActualHeight);
+                               TopPixelWithOffset - 8 - _nameLabel.ActualHeight);
         }
 
         private bool GetIsSteppingStone(ICharacterRenderProperties renderProps)
@@ -362,8 +358,8 @@ namespace EndlessClient.Rendering.Character
             if (_gameStateProvider.CurrentState != GameStates.PlayingTheGame)
                 return false;
 
-            return _currentMapProvider.CurrentMap.Tiles[renderProps.MapY, renderProps.MapX] == TileSpec.Jump ||
-                (renderProps.IsActing(CharacterActionState.Walking) && _currentMapProvider.CurrentMap.Tiles[renderProps.GetDestinationY(), renderProps.GetDestinationX()] == TileSpec.Jump);
+            return _currentMapProvider.CurrentMap.Tiles[renderProps.MapY, renderProps.MapX] == TileSpec.Jump
+                || (renderProps.IsActing(CharacterActionState.Walking) && _currentMapProvider.CurrentMap.Tiles[renderProps.GetDestinationY(), renderProps.GetDestinationX()] == TileSpec.Jump);
         }
 
         private int GetSteppingStoneOffset(ICharacterRenderProperties renderProps)
@@ -450,6 +446,13 @@ namespace EndlessClient.Rendering.Character
                 _healthBarRenderer.SetHealth(damage, percentHealth);
             else
                 _healthBarRenderer.SetDamage(damage == 0 ? Optional<int>.Empty : new Optional<int>(damage), percentHealth);
+        }
+
+        public void ShowChatBubble(string message, bool isGroupChat)
+        {
+            if (_chatBubble == null)
+                _chatBubble = _chatBubbleFactory.CreateChatBubble(this);
+            _chatBubble.SetMessage(message, isGroupChat);
         }
 
         protected override void Dispose(bool disposing)

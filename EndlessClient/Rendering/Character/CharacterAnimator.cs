@@ -1,109 +1,151 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using EndlessClient.GameExecution;
+﻿using EndlessClient.GameExecution;
+using EndlessClient.HUD;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace EndlessClient.Rendering.Character
 {
     public class CharacterAnimator : GameComponent, ICharacterAnimator
     {
-        public const int WALK_FRAME_TIME_MS = 100;
-        public const int ATTACK_FRAME_TIME_MS = 285;
+        public const int WALK_FRAME_TIME_MS = 120;
+        public const int ATTACK_FRAME_TIME_MS = 100;
 
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly ICurrentMapProvider _currentMapProvider;
+        private readonly ICharacterActions _characterActions;
+        private readonly IWalkValidationActions _walkValidationActions;
+        private readonly IPathFinder _pathFinder;
+
+        private readonly Dictionary<int, EODirection> _queuedDirections;
+        private readonly Dictionary<int, MapCoordinate> _queuedPositions;
         private readonly Dictionary<int, RenderFrameActionTime> _otherPlayerStartWalkingTimes;
         private readonly Dictionary<int, RenderFrameActionTime> _otherPlayerStartAttackingTimes;
         private readonly Dictionary<int, RenderFrameActionTime> _otherPlayerStartSpellCastTimes;
 
+        private Queue<MapCoordinate> _walkPath;
+        private MapCoordinate? _targetCoordinate;
+
         public CharacterAnimator(IEndlessGameProvider gameProvider,
                                  ICharacterRepository characterRepository,
                                  ICurrentMapStateRepository currentMapStateRepository,
-                                 ICurrentMapProvider currentMapProvider)
+                                 ICurrentMapProvider currentMapProvider,
+                                 ICharacterActions characterActions,
+                                 IWalkValidationActions walkValidationActions,
+                                 IPathFinder pathFinder)
             : base((Game) gameProvider.Game)
         {
             _characterRepository = characterRepository;
             _currentMapStateRepository = currentMapStateRepository;
             _currentMapProvider = currentMapProvider;
+            _characterActions = characterActions;
+            _walkValidationActions = walkValidationActions;
+            _pathFinder = pathFinder;
+            _queuedDirections = new Dictionary<int, EODirection>();
+            _queuedPositions = new Dictionary<int, MapCoordinate>();
             _otherPlayerStartWalkingTimes = new Dictionary<int, RenderFrameActionTime>();
             _otherPlayerStartAttackingTimes = new Dictionary<int, RenderFrameActionTime>();
             _otherPlayerStartSpellCastTimes = new Dictionary<int, RenderFrameActionTime>();
+            _walkPath = new Queue<MapCoordinate>();
         }
 
         public override void Update(GameTime gameTime)
         {
-            var now = DateTime.Now;
-
-            AnimateCharacterWalking(now);
-            AnimateCharacterAttacking(now);
-            AnimateCharacterSpells(now);
+            AnimateCharacterWalking();
+            AnimateCharacterAttacking();
+            AnimateCharacterSpells();
 
             base.Update(gameTime);
         }
 
-        public bool IsAttacking(int characterId)
-        {
-            return _otherPlayerStartAttackingTimes.ContainsKey(characterId);
-        }
-
-        public void StartMainCharacterWalkAnimation()
+        public void MainCharacterFace(EODirection direction)
         {
             if (_otherPlayerStartWalkingTimes.ContainsKey(_characterRepository.MainCharacter.ID))
+            {
+                _queuedDirections[_characterRepository.MainCharacter.ID] = direction;
                 return;
+            }
 
-            var startWalkingTime = new RenderFrameActionTime(_characterRepository.MainCharacter.ID, GetStartingAnimationTime(WALK_FRAME_TIME_MS));
+            var renderProperties = _characterRepository.MainCharacter.RenderProperties.WithDirection(direction);
+            var newMainCharacter = _characterRepository.MainCharacter.WithRenderProperties(renderProperties);
+            _characterRepository.MainCharacter = newMainCharacter;
+
+            _characterActions.Face(direction);
+        }
+
+        public void StartMainCharacterWalkAnimation(MapCoordinate? targetCoordinate = null)
+        {
+            _walkPath.Clear();
+            if (targetCoordinate.HasValue)
+            {
+                _targetCoordinate = targetCoordinate;
+
+                var rp = _characterRepository.MainCharacter.RenderProperties;
+                var characterCoord = new MapCoordinate(rp.MapX, rp.MapY);
+
+                _walkPath = _pathFinder.FindPath(characterCoord, _targetCoordinate.Value);
+
+                if (!_otherPlayerStartWalkingTimes.ContainsKey(_characterRepository.MainCharacter.ID))
+                {
+                    rp = FaceTarget(characterCoord, _walkPath.Peek(), rp);
+                    _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithRenderProperties(rp);
+                }
+            }
+
+            if (_otherPlayerStartWalkingTimes.ContainsKey(_characterRepository.MainCharacter.ID))
+            {
+                _otherPlayerStartWalkingTimes[_characterRepository.MainCharacter.ID].Replay = true;
+                return;
+            }
+
+            var startWalkingTime = new RenderFrameActionTime(_characterRepository.MainCharacter.ID);
             _otherPlayerStartWalkingTimes.Add(_characterRepository.MainCharacter.ID, startWalkingTime);
+
+            _characterActions.Walk();
         }
 
         public void StartMainCharacterAttackAnimation()
         {
             if (_otherPlayerStartAttackingTimes.ContainsKey(_characterRepository.MainCharacter.ID))
+            {
+                _otherPlayerStartAttackingTimes[_characterRepository.MainCharacter.ID].Replay = true;
                 return;
+            }
 
-            var isRangedWeapon = GetCurrentCharacterFromRepository(new RenderFrameActionTime(_characterRepository.MainCharacter.ID, Optional<DateTime>.Empty))
-                .RenderProperties.IsRangedWeapon;
-            var startAttackingTime = new RenderFrameActionTime(_characterRepository.MainCharacter.ID, GetStartingAnimationTime(ATTACK_FRAME_TIME_MS, isRangedWeapon));
+            var startAttackingTime = new RenderFrameActionTime(_characterRepository.MainCharacter.ID);
             _otherPlayerStartAttackingTimes.Add(_characterRepository.MainCharacter.ID, startAttackingTime);
         }
 
-        public void StartOtherCharacterWalkAnimation(int characterID)
+        public void StartOtherCharacterWalkAnimation(int characterID, byte destinationX, byte destinationY, EODirection direction)
         {
-            if (_otherPlayerStartWalkingTimes.ContainsKey(characterID) ||
-                _otherPlayerStartSpellCastTimes.ContainsKey(characterID))
-                return;
-
-            if (_otherPlayerStartWalkingTimes.TryGetValue(characterID, out var existingStartTime))
+            if (_otherPlayerStartWalkingTimes.TryGetValue(characterID, out var _))
             {
-                ResetCharacterAnimationFrames(characterID);
-                _otherPlayerStartWalkingTimes.Remove(characterID);
+                _otherPlayerStartWalkingTimes[characterID].Replay = true;
+                _queuedDirections[characterID] = direction;
+                _queuedPositions[characterID] = new MapCoordinate(destinationX, destinationY);
+                return;
             }
 
-            var startWalkingTimeAndID = new RenderFrameActionTime(characterID, GetStartingAnimationTime(WALK_FRAME_TIME_MS));
+            var startWalkingTimeAndID = new RenderFrameActionTime(characterID);
             _otherPlayerStartWalkingTimes.Add(characterID, startWalkingTimeAndID);
         }
 
         public void StartOtherCharacterAttackAnimation(int characterID)
         {
-            if (_otherPlayerStartWalkingTimes.ContainsKey(characterID) ||
-                _otherPlayerStartSpellCastTimes.ContainsKey(characterID))
-                return;
-
-            if (_otherPlayerStartAttackingTimes.TryGetValue(characterID, out var existingStartTime))
+            if (_otherPlayerStartAttackingTimes.TryGetValue(characterID, out var _))
             {
-                ResetCharacterAnimationFrames(characterID);
-                _otherPlayerStartAttackingTimes.Remove(characterID);
+                _otherPlayerStartAttackingTimes[characterID].Replay = true;
+                return;
             }
 
-            var isRangedWeapon = GetCurrentCharacterFromRepository(new RenderFrameActionTime(characterID, Optional<DateTime>.Empty))
-                .RenderProperties.IsRangedWeapon;
-            var startAttackingTimeAndID = new RenderFrameActionTime(characterID, GetStartingAnimationTime(ATTACK_FRAME_TIME_MS, isRangedWeapon));
+            var startAttackingTimeAndID = new RenderFrameActionTime(characterID);
             _otherPlayerStartAttackingTimes.Add(characterID, startAttackingTimeAndID);
         }
 
@@ -113,15 +155,13 @@ namespace EndlessClient.Rendering.Character
                 _otherPlayerStartAttackingTimes.ContainsKey(characterID))
                 return;
 
-            if (_otherPlayerStartSpellCastTimes.TryGetValue(characterID, out var existingStartTime))
+            if (_otherPlayerStartSpellCastTimes.TryGetValue(characterID, out var _))
             {
                 ResetCharacterAnimationFrames(characterID);
                 _otherPlayerStartSpellCastTimes.Remove(characterID);
             }
 
-            var isRangedWeapon = GetCurrentCharacterFromRepository(new RenderFrameActionTime(characterID, Optional<DateTime>.Empty))
-                .RenderProperties.IsRangedWeapon;
-            var startAttackingTimeAndID = new RenderFrameActionTime(characterID, GetStartingAnimationTime(ATTACK_FRAME_TIME_MS, isRangedWeapon));
+            var startAttackingTimeAndID = new RenderFrameActionTime(characterID);
             _otherPlayerStartSpellCastTimes.Add(characterID, startAttackingTimeAndID);
         }
 
@@ -130,25 +170,27 @@ namespace EndlessClient.Rendering.Character
             _otherPlayerStartWalkingTimes.Clear();
             _otherPlayerStartAttackingTimes.Clear();
             _otherPlayerStartSpellCastTimes.Clear();
+            _walkPath.Clear();
 
             _characterRepository.MainCharacter =
                 _characterRepository.MainCharacter.WithRenderProperties(
                     _characterRepository.MainCharacter.RenderProperties.ResetAnimationFrames());
 
-            _currentMapStateRepository.Characters =
-                new HashSet<ICharacter>(
-                    _currentMapStateRepository.Characters.Select(x => x.WithRenderProperties(x.RenderProperties.ResetAnimationFrames())));
+            _currentMapStateRepository.Characters = _currentMapStateRepository.Characters.Values
+                .Select(c => c.WithRenderProperties(c.RenderProperties.ResetAnimationFrames()))
+                .ToDictionary(k => k.ID, v => v);
         }
 
         #region Walk Animation
 
-        private void AnimateCharacterWalking(DateTime now)
+        private void AnimateCharacterWalking()
         {
             var playersDoneWalking = new List<int>();
             foreach (var pair in _otherPlayerStartWalkingTimes.Values)
             {
-                if (pair.ActionStartTime.HasValue &&
-                    (now - pair.ActionStartTime).TotalMilliseconds > WALK_FRAME_TIME_MS)
+                var sendWalk = false;
+
+                if (pair.ActionTimer.ElapsedMilliseconds >= WALK_FRAME_TIME_MS)
                 {
                     var currentCharacter = GetCurrentCharacterFromRepository(pair);
                     if (currentCharacter == null)
@@ -160,12 +202,72 @@ namespace EndlessClient.Rendering.Character
                     var renderProperties = currentCharacter.RenderProperties;
                     var nextFrameRenderProperties = AnimateOneWalkFrame(renderProperties);
 
-                    pair.UpdateActionStartTime(GetUpdatedActionTime(now, nextFrameRenderProperties));
-                    if (!pair.ActionStartTime.HasValue)
-                        playersDoneWalking.Add(pair.UniqueID);
+                    pair.UpdateActionStartTime();
+                    if (nextFrameRenderProperties.IsActing(CharacterActionState.Standing))
+                    {
+                        var isMainCharacter = currentCharacter == _characterRepository.MainCharacter;
+
+                        if (pair.Replay)
+                        {
+                            if (!isMainCharacter || (isMainCharacter && _walkValidationActions.CanMoveToCoordinates(nextFrameRenderProperties.GetDestinationX(), nextFrameRenderProperties.GetDestinationY())))
+                            {
+                                // send the walk packet after the game state has been updated so the correct coordinates are sent
+                                sendWalk = isMainCharacter;
+                                nextFrameRenderProperties = AnimateOneWalkFrame(nextFrameRenderProperties.ResetAnimationFrames());
+                                pair.Replay = false;
+
+                                if (_queuedDirections.ContainsKey(pair.UniqueID))
+                                {
+                                    nextFrameRenderProperties = nextFrameRenderProperties.WithDirection(_queuedDirections[pair.UniqueID]);
+                                    _queuedDirections.Remove(pair.UniqueID);
+                                }
+                            }
+                            else
+                            {
+                                // tried to replay but the new destination position is not walkable
+                                playersDoneWalking.Add(pair.UniqueID);
+                            }
+                        }
+                        else if (isMainCharacter && _walkPath.Any())
+                        {
+                            var characterCoord = new MapCoordinate(nextFrameRenderProperties.MapX, nextFrameRenderProperties.MapY);
+
+                            _walkPath = _pathFinder.FindPath(characterCoord, _targetCoordinate.Value);
+
+                            if (_walkPath.Any())
+                            {
+                                var next = _walkPath.Dequeue();
+                                nextFrameRenderProperties = FaceTarget(characterCoord, next, nextFrameRenderProperties);
+
+                                sendWalk = true;
+                                nextFrameRenderProperties = AnimateOneWalkFrame(nextFrameRenderProperties.ResetAnimationFrames());
+                            }
+                            else
+                            {
+                                playersDoneWalking.Add(pair.UniqueID);
+                            }
+                        }
+                        else
+                        {
+                            if (_queuedPositions.ContainsKey(pair.UniqueID))
+                            {
+                                nextFrameRenderProperties = nextFrameRenderProperties
+                                    .WithMapX(_queuedPositions[pair.UniqueID].X)
+                                    .WithMapY(_queuedPositions[pair.UniqueID].Y);
+                                _queuedPositions.Remove(pair.UniqueID);
+                            }
+
+                            playersDoneWalking.Add(pair.UniqueID);
+                        }
+                    }
 
                     var nextFrameCharacter = currentCharacter.WithRenderProperties(nextFrameRenderProperties);
                     UpdateCharacterInRepository(currentCharacter, nextFrameCharacter);
+
+                    if (sendWalk)
+                    {
+                        _characterActions.Walk();
+                    }
                 }
             }
 
@@ -175,8 +277,8 @@ namespace EndlessClient.Rendering.Character
 
         private ICharacterRenderProperties AnimateOneWalkFrame(ICharacterRenderProperties renderProperties)
         {
-            var isSteppingStone = _currentMapProvider.CurrentMap.Tiles[renderProperties.MapY, renderProperties.MapX] == TileSpec.Jump ||
-                _currentMapProvider.CurrentMap.Tiles[renderProperties.GetDestinationY(), renderProperties.GetDestinationX()] == TileSpec.Jump;
+            var isSteppingStone = _currentMapProvider.CurrentMap.Tiles[renderProperties.MapY, renderProperties.MapX] == TileSpec.Jump
+                || _currentMapProvider.CurrentMap.Tiles[renderProperties.GetDestinationY(), renderProperties.GetDestinationX()] == TileSpec.Jump;
 
             var nextFrameRenderProperties = renderProperties.WithNextWalkFrame(isSteppingStone);
             if (nextFrameRenderProperties.CurrentAction != CharacterActionState.Walking)
@@ -189,17 +291,43 @@ namespace EndlessClient.Rendering.Character
             return nextFrameRenderProperties;
         }
 
+        private ICharacterRenderProperties FaceTarget(MapCoordinate characterCoord, MapCoordinate next, ICharacterRenderProperties rp)
+        {
+            var diff = next - characterCoord;
+
+            if (diff.X != 0 && diff.Y != 0)
+                throw new InvalidOperationException("Trying to move in a diagonal.");
+
+            if (diff.X < 0)
+            {
+                return rp.WithDirection(EODirection.Left);
+            }
+            else if (diff.X > 0)
+            {
+                return rp.WithDirection(EODirection.Right);
+            }
+            else if (diff.Y < 0)
+            {
+                return rp.WithDirection(EODirection.Up);
+            }
+            else if (diff.Y > 0)
+            {
+                return rp.WithDirection(EODirection.Down);
+            }
+
+            return rp;
+        }
+
         #endregion
 
         #region Attack Animation
 
-        private void AnimateCharacterAttacking(DateTime now)
+        private void AnimateCharacterAttacking()
         {
             var playersDoneAttacking = new HashSet<int>();
             foreach (var pair in _otherPlayerStartAttackingTimes.Values)
             {
-                if (pair.ActionStartTime.HasValue &&
-                    (now - pair.ActionStartTime).TotalMilliseconds > ATTACK_FRAME_TIME_MS)
+                if (pair.ActionTimer.ElapsedMilliseconds >= ATTACK_FRAME_TIME_MS)
                 {
                     var currentCharacter = GetCurrentCharacterFromRepository(pair);
                     if (currentCharacter == null)
@@ -211,9 +339,20 @@ namespace EndlessClient.Rendering.Character
                     var renderProperties = currentCharacter.RenderProperties;
                     var nextFrameRenderProperties = renderProperties.WithNextAttackFrame();
 
-                    pair.UpdateActionStartTime(GetUpdatedActionTime(now, nextFrameRenderProperties));
-                    if (!pair.ActionStartTime.HasValue)
-                        playersDoneAttacking.Add(pair.UniqueID);
+                    pair.UpdateActionStartTime();
+                    if (nextFrameRenderProperties.IsActing(CharacterActionState.Standing))
+                    {
+                        if (pair.Replay)
+                        {
+                            nextFrameRenderProperties = renderProperties.ResetAnimationFrames()
+                                .WithNextAttackFrame();
+                            pair.Replay = false;
+                        }
+                        else
+                        {
+                            playersDoneAttacking.Add(pair.UniqueID);
+                        }
+                    }
 
                     var nextFrameCharacter = currentCharacter.WithRenderProperties(nextFrameRenderProperties);
                     UpdateCharacterInRepository(currentCharacter, nextFrameCharacter);
@@ -228,13 +367,12 @@ namespace EndlessClient.Rendering.Character
 
         #region Spell Animation
 
-        private void AnimateCharacterSpells(DateTime now)
+        private void AnimateCharacterSpells()
         {
             var playersDoneCasting = new HashSet<int>();
             foreach (var pair in _otherPlayerStartSpellCastTimes.Values)
             {
-                if (pair.ActionStartTime.HasValue &&
-                    (now - pair.ActionStartTime).TotalMilliseconds > ATTACK_FRAME_TIME_MS)
+                if (pair.ActionTimer.ElapsedMilliseconds >= ATTACK_FRAME_TIME_MS)
                 {
                     var currentCharacter = GetCurrentCharacterFromRepository(pair);
                     if (currentCharacter == null)
@@ -246,8 +384,8 @@ namespace EndlessClient.Rendering.Character
                     var renderProperties = currentCharacter.RenderProperties;
                     var nextFrameRenderProperties = renderProperties.WithNextSpellCastFrame();
 
-                    pair.UpdateActionStartTime(GetUpdatedActionTime(now, nextFrameRenderProperties));
-                    if (!pair.ActionStartTime.HasValue)
+                    pair.UpdateActionStartTime();
+                    if (nextFrameRenderProperties.IsActing(CharacterActionState.Standing))
                         playersDoneCasting.Add(pair.UniqueID);
 
                     var nextFrameCharacter = currentCharacter.WithRenderProperties(nextFrameRenderProperties);
@@ -261,18 +399,13 @@ namespace EndlessClient.Rendering.Character
 
         #endregion
 
-        private static Optional<DateTime> GetUpdatedActionTime(DateTime now, ICharacterRenderProperties nextFrameRenderProperties)
-        {
-            return nextFrameRenderProperties.IsActing(CharacterActionState.Standing)
-                ? Optional<DateTime>.Empty
-                : new Optional<DateTime>(now);
-        }
-
         private ICharacter GetCurrentCharacterFromRepository(RenderFrameActionTime pair)
         {
             return pair.UniqueID == _characterRepository.MainCharacter.ID
                 ? _characterRepository.MainCharacter
-                : _currentMapStateRepository.Characters.SingleOrDefault(x => x.ID == pair.UniqueID);
+                : _currentMapStateRepository.Characters.ContainsKey(pair.UniqueID)
+                    ? _currentMapStateRepository.Characters[pair.UniqueID]
+                    : null;
         }
 
         private void UpdateCharacterInRepository(ICharacter currentCharacter, ICharacter nextFrameCharacter)
@@ -283,38 +416,28 @@ namespace EndlessClient.Rendering.Character
             }
             else
             {
-                _currentMapStateRepository.Characters.Remove(currentCharacter);
-                _currentMapStateRepository.Characters.Add(nextFrameCharacter);
+                _currentMapStateRepository.Characters[nextFrameCharacter.ID] = nextFrameCharacter;
             }
         }
 
         private void ResetCharacterAnimationFrames(int characterID)
         {
-            var character = _currentMapStateRepository.Characters.Single(x => x.ID == characterID);
+            var character = _currentMapStateRepository.Characters[characterID];
             var renderProps = character.RenderProperties.ResetAnimationFrames();
             var newCharacter = character.WithRenderProperties(renderProps);
-            _currentMapStateRepository.Characters.Remove(character);
-            _currentMapStateRepository.Characters.Add(newCharacter);
-        }
-
-        private static DateTime GetStartingAnimationTime(int frameTimer, bool isRangedWeapon = false)
-        {
-            // make the first frame very short for animation
-            // this works around a bug where the first frame is delayed for (seemingly) no good reason
-            // maybe I will eventually figure out why that was happening but this seems to work just fine for now
-            return DateTime.Now.AddMilliseconds(isRangedWeapon ? 0 : -frameTimer);
+            _currentMapStateRepository.Characters[characterID] = newCharacter;
         }
     }
 
     public interface ICharacterAnimator : IGameComponent
     {
-        bool IsAttacking(int characterId);
+        void MainCharacterFace(EODirection direction);
 
-        void StartMainCharacterWalkAnimation();
+        void StartMainCharacterWalkAnimation(MapCoordinate? targetCoordinate = null);
 
         void StartMainCharacterAttackAnimation();
 
-        void StartOtherCharacterWalkAnimation(int characterID);
+        void StartOtherCharacterWalkAnimation(int characterID, byte targetX, byte targetY, EODirection direction);
 
         void StartOtherCharacterAttackAnimation(int characterID);
 
