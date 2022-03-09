@@ -30,7 +30,6 @@ namespace EndlessClient.Rendering.Map
         private readonly ICharacterRendererUpdater _characterRendererUpdater;
         private readonly INPCRendererUpdater _npcRendererUpdater;
         private readonly IDynamicMapObjectUpdater _dynamicMapObjectUpdater;
-        private readonly IChatBubbleUpdater _chatBubbleUpdater;
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IMouseCursorRenderer _mouseCursorRenderer;
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
@@ -61,7 +60,6 @@ namespace EndlessClient.Rendering.Map
                            ICharacterRendererUpdater characterRendererUpdater,
                            INPCRendererUpdater npcRendererUpdater,
                            IDynamicMapObjectUpdater dynamicMapObjectUpdater,
-                           IChatBubbleUpdater chatBubbleUpdater,
                            IConfigurationProvider configurationProvider,
                            IMouseCursorRenderer mouseCursorRenderer,
                            IRenderOffsetCalculator renderOffsetCalculator)
@@ -75,7 +73,6 @@ namespace EndlessClient.Rendering.Map
             _characterRendererUpdater = characterRendererUpdater;
             _npcRendererUpdater = npcRendererUpdater;
             _dynamicMapObjectUpdater = dynamicMapObjectUpdater;
-            _chatBubbleUpdater = chatBubbleUpdater;
             _configurationProvider = configurationProvider;
             _mouseCursorRenderer = mouseCursorRenderer;
             _renderOffsetCalculator = renderOffsetCalculator;
@@ -88,6 +85,8 @@ namespace EndlessClient.Rendering.Map
             _sb = new SpriteBatch(Game.GraphicsDevice);
 
             _mouseCursorRenderer.Initialize();
+
+            DrawOrder = -10;
 
             base.Initialize();
         }
@@ -111,7 +110,6 @@ namespace EndlessClient.Rendering.Map
                 _characterRendererUpdater.UpdateCharacters(gameTime);
                 _npcRendererUpdater.UpdateNPCs(gameTime);
                 _dynamicMapObjectUpdater.UpdateMapObjects(gameTime);
-                _chatBubbleUpdater.UpdateChatBubbles(gameTime);
 
                 if (MouseOver)
                     _mouseCursorRenderer.Update(gameTime);

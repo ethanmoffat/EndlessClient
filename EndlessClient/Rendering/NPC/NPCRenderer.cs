@@ -2,6 +2,7 @@
 using System.Linq;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Character;
+using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
@@ -28,6 +29,7 @@ namespace EndlessClient.Rendering.NPC
         private readonly INPCSpriteSheet _npcSpriteSheet;
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
         private readonly IHealthBarRendererFactory _healthBarRendererFactory;
+        private readonly IChatBubbleFactory _chatBubbleFactory;
         private readonly Rectangle _baseTextureFrameRectangle;
         private readonly int _readonlyTopPixel, _readonlyBottomPixel;
         private readonly bool _hasStandingAnimation;
@@ -41,6 +43,7 @@ namespace EndlessClient.Rendering.NPC
         private MouseState _currentMouseState;
 
         private XNALabel _nameLabel;
+        private IChatBubble _chatBubble;
 
         public int TopPixel => _readonlyTopPixel;
 
@@ -67,6 +70,7 @@ namespace EndlessClient.Rendering.NPC
                            INPCSpriteSheet npcSpriteSheet,
                            IRenderOffsetCalculator renderOffsetCalculator,
                            IHealthBarRendererFactory healthBarRendererFactory,
+                           IChatBubbleFactory chatBubbleFactory,
                            INPC initialNPC)
             : base((Game)endlessGameProvider.Game)
         {
@@ -77,6 +81,7 @@ namespace EndlessClient.Rendering.NPC
             _npcSpriteSheet = npcSpriteSheet;
             _renderOffsetCalculator = renderOffsetCalculator;
             _healthBarRendererFactory = healthBarRendererFactory;
+            _chatBubbleFactory = chatBubbleFactory;
             _baseTextureFrameRectangle = GetStandingFrameRectangle();
             _readonlyTopPixel = GetTopPixel();
             _readonlyBottomPixel = GetBottomPixel();
@@ -101,7 +106,8 @@ namespace EndlessClient.Rendering.NPC
                 ForeColor = Color.White,
                 AutoSize = true,
                 Text = _enfFileProvider.ENFFile[NPC.ID].Name,
-                DrawOrder = 100,
+                DrawOrder = 30,
+                KeepInClientWindowBounds = false,
             };
             _nameLabel.Initialize();
 
@@ -124,7 +130,7 @@ namespace EndlessClient.Rendering.NPC
             UpdateStandingFrameAnimation();
             UpdateDeadState();
 
-            _nameLabel.Visible = DrawArea.Contains(_currentMouseState.Position) && !_healthBarRenderer.Visible;
+            _nameLabel.Visible = DrawArea.Contains(_currentMouseState.Position) && !_healthBarRenderer.Visible && !_isDying;
             _nameLabel.DrawPosition = GetNameLabelPosition();
 
             _effectRenderer.Update();
@@ -161,6 +167,13 @@ namespace EndlessClient.Rendering.NPC
         {
             var optionalDamage = damage == 0 ? Optional<int>.Empty : new Optional<int>(damage);
             _healthBarRenderer.SetDamage(optionalDamage, percentHealth);
+        }
+
+        public void ShowChatBubble(string message, bool isGroupChat)
+        {
+            if (_chatBubble == null)
+                _chatBubble = _chatBubbleFactory.CreateChatBubble(this);
+            _chatBubble.SetMessage(message, isGroupChat: false);
         }
 
         #region Effects
@@ -250,7 +263,7 @@ namespace EndlessClient.Rendering.NPC
             // y coordinate Formula courtesy of Apollo
             var xCoord = offsetX + 320 - mainOffsetX - widthFactor;
             var yCoord = (Math.Min(41, _baseTextureFrameRectangle.Width - 23) / 4) + offsetY + 168 - mainOffsetY - _baseTextureFrameRectangle.Height;
-            DrawArea = _baseTextureFrameRectangle.WithPosition(new Vector2(xCoord, yCoord - 8));
+            DrawArea = _baseTextureFrameRectangle.WithPosition(new Vector2(xCoord, yCoord));
 
             var oneGridSize = new Vector2(mainRenderer.DrawArea.Width,
                                           mainRenderer.DrawArea.Height);

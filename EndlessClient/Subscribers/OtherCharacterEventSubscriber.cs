@@ -1,7 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.HUD.Chat;
 using EndlessClient.Rendering.Character;
-using EndlessClient.Rendering.Chat;
 using EOLib.Domain.Notifiers;
 
 namespace EndlessClient.Subscribers
@@ -10,18 +9,12 @@ namespace EndlessClient.Subscribers
     public class OtherCharacterEventSubscriber : IOtherCharacterEventNotifier
     {
         private readonly IChatBubbleActions _chatBubbleActions;
-        private readonly IChatBubbleRepository _chatBubbleRepository;
-        private readonly IChatBubbleTextureProvider _chatBubbleTextureProvider;
         private readonly ICharacterRendererProvider _characterRendererProvider;
 
         public OtherCharacterEventSubscriber(IChatBubbleActions chatBubbleActions,
-                                             IChatBubbleRepository chatBubbleRepository,
-                                             IChatBubbleTextureProvider chatBubbleTextureProvider,
                                              ICharacterRendererProvider characterRendererProvider)
         {
             _chatBubbleActions = chatBubbleActions;
-            _chatBubbleRepository = chatBubbleRepository;
-            _chatBubbleTextureProvider = chatBubbleTextureProvider;
             _characterRendererProvider = characterRendererProvider;
         }
 
@@ -52,18 +45,10 @@ namespace EndlessClient.Subscribers
 
         private void SaySomethingShared(int characterID, string message, bool isGroupChat)
         {
-            IChatBubble chatBubble;
-            if (_chatBubbleRepository.OtherCharacterChatBubbles.TryGetValue(characterID, out chatBubble))
-                chatBubble.SetMessage(message, isGroupChat);
-            else
-            {
-                chatBubble = new ChatBubble(message,
-                                            isGroupChat,
-                                            _characterRendererProvider.CharacterRenderers[characterID],
-                                            _chatBubbleTextureProvider);
+            if (!_characterRendererProvider.CharacterRenderers.ContainsKey(characterID))
+                return;
 
-                _chatBubbleRepository.OtherCharacterChatBubbles.Add(characterID, chatBubble);
-            }
+            _characterRendererProvider.CharacterRenderers[characterID].ShowChatBubble(message, isGroupChat);
         }
     }
 }

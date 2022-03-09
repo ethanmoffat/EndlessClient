@@ -1,30 +1,31 @@
 using AutomaticTypeMapper;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Chat;
+using EndlessClient.Rendering.NPC;
 using EOLib.Domain.Chat;
 
 namespace EndlessClient.HUD.Chat
 {
-    [MappedType(BaseType = typeof(IChatBubbleActions))]
+    [AutoMappedType]
     public class ChatBubbleActions : IChatBubbleActions
     {
-        private readonly IChatBubbleRepository _chatBubbleRepository;
         private readonly IChatProcessor _chatProcessor;
         private readonly IChatTypeCalculator _chatTypeCalculator;
         private readonly ICharacterRendererProvider _characterRendererProvider;
-        private readonly IChatBubbleTextureProvider _chatBubbleTextureProvider;
+        private readonly INPCRendererProvider _npcRendererProvider;
+        private readonly IChatBubbleFactory _chatBubbleFactory;
 
-        public ChatBubbleActions(IChatBubbleRepository chatBubbleRepository,
-                                 IChatProcessor chatProcessor,
+        public ChatBubbleActions(IChatProcessor chatProcessor,
                                  IChatTypeCalculator chatTypeCalculator,
                                  ICharacterRendererProvider characterRendererProvider,
-                                 IChatBubbleTextureProvider chatBubbleTextureProvider)
+                                 INPCRendererProvider npcRendererProvider,
+                                 IChatBubbleFactory chatBubbleFactory)
         {
-            _chatBubbleRepository = chatBubbleRepository;
             _chatProcessor = chatProcessor;
             _chatTypeCalculator = chatTypeCalculator;
             _characterRendererProvider = characterRendererProvider;
-            _chatBubbleTextureProvider = chatBubbleTextureProvider;
+            _npcRendererProvider = npcRendererProvider;
+            _chatBubbleFactory = chatBubbleFactory;
         }
 
         public void ShowChatBubbleForMainCharacter(string input)
@@ -39,20 +40,22 @@ namespace EndlessClient.HUD.Chat
 
             var text = _chatProcessor.RemoveFirstCharacterIfNeeded(input, chatType, string.Empty);
 
-            if (_chatBubbleRepository.MainCharacterChatBubble.HasValue)
-                _chatBubbleRepository.MainCharacterChatBubble.Value.SetMessage(text, chatType == ChatType.Party);
-            else
-            {
-                var chatBubble = new ChatBubble(text,
-                                                _characterRendererProvider.MainCharacterRenderer,
-                                                _chatBubbleTextureProvider);
-                _chatBubbleRepository.MainCharacterChatBubble = chatBubble;
-            }
+            _characterRendererProvider.MainCharacterRenderer.ShowChatBubble(text, chatType == ChatType.Party);
+        }
+
+        public void ShowChatBubbleForNPC(int index, string input)
+        {
+            if (!_npcRendererProvider.NPCRenderers.ContainsKey(index))
+                return;
+
+            _npcRendererProvider.NPCRenderers[index].ShowChatBubble(input);
         }
     }
 
     public interface IChatBubbleActions
     {
         void ShowChatBubbleForMainCharacter(string input);
+
+        void ShowChatBubbleForNPC(int index, string input);
     }
 }

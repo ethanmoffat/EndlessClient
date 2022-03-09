@@ -1,5 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.ControlSets;
+using EndlessClient.HUD.Chat;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Chat;
@@ -16,7 +17,7 @@ namespace EndlessClient.Rendering.NPC
         private readonly INPCStateCache _npcStateCache;
         private readonly INPCRendererRepository _npcRendererRepository;
         private readonly ICharacterRendererRepository _characterRendererRepository;
-        private readonly IChatBubbleRepository _chatBubbleRepository;
+        private readonly IChatBubbleActions _chatBubbleActions;
         private readonly IChatBubbleTextureProvider _chatBubbleTextureProvider;
         private readonly IESFFileProvider _esfFileProvider;
 
@@ -24,7 +25,7 @@ namespace EndlessClient.Rendering.NPC
                           INPCStateCache npcStateCache,
                           INPCRendererRepository npcRendererRepository,
                           ICharacterRendererRepository characterRendererRepository,
-                          IChatBubbleRepository chatBubbleRepository,
+                          IChatBubbleActions chatBubbleActions,
                           IChatBubbleTextureProvider chatBubbleTextureProvider,
                           IESFFileProvider esfFileProvider)
         {
@@ -32,7 +33,7 @@ namespace EndlessClient.Rendering.NPC
             _npcStateCache = npcStateCache;
             _npcRendererRepository = npcRendererRepository;
             _characterRendererRepository = characterRendererRepository;
-            _chatBubbleRepository = chatBubbleRepository;
+            _chatBubbleActions = chatBubbleActions;
             _chatBubbleTextureProvider = chatBubbleTextureProvider;
             _esfFileProvider = esfFileProvider;
         }
@@ -86,17 +87,7 @@ namespace EndlessClient.Rendering.NPC
 
         public void ShowNPCSpeechBubble(int npcIndex, string message)
         {
-            IChatBubble chatBubble;
-            if (_chatBubbleRepository.NPCChatBubbles.TryGetValue(npcIndex, out chatBubble))
-                chatBubble.SetMessage(isGroupChat: false, message: message);
-            else if (_npcRendererRepository.NPCRenderers.ContainsKey(npcIndex))
-            {
-                chatBubble = new ChatBubble(message,
-                                            _npcRendererRepository.NPCRenderers[npcIndex],
-                                            _chatBubbleTextureProvider);
-
-                _chatBubbleRepository.NPCChatBubbles.Add(npcIndex, chatBubble);
-            }
+            _chatBubbleActions.ShowChatBubbleForNPC(npcIndex, message);
         }
 
         public void NPCTakeDamage(short npcIndex, int fromPlayerId, int damageToNpc, short npcPctHealth, Optional<int> spellId)

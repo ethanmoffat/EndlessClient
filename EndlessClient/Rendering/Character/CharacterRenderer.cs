@@ -2,6 +2,7 @@
 using System.Linq;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering.CharacterProperties;
+using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
@@ -23,6 +24,7 @@ namespace EndlessClient.Rendering.Character
     {
         private readonly IRenderTargetFactory _renderTargetFactory;
         private readonly IHealthBarRendererFactory _healthBarRendererFactory;
+        private readonly IChatBubbleFactory _chatBubbleFactory;
         private readonly ICharacterProvider _characterProvider;
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
         private readonly ICharacterPropertyRendererBuilder _characterPropertyRendererBuilder;
@@ -46,6 +48,7 @@ namespace EndlessClient.Rendering.Character
         private DateTime? _spellCastTime;
 
         private IHealthBarRenderer _healthBarRenderer;
+        private IChatBubble _chatBubble;
 
         public ICharacter Character
         {
@@ -76,6 +79,7 @@ namespace EndlessClient.Rendering.Character
                                  Game game,
                                  IRenderTargetFactory renderTargetFactory,
                                  IHealthBarRendererFactory healthBarRendererFactory,
+                                 IChatBubbleFactory chatBubbleFactory,
                                  ICharacterProvider characterProvider,
                                  IRenderOffsetCalculator renderOffsetCalculator,
                                  ICharacterPropertyRendererBuilder characterPropertyRendererBuilder,
@@ -88,6 +92,7 @@ namespace EndlessClient.Rendering.Character
         {
             _renderTargetFactory = renderTargetFactory;
             _healthBarRendererFactory = healthBarRendererFactory;
+            _chatBubbleFactory = chatBubbleFactory;
             _characterProvider = characterProvider;
             _renderOffsetCalculator = renderOffsetCalculator;
             _characterPropertyRendererBuilder = characterPropertyRendererBuilder;
@@ -108,12 +113,14 @@ namespace EndlessClient.Rendering.Character
 
             _nameLabel = new BlinkingLabel(Constants.FontSize08pt5)
             {
-                Visible = true,
+                Visible = _gameStateProvider.CurrentState == GameStates.PlayingTheGame,
                 TextWidth = 89,
                 TextAlign = LabelAlignment.MiddleCenter,
                 ForeColor = Color.White,
                 AutoSize = true,
-                Text = _character?.Name ?? string.Empty
+                Text = _character?.Name ?? string.Empty,
+                DrawOrder = 30,
+                KeepInClientWindowBounds = false,
             };
             _nameLabel.Initialize();
 
@@ -439,6 +446,13 @@ namespace EndlessClient.Rendering.Character
                 _healthBarRenderer.SetHealth(damage, percentHealth);
             else
                 _healthBarRenderer.SetDamage(damage == 0 ? Optional<int>.Empty : new Optional<int>(damage), percentHealth);
+        }
+
+        public void ShowChatBubble(string message, bool isGroupChat)
+        {
+            if (_chatBubble == null)
+                _chatBubble = _chatBubbleFactory.CreateChatBubble(this);
+            _chatBubble.SetMessage(message, isGroupChat);
         }
 
         protected override void Dispose(bool disposing)

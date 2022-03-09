@@ -2,6 +2,7 @@ using AutomaticTypeMapper;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.CharacterProperties;
+using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Sprites;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
@@ -17,6 +18,7 @@ namespace EndlessClient.Rendering.Factories
         private readonly IEndlessGameProvider _gameProvider;
         private readonly IRenderTargetFactory _renderTargetFactory;
         private readonly IHealthBarRendererFactory _healthBarRendererFactory;
+        private readonly IChatBubbleFactory _chatBubbleFactory;
         private readonly ICharacterProvider _characterProvider;
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
         private readonly ICharacterPropertyRendererBuilder _characterPropertyRendererBuilder;
@@ -29,6 +31,7 @@ namespace EndlessClient.Rendering.Factories
                                         IEndlessGameProvider gameProvider,
                                         IRenderTargetFactory renderTargetFactory,
                                         IHealthBarRendererFactory healthBarRendererFactory,
+                                        IChatBubbleFactory chatBubbleFactory,
                                         ICharacterProvider characterProvider,
                                         IRenderOffsetCalculator renderOffsetCalculator,
                                         ICharacterPropertyRendererBuilder characterPropertyRendererBuilder,
@@ -41,6 +44,7 @@ namespace EndlessClient.Rendering.Factories
             _gameProvider = gameProvider;
             _renderTargetFactory = renderTargetFactory;
             _healthBarRendererFactory = healthBarRendererFactory;
+            _chatBubbleFactory = chatBubbleFactory;
             _characterProvider = characterProvider;
             _renderOffsetCalculator = renderOffsetCalculator;
             _characterPropertyRendererBuilder = characterPropertyRendererBuilder;
@@ -57,6 +61,7 @@ namespace EndlessClient.Rendering.Factories
                 (Game) _gameProvider.Game,
                 _renderTargetFactory,
                 _healthBarRendererFactory,
+                _chatBubbleFactory,
                 _characterProvider,
                 _renderOffsetCalculator,
                 _characterPropertyRendererBuilder,

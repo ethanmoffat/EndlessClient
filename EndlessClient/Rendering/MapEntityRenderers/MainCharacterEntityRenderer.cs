@@ -1,5 +1,4 @@
 ﻿using EndlessClient.Rendering.Character;
-using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
@@ -11,18 +10,15 @@ namespace EndlessClient.Rendering.MapEntityRenderers
     public class MainCharacterEntityRenderer : BaseMapEntityRenderer
     {
         private readonly ICharacterRendererProvider _characterRendererProvider;
-        private readonly IChatBubbleProvider _chatBubbleProvider;
         private readonly bool _transparent;
 
         public MainCharacterEntityRenderer(ICharacterProvider characterProvider,
                                            ICharacterRendererProvider characterRendererProvider,
-                                           IChatBubbleProvider chatBubbleProvider,
                                            IRenderOffsetCalculator renderOffsetCalculator,
                                            bool transparent)
             : base(characterProvider, renderOffsetCalculator)
         {
             _characterRendererProvider = characterRendererProvider;
-            _chatBubbleProvider = chatBubbleProvider;
             _transparent = transparent;
         }
 
@@ -51,9 +47,6 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
             _characterRendererProvider.MainCharacterRenderer.Transparent = _transparent;
             _characterRendererProvider.MainCharacterRenderer.DrawToSpriteBatch(spriteBatch);
-
-            if (_chatBubbleProvider.MainCharacterChatBubble.HasValue)
-                _chatBubbleProvider.MainCharacterChatBubble.Value.DrawToSpriteBatch(spriteBatch);
         }
     }
 }
