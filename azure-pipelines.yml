@@ -45,7 +45,7 @@ steps:
   displayName: 'Set assembly version and copyright info'
   inputs:
     Path: '$(Build.SourcesDirectory)'
-    FileNames: '**'
+    FileNames: '**/*.csproj'
     InsertAttributes: true
     FileEncoding: 'auto'
     WriteBOM: false
@@ -86,7 +86,6 @@ steps:
     sudo apt-get install -y ttf-mscorefonts-installer && sudo fc-cache -f
   displayName: 'Linux - install windows fonts'
   condition: eq(variables['friendlyPlatform'], 'Linux')
-- task: Assembly-Info-NetCore@3
 - task: DotNetCoreCLI@2
   displayName: 'dotnet build'
   inputs:
