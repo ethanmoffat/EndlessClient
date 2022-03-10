@@ -5,8 +5,9 @@ using EOLib.IO.Map;
 
 namespace EOLib.IO.Services.Serializers
 {
-    [MappedType(BaseType = typeof(ISerializer<NPCSpawnMapEntity>))]
-    public class NPCSpawnMapEntitySerializer : ISerializer<NPCSpawnMapEntity>
+    [MappedType(BaseType = typeof(IMapEntitySerializer<NPCSpawnMapEntity>))]
+    [MappedType(BaseType = typeof(IMapDeserializer<NPCSpawnMapEntity>))]
+    public class NPCSpawnMapEntitySerializer : IMapEntitySerializer<NPCSpawnMapEntity>
     {
         private readonly INumberEncoderService _numberEncoderService;
 

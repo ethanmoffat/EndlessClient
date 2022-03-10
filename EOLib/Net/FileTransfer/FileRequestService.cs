@@ -15,11 +15,11 @@ namespace EOLib.Net.FileTransfer
     {
         private readonly IPacketSendService _packetSendService;
         private readonly INumberEncoderService _numberEncoderService;
-        private readonly ISerializer<IMapFile> _mapFileSerializer;
+        private readonly IMapDeserializer<IMapFile> _mapFileSerializer;
 
         public FileRequestService(IPacketSendService packetSendService,
                                   INumberEncoderService numberEncoderService,
-                                  ISerializer<IMapFile> mapFileSerializer)
+                                  IMapDeserializer<IMapFile> mapFileSerializer)
         {
             _packetSendService = packetSendService;
             _numberEncoderService = numberEncoderService;

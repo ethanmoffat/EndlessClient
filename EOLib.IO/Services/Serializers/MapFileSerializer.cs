@@ -7,27 +7,28 @@ using EOLib.IO.Map;
 
 namespace EOLib.IO.Services.Serializers
 {
-    [MappedType(BaseType = typeof(ISerializer<IMapFile>))]
-    public class MapFileSerializer : ISerializer<IMapFile>
+    [MappedType(BaseType = typeof(IMapFileSerializer))]
+    [MappedType(BaseType = typeof(IMapDeserializer<IMapFile>))]
+    public class MapFileSerializer : IMapFileSerializer
     {
         private const TileSpec DEFAULT_TILE = TileSpec.None;
         private static readonly WarpMapEntity DEFAULT_WARP = null;
         private const int DEFAULT_GFX = -1;
 
-        private readonly ISerializer<IMapFileProperties> _mapPropertiesSerializer;
-        private readonly ISerializer<NPCSpawnMapEntity> _npcSpawnMapEntitySerializer;
-        private readonly ISerializer<ChestSpawnMapEntity> _chestSpawnMapEntitySerializer;
-        private readonly ISerializer<WarpMapEntity> _warpMapEntitySerializer;
-        private readonly ISerializer<SignMapEntity> _signMapEntitySerializer;
-        private readonly ISerializer<UnknownMapEntity> _unknownMapEntitySerailizer;
+        private readonly IMapEntitySerializer<IMapFileProperties> _mapPropertiesSerializer;
+        private readonly IMapEntitySerializer<NPCSpawnMapEntity> _npcSpawnMapEntitySerializer;
+        private readonly IMapEntitySerializer<ChestSpawnMapEntity> _chestSpawnMapEntitySerializer;
+        private readonly IMapEntitySerializer<WarpMapEntity> _warpMapEntitySerializer;
+        private readonly IMapEntitySerializer<SignMapEntity> _signMapEntitySerializer;
+        private readonly IMapEntitySerializer<UnknownMapEntity> _unknownMapEntitySerailizer;
         private readonly INumberEncoderService _numberEncoderService;
 
-        public MapFileSerializer(ISerializer<IMapFileProperties> mapPropertiesSerializer,
-                                 ISerializer<NPCSpawnMapEntity> npcSpawnMapEntitySerializer,
-                                 ISerializer<ChestSpawnMapEntity> chestSpawnMapEntitySerializer,
-                                 ISerializer<WarpMapEntity> warpMapEntitySerializer,
-                                 ISerializer<SignMapEntity> signMapEntitySerializer,
-                                 ISerializer<UnknownMapEntity> unknownMapEntitySerailizer,
+        public MapFileSerializer(IMapEntitySerializer<IMapFileProperties> mapPropertiesSerializer,
+                                 IMapEntitySerializer<NPCSpawnMapEntity> npcSpawnMapEntitySerializer,
+                                 IMapEntitySerializer<ChestSpawnMapEntity> chestSpawnMapEntitySerializer,
+                                 IMapEntitySerializer<WarpMapEntity> warpMapEntitySerializer,
+                                 IMapEntitySerializer<SignMapEntity> signMapEntitySerializer,
+                                 IMapEntitySerializer<UnknownMapEntity> unknownMapEntitySerailizer,
                                  INumberEncoderService numberEncoderService)
         {
             _mapPropertiesSerializer = mapPropertiesSerializer;
@@ -39,7 +40,7 @@ namespace EOLib.IO.Services.Serializers
             _numberEncoderService = numberEncoderService;
         }
 
-        public byte[] SerializeToByteArray(IMapFile mapFile)
+        public byte[] SerializeToByteArray(IMapFile mapFile, bool rewriteChecksum = true)
         {
             var ret = new List<byte>();
 
@@ -52,7 +53,21 @@ namespace EOLib.IO.Services.Serializers
             ret.AddRange(WriteGFXLayers(mapFile));
             ret.AddRange(WriteMapSigns(mapFile));
 
-            return ret.ToArray();
+            var retBytes = ret.ToArray();
+            if (rewriteChecksum)
+            {
+                var rid1 = _numberEncoderService.EncodeNumber(0, 2);
+                var rid2 = _numberEncoderService.EncodeNumber(0, 2);
+
+                Array.Copy(rid1, 0, retBytes, 3, 2);
+                Array.Copy(rid2, 0, retBytes, 5, 2);
+
+                var checksum = CRC32.Check(retBytes);
+                var checksumBytes = _numberEncoderService.EncodeNumber((int)checksum, 4);
+                Array.Copy(checksumBytes, 0, retBytes, 3, 4);
+            }
+
+            return retBytes;
         }
 
         public IMapFile DeserializeFromByteArray(byte[] data)

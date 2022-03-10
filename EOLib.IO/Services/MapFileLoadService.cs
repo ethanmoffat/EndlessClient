@@ -8,9 +8,9 @@ namespace EOLib.IO.Services
     [MappedType(BaseType = typeof(IMapFileLoadService))]
     public class MapFileLoadService : IMapFileLoadService
     {
-        private readonly ISerializer<IMapFile> _mapFileSerializer;
+        private readonly IMapDeserializer<IMapFile> _mapFileSerializer;
 
-        public MapFileLoadService(ISerializer<IMapFile> mapFileSerializer)
+        public MapFileLoadService(IMapDeserializer<IMapFile> mapFileSerializer)
         {
             _mapFileSerializer = mapFileSerializer;
         }

@@ -15,7 +15,7 @@ namespace EOLib.IO.Test.Map
     [TestFixture, ExcludeFromCodeCoverage]
     public class MapFilePropertiesTest
     {
-        private ISerializer<IMapFileProperties> _mapPropertiesSerializer;
+        private IMapEntitySerializer<IMapFileProperties> _mapPropertiesSerializer;
         private IMapFileProperties _props;
 
         [SetUp]

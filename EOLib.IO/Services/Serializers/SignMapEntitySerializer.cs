@@ -6,8 +6,9 @@ using EOLib.IO.Map;
 
 namespace EOLib.IO.Services.Serializers
 {
-    [MappedType(BaseType = typeof(ISerializer<SignMapEntity>))]
-    public class SignMapEntitySerializer : ISerializer<SignMapEntity>
+    [MappedType(BaseType = typeof(IMapEntitySerializer<SignMapEntity>))]
+    [MappedType(BaseType = typeof(IMapDeserializer<SignMapEntity>))]
+    public class SignMapEntitySerializer : IMapEntitySerializer<SignMapEntity>
     {
         private readonly INumberEncoderService numberEncoderService;
         private readonly IMapStringEncoderService mapStringEncoderService;

@@ -14,13 +14,13 @@ namespace EOLib.IO.Services
             _numberEncoderService = numberEncoderService;
         }
 
-        public void SaveFile(string path, IPubFile pubFile)
+        public void SaveFile(string path, IPubFile pubFile, bool rewriteChecksum = true)
         {
             var directoryName = Path.GetDirectoryName(path) ?? "";
             if (!Directory.Exists(directoryName))
                 Directory.CreateDirectory(directoryName);
 
-            var pubFileBytes = pubFile.SerializeToByteArray(_numberEncoderService);
+            var pubFileBytes = pubFile.SerializeToByteArray(_numberEncoderService, rewriteChecksum);
             File.WriteAllBytes(path, pubFileBytes);
         }
     }

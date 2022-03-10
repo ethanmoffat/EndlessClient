@@ -73,28 +73,28 @@ namespace EOLib.Net.FileTransfer
         public async Task GetItemFileFromServer()
         {
             var itemFile = await _fileRequestService.RequestFile(InitFileType.Item, _playerInfoProvider.PlayerID);
-            _pubFileSaveService.SaveFile(PubFileNameConstants.PathToEIFFile, itemFile);
+            _pubFileSaveService.SaveFile(PubFileNameConstants.PathToEIFFile, itemFile, rewriteChecksum: false);
             _pubFileRepository.EIFFile = (EIFFile)itemFile;
         }
 
         public async Task GetNPCFileFromServer()
         {
             var npcFile = await _fileRequestService.RequestFile(InitFileType.Npc, _playerInfoProvider.PlayerID);
-            _pubFileSaveService.SaveFile(PubFileNameConstants.PathToENFFile, npcFile);
+            _pubFileSaveService.SaveFile(PubFileNameConstants.PathToENFFile, npcFile, rewriteChecksum: false);
             _pubFileRepository.ENFFile = (ENFFile)npcFile;
         }
 
         public async Task GetSpellFileFromServer()
         {
             var spellFile = await _fileRequestService.RequestFile(InitFileType.Spell, _playerInfoProvider.PlayerID);
-            _pubFileSaveService.SaveFile(PubFileNameConstants.PathToESFFile, spellFile);
+            _pubFileSaveService.SaveFile(PubFileNameConstants.PathToESFFile, spellFile, rewriteChecksum: false);
             _pubFileRepository.ESFFile = (ESFFile)spellFile;
         }
 
         public async Task GetClassFileFromServer()
         {
             var classFile = await _fileRequestService.RequestFile(InitFileType.Class, _playerInfoProvider.PlayerID);
-            _pubFileSaveService.SaveFile(PubFileNameConstants.PathToECFFile, classFile);
+            _pubFileSaveService.SaveFile(PubFileNameConstants.PathToECFFile, classFile, rewriteChecksum: false);
             _pubFileRepository.ECFFile = (ECFFile)classFile;
         }
 
@@ -136,7 +136,7 @@ namespace EOLib.Net.FileTransfer
 
         private void SaveAndCacheMapFile(short mapID, IMapFile mapFile)
         {
-            _mapFileSaveService.SaveFileToDefaultDirectory(mapFile);
+            _mapFileSaveService.SaveFileToDefaultDirectory(mapFile, rewriteChecksum: false);
 
             if (_mapFileRepository.MapFiles.ContainsKey(mapID))
                 _mapFileRepository.MapFiles[mapID] = mapFile;

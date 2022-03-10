@@ -1,26 +1,27 @@
 ﻿namespace EOLib
 {
-    public class CRC32
+    public static class CRC32
     {
         /// <summary>
         /// This value is used to 'seed' the CRC. It is a polynomial in integer format. It is set to a default when CRC32 is instantiated.
         /// </summary>
-        public static uint Magic {get; set;}
+        public static uint Magic { get; set; }
         
         //lookup table for the CRC
-        private uint[] lookup = new uint[256];
+        private static uint[] lookup = new uint[256];
 
         //flag to indicate whether the lookup table has been generated
-        private bool generated = false;
+        private static bool generated = false;
 
-        public CRC32()
+        static CRC32()
         {
             Magic = 0x04c11db7;
             GenerateTable(true);
         }
 
-        public void Regenerate() { GenerateTable(true); }
-        private void GenerateTable(bool over)
+        public static void Regenerate() { GenerateTable(true); }
+
+        private static void GenerateTable(bool over)
         {
             if (!over && generated) //'over' flag specifies that it should force regen
                 return;
@@ -42,14 +43,14 @@
         /// </summary>
         /// <param name="data">The string data to CRC</param>
         /// <returns>The CRC value as a 32-bit unsigned integer</returns>
-        public uint Check(string data) { return Check(System.Text.Encoding.ASCII.GetBytes(data)); }
+        public static uint Check(string data) { return Check(System.Text.Encoding.ASCII.GetBytes(data)); }
 
         /// <summary>
         /// Returns the CRC32 for an extension of bytes.
         /// </summary>
         /// <param name="data">Byte extension to process</param>
         /// <returns>The CRC value as a 32-bit unsigned integer</returns>
-        public uint Check(byte[] data) { return Check(data, 0, (uint)data.Length); }
+        public static uint Check(byte[] data) { return Check(data, 0, (uint)data.Length); }
 
         /// <summary>
         /// Returns the CRC32 for an extension of bytes, starting at <paramref name="offset"/> and going for <paramref name="length"/> bytes.
@@ -58,7 +59,7 @@
         /// <param name="offset">Starting index for processing</param>
         /// <param name="length">Number of elements to process</param>
         /// <returns></returns>
-        public uint Check(byte[] data, uint offset, uint length)
+        public static uint Check(byte[] data, uint offset, uint length)
         {
             uint crc = 0xFFFFFFFF;
             if (offset > data.Length || length > data.Length || offset + length > data.Length)

@@ -22,14 +22,14 @@ namespace EOLib.Test.Net.FileTransfer
 
         private IPacketSendService _packetSendService;
         private INumberEncoderService _numberEncoderService;
-        private ISerializer<IMapFile> _mapFileSerializer;
+        private IMapDeserializer<IMapFile> _mapFileSerializer;
 
         [SetUp]
         public void SetUp()
         {
             _packetSendService = Mock.Of<IPacketSendService>();
             _numberEncoderService = new NumberEncoderService();
-            _mapFileSerializer = Mock.Of<ISerializer<IMapFile>>();
+            _mapFileSerializer = Mock.Of<IMapDeserializer<IMapFile>>();
 
             _fileRequestService = new FileRequestService(_packetSendService,
                                                          _numberEncoderService,

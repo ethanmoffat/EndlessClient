@@ -5,8 +5,9 @@ using EOLib.IO.Map;
 
 namespace EOLib.IO.Services.Serializers
 {
-    [MappedType(BaseType = typeof(ISerializer<WarpMapEntity>))]
-    public class WarpMapEntitySerializer : ISerializer<WarpMapEntity>
+    [MappedType(BaseType = typeof(IMapEntitySerializer<WarpMapEntity>))]
+    [MappedType(BaseType = typeof(IMapDeserializer<WarpMapEntity>))]
+    public class WarpMapEntitySerializer : IMapEntitySerializer<WarpMapEntity>
     {
         private readonly INumberEncoderService _numberEncoderService;
 

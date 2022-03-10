@@ -15,7 +15,7 @@ namespace EOLib.IO.Test.Map
         private IMapStringEncoderService ses;
         private INumberEncoderService nes;
 
-        private ISerializer<IMapFile> _serializer;
+        private IMapFileSerializer _serializer;
 
         [SetUp]
         public void SetUp()

@@ -5,8 +5,9 @@ using EOLib.IO.Map;
 
 namespace EOLib.IO.Services.Serializers
 {
-    [MappedType(BaseType = typeof(ISerializer<ChestSpawnMapEntity>))]
-    public class ChestSpawnMapEntitySerializer : ISerializer<ChestSpawnMapEntity>
+    [MappedType(BaseType = typeof(IMapEntitySerializer<ChestSpawnMapEntity>))]
+    [MappedType(BaseType = typeof(IMapDeserializer<ChestSpawnMapEntity>))]
+    public class ChestSpawnMapEntitySerializer : IMapEntitySerializer<ChestSpawnMapEntity>
     {
         private readonly INumberEncoderService _numberEncoderService;
 

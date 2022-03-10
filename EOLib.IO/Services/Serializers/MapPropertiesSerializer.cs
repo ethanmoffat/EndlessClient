@@ -7,8 +7,9 @@ using EOLib.IO.Map;
 
 namespace EOLib.IO.Services.Serializers
 {
-    [MappedType(BaseType = typeof(ISerializer<IMapFileProperties>))]
-    public class MapPropertiesSerializer : ISerializer<IMapFileProperties>
+    [MappedType(BaseType = typeof(IMapEntitySerializer<IMapFileProperties>))]
+    [MappedType(BaseType = typeof(IMapDeserializer<IMapFileProperties>))]
+    public class MapPropertiesSerializer : IMapEntitySerializer<IMapFileProperties>
     {
         private readonly INumberEncoderService _numberEncoderService;
         private readonly IMapStringEncoderService _mapStringEncoderService;
