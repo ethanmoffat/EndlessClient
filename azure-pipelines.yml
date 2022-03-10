@@ -1,4 +1,4 @@
-name: 0.4.$(rev:rrr)
+name: 0.5.$(rev:rrr)
 
 trigger:
 - master
@@ -41,7 +41,44 @@ steps:
   displayName: 'Install .Net 6 runtime/sdk'
   inputs:
     version: 6.0.x
-
+- task: Assembly-Info-NetCore@3
+  displayName: 'Set assembly version and copyright info'
+  inputs:
+    Path: '$(Build.SourcesDirectory)'
+    FileNames: '**/*.csproj'
+    InsertAttributes: true
+    FileEncoding: 'auto'
+    WriteBOM: false
+    GenerateDocumentationFile: 'false'
+    Authors: 'Ethan Moffat'
+    Copyright: 'Copyright © 2014-2022 Ethan Moffat'
+    VersionNumber: '$(Build.BuildNumber)'
+    FileVersionNumber: '$(Build.BuildNumber)'
+    InformationalVersion: '$(Build.BuildNumber)'
+    LogLevel: 'verbose'
+    FailOnWarning: false
+    DisableTelemetry: false
+- task: Assembly-Info-NetCore@3
+  displayName: 'Set nuget package properties'
+  inputs:
+    Path: '$(Build.SourcesDirectory)'
+    FileNames: |
+      **/EOLib*.csproj
+      !**/EOLib.*Test.csproj
+    InsertAttributes: true
+    FileEncoding: 'auto'
+    WriteBOM: false
+    GeneratePackageOnBuild: 'true'
+    PackageRequireLicenseAcceptance: 'false'
+    PackageLicenseExpression: 'MIT'
+    PackageProjectUrl: 'https://github.com/ethanmoffat/EndlessClient'
+    RepositoryUrl: 'https://github.com/ethanmoffat/EndlessClient'
+    RepositoryType: 'git'
+    PackageTags: 'endless-online eo'
+    PackageVersion: '$(Build.BuildNumber)'
+    LogLevel: 'verbose'
+    FailOnWarning: false
+    DisableTelemetry: false
 - task: DotNetCoreCLI@2
   displayName: 'dotnet restore'
   inputs:
@@ -71,18 +108,29 @@ steps:
   displayName: 'ZIP EndlessClient'
   inputs:
     rootFolderOrFile: $(Build.SourcesDirectory)/bin/$(buildConfiguration)/client/$(dropDir)/
-    archiveFile: $(Build.ArtifactStagingDirectory)/EndlessClient.$(friendlyPlatform).zip
+    archiveFile: $(Build.ArtifactStagingDirectory)/zip/EndlessClient.$(friendlyPlatform).zip
 - task: ArchiveFiles@2
   displayName: 'ZIP EOBot'
   inputs:
     rootFolderOrFile: $(Build.SourcesDirectory)/bin/$(buildConfiguration)/utils/EOBot/net6.0/
-    archiveFile: $(Build.ArtifactStagingDirectory)/EOBot.$(friendlyPlatform).zip
-
+    archiveFile: $(Build.ArtifactStagingDirectory)/zip/EOBot.$(friendlyPlatform).zip
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifacts'
   inputs:
-    PathtoPublish: $(Build.ArtifactStagingDirectory)
+    PathtoPublish: $(Build.ArtifactStagingDirectory)/zip
     ArtifactName: EndlessClient
+
+- task: CopyFiles@2
+  displayName: 'Copy nuget packages'
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)/bin/$(buildConfiguration)/'
+    Contents: '**/*.nupkg'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/nuget'
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish nuget Artifacts'
+  inputs:
+    PathtoPublish: $(Build.ArtifactStagingDirectory)/nuget
+    ArtifactName: nuget.$(friendlyPlatform)
 
 - script: |
     git tag build/$(Build.BuildNumber)
