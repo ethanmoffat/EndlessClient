@@ -49,7 +49,7 @@ steps:
     InsertAttributes: true
     FileEncoding: 'auto'
     WriteBOM: false
-    GenerateDocumentationFile: 'true'
+    GenerateDocumentationFile: 'false'
     Authors: 'Ethan Moffat'
     Copyright: 'Copyright © 2014-2022 Ethan Moffat'
     VersionNumber: '$(Build.BuildNumber)'
@@ -130,7 +130,7 @@ steps:
   displayName: 'Publish nuget Artifacts'
   inputs:
     PathtoPublish: $(Build.ArtifactStagingDirectory)/nuget
-    ArtifactName: nuget
+    ArtifactName: nuget.$(friendlyPlatform)
 
 - script: |
     git tag build/$(Build.BuildNumber)
