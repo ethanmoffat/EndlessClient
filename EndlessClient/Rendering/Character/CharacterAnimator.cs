@@ -92,7 +92,7 @@ namespace EndlessClient.Rendering.Character
 
                 _walkPath = _pathFinder.FindPath(characterCoord, _targetCoordinate.Value);
 
-                if (!_otherPlayerStartWalkingTimes.ContainsKey(_characterRepository.MainCharacter.ID))
+                if (!_otherPlayerStartWalkingTimes.ContainsKey(_characterRepository.MainCharacter.ID) && _walkPath.Any())
                 {
                     rp = FaceTarget(characterCoord, _walkPath.Peek(), rp);
                     _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithRenderProperties(rp);
