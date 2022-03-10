@@ -41,7 +41,30 @@ steps:
   displayName: 'Install .Net 6 runtime/sdk'
   inputs:
     version: 6.0.x
-
+- task: Assembly-Info-NetCore@3
+  inputs:
+    Path: '$(Build.SourcesDirectory)'
+    FileNames: '**/*.csproj'
+    InsertAttributes: true
+    FileEncoding: 'auto'
+    WriteBOM: false
+    GenerateDocumentationFile: 'true'
+    GeneratePackageOnBuild: 'true'
+    PackageRequireLicenseAcceptance: 'false'
+    Authors: 'Ethan Moffat'
+    Copyright: 'Copyright © 2014-2022 Ethan Moffat'
+    PackageLicenseExpression: 'MIT'
+    PackageProjectUrl: 'https://github.com/ethanmoffat/EndlessClient'
+    RepositoryUrl: 'https://github.com/ethanmoffat/EndlessClient'
+    RepositoryType: 'git'
+    PackageTags: 'endless-online eo'
+    VersionNumber: '$(Build.BuildNumber)'
+    FileVersionNumber: '$(Build.BuildNumber)'
+    InformationalVersion: '$(Build.BuildNumber)'
+    PackageVersion: '$(Build.BuildNumber)'
+    LogLevel: 'verbose'
+    FailOnWarning: false
+    DisableTelemetry: false
 - task: DotNetCoreCLI@2
   displayName: 'dotnet restore'
   inputs:
@@ -53,6 +76,7 @@ steps:
     sudo apt-get install -y ttf-mscorefonts-installer && sudo fc-cache -f
   displayName: 'Linux - install windows fonts'
   condition: eq(variables['friendlyPlatform'], 'Linux')
+- task: Assembly-Info-NetCore@3
 - task: DotNetCoreCLI@2
   displayName: 'dotnet build'
   inputs:
