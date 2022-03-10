@@ -62,8 +62,12 @@ steps:
   displayName: 'Set nuget package properties'
   inputs:
     Path: '$(Build.SourcesDirectory)'
-    FileNames: '**/EOLib*!(Test).csproj'
+    FileNames: |
+      **/EOLib*.csproj
+      !**/EOLib.*.Test.csproj
     InsertAttributes: true
+    FileEncoding: 'auto'
+    WriteBOM: false
     GeneratePackageOnBuild: 'true'
     PackageRequireLicenseAcceptance: 'false'
     PackageLicenseExpression: 'MIT'
@@ -119,8 +123,9 @@ steps:
 - task: CopyFiles@2
   displayName: 'Copy nuget packages'
   inputs:
-    SourceFolder: $(Build.SourcesDirectory)/bin/$(buildConfiguration)/**/*.nupkg
-    TargetFolder: $(Build.ArtifactStagingDirectory)/nuget
+    SourceFolder: '$(Build.SourcesDirectory)/bin/$(buildConfiguration)/'
+    Contents: '**/*.nupkg'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/nuget'
 - task: PublishBuildArtifacts@1
   displayName: 'Publish nuget Artifacts'
   inputs:
