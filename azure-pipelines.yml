@@ -44,7 +44,7 @@ steps:
 - task: Assembly-Info-NetCore@3
   inputs:
     Path: '$(Build.SourcesDirectory)'
-    FileNames: '**/*.csproj'
+    FileNames: '**/EOLib*!(Test).csproj'
     InsertAttributes: true
     FileEncoding: 'auto'
     WriteBOM: false
