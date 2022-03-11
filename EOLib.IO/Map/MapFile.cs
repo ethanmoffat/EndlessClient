@@ -11,7 +11,9 @@ namespace EOLib.IO.Map
         public IMapFileProperties Properties { get; private set; }
 
         public IReadOnlyMatrix<TileSpec> Tiles => _mutableTiles;
+        public IReadOnlyList<int> EmptyTileRows => _mutableEmptyTileRows;
         public IReadOnlyMatrix<WarpMapEntity> Warps => _mutableWarps;
+        public IReadOnlyList<int> EmptyWarpRows => _mutableEmptyWarpRows;
         public IReadOnlyDictionary<MapLayer, IReadOnlyMatrix<int>> GFX => _readOnlyGFX;
         public IReadOnlyDictionary<MapLayer, IReadOnlyList<int>> EmptyGFXRows => _readOnlyEmptyGFXRows;
         public IReadOnlyList<NPCSpawnMapEntity> NPCSpawns => _mutableNPCSpawns;
@@ -20,7 +22,9 @@ namespace EOLib.IO.Map
         public IReadOnlyList<SignMapEntity> Signs => _mutableSigns;
 
         private Matrix<TileSpec> _mutableTiles;
+        private List<int> _mutableEmptyTileRows;
         private Matrix<WarpMapEntity> _mutableWarps;
+        private List<int> _mutableEmptyWarpRows;
         private Dictionary<MapLayer, Matrix<int>> _mutableGFX;
         private IReadOnlyDictionary<MapLayer, IReadOnlyMatrix<int>> _readOnlyGFX;
         private Dictionary<MapLayer, List<int>> _mutableEmptyGFXRows;
@@ -33,7 +37,9 @@ namespace EOLib.IO.Map
         public MapFile()
             : this(new MapFileProperties(),
             Matrix<TileSpec>.Empty,
+            new List<int>(),
             Matrix<WarpMapEntity>.Empty,
+            new List<int>(),
             new Dictionary<MapLayer, Matrix<int>>(),
             new Dictionary<MapLayer, List<int>>(),
             new List<NPCSpawnMapEntity>(),
@@ -48,7 +54,9 @@ namespace EOLib.IO.Map
 
         private MapFile(IMapFileProperties properties,
             Matrix<TileSpec> tiles,
+            List<int> emptyTileSpecRows,
             Matrix<WarpMapEntity> warps,
+            List<int> emptyWarpRows,
             Dictionary<MapLayer, Matrix<int>> gfx,
             Dictionary<MapLayer, List<int>> emptyGFXRows,
             List<NPCSpawnMapEntity> npcSpawns,
@@ -58,7 +66,9 @@ namespace EOLib.IO.Map
         {
             Properties = properties;
             _mutableTiles = tiles;
+            _mutableEmptyTileRows = emptyTileSpecRows;
             _mutableWarps = warps;
+            _mutableEmptyWarpRows = emptyWarpRows;
             _mutableGFX = gfx;
             _mutableEmptyGFXRows = emptyGFXRows;
             SetReadOnlyGFX();
@@ -81,17 +91,19 @@ namespace EOLib.IO.Map
             return newMap;
         }
 
-        public IMapFile WithTiles(Matrix<TileSpec> tiles)
+        public IMapFile WithTiles(Matrix<TileSpec> tiles, List<int> emptyTileRows)
         {
             var newMap = MakeCopy(this);
             newMap._mutableTiles = tiles;
+            newMap._mutableEmptyTileRows = emptyTileRows;
             return newMap;
         }
 
-        public IMapFile WithWarps(Matrix<WarpMapEntity> warps)
+        public IMapFile WithWarps(Matrix<WarpMapEntity> warps, List<int> emptyWarpRows)
         {
             var newMap = MakeCopy(this);
             newMap._mutableWarps = warps;
+            newMap._mutableEmptyWarpRows = emptyWarpRows;
             return newMap;
         }
 
@@ -182,7 +194,9 @@ namespace EOLib.IO.Map
             return new MapFile(
                 source.Properties,
                 source._mutableTiles,
+                source._mutableEmptyTileRows,
                 source._mutableWarps,
+                source._mutableEmptyWarpRows,
                 source._mutableGFX,
                 source._mutableEmptyGFXRows,
                 source._mutableNPCSpawns,

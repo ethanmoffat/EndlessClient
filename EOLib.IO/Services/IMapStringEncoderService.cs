@@ -4,6 +4,6 @@
     {
         string DecodeMapString(byte[] chars);
 
-        byte[] EncodeMapString(string s);
+        byte[] EncodeMapString(string s, int length);
     }
 }

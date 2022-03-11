@@ -1,5 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using System;
+using System.Linq;
 using System.Text;
 
 namespace EOLib.IO.Services
@@ -9,16 +10,18 @@ namespace EOLib.IO.Services
     {
         public string DecodeMapString(byte[] chars)
         {
-            Array.Reverse(chars);
+            var copy = new byte[chars.Length];
+            Array.Copy(chars, copy, chars.Length);
+            Array.Reverse(copy);
 
-            bool flippy = chars.Length % 2 == 1;
+            bool flippy = copy.Length % 2 == 1;
 
-            for (int i = 0; i < chars.Length; ++i)
+            for (int i = 0; i < copy.Length; ++i)
             {
-                byte c = chars[i];
+                byte c = copy[i];
                 if (c == 0xFF)
                 {
-                    Array.Resize(ref chars, i);
+                    Array.Resize(ref copy, i);
                     break;
                 }
 
@@ -35,17 +38,20 @@ namespace EOLib.IO.Services
                         c = (byte)(0x9F - c);
                 }
 
-                chars[i] = c;
+                copy[i] = c;
                 flippy = !flippy;
             }
 
-            return Encoding.ASCII.GetString(chars);
+            return Encoding.ASCII.GetString(copy);
         }
 
-        public byte[] EncodeMapString(string s)
+        public byte[] EncodeMapString(string s, int length)
         {
+            if (length < s.Length)
+                throw new ArgumentException("Length should be greater than or equal to string length", nameof(length));
+
             byte[] chars = Encoding.ASCII.GetBytes(s);
-            bool flippy = chars.Length % 2 == 1;
+            bool flippy = length % 2 == 1;
             int i;
             for (i = 0; i < chars.Length; ++i)
             {
@@ -66,6 +72,14 @@ namespace EOLib.IO.Services
                 flippy = !flippy;
             }
             Array.Reverse(chars);
+
+            if (length > s.Length)
+            {
+                var tmp = Enumerable.Repeat((byte)0xFF, length).ToArray();
+                chars.CopyTo(tmp, length - s.Length);
+                chars = tmp;
+            }
+
             return chars;
         }
     }

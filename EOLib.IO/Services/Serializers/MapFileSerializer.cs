@@ -83,8 +83,8 @@ namespace EOLib.IO.Services.Serializers
                 var npcSpawns = ReadNPCSpawns(ms);
                 var unknowns = ReadUnknowns(ms);
                 var mapChests = ReadMapChests(ms);
-                var tileSpecs = ReadTileSpecs(ms, properties);
-                var warpTiles = ReadWarpTiles(ms, properties);
+                var (tileSpecs, emptyTileSpecRows) = ReadTileSpecs(ms, properties);
+                var (warpTiles, emptyWarpRows) = ReadWarpTiles(ms, properties);
                 var (gfxLayers, emptyLayers) = ReadGFXLayers(ms, properties);
 
                 var mapSigns = new List<SignMapEntity>();
@@ -99,8 +99,8 @@ namespace EOLib.IO.Services.Serializers
                     .WithNPCSpawns(npcSpawns)
                     .WithUnknowns(unknowns)
                     .WithChests(mapChests)
-                    .WithTiles(tileSpecs)
-                    .WithWarps(warpTiles)
+                    .WithTiles(tileSpecs, emptyTileSpecRows)
+                    .WithWarps(warpTiles, emptyWarpRows)
                     .WithGFX(gfxLayers, emptyLayers)
                     .WithSigns(mapSigns);
             }
@@ -156,15 +156,19 @@ namespace EOLib.IO.Services.Serializers
             return chestSpawns;
         }
 
-        private Matrix<TileSpec> ReadTileSpecs(MemoryStream ms, IMapFileProperties properties)
+        private (Matrix<TileSpec>, List<int>) ReadTileSpecs(MemoryStream ms, IMapFileProperties properties)
         {
             var tiles = new Matrix<TileSpec>(properties.Height + 1, properties.Width + 1, DEFAULT_TILE);
+            var emptyTileRows = new List<int>();
 
             var numberOfTileRows = _numberEncoderService.DecodeNumber((byte)ms.ReadByte());
             for (int i = 0; i < numberOfTileRows; ++i)
             {
                 var y = _numberEncoderService.DecodeNumber((byte)ms.ReadByte());
                 var numberOfTileColumns = _numberEncoderService.DecodeNumber((byte)ms.ReadByte());
+
+                if (numberOfTileColumns == 0)
+                    emptyTileRows.Add(y);
 
                 for (int j = 0; j < numberOfTileColumns; ++j)
                 {
@@ -176,18 +180,22 @@ namespace EOLib.IO.Services.Serializers
                 }
             }
 
-            return tiles;
+            return (tiles, emptyTileRows);
         }
 
-        private Matrix<WarpMapEntity> ReadWarpTiles(MemoryStream ms, IMapFileProperties properties)
+        private (Matrix<WarpMapEntity>, List<int>) ReadWarpTiles(MemoryStream ms, IMapFileProperties properties)
         {
             var warps = new Matrix<WarpMapEntity>(properties.Height + 1, properties.Width + 1, DEFAULT_WARP);
+            var emptyWarpRows = new List<int>();
 
             var numberOfWarpRows = _numberEncoderService.DecodeNumber((byte)ms.ReadByte());
             for (int i = 0; i < numberOfWarpRows; ++i)
             {
                 var y = _numberEncoderService.DecodeNumber((byte)ms.ReadByte());
                 var numberOfWarpColumns = _numberEncoderService.DecodeNumber((byte)ms.ReadByte());
+
+                if (numberOfWarpColumns == 0)
+                    emptyWarpRows.Add(y);
 
                 for (int j = 0; j < numberOfWarpColumns; ++j)
                 {
@@ -201,7 +209,7 @@ namespace EOLib.IO.Services.Serializers
                 }
             }
 
-            return warps;
+            return (warps, emptyWarpRows);
         }
 
         private (Dictionary<MapLayer, Matrix<int>>, Dictionary<MapLayer, List<int>>) ReadGFXLayers(MemoryStream ms, IMapFileProperties properties)
@@ -315,8 +323,9 @@ namespace EOLib.IO.Services.Serializers
             var ret = new List<byte>();
 
             var tileRows = mapFile.Tiles
-                .Select((row, i) => new { EntityItems = row, Y = i })
-                .Where(rowList => rowList.EntityItems.Any(item => item != DEFAULT_TILE))
+                .Select((row, i) => (row, i))
+                .Where(rowList => rowList.row.Any(item => item != DEFAULT_TILE))
+                .Concat<(IList<TileSpec> EntityItems, int Y)>(mapFile.EmptyTileRows.Select(rowNdx => ((IList<TileSpec>)new List<TileSpec>(), rowNdx)))
                 .ToList();
 
             ret.AddRange(_numberEncoderService.EncodeNumber(tileRows.Count, 1));
@@ -335,6 +344,7 @@ namespace EOLib.IO.Services.Serializers
                     ret.AddRange(_numberEncoderService.EncodeNumber((byte)item.Value, 1));
                 }
             }
+
             return ret;
         }
 
@@ -343,8 +353,9 @@ namespace EOLib.IO.Services.Serializers
             var ret = new List<byte>();
 
             var warpRows = mapFile.Warps
-                .Select((row, i) => new { EntityItems = row, Y = i })
-                .Where(rowList => rowList.EntityItems.Any(item => item != DEFAULT_WARP))
+                .Select((row, i) => (row, i))
+                .Where(rowList => rowList.row.Any(item => item != DEFAULT_WARP))
+                .Concat<(IList<WarpMapEntity> EntityItems, int Y)>(mapFile.EmptyWarpRows.Select(rowNdx => ((IList<WarpMapEntity>)new List<WarpMapEntity>(), rowNdx)))
                 .ToList();
 
             ret.AddRange(_numberEncoderService.EncodeNumber(warpRows.Count, 1));

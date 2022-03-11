@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using EOLib.IO.Map;
 using EOLib.IO.Services;
 using EOLib.IO.Services.Serializers;
@@ -89,7 +90,7 @@ namespace EOLib.IO.Test.Map
             var mapData = CreateDataForMap(new MapFileProperties().WithWidth(2).WithHeight(2), TileSpec.Arena, 432);
             _mapFile = _serializer.DeserializeFromByteArray(mapData);
 
-            var actualData = _serializer.SerializeToByteArray(_mapFile);
+            var actualData = _serializer.SerializeToByteArray(_mapFile, rewriteChecksum: false);
 
             CollectionAssert.AreEqual(mapData, actualData);
         }
@@ -107,6 +108,28 @@ namespace EOLib.IO.Test.Map
                 Assert.AreEqual(999, kvp.Value[1, 1]);
         }
 
+        [Test]
+        public void MapFile_StoresEmptyWarpRows()
+        {
+            _mapFile = new MapFile().WithMapID(1);
+
+            var mapData = CreateDataForMap(new MapFileProperties().WithWidth(1).WithHeight(1), TileSpec.BankVault, 1234);
+            _mapFile = _serializer.DeserializeFromByteArray(mapData);
+
+            Assert.That(_mapFile.EmptyWarpRows, Has.Count.EqualTo(1));
+        }
+
+        [Test]
+        public void MapFile_StoresEmptyTileRows()
+        {
+            _mapFile = new MapFile().WithMapID(1);
+
+            var mapData = CreateDataForMap(new MapFileProperties().WithWidth(1).WithHeight(1), TileSpec.VultTypo, 4321);
+            _mapFile = _serializer.DeserializeFromByteArray(mapData);
+
+            Assert.That(_mapFile.EmptyTileRows, Has.Count.EqualTo(1));
+        }
+
         private byte[] CreateDataForMap(IMapFileProperties mapFileProperties, TileSpec spec, int gfx = 1)
         {
             var ret = new List<byte>();
@@ -119,14 +142,18 @@ namespace EOLib.IO.Test.Map
             ret.AddRange(nes.EncodeNumber(0, 1)); //chest spawns
 
             //tiles
-            ret.AddRange(nes.EncodeNumber(1, 1)); //count
+            ret.AddRange(nes.EncodeNumber(2, 1)); //count (rows)
             ret.AddRange(nes.EncodeNumber(1, 1)); //y
-            ret.AddRange(nes.EncodeNumber(1, 1)); //count
+            ret.AddRange(nes.EncodeNumber(1, 1)); //count (cols)
             ret.AddRange(nes.EncodeNumber(1, 1)); //x
             ret.AddRange(nes.EncodeNumber((byte)spec, 1)); //tilespec
+            ret.AddRange(nes.EncodeNumber(0, 1)); //y
+            ret.AddRange(nes.EncodeNumber(0, 1)); //count (cols) (empty row)
 
-            //warps
-            ret.AddRange(nes.EncodeNumber(0, 1));
+            //warps (empty row)
+            ret.AddRange(nes.EncodeNumber(1, 1)); //count
+            ret.AddRange(nes.EncodeNumber(1, 1)); //y
+            ret.AddRange(nes.EncodeNumber(0, 1)); //count
 
             //gfx
             foreach (var layer in (MapLayer[]) Enum.GetValues(typeof(MapLayer)))

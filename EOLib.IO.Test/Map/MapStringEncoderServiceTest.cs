@@ -23,7 +23,7 @@ namespace EOLib.IO.Test.Map
         {
             const string expected = "Test map string to encode";
 
-            var bytes = _service.EncodeMapString(expected);
+            var bytes = _service.EncodeMapString(expected, expected.Length);
             var actual = _service.DecodeMapString(bytes);
 
             Assert.AreEqual(expected, actual);
@@ -38,7 +38,7 @@ namespace EOLib.IO.Test.Map
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 49, 104, 41, 104, 94
             };
 
-            var actualBytes = _service.EncodeMapString(name);
+            var actualBytes = _service.EncodeMapString(name, name.Length);
 
             CollectionAssert.AreEqual(expectedBytes, actualBytes);
         }
@@ -55,6 +55,40 @@ namespace EOLib.IO.Test.Map
             var actual = _service.DecodeMapString(fullBytes);
 
             Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void EncodeString_InvalidLength_Throws()
+        {
+            Assert.That(() => _service.EncodeMapString("123", 0), Throws.ArgumentException);
+        }
+
+        [Test]
+        public void EncodeString_ExtraLength_PadsData()
+        {
+            const string TestString = "12345";
+            const int LengthWithPadding = 8;
+
+            var actual = _service.EncodeMapString(TestString, LengthWithPadding);
+
+            Assert.That(actual, Has.Length.EqualTo(LengthWithPadding));
+
+            int i = 0;
+            for (; i < LengthWithPadding - TestString.Length; i++)
+                Assert.That(actual[i], Is.EqualTo((byte)0xFF));
+            Assert.That(actual[i], Is.Not.EqualTo((byte)0xFF));
+        }
+
+        [Test]
+        public void EncodeString_ExtraLength_DecodesToExpectedValue()
+        {
+            const string TestString = "12345";
+            const int LengthWithPadding = 8;
+
+            var encoded = _service.EncodeMapString(TestString, LengthWithPadding);
+            var original = _service.DecodeMapString(encoded);
+
+            Assert.That(original, Is.EqualTo(TestString));
         }
     }
 }

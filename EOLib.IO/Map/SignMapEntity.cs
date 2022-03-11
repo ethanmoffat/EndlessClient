@@ -14,16 +14,19 @@ namespace EOLib.IO.Map
 
         public string Message { get; private set; }
 
+        public int RawLength { get; private set; }
+
         public SignMapEntity()
-            : this(-1, -1, string.Empty, String.Empty)
+            : this(-1, -1, string.Empty, String.Empty, 0)
         { }
 
-        private SignMapEntity(int x, int y, string title, string message)
+        private SignMapEntity(int x, int y, string title, string message, int rawLength)
         {
             X = x;
             Y = y;
             Title = title;
             Message = message;
+            RawLength = rawLength;
         }
 
         public SignMapEntity WithX(int x)
@@ -54,9 +57,16 @@ namespace EOLib.IO.Map
             return newEntity;
         }
 
+        public SignMapEntity WithRawLength(int length)
+        {
+            var newEntity = MakeCopy(this);
+            newEntity.RawLength = length;
+            return newEntity;
+        }
+
         private static SignMapEntity MakeCopy(SignMapEntity src)
         {
-            return new SignMapEntity(src.X, src.Y, src.Title, src.Message);
+            return new SignMapEntity(src.X, src.Y, src.Title, src.Message, src.RawLength);
         }
     }
 }

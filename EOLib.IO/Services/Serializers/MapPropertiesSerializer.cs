@@ -90,7 +90,7 @@ namespace EOLib.IO.Services.Serializers
             var padding = Enumerable.Repeat((byte)0, 24 - mapEntity.Name.Length).ToArray();
             var nameToEncode = $"{mapEntity.Name}{Encoding.ASCII.GetString(padding)}";
 
-            var encodedName = _mapStringEncoderService.EncodeMapString(nameToEncode);
+            var encodedName = _mapStringEncoderService.EncodeMapString(nameToEncode, nameToEncode.Length);
             var formattedName = encodedName.Select(x => x == 0 ? (byte)255 : x).ToArray();
             return formattedName;
         }
