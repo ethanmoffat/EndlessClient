@@ -9,6 +9,7 @@ namespace EOLib.IO.Map
         IReadOnlyMatrix<TileSpec> Tiles { get; }
         IReadOnlyMatrix<WarpMapEntity> Warps { get; }
         IReadOnlyDictionary<MapLayer, IReadOnlyMatrix<int>> GFX { get; }
+        IReadOnlyDictionary<MapLayer, IReadOnlyList<int>> EmptyGFXRows { get; }
         IReadOnlyList<NPCSpawnMapEntity> NPCSpawns { get; }
         IReadOnlyList<UnknownMapEntity> Unknowns { get; }
         IReadOnlyList<ChestSpawnMapEntity> Chests { get; }
@@ -22,7 +23,7 @@ namespace EOLib.IO.Map
 
         IMapFile WithWarps(Matrix<WarpMapEntity> warps);
 
-        IMapFile WithGFX(Dictionary<MapLayer, Matrix<int>> gfx);
+        IMapFile WithGFX(Dictionary<MapLayer, Matrix<int>> gfx, Dictionary<MapLayer, List<int>> emptyLayers);
 
         IMapFile WithNPCSpawns(List<NPCSpawnMapEntity> npcSpawns);
 

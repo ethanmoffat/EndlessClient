@@ -85,7 +85,7 @@ namespace EOLib.IO.Services.Serializers
                 var mapChests = ReadMapChests(ms);
                 var tileSpecs = ReadTileSpecs(ms, properties);
                 var warpTiles = ReadWarpTiles(ms, properties);
-                var gfxLayers = ReadGFXLayers(ms, properties);
+                var (gfxLayers, emptyLayers) = ReadGFXLayers(ms, properties);
 
                 var mapSigns = new List<SignMapEntity>();
                 if (ms.Position < ms.Length)
@@ -101,7 +101,7 @@ namespace EOLib.IO.Services.Serializers
                     .WithChests(mapChests)
                     .WithTiles(tileSpecs)
                     .WithWarps(warpTiles)
-                    .WithGFX(gfxLayers)
+                    .WithGFX(gfxLayers, emptyLayers)
                     .WithSigns(mapSigns);
             }
         }
@@ -204,9 +204,10 @@ namespace EOLib.IO.Services.Serializers
             return warps;
         }
 
-        private Dictionary<MapLayer, Matrix<int>> ReadGFXLayers(MemoryStream ms, IMapFileProperties properties)
+        private (Dictionary<MapLayer, Matrix<int>>, Dictionary<MapLayer, List<int>>) ReadGFXLayers(MemoryStream ms, IMapFileProperties properties)
         {
             var gfx = new Dictionary<MapLayer, Matrix<int>>();
+            var emptyRows = new Dictionary<MapLayer, List<int>>();
 
             var layers = (MapLayer[])Enum.GetValues(typeof(MapLayer));
             var twoByteBuffer = new byte[2];
@@ -223,6 +224,14 @@ namespace EOLib.IO.Services.Serializers
                     var y = _numberEncoderService.DecodeNumber((byte)ms.ReadByte());
                     var numberOfColsThisLayer = _numberEncoderService.DecodeNumber((byte)ms.ReadByte());
 
+                    if (numberOfColsThisLayer == 0)
+                    {
+                        if (!emptyRows.ContainsKey(layer))
+                            emptyRows.Add(layer, new List<int>());
+
+                        emptyRows[layer].Add(y);
+                    }
+
                     for (int j = 0; j < numberOfColsThisLayer; ++j)
                     {
                         var x = _numberEncoderService.DecodeNumber((byte)ms.ReadByte());
@@ -236,7 +245,7 @@ namespace EOLib.IO.Services.Serializers
                 }
             }
 
-            return gfx;
+            return (gfx, emptyRows);
         }
 
         private List<SignMapEntity> ReadMapSigns(MemoryStream ms)
@@ -365,7 +374,9 @@ namespace EOLib.IO.Services.Serializers
                     .Where(rowList => rowList.EntityItems.Any(item => item != DEFAULT_GFX))
                     .ToList();
 
-                ret.AddRange(_numberEncoderService.EncodeNumber(gfxRowsForLayer.Count, 1));
+                var rowsForLayerCount = gfxRowsForLayer.Count + (mapFile.EmptyGFXRows.ContainsKey(layer) ? mapFile.EmptyGFXRows[layer].Count : 0);
+                ret.AddRange(_numberEncoderService.EncodeNumber(rowsForLayerCount, 1));
+
                 foreach (var row in gfxRowsForLayer)
                 {
                     var entityItems = row.EntityItems
@@ -379,6 +390,15 @@ namespace EOLib.IO.Services.Serializers
                     {
                         ret.AddRange(_numberEncoderService.EncodeNumber(item.X, 1));
                         ret.AddRange(_numberEncoderService.EncodeNumber(item.Value, 2));
+                    }
+                }
+
+                if (mapFile.EmptyGFXRows.ContainsKey(layer))
+                {
+                    foreach (var emptyLayer in mapFile.EmptyGFXRows[layer])
+                    {
+                        ret.AddRange(_numberEncoderService.EncodeNumber(emptyLayer, 1));
+                        ret.AddRange(_numberEncoderService.EncodeNumber(0, 1));
                     }
                 }
             }

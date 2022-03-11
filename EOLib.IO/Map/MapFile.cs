@@ -13,6 +13,7 @@ namespace EOLib.IO.Map
         public IReadOnlyMatrix<TileSpec> Tiles => _mutableTiles;
         public IReadOnlyMatrix<WarpMapEntity> Warps => _mutableWarps;
         public IReadOnlyDictionary<MapLayer, IReadOnlyMatrix<int>> GFX => _readOnlyGFX;
+        public IReadOnlyDictionary<MapLayer, IReadOnlyList<int>> EmptyGFXRows => _readOnlyEmptyGFXRows;
         public IReadOnlyList<NPCSpawnMapEntity> NPCSpawns => _mutableNPCSpawns;
         public IReadOnlyList<UnknownMapEntity> Unknowns => _mutableUnknowns;
         public IReadOnlyList<ChestSpawnMapEntity> Chests => _mutableChestSpawns;
@@ -22,6 +23,8 @@ namespace EOLib.IO.Map
         private Matrix<WarpMapEntity> _mutableWarps;
         private Dictionary<MapLayer, Matrix<int>> _mutableGFX;
         private IReadOnlyDictionary<MapLayer, IReadOnlyMatrix<int>> _readOnlyGFX;
+        private Dictionary<MapLayer, List<int>> _mutableEmptyGFXRows;
+        private IReadOnlyDictionary<MapLayer, IReadOnlyList<int>> _readOnlyEmptyGFXRows;
         private List<NPCSpawnMapEntity> _mutableNPCSpawns;
         private List<UnknownMapEntity> _mutableUnknowns;
         private List<ChestSpawnMapEntity> _mutableChestSpawns;
@@ -32,6 +35,7 @@ namespace EOLib.IO.Map
             Matrix<TileSpec>.Empty,
             Matrix<WarpMapEntity>.Empty,
             new Dictionary<MapLayer, Matrix<int>>(),
+            new Dictionary<MapLayer, List<int>>(),
             new List<NPCSpawnMapEntity>(),
             new List<UnknownMapEntity>(),
             new List<ChestSpawnMapEntity>(),
@@ -46,6 +50,7 @@ namespace EOLib.IO.Map
             Matrix<TileSpec> tiles,
             Matrix<WarpMapEntity> warps,
             Dictionary<MapLayer, Matrix<int>> gfx,
+            Dictionary<MapLayer, List<int>> emptyGFXRows,
             List<NPCSpawnMapEntity> npcSpawns,
             List<UnknownMapEntity> unknowns,
             List<ChestSpawnMapEntity> chests,
@@ -55,6 +60,7 @@ namespace EOLib.IO.Map
             _mutableTiles = tiles;
             _mutableWarps = warps;
             _mutableGFX = gfx;
+            _mutableEmptyGFXRows = emptyGFXRows;
             SetReadOnlyGFX();
             _mutableNPCSpawns = npcSpawns;
             _mutableUnknowns = unknowns;
@@ -89,10 +95,11 @@ namespace EOLib.IO.Map
             return newMap;
         }
 
-        public IMapFile WithGFX(Dictionary<MapLayer, Matrix<int>> gfx)
+        public IMapFile WithGFX(Dictionary<MapLayer, Matrix<int>> gfx, Dictionary<MapLayer, List<int>> emptyRows)
         {
             var newMap = MakeCopy(this);
             newMap._mutableGFX = gfx;
+            newMap._mutableEmptyGFXRows = emptyRows;
             SetReadOnlyGFX();
             return newMap;
         }
@@ -177,6 +184,7 @@ namespace EOLib.IO.Map
                 source._mutableTiles,
                 source._mutableWarps,
                 source._mutableGFX,
+                source._mutableEmptyGFXRows,
                 source._mutableNPCSpawns,
                 source._mutableUnknowns,
                 source._mutableChestSpawns,
@@ -186,6 +194,7 @@ namespace EOLib.IO.Map
         private void SetReadOnlyGFX()
         {
             _readOnlyGFX = _mutableGFX.ToDictionary(k => k.Key, v => (IReadOnlyMatrix<int>)v.Value);
+            _readOnlyEmptyGFXRows = _mutableEmptyGFXRows.ToDictionary(k => k.Key, v => (IReadOnlyList<int>)v.Value);
         }
     }
 }
