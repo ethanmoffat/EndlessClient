@@ -14,6 +14,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\EOLib.Config\EOLib.Config.csproj" />
+    <ProjectReference Include="..\EOLib.IO\EOLib.IO.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AutomaticTypeMapper" Version="1.4.1" />

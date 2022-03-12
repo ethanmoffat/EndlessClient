@@ -1,88 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace EOLib.Localization
 {
     public class EDFFile : IEDFFile
     {
-        public Dictionary<int, string> Data { get; }
+        private readonly Dictionary<int, string> _data;
 
-        public EDFFile(string fileName, DataFiles whichFile)
+        public IReadOnlyDictionary<int, string> Data => _data;
+
+        public DataFiles WhichFile { get; private set; }
+
+        public EDFFile(DataFiles whichFile)
+            : this(whichFile, new Dictionary<int, string>()) { }
+
+        public EDFFile(DataFiles whichFile, Dictionary<int, string> data)
         {
-            if (!File.Exists(fileName))
-                throw new FileNotFoundException("File does not exist!", fileName);
-
-            Data = new Dictionary<int, string>();
-
-            if (whichFile == DataFiles.CurseFilter)
-            {
-                string[] lines = File.ReadAllLines(fileName);
-                int i = 0;
-                foreach (string encoded in lines)
-                {
-                    string decoded = _decodeDatString(encoded, whichFile);
-                    string[] curses = decoded.Split(':');
-                    foreach (string curse in curses)
-                        Data.Add(i++, curse);
-                }
-            }
-            else
-            {
-                string[] lines = File.ReadAllLines(fileName, Encoding.Default);
-                int i = 0;
-                foreach (string encoded in lines)
-                    Data.Add(i++, _decodeDatString(encoded, whichFile));
-            }
+            WhichFile = whichFile;
+            _data = data;
         }
 
-        private string _decodeDatString(string input, DataFiles whichFile)
+        public IEDFFile WithDataEntry(int key, string data)
         {
-            //unencrypted
-            if (whichFile == DataFiles.Credits || whichFile == DataFiles.Checksum)
-                return input;
+            var copy = MakeCopy(this);
+            copy._data[key] = data;
+            return copy;
+        }
 
-            string ret = "";
-
-            for (int i = 0; i < input.Length; i += 2)
-                ret += input[i];
-
-            //if there are an even number of characters start with the last one
-            //otherwise start with the second to last one
-            int startIndex = input.Length - (input.Length % 2 == 0 ? 1 : 2);
-            for (int i = startIndex; i >= 0; i -= 2)
-                ret += input[i];
-
-            if (whichFile == DataFiles.CurseFilter)
-                return ret;
-
-            StringBuilder sb = new StringBuilder(ret);
-
-            //adjacent ascii char values that are multiples of 7 should be flipped
-            for (int i = 0; i < sb.Length; ++i)
-            {
-                int next = i + 1;
-                if (next < sb.Length)
-                {
-                    char c1 = sb[i], c2 = sb[next];
-                    int ch1 = Convert.ToInt32(c1);
-                    int ch2 = Convert.ToInt32(c2);
-
-                    if (ch1 % 7 == 0 && ch2 % 7 == 0)
-                    {
-                        sb[i] = c2;
-                        sb[next] = c1;
-                    }
-                }
-            }
-
-            return sb.ToString();
+        private EDFFile MakeCopy(EDFFile input)
+        {
+            return new EDFFile(WhichFile, new Dictionary<int, string>(input._data));
         }
     }
 
     public interface IEDFFile
     {
-        Dictionary<int, string> Data { get; }
+        IReadOnlyDictionary<int, string> Data { get; }
+
+        DataFiles WhichFile { get; }
+
+        IEDFFile WithDataEntry(int key, string data);
     }
 }
