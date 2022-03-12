@@ -7,27 +7,28 @@ using EOLib.IO.Map;
 
 namespace EOLib.IO.Services.Serializers
 {
-    [MappedType(BaseType = typeof(ISerializer<IMapFile>))]
-    public class MapFileSerializer : ISerializer<IMapFile>
+    [MappedType(BaseType = typeof(IMapFileSerializer))]
+    [MappedType(BaseType = typeof(IMapDeserializer<IMapFile>))]
+    public class MapFileSerializer : IMapFileSerializer
     {
         private const TileSpec DEFAULT_TILE = TileSpec.None;
         private static readonly WarpMapEntity DEFAULT_WARP = null;
         private const int DEFAULT_GFX = -1;
 
-        private readonly ISerializer<IMapFileProperties> _mapPropertiesSerializer;
-        private readonly ISerializer<NPCSpawnMapEntity> _npcSpawnMapEntitySerializer;
-        private readonly ISerializer<ChestSpawnMapEntity> _chestSpawnMapEntitySerializer;
-        private readonly ISerializer<WarpMapEntity> _warpMapEntitySerializer;
-        private readonly ISerializer<SignMapEntity> _signMapEntitySerializer;
-        private readonly ISerializer<UnknownMapEntity> _unknownMapEntitySerailizer;
+        private readonly IMapEntitySerializer<IMapFileProperties> _mapPropertiesSerializer;
+        private readonly IMapEntitySerializer<NPCSpawnMapEntity> _npcSpawnMapEntitySerializer;
+        private readonly IMapEntitySerializer<ChestSpawnMapEntity> _chestSpawnMapEntitySerializer;
+        private readonly IMapEntitySerializer<WarpMapEntity> _warpMapEntitySerializer;
+        private readonly IMapEntitySerializer<SignMapEntity> _signMapEntitySerializer;
+        private readonly IMapEntitySerializer<UnknownMapEntity> _unknownMapEntitySerailizer;
         private readonly INumberEncoderService _numberEncoderService;
 
-        public MapFileSerializer(ISerializer<IMapFileProperties> mapPropertiesSerializer,
-                                 ISerializer<NPCSpawnMapEntity> npcSpawnMapEntitySerializer,
-                                 ISerializer<ChestSpawnMapEntity> chestSpawnMapEntitySerializer,
-                                 ISerializer<WarpMapEntity> warpMapEntitySerializer,
-                                 ISerializer<SignMapEntity> signMapEntitySerializer,
-                                 ISerializer<UnknownMapEntity> unknownMapEntitySerailizer,
+        public MapFileSerializer(IMapEntitySerializer<IMapFileProperties> mapPropertiesSerializer,
+                                 IMapEntitySerializer<NPCSpawnMapEntity> npcSpawnMapEntitySerializer,
+                                 IMapEntitySerializer<ChestSpawnMapEntity> chestSpawnMapEntitySerializer,
+                                 IMapEntitySerializer<WarpMapEntity> warpMapEntitySerializer,
+                                 IMapEntitySerializer<SignMapEntity> signMapEntitySerializer,
+                                 IMapEntitySerializer<UnknownMapEntity> unknownMapEntitySerailizer,
                                  INumberEncoderService numberEncoderService)
         {
             _mapPropertiesSerializer = mapPropertiesSerializer;
@@ -39,7 +40,7 @@ namespace EOLib.IO.Services.Serializers
             _numberEncoderService = numberEncoderService;
         }
 
-        public byte[] SerializeToByteArray(IMapFile mapFile)
+        public byte[] SerializeToByteArray(IMapFile mapFile, bool rewriteChecksum = true)
         {
             var ret = new List<byte>();
 
@@ -52,7 +53,21 @@ namespace EOLib.IO.Services.Serializers
             ret.AddRange(WriteGFXLayers(mapFile));
             ret.AddRange(WriteMapSigns(mapFile));
 
-            return ret.ToArray();
+            var retBytes = ret.ToArray();
+            if (rewriteChecksum)
+            {
+                var rid1 = _numberEncoderService.EncodeNumber(0, 2);
+                var rid2 = _numberEncoderService.EncodeNumber(0, 2);
+
+                Array.Copy(rid1, 0, retBytes, 3, 2);
+                Array.Copy(rid2, 0, retBytes, 5, 2);
+
+                var checksum = CRC32.Check(retBytes);
+                var checksumBytes = _numberEncoderService.EncodeNumber((int)checksum, 4);
+                Array.Copy(checksumBytes, 0, retBytes, 3, 4);
+            }
+
+            return retBytes;
         }
 
         public IMapFile DeserializeFromByteArray(byte[] data)
@@ -68,9 +83,9 @@ namespace EOLib.IO.Services.Serializers
                 var npcSpawns = ReadNPCSpawns(ms);
                 var unknowns = ReadUnknowns(ms);
                 var mapChests = ReadMapChests(ms);
-                var tileSpecs = ReadTileSpecs(ms, properties);
-                var warpTiles = ReadWarpTiles(ms, properties);
-                var gfxLayers = ReadGFXLayers(ms, properties);
+                var (tileSpecs, emptyTileSpecRows) = ReadTileSpecs(ms, properties);
+                var (warpTiles, emptyWarpRows) = ReadWarpTiles(ms, properties);
+                var (gfxLayers, emptyLayers) = ReadGFXLayers(ms, properties);
 
                 var mapSigns = new List<SignMapEntity>();
                 if (ms.Position < ms.Length)
@@ -84,9 +99,9 @@ namespace EOLib.IO.Services.Serializers
                     .WithNPCSpawns(npcSpawns)
                     .WithUnknowns(unknowns)
                     .WithChests(mapChests)
-                    .WithTiles(tileSpecs)
-                    .WithWarps(warpTiles)
-                    .WithGFX(gfxLayers)
+                    .WithTiles(tileSpecs, emptyTileSpecRows)
+                    .WithWarps(warpTiles, emptyWarpRows)
+                    .WithGFX(gfxLayers, emptyLayers)
                     .WithSigns(mapSigns);
             }
         }
@@ -141,15 +156,19 @@ namespace EOLib.IO.Services.Serializers
             return chestSpawns;
         }
 
-        private Matrix<TileSpec> ReadTileSpecs(MemoryStream ms, IMapFileProperties properties)
+        private (Matrix<TileSpec>, List<int>) ReadTileSpecs(MemoryStream ms, IMapFileProperties properties)
         {
             var tiles = new Matrix<TileSpec>(properties.Height + 1, properties.Width + 1, DEFAULT_TILE);
+            var emptyTileRows = new List<int>();
 
             var numberOfTileRows = _numberEncoderService.DecodeNumber((byte)ms.ReadByte());
             for (int i = 0; i < numberOfTileRows; ++i)
             {
                 var y = _numberEncoderService.DecodeNumber((byte)ms.ReadByte());
                 var numberOfTileColumns = _numberEncoderService.DecodeNumber((byte)ms.ReadByte());
+
+                if (numberOfTileColumns == 0)
+                    emptyTileRows.Add(y);
 
                 for (int j = 0; j < numberOfTileColumns; ++j)
                 {
@@ -161,18 +180,22 @@ namespace EOLib.IO.Services.Serializers
                 }
             }
 
-            return tiles;
+            return (tiles, emptyTileRows);
         }
 
-        private Matrix<WarpMapEntity> ReadWarpTiles(MemoryStream ms, IMapFileProperties properties)
+        private (Matrix<WarpMapEntity>, List<int>) ReadWarpTiles(MemoryStream ms, IMapFileProperties properties)
         {
             var warps = new Matrix<WarpMapEntity>(properties.Height + 1, properties.Width + 1, DEFAULT_WARP);
+            var emptyWarpRows = new List<int>();
 
             var numberOfWarpRows = _numberEncoderService.DecodeNumber((byte)ms.ReadByte());
             for (int i = 0; i < numberOfWarpRows; ++i)
             {
                 var y = _numberEncoderService.DecodeNumber((byte)ms.ReadByte());
                 var numberOfWarpColumns = _numberEncoderService.DecodeNumber((byte)ms.ReadByte());
+
+                if (numberOfWarpColumns == 0)
+                    emptyWarpRows.Add(y);
 
                 for (int j = 0; j < numberOfWarpColumns; ++j)
                 {
@@ -186,12 +209,13 @@ namespace EOLib.IO.Services.Serializers
                 }
             }
 
-            return warps;
+            return (warps, emptyWarpRows);
         }
 
-        private Dictionary<MapLayer, Matrix<int>> ReadGFXLayers(MemoryStream ms, IMapFileProperties properties)
+        private (Dictionary<MapLayer, Matrix<int>>, Dictionary<MapLayer, List<int>>) ReadGFXLayers(MemoryStream ms, IMapFileProperties properties)
         {
             var gfx = new Dictionary<MapLayer, Matrix<int>>();
+            var emptyRows = new Dictionary<MapLayer, List<int>>();
 
             var layers = (MapLayer[])Enum.GetValues(typeof(MapLayer));
             var twoByteBuffer = new byte[2];
@@ -208,6 +232,14 @@ namespace EOLib.IO.Services.Serializers
                     var y = _numberEncoderService.DecodeNumber((byte)ms.ReadByte());
                     var numberOfColsThisLayer = _numberEncoderService.DecodeNumber((byte)ms.ReadByte());
 
+                    if (numberOfColsThisLayer == 0)
+                    {
+                        if (!emptyRows.ContainsKey(layer))
+                            emptyRows.Add(layer, new List<int>());
+
+                        emptyRows[layer].Add(y);
+                    }
+
                     for (int j = 0; j < numberOfColsThisLayer; ++j)
                     {
                         var x = _numberEncoderService.DecodeNumber((byte)ms.ReadByte());
@@ -221,7 +253,7 @@ namespace EOLib.IO.Services.Serializers
                 }
             }
 
-            return gfx;
+            return (gfx, emptyRows);
         }
 
         private List<SignMapEntity> ReadMapSigns(MemoryStream ms)
@@ -291,8 +323,9 @@ namespace EOLib.IO.Services.Serializers
             var ret = new List<byte>();
 
             var tileRows = mapFile.Tiles
-                .Select((row, i) => new { EntityItems = row, Y = i })
-                .Where(rowList => rowList.EntityItems.Any(item => item != DEFAULT_TILE))
+                .Select((row, i) => (row, i))
+                .Where(rowList => rowList.row.Any(item => item != DEFAULT_TILE))
+                .Concat<(IList<TileSpec> EntityItems, int Y)>(mapFile.EmptyTileRows.Select(rowNdx => ((IList<TileSpec>)new List<TileSpec>(), rowNdx)))
                 .ToList();
 
             ret.AddRange(_numberEncoderService.EncodeNumber(tileRows.Count, 1));
@@ -311,6 +344,7 @@ namespace EOLib.IO.Services.Serializers
                     ret.AddRange(_numberEncoderService.EncodeNumber((byte)item.Value, 1));
                 }
             }
+
             return ret;
         }
 
@@ -319,8 +353,9 @@ namespace EOLib.IO.Services.Serializers
             var ret = new List<byte>();
 
             var warpRows = mapFile.Warps
-                .Select((row, i) => new { EntityItems = row, Y = i })
-                .Where(rowList => rowList.EntityItems.Any(item => item != DEFAULT_WARP))
+                .Select((row, i) => (row, i))
+                .Where(rowList => rowList.row.Any(item => item != DEFAULT_WARP))
+                .Concat<(IList<WarpMapEntity> EntityItems, int Y)>(mapFile.EmptyWarpRows.Select(rowNdx => ((IList<WarpMapEntity>)new List<WarpMapEntity>(), rowNdx)))
                 .ToList();
 
             ret.AddRange(_numberEncoderService.EncodeNumber(warpRows.Count, 1));
@@ -350,7 +385,9 @@ namespace EOLib.IO.Services.Serializers
                     .Where(rowList => rowList.EntityItems.Any(item => item != DEFAULT_GFX))
                     .ToList();
 
-                ret.AddRange(_numberEncoderService.EncodeNumber(gfxRowsForLayer.Count, 1));
+                var rowsForLayerCount = gfxRowsForLayer.Count + (mapFile.EmptyGFXRows.ContainsKey(layer) ? mapFile.EmptyGFXRows[layer].Count : 0);
+                ret.AddRange(_numberEncoderService.EncodeNumber(rowsForLayerCount, 1));
+
                 foreach (var row in gfxRowsForLayer)
                 {
                     var entityItems = row.EntityItems
@@ -364,6 +401,15 @@ namespace EOLib.IO.Services.Serializers
                     {
                         ret.AddRange(_numberEncoderService.EncodeNumber(item.X, 1));
                         ret.AddRange(_numberEncoderService.EncodeNumber(item.Value, 2));
+                    }
+                }
+
+                if (mapFile.EmptyGFXRows.ContainsKey(layer))
+                {
+                    foreach (var emptyLayer in mapFile.EmptyGFXRows[layer])
+                    {
+                        ret.AddRange(_numberEncoderService.EncodeNumber(emptyLayer, 1));
+                        ret.AddRange(_numberEncoderService.EncodeNumber(0, 1));
                     }
                 }
             }

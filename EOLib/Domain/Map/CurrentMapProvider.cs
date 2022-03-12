@@ -17,7 +17,6 @@ namespace EOLib.Domain.Map
             _mapFileProvider = mapFileProvider;
         }
 
-
         public IMapFile CurrentMap => _mapFileProvider.MapFiles[_currentMapStateProvider.CurrentMapID];
     }
 

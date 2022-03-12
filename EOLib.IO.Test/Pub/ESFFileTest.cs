@@ -42,7 +42,7 @@ namespace EOLib.IO.Test.Pub
 
             _spellFile.DeserializeFromByteArray(expectedBytes, new NumberEncoderService());
 
-            var actualBytes = _spellFile.SerializeToByteArray(new NumberEncoderService());
+            var actualBytes = _spellFile.SerializeToByteArray(new NumberEncoderService(), rewriteChecksum: false);
 
             CollectionAssert.AreEqual(expectedBytes, actualBytes);
         }
@@ -52,7 +52,7 @@ namespace EOLib.IO.Test.Pub
         {
             var nes = new NumberEncoderService();
 
-            var actualBytes = _spellFile.SerializeToByteArray(nes);
+            var actualBytes = _spellFile.SerializeToByteArray(nes, rewriteChecksum: false);
 
             CollectionAssert.AreEqual(Encoding.ASCII.GetBytes(_spellFile.FileType), actualBytes.Take(3).ToArray());
             CollectionAssert.AreEqual(nes.EncodeNumber(_spellFile.CheckSum, 4), actualBytes.Skip(3).Take(4).ToArray());

@@ -15,7 +15,7 @@ namespace EOLib.IO.Test.Map
     [TestFixture, ExcludeFromCodeCoverage]
     public class MapFilePropertiesTest
     {
-        private ISerializer<IMapFileProperties> _mapPropertiesSerializer;
+        private IMapEntitySerializer<IMapFileProperties> _mapPropertiesSerializer;
         private IMapFileProperties _props;
 
         [SetUp]
@@ -120,7 +120,7 @@ namespace EOLib.IO.Test.Map
             ret.AddRange(props.Checksum);
             
             var fullName = Enumerable.Repeat((byte)0xFF, 24).ToArray();
-            var encodedName = mapStringEncoderService.EncodeMapString(props.Name);
+            var encodedName = mapStringEncoderService.EncodeMapString(props.Name, props.Name.Length);
             Array.Copy(encodedName, 0, fullName, fullName.Length - encodedName.Length, encodedName.Length);
             ret.AddRange(fullName);
 

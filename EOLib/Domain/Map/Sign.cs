@@ -1,4 +1,5 @@
 ﻿using EOLib.IO.Map;
+using System.Linq;
 
 namespace EOLib.Domain.Map
 {
@@ -10,8 +11,13 @@ namespace EOLib.Domain.Map
 
         public Sign(SignMapEntity sign)
         {
-            Title = sign.Title;
-            Message = sign.Message;
+            Title = Filter(sign.Title);
+            Message = Filter(sign.Message);
+        }
+
+        private static string Filter(string input)
+        {
+            return new string(input.Where(x => !char.IsControl(x)).ToArray());
         }
     }
 

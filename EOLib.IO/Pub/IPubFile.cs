@@ -19,7 +19,7 @@ namespace EOLib.IO.Pub
 
         int Length { get; }
 
-        byte[] SerializeToByteArray(INumberEncoderService numberEncoderService);
+        byte[] SerializeToByteArray(INumberEncoderService numberEncoderService, bool rewriteChecksum = true);
 
         void DeserializeFromByteArray(byte[] bytes, INumberEncoderService numberEncoderService);
     }

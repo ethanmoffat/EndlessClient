@@ -6,8 +6,9 @@ using EOLib.IO.Map;
 
 namespace EOLib.IO.Services.Serializers
 {
-    [MappedType(BaseType = typeof(ISerializer<SignMapEntity>))]
-    public class SignMapEntitySerializer : ISerializer<SignMapEntity>
+    [MappedType(BaseType = typeof(IMapEntitySerializer<SignMapEntity>))]
+    [MappedType(BaseType = typeof(IMapDeserializer<SignMapEntity>))]
+    public class SignMapEntitySerializer : IMapEntitySerializer<SignMapEntity>
     {
         private readonly INumberEncoderService numberEncoderService;
         private readonly IMapStringEncoderService mapStringEncoderService;
@@ -26,7 +27,7 @@ namespace EOLib.IO.Services.Serializers
             retBytes.AddRange(numberEncoderService.EncodeNumber(mapEntity.X, 1));
             retBytes.AddRange(numberEncoderService.EncodeNumber(mapEntity.Y, 1));
 
-            var fileMsg = mapStringEncoderService.EncodeMapString(mapEntity.Title + mapEntity.Message);
+            var fileMsg = mapStringEncoderService.EncodeMapString(mapEntity.Title + mapEntity.Message, mapEntity.RawLength);
             retBytes.AddRange(numberEncoderService.EncodeNumber(fileMsg.Length + 1, 2));
 
             retBytes.AddRange(fileMsg);
@@ -53,7 +54,8 @@ namespace EOLib.IO.Services.Serializers
 
             var titleAndMessage = mapStringEncoderService.DecodeMapString(rawTitleAndMessage);
             sign = sign.WithTitle(titleAndMessage.Substring(0, titleLength))
-                .WithMessage(titleAndMessage.Substring(titleLength));
+                .WithMessage(titleAndMessage.Substring(titleLength))
+                .WithRawLength(titleAndMessageLength - 1);
 
             return sign;
         }

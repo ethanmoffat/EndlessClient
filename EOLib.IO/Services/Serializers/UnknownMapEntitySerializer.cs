@@ -4,11 +4,13 @@ using EOLib.IO.Map;
 
 namespace EOLib.IO.Services.Serializers
 {
-    [MappedType(BaseType = typeof(ISerializer<UnknownMapEntity>))]
-    public class UnknownMapEntitySerializer : ISerializer<UnknownMapEntity>
+    [MappedType(BaseType = typeof(IMapEntitySerializer<UnknownMapEntity>))]
+    [MappedType(BaseType = typeof(IMapDeserializer<UnknownMapEntity>))]
+    public class UnknownMapEntitySerializer : IMapEntitySerializer<UnknownMapEntity>
     {
         private readonly INumberEncoderService _numberEncoderService;
 
+        // todo: sausage figured out this is legacy door key data (x/y/key id (short)), rename accordingly
         public UnknownMapEntitySerializer(INumberEncoderService numberEncoderService)
         {
             _numberEncoderService = numberEncoderService;

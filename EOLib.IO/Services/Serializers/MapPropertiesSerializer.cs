@@ -7,8 +7,9 @@ using EOLib.IO.Map;
 
 namespace EOLib.IO.Services.Serializers
 {
-    [MappedType(BaseType = typeof(ISerializer<IMapFileProperties>))]
-    public class MapPropertiesSerializer : ISerializer<IMapFileProperties>
+    [MappedType(BaseType = typeof(IMapEntitySerializer<IMapFileProperties>))]
+    [MappedType(BaseType = typeof(IMapDeserializer<IMapFileProperties>))]
+    public class MapPropertiesSerializer : IMapEntitySerializer<IMapFileProperties>
     {
         private readonly INumberEncoderService _numberEncoderService;
         private readonly IMapStringEncoderService _mapStringEncoderService;
@@ -89,7 +90,7 @@ namespace EOLib.IO.Services.Serializers
             var padding = Enumerable.Repeat((byte)0, 24 - mapEntity.Name.Length).ToArray();
             var nameToEncode = $"{mapEntity.Name}{Encoding.ASCII.GetString(padding)}";
 
-            var encodedName = _mapStringEncoderService.EncodeMapString(nameToEncode);
+            var encodedName = _mapStringEncoderService.EncodeMapString(nameToEncode, nameToEncode.Length);
             var formattedName = encodedName.Select(x => x == 0 ? (byte)255 : x).ToArray();
             return formattedName;
         }

@@ -7,8 +7,11 @@ namespace EOLib.IO.Map
         IMapFileProperties Properties { get; }
 
         IReadOnlyMatrix<TileSpec> Tiles { get; }
+        IReadOnlyList<int> EmptyTileRows { get; }
         IReadOnlyMatrix<WarpMapEntity> Warps { get; }
+        IReadOnlyList<int> EmptyWarpRows { get; }
         IReadOnlyDictionary<MapLayer, IReadOnlyMatrix<int>> GFX { get; }
+        IReadOnlyDictionary<MapLayer, IReadOnlyList<int>> EmptyGFXRows { get; }
         IReadOnlyList<NPCSpawnMapEntity> NPCSpawns { get; }
         IReadOnlyList<UnknownMapEntity> Unknowns { get; }
         IReadOnlyList<ChestSpawnMapEntity> Chests { get; }
@@ -18,11 +21,11 @@ namespace EOLib.IO.Map
 
         IMapFile WithMapProperties(IMapFileProperties mapFileProperties);
 
-        IMapFile WithTiles(Matrix<TileSpec> tiles);
+        IMapFile WithTiles(Matrix<TileSpec> tiles, List<int> emptyTileRows);
 
-        IMapFile WithWarps(Matrix<WarpMapEntity> warps);
+        IMapFile WithWarps(Matrix<WarpMapEntity> warps, List<int> emptyWarpRows);
 
-        IMapFile WithGFX(Dictionary<MapLayer, Matrix<int>> gfx);
+        IMapFile WithGFX(Dictionary<MapLayer, Matrix<int>> gfx, Dictionary<MapLayer, List<int>> emptyLayers);
 
         IMapFile WithNPCSpawns(List<NPCSpawnMapEntity> npcSpawns);
 
