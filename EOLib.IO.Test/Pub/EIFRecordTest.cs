@@ -277,7 +277,7 @@ namespace EOLib.IO.Test.Pub
             ret.AddRange(nes.EncodeNumber(rec.Accuracy, 2));
             ret.AddRange(nes.EncodeNumber(rec.Evade, 2));
             ret.AddRange(nes.EncodeNumber(rec.Armor, 2));
-            ret.AddRange(Enumerable.Repeat((byte)254, 1));
+            ret.AddRange(nes.EncodeNumber(rec.UnkByte19, 1));
             ret.AddRange(nes.EncodeNumber(rec.Str, 1));
             ret.AddRange(nes.EncodeNumber(rec.Int, 1));
             ret.AddRange(nes.EncodeNumber(rec.Wis, 1));
@@ -301,9 +301,10 @@ namespace EOLib.IO.Test.Pub
             ret.AddRange(nes.EncodeNumber(rec.AgiReq, 2));
             ret.AddRange(nes.EncodeNumber(rec.ConReq, 2));
             ret.AddRange(nes.EncodeNumber(rec.ChaReq, 2));
-            ret.AddRange(Enumerable.Repeat((byte)254, 2));
+            ret.AddRange(nes.EncodeNumber(rec.Element, 1));
+            ret.AddRange(nes.EncodeNumber(rec.ElementPower, 1));
             ret.AddRange(nes.EncodeNumber(rec.Weight, 1));
-            ret.AddRange(Enumerable.Repeat((byte)254, 1));
+            ret.AddRange(nes.EncodeNumber(rec.UnkByte56, 1));
             ret.AddRange(nes.EncodeNumber((byte)rec.Size, 1));
 
             return ret.ToArray();
