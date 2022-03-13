@@ -176,21 +176,25 @@ namespace EOLib.IO.Test.Pub
             var ret = new List<byte>();
 
             ret.AddRange(nes.EncodeNumber(rec.Graphic, 2));
-            ret.AddRange(Enumerable.Repeat((byte)254, 1));
+            ret.AddRange(nes.EncodeNumber(rec.UnkByte2, 1));
             ret.AddRange(nes.EncodeNumber(rec.Boss, 2));
             ret.AddRange(nes.EncodeNumber(rec.Child, 2));
             ret.AddRange(nes.EncodeNumber((short)rec.Type, 2));
             ret.AddRange(nes.EncodeNumber(rec.VendorID, 2));
             ret.AddRange(nes.EncodeNumber(rec.HP, 3));
-            ret.AddRange(Enumerable.Repeat((byte)254, 2));
+            ret.AddRange(nes.EncodeNumber(rec.UnkShort14, 2));
             ret.AddRange(nes.EncodeNumber(rec.MinDam, 2));
             ret.AddRange(nes.EncodeNumber(rec.MaxDam, 2));
             ret.AddRange(nes.EncodeNumber(rec.Accuracy, 2));
             ret.AddRange(nes.EncodeNumber(rec.Evade, 2));
             ret.AddRange(nes.EncodeNumber(rec.Armor, 2));
-            ret.AddRange(Enumerable.Repeat((byte)254, 10));
-            ret.AddRange(nes.EncodeNumber(rec.Exp, 2));
-            ret.AddRange(Enumerable.Repeat((byte)254, 1));
+            ret.AddRange(nes.EncodeNumber(rec.UnkByte26, 1));
+            ret.AddRange(nes.EncodeNumber(rec.UnkShort27, 2));
+            ret.AddRange(nes.EncodeNumber(rec.UnkShort29, 2));
+            ret.AddRange(nes.EncodeNumber(rec.ElementWeak, 2));
+            ret.AddRange(nes.EncodeNumber(rec.ElementWeakPower, 2));
+            ret.AddRange(nes.EncodeNumber(rec.UnkByte35, 1));
+            ret.AddRange(nes.EncodeNumber(rec.Exp, 3));
 
             return ret.ToArray();
         }
