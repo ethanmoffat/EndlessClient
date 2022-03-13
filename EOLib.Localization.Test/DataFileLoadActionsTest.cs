@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using EOLib.IO.Services;
 using NUnit.Framework;
 
 namespace EOLib.Localization.Test
@@ -9,12 +10,14 @@ namespace EOLib.Localization.Test
     {
         private IDataFileLoadActions _actions;
         private IDataFileRepository _dataFileRepository;
+        private IEDFLoaderService _edfLoaderService;
 
         [SetUp]
         public void SetUp()
         {
             _dataFileRepository = new DataFileRepository();
-            _actions = new DataFileLoadActions(_dataFileRepository);
+            _edfLoaderService = new EDFLoaderService(new DataEncoderService());
+            _actions = new DataFileLoadActions(_dataFileRepository, _edfLoaderService);
         }
 
         [TearDown]
@@ -53,7 +56,7 @@ namespace EOLib.Localization.Test
         {
             CreateRequiredDirectory();
             GivenEDFFilesInRequiredDirectory();
-            _dataFileRepository.DataFiles.Add(DataFiles.Credits, new EDFFile("data/dat001.edf", DataFiles.Credits));
+            _dataFileRepository.DataFiles.Add(DataFiles.Credits, new EDFFile(DataFiles.Credits));
 
             _actions.LoadDataFiles();
 

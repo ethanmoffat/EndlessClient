@@ -11,7 +11,7 @@ namespace EOLib.Localization.Test
     public class LocalizedStringFinderTest
     {
         private IConfigurationProvider _configurationProvider;
-        private DataFileRepository _dataFileProvider;
+        private DataFileRepository _dataFileRepository;
 
         private ILocalizedStringFinder _localizedStringFinder;
 
@@ -19,11 +19,11 @@ namespace EOLib.Localization.Test
         public void SetUp()
         {
             _configurationProvider = Mock.Of<IConfigurationProvider>();
-            _dataFileProvider = new DataFileRepository();
+            _dataFileRepository = new DataFileRepository();
 
             _localizedStringFinder = new LocalizedStringFinder(
                 _configurationProvider,
-                _dataFileProvider);
+                _dataFileRepository);
         }
 
         [Test]
@@ -110,18 +110,18 @@ namespace EOLib.Localization.Test
 
         private void GivenFileHasStringForResourceID(DataFiles file, DialogResourceID id, string str)
         {
-            if (!_dataFileProvider.DataFiles.ContainsKey(file))
-                _dataFileProvider.DataFiles.Add(file, Mock.Of<IEDFFile>(x => x.Data == new Dictionary<int, string>()));
+            if (!_dataFileRepository.DataFiles.ContainsKey(file))
+                _dataFileRepository.DataFiles.Add(file, new EDFFile(file));
 
-            _dataFileProvider.DataFiles[file].Data[(int)id] = str;
+            _dataFileRepository.DataFiles[file] = _dataFileRepository.DataFiles[file].WithDataEntry((int)id, str);
         }
 
         private void GivenFileHasStringForResourceID(DataFiles file, EOResourceID id, string str)
         {
-            if (!_dataFileProvider.DataFiles.ContainsKey(file))
-                _dataFileProvider.DataFiles.Add(file, Mock.Of<IEDFFile>(x => x.Data == new Dictionary<int, string>()));
+            if (!_dataFileRepository.DataFiles.ContainsKey(file))
+                _dataFileRepository.DataFiles.Add(file, new EDFFile(file));
 
-            _dataFileProvider.DataFiles[file].Data[(int)id] = str;
+            _dataFileRepository.DataFiles[file] = _dataFileRepository.DataFiles[file].WithDataEntry((int)id, str);
         }
 
         private void GivenLanguageSetInConfig(EOLanguage language)

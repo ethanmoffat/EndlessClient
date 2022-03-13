@@ -2,16 +2,24 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using EOLib.IO.Services;
 using NUnit.Framework;
 
 namespace EOLib.Localization.Test
 {
     [TestFixture, ExcludeFromCodeCoverage]
-    public class EDFFileTest
+    public class EDFLoaderServiceTest
     {
         private const string FILE_NAME = "test.edf";
 
-        [TearDown]
+        private IEDFLoaderService _edfLoaderService;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _edfLoaderService = new EDFLoaderService(new DataEncoderService());
+        }
+
         public void TearDown()
         {
             if (File.Exists(FILE_NAME))
@@ -21,7 +29,7 @@ namespace EOLib.Localization.Test
         [Test]
         public void GivenNonExistingFile_ExpectFileNotFoundException()
         {
-            Assert.Throws<FileNotFoundException>(() => new EDFFile("fileThatDoesNotExist", DataFiles.Checksum));
+            Assert.Throws<FileNotFoundException>(() => _edfLoaderService.LoadFile("fileThatDoesNotExist", DataFiles.Checksum));
         }
 
         [Test]
@@ -30,7 +38,7 @@ namespace EOLib.Localization.Test
             const string curseString = "CsusrAs:e5:4C3uErSsReU2C:";
             GivenDataFileWithContents(FILE_NAME, curseString);
 
-            var file = new EDFFile(FILE_NAME, DataFiles.CurseFilter);
+            var file = _edfLoaderService.LoadFile(FILE_NAME, DataFiles.CurseFilter);
 
             var expectedCurses = new[]
             {
@@ -46,7 +54,7 @@ namespace EOLib.Localization.Test
             const string curseString = "CsusrAs:e5:4C3uErSsReU2C:\nARBQCPDOEN:MF:GLHKIJ:";
             GivenDataFileWithContents(FILE_NAME, curseString);
 
-            var file = new EDFFile(FILE_NAME, DataFiles.CurseFilter);
+            var file = _edfLoaderService.LoadFile(FILE_NAME, DataFiles.CurseFilter);
 
             var expectedCurses = new[]
             {
@@ -63,7 +71,7 @@ namespace EOLib.Localization.Test
             const string credits = "Created By\nMe :)\nMe again!";
             GivenDataFileWithContents(FILE_NAME, credits);
 
-            var file = new EDFFile(FILE_NAME, DataFiles.Credits);
+            var file = _edfLoaderService.LoadFile(FILE_NAME, DataFiles.Credits);
 
             var expectedCredits = credits.Split('\n');
             CollectionAssert.AreEqual(expectedCredits, file.Data.Values);
@@ -75,7 +83,7 @@ namespace EOLib.Localization.Test
             const string checksum = "218:13:2:176";
             GivenDataFileWithContents(FILE_NAME, checksum);
 
-            var file = new EDFFile(FILE_NAME, DataFiles.Checksum);
+            var file = _edfLoaderService.LoadFile(FILE_NAME, DataFiles.Checksum);
 
             Assert.AreEqual(1, file.Data.Count);
             Assert.AreEqual(checksum, file.Data.Values.Single());
@@ -92,7 +100,7 @@ namespace EOLib.Localization.Test
             var valuesToTest = ((DataFiles[]) Enum.GetValues(typeof(DataFiles))).Skip(3);
             foreach (var file in valuesToTest)
             {
-                var edf = new EDFFile(FILE_NAME, file);
+                var edf = _edfLoaderService.LoadFile(FILE_NAME, file);
                 Assert.AreEqual(expectedString, edf.Data.Values.Single());
             }
         }
@@ -108,7 +116,7 @@ namespace EOLib.Localization.Test
             var valuesToTest = ((DataFiles[])Enum.GetValues(typeof(DataFiles))).Skip(3);
             foreach (var file in valuesToTest)
             {
-                var edf = new EDFFile(FILE_NAME, file);
+                var edf = _edfLoaderService.LoadFile(FILE_NAME, file);
                 CollectionAssert.AreEqual(expectedStrings, edf.Data.Values);
             }
         }
@@ -127,7 +135,7 @@ namespace EOLib.Localization.Test
             var valuesToTest = ((DataFiles[])Enum.GetValues(typeof(DataFiles))).Skip(3);
             foreach (var file in valuesToTest)
             {
-                var edf = new EDFFile(FILE_NAME, file);
+                var edf = _edfLoaderService.LoadFile(FILE_NAME, file);
                 Assert.AreEqual(expectedString, edf.Data.Values.Single());
             }
         }
