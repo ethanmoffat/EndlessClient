@@ -115,7 +115,7 @@ namespace EOLib.Localization
             List<byte> res = null;
 
             if (whichFile != DataFiles.CurseFilter)
-                res = _dataEncoderService.SwapMultiples(res, 7);
+                res = _dataEncoderService.SwapMultiples(Encoding.ASCII.GetBytes(content).ToList(), 7);
 
             res = _dataEncoderService.Interleave(res ?? Encoding.ASCII.GetBytes(content).ToList());
 
