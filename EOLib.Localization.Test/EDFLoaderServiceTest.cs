@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -27,7 +28,7 @@ namespace EOLib.Localization.Test
         }
 
         [Test]
-        public void GivenNonExistingFile_ExpectFileNotFoundException()
+        public void GivenNonExistingFile_Load_ExpectFileNotFoundException()
         {
             Assert.Throws<FileNotFoundException>(() => _edfLoaderService.LoadFile("fileThatDoesNotExist", DataFiles.Checksum));
         }
@@ -49,6 +50,19 @@ namespace EOLib.Localization.Test
         }
 
         [Test]
+        public void GivenCurseFile_EncodeStringDelimitedByColons()
+        {
+            const string ExpectedCurseString = "CsusrAs:e5:4C3uErSsReU2C:";
+
+            var curses = new[] { "Curse", "Curse2", "CURSE345", "Ass" };
+            var edfFile = new EDFFile(DataFiles.CurseFilter, new Dictionary<int, string>(curses.Select((x, i) => KeyValuePair.Create(i, x))));
+
+            _edfLoaderService.SaveFile(FILE_NAME, edfFile);
+
+            AssertFileContent(FILE_NAME, ExpectedCurseString);
+        }
+
+        [Test]
         public void GivenCurseFile_DecodeStringDelimitedByColons_HandlesMultipleLines()
         {
             const string curseString = "CsusrAs:e5:4C3uErSsReU2C:\nARBQCPDOEN:MF:GLHKIJ:";
@@ -65,64 +79,55 @@ namespace EOLib.Localization.Test
             CollectionAssert.AreEqual(expectedCurses, file.Data.Values);
         }
 
-        [Test]
-        public void GivenCreditsFile_DoesNotDecodeFileContents_SplitsByLines()
+        [TestCase(DataFiles.Credits, "Created By\nMe :)\nMe again!")]
+        [TestCase(DataFiles.Checksum, "218:13:2:176")]
+        public void GivenUnencodedFile_DoesNotDecodeFileContents_SplitsByLines(DataFiles whichFile, string content)
         {
-            const string credits = "Created By\nMe :)\nMe again!";
-            GivenDataFileWithContents(FILE_NAME, credits);
+            GivenDataFileWithContents(FILE_NAME, content);
 
-            var file = _edfLoaderService.LoadFile(FILE_NAME, DataFiles.Credits);
+            var file = _edfLoaderService.LoadFile(FILE_NAME, whichFile);
 
-            var expectedCredits = credits.Split('\n');
-            CollectionAssert.AreEqual(expectedCredits, file.Data.Values);
+            var expectedLines = content.Split('\n');
+            CollectionAssert.AreEqual(expectedLines, file.Data.Values);
         }
 
-        [Test]
-        public void GivenChecksumFile_DoesNotDecodeFileContents()
+        [TestCase(DataFiles.Credits, new[] { "Created By", "Me :)", "Me again!" })]
+        [TestCase(DataFiles.Checksum, new[] { "218:13:2:176" })]
+        public void GivenUnencodedFile_DoesNotEncodeFileContents_SplitsByDataKeys(DataFiles whichFile, string[] content)
         {
-            const string checksum = "218:13:2:176";
-            GivenDataFileWithContents(FILE_NAME, checksum);
+            var edfFile = new EDFFile(whichFile, new Dictionary<int, string>(content.Select((x, i) => KeyValuePair.Create(i, x))));
 
-            var file = _edfLoaderService.LoadFile(FILE_NAME, DataFiles.Checksum);
+            _edfLoaderService.SaveFile(FILE_NAME, edfFile);
 
-            Assert.AreEqual(1, file.Data.Count);
-            Assert.AreEqual(checksum, file.Data.Values.Single());
+            AssertFileContent(FILE_NAME, string.Join(Environment.NewLine, content));
         }
 
-        [Test]
-        public void NonSpecialDataFiles_AreDecodedCorrectly()
+        [TestCaseSource(nameof(GetStandardEDFFiles))]
+        public void NonSpecialDataFiles_AreDecodedCorrectly(DataFiles whichFile)
         {
             const string fileData = "a7b6cg1f2e3d4 5";
             const string expectedString = "abc12345 defg67";
 
             GivenDataFileWithContents(FILE_NAME, fileData);
 
-            var valuesToTest = ((DataFiles[]) Enum.GetValues(typeof(DataFiles))).Skip(3);
-            foreach (var file in valuesToTest)
-            {
-                var edf = _edfLoaderService.LoadFile(FILE_NAME, file);
-                Assert.AreEqual(expectedString, edf.Data.Values.Single());
-            }
+            var edf = _edfLoaderService.LoadFile(FILE_NAME, whichFile);
+            Assert.AreEqual(expectedString, edf.Data.Values.Single());
         }
 
-        [Test]
-        public void NonSpecialDataFiles_AreDecodedCorrectly_MultipleLines()
+        [TestCaseSource(nameof(GetStandardEDFFiles))]
+        public void NonSpecialDataFiles_AreDecodedCorrectly_MultipleLines(DataFiles whichFile)
         {
             const string fileData = "a7b6cg1f2e3d4 5\na7b6cg1f2e3d4 5";
             var expectedStrings = new[] { "abc12345 defg67", "abc12345 defg67"};
 
             GivenDataFileWithContents(FILE_NAME, fileData);
 
-            var valuesToTest = ((DataFiles[])Enum.GetValues(typeof(DataFiles))).Skip(3);
-            foreach (var file in valuesToTest)
-            {
-                var edf = _edfLoaderService.LoadFile(FILE_NAME, file);
-                CollectionAssert.AreEqual(expectedStrings, edf.Data.Values);
-            }
+            var edf = _edfLoaderService.LoadFile(FILE_NAME, whichFile);
+            CollectionAssert.AreEqual(expectedStrings, edf.Data.Values);
         }
 
-        [Test]
-        public void NonSpecialDataFiles_SwapAdjacentCharacterValues_MultiplesOfSeven()
+        [TestCaseSource(nameof(GetStandardEDFFiles))]
+        public void NonSpecialDataFiles_Decode_SwapAdjacentCharacterValues_MultiplesOfSeven(DataFiles whichFile)
         {
             //p, p, and i are adjacent multiples of 7 in this example
             //see https://eoserv.net/wiki/EDF_Data_Files for more info
@@ -132,17 +137,74 @@ namespace EOLib.Localization.Test
 
             GivenDataFileWithContents(FILE_NAME, fileData);
 
-            var valuesToTest = ((DataFiles[])Enum.GetValues(typeof(DataFiles))).Skip(3);
-            foreach (var file in valuesToTest)
+            var edf = _edfLoaderService.LoadFile(FILE_NAME, whichFile);
+            Assert.AreEqual(expectedString, edf.Data.Values.Single());
+        }
+
+        [TestCaseSource(nameof(GetStandardEDFFiles))]
+        public void NonSpecialDataFiles_AreEncodedCorrectly(DataFiles whichFile)
+        {
+            const string ExpectedFileData = "a7b6cg1f2e3d4 5";
+
+            const string Input = "abc12345 defg67";
+            var edfFile = new EDFFile(whichFile, new Dictionary<int, string> { { 0, Input } });
+
+            _edfLoaderService.SaveFile(FILE_NAME, edfFile);
+
+            AssertFileContent(FILE_NAME, ExpectedFileData);
+        }
+
+        [TestCaseSource(nameof(GetStandardEDFFiles))]
+        public void NonSpecialDataFiles_AreEncodedCorrectly_MultipleLines(DataFiles whichFile)
+        {
+            var expectedFileData = $"a7b6cg1f2e3d4 5{Environment.NewLine}a7b6cg1f2e3d4 5";
+
+            var decodedStrings = new Dictionary<int, string> { { 0, "abc12345 defg67" }, { 1, "abc12345 defg67" } };
+            var edfFile = new EDFFile(whichFile, decodedStrings);
+
+            _edfLoaderService.SaveFile(FILE_NAME, edfFile);
+
+            AssertFileContent(FILE_NAME, expectedFileData);
+        }
+
+        [TestCaseSource(nameof(GetStandardEDFFiles))]
+        public void NonSpecialDataFiles_Encode_SwapAdjacentCharacterValues_MultiplesOfSeven(DataFiles whichFile)
+        {
+            const string ExpectedFileData = "Cgrnapzpyi est";
+
+            const string Input = "Crazy stepping";
+            var edfFile = new EDFFile(whichFile, new Dictionary<int, string> { { 0, Input } });
+
+            _edfLoaderService.SaveFile(FILE_NAME, edfFile);
+
+            AssertFileContent(FILE_NAME, ExpectedFileData);
+        }
+
+        public static DataFiles[] GetStandardEDFFiles()
+        {
+            return new []
             {
-                var edf = _edfLoaderService.LoadFile(FILE_NAME, file);
-                Assert.AreEqual(expectedString, edf.Data.Values.Single());
-            }
+                DataFiles.JukeBoxSongs,
+                DataFiles.EnglishStatus1,
+                DataFiles.EnglishStatus2,
+                DataFiles.DutchStatus1,
+                DataFiles.DutchStatus2,
+                DataFiles.SwedishStatus1,
+                DataFiles.SwedishStatus2,
+                DataFiles.PortugueseStatus1,
+                DataFiles.PortugueseStatus2
+            };
         }
 
         private void GivenDataFileWithContents(string fileName, string fileData)
         {
             File.WriteAllText(fileName, fileData);
+        }
+
+        private void AssertFileContent(string fileName, string fileData)
+        {
+            var text = File.ReadAllText(fileName).Trim();
+            Assert.That(text, Is.EqualTo(fileData));
         }
     }
 }
