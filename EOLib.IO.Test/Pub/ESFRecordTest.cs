@@ -183,18 +183,31 @@ namespace EOLib.IO.Test.Pub
             ret.AddRange(nes.EncodeNumber(rec.TP, 2));
             ret.AddRange(nes.EncodeNumber(rec.SP, 2));
             ret.AddRange(nes.EncodeNumber(rec.CastTime, 1));
-            ret.AddRange(Enumerable.Repeat((byte)254, 2));
-            ret.AddRange(nes.EncodeNumber((byte)rec.Type, 1));
-            ret.AddRange(Enumerable.Repeat((byte)254, 5));
+            ret.AddRange(nes.EncodeNumber(rec.UnkByte9, 1));
+            ret.AddRange(nes.EncodeNumber(rec.UnkByte10, 1));
+            ret.AddRange(nes.EncodeNumber((int)rec.Type, 3));
+            ret.AddRange(nes.EncodeNumber(rec.UnkByte14, 1));
+            ret.AddRange(nes.EncodeNumber(rec.UnkShort15, 2));
             ret.AddRange(nes.EncodeNumber((byte)rec.TargetRestrict, 1));
             ret.AddRange(nes.EncodeNumber((byte)rec.Target, 1));
-            ret.AddRange(Enumerable.Repeat((byte)254, 4));
+            ret.AddRange(nes.EncodeNumber(rec.UnkByte19, 1));
+            ret.AddRange(nes.EncodeNumber(rec.UnkByte20, 1));
+            ret.AddRange(nes.EncodeNumber(rec.UnkShort21, 2));
             ret.AddRange(nes.EncodeNumber(rec.MinDam, 2));
             ret.AddRange(nes.EncodeNumber(rec.MaxDam, 2));
             ret.AddRange(nes.EncodeNumber(rec.Accuracy, 2));
-            ret.AddRange(Enumerable.Repeat((byte)254, 5));
+            ret.AddRange(nes.EncodeNumber(rec.UnkShort29, 2));
+            ret.AddRange(nes.EncodeNumber(rec.UnkShort31, 2));
+            ret.AddRange(nes.EncodeNumber(rec.UnkByte33, 1));
             ret.AddRange(nes.EncodeNumber(rec.HP, 2));
-            ret.AddRange(Enumerable.Repeat((byte)254, 15));
+            ret.AddRange(nes.EncodeNumber(rec.UnkShort36, 2));
+            ret.AddRange(nes.EncodeNumber(rec.UnkByte38, 1));
+            ret.AddRange(nes.EncodeNumber(rec.UnkShort39, 2));
+            ret.AddRange(nes.EncodeNumber(rec.UnkShort41, 2));
+            ret.AddRange(nes.EncodeNumber(rec.UnkShort43, 2));
+            ret.AddRange(nes.EncodeNumber(rec.UnkShort45, 2));
+            ret.AddRange(nes.EncodeNumber(rec.UnkShort47, 2));
+            ret.AddRange(nes.EncodeNumber(rec.UnkShort49, 2));
 
             return ret.ToArray();
         }
