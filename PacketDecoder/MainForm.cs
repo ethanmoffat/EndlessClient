@@ -42,7 +42,7 @@ namespace PacketDecoder
             _packetEncoderRepository = new PacketEncoderRepository();
             _packetProcessActions = new PacketProcessActions(new SequenceRepository(),
                                                              _packetEncoderRepository,
-                                                             new PacketEncoderService(new NumberEncoderService()),
+                                                             new PacketEncoderService(new NumberEncoderService(), new DataEncoderService()),
                                                              new PacketSequenceService(),
                                                              new LoggerProvider(new LoggerFactory(new ConfigurationRepository())));
         }

@@ -8,10 +8,13 @@ namespace EOLib.Localization
     public class DataFileLoadActions : IDataFileLoadActions
     {
         private readonly IDataFileRepository _dataFileRepository;
+        private readonly IEDFLoaderService _edfLoaderService;
 
-        public DataFileLoadActions(IDataFileRepository dataFileRepository)
+        public DataFileLoadActions(IDataFileRepository dataFileRepository,
+                                   IEDFLoaderService edfLoaderService)
         {
             _dataFileRepository = dataFileRepository;
+            _edfLoaderService = edfLoaderService;
         }
 
         public void LoadDataFiles()
@@ -32,9 +35,7 @@ namespace EOLib.Localization
                     throw new DataFileLoadException();
 
                 var fileToLoad = (DataFiles)i;
-                var loadedFile = new EDFFile(files[i - 1], fileToLoad);
-
-                _dataFileRepository.DataFiles.Add(fileToLoad, loadedFile);
+                _dataFileRepository.DataFiles[fileToLoad] = _edfLoaderService.LoadFile(files[i - 1], fileToLoad);
             }
         }
 
