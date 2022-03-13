@@ -30,6 +30,8 @@ namespace EOLib.IO.Pub
         public short Evade { get; set; }
         public short Armor { get; set; }
 
+        public byte UnkB { get; set; }
+
         public byte Str { get; set; }
         public byte Int { get; set; }
         public byte Wis { get; set; }
@@ -70,7 +72,12 @@ namespace EOLib.IO.Pub
         public short ConReq { get; set; }
         public short ChaReq { get; set; }
 
+        public byte UnkD { get; set; } // Element (?)
+        public byte UnkE { get; set; } // Element Power (?)
+
         public byte Weight { get; set; }
+
+        public byte UnkF { get; set; }
 
         public ItemSize Size { get; set; }
 
@@ -88,7 +95,7 @@ namespace EOLib.IO.Pub
             var propertyInfo = GetType().GetProperty(name, BindingFlags.Instance | BindingFlags.Public);
             var boxedValue = propertyInfo.GetValue(this);
 
-            return (TValue) boxedValue;
+            return (TValue)boxedValue;
         }
 
         public byte[] SerializeToByteArray(INumberEncoderService numberEncoderService)
@@ -102,9 +109,9 @@ namespace EOLib.IO.Pub
                 mem.Write(name, 0, name.Length);
 
                 mem.Write(numberEncoderService.EncodeNumber(Graphic, 2), 0, 2);
-                mem.WriteByte(numberEncoderService.EncodeNumber((byte) Type, 1)[0]);
-                mem.WriteByte(numberEncoderService.EncodeNumber((byte) SubType, 1)[0]);
-                mem.WriteByte(numberEncoderService.EncodeNumber((byte) Special, 1)[0]);
+                mem.WriteByte(numberEncoderService.EncodeNumber((byte)Type, 1)[0]);
+                mem.WriteByte(numberEncoderService.EncodeNumber((byte)SubType, 1)[0]);
+                mem.WriteByte(numberEncoderService.EncodeNumber((byte)Special, 1)[0]);
 
                 mem.Write(numberEncoderService.EncodeNumber(HP, 2), 0, 2);
                 mem.Write(numberEncoderService.EncodeNumber(TP, 2), 0, 2);
@@ -114,7 +121,8 @@ namespace EOLib.IO.Pub
                 mem.Write(numberEncoderService.EncodeNumber(Evade, 2), 0, 2);
                 mem.Write(numberEncoderService.EncodeNumber(Armor, 2), 0, 2);
 
-                mem.Seek(21 + Name.Length, SeekOrigin.Begin);
+                mem.WriteByte(numberEncoderService.EncodeNumber(UnkB, 1)[0]);
+
                 mem.WriteByte(numberEncoderService.EncodeNumber(Str, 1)[0]);
                 mem.WriteByte(numberEncoderService.EncodeNumber(Int, 1)[0]);
                 mem.WriteByte(numberEncoderService.EncodeNumber(Wis, 1)[0]);
@@ -143,10 +151,12 @@ namespace EOLib.IO.Pub
                 mem.Write(numberEncoderService.EncodeNumber(ConReq, 2), 0, 2);
                 mem.Write(numberEncoderService.EncodeNumber(ChaReq, 2), 0, 2);
 
-                mem.Seek(56 + Name.Length, SeekOrigin.Begin);
+                mem.WriteByte(numberEncoderService.EncodeNumber(UnkD, 1)[0]);
+                mem.WriteByte(numberEncoderService.EncodeNumber(UnkE, 1)[0]);
+
                 mem.WriteByte(numberEncoderService.EncodeNumber(Weight, 1)[0]);
-                mem.Seek(58 + Name.Length, SeekOrigin.Begin);
-                mem.WriteByte(numberEncoderService.EncodeNumber((byte) Size, 1)[0]);
+                mem.WriteByte(numberEncoderService.EncodeNumber(UnkF, 1)[0]);
+                mem.WriteByte(numberEncoderService.EncodeNumber((byte)Size, 1)[0]);
             }
 
             return ret;
@@ -157,49 +167,63 @@ namespace EOLib.IO.Pub
             if (recordBytes.Length != DATA_SIZE)
                 throw new ArgumentOutOfRangeException(nameof(recordBytes), "Data is not properly sized for correct deserialization");
 
-            Graphic = (short) numberEncoderService.DecodeNumber(recordBytes[0], recordBytes[1]);
-            Type = (ItemType) numberEncoderService.DecodeNumber(recordBytes[2]);
-            SubType = (ItemSubType) numberEncoderService.DecodeNumber(recordBytes[3]);
 
-            Special = (ItemSpecial) numberEncoderService.DecodeNumber(recordBytes[4]);
-            HP = (short) numberEncoderService.DecodeNumber(recordBytes[5], recordBytes[6]);
-            TP = (short) numberEncoderService.DecodeNumber(recordBytes[7], recordBytes[8]);
-            MinDam = (short) numberEncoderService.DecodeNumber(recordBytes[9], recordBytes[10]);
-            MaxDam = (short) numberEncoderService.DecodeNumber(recordBytes[11], recordBytes[12]);
-            Accuracy = (short) numberEncoderService.DecodeNumber(recordBytes[13], recordBytes[14]);
-            Evade = (short) numberEncoderService.DecodeNumber(recordBytes[15], recordBytes[16]);
-            Armor = (short) numberEncoderService.DecodeNumber(recordBytes[17], recordBytes[18]);
+            Console.Write(this.Name + " [");
+            for (int i = 0; i < recordBytes.Length; i++)
+            {
+                Console.Write(recordBytes[i] + "[pos:" + i + "], ");
+            }
+            Console.Write("]\n");
 
-            Str = (byte) numberEncoderService.DecodeNumber(recordBytes[20]);
-            Int = (byte) numberEncoderService.DecodeNumber(recordBytes[21]);
-            Wis = (byte) numberEncoderService.DecodeNumber(recordBytes[22]);
-            Agi = (byte) numberEncoderService.DecodeNumber(recordBytes[23]);
-            Con = (byte) numberEncoderService.DecodeNumber(recordBytes[24]);
-            Cha = (byte) numberEncoderService.DecodeNumber(recordBytes[25]);
+            Graphic = (short)numberEncoderService.DecodeNumber(recordBytes[0], recordBytes[1]);
+            Type = (ItemType)numberEncoderService.DecodeNumber(recordBytes[2]);
+            SubType = (ItemSubType)numberEncoderService.DecodeNumber(recordBytes[3]);
 
-            Light = (byte) numberEncoderService.DecodeNumber(recordBytes[26]);
-            Dark = (byte) numberEncoderService.DecodeNumber(recordBytes[27]);
-            Earth = (byte) numberEncoderService.DecodeNumber(recordBytes[28]);
-            Air = (byte) numberEncoderService.DecodeNumber(recordBytes[29]);
-            Water = (byte) numberEncoderService.DecodeNumber(recordBytes[30]);
-            Fire = (byte) numberEncoderService.DecodeNumber(recordBytes[31]);
+            Special = (ItemSpecial)numberEncoderService.DecodeNumber(recordBytes[4]);
+            HP = (short)numberEncoderService.DecodeNumber(recordBytes[5], recordBytes[6]);
+            TP = (short)numberEncoderService.DecodeNumber(recordBytes[7], recordBytes[8]);
+            MinDam = (short)numberEncoderService.DecodeNumber(recordBytes[9], recordBytes[10]);
+            MaxDam = (short)numberEncoderService.DecodeNumber(recordBytes[11], recordBytes[12]);
+            Accuracy = (short)numberEncoderService.DecodeNumber(recordBytes[13], recordBytes[14]);
+            Evade = (short)numberEncoderService.DecodeNumber(recordBytes[15], recordBytes[16]);
+            Armor = (short)numberEncoderService.DecodeNumber(recordBytes[17], recordBytes[18]);
+
+            UnkB = (byte)numberEncoderService.DecodeNumber(recordBytes[19]);
+
+            Str = (byte)numberEncoderService.DecodeNumber(recordBytes[20]);
+            Int = (byte)numberEncoderService.DecodeNumber(recordBytes[21]);
+            Wis = (byte)numberEncoderService.DecodeNumber(recordBytes[22]);
+            Agi = (byte)numberEncoderService.DecodeNumber(recordBytes[23]);
+            Con = (byte)numberEncoderService.DecodeNumber(recordBytes[24]);
+            Cha = (byte)numberEncoderService.DecodeNumber(recordBytes[25]);
+
+            Light = (byte)numberEncoderService.DecodeNumber(recordBytes[26]);
+            Dark = (byte)numberEncoderService.DecodeNumber(recordBytes[27]);
+            Earth = (byte)numberEncoderService.DecodeNumber(recordBytes[28]);
+            Air = (byte)numberEncoderService.DecodeNumber(recordBytes[29]);
+            Water = (byte)numberEncoderService.DecodeNumber(recordBytes[30]);
+            Fire = (byte)numberEncoderService.DecodeNumber(recordBytes[31]);
 
             ScrollMap = numberEncoderService.DecodeNumber(recordBytes[32], recordBytes[33], recordBytes[34]);
-            ScrollX = (byte) numberEncoderService.DecodeNumber(recordBytes[35]);
-            ScrollY = (byte) numberEncoderService.DecodeNumber(recordBytes[36]);
+            ScrollX = (byte)numberEncoderService.DecodeNumber(recordBytes[35]);
+            ScrollY = (byte)numberEncoderService.DecodeNumber(recordBytes[36]);
 
-            LevelReq = (short) numberEncoderService.DecodeNumber(recordBytes[37], recordBytes[38]);
-            ClassReq = (short) numberEncoderService.DecodeNumber(recordBytes[39], recordBytes[40]);
+            LevelReq = (short)numberEncoderService.DecodeNumber(recordBytes[37], recordBytes[38]);
+            ClassReq = (short)numberEncoderService.DecodeNumber(recordBytes[39], recordBytes[40]);
 
-            StrReq = (short) numberEncoderService.DecodeNumber(recordBytes[41], recordBytes[42]);
-            IntReq = (short) numberEncoderService.DecodeNumber(recordBytes[43], recordBytes[44]);
-            WisReq = (short) numberEncoderService.DecodeNumber(recordBytes[45], recordBytes[46]);
-            AgiReq = (short) numberEncoderService.DecodeNumber(recordBytes[47], recordBytes[48]);
-            ConReq = (short) numberEncoderService.DecodeNumber(recordBytes[49], recordBytes[50]);
-            ChaReq = (short) numberEncoderService.DecodeNumber(recordBytes[51], recordBytes[52]);
+            StrReq = (short)numberEncoderService.DecodeNumber(recordBytes[41], recordBytes[42]);
+            IntReq = (short)numberEncoderService.DecodeNumber(recordBytes[43], recordBytes[44]);
+            WisReq = (short)numberEncoderService.DecodeNumber(recordBytes[45], recordBytes[46]);
+            AgiReq = (short)numberEncoderService.DecodeNumber(recordBytes[47], recordBytes[48]);
+            ConReq = (short)numberEncoderService.DecodeNumber(recordBytes[49], recordBytes[50]);
+            ChaReq = (short)numberEncoderService.DecodeNumber(recordBytes[51], recordBytes[52]);
 
-            Weight = (byte) numberEncoderService.DecodeNumber(recordBytes[55]);
-            Size = (ItemSize) numberEncoderService.DecodeNumber(recordBytes[57]);
+            UnkD = (byte)numberEncoderService.DecodeNumber(recordBytes[53]);
+            UnkE = (byte)numberEncoderService.DecodeNumber(recordBytes[54]);
+
+            Weight = (byte)numberEncoderService.DecodeNumber(recordBytes[55]);
+            UnkF = (byte)numberEncoderService.DecodeNumber(recordBytes[56]);
+            Size = (ItemSize)numberEncoderService.DecodeNumber(recordBytes[57]);
 
             if (ID == 365 && Name == "Gun")
                 SubType = ItemSubType.Ranged;
