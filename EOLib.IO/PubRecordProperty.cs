@@ -1,4 +1,4 @@
-﻿namespace EOLib.IO
+namespace EOLib.IO
 {
     /// <summary>
     /// Enum representing the different properties that exist within the pub records
@@ -28,6 +28,8 @@
         ItemAccuracy,
         ItemEvade,
         ItemArmor,
+
+        ItemUnkB,
 
         ItemStr,
         ItemInt,
@@ -65,7 +67,12 @@
         ItemConReq,
         ItemChaReq,
 
+        ItemUnkD,
+        ItemUnkE,
+
         ItemWeight,
+
+        ItemUnkF,
 
         ItemSize,
 
@@ -75,9 +82,13 @@
 
         NPCGraphic,
 
+        NPCUnkA,
+
         NPCBoss,
         NPCChild,
         NPCType,
+
+        NPCUnkB,
 
         NPCVendorID,
 
@@ -89,6 +100,13 @@
         NPCAccuracy,
         NPCEvade,
         NPCArmor,
+
+        NPCUnkC,
+        NPCUnkD,
+        NPCUnkE,
+        NPCUnkF,
+        NPCUnkG,
+        NPCUnkH,
 
         #endregion
 
@@ -104,14 +122,39 @@
 
         SpellCastTime,
 
+        SpellUnkA,
+        SpellUnkB,
+
         SpellType,
+
+        SpellUnkC,
+        SpellUnkD,
+
         SpellTargetRestrict,
         SpellTarget,
+
+        SpellUnkE,
+        SpellUnkF,
+        SpellUnkG,
 
         SpellMinDam,
         SpellMaxDam,
         SpellAccuracy,
+
+        SpellUnkH,
+        SpellUnkI,
+        SpellUnkJ,
+
         SpellHP,
+
+        SpellUnkK,
+        SpellUnkL,
+        SpellUnkM,
+        SpellUnkN,
+        SpellUnkO,
+        SpellUnkP,
+        SpellUnkQ,
+        SpellUnkR,
 
         #endregion
 
