@@ -67,8 +67,8 @@ namespace EOLib.IO
         ItemConReq,
         ItemChaReq,
 
-        ItemUnkElement,
-        ItemUnkElementPower,
+        ItemElement,
+        ItemElementPower,
 
         ItemWeight,
 
