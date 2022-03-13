@@ -26,39 +26,39 @@ namespace EOLib.IO.Pub
 
         public byte CastTime { get; set; }
 
-        public byte UnkA { get; set; }
-        public byte UnkB { get; set; }
+        public byte UnkByte9 { get; set; }
+        public byte UnkByte10 { get; set; }
 
         public SpellType Type { get; set; }
 
-        public byte UnkC { get; set; }
-        public short UnkD { get; set; }
+        public byte UnkByte14 { get; set; }
+        public short UnkShort15 { get; set; }
 
         public SpellTargetRestrict TargetRestrict { get; set; }
         public SpellTarget Target { get; set; }
 
-        public byte UnkE { get; set; }
-        public byte UnkF { get; set; }
-        public short UnkG { get; set; }
+        public byte UnkByte19 { get; set; }
+        public byte UnkByte20 { get; set; }
+        public short UnkShort21 { get; set; }
 
         public short MinDam { get; set; }
         public short MaxDam { get; set; }
         public short Accuracy { get; set; }
 
-        public short UnkH { get; set; }
-        public short UnkI { get; set; }
-        public byte UnkJ { get; set; }
+        public short UnkShort29 { get; set; }
+        public short UnkShort31 { get; set; }
+        public byte UnkByte33 { get; set; }
 
         public short HP { get; set; }
 
-        public short UnkK { get; set; }
-        public byte UnkL { get; set; }
-        public short UnkM { get; set; }
-        public short UnkN { get; set; }
-        public short UnkO { get; set; }
-        public short UnkP { get; set; }
-        public short UnkQ { get; set; }
-        public short UnkR { get; set; }
+        public short UnkShort36 { get; set; }
+        public byte UnkByte38 { get; set; }
+        public short UnkShort39 { get; set; }
+        public short UnkShort41 { get; set; }
+        public short UnkShort43 { get; set; }
+        public short UnkShort45 { get; set; }
+        public short UnkShort47 { get; set; }
+        public short UnkShort49 { get; set; }
 
         public TValue Get<TValue>(PubRecordProperty type)
         {
@@ -96,39 +96,39 @@ namespace EOLib.IO.Pub
                 mem.Write(numberEncoderService.EncodeNumber(SP, 2), 0, 2);
                 mem.WriteByte(numberEncoderService.EncodeNumber(CastTime, 1)[0]);
 
-                mem.WriteByte(numberEncoderService.EncodeNumber(UnkA, 1)[0]);
-                mem.WriteByte(numberEncoderService.EncodeNumber(UnkB, 1)[0]);
+                mem.WriteByte(numberEncoderService.EncodeNumber(UnkByte9, 1)[0]);
+                mem.WriteByte(numberEncoderService.EncodeNumber(UnkByte10, 1)[0]);
 
                 mem.Write(numberEncoderService.EncodeNumber((int)Type, 3), 0, 3); //This is documented as a 3 byte int.
 
-                mem.WriteByte(numberEncoderService.EncodeNumber(UnkC, 1)[0]);
-                mem.Write(numberEncoderService.EncodeNumber(UnkD, 2), 0, 2);
+                mem.WriteByte(numberEncoderService.EncodeNumber(UnkByte14, 1)[0]);
+                mem.Write(numberEncoderService.EncodeNumber(UnkShort15, 2), 0, 2);
 
                 mem.WriteByte(numberEncoderService.EncodeNumber((byte)TargetRestrict, 1)[0]);
                 mem.WriteByte(numberEncoderService.EncodeNumber((byte)Target, 1)[0]);
 
-                mem.WriteByte(numberEncoderService.EncodeNumber(UnkE, 1)[0]);
-                mem.WriteByte(numberEncoderService.EncodeNumber(UnkF, 1)[0]);
-                mem.Write(numberEncoderService.EncodeNumber(UnkG, 2), 0, 2);
+                mem.WriteByte(numberEncoderService.EncodeNumber(UnkByte19, 1)[0]);
+                mem.WriteByte(numberEncoderService.EncodeNumber(UnkByte20, 1)[0]);
+                mem.Write(numberEncoderService.EncodeNumber(UnkShort21, 2), 0, 2);
 
                 mem.Write(numberEncoderService.EncodeNumber(MinDam, 2), 0, 2);
                 mem.Write(numberEncoderService.EncodeNumber(MaxDam, 2), 0, 2);
                 mem.Write(numberEncoderService.EncodeNumber(Accuracy, 2), 0, 2);
 
-                mem.Write(numberEncoderService.EncodeNumber(UnkH, 2), 0, 2);
-                mem.Write(numberEncoderService.EncodeNumber(UnkI, 2), 0, 2);
-                mem.WriteByte(numberEncoderService.EncodeNumber(UnkJ, 1)[0]);
+                mem.Write(numberEncoderService.EncodeNumber(UnkShort29, 2), 0, 2);
+                mem.Write(numberEncoderService.EncodeNumber(UnkShort31, 2), 0, 2);
+                mem.WriteByte(numberEncoderService.EncodeNumber(UnkByte33, 1)[0]);
 
                 mem.Write(numberEncoderService.EncodeNumber(HP, 2), 0, 2);
 
-                mem.Write(numberEncoderService.EncodeNumber(UnkK, 2), 0, 2);
-                mem.WriteByte(numberEncoderService.EncodeNumber(UnkL, 1)[0]);
-                mem.Write(numberEncoderService.EncodeNumber(UnkM, 2), 0, 2);
-                mem.Write(numberEncoderService.EncodeNumber(UnkN, 2), 0, 2);
-                mem.Write(numberEncoderService.EncodeNumber(UnkO, 2), 0, 2);
-                mem.Write(numberEncoderService.EncodeNumber(UnkP, 2), 0, 2);
-                mem.Write(numberEncoderService.EncodeNumber(UnkQ, 2), 0, 2);
-                mem.Write(numberEncoderService.EncodeNumber(UnkR, 2), 0, 2);
+                mem.Write(numberEncoderService.EncodeNumber(UnkShort36, 2), 0, 2);
+                mem.WriteByte(numberEncoderService.EncodeNumber(UnkByte38, 1)[0]);
+                mem.Write(numberEncoderService.EncodeNumber(UnkShort39, 2), 0, 2);
+                mem.Write(numberEncoderService.EncodeNumber(UnkShort41, 2), 0, 2);
+                mem.Write(numberEncoderService.EncodeNumber(UnkShort43, 2), 0, 2);
+                mem.Write(numberEncoderService.EncodeNumber(UnkShort45, 2), 0, 2);
+                mem.Write(numberEncoderService.EncodeNumber(UnkShort47, 2), 0, 2);
+                mem.Write(numberEncoderService.EncodeNumber(UnkShort49, 2), 0, 2);
             }
 
             return ret;
@@ -139,52 +139,45 @@ namespace EOLib.IO.Pub
             if (recordBytes.Length != DATA_SIZE)
                 throw new ArgumentOutOfRangeException(nameof(recordBytes), "Data is not properly sized for correct deserialization");
 
-            Console.Write(this.Name + " [");
-            for (int i = 0; i < recordBytes.Length; i++)
-            {
-                Console.Write(recordBytes[i] + "[pos:" + i + "], ");
-            }
-            Console.Write("]\n");
-
             Icon = (short)numberEncoderService.DecodeNumber(recordBytes[0], recordBytes[1]);
             Graphic = (short)numberEncoderService.DecodeNumber(recordBytes[2], recordBytes[3]);
             TP = (short)numberEncoderService.DecodeNumber(recordBytes[4], recordBytes[5]);
             SP = (short)numberEncoderService.DecodeNumber(recordBytes[6], recordBytes[7]);
             CastTime = (byte)numberEncoderService.DecodeNumber(recordBytes[8]);
 
-            UnkA = (byte)numberEncoderService.DecodeNumber(recordBytes[9]);
-            UnkB = (byte)numberEncoderService.DecodeNumber(recordBytes[10]);
+            UnkByte9 = (byte)numberEncoderService.DecodeNumber(recordBytes[9]);
+            UnkByte10 = (byte)numberEncoderService.DecodeNumber(recordBytes[10]);
 
             Type = (SpellType)numberEncoderService.DecodeNumber(recordBytes[11], recordBytes[12], recordBytes[13]);
 
-            UnkC = (byte)numberEncoderService.DecodeNumber(recordBytes[14]);
-            UnkD = (short)numberEncoderService.DecodeNumber(recordBytes[15], recordBytes[16]);
+            UnkByte14 = (byte)numberEncoderService.DecodeNumber(recordBytes[14]);
+            UnkShort15 = (short)numberEncoderService.DecodeNumber(recordBytes[15], recordBytes[16]);
 
             TargetRestrict = (SpellTargetRestrict)numberEncoderService.DecodeNumber(recordBytes[17]);
             Target = (SpellTarget)numberEncoderService.DecodeNumber(recordBytes[18]);
 
-            UnkE = (byte)numberEncoderService.DecodeNumber(recordBytes[19]);
-            UnkF = (byte)numberEncoderService.DecodeNumber(recordBytes[20]);
-            UnkG = (short)numberEncoderService.DecodeNumber(recordBytes[21], recordBytes[22]);
+            UnkByte19 = (byte)numberEncoderService.DecodeNumber(recordBytes[19]);
+            UnkByte20 = (byte)numberEncoderService.DecodeNumber(recordBytes[20]);
+            UnkShort21 = (short)numberEncoderService.DecodeNumber(recordBytes[21], recordBytes[22]);
 
             MinDam = (short)numberEncoderService.DecodeNumber(recordBytes[23], recordBytes[24]);
             MaxDam = (short)numberEncoderService.DecodeNumber(recordBytes[25], recordBytes[26]);
             Accuracy = (short)numberEncoderService.DecodeNumber(recordBytes[27], recordBytes[28]);
 
-            UnkH = (short)numberEncoderService.DecodeNumber(recordBytes[29], recordBytes[30]);
-            UnkI = (short)numberEncoderService.DecodeNumber(recordBytes[31], recordBytes[32]);
-            UnkJ = (byte)numberEncoderService.DecodeNumber(recordBytes[33]);
+            UnkShort29 = (short)numberEncoderService.DecodeNumber(recordBytes[29], recordBytes[30]);
+            UnkShort31 = (short)numberEncoderService.DecodeNumber(recordBytes[31], recordBytes[32]);
+            UnkByte33 = (byte)numberEncoderService.DecodeNumber(recordBytes[33]);
 
             HP = (short)numberEncoderService.DecodeNumber(recordBytes[34], recordBytes[35]);
 
-            UnkK = (short)numberEncoderService.DecodeNumber(recordBytes[36], recordBytes[37]);
-            UnkL = (byte)numberEncoderService.DecodeNumber(recordBytes[38]);
-            UnkM = (short)numberEncoderService.DecodeNumber(recordBytes[39], recordBytes[40]);
-            UnkN = (short)numberEncoderService.DecodeNumber(recordBytes[41], recordBytes[42]);
-            UnkO = (short)numberEncoderService.DecodeNumber(recordBytes[43], recordBytes[44]);
-            UnkP = (short)numberEncoderService.DecodeNumber(recordBytes[45], recordBytes[46]);
-            UnkQ = (short)numberEncoderService.DecodeNumber(recordBytes[47], recordBytes[48]);
-            UnkR = (short)numberEncoderService.DecodeNumber(recordBytes[49], recordBytes[50]);
+            UnkShort36 = (short)numberEncoderService.DecodeNumber(recordBytes[36], recordBytes[37]);
+            UnkByte38 = (byte)numberEncoderService.DecodeNumber(recordBytes[38]);
+            UnkShort39 = (short)numberEncoderService.DecodeNumber(recordBytes[39], recordBytes[40]);
+            UnkShort41 = (short)numberEncoderService.DecodeNumber(recordBytes[41], recordBytes[42]);
+            UnkShort43 = (short)numberEncoderService.DecodeNumber(recordBytes[43], recordBytes[44]);
+            UnkShort45 = (short)numberEncoderService.DecodeNumber(recordBytes[45], recordBytes[46]);
+            UnkShort47 = (short)numberEncoderService.DecodeNumber(recordBytes[47], recordBytes[48]);
+            UnkShort49 = (short)numberEncoderService.DecodeNumber(recordBytes[49], recordBytes[50]);
         }
     }
 }

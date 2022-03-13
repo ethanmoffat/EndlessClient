@@ -29,7 +29,7 @@ namespace EOLib.IO
         ItemEvade,
         ItemArmor,
 
-        ItemUnkB,
+        ItemUnkByte19,
 
         ItemStr,
         ItemInt,
@@ -67,12 +67,12 @@ namespace EOLib.IO
         ItemConReq,
         ItemChaReq,
 
-        ItemUnkD,
-        ItemUnkE,
+        ItemUnkElement,
+        ItemUnkElementPower,
 
         ItemWeight,
 
-        ItemUnkF,
+        ItemUnkByte56,
 
         ItemSize,
 
@@ -82,13 +82,13 @@ namespace EOLib.IO
 
         NPCGraphic,
 
-        NPCUnkA,
+        NPCUnkByte2,
 
         NPCBoss,
         NPCChild,
         NPCType,
 
-        NPCUnkB,
+        NPCUnkShort14,
 
         NPCVendorID,
 
@@ -101,12 +101,12 @@ namespace EOLib.IO
         NPCEvade,
         NPCArmor,
 
-        NPCUnkC,
-        NPCUnkD,
-        NPCUnkE,
-        NPCUnkF,
-        NPCUnkG,
-        NPCUnkH,
+        NPCUnkByte26,
+        NPCUnkShort27,
+        NPCUnkShort29,
+        NPCElementWeak,
+        NPCElementWeakPower,
+        NPCUnkByte35,
 
         #endregion
 
@@ -122,39 +122,39 @@ namespace EOLib.IO
 
         SpellCastTime,
 
-        SpellUnkA,
-        SpellUnkB,
+        SpellUnkByte9,
+        SpellUnkByte10,
 
         SpellType,
 
-        SpellUnkC,
-        SpellUnkD,
+        SpellUnkByte14,
+        SpellUnkShort15,
 
         SpellTargetRestrict,
         SpellTarget,
 
-        SpellUnkE,
-        SpellUnkF,
-        SpellUnkG,
+        SpellUnkByte19,
+        SpellUnkByte20,
+        SpellUnkShort21,
 
         SpellMinDam,
         SpellMaxDam,
         SpellAccuracy,
 
-        SpellUnkH,
-        SpellUnkI,
-        SpellUnkJ,
+        SpellUnkShort29,
+        SpellUnkShort31,
+        SpellUnkByte33,
 
         SpellHP,
 
-        SpellUnkK,
-        SpellUnkL,
-        SpellUnkM,
-        SpellUnkN,
-        SpellUnkO,
-        SpellUnkP,
-        SpellUnkQ,
-        SpellUnkR,
+        SpellUnkShort36,
+        SpellUnkByte38,
+        SpellUnkShort39,
+        SpellUnkShort41,
+        SpellUnkShort43,
+        SpellUnkShort45,
+        SpellUnkShort47,
+        SpellUnkShort49,
 
         #endregion
 

@@ -30,7 +30,7 @@ namespace EOLib.IO.Pub
         public short Evade { get; set; }
         public short Armor { get; set; }
 
-        public byte UnkB { get; set; }
+        public byte UnkByte19 { get; set; }
 
         public byte Str { get; set; }
         public byte Int { get; set; }
@@ -72,12 +72,12 @@ namespace EOLib.IO.Pub
         public short ConReq { get; set; }
         public short ChaReq { get; set; }
 
-        public byte UnkD { get; set; } // Element (?)
-        public byte UnkE { get; set; } // Element Power (?)
+        public byte Element { get; set; }
+        public byte ElementPower { get; set; }
 
         public byte Weight { get; set; }
 
-        public byte UnkF { get; set; }
+        public byte UnkByte56 { get; set; }
 
         public ItemSize Size { get; set; }
 
@@ -121,7 +121,7 @@ namespace EOLib.IO.Pub
                 mem.Write(numberEncoderService.EncodeNumber(Evade, 2), 0, 2);
                 mem.Write(numberEncoderService.EncodeNumber(Armor, 2), 0, 2);
 
-                mem.WriteByte(numberEncoderService.EncodeNumber(UnkB, 1)[0]);
+                mem.WriteByte(numberEncoderService.EncodeNumber(UnkByte19, 1)[0]);
 
                 mem.WriteByte(numberEncoderService.EncodeNumber(Str, 1)[0]);
                 mem.WriteByte(numberEncoderService.EncodeNumber(Int, 1)[0]);
@@ -151,11 +151,11 @@ namespace EOLib.IO.Pub
                 mem.Write(numberEncoderService.EncodeNumber(ConReq, 2), 0, 2);
                 mem.Write(numberEncoderService.EncodeNumber(ChaReq, 2), 0, 2);
 
-                mem.WriteByte(numberEncoderService.EncodeNumber(UnkD, 1)[0]);
-                mem.WriteByte(numberEncoderService.EncodeNumber(UnkE, 1)[0]);
+                mem.WriteByte(numberEncoderService.EncodeNumber(Element, 1)[0]);
+                mem.WriteByte(numberEncoderService.EncodeNumber(ElementPower, 1)[0]);
 
                 mem.WriteByte(numberEncoderService.EncodeNumber(Weight, 1)[0]);
-                mem.WriteByte(numberEncoderService.EncodeNumber(UnkF, 1)[0]);
+                mem.WriteByte(numberEncoderService.EncodeNumber(UnkByte56, 1)[0]);
                 mem.WriteByte(numberEncoderService.EncodeNumber((byte)Size, 1)[0]);
             }
 
@@ -166,14 +166,6 @@ namespace EOLib.IO.Pub
         {
             if (recordBytes.Length != DATA_SIZE)
                 throw new ArgumentOutOfRangeException(nameof(recordBytes), "Data is not properly sized for correct deserialization");
-
-
-            Console.Write(this.Name + " [");
-            for (int i = 0; i < recordBytes.Length; i++)
-            {
-                Console.Write(recordBytes[i] + "[pos:" + i + "], ");
-            }
-            Console.Write("]\n");
 
             Graphic = (short)numberEncoderService.DecodeNumber(recordBytes[0], recordBytes[1]);
             Type = (ItemType)numberEncoderService.DecodeNumber(recordBytes[2]);
@@ -188,7 +180,7 @@ namespace EOLib.IO.Pub
             Evade = (short)numberEncoderService.DecodeNumber(recordBytes[15], recordBytes[16]);
             Armor = (short)numberEncoderService.DecodeNumber(recordBytes[17], recordBytes[18]);
 
-            UnkB = (byte)numberEncoderService.DecodeNumber(recordBytes[19]);
+            UnkByte19 = (byte)numberEncoderService.DecodeNumber(recordBytes[19]);
 
             Str = (byte)numberEncoderService.DecodeNumber(recordBytes[20]);
             Int = (byte)numberEncoderService.DecodeNumber(recordBytes[21]);
@@ -218,11 +210,11 @@ namespace EOLib.IO.Pub
             ConReq = (short)numberEncoderService.DecodeNumber(recordBytes[49], recordBytes[50]);
             ChaReq = (short)numberEncoderService.DecodeNumber(recordBytes[51], recordBytes[52]);
 
-            UnkD = (byte)numberEncoderService.DecodeNumber(recordBytes[53]);
-            UnkE = (byte)numberEncoderService.DecodeNumber(recordBytes[54]);
+            Element = (byte)numberEncoderService.DecodeNumber(recordBytes[53]);
+            ElementPower = (byte)numberEncoderService.DecodeNumber(recordBytes[54]);
 
             Weight = (byte)numberEncoderService.DecodeNumber(recordBytes[55]);
-            UnkF = (byte)numberEncoderService.DecodeNumber(recordBytes[56]);
+            UnkByte56 = (byte)numberEncoderService.DecodeNumber(recordBytes[56]);
             Size = (ItemSize)numberEncoderService.DecodeNumber(recordBytes[57]);
 
             if (ID == 365 && Name == "Gun")

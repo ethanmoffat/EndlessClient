@@ -19,13 +19,13 @@ namespace EOLib.IO.Pub
 
         public int Graphic { get; set; }
 
-        public byte UnkA { get; set; }
+        public byte UnkByte2 { get; set; }
 
         public short Boss { get; set; }
         public short Child { get; set; }
         public NPCType Type { get; set; }
 
-        public short UnkB { get; set; }
+        public short UnkShort14 { get; set; }
 
         public short VendorID { get; set; }
 
@@ -38,12 +38,14 @@ namespace EOLib.IO.Pub
         public short Evade { get; set; }
         public short Armor { get; set; }
 
-        public byte UnkC { get; set; }
-        public short UnkD { get; set; }
-        public short UnkE { get; set; }
-        public short UnkF { get; set; }
-        public short UnkG { get; set; }
-        public byte UnkH { get; set; }
+        public byte UnkByte26 { get; set; }
+        public short UnkShort27 { get; set; }
+        public short UnkShort29 { get; set; }
+
+        public short ElementWeak { get; set; }
+        public short ElementWeakPower { get; set; }
+
+        public byte UnkByte35 { get; set; }
 
         public int Exp { get; set; }
 
@@ -76,7 +78,7 @@ namespace EOLib.IO.Pub
 
                 mem.Write(numberEncoderService.EncodeNumber(Graphic, 2), 0, 2);
 
-                mem.WriteByte(numberEncoderService.EncodeNumber(UnkA, 1)[0]);
+                mem.WriteByte(numberEncoderService.EncodeNumber(UnkByte2, 1)[0]);
 
                 mem.Write(numberEncoderService.EncodeNumber(Boss, 2), 0, 2);
                 mem.Write(numberEncoderService.EncodeNumber(Child, 2), 0, 2);
@@ -84,7 +86,7 @@ namespace EOLib.IO.Pub
                 mem.Write(numberEncoderService.EncodeNumber(VendorID, 2), 0, 2);
                 mem.Write(numberEncoderService.EncodeNumber(HP, 3), 0, 3);
 
-                mem.Write(numberEncoderService.EncodeNumber(UnkB, 2), 0, 2);
+                mem.Write(numberEncoderService.EncodeNumber(UnkShort14, 2), 0, 2);
 
                 mem.Write(numberEncoderService.EncodeNumber(MinDam, 2), 0, 2);
                 mem.Write(numberEncoderService.EncodeNumber(MaxDam, 2), 0, 2);
@@ -92,12 +94,12 @@ namespace EOLib.IO.Pub
                 mem.Write(numberEncoderService.EncodeNumber(Evade, 2), 0, 2);
                 mem.Write(numberEncoderService.EncodeNumber(Armor, 2), 0, 2);
 
-                mem.WriteByte(numberEncoderService.EncodeNumber(UnkC, 1)[0]);
-                mem.Write(numberEncoderService.EncodeNumber(UnkD, 2), 0, 2);
-                mem.Write(numberEncoderService.EncodeNumber(UnkE, 2), 0, 2);
-                mem.Write(numberEncoderService.EncodeNumber(UnkF, 2), 0, 2);
-                mem.Write(numberEncoderService.EncodeNumber(UnkG, 2), 0, 2);
-                mem.WriteByte(numberEncoderService.EncodeNumber(UnkH, 1)[0]);
+                mem.WriteByte(numberEncoderService.EncodeNumber(UnkByte26, 1)[0]);
+                mem.Write(numberEncoderService.EncodeNumber(UnkShort27, 2), 0, 2);
+                mem.Write(numberEncoderService.EncodeNumber(UnkShort29, 2), 0, 2);
+                mem.Write(numberEncoderService.EncodeNumber(ElementWeak, 2), 0, 2);
+                mem.Write(numberEncoderService.EncodeNumber(ElementWeakPower, 2), 0, 2);
+                mem.WriteByte(numberEncoderService.EncodeNumber(UnkByte35, 1)[0]);
 
                 mem.Write(numberEncoderService.EncodeNumber(Exp, 3), 0, 3);
             }
@@ -110,16 +112,9 @@ namespace EOLib.IO.Pub
             if (recordBytes.Length != DATA_SIZE)
                 throw new ArgumentOutOfRangeException(nameof(recordBytes), "Data is not properly sized for correct deserialization");
 
-            Console.Write(this.Name + " [");
-            for (int i = 0; i < recordBytes.Length; i++)
-            {
-                Console.Write(recordBytes[i] + "[pos:" + i + "], ");
-            }
-            Console.Write("]\n");
-
             Graphic = numberEncoderService.DecodeNumber(recordBytes[0], recordBytes[1]);
 
-            UnkA = (byte)numberEncoderService.DecodeNumber(recordBytes[2]);
+            UnkByte2 = (byte)numberEncoderService.DecodeNumber(recordBytes[2]);
 
             Boss = (short)numberEncoderService.DecodeNumber(recordBytes[3], recordBytes[4]);
             Child = (short)numberEncoderService.DecodeNumber(recordBytes[5], recordBytes[6]);
@@ -127,7 +122,7 @@ namespace EOLib.IO.Pub
             VendorID = (short)numberEncoderService.DecodeNumber(recordBytes[9], recordBytes[10]);
             HP = numberEncoderService.DecodeNumber(recordBytes[11], recordBytes[12], recordBytes[13]);
 
-            UnkB = (short)numberEncoderService.DecodeNumber(recordBytes[14], recordBytes[15]);
+            UnkShort14 = (short)numberEncoderService.DecodeNumber(recordBytes[14], recordBytes[15]);
 
             MinDam = (short)numberEncoderService.DecodeNumber(recordBytes[16], recordBytes[17]);
             MaxDam = (short)numberEncoderService.DecodeNumber(recordBytes[18], recordBytes[19]);
@@ -136,12 +131,12 @@ namespace EOLib.IO.Pub
             Evade = (short)numberEncoderService.DecodeNumber(recordBytes[22], recordBytes[23]);
             Armor = (short)numberEncoderService.DecodeNumber(recordBytes[24], recordBytes[25]);
 
-            UnkC = (byte)numberEncoderService.DecodeNumber(recordBytes[26]);
-            UnkD = (short)numberEncoderService.DecodeNumber(recordBytes[27], recordBytes[28]);
-            UnkE = (short)numberEncoderService.DecodeNumber(recordBytes[29], recordBytes[30]);
-            UnkF = (short)numberEncoderService.DecodeNumber(recordBytes[31], recordBytes[32]);
-            UnkG = (short)numberEncoderService.DecodeNumber(recordBytes[33], recordBytes[34]);
-            UnkH = (byte)numberEncoderService.DecodeNumber(recordBytes[35]);
+            UnkByte26 = (byte)numberEncoderService.DecodeNumber(recordBytes[26]);
+            UnkShort27 = (short)numberEncoderService.DecodeNumber(recordBytes[27], recordBytes[28]);
+            UnkShort29 = (short)numberEncoderService.DecodeNumber(recordBytes[29], recordBytes[30]);
+            ElementWeak = (short)numberEncoderService.DecodeNumber(recordBytes[31], recordBytes[32]);
+            ElementWeakPower = (short)numberEncoderService.DecodeNumber(recordBytes[33], recordBytes[34]);
+            UnkByte35 = (byte)numberEncoderService.DecodeNumber(recordBytes[35]);
 
             Exp = numberEncoderService.DecodeNumber(recordBytes[36], recordBytes[37], recordBytes[38]);
         }
