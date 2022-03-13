@@ -99,7 +99,7 @@ namespace EOLib.IO.Pub
                 mem.WriteByte(numberEncoderService.EncodeNumber(UnkA, 1)[0]);
                 mem.WriteByte(numberEncoderService.EncodeNumber(UnkB, 1)[0]);
 
-                mem.Write(numberEncoderService.EncodeNumber((byte)Type, 3), 0, 3); //This is documented as a 3 byte int.
+                mem.Write(numberEncoderService.EncodeNumber((int)Type, 3), 0, 3); //This is documented as a 3 byte int.
 
                 mem.WriteByte(numberEncoderService.EncodeNumber(UnkC, 1)[0]);
                 mem.Write(numberEncoderService.EncodeNumber(UnkD, 2), 0, 2);
