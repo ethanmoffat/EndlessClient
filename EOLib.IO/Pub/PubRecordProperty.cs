@@ -1,4 +1,4 @@
-namespace EOLib.IO
+namespace EOLib.IO.Pub
 {
     /// <summary>
     /// Enum representing the different properties that exist within the pub records
