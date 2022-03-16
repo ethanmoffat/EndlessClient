@@ -55,7 +55,7 @@ namespace EOLib.IO.Services.Serializers
                     file = file.WithAddedRecord((TRecord)record);
                 }
 
-                if (recordsInFile != file.Length)
+                if (recordsInFile != file.Length || mem.Position < mem.Length)
                     throw new IOException("Mismatch between expected length and actual length!");
 
                 return file;
