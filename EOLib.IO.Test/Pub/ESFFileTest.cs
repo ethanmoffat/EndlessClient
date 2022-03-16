@@ -1,74 +1,43 @@
-﻿using System.Collections.Generic;
+﻿using EOLib.IO.Pub;
+using EOLib.IO.Services;
+using EOLib.IO.Services.Serializers;
+using NUnit.Framework;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Linq;
 using System.Text;
-using EOLib.IO.Pub;
-using EOLib.IO.Services;
-using NUnit.Framework;
 
 namespace EOLib.IO.Test.Pub
 {
     [TestFixture, ExcludeFromCodeCoverage]
     public class ESFFileTest
     {
-        private IPubFile<ESFRecord> _spellFile;
-
-        [SetUp]
-        public void SetUp()
-        {
-            _spellFile = new ESFFile();
-        }
-
         [Test]
         public void HasCorrectFileType()
         {
-            Assert.AreEqual("ESF", _spellFile.FileType);
+            Assert.That(new ESFFile().FileType, Is.EqualTo("ESF"));
         }
 
         [Test]
         public void SerializeToByteArray_ReturnsExpectedBytes()
         {
             var expectedBytes = MakeESFFile(55565554,
-                new ESFRecord { ID = 1, Name = "TestSpell", Shout = "TestShout" },
-                new ESFRecord { ID = 2, Name = "Test2", Shout = "TestShout2" },
-                new ESFRecord { ID = 3, Name = "Test3", Shout = "TestShout3" },
-                new ESFRecord { ID = 4, Name = "Test4", Shout = "TestShout4" },
-                new ESFRecord { ID = 5, Name = "Test5", Shout = "TestShout5" },
-                new ESFRecord { ID = 6, Name = "Test6", Shout = "TestShout6" },
-                new ESFRecord { ID = 7, Name = "Test7", Shout = "TestShout7" },
-                new ESFRecord { ID = 8, Name = "Test8", Shout = "TestShout8" },
-                new ESFRecord { ID = 9, Name = "eof", Shout = "-" });
+                new ESFRecord().WithID(1).WithNames(new List<string> { "TestFixture", "Shout" }),
+                new ESFRecord().WithID(2).WithNames(new List<string> { "Test2", "Shout" }),
+                new ESFRecord().WithID(3).WithNames(new List<string> { "Test3", "Shout" }),
+                new ESFRecord().WithID(4).WithNames(new List<string> { "Test4", "Shout" }),
+                new ESFRecord().WithID(5).WithNames(new List<string> { "Test5", "Shout" }),
+                new ESFRecord().WithID(6).WithNames(new List<string> { "Test6", "Shout" }),
+                new ESFRecord().WithID(7).WithNames(new List<string> { "Test7", "Shout" }),
+                new ESFRecord().WithID(8).WithNames(new List<string> { "Test8", "Shout" }),
+                new ESFRecord().WithID(9).WithNames(new List<string> { "eof", "eof" }));
 
-            _spellFile.DeserializeFromByteArray(expectedBytes, new NumberEncoderService());
+            var serializer = CreateFileSerializer();
+            var file = serializer.DeserializeFromByteArray(expectedBytes, () => new ESFFile());
 
-            var actualBytes = _spellFile.SerializeToByteArray(new NumberEncoderService(), rewriteChecksum: false);
+            var actualBytes = serializer.SerializeToByteArray(file, rewriteChecksum: false);
 
             CollectionAssert.AreEqual(expectedBytes, actualBytes);
-        }
-
-        [Test]
-        public void HeaderFormat_IsCorrect()
-        {
-            var nes = new NumberEncoderService();
-
-            var actualBytes = _spellFile.SerializeToByteArray(nes, rewriteChecksum: false);
-
-            CollectionAssert.AreEqual(Encoding.ASCII.GetBytes(_spellFile.FileType), actualBytes.Take(3).ToArray());
-            CollectionAssert.AreEqual(nes.EncodeNumber(_spellFile.CheckSum, 4), actualBytes.Skip(3).Take(4).ToArray());
-            CollectionAssert.AreEqual(nes.EncodeNumber(_spellFile.Length, 2), actualBytes.Skip(7).Take(2).ToArray());
-            CollectionAssert.AreEqual(nes.EncodeNumber(1, 1), actualBytes.Skip(9).Take(1).ToArray());
-        }
-
-        [Test]
-        public void LengthMismatch_ThrowsIOException()
-        {
-            var bytes = MakeESFFileWithWrongLength(12345678, 5,
-                new ESFRecord { ID = 1, Name = "Spell1", Shout = "Spell1" },
-                new ESFRecord { ID = 2, Name = "Spell2", Shout = "Spell2" },
-                new ESFRecord { ID = 3, Name = "Spell3", Shout = "Spell3" });
-
-            Assert.Throws<IOException>(() => _spellFile.DeserializeFromByteArray(bytes, new NumberEncoderService()));
         }
 
         [Test]
@@ -76,25 +45,26 @@ namespace EOLib.IO.Test.Pub
         {
             var records = new[]
             {
-                new ESFRecord {ID = 1, Name = "Test", Shout = "Test"},
-                new ESFRecord {ID = 2, Name = "Test2", Shout = "Test2"},
-                new ESFRecord {ID = 3, Name = "Test3", Shout = "Test3"},
-                new ESFRecord {ID = 4, Name = "Test4", Shout = "Test4"},
-                new ESFRecord {ID = 5, Name = "Test5", Shout = "Test5"},
-                new ESFRecord {ID = 6, Name = "Test6", Shout = "Test6"},
-                new ESFRecord {ID = 7, Name = "Test7", Shout = "Test7"},
-                new ESFRecord {ID = 8, Name = "Test8", Shout = "Test8"},
-                new ESFRecord {ID = 9, Name = "eof", Shout = ""}
+                new ESFRecord().WithID(1).WithNames(new List<string> { "TestFixture", "Shout" }),
+                new ESFRecord().WithID(2).WithNames(new List<string> { "Test2", "Shout" }),
+                new ESFRecord().WithID(3).WithNames(new List<string> { "Test3", "Shout" }),
+                new ESFRecord().WithID(4).WithNames(new List<string> { "Test4", "Shout" }),
+                new ESFRecord().WithID(5).WithNames(new List<string> { "Test5", "Shout" }),
+                new ESFRecord().WithID(6).WithNames(new List<string> { "Test6", "Shout" }),
+                new ESFRecord().WithID(7).WithNames(new List<string> { "Test7", "Shout" }),
+                new ESFRecord().WithID(8).WithNames(new List<string> { "Test8", "Shout" }),
+                new ESFRecord().WithID(9).WithNames(new List<string> { "eof", "eof" })
             };
             var bytes = MakeESFFile(55565554, records);
 
-            _spellFile.DeserializeFromByteArray(bytes, new NumberEncoderService());
+            var serializer = CreateFileSerializer();
+            var file = serializer.DeserializeFromByteArray(bytes, () => new ESFFile());
 
             CollectionAssert.AreEqual(records.Select(x => new { x.ID, x.Name }).ToList(),
-                                      _spellFile.Data.Select(x => new { x.ID, x.Name }).ToList());
+                                      file.Select(x => new { x.ID, x.Name }).ToList());
         }
 
-        private byte[] MakeESFFile(int checksum, params ESFRecord[] records)
+        private byte[] MakeESFFile(int checksum, params IPubRecord[] records)
         {
             var numberEncoderService = new NumberEncoderService();
 
@@ -103,25 +73,17 @@ namespace EOLib.IO.Test.Pub
             bytes.AddRange(numberEncoderService.EncodeNumber(checksum, 4));
             bytes.AddRange(numberEncoderService.EncodeNumber(records.Length, 2));
             bytes.Add(numberEncoderService.EncodeNumber(1, 1)[0]);
+
+            var recordSerializer = new PubRecordSerializer(numberEncoderService);
             foreach (var record in records)
-                bytes.AddRange(record.SerializeToByteArray(numberEncoderService));
+                bytes.AddRange(recordSerializer.SerializeToByteArray(record));
 
             return bytes.ToArray();
         }
 
-        private byte[] MakeESFFileWithWrongLength(int checksum, int length, params ESFRecord[] records)
+        private static IPubFileSerializer CreateFileSerializer()
         {
-            var numberEncoderService = new NumberEncoderService();
-
-            var bytes = new List<byte>();
-            bytes.AddRange(Encoding.ASCII.GetBytes("ESF"));
-            bytes.AddRange(numberEncoderService.EncodeNumber(checksum, 4));
-            bytes.AddRange(numberEncoderService.EncodeNumber(length, 2));
-            bytes.Add(numberEncoderService.EncodeNumber(1, 1)[0]);
-            foreach (var record in records)
-                bytes.AddRange(record.SerializeToByteArray(numberEncoderService));
-
-            return bytes.ToArray();
+            return new PubFileSerializer(new NumberEncoderService(), new PubRecordSerializer(new NumberEncoderService()));
         }
     }
 }

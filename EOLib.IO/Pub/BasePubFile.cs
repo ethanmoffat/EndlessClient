@@ -1,73 +1,82 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using EOLib.IO.Services;
 
 namespace EOLib.IO.Pub
 {
-    public abstract class BasePubFile<T> : IPubFile<T>
-        where T : class, IPubRecord, new()
+    public abstract class BasePubFile<TRecord> : IPubFile<TRecord>
+        where TRecord : class, IPubRecord, new()
     {
-        protected readonly List<T> _data;
+        private readonly List<TRecord> _data;
 
         public abstract string FileType { get; }
 
-        public int CheckSum { get; set; }
+        public int CheckSum { get; private set; }
 
         public int Length => _data.Count;
 
-        public T this[int id]
-        {
-            get
-            {
-                if (id < 1 || id > _data.Count)
-                    return null;
-
-                return _data[id - 1];
-            }
-        }
-
-        public IReadOnlyList<T> Data => _data;
+        // pub files use 1-based indexing
+        public TRecord this[int id] => _data[id - 1];
 
         protected BasePubFile()
         {
-            _data = new List<T>();
+            _data = new List<TRecord>();
         }
 
-        public byte[] SerializeToByteArray(INumberEncoderService numberEncoderService, bool rewriteChecksum = true)
+        protected BasePubFile(int checksum, List<TRecord> data)
         {
-            byte[] fileBytes;
-
-            using (var mem = new MemoryStream()) //write to memory so we can get a CRC for the new RID value
-            {
-                mem.Write(Encoding.ASCII.GetBytes(FileType), 0, 3);
-                mem.Write(numberEncoderService.EncodeNumber(0, 2), 0, 2);
-                mem.Write(numberEncoderService.EncodeNumber(0, 2), 0, 2);
-                mem.Write(numberEncoderService.EncodeNumber(Length, 2), 0, 2);
-
-                mem.WriteByte(numberEncoderService.EncodeNumber(1, 1)[0]);
-
-                foreach (var dataRecord in _data)
-                {
-                    var toWrite = dataRecord.SerializeToByteArray(numberEncoderService);
-                    mem.Write(toWrite, 0, toWrite.Length);
-                }
-
-                fileBytes = mem.ToArray();
-            }
-
-            var checksumBytes = numberEncoderService.EncodeNumber(CheckSum, 4);
-            if (rewriteChecksum)
-            {
-                var checksum = CRC32.Check(fileBytes);
-                checksumBytes = numberEncoderService.EncodeNumber((int)checksum, 4);
-            }
-
-            Array.Copy(checksumBytes, 0, fileBytes, 3, 4);
-            return fileBytes;
+            CheckSum = checksum;
+            _data = data;
         }
 
-        public abstract void DeserializeFromByteArray(byte[] bytes, INumberEncoderService numberEncoderService);
+        public IPubFile WithCheckSum(int checksum)
+        {
+            var copy = MakeCopy();
+            copy.CheckSum = checksum;
+            return copy;
+        }
+
+        public IPubFile<TRecord> WithAddedRecord(TRecord record)
+        {
+            var copy = MakeCopy();
+            copy._data.Add(record);
+            return copy;
+        }
+
+        public IPubFile<TRecord> WithUpdatedRecord(TRecord record)
+        {
+            if (_data.Count <= record.ID)
+                throw new ArgumentException($"Record {record.ID} ({record.Name}) is not part of the pub file");
+
+            var copy = MakeCopy();
+            copy._data[record.ID] = record;
+            return copy;
+        }
+
+        public IPubFile<TRecord> WithRemovedRecord(TRecord record)
+        {
+            var copy = MakeCopy();
+            if (copy._data.Remove(record))
+                AdjustIDs(copy._data);
+            return copy;
+        }
+
+        public IEnumerator<TRecord> GetEnumerator()
+        {
+            return _data.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _data.GetEnumerator();
+        }
+
+        protected abstract BasePubFile<TRecord> MakeCopy();
+
+        private static void AdjustIDs(List<TRecord> data)
+        {
+            for (int i = 0; i < data.Count; i++)
+                data[i] = (TRecord)data[i].WithID(i);
+        }
     }
 }

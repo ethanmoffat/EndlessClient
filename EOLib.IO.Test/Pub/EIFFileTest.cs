@@ -1,48 +1,41 @@
-﻿using System.Collections.Generic;
+﻿using EOLib.IO.Pub;
+using EOLib.IO.Services;
+using EOLib.IO.Services.Serializers;
+using NUnit.Framework;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Linq;
 using System.Text;
-using EOLib.IO.Pub;
-using EOLib.IO.Services;
-using NUnit.Framework;
 
 namespace EOLib.IO.Test.Pub
 {
     [TestFixture, ExcludeFromCodeCoverage]
     public class EIFFileTest
     {
-        private IPubFile<EIFRecord> _itemFile;
-
-        [SetUp]
-        public void SetUp()
-        {
-            _itemFile = new EIFFile();
-        }
-
         [Test]
         public void HasCorrectFileType()
         {
-            Assert.AreEqual("EIF", _itemFile.FileType);
+            Assert.That(new EIFFile().FileType, Is.EqualTo("EIF"));
         }
 
         [Test]
         public void SerializeToByteArray_ReturnsExpectedBytes()
         {
             var expectedBytes = MakeEIFFile(55565554,
-                new EIFRecord {ID = 1, Name = "TestItem"},
-                new EIFRecord {ID = 2, Name = "Test2"},
-                new EIFRecord {ID = 3, Name = "Test3"},
-                new EIFRecord {ID = 4, Name = "Test4"},
-                new EIFRecord {ID = 5, Name = "Test5"},
-                new EIFRecord {ID = 6, Name = "Test6"},
-                new EIFRecord {ID = 7, Name = "Test7"},
-                new EIFRecord {ID = 8, Name = "Test8"},
-                new EIFRecord {ID = 9, Name = "eof"});
+                new EIFRecord().WithID(1).WithNames(new List<string> { "TestFixture" }),
+                new EIFRecord().WithID(2).WithNames(new List<string> { "Test2" }),
+                new EIFRecord().WithID(3).WithNames(new List<string> { "Test3" }),
+                new EIFRecord().WithID(4).WithNames(new List<string> { "Test4" }),
+                new EIFRecord().WithID(5).WithNames(new List<string> { "Test5" }),
+                new EIFRecord().WithID(6).WithNames(new List<string> { "Test6" }),
+                new EIFRecord().WithID(7).WithNames(new List<string> { "Test7" }),
+                new EIFRecord().WithID(8).WithNames(new List<string> { "Test8" }),
+                new EIFRecord().WithID(9).WithNames(new List<string> { "eof" }));
 
-            _itemFile.DeserializeFromByteArray(expectedBytes, new NumberEncoderService());
+            var serializer = CreateFileSerializer();
+            var file = serializer.DeserializeFromByteArray(expectedBytes, () => new EIFFile());
 
-            var actualBytes = _itemFile.SerializeToByteArray(new NumberEncoderService(), rewriteChecksum: false);
+            var actualBytes = serializer.SerializeToByteArray(file, rewriteChecksum: false);
 
             CollectionAssert.AreEqual(expectedBytes, actualBytes);
         }
@@ -52,49 +45,26 @@ namespace EOLib.IO.Test.Pub
         {
             var records = new[]
             {
-                new EIFRecord {ID = 1, Name = "TestItem"},
-                new EIFRecord {ID = 2, Name = "Test2"},
-                new EIFRecord {ID = 3, Name = "Test3"},
-                new EIFRecord {ID = 4, Name = "Test4"},
-                new EIFRecord {ID = 5, Name = "Test5"},
-                new EIFRecord {ID = 6, Name = "Test6"},
-                new EIFRecord {ID = 7, Name = "Test7"},
-                new EIFRecord {ID = 8, Name = "Test8"},
-                new EIFRecord {ID = 9, Name = "eof"}
+                new EIFRecord().WithID(1).WithNames(new List<string> { "TestFixture" }),
+                new EIFRecord().WithID(2).WithNames(new List<string> { "Test2" }),
+                new EIFRecord().WithID(3).WithNames(new List<string> { "Test3" }),
+                new EIFRecord().WithID(4).WithNames(new List<string> { "Test4" }),
+                new EIFRecord().WithID(5).WithNames(new List<string> { "Test5" }),
+                new EIFRecord().WithID(6).WithNames(new List<string> { "Test6" }),
+                new EIFRecord().WithID(7).WithNames(new List<string> { "Test7" }),
+                new EIFRecord().WithID(8).WithNames(new List<string> { "Test8" }),
+                new EIFRecord().WithID(9).WithNames(new List<string> { "eof" })
             };
             var bytes = MakeEIFFile(55565554, records);
 
-            _itemFile.DeserializeFromByteArray(bytes, new NumberEncoderService());
+            var serializer = CreateFileSerializer();
+            var file = serializer.DeserializeFromByteArray(bytes, () => new EIFFile());
 
-            CollectionAssert.AreEqual(records.Select(x => new {x.ID, x.Name}).ToList(),
-                                      _itemFile.Data.Select(x => new {x.ID, x.Name}).ToList());
+            CollectionAssert.AreEqual(records.Select(x => new { x.ID, x.Name }).ToList(),
+                                      file.Select(x => new { x.ID, x.Name }).ToList());
         }
 
-        [Test]
-        public void HeaderFormat_IsCorrect()
-        {
-            var nes = new NumberEncoderService();
-
-            var actualBytes = _itemFile.SerializeToByteArray(nes, rewriteChecksum: false);
-
-            CollectionAssert.AreEqual(Encoding.ASCII.GetBytes(_itemFile.FileType), actualBytes.Take(3).ToArray());
-            CollectionAssert.AreEqual(nes.EncodeNumber(_itemFile.CheckSum, 4), actualBytes.Skip(3).Take(4).ToArray());
-            CollectionAssert.AreEqual(nes.EncodeNumber(_itemFile.Length, 2), actualBytes.Skip(7).Take(2).ToArray());
-            CollectionAssert.AreEqual(nes.EncodeNumber(1, 1), actualBytes.Skip(9).Take(1).ToArray());
-        }
-
-        [Test]
-        public void LengthMismatch_ThrowsIOException()
-        {
-            var bytes = MakeEIFFileWithWrongLength(12345678, 5,
-                new EIFRecord {ID = 1, Name = "Item1"},
-                new EIFRecord {ID = 2, Name = "Item2"},
-                new EIFRecord {ID = 3, Name = "Item3"});
-
-            Assert.Throws<IOException>(() => _itemFile.DeserializeFromByteArray(bytes, new NumberEncoderService()));
-        }
-
-        private byte[] MakeEIFFile(int checksum, params EIFRecord[] records)
+        private byte[] MakeEIFFile(int checksum, params IPubRecord[] records)
         {
             var numberEncoderService = new NumberEncoderService();
 
@@ -103,25 +73,17 @@ namespace EOLib.IO.Test.Pub
             bytes.AddRange(numberEncoderService.EncodeNumber(checksum, 4));
             bytes.AddRange(numberEncoderService.EncodeNumber(records.Length, 2));
             bytes.Add(numberEncoderService.EncodeNumber(1, 1)[0]);
+
+            var recordSerializer = new PubRecordSerializer(numberEncoderService);
             foreach (var record in records)
-                bytes.AddRange(record.SerializeToByteArray(numberEncoderService));
+                bytes.AddRange(recordSerializer.SerializeToByteArray(record));
 
             return bytes.ToArray();
         }
 
-        private byte[] MakeEIFFileWithWrongLength(int checksum, int length, params EIFRecord[] records)
+        private static IPubFileSerializer CreateFileSerializer()
         {
-            var numberEncoderService = new NumberEncoderService();
-
-            var bytes = new List<byte>();
-            bytes.AddRange(Encoding.ASCII.GetBytes("EIF"));
-            bytes.AddRange(numberEncoderService.EncodeNumber(checksum, 4));
-            bytes.AddRange(numberEncoderService.EncodeNumber(length, 2));
-            bytes.Add(numberEncoderService.EncodeNumber(1, 1)[0]);
-            foreach (var record in records)
-                bytes.AddRange(record.SerializeToByteArray(numberEncoderService));
-
-            return bytes.ToArray();
+            return new PubFileSerializer(new NumberEncoderService(), new PubRecordSerializer(new NumberEncoderService()));
         }
     }
 }

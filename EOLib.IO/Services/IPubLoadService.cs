@@ -2,7 +2,7 @@
 
 namespace EOLib.IO.Services
 {
-    public interface IPubLoadService<out T>
+    public interface IPubLoadService<T>
         where T : class, IPubRecord, new()
     {
         IPubFile<T> LoadPubFromDefaultFile();

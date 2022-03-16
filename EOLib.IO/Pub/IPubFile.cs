@@ -1,26 +1,27 @@
 ﻿using System.Collections.Generic;
-using EOLib.IO.Services;
 
 namespace EOLib.IO.Pub
 {
-    public interface IPubFile<out TRecord> : IPubFile
+    public interface IPubFile<TRecord> : IPubFile, IEnumerable<TRecord>
         where TRecord : class, IPubRecord, new()
     {
         TRecord this[int id] { get; }
 
-        IReadOnlyList<TRecord> Data { get; }
+        IPubFile<TRecord> WithAddedRecord(TRecord record);
+
+        IPubFile<TRecord> WithUpdatedRecord(TRecord record);
+
+        IPubFile<TRecord> WithRemovedRecord(TRecord record);
     }
 
     public interface IPubFile
     {
         string FileType { get; }
 
-        int CheckSum { get; set; }
+        int CheckSum { get; }
 
         int Length { get; }
 
-        byte[] SerializeToByteArray(INumberEncoderService numberEncoderService, bool rewriteChecksum = true);
-
-        void DeserializeFromByteArray(byte[] bytes, INumberEncoderService numberEncoderService);
+        IPubFile WithCheckSum(int checkSum);
     }
 }

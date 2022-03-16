@@ -1,26 +1,28 @@
 ﻿using System.IO;
 using AutomaticTypeMapper;
 using EOLib.IO.Pub;
+using EOLib.IO.Services.Serializers;
 
 namespace EOLib.IO.Services
 {
     [MappedType(BaseType = typeof(IPubFileSaveService))]
     public class PubFileSaveService : IPubFileSaveService
     {
-        private readonly INumberEncoderService _numberEncoderService;
+        private readonly IPubFileSerializer _pubFileSerializer;
 
-        public PubFileSaveService(INumberEncoderService numberEncoderService)
+        public PubFileSaveService(IPubFileSerializer pubFileSerializer)
         {
-            _numberEncoderService = numberEncoderService;
+            _pubFileSerializer = pubFileSerializer;
         }
 
-        public void SaveFile(string path, IPubFile pubFile, bool rewriteChecksum = true)
+        public void SaveFile<TRecord>(string path, IPubFile<TRecord> pubFile, bool rewriteChecksum = true)
+            where TRecord : class, IPubRecord, new()
         {
             var directoryName = Path.GetDirectoryName(path) ?? "";
             if (!Directory.Exists(directoryName))
                 Directory.CreateDirectory(directoryName);
 
-            var pubFileBytes = pubFile.SerializeToByteArray(_numberEncoderService, rewriteChecksum);
+            var pubFileBytes = _pubFileSerializer.SerializeToByteArray<TRecord>(pubFile, rewriteChecksum);
             File.WriteAllBytes(path, pubFileBytes);
         }
     }

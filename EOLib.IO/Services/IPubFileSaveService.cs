@@ -4,6 +4,7 @@ namespace EOLib.IO.Services
 {
     public interface IPubFileSaveService
     {
-        void SaveFile(string path, IPubFile pubFile, bool rewriteChecksum = true);
+        void SaveFile<TRecord>(string path, IPubFile<TRecord> pubFile, bool rewriteChecksum = true)
+            where TRecord : class, IPubRecord, new();
     }
 }

@@ -8,100 +8,41 @@ namespace EOLib.IO.Test
     [TestFixture, ExcludeFromCodeCoverage]
     public class EIFRecordExtensionsTest
     {
-        [Test]
-        public void GetEquipLocation_Accessory_ReturnsAccessory()
+        [TestCase(EquipLocation.Accessory, ItemType.Accessory)]
+        [TestCase(EquipLocation.Armlet1, ItemType.Armlet)]
+        [TestCase(EquipLocation.Armor, ItemType.Armor)]
+        [TestCase(EquipLocation.Belt, ItemType.Belt)]
+        [TestCase(EquipLocation.Boots, ItemType.Boots)]
+        [TestCase(EquipLocation.Bracer1, ItemType.Bracer)]
+        [TestCase(EquipLocation.Gloves, ItemType.Gloves)]
+        [TestCase(EquipLocation.Hat, ItemType.Hat)]
+        [TestCase(EquipLocation.Necklace, ItemType.Necklace)]
+        [TestCase(EquipLocation.Ring1, ItemType.Ring)]
+        [TestCase(EquipLocation.Shield, ItemType.Shield)]
+        [TestCase(EquipLocation.Weapon, ItemType.Weapon)]
+        public void GetEquipLocation_Matches_ItemType(EquipLocation equipLocation, ItemType itemType)
         {
-            Assert.AreEqual(EquipLocation.Accessory, new EIFRecord {Type = ItemType.Accessory}.GetEquipLocation());
+            Assert.That(WithItemType(itemType).GetEquipLocation(), Is.EqualTo(equipLocation));
         }
 
-        [Test]
-        public void GetEquipLocation_Armlet_ReturnsArmlet1()
+        [TestCase(ItemType.Beer)]
+        [TestCase(ItemType.CureCurse)]
+        [TestCase(ItemType.EXPReward)]
+        [TestCase(ItemType.EffectPotion)]
+        [TestCase(ItemType.HairDye)]
+        [TestCase(ItemType.Heal)]
+        [TestCase(ItemType.Key)]
+        [TestCase(ItemType.Money)]
+        [TestCase(ItemType.SkillReward)]
+        [TestCase(ItemType.StatReward)]
+        [TestCase(ItemType.Static)]
+        [TestCase(ItemType.Teleport)]
+        [TestCase(ItemType.UnknownType1)]
+        public void GetEquipLocation_Unsupported_ReturnsPaperdollMax(ItemType type)
         {
-            Assert.AreEqual(EquipLocation.Armlet1, new EIFRecord { Type = ItemType.Armlet }.GetEquipLocation());
+            Assert.That(WithItemType(type).GetEquipLocation(), Is.EqualTo(EquipLocation.PAPERDOLL_MAX));
         }
 
-        [Test]
-        public void GetEquipLocation_Armor_ReturnsArmor()
-        {
-            Assert.AreEqual(EquipLocation.Armor, new EIFRecord { Type = ItemType.Armor }.GetEquipLocation());
-        }
-
-        [Test]
-        public void GetEquipLocation_Belt_ReturnsBelt()
-        {
-            Assert.AreEqual(EquipLocation.Belt, new EIFRecord { Type = ItemType.Belt }.GetEquipLocation());
-        }
-
-        [Test]
-        public void GetEquipLocation_Boots_ReturnsBoots()
-        {
-            Assert.AreEqual(EquipLocation.Boots, new EIFRecord { Type = ItemType.Boots }.GetEquipLocation());
-        }
-
-        [Test]
-        public void GetEquipLocation_Bracer_ReturnsBracer()
-        {
-            Assert.AreEqual(EquipLocation.Bracer1, new EIFRecord { Type = ItemType.Bracer }.GetEquipLocation());
-        }
-
-        [Test]
-        public void GetEquipLocation_Gloves_ReturnsGloves()
-        {
-            Assert.AreEqual(EquipLocation.Gloves, new EIFRecord { Type = ItemType.Gloves }.GetEquipLocation());
-        }
-
-        [Test]
-        public void GetEquipLocation_Hat_ReturnsHat()
-        {
-            Assert.AreEqual(EquipLocation.Hat, new EIFRecord { Type = ItemType.Hat }.GetEquipLocation());
-        }
-
-        [Test]
-        public void GetEquipLocation_Necklace_ReturnsNecklace()
-        {
-            Assert.AreEqual(EquipLocation.Necklace, new EIFRecord { Type = ItemType.Necklace }.GetEquipLocation());
-        }
-
-        [Test]
-        public void GetEquipLocation_Ring_ReturnsRing1()
-        {
-            Assert.AreEqual(EquipLocation.Ring1, new EIFRecord { Type = ItemType.Ring }.GetEquipLocation());
-        }
-
-        [Test]
-        public void GetEquipLocation_Shield_ReturnsShield()
-        {
-            Assert.AreEqual(EquipLocation.Shield, new EIFRecord { Type = ItemType.Shield }.GetEquipLocation());
-        }
-
-        [Test]
-        public void GetEquipLocation_Weapon_ReturnsWeapon()
-        {
-            Assert.AreEqual(EquipLocation.Weapon, new EIFRecord { Type = ItemType.Weapon }.GetEquipLocation());
-        }
-
-        [Test]
-        public void GetEquipLocation_Unsupported_ReturnsPaperdollMax()
-        {
-            var unsupported = new[]
-            {
-                ItemType.Beer,
-                ItemType.CureCurse,
-                ItemType.EXPReward,
-                ItemType.EffectPotion,
-                ItemType.HairDye,
-                ItemType.Heal,
-                ItemType.Key,
-                ItemType.Money,
-                ItemType.SkillReward,
-                ItemType.StatReward,
-                ItemType.Static,
-                ItemType.Teleport,
-                ItemType.UnknownType1
-            };
-
-            foreach (var type in unsupported)
-                Assert.AreEqual(EquipLocation.PAPERDOLL_MAX, new EIFRecord {Type = type}.GetEquipLocation());
-        }
+        private static EIFRecord WithItemType(ItemType type) => (EIFRecord)new EIFRecord().WithProperty(PubRecordProperty.ItemType, (int)type);
     }
 }
