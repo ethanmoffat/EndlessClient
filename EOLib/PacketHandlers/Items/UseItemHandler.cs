@@ -107,7 +107,7 @@ namespace EOLib.PacketHandlers.Items
                     var cureCurseEvade = packet.ReadShort();
                     var cureCurseArmor = packet.ReadShort();
 
-                    var cursedItems = _itemFileProvider.EIFFile.Data.Where(x => x.Special == ItemSpecial.Cursed).ToList();
+                    var cursedItems = _itemFileProvider.EIFFile.Where(x => x.Special == ItemSpecial.Cursed).ToList();
                     if (cursedItems.Any(x => x.Graphic == renderProps.BootsGraphic && x.Type == ItemType.Boots))
                         renderProps = renderProps.WithBootsGraphic(0);
                     if (cursedItems.Any(x => x.Graphic == renderProps.ArmorGraphic && x.Type == ItemType.Armor))

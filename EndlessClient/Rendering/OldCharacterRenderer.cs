@@ -284,7 +284,7 @@ namespace EndlessClient.Rendering
             {
                 if (OldWorld.Instance.EIF != null)
                 {
-                    shieldInfo = OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Shield && x.DollGraphic == Data.shield);
+                    shieldInfo = OldWorld.Instance.EIF.SingleOrDefault(x => x.Type == ItemType.Shield && x.DollGraphic == Data.shield);
                     if(shieldInfo != null)
                         shield = spriteSheet.GetShield(shieldInfo.Name == "Bag" || shieldInfo.SubType == ItemSubType.Arrows || shieldInfo.SubType == ItemSubType.Wings);
                 }
@@ -299,7 +299,7 @@ namespace EndlessClient.Rendering
             {
                 if (OldWorld.Instance.EIF != null)
                 {
-                    weaponInfo = OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Weapon && x.DollGraphic == Data.weapon);
+                    weaponInfo = OldWorld.Instance.EIF.SingleOrDefault(x => x.Type == ItemType.Weapon && x.DollGraphic == Data.weapon);
                     if(weaponInfo != null)
                         weapon = spriteSheet.GetWeapon(weaponInfo.SubType == ItemSubType.Ranged);
                 }
@@ -321,7 +321,7 @@ namespace EndlessClient.Rendering
                 lock (hatHairLock)
                     hat = spriteSheet.GetHat();
                 if (OldWorld.Instance.EIF != null)
-                    hatInfo = OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Hat && x.DollGraphic == Data.hat);
+                    hatInfo = OldWorld.Instance.EIF.SingleOrDefault(x => x.Type == ItemType.Hat && x.DollGraphic == Data.hat);
             }
             else
             {

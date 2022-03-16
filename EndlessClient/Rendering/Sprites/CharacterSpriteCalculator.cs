@@ -498,12 +498,11 @@ namespace EndlessClient.Rendering.Sprites
 
         private bool BowIsEquipped(ICharacterRenderProperties characterRenderProperties)
         {
-            if (EIFFile == null || EIFFile.Data == null)
+            if (EIFFile == null)
                 return false;
 
-            var itemData = EIFFile.Data;
-            var weaponInfo = itemData.FirstOrDefault(x => x.Type == ItemType.Weapon &&
-                                                            x.DollGraphic == characterRenderProperties.WeaponGraphic);
+            var weaponInfo = EIFFile.FirstOrDefault(x => x.Type == ItemType.Weapon &&
+                                                         x.DollGraphic == characterRenderProperties.WeaponGraphic);
 
             return weaponInfo != null && weaponInfo.SubType == ItemSubType.Ranged;
         }

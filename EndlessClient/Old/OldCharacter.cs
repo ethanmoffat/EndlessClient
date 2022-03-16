@@ -509,11 +509,11 @@ namespace EndlessClient.Old
 
         public void SetDisplayItemsFromRenderData(CharRenderData newRenderData)
         {
-            EquipItem(ItemType.Boots,  (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Boots  && x.DollGraphic == newRenderData.boots)  ?? new EIFRecord()).ID, newRenderData.boots,  true);
-            EquipItem(ItemType.Armor,  (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Armor  && x.DollGraphic == newRenderData.armor)  ?? new EIFRecord()).ID, newRenderData.armor,  true);
-            EquipItem(ItemType.Hat,    (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Hat    && x.DollGraphic == newRenderData.hat)    ?? new EIFRecord()).ID, newRenderData.hat,    true);
-            EquipItem(ItemType.Shield, (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Shield && x.DollGraphic == newRenderData.shield) ?? new EIFRecord()).ID, newRenderData.shield, true);
-            EquipItem(ItemType.Weapon, (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Weapon && x.DollGraphic == newRenderData.weapon) ?? new EIFRecord()).ID, newRenderData.weapon, true);
+            EquipItem(ItemType.Boots,  (short)(OldWorld.Instance.EIF.SingleOrDefault(x => x.Type == ItemType.Boots  && x.DollGraphic == newRenderData.boots)  ?? new EIFRecord()).ID, newRenderData.boots,  true);
+            EquipItem(ItemType.Armor,  (short)(OldWorld.Instance.EIF.SingleOrDefault(x => x.Type == ItemType.Armor  && x.DollGraphic == newRenderData.armor)  ?? new EIFRecord()).ID, newRenderData.armor,  true);
+            EquipItem(ItemType.Hat,    (short)(OldWorld.Instance.EIF.SingleOrDefault(x => x.Type == ItemType.Hat    && x.DollGraphic == newRenderData.hat)    ?? new EIFRecord()).ID, newRenderData.hat,    true);
+            EquipItem(ItemType.Shield, (short)(OldWorld.Instance.EIF.SingleOrDefault(x => x.Type == ItemType.Shield && x.DollGraphic == newRenderData.shield) ?? new EIFRecord()).ID, newRenderData.shield, true);
+            EquipItem(ItemType.Weapon, (short)(OldWorld.Instance.EIF.SingleOrDefault(x => x.Type == ItemType.Weapon && x.DollGraphic == newRenderData.weapon) ?? new EIFRecord()).ID, newRenderData.weapon, true);
         }
 
         public void UpdateStatsAfterEquip(PaperdollEquipData data)
@@ -543,16 +543,16 @@ namespace EndlessClient.Old
             switch (permission) //note - it would be nice to be able to send the Item IDs of the keys in the welcome packet or something
             {
                 case ChestKey.Normal:
-                    rec = OldWorld.Instance.EIF.Data.Single(_rec => _rec.Name != null && _rec.Name.ToLower() == "normal key");
+                    rec = OldWorld.Instance.EIF.Single(_rec => _rec.Name != null && _rec.Name.ToLower() == "normal key");
                     break;
                 case ChestKey.Crystal:
-                    rec = OldWorld.Instance.EIF.Data.Single(_rec => _rec.Name != null && _rec.Name.ToLower() == "crystal key");
+                    rec = OldWorld.Instance.EIF.Single(_rec => _rec.Name != null && _rec.Name.ToLower() == "crystal key");
                     break;
                 case ChestKey.Silver:
-                    rec = OldWorld.Instance.EIF.Data.Single(_rec => _rec.Name != null && _rec.Name.ToLower() == "silver key");
+                    rec = OldWorld.Instance.EIF.Single(_rec => _rec.Name != null && _rec.Name.ToLower() == "silver key");
                     break;
                 case ChestKey.Wraith:
-                    rec = OldWorld.Instance.EIF.Data.Single(_rec => _rec.Name != null && _rec.Name.ToLower() == "wraith key");
+                    rec = OldWorld.Instance.EIF.Single(_rec => _rec.Name != null && _rec.Name.ToLower() == "wraith key");
                     break;
                 default:
                     return permission;
