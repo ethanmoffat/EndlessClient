@@ -194,7 +194,7 @@ namespace BatchMap
                 {
                     var npcSpawn = mapFile.NPCSpawns[ndx];
                     var npcRec = _pubProvider.ENFFile[npcSpawn.ID];
-                    if (npcSpawn.ID > _pubProvider.ENFFile.Data.Count || npcRec == null)
+                    if (npcSpawn.ID > _pubProvider.ENFFile.Length || npcRec == null)
                     {
                         Console.WriteLine("[MAP {0}] NPC Spawn {1}x{2} uses non-existent NPC #{3}. Removing.", mapID, npcSpawn.X, npcSpawn.Y, npcSpawn.ID);
                         mapFile = mapFile.RemoveNPCSpawn(npcSpawn);
@@ -241,7 +241,7 @@ namespace BatchMap
                 {
                     var chestSpawn = mapFile.Chests[ndx];
                     var rec = _pubProvider.EIFFile[chestSpawn.ItemID];
-                    if (chestSpawn.ItemID > _pubProvider.EIFFile.Data.Count || rec == null)
+                    if (chestSpawn.ItemID > _pubProvider.EIFFile.Length || rec == null)
                     {
                         Console.WriteLine("[MAP {0}] Chest Spawn {1}x{2} uses non-existent Item #{3}. Removing.", mapID, chestSpawn.X, chestSpawn.Y, chestSpawn.ItemID);
                         mapFile = mapFile.RemoveChestSpawn(chestSpawn);

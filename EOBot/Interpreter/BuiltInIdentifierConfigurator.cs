@@ -210,7 +210,7 @@ namespace EOBot.Interpreter
                 () => new ArrayVariable(
                     inventoryProvider.ItemInventory.Select(x =>
                     {
-                        var itemName = pubProvider.EIFFile.Data.Single(d => d.ID == x.ItemID).Name;
+                        var itemName = pubProvider.EIFFile.Single(d => d.ID == x.ItemID).Name;
 
                         var retObj = new ObjectVariable();
                         retObj.SymbolTable[PredefinedIdentifiers.NAME] = Readonly(new StringVariable(itemName));
@@ -222,7 +222,7 @@ namespace EOBot.Interpreter
                 () => new ArrayVariable(
                     inventoryProvider.SpellInventory.Select(x =>
                     {
-                        var spellName = pubProvider.ESFFile.Data.Single(d => d.ID == x.ID).Name;
+                        var spellName = pubProvider.ESFFile.Single(d => d.ID == x.ID).Name;
 
                         var retObj = new ObjectVariable();
                         retObj.SymbolTable[PredefinedIdentifiers.NAME] = Readonly(new StringVariable(spellName));
@@ -274,7 +274,7 @@ namespace EOBot.Interpreter
             var npcFile = DependencyMaster.TypeRegistry[_botIndex].Resolve<IPubFileProvider>().ENFFile;
 
             var npcObj = new ObjectVariable();
-            npcObj.SymbolTable[PredefinedIdentifiers.NAME] = Readonly(new StringVariable(npcFile.Data.Single(x => x.ID == npc.ID).Name));
+            npcObj.SymbolTable[PredefinedIdentifiers.NAME] = Readonly(new StringVariable(npcFile.Single(x => x.ID == npc.ID).Name));
             npcObj.SymbolTable["x"] = Readonly(new IntVariable(npc.X));
             npcObj.SymbolTable["y"] = Readonly(new IntVariable(npc.Y));
             npcObj.SymbolTable["id"] = Readonly(new IntVariable(npc.ID));
@@ -287,7 +287,7 @@ namespace EOBot.Interpreter
             var itemFile = DependencyMaster.TypeRegistry[_botIndex].Resolve<IPubFileProvider>().EIFFile;
 
             var itemObj = new ObjectVariable();
-            itemObj.SymbolTable[PredefinedIdentifiers.NAME] = Readonly(new StringVariable(itemFile.Data.Single(x => x.ID == item.ItemID).Name));
+            itemObj.SymbolTable[PredefinedIdentifiers.NAME] = Readonly(new StringVariable(itemFile.Single(x => x.ID == item.ItemID).Name));
             itemObj.SymbolTable["x"] = Readonly(new IntVariable(item.X));
             itemObj.SymbolTable["y"] = Readonly(new IntVariable(item.Y));
             itemObj.SymbolTable["id"] = Readonly(new IntVariable(item.ItemID));

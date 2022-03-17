@@ -182,11 +182,11 @@ namespace EOBot
                             }
 
                             healItems = charInventoryRepo.ItemInventory
-                                .Where(x => _itemData.Data.Any(y => y.ID == x.ItemID && y.Type == ItemType.Heal))
+                                .Where(x => _itemData.Any(y => y.ID == x.ItemID && y.Type == ItemType.Heal))
                                 .ToList();
 
                             healSpells = charInventoryRepo.SpellInventory
-                                .Where(x => _spellData.Data.Any(y => y.ID == x.ID && y.Type == SpellType.Heal))
+                                .Where(x => _spellData.Any(y => y.ID == x.ID && y.Type == SpellType.Heal))
                                 .ToList();
                         }
                         else
@@ -237,7 +237,7 @@ namespace EOBot
 
         private async Task Attack(IMapCellState cellState)
         {
-            ConsoleHelper.WriteMessage(ConsoleHelper.Type.Attack, $"{cellState.NPC.Value.Index,7} - {_npcData.Data.Single(x => x.ID == cellState.NPC.Value.ID).Name}");
+            ConsoleHelper.WriteMessage(ConsoleHelper.Type.Attack, $"{cellState.NPC.Value.Index,7} - {_npcData.Single(x => x.ID == cellState.NPC.Value.ID).Name}");
             await TrySend(_characterActions.Attack);
             await Task.Delay(TimeSpan.FromMilliseconds(ATTACK_BACKOFF_MS));
         }
@@ -298,7 +298,7 @@ namespace EOBot
         {
             await TrySend(() =>
             {
-                var itemName = _itemData.Data.Single(x => x.ID == item.ItemID).Name;
+                var itemName = _itemData.Single(x => x.ID == item.ItemID).Name;
                 var pickupResult = _mapActions.PickUpItem(item);
                 if (pickupResult == ItemPickupResult.Ok)
                     ConsoleHelper.WriteMessage(ConsoleHelper.Type.TakeItem, $"{item.Amount,7} - {itemName}");
@@ -310,14 +310,14 @@ namespace EOBot
 
         private async Task JunkItem(IItem item)
         {
-            ConsoleHelper.WriteMessage(ConsoleHelper.Type.JunkItem, $"{item.Amount,7} - {_itemData.Data.Single(x => x.ID == item.ItemID).Name}");
+            ConsoleHelper.WriteMessage(ConsoleHelper.Type.JunkItem, $"{item.Amount,7} - {_itemData.Single(x => x.ID == item.ItemID).Name}");
             await TrySend(() => _mapActions.JunkItem(item));
             await Task.Delay(TimeSpan.FromMilliseconds(ATTACK_BACKOFF_MS));
         }
 
         private async Task CastHealSpell(IEnumerable<IInventorySpell> healSpells)
         {
-            var spellToUse = _spellData.Data
+            var spellToUse = _spellData
                 .Where(x => healSpells.Any(y => y.ID == x.ID) && x.Target != SpellTarget.Group)
                 .OrderByDescending(x => x.HP)
                 .First();
@@ -334,7 +334,7 @@ namespace EOBot
 
         private async Task UseHealItem(IEnumerable<IInventoryItem> healItems)
         {
-            var itemToUse = _itemData.Data
+            var itemToUse = _itemData
                 .Where(x => healItems.Any(y => y.ItemID == x.ID))
                 .OrderBy(x => x.HP)
                 .First();

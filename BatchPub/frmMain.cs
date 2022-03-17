@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using EOLib.IO;
 using EOLib.IO.Pub;
 using EOLib.IO.Services;
+using EOLib.IO.Services.Serializers;
 
 namespace BatchPub
 {
@@ -96,7 +97,7 @@ namespace BatchPub
                 }
 
                 rtfOutput.Text += "Processing change: set " + pi.Name + "(" + pi.PropertyType.ToString() + ")=" + newValue.ToString() + " for all items...";
-                foreach (var rec in eif.Data)
+                foreach (var rec in eif)
                 {
                     System.Reflection.PropertyInfo prop = rec.GetType().GetProperty(pi.Name);
                     prop.SetValue(rec, Convert.ChangeType(newValue, pi.PropertyType));
@@ -169,7 +170,7 @@ namespace BatchPub
                     }
                 }
 
-                List<EIFRecord> filtered = eif.Data.Where(record =>
+                List<EIFRecord> filtered = eif.Where(record =>
                     {
                         EIFRecord rec = (EIFRecord)record;
                         if (rec == null || rec.ID == 0) return false;
@@ -255,13 +256,12 @@ namespace BatchPub
 
         private void btnLoad_Click(object sender, EventArgs e)
         {
-            eif = new EIFFile();
-
+            var deserializer = new PubFileSerializer(new NumberEncoderService(), new PubRecordSerializer(new NumberEncoderService()));
             _fname = "";
             try
             {
                 var fileBytes = File.ReadAllBytes(_fname = string.IsNullOrEmpty(txtFileName.Text) ? PubFileNameConstants.PathToEIFFile : txtFileName.Text);
-                eif.DeserializeFromByteArray(fileBytes, new NumberEncoderService());
+                eif = deserializer.DeserializeFromByteArray(fileBytes, () => new EIFFile());
                 lblFileName.Text = "Loaded file: " + _fname;
                 grpStepTwo.Enabled = true;
                 btnReset.Enabled = true;
@@ -417,8 +417,8 @@ namespace BatchPub
 
                 try
                 {
-                    eif.CheckSum++;//todo: recalculate checksum
-                    var bytes = eif.SerializeToByteArray(new NumberEncoderService());
+                    var serializer = new PubFileSerializer(new NumberEncoderService(), new PubRecordSerializer(new NumberEncoderService()));
+                    var bytes = serializer.SerializeToByteArray(eif);
                 }
                 catch(Exception ex)
                 {
