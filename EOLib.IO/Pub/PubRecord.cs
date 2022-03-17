@@ -56,6 +56,9 @@ namespace EOLib.IO.Pub
 
         public IPubRecord WithID(int id)
         {
+            if (id <= 0)
+                throw new ArgumentOutOfRangeException(nameof(id));
+
             var copy = MakeCopy(_names, _propertyBag);
             copy.ID = id;
             return copy;
@@ -93,6 +96,32 @@ namespace EOLib.IO.Pub
         }
 
         public T Get<T>(PubRecordProperty property) => CastTo<T>.From(Bag[property].Value);
+
+        public override bool Equals(object obj)
+        {
+            var pr = obj as PubRecord;
+            if (pr == null)
+                return false;
+
+            return ID == pr.ID &&
+                DataSize == pr.DataSize &&
+                Names.Intersect(pr.Names).Count() == Names.Count &&
+                Bag.Intersect(pr.Bag).Count() == Bag.Count;
+        }
+
+        public override int GetHashCode()
+        {
+            var hash = 397 ^ ID.GetHashCode();
+            hash = (hash * 397) ^ DataSize.GetHashCode();
+            hash = (hash * 397) ^ Names.Select(x => x.GetHashCode()).Aggregate(hash, (a, b) => (a * 397) ^ b);
+            hash = (hash * 397) ^ Bag.Values.Select(x => x.GetHashCode()).Aggregate(hash, (a, b) => (a * 397) ^ b);
+            return hash;
+        }
+
+        public override string ToString()
+        {
+            return $"{GetType().Name}: {ID} {Name} (size={DataSize})";
+        }
 
         protected virtual PubRecord MakeCopy(List<string> names, Dictionary<PubRecordProperty, RecordData> propertyBag)
         {
