@@ -91,7 +91,14 @@ namespace EOLib.IO.Pub
         {
             var copy = MakeCopy(_names, _propertyBag);
             var existing = copy._propertyBag[type];
-            copy._propertyBag[type] = new RecordData(existing.Offset, existing.Length, value);
+
+            var allPropertiesWithOffset = copy._propertyBag
+                .Where(x => x.Value.Offset == existing.Offset && x.Value.Length == existing.Length)
+                .Select(x => x.Key);
+
+            foreach (var propertyKey in allPropertiesWithOffset)
+                copy._propertyBag[propertyKey] = new RecordData(existing.Offset, existing.Length, value);
+
             return copy;
         }
 
@@ -103,10 +110,17 @@ namespace EOLib.IO.Pub
             if (pr == null)
                 return false;
 
-            return ID == pr.ID &&
-                DataSize == pr.DataSize &&
-                Names.Intersect(pr.Names).Count() == Names.Count &&
-                Bag.Intersect(pr.Bag).Count() == Bag.Count;
+            if (ID == pr.ID &&
+                DataSize == pr.DataSize)
+            {
+                var namesMatch = true;
+                for (int i = 0; i < NumberOfNames; i++)
+                    namesMatch &= Names[i] == pr.Names[i];
+                
+                return namesMatch && Bag.Intersect(pr.Bag).Count() == Bag.Count;
+            }
+
+            return false;
         }
 
         public override int GetHashCode()
