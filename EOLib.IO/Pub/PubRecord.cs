@@ -41,6 +41,9 @@ namespace EOLib.IO.Pub
 
         public PubRecord(int id, List<string> names, Dictionary<PubRecordProperty, RecordData> propertyBag)
         {
+            if (names.Count != NumberOfNames)
+                throw new ArgumentException($"Expected {NumberOfNames} names, but got {names.Count} instead", nameof(names));
+
             ID = id;
             _names = names;
             _propertyBag = propertyBag;
@@ -58,8 +61,23 @@ namespace EOLib.IO.Pub
             return copy;
         }
 
+        public IPubRecord WithName(string name)
+        {
+            var copy = MakeCopy(_names, _propertyBag);
+
+            if (!copy._names.Any())
+                copy._names.Add(name);
+            else
+                copy._names[0] = name;
+
+            return copy;
+        }
+
         public IPubRecord WithNames(IReadOnlyList<string> names)
         {
+            if (names.Count != NumberOfNames)
+                throw new ArgumentException($"Expected {NumberOfNames} names, but got {names.Count} instead", nameof(names));
+
             var copy = MakeCopy(_names, _propertyBag);
             copy._names.Clear();
             copy._names.AddRange(names);

@@ -172,8 +172,8 @@ namespace EOLib.Test.Net.FileTransfer
                         .AddString("EIF").AddInt(1) //RID
                         .AddShort(2) //Len
                         .AddByte(1) //filler byte
-                        .AddBytes(rs.SerializeToByteArray(new EIFRecord().WithID(1).WithNames(new List<string> { "Test1" })))
-                        .AddBytes(rs.SerializeToByteArray(new EIFRecord().WithID(2).WithNames(new List<string> { "eof" })));
+                        .AddBytes(rs.SerializeToByteArray(new EIFRecord().WithID(1).WithName("Test1")))
+                        .AddBytes(rs.SerializeToByteArray(new EIFRecord().WithID(2).WithName("eof")));
                     break;
                 case InitFileType.Npc:
                     packetBuilder = packetBuilder
@@ -181,8 +181,8 @@ namespace EOLib.Test.Net.FileTransfer
                         .AddString("ENF").AddInt(1) //RID
                         .AddShort(2) //Len
                         .AddByte(1) //filler byte
-                        .AddBytes(rs.SerializeToByteArray(new ENFRecord().WithID(1).WithNames(new List<string> { "Test1" })))
-                        .AddBytes(rs.SerializeToByteArray(new ENFRecord().WithID(2).WithNames(new List<string> { "eof" })));
+                        .AddBytes(rs.SerializeToByteArray(new ENFRecord().WithID(1).WithName("Test1")))
+                        .AddBytes(rs.SerializeToByteArray(new ENFRecord().WithID(2).WithName("eof")));
                     break;
                 case InitFileType.Spell:
                     packetBuilder = packetBuilder
@@ -199,8 +199,8 @@ namespace EOLib.Test.Net.FileTransfer
                         .AddString("ECF").AddInt(1) //RID
                         .AddShort(2) //Len
                         .AddByte(1) //filler byte
-                        .AddBytes(rs.SerializeToByteArray(new ECFRecord().WithID(1).WithNames(new List<string> { "Test1" })))
-                        .AddBytes(rs.SerializeToByteArray(new ECFRecord().WithID(2).WithNames(new List<string> { "eof" })));
+                        .AddBytes(rs.SerializeToByteArray(new ECFRecord().WithID(1).WithName("Test1")))
+                        .AddBytes(rs.SerializeToByteArray(new ECFRecord().WithID(2).WithName("eof")));
                     break;
             }
 

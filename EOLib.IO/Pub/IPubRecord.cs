@@ -32,6 +32,8 @@ namespace EOLib.IO.Pub
 
         IPubRecord WithID(int id);
 
+        IPubRecord WithName(string name);
+
         IPubRecord WithNames(IReadOnlyList<string> name);
 
         IPubRecord WithProperty(PubRecordProperty type, int value);

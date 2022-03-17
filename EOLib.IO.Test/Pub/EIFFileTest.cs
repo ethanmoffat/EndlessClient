@@ -22,15 +22,15 @@ namespace EOLib.IO.Test.Pub
         public void SerializeToByteArray_ReturnsExpectedBytes()
         {
             var expectedBytes = MakeEIFFile(55565554,
-                new EIFRecord().WithID(1).WithNames(new List<string> { "TestFixture" }),
-                new EIFRecord().WithID(2).WithNames(new List<string> { "Test2" }),
-                new EIFRecord().WithID(3).WithNames(new List<string> { "Test3" }),
-                new EIFRecord().WithID(4).WithNames(new List<string> { "Test4" }),
-                new EIFRecord().WithID(5).WithNames(new List<string> { "Test5" }),
-                new EIFRecord().WithID(6).WithNames(new List<string> { "Test6" }),
-                new EIFRecord().WithID(7).WithNames(new List<string> { "Test7" }),
-                new EIFRecord().WithID(8).WithNames(new List<string> { "Test8" }),
-                new EIFRecord().WithID(9).WithNames(new List<string> { "eof" }));
+                new EIFRecord().WithID(1).WithName("TestFixture"),
+                new EIFRecord().WithID(2).WithName("Test2"),
+                new EIFRecord().WithID(3).WithName("Test3"),
+                new EIFRecord().WithID(4).WithName("Test4"),
+                new EIFRecord().WithID(5).WithName("Test5"),
+                new EIFRecord().WithID(6).WithName("Test6"),
+                new EIFRecord().WithID(7).WithName("Test7"),
+                new EIFRecord().WithID(8).WithName("Test8"),
+                new EIFRecord().WithID(9).WithName("eof"));
 
             var serializer = CreateFileSerializer();
             var file = serializer.DeserializeFromByteArray(expectedBytes, () => new EIFFile());
@@ -45,15 +45,15 @@ namespace EOLib.IO.Test.Pub
         {
             var records = new[]
             {
-                new EIFRecord().WithID(1).WithNames(new List<string> { "TestFixture" }),
-                new EIFRecord().WithID(2).WithNames(new List<string> { "Test2" }),
-                new EIFRecord().WithID(3).WithNames(new List<string> { "Test3" }),
-                new EIFRecord().WithID(4).WithNames(new List<string> { "Test4" }),
-                new EIFRecord().WithID(5).WithNames(new List<string> { "Test5" }),
-                new EIFRecord().WithID(6).WithNames(new List<string> { "Test6" }),
-                new EIFRecord().WithID(7).WithNames(new List<string> { "Test7" }),
-                new EIFRecord().WithID(8).WithNames(new List<string> { "Test8" }),
-                new EIFRecord().WithID(9).WithNames(new List<string> { "eof" })
+                new EIFRecord().WithID(1).WithName("TestFixture"),
+                new EIFRecord().WithID(2).WithName("Test2"),
+                new EIFRecord().WithID(3).WithName("Test3"),
+                new EIFRecord().WithID(4).WithName("Test4"),
+                new EIFRecord().WithID(5).WithName("Test5"),
+                new EIFRecord().WithID(6).WithName("Test6"),
+                new EIFRecord().WithID(7).WithName("Test7"),
+                new EIFRecord().WithID(8).WithName("Test8"),
+                new EIFRecord().WithID(9).WithName("eof")
             };
             var bytes = MakeEIFFile(55565554, records);
 

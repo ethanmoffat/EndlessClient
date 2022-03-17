@@ -22,15 +22,15 @@ namespace EOLib.IO.Test.Pub
         public void SerializeToByteArray_ReturnsExpectedBytes()
         {
             var expectedBytes = MakeECFFile(55565554,
-                new ECFRecord().WithID(1).WithNames(new List<string> { "TestFixture" }),
-                new ECFRecord().WithID(2).WithNames(new List<string> { "Test2" }),
-                new ECFRecord().WithID(3).WithNames(new List<string> { "Test3" }),
-                new ECFRecord().WithID(4).WithNames(new List<string> { "Test4" }),
-                new ECFRecord().WithID(5).WithNames(new List<string> { "Test5" }),
-                new ECFRecord().WithID(6).WithNames(new List<string> { "Test6" }),
-                new ECFRecord().WithID(7).WithNames(new List<string> { "Test7" }),
-                new ECFRecord().WithID(8).WithNames(new List<string> { "Test8" }),
-                new ECFRecord().WithID(9).WithNames(new List<string> { "eof" }));
+                new ECFRecord().WithID(1).WithName("TestFixture"),
+                new ECFRecord().WithID(2).WithName("Test2"),
+                new ECFRecord().WithID(3).WithName("Test3"),
+                new ECFRecord().WithID(4).WithName("Test4"),
+                new ECFRecord().WithID(5).WithName("Test5"),
+                new ECFRecord().WithID(6).WithName("Test6"),
+                new ECFRecord().WithID(7).WithName("Test7"),
+                new ECFRecord().WithID(8).WithName("Test8"),
+                new ECFRecord().WithID(9).WithName("eof"));
 
             var serializer = CreateFileSerializer();
             var file = serializer.DeserializeFromByteArray(expectedBytes, () => new ECFFile());
@@ -45,15 +45,15 @@ namespace EOLib.IO.Test.Pub
         {
             var records = new[]
             {
-                new ECFRecord().WithID(1).WithNames(new List<string> { "TestFixture" }),
-                new ECFRecord().WithID(2).WithNames(new List<string> { "Test2" }),
-                new ECFRecord().WithID(3).WithNames(new List<string> { "Test3" }),
-                new ECFRecord().WithID(4).WithNames(new List<string> { "Test4" }),
-                new ECFRecord().WithID(5).WithNames(new List<string> { "Test5" }),
-                new ECFRecord().WithID(6).WithNames(new List<string> { "Test6" }),
-                new ECFRecord().WithID(7).WithNames(new List<string> { "Test7" }),
-                new ECFRecord().WithID(8).WithNames(new List<string> { "Test8" }),
-                new ECFRecord().WithID(9).WithNames(new List<string> { "eof" })
+                new ECFRecord().WithID(1).WithName("TestFixture"),
+                new ECFRecord().WithID(2).WithName("Test2"),
+                new ECFRecord().WithID(3).WithName("Test3"),
+                new ECFRecord().WithID(4).WithName("Test4"),
+                new ECFRecord().WithID(5).WithName("Test5"),
+                new ECFRecord().WithID(6).WithName("Test6"),
+                new ECFRecord().WithID(7).WithName("Test7"),
+                new ECFRecord().WithID(8).WithName("Test8"),
+                new ECFRecord().WithID(9).WithName("eof")
             };
             var bytes = MakeECFFile(55565554, records);
 

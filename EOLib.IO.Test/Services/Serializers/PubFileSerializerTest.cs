@@ -21,10 +21,10 @@ namespace EOLib.IO.Test.Services.Serializers
 
             var records = new[]
             {
-                new EIFRecord().WithID(1).WithNames(new List<string> { "Rec_1" }),
-                new EIFRecord().WithID(2).WithNames(new List<string> { "Rec_2" }),
-                new EIFRecord().WithID(3).WithNames(new List<string> { "Rec_3" }),
-                new EIFRecord().WithID(4).WithNames(new List<string> { "Rec_4" }),
+                new EIFRecord().WithID(1).WithName("Rec_1"),
+                new EIFRecord().WithID(2).WithName("Rec_2"),
+                new EIFRecord().WithID(3).WithName("Rec_3"),
+                new EIFRecord().WithID(4).WithName("Rec_4"),
             };
 
             var pubBytesLong = MakePubFileBytes("EIF", ExpectedChecksum, ExpectedLength + 1, records);
@@ -42,10 +42,10 @@ namespace EOLib.IO.Test.Services.Serializers
 
             var records = new[]
             {
-                new ENFRecord().WithID(1).WithNames(new List<string> { "Rec_1" }),
-                new ENFRecord().WithID(2).WithNames(new List<string> { "Rec_2" }),
-                new ENFRecord().WithID(3).WithNames(new List<string> { "Rec_3" }),
-                new ENFRecord().WithID(4).WithNames(new List<string> { "Rec_4" }),
+                new ENFRecord().WithID(1).WithName("Rec_1"),
+                new ENFRecord().WithID(2).WithName("Rec_2"),
+                new ENFRecord().WithID(3).WithName("Rec_3"),
+                new ENFRecord().WithID(4).WithName("Rec_4"),
             };
 
             var pubBytesLong = MakePubFileBytes("ENF", ExpectedChecksum, ExpectedLength + 1, records);
@@ -84,10 +84,10 @@ namespace EOLib.IO.Test.Services.Serializers
 
             var records = new[]
             {
-                new ECFRecord().WithID(1).WithNames(new List<string> { "Rec_1" }),
-                new ECFRecord().WithID(2).WithNames(new List<string> { "Rec_2" }),
-                new ECFRecord().WithID(3).WithNames(new List<string> { "Rec_3" }),
-                new ECFRecord().WithID(4).WithNames(new List<string> { "Rec_4" }),
+                new ECFRecord().WithID(1).WithName("Rec_1"),
+                new ECFRecord().WithID(2).WithName("Rec_2"),
+                new ECFRecord().WithID(3).WithName("Rec_3"),
+                new ECFRecord().WithID(4).WithName("Rec_4"),
             };
 
             var pubBytesLong = MakePubFileBytes("ECF", ExpectedChecksum, ExpectedLength + 1, records);
@@ -105,10 +105,10 @@ namespace EOLib.IO.Test.Services.Serializers
 
             var records = new[]
             {
-                new EIFRecord().WithID(1).WithNames(new List<string> { "Rec_1" }),
-                new EIFRecord().WithID(2).WithNames(new List<string> { "Rec_2" }),
-                new EIFRecord().WithID(3).WithNames(new List<string> { "Rec_3" }),
-                new EIFRecord().WithID(4).WithNames(new List<string> { "Rec_4" }),
+                new EIFRecord().WithID(1).WithName("Rec_1"),
+                new EIFRecord().WithID(2).WithName("Rec_2"),
+                new EIFRecord().WithID(3).WithName("Rec_3"),
+                new EIFRecord().WithID(4).WithName("Rec_4"),
             };
 
             var pubBytes = MakePubFileBytes("EIF", ExpectedChecksum, ExpectedLength, records);
@@ -126,10 +126,10 @@ namespace EOLib.IO.Test.Services.Serializers
 
             var records = new[]
             {
-                new ENFRecord().WithID(1).WithNames(new List<string> { "Rec_1" }),
-                new ENFRecord().WithID(2).WithNames(new List<string> { "Rec_2" }),
-                new ENFRecord().WithID(3).WithNames(new List<string> { "Rec_3" }),
-                new ENFRecord().WithID(4).WithNames(new List<string> { "Rec_4" }),
+                new ENFRecord().WithID(1).WithName("Rec_1"),
+                new ENFRecord().WithID(2).WithName("Rec_2"),
+                new ENFRecord().WithID(3).WithName("Rec_3"),
+                new ENFRecord().WithID(4).WithName("Rec_4"),
             };
 
             var pubBytes = MakePubFileBytes("ENF", ExpectedChecksum, ExpectedLength, records);
@@ -168,10 +168,10 @@ namespace EOLib.IO.Test.Services.Serializers
 
             var records = new[]
             {
-                new ECFRecord().WithID(1).WithNames(new List<string> { "Rec_1" }),
-                new ECFRecord().WithID(2).WithNames(new List<string> { "Rec_2" }),
-                new ECFRecord().WithID(3).WithNames(new List<string> { "Rec_3" }),
-                new ECFRecord().WithID(4).WithNames(new List<string> { "Rec_4" }),
+                new ECFRecord().WithID(1).WithName("Rec_1"),
+                new ECFRecord().WithID(2).WithName("Rec_2"),
+                new ECFRecord().WithID(3).WithName("Rec_3"),
+                new ECFRecord().WithID(4).WithName("Rec_4"),
             };
 
             var pubBytes = MakePubFileBytes("ECF", ExpectedChecksum, ExpectedLength, records);

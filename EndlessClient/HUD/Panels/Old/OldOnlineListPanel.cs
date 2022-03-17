@@ -24,7 +24,7 @@ namespace EndlessClient.HUD.Panels.Old
         public ClientOnlineEntry(string name, string title, string guild, int @class, PaperdollIconType icon)
             : base(name, title, guild, @class, icon)
         {
-            var record = OldWorld.Instance.ECF[@class] ?? new ECFRecord().WithNames(new[] { string.Empty });
+            var record = OldWorld.Instance.ECF[@class] ?? new ECFRecord().WithName(string.Empty);
             ClassString = record.ID == 0 ? "-" : record.Name;
         }
 

@@ -1,13 +1,12 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Protocol;
 using EOLib.IO.Map;
 using EOLib.IO.Pub;
-using EOLib.IO.Services;
 using EOLib.IO.Services.Serializers;
 using EOLib.Net.Communication;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace EOLib.Net.FileTransfer
 {

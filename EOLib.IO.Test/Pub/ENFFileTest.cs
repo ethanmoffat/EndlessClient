@@ -22,15 +22,15 @@ namespace EOLib.IO.Test.Pub
         public void SerializeToByteArray_ReturnsExpectedBytes()
         {
             var expectedBytes = MakeENFFile(55565554,
-                new ENFRecord().WithID(1).WithNames(new List<string> { "TestFixture" }),
-                new ENFRecord().WithID(2).WithNames(new List<string> { "Test2" }),
-                new ENFRecord().WithID(3).WithNames(new List<string> { "Test3" }),
-                new ENFRecord().WithID(4).WithNames(new List<string> { "Test4" }),
-                new ENFRecord().WithID(5).WithNames(new List<string> { "Test5" }),
-                new ENFRecord().WithID(6).WithNames(new List<string> { "Test6" }),
-                new ENFRecord().WithID(7).WithNames(new List<string> { "Test7" }),
-                new ENFRecord().WithID(8).WithNames(new List<string> { "Test8" }),
-                new ENFRecord().WithID(9).WithNames(new List<string> { "eof" }));
+                new ENFRecord().WithID(1).WithName("TestFixture"),
+                new ENFRecord().WithID(2).WithName("Test2"),
+                new ENFRecord().WithID(3).WithName("Test3"),
+                new ENFRecord().WithID(4).WithName("Test4"),
+                new ENFRecord().WithID(5).WithName("Test5"),
+                new ENFRecord().WithID(6).WithName("Test6"),
+                new ENFRecord().WithID(7).WithName("Test7"),
+                new ENFRecord().WithID(8).WithName("Test8"),
+                new ENFRecord().WithID(9).WithName("eof"));
 
             var serializer = CreateFileSerializer();
             var file = serializer.DeserializeFromByteArray(expectedBytes, () => new ENFFile());
@@ -45,15 +45,15 @@ namespace EOLib.IO.Test.Pub
         {
             var records = new[]
             {
-                new ENFRecord().WithID(1).WithNames(new List<string> { "TestFixture" }),
-                new ENFRecord().WithID(2).WithNames(new List<string> { "Test2" }),
-                new ENFRecord().WithID(3).WithNames(new List<string> { "Test3" }),
-                new ENFRecord().WithID(4).WithNames(new List<string> { "Test4" }),
-                new ENFRecord().WithID(5).WithNames(new List<string> { "Test5" }),
-                new ENFRecord().WithID(6).WithNames(new List<string> { "Test6" }),
-                new ENFRecord().WithID(7).WithNames(new List<string> { "Test7" }),
-                new ENFRecord().WithID(8).WithNames(new List<string> { "Test8" }),
-                new ENFRecord().WithID(9).WithNames(new List<string> { "eof" })
+                new ENFRecord().WithID(1).WithName("TestFixture"),
+                new ENFRecord().WithID(2).WithName("Test2"),
+                new ENFRecord().WithID(3).WithName("Test3"),
+                new ENFRecord().WithID(4).WithName("Test4"),
+                new ENFRecord().WithID(5).WithName("Test5"),
+                new ENFRecord().WithID(6).WithName("Test6"),
+                new ENFRecord().WithID(7).WithName("Test7"),
+                new ENFRecord().WithID(8).WithName("Test8"),
+                new ENFRecord().WithID(9).WithName("eof")
             };
             var bytes = MakeENFFile(55565554, records);
 

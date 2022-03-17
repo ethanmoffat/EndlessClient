@@ -51,12 +51,12 @@ namespace EOLib.IO.Pub
         public short UnkShort49 => Get<short>(PubRecordProperty.SpellUnkShort49);
 
         public ESFRecord()
-            : this(0, string.Empty)
+            : this(0, string.Empty, string.Empty)
         {
         }
 
-        public ESFRecord(int id, string name)
-            : base(id, name, PubRecordProperty.Spell)
+        public ESFRecord(int id, string name, string shout)
+            : base(id, new List<string> { name, shout }, PubRecordProperty.Spell)
         {
         }
 
