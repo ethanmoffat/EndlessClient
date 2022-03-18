@@ -96,15 +96,15 @@ namespace EndlessClient.Controllers
                 case ItemPickupResult.DropProtection:
                     var message = EOResourceID.STATUS_LABEL_ITEM_PICKUP_PROTECTED;
                     var extra = string.Empty;
-                    if (item.OwningPlayerID.HasValue)
+
+                    item.OwningPlayerID.MatchSome(playerId =>
                     {
-                        var playerId = item.OwningPlayerID.ValueOr(0);
                         message = EOResourceID.STATUS_LABEL_ITEM_PICKUP_PROTECTED_BY;
                         if (_currentMapStateProvider.Characters.ContainsKey(playerId))
                         {
                             extra = _currentMapStateProvider.Characters[playerId].Name;
                         }
-                    }
+                    });
 
                     _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, message, extra);
 

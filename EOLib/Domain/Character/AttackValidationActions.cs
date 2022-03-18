@@ -30,7 +30,9 @@ namespace EOLib.Domain.Character
             return _mapCellStateProvider
                 .GetCellStateAt(rp.GetDestinationX(), rp.GetDestinationY())
                 .NPC.Match(
-                    some: npc => npc.OpponentID.Map(id => id != _characterProvider.MainCharacter.ID ? AttackValidationError.NotYourBattle : AttackValidationError.OK).ValueOr(AttackValidationError.OK),
+                    some: npc => npc.OpponentID.Match(
+                        some: id => id != _characterProvider.MainCharacter.ID ? AttackValidationError.NotYourBattle : AttackValidationError.OK,
+                        none: () => AttackValidationError.OK),
                     none: () => AttackValidationError.OK);
         }
     }

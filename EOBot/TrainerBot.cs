@@ -238,8 +238,7 @@ namespace EOBot
 
         private async Task Attack(IMapCellState cellState)
         {
-            var npc = cellState.NPC.ValueOr(new NPC(0, 0));
-            ConsoleHelper.WriteMessage(ConsoleHelper.Type.Attack, $"{npc.Index,7} - {_npcData.Single(x => x.ID == npc.ID).Name}");
+            cellState.NPC.MatchSome(npc => ConsoleHelper.WriteMessage(ConsoleHelper.Type.Attack, $"{npc.Index,7} - {_npcData.Single(x => x.ID == npc.ID).Name}"));
             await TrySend(_characterActions.Attack);
             await Task.Delay(TimeSpan.FromMilliseconds(ATTACK_BACKOFF_MS));
         }

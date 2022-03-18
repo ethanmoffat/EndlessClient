@@ -4,6 +4,7 @@ using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using EOLib.IO.Repositories;
+using Optional;
 
 namespace EOLib.Domain.Item
 {
@@ -29,22 +30,29 @@ namespace EOLib.Domain.Item
             if (xDif > 2 || yDif > 2)
                 return ItemPickupResult.TooFar;
 
-            if (mainCharacter.ID != item.OwningPlayerID.ValueOr(mainCharacter.ID))
-            {
-                var dropTime = item.DropTime.ValueOr(now);
-                if (item.IsNPCDrop && (now - dropTime).TotalSeconds <= _configurationProvider.NPCDropProtectTime ||
-                    !item.IsNPCDrop && (now - dropTime).TotalSeconds <= _configurationProvider.PlayerDropProtectTime)
-                    return ItemPickupResult.DropProtection;
-            }
-            else
-            {
-                var itemData = _eifFileProvider.EIFFile[item.ItemID];
-                var totalWeight = itemData.Weight * item.Amount;
-                if (totalWeight + mainCharacter.Stats[CharacterStat.Weight] > mainCharacter.Stats[CharacterStat.MaxWeight])
-                    return ItemPickupResult.TooHeavy;
-            }
+            return item.OwningPlayerID
+                .FlatMap(id => id.SomeWhen(idx => idx != mainCharacter.ID))
+                .Match(
+                    some: id =>
+                        item.DropTime.Match(
+                            some: dropTime =>
+                            {
+                                if (item.IsNPCDrop && (now - dropTime).TotalSeconds <= _configurationProvider.NPCDropProtectTime ||
+                                    !item.IsNPCDrop && (now - dropTime).TotalSeconds <= _configurationProvider.PlayerDropProtectTime)
+                                    return ItemPickupResult.DropProtection;
 
-            return ItemPickupResult.Ok;
+                                return ItemPickupResult.Ok;
+                            },
+                            none: () => ItemPickupResult.Ok),
+                    none: () =>
+                    {
+                        var itemData = _eifFileProvider.EIFFile[item.ItemID];
+                        var totalWeight = itemData.Weight * item.Amount;
+                        if (totalWeight + mainCharacter.Stats[CharacterStat.Weight] > mainCharacter.Stats[CharacterStat.MaxWeight])
+                            return ItemPickupResult.TooHeavy;
+
+                        return ItemPickupResult.Ok;
+                    });
         }
     }
 
