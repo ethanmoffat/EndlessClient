@@ -9,6 +9,7 @@ using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.IO.Map;
 using EOLib.IO.Repositories;
+using Optional;
 
 namespace EndlessClient.Rendering.Character
 {
@@ -55,7 +56,7 @@ namespace EndlessClient.Rendering.Character
             if (!_hudControlProvider.IsInGame)
                 return;
 
-            Animator.StartMainCharacterWalkAnimation();
+            Animator.StartMainCharacterWalkAnimation(Option.None<MapCoordinate>());
             ShowWaterSplashiesIfNeeded(CharacterActionState.Walking, _characterRepository.MainCharacter.ID);
         }
 
@@ -122,10 +123,13 @@ namespace EndlessClient.Rendering.Character
             var spellGraphic = _esfFileProvider.ESFFile[spellId].Graphic;
 
             if (playerId == _characterRepository.MainCharacter.ID)
-            {
-                _characterRendererProvider.MainCharacterRenderer.ShoutSpellCast();
-                _characterRendererProvider.MainCharacterRenderer.ShowSpellAnimation(spellGraphic);
-                _characterRendererProvider.MainCharacterRenderer.ShowDamageCounter(spellHp, percentHealth, isHeal: true);
+            { 
+                _characterRendererProvider.MainCharacterRenderer.MatchSome(cr =>
+                {
+                    cr.ShoutSpellCast();
+                    cr.ShowSpellAnimation(spellGraphic);
+                    cr.ShowDamageCounter(spellHp, percentHealth, isHeal: true);
+                });
             }
             else
             {
@@ -142,7 +146,7 @@ namespace EndlessClient.Rendering.Character
 
             if (sourcePlayerID == _characterRepository.MainCharacter.ID)
             {
-                _characterRendererProvider.MainCharacterRenderer.ShoutSpellCast();
+                _characterRendererProvider.MainCharacterRenderer.MatchSome(cr => cr.ShoutSpellCast());
             }
             else
             {
@@ -152,8 +156,11 @@ namespace EndlessClient.Rendering.Character
 
             if (targetPlayerID == _characterRepository.MainCharacter.ID)
             {
-                _characterRendererProvider.MainCharacterRenderer.ShowSpellAnimation(spellGraphic);
-                _characterRendererProvider.MainCharacterRenderer.ShowDamageCounter(recoveredHP, targetPercentHealth, isHeal: true);
+                _characterRendererProvider.MainCharacterRenderer.MatchSome(cr =>
+                {
+                    cr.ShowSpellAnimation(spellGraphic);
+                    cr.ShowDamageCounter(recoveredHP, targetPercentHealth, isHeal: true);
+                });
             }
             else
             {
@@ -171,31 +178,36 @@ namespace EndlessClient.Rendering.Character
         private void ShowWaterSplashiesIfNeeded(CharacterActionState action, int characterID)
         {
             var character = characterID == _characterRepository.MainCharacter.ID
-                ? _characterRepository.MainCharacter
+                ? Option.Some(_characterRepository.MainCharacter)
                 : _currentMapStateProvider.Characters.ContainsKey(characterID)
-                    ? _currentMapStateProvider.Characters[characterID]
-                    : null;
+                    ? Option.Some(_currentMapStateProvider.Characters[characterID])
+                    : Option.None<ICharacter>();
 
             var characterRenderer = characterID == _characterRepository.MainCharacter.ID
                 ? _characterRendererProvider.MainCharacterRenderer
                 : _characterRendererProvider.CharacterRenderers.ContainsKey(characterID)
-                    ? _characterRendererProvider.CharacterRenderers[characterID]
-                    : null;
+                    ? Option.Some(_characterRendererProvider.CharacterRenderers[characterID])
+                    : Option.None<ICharacterRenderer>();
 
-            if (character == null || characterRenderer == null)
-                return;
+            character.MatchSome(c =>
+            {
+                var rp = c.RenderProperties;
 
-            var rp = character.RenderProperties;
-            if (action == CharacterActionState.Attacking)
-            {
-                if (_currentMapProvider.CurrentMap.Tiles[rp.MapY, rp.MapX] == TileSpec.Water)
-                    characterRenderer.ShowWaterSplashies();
-            }
-            else if (action == CharacterActionState.Walking)
-            {
-                if (_currentMapProvider.CurrentMap.Tiles[rp.GetDestinationY(), rp.GetDestinationX()] == TileSpec.Water)
-                    characterRenderer.ShowWaterSplashies();
-            }
+                characterRenderer.MatchSome(cr =>
+                {
+                    if (action == CharacterActionState.Attacking)
+                    {
+                        if (_currentMapProvider.CurrentMap.Tiles[rp.MapY, rp.MapX] == TileSpec.Water)
+                            cr.ShowWaterSplashies();
+                    }
+                    else if (action == CharacterActionState.Walking)
+                    {
+                        if (_currentMapProvider.CurrentMap.Tiles[rp.GetDestinationY(), rp.GetDestinationX()] == TileSpec.Water)
+                            cr.ShowWaterSplashies();
+                    }
+
+                });
+            });
         }
 
         private ICharacterAnimator Animator => _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator);

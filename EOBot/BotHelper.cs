@@ -5,6 +5,7 @@ using EOLib.Domain.Map;
 using EOLib.Domain.Protocol;
 using EOLib.IO.Actions;
 using EOLib.Net.FileTransfer;
+using Optional.Collections;
 using System;
 using System.IO;
 using System.Linq;
@@ -97,9 +98,9 @@ namespace EOBot
         public async Task<CharacterReply> DeleteCharacterAsync(string name, bool force)
         {
             var characterSelectorRepository = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICharacterSelectorRepository>();
-            characterSelectorRepository.CharacterForDelete = characterSelectorRepository.Characters.SingleOrDefault(x => x.Name == name);
+            characterSelectorRepository.CharacterForDelete = characterSelectorRepository.Characters.SingleOrNone(x => x.Name == name);
 
-            if (characterSelectorRepository.CharacterForDelete == null)
+            if (!characterSelectorRepository.CharacterForDelete.HasValue)
             {
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"Character {name} could not be deleted / does not exist");
                 return CharacterReply.THIS_IS_WRONG;

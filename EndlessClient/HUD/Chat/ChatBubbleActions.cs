@@ -3,6 +3,7 @@ using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.NPC;
 using EOLib.Domain.Chat;
+using Optional;
 
 namespace EndlessClient.HUD.Chat
 {
@@ -31,16 +32,16 @@ namespace EndlessClient.HUD.Chat
         public void ShowChatBubbleForMainCharacter(string input)
         {
             //todo: don't show chat bubble if group chat and character is not in a group (party)
-
-            var chatType = _chatTypeCalculator.CalculateChatType(input);
-            if (chatType != ChatType.Local &&
-                chatType != ChatType.Party &&
-                chatType != ChatType.Announce)
-                return;
-
-            var text = _chatProcessor.RemoveFirstCharacterIfNeeded(input, chatType, string.Empty);
-
-            _characterRendererProvider.MainCharacterRenderer.ShowChatBubble(text, chatType == ChatType.Party);
+            _characterRendererProvider.MainCharacterRenderer.MatchSome(r =>
+            {
+                _chatTypeCalculator.CalculateChatType(input)
+                    .SomeWhen(x => x == ChatType.Local || x == ChatType.Party || x == ChatType.Announce)
+                    .MatchSome(chatType =>
+                    {
+                        var text = _chatProcessor.RemoveFirstCharacterIfNeeded(input, chatType, string.Empty);
+                        r.ShowChatBubble(text, chatType == ChatType.Party);
+                    });
+            });
         }
 
         public void ShowChatBubbleForNPC(int index, string input)

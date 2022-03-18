@@ -53,7 +53,7 @@ namespace EndlessClient.Rendering
         private CursorIndex _cursorIndex;
         private bool _shouldDrawCursor;
 
-        private DateTime? _startClickTime;
+        private Option<DateTime> _startClickTime;
         private CursorIndex _clickFrame;
         private int _clickAlpha;
         private Rectangle _clickPositionArea;
@@ -167,17 +167,20 @@ namespace EndlessClient.Rendering
             if (!cellState.Items.Any())
                 UpdateMapItemLabel(Option.None<IItem>());
 
-            if (_startClickTime.HasValue && (DateTime.Now - _startClickTime.Value).TotalMilliseconds > 350)
-            {
-                _startClickTime = DateTime.Now;
-                _clickFrame = _clickFrame + 1;
-
-                if (_clickFrame != CursorIndex.ClickFirstFrame && _clickFrame != CursorIndex.ClickSecondFrame)
+            _startClickTime.MatchSome(st =>
                 {
-                    _clickFrame = CursorIndex.Standard;
-                    _startClickTime = null;
-                }
-            }
+                    if ((DateTime.Now - st).TotalMilliseconds > 350)
+                    {
+                        _startClickTime = Option.Some(DateTime.Now);
+                        _clickFrame = _clickFrame + 1;
+
+                        if (_clickFrame != CursorIndex.ClickFirstFrame && _clickFrame != CursorIndex.ClickSecondFrame)
+                        {
+                            _clickFrame = CursorIndex.Standard;
+                            _startClickTime = Option.None<DateTime>();
+                        }
+                    }
+                });
         }
 
         private int MainCharacterOffsetX()
@@ -333,7 +336,7 @@ namespace EndlessClient.Rendering
             if (_startClickTime.HasValue)
                 return;
 
-            _startClickTime = DateTime.Now;
+            _startClickTime = Option.Some(DateTime.Now);
             _clickFrame = CursorIndex.ClickFirstFrame;
             _clickAlpha = 200;
             _clickPositionArea = _drawArea;

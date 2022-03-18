@@ -17,9 +17,7 @@ namespace EndlessClient.HUD.Chat
 
         public ChatModePictureBox.ChatMode CalculateMode(string fullTextString)
         {
-            if(fullTextString == null)
-                throw new ArgumentException("Input string is null!", nameof(fullTextString));
-            if (fullTextString.Length == 0)
+            if (string.IsNullOrEmpty(fullTextString))
                 return ChatModePictureBox.ChatMode.NoText;
 
             var playerIsAdmin = _characterProvider.MainCharacter.AdminLevel != AdminLevel.Player;

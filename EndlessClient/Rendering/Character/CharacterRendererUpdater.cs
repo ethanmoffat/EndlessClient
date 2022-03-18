@@ -5,6 +5,7 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
 using Optional;
+using Optional.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -52,7 +53,7 @@ namespace EndlessClient.Rendering.Character
                 {
                     if (c != actual)
                     {
-                        _characterRendererRepository.MainCharacterRenderer.Character = _characterProvider.MainCharacter;
+                        _characterRendererRepository.MainCharacterRenderer.MatchSome(r => r.Character = _characterProvider.MainCharacter);
                         _characterStateCache.UpdateMainCharacterState(actual);
                     }
                 },
@@ -61,8 +62,8 @@ namespace EndlessClient.Rendering.Character
                     _characterStateCache.UpdateMainCharacterState(actual);
 
                     var renderer = InitializeRendererForCharacter(_characterProvider.MainCharacter);
-                    _characterRendererRepository.MainCharacterRenderer = renderer;
-                    _characterRendererRepository.MainCharacterRenderer.SetToCenterScreenPosition();
+                    renderer.SetToCenterScreenPosition();
+                    _characterRendererRepository.MainCharacterRenderer = Option.Some(renderer);
                 });
         }
 
@@ -110,7 +111,7 @@ namespace EndlessClient.Rendering.Character
 
         private void UpdateAllCharacters(GameTime gameTime)
         {
-            _characterRendererRepository.MainCharacterRenderer.Update(gameTime);
+            _characterRendererRepository.MainCharacterRenderer.MatchSome(x => x.Update(gameTime));
             foreach (var renderer in _characterRendererRepository.CharacterRenderers.Values)
                 renderer.Update(gameTime);
         }
@@ -144,24 +145,25 @@ namespace EndlessClient.Rendering.Character
 
             foreach (var character in _currentMapStateRepository.Characters.Values.Where(x => x.RenderProperties.IsDead))
             {
-                var actionTime = _characterStateCache.DeathStartTimes.SingleOrDefault(x => x.UniqueID == character.ID);
-                if (actionTime == null)
-                {
-                    _characterStateCache.AddDeathStartTime(character.ID);
-                }
-                else if (actionTime.ActionTimer.ElapsedMilliseconds >= 2)
-                {
-                    _characterStateCache.RemoveDeathStartTime(character.ID);
-                    _characterStateCache.RemoveCharacterState(character.ID);
+                _characterStateCache.DeathStartTimes.SingleOrNone(x => x.UniqueID == character.ID)
+                    .Match(
+                        none: () => _characterStateCache.AddDeathStartTime(character.ID),
+                        some: actionTime =>
+                        {
+                            if (actionTime.ActionTimer.ElapsedMilliseconds >= 2)
+                            {
+                                _characterStateCache.RemoveDeathStartTime(character.ID);
+                                _characterStateCache.RemoveCharacterState(character.ID);
 
-                    if (_characterRendererRepository.CharacterRenderers.ContainsKey(character.ID))
-                    {
-                        _characterRendererRepository.CharacterRenderers[character.ID].Dispose();
-                        _characterRendererRepository.CharacterRenderers.Remove(character.ID);
-                    }
+                                if (_characterRendererRepository.CharacterRenderers.ContainsKey(character.ID))
+                                {
+                                    _characterRendererRepository.CharacterRenderers[character.ID].Dispose();
+                                    _characterRendererRepository.CharacterRenderers.Remove(character.ID);
+                                }
 
-                    deadCharacters.Add(character.ID);
-                }
+                                deadCharacters.Add(character.ID);
+                            }
+                        });
             }
 
             foreach (var id in deadCharacters)

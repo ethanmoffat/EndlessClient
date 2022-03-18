@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using AutomaticTypeMapper;
+using Optional;
 
 namespace EndlessClient.Rendering.Character
 {
     public interface ICharacterRendererRepository : IDisposable
     {
-        ICharacterRenderer MainCharacterRenderer { get; set; }
+        Option<ICharacterRenderer> MainCharacterRenderer { get; set; }
 
         Dictionary<int, ICharacterRenderer> CharacterRenderers { get; set; }
 
@@ -15,7 +16,7 @@ namespace EndlessClient.Rendering.Character
 
     public interface ICharacterRendererProvider
     {
-        ICharacterRenderer MainCharacterRenderer { get; }
+        Option<ICharacterRenderer> MainCharacterRenderer { get; }
 
         IReadOnlyDictionary<int, ICharacterRenderer> CharacterRenderers { get; }
 
@@ -26,7 +27,7 @@ namespace EndlessClient.Rendering.Character
     [MappedType(BaseType = typeof(ICharacterRendererRepository), IsSingleton = true)]
     public class CharacterRendererRepository : ICharacterRendererRepository, ICharacterRendererProvider
     {
-        public ICharacterRenderer MainCharacterRenderer { get; set; }
+        public Option<ICharacterRenderer> MainCharacterRenderer { get; set; }
 
         public Dictionary<int, ICharacterRenderer> CharacterRenderers { get; set; }
 
@@ -42,8 +43,8 @@ namespace EndlessClient.Rendering.Character
 
         public void Dispose()
         {
-            MainCharacterRenderer?.Dispose();
-            MainCharacterRenderer = null;
+            MainCharacterRenderer.MatchSome(x => x.Dispose());
+            MainCharacterRenderer = Option.None<ICharacterRenderer>();
 
             foreach (var renderer in CharacterRenderers.Values)
                 renderer.Dispose();

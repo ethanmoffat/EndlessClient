@@ -42,11 +42,11 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
         {
-            if (_characterRendererProvider.MainCharacterRenderer == null)
-                return;
-
-            _characterRendererProvider.MainCharacterRenderer.Transparent = _transparent;
-            _characterRendererProvider.MainCharacterRenderer.DrawToSpriteBatch(spriteBatch);
+            _characterRendererProvider.MainCharacterRenderer.MatchSome(cr =>
+            {
+                cr.Transparent = _transparent;
+                cr.DrawToSpriteBatch(spriteBatch);
+            });
         }
     }
 }

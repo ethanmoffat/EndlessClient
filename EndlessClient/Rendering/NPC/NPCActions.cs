@@ -104,10 +104,17 @@ namespace EndlessClient.Rendering.NPC
 
         private void ShoutSpellCast(int playerId)
         {
-            if (_characterRendererRepository.MainCharacterRenderer.Character.ID == playerId)
-                _characterRendererRepository.MainCharacterRenderer.ShoutSpellCast();
-            else if (_characterRendererRepository.CharacterRenderers.ContainsKey(playerId))
-                _characterRendererRepository.CharacterRenderers[playerId].ShoutSpellCast();
+            _characterRendererRepository.MainCharacterRenderer.Match(
+                some: r =>
+                {
+                    if (r.Character.ID == playerId)
+                        r.ShoutSpellCast();
+                },
+                none: () =>
+                {
+                    if (_characterRendererRepository.CharacterRenderers.ContainsKey(playerId))
+                        _characterRendererRepository.CharacterRenderers[playerId].ShoutSpellCast();
+                });
         }
 
         private INPCAnimator Animator => _hudControlProvider.GetComponent<INPCAnimator>(HudControlIdentifier.NPCAnimator);

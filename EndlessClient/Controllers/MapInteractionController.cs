@@ -10,6 +10,7 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
 using EOLib.Localization;
+using Optional;
 using Optional.Collections;
 using System;
 using System.Threading.Tasks;
@@ -77,7 +78,7 @@ namespace EndlessClient.Controllers
             {
                 mouseRenderer.AnimateClick();
                 _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator)
-                    .StartMainCharacterWalkAnimation(cellState.Coordinate);
+                    .StartMainCharacterWalkAnimation(Option.Some(cellState.Coordinate));
             }
         }
 

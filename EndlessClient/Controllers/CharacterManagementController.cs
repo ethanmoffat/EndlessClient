@@ -7,6 +7,7 @@ using EOLib.Domain.Login;
 using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.Connection;
+using Optional;
 using XNAControls;
 
 namespace EndlessClient.Controllers
@@ -67,13 +68,31 @@ namespace EndlessClient.Controllers
 
         public async Task DeleteCharacter(ICharacter characterToDelete)
         {
-            if (_characterSelectorRepository.CharacterForDelete == null ||
-                _characterSelectorRepository.CharacterForDelete != characterToDelete)
+            void ShowCharacterDeleteWarning(ICharacter c)
             {
-                _characterDialogActions.ShowCharacterDeleteWarning(characterToDelete.Name);
-                _characterSelectorRepository.CharacterForDelete = characterToDelete;
-                return;
+                _characterDialogActions.ShowCharacterDeleteWarning(c.Name);
+                _characterSelectorRepository.CharacterForDelete = Option.Some(c);
             }
+
+            var warningShown = _characterSelectorRepository.CharacterForDelete.Match(
+                some: c =>
+                {
+                    if (c != characterToDelete)
+                    {
+                        ShowCharacterDeleteWarning(characterToDelete);
+                        return true;
+                    }
+
+                    return false;
+                },
+                none: () =>
+                {
+                    ShowCharacterDeleteWarning(characterToDelete);
+                    return true;
+                });
+
+            if (warningShown)
+                return;
 
             var requestDeleteOp = _safeNetworkOperationFactory.CreateSafeBlockingOperation(_characterManagementActions.RequestCharacterDelete, SendError, RecvError);
             if (!await requestDeleteOp.Invoke())
@@ -91,7 +110,7 @@ namespace EndlessClient.Controllers
 
             var response = deleteOp.Result;
 
-            _characterSelectorRepository.CharacterForDelete = null;
+            _characterSelectorRepository.CharacterForDelete = Option.None<ICharacter>();
             if (response != CharacterReply.Deleted)
             {
                 SetInitialStateAndShowError();

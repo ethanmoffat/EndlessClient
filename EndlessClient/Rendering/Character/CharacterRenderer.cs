@@ -49,7 +49,7 @@ namespace EndlessClient.Rendering.Character
         private DateTime? _spellCastTime;
 
         private IHealthBarRenderer _healthBarRenderer;
-        private IChatBubble _chatBubble;
+        private Lazy<IChatBubble> _chatBubble;
 
         public ICharacter Character
         {
@@ -103,6 +103,7 @@ namespace EndlessClient.Rendering.Character
             _gameStateProvider = gameStateProvider;
             _currentMapProvider = currentMapProvider;
             _effectRenderer = new EffectRenderer(nativeGraphicsmanager, this);
+            _chatBubble = new Lazy<IChatBubble>(() => _chatBubbleFactory.CreateChatBubble(this));
         }
 
         #region Game Component
@@ -451,9 +452,7 @@ namespace EndlessClient.Rendering.Character
 
         public void ShowChatBubble(string message, bool isGroupChat)
         {
-            if (_chatBubble == null)
-                _chatBubble = _chatBubbleFactory.CreateChatBubble(this);
-            _chatBubble.SetMessage(message, isGroupChat);
+            _chatBubble.Value.SetMessage(message, isGroupChat);
         }
 
         protected override void Dispose(bool disposing)
