@@ -1,17 +1,18 @@
 ﻿using System.IO;
 using AutomaticTypeMapper;
 using EOLib.IO.Pub;
+using EOLib.IO.Services.Serializers;
 
 namespace EOLib.IO.Services
 {
     [MappedType(BaseType = typeof(IPubLoadService<ESFRecord>))]
     public class SpellFileLoadService : IPubLoadService<ESFRecord>
     {
-        private readonly INumberEncoderService _numberEncoderService;
+        private readonly IPubFileDeserializer _pubFileDeserializer;
 
-        public SpellFileLoadService(INumberEncoderService numberEncoderService)
+        public SpellFileLoadService(IPubFileDeserializer pubFileDeserializer)
         {
-            _numberEncoderService = numberEncoderService;
+            _pubFileDeserializer = pubFileDeserializer;
         }
 
         public IPubFile<ESFRecord> LoadPubFromDefaultFile()
@@ -22,11 +23,7 @@ namespace EOLib.IO.Services
         public IPubFile<ESFRecord> LoadPubFromExplicitFile(string fileName)
         {
             var fileBytes = File.ReadAllBytes(fileName);
-            
-            var pub = new ESFFile();
-            pub.DeserializeFromByteArray(fileBytes, _numberEncoderService);
-
-            return pub;
+            return _pubFileDeserializer.DeserializeFromByteArray(fileBytes, () => new ESFFile());
         }
     }
 }

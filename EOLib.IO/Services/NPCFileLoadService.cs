@@ -1,17 +1,18 @@
 ﻿using System.IO;
 using AutomaticTypeMapper;
 using EOLib.IO.Pub;
+using EOLib.IO.Services.Serializers;
 
 namespace EOLib.IO.Services
 {
     [MappedType(BaseType = typeof(IPubLoadService<ENFRecord>))]
     public class NPCFileLoadService : IPubLoadService<ENFRecord>
     {
-        private readonly INumberEncoderService _numberEncoderService;
+        private readonly IPubFileDeserializer _pubFileDeserializer;
 
-        public NPCFileLoadService(INumberEncoderService numberEncoderService)
+        public NPCFileLoadService(IPubFileDeserializer pubFileDeserializer)
         {
-            _numberEncoderService = numberEncoderService;
+            _pubFileDeserializer = pubFileDeserializer;
         }
 
         public IPubFile<ENFRecord> LoadPubFromDefaultFile()
@@ -22,11 +23,7 @@ namespace EOLib.IO.Services
         public IPubFile<ENFRecord> LoadPubFromExplicitFile(string fileName)
         {
             var fileBytes = File.ReadAllBytes(fileName);
-            
-            var pub = new ENFFile();
-            pub.DeserializeFromByteArray(fileBytes, _numberEncoderService);
-
-            return pub;
+            return _pubFileDeserializer.DeserializeFromByteArray(fileBytes, () => new ENFFile());
         }
     }
 }

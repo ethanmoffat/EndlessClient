@@ -100,7 +100,7 @@ namespace EOLib.Domain.Character
 
         public void CastSpell(int spellId, ISpellTargetable target)
         {
-            var data = _spellFileProvider.ESFFile.Data.Single(x => x.ID == spellId);
+            var data = _spellFileProvider.ESFFile.Single(x => x.ID == spellId);
 
             var action = data.Target == IO.SpellTarget.Self
                 ? PacketAction.TargetSelf

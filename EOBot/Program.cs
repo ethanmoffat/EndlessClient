@@ -39,7 +39,7 @@ namespace EOBot
                     return;
 
                 var npc = _currentMapStateRepository.NPCs.SingleOrDefault(x => x.Index == npcIndex);
-                var npcName = _enfFileProvider.ENFFile.Data.SingleOrDefault(x => npc != null && npc.ID == x.ID)?.Name;
+                var npcName = _enfFileProvider.ENFFile.SingleOrDefault(x => npc != null && npc.ID == x.ID)?.Name;
 
                 var color = npcPctHealth < 25
                     ? ConsoleColor.Red

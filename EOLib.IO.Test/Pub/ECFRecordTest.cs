@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using EOLib.IO.Pub;
+using NUnit.Framework;
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using EOLib.IO.Pub;
-using EOLib.IO.Services;
-using NUnit.Framework;
 
 namespace EOLib.IO.Test.Pub
 {
@@ -14,172 +10,25 @@ namespace EOLib.IO.Test.Pub
     public class ECFRecordTest
     {
         [Test]
-        public void ECFRecord_GetGlobalPropertyID_GetsRecordID()
-        {
-            const int expected = 44;
-            var rec = new ECFRecord { ID = expected };
-
-            var actual = rec.Get<int>(PubRecordProperty.GlobalID);
-
-            Assert.AreEqual(expected, actual);
-        }
-
-        [Test]
-        public void ECFRecord_GetGlobalPropertyName_GetsRecordName()
-        {
-            const string expected = "some name";
-            var rec = new ECFRecord { Name = expected };
-
-            var actual = rec.Get<string>(PubRecordProperty.GlobalName);
-
-            Assert.AreEqual(expected, actual);
-        }
-
-        [Test]
-        public void ECFRecord_GetClassPropertiesComprehensive_NoException()
-        {
-            var classProperties = Enum.GetNames(typeof(PubRecordProperty))
-                                      .Where(x => x.StartsWith("Class"))
-                                      .Select(x => (PubRecordProperty)Enum.Parse(typeof(PubRecordProperty), x))
-                                      .ToArray();
-
-            Assert.AreNotEqual(0, classProperties.Length);
-
-            var record = new ECFRecord();
-
-            foreach (var property in classProperties)
-            {
-                var dummy = record.Get<object>(property);
-                Assert.IsNotNull(dummy);
-            }
-        }
-
-        [Test]
-        public void ECFRecord_GetItemProperty_ThrowsArgumentOutOfRangeException()
-        {
-            const PubRecordProperty invalidProperty = PubRecordProperty.ItemSubType;
-
-            var record = new ECFRecord();
-
-            Assert.Throws<ArgumentOutOfRangeException>(() => record.Get<object>(invalidProperty));
-        }
-
-        [Test]
-        public void ECFRecord_GetSpellProperty_ThrowsArgumentOutOfRangeException()
-        {
-            const PubRecordProperty invalidProperty = PubRecordProperty.SpellAccuracy;
-
-            var record = new ECFRecord();
-
-            Assert.Throws<ArgumentOutOfRangeException>(() => record.Get<object>(invalidProperty));
-        }
-
-        [Test]
-        public void ECFRecord_GetNPCProperty_ThrowsArgumentOutOfRangeException()
-        {
-            const PubRecordProperty invalidProperty = PubRecordProperty.NPCAccuracy;
-
-            var record = new ECFRecord();
-
-            Assert.Throws<ArgumentOutOfRangeException>(() => record.Get<object>(invalidProperty));
-        }
-
-        [Test]
-        public void ECFRecord_InvalidPropertyReturnType_ThrowsInvalidCastException()
-        {
-            var rec = new ECFRecord { Name = "" };
-
-            Assert.Throws<InvalidCastException>(() => rec.Get<int>(PubRecordProperty.GlobalName));
-        }
-
-        [Test]
-        public void ECFRecord_SerializeToByteArray_WritesExpectedFormat()
-        {
-            var numberEncoderService = new NumberEncoderService();
-            var record = CreateRecordWithSomeGoodTestData();
-
-            var actualBytes = record.SerializeToByteArray(numberEncoderService);
-
-            var expectedBytes = GetExpectedBytes(record, numberEncoderService);
-
-            CollectionAssert.AreEqual(expectedBytes, actualBytes);
-        }
-
-        [Test]
-        public void ECFRecord_DeserializeFromByteArray_HasCorrectData()
-        {
-            var numberEncoderService = new NumberEncoderService();
-            var sourceRecord = CreateRecordWithSomeGoodTestData();
-            var sourceRecordBytes = GetExpectedBytesWithoutName(sourceRecord, numberEncoderService);
-
-            var record = new ECFRecord { ID = sourceRecord.ID, Name = sourceRecord.Name };
-            record.DeserializeFromByteArray(sourceRecordBytes, numberEncoderService);
-
-            var properties = record.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-            Assert.IsTrue(properties.Length > 0);
-
-            foreach (var property in properties)
-            {
-                var expectedValue = property.GetValue(sourceRecord);
-                var actualValue = property.GetValue(record);
-
-                Assert.AreEqual(expectedValue, actualValue, "Property: {0}", property.Name);
-            }
-        }
-
-        [Test]
-        public void ECFRecord_DeserializeFromByteArray_InvalidArrayLength_ThrowsException()
+        public void ECFRecord_HasAllExpectedProperties()
         {
             var record = new ECFRecord();
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => record.DeserializeFromByteArray(new byte[] { 1, 2, 3 }, new NumberEncoderService()));
+            var expectedProperties = ((PubRecordProperty[])Enum.GetValues(typeof(PubRecordProperty)))
+                .Where(x => x.HasFlag(PubRecordProperty.Class))
+                .Except(new[] { PubRecordProperty.Class });
+
+            Assert.That(record.Bag.Count, Is.EqualTo(expectedProperties.Count()));
+
+            foreach (var p in expectedProperties)
+                Assert.That(record.Bag, Does.ContainKey(p));
         }
 
-        private static ECFRecord CreateRecordWithSomeGoodTestData()
+        [Test]
+        public void ECFRecord_HasExpectedDataSize()
         {
-            return new ECFRecord
-            {
-                ID = 1,
-                Name = "TestName",
-
-                Base = 33,
-                Type = 99,
-                
-                Str = 10,
-                Int = 20,
-                Wis = 30,
-                Agi = 200,
-                Con = 190,
-                Cha = 180
-            };
-        }
-
-        private static byte[] GetExpectedBytes(ECFRecord rec, INumberEncoderService nes)
-        {
-            var ret = new List<byte>();
-
-            ret.AddRange(nes.EncodeNumber(rec.Name.Length, 1));
-            ret.AddRange(Encoding.ASCII.GetBytes(rec.Name));
-            ret.AddRange(GetExpectedBytesWithoutName(rec, nes));
-
-            return ret.ToArray();
-        }
-
-        private static byte[] GetExpectedBytesWithoutName(ECFRecord rec, INumberEncoderService nes)
-        {
-            var ret = new List<byte>();
-
-            ret.AddRange(nes.EncodeNumber(rec.Base, 1));
-            ret.AddRange(nes.EncodeNumber(rec.Type, 1));
-            ret.AddRange(nes.EncodeNumber(rec.Str, 2));
-            ret.AddRange(nes.EncodeNumber(rec.Int, 2));
-            ret.AddRange(nes.EncodeNumber(rec.Wis, 2));
-            ret.AddRange(nes.EncodeNumber(rec.Agi, 2));
-            ret.AddRange(nes.EncodeNumber(rec.Con, 2));
-            ret.AddRange(nes.EncodeNumber(rec.Cha, 2));
-
-            return ret.ToArray();
+            const int ExpectedDataSize = 14;
+            Assert.That(new ECFRecord().DataSize, Is.EqualTo(ExpectedDataSize));
         }
     }
 }

@@ -171,7 +171,7 @@ namespace EndlessClient.Test
                 if (!_isBowEquipped)
                 {
                     _lastGraphic = _baseProperties.WeaponGraphic;
-                    var firstBowWeapon = EIFFile.Data.First(x => x.Type == ItemType.Weapon && x.SubType == ItemSubType.Ranged);
+                    var firstBowWeapon = EIFFile.First(x => x.Type == ItemType.Weapon && x.SubType == ItemSubType.Ranged);
                     _baseProperties = _baseProperties.WithWeaponGraphic((short)firstBowWeapon.DollGraphic, isRanged: true);
                 }
                 else
@@ -273,7 +273,7 @@ namespace EndlessClient.Test
         private short GetNextItemGraphicMatching(ItemType type, short currentGraphic)
         {
             var increment = ShiftPressed ? -1 : 1;
-            var matchingItems = EIFFile.Data.Where(x => x.Type == type).OrderBy(x => x.ID).ToList();
+            var matchingItems = EIFFile.Where(x => x.Type == type).OrderBy(x => x.ID).ToList();
             _itemIndices[type] = (_itemIndices[type] + increment) % matchingItems.Count;
 
             if (_itemIndices[type] + increment < 0)

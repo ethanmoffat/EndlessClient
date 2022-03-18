@@ -72,28 +72,28 @@ namespace EOLib.Net.FileTransfer
 
         public async Task GetItemFileFromServer()
         {
-            var itemFile = await _fileRequestService.RequestFile(InitFileType.Item, _playerInfoProvider.PlayerID);
+            var itemFile = await _fileRequestService.RequestFile<EIFRecord>(InitFileType.Item, _playerInfoProvider.PlayerID);
             _pubFileSaveService.SaveFile(PubFileNameConstants.PathToEIFFile, itemFile, rewriteChecksum: false);
             _pubFileRepository.EIFFile = (EIFFile)itemFile;
         }
 
         public async Task GetNPCFileFromServer()
         {
-            var npcFile = await _fileRequestService.RequestFile(InitFileType.Npc, _playerInfoProvider.PlayerID);
+            var npcFile = await _fileRequestService.RequestFile<ENFRecord>(InitFileType.Npc, _playerInfoProvider.PlayerID);
             _pubFileSaveService.SaveFile(PubFileNameConstants.PathToENFFile, npcFile, rewriteChecksum: false);
             _pubFileRepository.ENFFile = (ENFFile)npcFile;
         }
 
         public async Task GetSpellFileFromServer()
         {
-            var spellFile = await _fileRequestService.RequestFile(InitFileType.Spell, _playerInfoProvider.PlayerID);
+            var spellFile = await _fileRequestService.RequestFile<ESFRecord>(InitFileType.Spell, _playerInfoProvider.PlayerID);
             _pubFileSaveService.SaveFile(PubFileNameConstants.PathToESFFile, spellFile, rewriteChecksum: false);
             _pubFileRepository.ESFFile = (ESFFile)spellFile;
         }
 
         public async Task GetClassFileFromServer()
         {
-            var classFile = await _fileRequestService.RequestFile(InitFileType.Class, _playerInfoProvider.PlayerID);
+            var classFile = await _fileRequestService.RequestFile<ECFRecord>(InitFileType.Class, _playerInfoProvider.PlayerID);
             _pubFileSaveService.SaveFile(PubFileNameConstants.PathToECFFile, classFile, rewriteChecksum: false);
             _pubFileRepository.ECFFile = (ECFFile)classFile;
         }

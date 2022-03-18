@@ -72,7 +72,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 
         private bool IsWeaponBehindCharacter(ICharacterRenderProperties renderProperties)
         {
-             var weaponInfo = EIFFile.Data.FirstOrDefault(
+             var weaponInfo = EIFFile.FirstOrDefault(
                 x => x.Type == ItemType.Weapon &&
                      x.DollGraphic == renderProperties.WeaponGraphic);
 
@@ -85,7 +85,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 
         private HatMaskType GetHatMaskType(ICharacterRenderProperties renderProperties)
         {
-            var hatInfo = EIFFile.Data.FirstOrDefault(
+            var hatInfo = EIFFile.FirstOrDefault(
                 x => x.Type == ItemType.Hat &&
                      x.DollGraphic == renderProperties.HatGraphic);
 

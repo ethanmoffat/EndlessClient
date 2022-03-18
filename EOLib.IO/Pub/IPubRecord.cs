@@ -1,19 +1,41 @@
-﻿using EOLib.IO.Services;
+﻿using System.Collections.Generic;
 
 namespace EOLib.IO.Pub
 {
     public interface IPubRecord
     {
-        int RecordSize { get; }
+        int ID { get; }
 
-        int ID { get; set; }
+        /// <summary>
+        /// The first name in the list of names for the record
+        /// </summary>
+        string Name { get; }
 
-        string Name { get; set; }
+        /// <summary>
+        /// Collection of all names in the record
+        /// </summary>
+        IReadOnlyList<string> Names { get; }
 
-        TValue Get<TValue>(PubRecordProperty type);
+        /// <summary>
+        /// Expected number of names per record in a data file (ESF files have 'name' and 'shout' variable strings)
+        /// </summary>
+        int NumberOfNames { get; }
 
-        byte[] SerializeToByteArray(INumberEncoderService numberEncoderService);
+        /// <summary>
+        /// Constant size of a data record
+        /// </summary>
+        int DataSize { get; }
 
-        void DeserializeFromByteArray(byte[] recordBytes, INumberEncoderService numberEncoderService);
+        IReadOnlyDictionary<PubRecordProperty, RecordData> Bag { get; }
+
+        T Get<T>(PubRecordProperty property);
+
+        IPubRecord WithID(int id);
+
+        IPubRecord WithName(string name);
+
+        IPubRecord WithNames(IReadOnlyList<string> name);
+
+        IPubRecord WithProperty(PubRecordProperty type, int value);
     }
 }

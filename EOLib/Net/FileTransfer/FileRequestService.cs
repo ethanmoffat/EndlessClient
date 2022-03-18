@@ -1,12 +1,12 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Protocol;
 using EOLib.IO.Map;
 using EOLib.IO.Pub;
-using EOLib.IO.Services;
 using EOLib.IO.Services.Serializers;
 using EOLib.Net.Communication;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace EOLib.Net.FileTransfer
 {
@@ -14,16 +14,16 @@ namespace EOLib.Net.FileTransfer
     public class FileRequestService : IFileRequestService
     {
         private readonly IPacketSendService _packetSendService;
-        private readonly INumberEncoderService _numberEncoderService;
         private readonly IMapDeserializer<IMapFile> _mapFileSerializer;
+        private readonly IPubFileDeserializer _pubFileDeserializer;
 
         public FileRequestService(IPacketSendService packetSendService,
-                                  INumberEncoderService numberEncoderService,
-                                  IMapDeserializer<IMapFile> mapFileSerializer)
+                                  IMapDeserializer<IMapFile> mapFileSerializer,
+                                  IPubFileDeserializer pubFileDeserializer)
         {
             _packetSendService = packetSendService;
-            _numberEncoderService = numberEncoderService;
             _mapFileSerializer = mapFileSerializer;
+            _pubFileDeserializer = pubFileDeserializer;
         }
 
         public async Task<IMapFile> RequestMapFile(short mapID, short playerID)
@@ -43,7 +43,8 @@ namespace EOLib.Net.FileTransfer
             return await GetMapFile(request, mapID, true);
         }
 
-        public async Task<IPubFile> RequestFile(InitFileType fileType, short playerID)
+        public async Task<IPubFile<TRecord>> RequestFile<TRecord>(InitFileType fileType, short playerID)
+            where TRecord : class, IPubRecord, new()
         {
             var request = new PacketBuilder(PacketFamily.Welcome, PacketAction.Agree)
                 .AddChar((byte)fileType)
@@ -61,21 +62,21 @@ namespace EOLib.Net.FileTransfer
             if (extraByte != 1)
                 throw new MalformedPacketException("Missing extra single byte in file transfer packet", response);
 
-            IPubFile retFile;
+            Func<IPubFile<TRecord>> factory;
             switch (responseFileType)
             {
-                case InitReply.ItemFile: retFile = new EIFFile(); break;
-                case InitReply.NpcFile: retFile = new ENFFile(); break;
-                case InitReply.SpellFile: retFile = new ESFFile(); break;
-                case InitReply.ClassFile: retFile = new ECFFile(); break;
+                case InitReply.ItemFile: factory = () => (IPubFile<TRecord>)new EIFFile(); break;
+                case InitReply.NpcFile: factory = () => (IPubFile<TRecord>)new ENFFile(); break;
+                case InitReply.SpellFile: factory = () => (IPubFile<TRecord>)new ESFFile(); break;
+                case InitReply.ClassFile: factory = () => (IPubFile<TRecord>)new ECFFile(); break;
                 default: throw new EmptyPacketReceivedException();
             }
 
-            var responseBytes = response.ReadBytes(response.Length - response.ReadPosition)
-                                        .ToArray();
-            retFile.DeserializeFromByteArray(responseBytes, _numberEncoderService);
+            var responseBytes = response
+                .ReadBytes(response.Length - response.ReadPosition)
+                .ToArray();
 
-            return retFile;
+            return _pubFileDeserializer.DeserializeFromByteArray(responseBytes, factory);
         }
 
         private async Task<IMapFile> GetMapFile(IPacket request, int mapID, bool isWarp)
@@ -109,6 +110,7 @@ namespace EOLib.Net.FileTransfer
 
         Task<IMapFile> RequestMapFileForWarp(short mapID);
 
-        Task<IPubFile> RequestFile(InitFileType fileType, short playerID);
+        Task<IPubFile<TRecord>> RequestFile<TRecord>(InitFileType fileType, short playerID)
+            where TRecord : class, IPubRecord, new();
     }
 }

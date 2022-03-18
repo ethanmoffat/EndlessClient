@@ -1,102 +1,175 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using EOLib.IO.Pub;
-using EOLib.IO.Services;
+﻿using EOLib.IO.Pub;
 using NUnit.Framework;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace EOLib.IO.Test.Pub
 {
-    [TestFixture, ExcludeFromCodeCoverage]
-    public class BasePubFileTest
+    [TestFixture]
+    public class BasePubFileTest_EIFImpl : BasePubFileTest<EIFFile, EIFRecord> { }
+
+    [TestFixture]
+    public class BasePubFileTest_ENFImpl : BasePubFileTest<ENFFile, ENFRecord> { }
+
+    [TestFixture]
+    public class BasePubFileTest_ESFImpl : BasePubFileTest<ESFFile, ESFRecord> { }
+
+    [TestFixture]
+    public class BasePubFileTest_ECFImpl : BasePubFileTest<ECFFile, ECFRecord> { }
+
+    // These tests are run from the implementations
+    [ExcludeFromCodeCoverage]
+    public abstract class BasePubFileTest<T, U>
+        where T : IPubFile<U>, new()
+        where U : class, IPubRecord, new()
     {
-        //This covers the BasePubFile abstract class.
-        private BasePubFile<DummyRecord> _baseFile;
-
-        [SetUp]
-        public void SetUp()
+        [Test]
+        public void WithAddedRecord_AddsRecord()
         {
-            _baseFile = new DummyFile();
+            var file = new T();
+            var record = (U)new U().WithID(1).WithName("My record");
+
+            var updatedFile = file.WithAddedRecord(record);
+
+            Assert.That(file, Is.Empty);
+            Assert.That(updatedFile, Has.Length.EqualTo(1));
+            Assert.That(updatedFile, Has.Exactly(1).Items.EqualTo(record));
         }
 
         [Test]
-        public void PubFile_HasExpectedChecksumAndLength()
+        public void WithAddedRecord_DuplicateID_ThrowsArgumentException()
         {
-            Assert.AreEqual(0, _baseFile.CheckSum);
-            Assert.AreEqual(0, _baseFile.Length);
+            var file = new T();
+            var record = (U)new U().WithID(1).WithName("My record");
+
+            var updatedFile = file.WithAddedRecord(record);
+
+            Assert.That(() => updatedFile.WithAddedRecord(record), Throws.ArgumentException);
         }
 
         [Test]
-        public void PubFile_WithOneItemRecord_HasExpectedLength()
+        public void WithAddedRecord_IDOutOfBounds_ThrowsArgumentException()
         {
-            var bytes = MakeDummyFile(new DummyRecord { ID = 1, Name = "TestItem" });
+            var file = new T();
+            var record = (U)new U().WithID(400);
 
-            _baseFile.DeserializeFromByteArray(bytes, new NumberEncoderService());
-
-            Assert.AreEqual(1, _baseFile.Length);
+            Assert.That(() => file.WithAddedRecord(record), Throws.ArgumentException);
         }
 
         [Test]
-        public void PubFile_Indexing_ReturnsNullWhenLessThan1()
+        public void WithInsertedRecord_InsertsRecordAtPosition_SpecifiedByID()
         {
-            var bytes = MakeDummyFile(new DummyRecord { ID = 1, Name = "TestItem" },
-                                      new DummyRecord { ID = 2, Name = "Test2" },
-                                      new DummyRecord { ID = 3, Name = "Test3" },
-                                      new DummyRecord { ID = 4, Name = "Test4" });
+            IPubFile<U> file = new T();
+            var record = (U)new U().WithID(1);
 
-            _baseFile.DeserializeFromByteArray(bytes, new NumberEncoderService());
+            file = file.WithAddedRecord(record);
 
-            Assert.AreEqual(4, _baseFile.Length);
-            Assert.IsNull(_baseFile[0]);
+            var updatedRecord = (U)record.WithName("updated");
+            var updatedFile = file.WithInsertedRecord(updatedRecord);
+
+            Assert.That(file, Has.Length.EqualTo(1));
+            Assert.That(updatedFile, Has.Length.EqualTo(2));
+            Assert.That(updatedFile[1].Name, Is.EqualTo("updated"));
         }
 
         [Test]
-        public void PubFile_Indexing_ReturnsNullWhenGreaterThanCount()
+        public void WithInsertedRecord_UpdatesExistingRecordIDs()
         {
-            var bytes = MakeDummyFile(new DummyRecord { ID = 1, Name = "TestItem" },
-                                      new DummyRecord { ID = 2, Name = "Test2" });
+            IPubFile<U> file = new T();
+            var record = (U)new U().WithID(1);
 
-            _baseFile.DeserializeFromByteArray(bytes, new NumberEncoderService());
+            file = file.WithAddedRecord(record);
 
-            Assert.AreEqual(2, _baseFile.Length);
-            Assert.IsNull(_baseFile[3]);
+            var updatedRecord = (U)record.WithName("updated");
+            var updatedFile = file.WithInsertedRecord(updatedRecord)
+                .WithInsertedRecord((U)updatedRecord.WithName("updated 2"))
+                .WithInsertedRecord((U)updatedRecord.WithName("updated 3"));
+
+            Assert.That(file, Has.Length.EqualTo(1));
+            Assert.That(updatedFile, Has.Length.EqualTo(4));
+            Assert.That(updatedFile[1], Has.Property("Name").EqualTo("updated 3").And.Property("ID").EqualTo(1));
+            Assert.That(updatedFile[2], Has.Property("Name").EqualTo("updated 2").And.Property("ID").EqualTo(2));
+            Assert.That(updatedFile[3], Has.Property("Name").EqualTo("updated").And.Property("ID").EqualTo(3));
+            Assert.That(updatedFile[4], Has.Property("Name").EqualTo(string.Empty).And.Property("ID").EqualTo(4));
         }
 
         [Test]
-        public void PubFile_Indexing_ReturnsExpectedItemWhenRequestedByID()
+        public void WithInsertedRecord_IDOutOfRange_ThrowsArgumentException()
         {
-            var records = new[]
-            {
-                new DummyRecord {ID = 1, Name = "TestItem"},
-                new DummyRecord {ID = 2, Name = "Test2"},
-                new DummyRecord {ID = 3, Name = "Test3"},
-                new DummyRecord {ID = 4, Name = "Test4"},
-                new DummyRecord {ID = 5, Name = "Test5"},
-                new DummyRecord {ID = 6, Name = "Test6"},
-                new DummyRecord {ID = 7, Name = "Test7"},
-                new DummyRecord {ID = 8, Name = "Test8"}
-            };
+            IPubFile<U> file = new T();
+            var record = (U)new U().WithID(2);
 
-            var bytes = MakeDummyFile(records);
-
-            _baseFile.DeserializeFromByteArray(bytes, new NumberEncoderService());
-
-            Assert.AreEqual(records.Length, _baseFile.Length);
-
-            for (int i = 0; i < records.Length; ++i)
-                Assert.AreEqual(records[i].Name, _baseFile[records[i].ID].Name, "Failed at index {0}", i);
+            Assert.That(() => file.WithInsertedRecord(record), Throws.ArgumentException);
         }
 
-        private byte[] MakeDummyFile(params DummyRecord[] records)
+        [Test]
+        public void WithUpdatedRecord_UpdatesRecordProperties_ByRecordID()
         {
-            var numberEncoderService = new NumberEncoderService();
+            IPubFile<U> file = new T();
+            var record = (U)new U().WithID(1);
+            file = file.WithAddedRecord(record);
 
-            var bytes = new List<byte>();
+            var updatedRecord = (U)record.WithName("Some name");
+            var updatedFile = file.WithUpdatedRecord(updatedRecord);
 
-            bytes.Add((byte)records.Length);
-            foreach (var record in records)
-                bytes.AddRange(record.SerializeToByteArray(numberEncoderService));
+            Assert.That(updatedFile[1].Name, Is.EqualTo("Some name"));
+        }
 
-            return bytes.ToArray();
+        [Test]
+        public void WithUpdatedRecord_IDOutOfRange_ThrowsArgumentException()
+        {
+            IPubFile<U> file = new T();
+            var record = (U)new U().WithID(1);
+            file = file.WithAddedRecord(record);
+
+            Assert.That(() => file.WithUpdatedRecord((U)record.WithID(2)), Throws.ArgumentException);
+        }
+
+        [Test]
+        public void WithRemovedRecord_RemovesRecord()
+        {
+            var record = (U)new U().WithID(1).WithName("My record");
+
+            var file = new T().WithAddedRecord(record);
+            var updatedFile = file.WithRemovedRecord(record);
+
+            Assert.That(updatedFile, Is.Empty);
+            Assert.That(file, Has.Length.EqualTo(1));
+        }
+
+        [Test]
+        public void WithRemovedRecord_RemovesRecord_UpdatesIDs()
+        {
+            var record = (U)new U().WithID(1).WithName("My record");
+            var record2 = (U)new U().WithID(2).WithName("My record 2");
+            var record3 = (U)new U().WithID(3).WithName("My record 3");
+            var record4 = (U)new U().WithID(4).WithName("My record 4");
+
+            var file = new T().WithAddedRecord(record)
+                .WithAddedRecord(record2)
+                .WithAddedRecord(record3)
+                .WithAddedRecord(record4);
+            var updatedFile = file.WithRemovedRecord(record);
+
+            Assert.That(file, Has.Length.EqualTo(4));
+            Assert.That(updatedFile, Has.Length.EqualTo(3));
+
+            Assert.That(updatedFile[1].ID, Is.EqualTo(1));
+
+            Assert.That(updatedFile, Has.Exactly(1).Items.EqualTo(record2.WithID(1)));
+            Assert.That(updatedFile, Has.Exactly(1).Items.EqualTo(record3.WithID(2)));
+            Assert.That(updatedFile, Has.Exactly(1).Items.EqualTo(record4.WithID(3)));
+            Assert.That(updatedFile, Has.None.With.Property("ID").EqualTo(4));
+        }
+
+        [Test]
+        public void WithRemovedRecord_IDOutOfrange_ThrowsArgumentException()
+        {
+            IPubFile<U> file = new T();
+            var record = (U)new U().WithID(1);
+            file = file.WithAddedRecord(record);
+
+            Assert.That(() => file.WithRemovedRecord((U)record.WithID(2)), Throws.ArgumentException);
         }
     }
 }
