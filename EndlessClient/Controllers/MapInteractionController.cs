@@ -9,8 +9,9 @@ using EndlessClient.Rendering.Character;
 using EOLib.Domain.Character;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
-using EOLib.Extensions;
 using EOLib.Localization;
+using Optional;
+using Optional.Collections;
 using System;
 using System.Threading.Tasks;
 
@@ -55,18 +56,20 @@ namespace EndlessClient.Controllers
                 return;
             }
 
-            var item = cellState.Items.OptionalFirst();
-            if (item.HasValue)
+            var optionalItem = cellState.Items.FirstOrNone();
+            if (optionalItem.HasValue)
             {
-                if (!_inventorySpaceValidator.ItemFits(item.Value))
+                var item = optionalItem.ValueOr(Item.None);
+                if (!_inventorySpaceValidator.ItemFits(item))
                     _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
                 else
-                    HandlePickupResult(_mapActions.PickUpItem(item.Value), item.Value);
+                    HandlePickupResult(_mapActions.PickUpItem(item), item);
             }
             else if (cellState.NPC.HasValue) { /* TODO: spell cast */ }
             else if (cellState.Sign.HasValue)
             {
-                var messageBox = _eoMessageBoxFactory.CreateMessageBox(cellState.Sign.Value.Message, cellState.Sign.Value.Title);
+                var sign = cellState.Sign.ValueOr(Sign.None);
+                var messageBox = _eoMessageBoxFactory.CreateMessageBox(sign.Message, sign.Title);
                 await messageBox.ShowDialogAsync();
             }
             else if (cellState.Chest.HasValue) { /* TODO: chest interaction */ }
@@ -75,7 +78,7 @@ namespace EndlessClient.Controllers
             {
                 mouseRenderer.AnimateClick();
                 _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator)
-                    .StartMainCharacterWalkAnimation(cellState.Coordinate);
+                    .StartMainCharacterWalkAnimation(Option.Some(cellState.Coordinate));
             }
         }
 
@@ -94,15 +97,15 @@ namespace EndlessClient.Controllers
                 case ItemPickupResult.DropProtection:
                     var message = EOResourceID.STATUS_LABEL_ITEM_PICKUP_PROTECTED;
                     var extra = string.Empty;
-                    if (item.OwningPlayerID.HasValue)
+
+                    item.OwningPlayerID.MatchSome(playerId =>
                     {
-                        var playerId = item.OwningPlayerID.Value;
                         message = EOResourceID.STATUS_LABEL_ITEM_PICKUP_PROTECTED_BY;
                         if (_currentMapStateProvider.Characters.ContainsKey(playerId))
                         {
                             extra = _currentMapStateProvider.Characters[playerId].Name;
                         }
-                    }
+                    });
 
                     _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, message, extra);
 

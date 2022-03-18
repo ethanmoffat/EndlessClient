@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using AutomaticTypeMapper;
 using EOLib.Domain.Character;
+using Optional;
 
 namespace EOLib.Domain.Login
 {
@@ -8,14 +9,14 @@ namespace EOLib.Domain.Login
     {
         IReadOnlyList<ICharacter> Characters { get; set; }
 
-        ICharacter CharacterForDelete { get; set; }
+        Option<ICharacter> CharacterForDelete { get; set; }
     }
 
     public interface ICharacterSelectorProvider
     {
         IReadOnlyList<ICharacter> Characters { get; }
 
-        ICharacter CharacterForDelete { get; }
+        Option<ICharacter> CharacterForDelete { get; }
     }
 
     [AutoMappedType(IsSingleton = true)]
@@ -23,6 +24,6 @@ namespace EOLib.Domain.Login
     {
         public IReadOnlyList<ICharacter> Characters { get; set; }
 
-        public ICharacter CharacterForDelete { get; set; }
+        public Option<ICharacter> CharacterForDelete { get; set; }
     }
 }

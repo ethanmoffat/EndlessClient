@@ -1,9 +1,9 @@
-﻿using System;
-using System.Linq;
-using EndlessClient.GameExecution;
-using EOLib;
+﻿using EndlessClient.GameExecution;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework.Input;
+using Optional;
+using System;
+using System.Linq;
 
 namespace EndlessClient.Input
 {
@@ -39,9 +39,7 @@ namespace EndlessClient.Input
                 _mapStateProvider.MapWarpState != WarpState.None)
                 return;
 
-            var handledKey = HandleInput();
-            if (handledKey.HasValue)
-                _userInputTimeRepository.LastInputTime = timeAtBeginningOfUpdate;
+            HandleInput().MatchSome(_ => _userInputTimeRepository.LastInputTime = timeAtBeginningOfUpdate);
         }
 
         private double GetMillisecondsSinceLastUpdate(DateTime timeAtBeginningOfUpdate)
@@ -49,7 +47,7 @@ namespace EndlessClient.Input
             return (timeAtBeginningOfUpdate - _userInputTimeRepository.LastInputTime).TotalMilliseconds;
         }
 
-        protected abstract Optional<Keys> HandleInput();
+        protected abstract Option<Keys> HandleInput();
 
         protected bool IsKeyHeld(params Keys[] keys)
         {

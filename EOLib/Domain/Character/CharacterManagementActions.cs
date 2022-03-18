@@ -55,9 +55,9 @@ namespace EOLib.Domain.Character
 
         public async Task<short> RequestCharacterDelete()
         {
-            var packet = new PacketBuilder(PacketFamily.Character, PacketAction.Take)
-                .AddInt(_characterSelectorRepository.CharacterForDelete.ID)
-                .Build();
+            var packet = _characterSelectorRepository.CharacterForDelete.Match(
+                some: c => new PacketBuilder(PacketFamily.Character, PacketAction.Take).AddInt(c.ID).Build(),
+                none: () => new EmptyPacket());
             
             var responsePacket = await _packetSendService.SendEncodedPacketAndWaitAsync(packet);
             var deleteRequestId = responsePacket.ReadShort();
@@ -67,10 +67,10 @@ namespace EOLib.Domain.Character
 
         public async Task<CharacterReply> DeleteCharacter(short deleteRequestID)
         {
-            var packet = new PacketBuilder(PacketFamily.Character, PacketAction.Remove)
-                .AddShort(deleteRequestID)
-                .AddInt(_characterSelectorRepository.CharacterForDelete.ID)
-                .Build();
+            var packet = _characterSelectorRepository.CharacterForDelete.Match(
+                some: c => new PacketBuilder(PacketFamily.Character, PacketAction.Remove).AddShort(deleteRequestID).AddInt(c.ID).Build(),
+                none: () => new EmptyPacket());
+
             var responsePacket = await _packetSendService.SendEncodedPacketAndWaitAsync(packet);
 
             var translatedData = _characterCreatePacketTranslator.TranslatePacket(responsePacket);

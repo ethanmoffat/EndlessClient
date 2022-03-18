@@ -1,13 +1,13 @@
-﻿using System.Threading.Tasks;
-using EOLib;
-using EOLib.Domain.Character;
+﻿using EOLib.Domain.Character;
+using Optional;
+using System.Threading.Tasks;
 using XNAControls;
 
 namespace EndlessClient.Dialogs.Actions
 {
     public interface ICharacterDialogActions
     {
-        Task<Optional<ICharacterCreateParameters>> ShowCreateCharacterDialog();
+        Task<Option<ICharacterCreateParameters>> ShowCreateCharacterDialog();
 
         void ShowCharacterReplyDialog(CharacterReply response);
 

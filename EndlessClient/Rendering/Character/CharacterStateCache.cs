@@ -1,16 +1,16 @@
-﻿using System;
+﻿using AutomaticTypeMapper;
+using EOLib.Domain.Character;
+using Optional;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using AutomaticTypeMapper;
-using EOLib;
-using EOLib.Domain.Character;
 
 namespace EndlessClient.Rendering.Character
 {
     [MappedType(BaseType = typeof(ICharacterStateCache), IsSingleton = true)]
     public class CharacterStateCache : ICharacterStateCache
     {
-        public Optional<ICharacter> MainCharacter { get; private set; }
+        public Option<ICharacter> MainCharacter { get; private set; }
 
         private readonly Dictionary<int, ICharacter> _otherCharacters;
         private readonly List<RenderFrameActionTime> _deathStartTimes;
@@ -21,7 +21,7 @@ namespace EndlessClient.Rendering.Character
 
         public CharacterStateCache()
         {
-            MainCharacter = new Optional<ICharacter>();
+            MainCharacter = Option.None<ICharacter>();
             _otherCharacters = new Dictionary<int, ICharacter>();
             _deathStartTimes = new List<RenderFrameActionTime>();
         }
@@ -33,7 +33,7 @@ namespace EndlessClient.Rendering.Character
 
         public void UpdateMainCharacterState(ICharacter updatedCharacter)
         {
-            MainCharacter = new Optional<ICharacter>(updatedCharacter);
+            MainCharacter = Option.Some(updatedCharacter);
         }
 
         public void UpdateCharacterState(int id, ICharacter updatedCharacter)
@@ -69,7 +69,7 @@ namespace EndlessClient.Rendering.Character
 
         public void Reset()
         {
-            MainCharacter = Optional<ICharacter>.Empty;
+            MainCharacter = Option.None<ICharacter>();
             ClearAllOtherCharacterStates();
         }
     }

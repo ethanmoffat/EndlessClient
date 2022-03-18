@@ -8,6 +8,7 @@ using EOLib.IO.Map;
 using EOLib.Localization;
 using EOLib.Net;
 using EOLib.Net.Communication;
+using Optional;
 
 namespace EndlessClient.Input
 {
@@ -48,15 +49,14 @@ namespace EndlessClient.Input
             var destY = MainCharacter.RenderProperties.GetDestinationY();
 
             var cellState = _mapCellStateProvider.GetCellStateAt(destX, destY);
-            if (cellState.Character.HasValue) //todo: walk through players after certain elapsed time (3-5sec?)
-                HandleWalkThroughOtherCharacter();
-            else if (cellState.Warp.HasValue)
-                HandleWalkToWarpTile(cellState.Warp.Value);
-            else
-                HandleWalkToTileSpec(cellState);
+            cellState.Character.Match(
+                some: c => HandleWalkThroughOtherCharacter(c), //todo: walk through players after certain elapsed time (3-5sec?)
+                none: () => cellState.Warp.Match(
+                    some: w => HandleWalkToWarpTile(w),
+                    none: () => HandleWalkToTileSpec(cellState)));
         }
 
-        private void HandleWalkThroughOtherCharacter()
+        private void HandleWalkThroughOtherCharacter(ICharacter c)
         {
             //        EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION,
             //            EOResourceID.STATUS_LABEL_KEEP_MOVING_THROUGH_PLAYER);

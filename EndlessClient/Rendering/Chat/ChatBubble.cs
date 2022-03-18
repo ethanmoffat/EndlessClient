@@ -3,6 +3,7 @@ using EndlessClient.GameExecution;
 using EOLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Optional;
 using XNAControls;
 
 namespace EndlessClient.Rendering.Chat
@@ -18,7 +19,7 @@ namespace EndlessClient.Rendering.Chat
 
         private bool _isGroupChat;
         private Vector2 _drawLocation;
-        private DateTime _startTime;
+        private Option<DateTime> _startTime;
 
         public ChatBubble(IMapActor referenceRenderer,
                           IChatBubbleTextureProvider chatBubbleTextureProvider,
@@ -41,7 +42,7 @@ namespace EndlessClient.Rendering.Chat
             };
 
             _drawLocation = Vector2.Zero;
-            _startTime = DateTime.Now;
+            _startTime = Option.None<DateTime>();
 
             DrawOrder = 29;
             Visible = false;
@@ -64,7 +65,7 @@ namespace EndlessClient.Rendering.Chat
             Visible = true;
             _textLabel.Visible = true;
 
-            _startTime = DateTime.Now;
+            _startTime = Option.Some(DateTime.Now);
         }
 
         public override void Update(GameTime gameTime)
@@ -74,12 +75,15 @@ namespace EndlessClient.Rendering.Chat
                 _chatBubbleTextureProvider.ChatBubbleTextures[ChatBubbleTexture.TopLeft].Width,
                 _chatBubbleTextureProvider.ChatBubbleTextures[ChatBubbleTexture.TopLeft].Height);
 
-            if ((DateTime.Now - _startTime).TotalMilliseconds > Constants.ChatBubbleTimeout)
+            _startTime.MatchSome(st =>
             {
-                _textLabel.Visible = false;
-                Visible = false;
-                _startTime = Optional<DateTime>.Empty;
-            }
+                if ((DateTime.Now - st).TotalMilliseconds > Constants.ChatBubbleTimeout)
+                {
+                    _textLabel.Visible = false;
+                    Visible = false;
+                    _startTime = Option.None<DateTime>();
+                }
+            });
 
             base.Update(gameTime);
         }

@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Optional;
+using System;
 
 namespace EOLib.Domain.Map
 {
@@ -17,9 +17,11 @@ namespace EOLib.Domain.Map
 
         public bool IsNPCDrop { get; private set; }
 
-        public Optional<int> OwningPlayerID { get; private set; }
+        public Option<int> OwningPlayerID { get; private set; }
 
-        public Optional<DateTime> DropTime { get; private set; }
+        public Option<DateTime> DropTime { get; private set; }
+
+        public static IItem None => new Item(0, 0, 0, 0);
 
         public Item(short uid, short itemID, byte x, byte y)
         {
@@ -43,17 +45,17 @@ namespace EOLib.Domain.Map
             return newItem;
         }
 
-        public IItem WithOwningPlayerID(Optional<int> owningPlayerID)
+        public IItem WithOwningPlayerID(int owningPlayerID)
         {
             var newItem = MakeCopy(this);
-            newItem.OwningPlayerID = owningPlayerID;
+            newItem.OwningPlayerID = Option.Some(owningPlayerID);
             return newItem;
         }
 
-        public IItem WithDropTime(Optional<DateTime> dropTime)
+        public IItem WithDropTime(DateTime dropTime)
         {
             var newItem = MakeCopy(this);
-            newItem.DropTime = dropTime;
+            newItem.DropTime = Option.Some(dropTime);
             return newItem;
         }
 
@@ -77,8 +79,8 @@ namespace EOLib.Domain.Map
                    Y == item.Y &&
                    Amount == item.Amount &&
                    IsNPCDrop == item.IsNPCDrop &&
-                   EqualityComparer<Optional<int>>.Default.Equals(OwningPlayerID, item.OwningPlayerID) &&
-                   EqualityComparer<Optional<DateTime>>.Default.Equals(DropTime, item.DropTime);
+                   OwningPlayerID.Equals(item.OwningPlayerID) &&
+                   DropTime.Equals(item.DropTime);
         }
 
         public override int GetHashCode()
@@ -110,16 +112,16 @@ namespace EOLib.Domain.Map
 
         bool IsNPCDrop { get; }
 
-        Optional<int> OwningPlayerID { get; }
+        Option<int> OwningPlayerID { get; }
 
-        Optional<DateTime> DropTime { get; }
+        Option<DateTime> DropTime { get; }
 
         IItem WithAmount(int newAmount);
 
         IItem WithIsNPCDrop(bool isNPCDrop);
 
-        IItem WithOwningPlayerID(Optional<int> owningPlayerID);
+        IItem WithOwningPlayerID(int owningPlayerID);
 
-        IItem WithDropTime(Optional<DateTime> dropTime);
+        IItem WithDropTime(DateTime dropTime);
     }
 }

@@ -6,6 +6,7 @@ using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Optional;
 using XNAControls;
 
 namespace EndlessClient.HUD.StatusBars
@@ -20,7 +21,7 @@ namespace EndlessClient.HUD.StatusBars
         protected ICharacterStats Stats => _characterProvider.MainCharacter.Stats;
         protected Rectangle _sourceRectangleArea;
 
-        private Optional<DateTime> _labelShowTime;
+        private Option<DateTime> _labelShowTime;
 
         protected StatusBarBase(INativeGraphicsManager nativeGraphicsManager,
                                 ICharacterProvider characterProvider,
@@ -68,21 +69,19 @@ namespace EndlessClient.HUD.StatusBars
                 _userInputRepository.PreviousMouseState = _userInputRepository.CurrentMouseState;
 
                 _label.Visible = !_label.Visible;
-                _labelShowTime = _label.Visible
-                    ? new Optional<DateTime>(DateTime.Now)
-                    : Optional<DateTime>.Empty;
+                _labelShowTime = _label.Visible.SomeWhen(x => x).Map(x => DateTime.Now);
             }
 
-            if (_labelShowTime.HasValue)
+            _labelShowTime.MatchSome(x =>
             {
                 UpdateLabelText();
 
-                if ((DateTime.Now - _labelShowTime).TotalSeconds >= 4)
+                if ((DateTime.Now - x).TotalSeconds >= 4)
                 {
                     _label.Visible = false;
-                    _labelShowTime = Optional<DateTime>.Empty;
+                    _labelShowTime = Option.None<DateTime>();
                 }
-            }
+            });
 
             base.OnUpdateControl(gameTime);
         }

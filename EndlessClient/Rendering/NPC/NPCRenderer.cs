@@ -14,6 +14,7 @@ using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Optional;
 using XNAControls;
 
 namespace EndlessClient.Rendering.NPC
@@ -165,7 +166,7 @@ namespace EndlessClient.Rendering.NPC
 
         public void ShowDamageCounter(int damage, int percentHealth, bool isHeal)
         {
-            var optionalDamage = damage == 0 ? Optional<int>.Empty : new Optional<int>(damage);
+            var optionalDamage = damage.SomeWhen(d => d > 0);
             _healthBarRenderer.SetDamage(optionalDamage, percentHealth);
         }
 
@@ -248,30 +249,33 @@ namespace EndlessClient.Rendering.NPC
             var offsetX = _renderOffsetCalculator.CalculateOffsetX(NPC);
             var offsetY = _renderOffsetCalculator.CalculateOffsetY(NPC);
 
-            var mainRenderer = _characterRendererProvider.MainCharacterRenderer;
-            var mainOffsetX = _renderOffsetCalculator.CalculateOffsetX(mainRenderer.Character.RenderProperties);
-            var mainOffsetY = _renderOffsetCalculator.CalculateOffsetY(mainRenderer.Character.RenderProperties);
+            _characterRendererProvider.MainCharacterRenderer
+                .MatchSome(mainRenderer =>
+                {
+                    var mainOffsetX = _renderOffsetCalculator.CalculateOffsetX(mainRenderer.Character.RenderProperties);
+                    var mainOffsetY = _renderOffsetCalculator.CalculateOffsetY(mainRenderer.Character.RenderProperties);
 
-            // Some NPCs have an off-center sprite that needs to be divided by 3 (normal sprites are centered properly)
-            // If e.g. Apozen is facing Down or Left it needs to be offset by 2/3 the sprite width instead of 1/3 the sprite width
-            var widthFactor = _npcsThatAreNotCentered.Contains(NPC.ID)
-                ? NPC.IsFacing(EODirection.Down, EODirection.Left)
-                    ? (_baseTextureFrameRectangle.Width * 2) / 3
-                    : _baseTextureFrameRectangle.Width / 3
-                : _baseTextureFrameRectangle.Width / 2;
+                    // Some NPCs have an off-center sprite that needs to be divided by 3 (normal sprites are centered properly)
+                    // If e.g. Apozen is facing Down or Left it needs to be offset by 2/3 the sprite width instead of 1/3 the sprite width
+                    var widthFactor = _npcsThatAreNotCentered.Contains(NPC.ID)
+                        ? NPC.IsFacing(EODirection.Down, EODirection.Left)
+                            ? (_baseTextureFrameRectangle.Width * 2) / 3
+                            : _baseTextureFrameRectangle.Width / 3
+                        : _baseTextureFrameRectangle.Width / 2;
 
-            // y coordinate Formula courtesy of Apollo
-            var xCoord = offsetX + 320 - mainOffsetX - widthFactor;
-            var yCoord = (Math.Min(41, _baseTextureFrameRectangle.Width - 23) / 4) + offsetY + 168 - mainOffsetY - _baseTextureFrameRectangle.Height;
-            DrawArea = _baseTextureFrameRectangle.WithPosition(new Vector2(xCoord, yCoord));
+                    // y coordinate Formula courtesy of Apollo
+                    var xCoord = offsetX + 320 - mainOffsetX - widthFactor;
+                    var yCoord = (Math.Min(41, _baseTextureFrameRectangle.Width - 23) / 4) + offsetY + 168 - mainOffsetY - _baseTextureFrameRectangle.Height;
+                    DrawArea = _baseTextureFrameRectangle.WithPosition(new Vector2(xCoord, yCoord));
 
-            var oneGridSize = new Vector2(mainRenderer.DrawArea.Width,
-                                          mainRenderer.DrawArea.Height);
-            MapProjectedDrawArea = new Rectangle(
-                xCoord + widthFactor - 8,
-                BottomPixelWithOffset - (int)oneGridSize.Y,
-                (int)oneGridSize.X,
-                (int)oneGridSize.Y);
+                    var oneGridSize = new Vector2(mainRenderer.DrawArea.Width,
+                                                  mainRenderer.DrawArea.Height);
+                    MapProjectedDrawArea = new Rectangle(
+                        xCoord + widthFactor - 8,
+                        BottomPixelWithOffset - (int)oneGridSize.Y,
+                        (int)oneGridSize.X,
+                        (int)oneGridSize.Y);
+                });
         }
 
         private void UpdateStandingFrameAnimation()

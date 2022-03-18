@@ -6,6 +6,7 @@ using EOLib;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Optional;
 using XNAControls;
 
 namespace EndlessClient.UIControls
@@ -28,7 +29,7 @@ namespace EndlessClient.UIControls
         }
 
         private string _lastChat;
-        private Optional<DateTime> _endMuteTime;
+        private Option<DateTime> _endMuteTime;
 
         public ChatModePictureBox(IChatModeCalculator chatModeCalculator,
                                   IHudControlProvider hudControlProvider,
@@ -40,31 +41,35 @@ namespace EndlessClient.UIControls
             _hudControlProvider = hudControlProvider;
 
             _lastChat = "";
-            _endMuteTime = Optional<DateTime>.Empty;
+            _endMuteTime = Option.None<DateTime>();
         }
 
         public void SetMuted(DateTime endMuteTime)
         {
             _lastChat = "";
-            _endMuteTime = endMuteTime;
+            _endMuteTime = Option.Some(endMuteTime);
             UpdateSourceRectangleForMode(ChatMode.Muted);
         }
 
         protected override void OnUpdateControl(GameTime gameTime)
         {
-            if (_endMuteTime.HasValue)
-            {
-                if (DateTime.Now > _endMuteTime)
+            _endMuteTime.Match(
+                some: endTime =>
                 {
-                    _endMuteTime = Optional<DateTime>.Empty;
-                    UpdateSourceRectangleForMode(ChatMode.NoText);
-                }
-            }
-            else if (SingleCharTypedOrDeleted())
-            {
-                UpdateSourceRectangleForMode(_chatModeCalculator.CalculateMode(ChatTextBox.Text));
-                _lastChat = ChatTextBox.Text;
-            }
+                    if (DateTime.Now >= endTime)
+                    {
+                        _endMuteTime = Option.None<DateTime>();
+                        UpdateSourceRectangleForMode(ChatMode.NoText);
+                    }
+                },
+                none: () =>
+                {
+                    if (SingleCharTypedOrDeleted())
+                    {
+                        UpdateSourceRectangleForMode(_chatModeCalculator.CalculateMode(ChatTextBox.Text));
+                        _lastChat = ChatTextBox.Text;
+                    }
+                });
 
             base.OnUpdateControl(gameTime);
         }

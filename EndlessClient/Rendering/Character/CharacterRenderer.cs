@@ -16,6 +16,7 @@ using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Optional;
 using XNAControls;
 
 namespace EndlessClient.Rendering.Character
@@ -48,7 +49,7 @@ namespace EndlessClient.Rendering.Character
         private DateTime? _spellCastTime;
 
         private IHealthBarRenderer _healthBarRenderer;
-        private IChatBubble _chatBubble;
+        private Lazy<IChatBubble> _chatBubble;
 
         public ICharacter Character
         {
@@ -102,6 +103,7 @@ namespace EndlessClient.Rendering.Character
             _gameStateProvider = gameStateProvider;
             _currentMapProvider = currentMapProvider;
             _effectRenderer = new EffectRenderer(nativeGraphicsmanager, this);
+            _chatBubble = new Lazy<IChatBubble>(() => _chatBubbleFactory.CreateChatBubble(this));
         }
 
         #region Game Component
@@ -445,14 +447,12 @@ namespace EndlessClient.Rendering.Character
             if (isHeal)
                 _healthBarRenderer.SetHealth(damage, percentHealth);
             else
-                _healthBarRenderer.SetDamage(damage == 0 ? Optional<int>.Empty : new Optional<int>(damage), percentHealth);
+                _healthBarRenderer.SetDamage(damage.SomeWhen(d => d > 0), percentHealth);
         }
 
         public void ShowChatBubble(string message, bool isGroupChat)
         {
-            if (_chatBubble == null)
-                _chatBubble = _chatBubbleFactory.CreateChatBubble(this);
-            _chatBubble.SetMessage(message, isGroupChat);
+            _chatBubble.Value.SetMessage(message, isGroupChat);
         }
 
         protected override void Dispose(bool disposing)

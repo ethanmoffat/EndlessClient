@@ -2,9 +2,9 @@
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
-using EOLib.Extensions;
 using EOLib.Net;
 using EOLib.Net.Handlers;
+using Optional.Collections;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Items
@@ -39,16 +39,13 @@ namespace EOLib.PacketHandlers.Items
             var weight = packet.ReadChar();
             var maxWeight = packet.ReadChar();
 
-            var inventoryItem = _inventoryRepository.ItemInventory.OptionalSingle(x => x.ItemID == id);
-            if (inventoryItem.HasValue)
-            {
-                _inventoryRepository.ItemInventory.Remove(inventoryItem.Value);
+            var inventoryItem = _inventoryRepository.ItemInventory.SingleOrNone(x => x.ItemID == id);
+            inventoryItem.MatchSome(x => _inventoryRepository.ItemInventory.Remove(x));
 
-                if (amountRemaining > 0)
-                {
-                    var updatedItem = inventoryItem.Value.WithAmount(amountRemaining);
-                    _inventoryRepository.ItemInventory.Add(updatedItem);
-                }
+            if (amountRemaining > 0)
+            {
+                inventoryItem.Map(x => x.WithAmount(amountRemaining))
+                    .MatchSome(x => _inventoryRepository.ItemInventory.Add(x));
             }
 
             var stats = _characterRepository.MainCharacter.Stats;

@@ -5,6 +5,7 @@ using EOLib.Domain.Extensions;
 using EOLib.Domain.Item;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
+using EOLib.Domain.NPC;
 using EOLib.IO;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
@@ -237,7 +238,7 @@ namespace EOBot
 
         private async Task Attack(IMapCellState cellState)
         {
-            ConsoleHelper.WriteMessage(ConsoleHelper.Type.Attack, $"{cellState.NPC.Value.Index,7} - {_npcData.Single(x => x.ID == cellState.NPC.Value.ID).Name}");
+            cellState.NPC.MatchSome(npc => ConsoleHelper.WriteMessage(ConsoleHelper.Type.Attack, $"{npc.Index,7} - {_npcData.Single(x => x.ID == npc.ID).Name}"));
             await TrySend(_characterActions.Attack);
             await Task.Delay(TimeSpan.FromMilliseconds(ATTACK_BACKOFF_MS));
         }

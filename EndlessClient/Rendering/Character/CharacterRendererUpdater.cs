@@ -4,6 +4,8 @@ using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
+using Optional;
+using Optional.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -46,49 +48,57 @@ namespace EndlessClient.Rendering.Character
             var actual = _characterProvider.MainCharacter;
             var cached = _characterStateCache.MainCharacter;
 
-            if (!cached.HasValue)
-            {
-                _characterStateCache.UpdateMainCharacterState(actual);
+            cached.Match(
+                some: c =>
+                {
+                    if (c != actual)
+                    {
+                        _characterRendererRepository.MainCharacterRenderer.MatchSome(r => r.Character = _characterProvider.MainCharacter);
+                        _characterStateCache.UpdateMainCharacterState(actual);
+                    }
+                },
+                none: () =>
+                {
+                    _characterStateCache.UpdateMainCharacterState(actual);
 
-                var renderer = InitializeRendererForCharacter(_characterProvider.MainCharacter);
-                _characterRendererRepository.MainCharacterRenderer = renderer;
-                _characterRendererRepository.MainCharacterRenderer.SetToCenterScreenPosition();
-            }
-            else if (cached.Value != actual)
-            {
-                _characterRendererRepository.MainCharacterRenderer.Character = _characterProvider.MainCharacter;
-                _characterStateCache.UpdateMainCharacterState(actual);
-            }
+                    var renderer = InitializeRendererForCharacter(_characterProvider.MainCharacter);
+                    renderer.SetToCenterScreenPosition();
+                    _characterRendererRepository.MainCharacterRenderer = Option.Some(renderer);
+                });
         }
 
         private void CreateOtherCharacterRenderersAndCacheProperties()
         {
             foreach (var id in _currentMapStateRepository.Characters.Keys)
             {
-                var cached = _characterStateCache.HasCharacterWithID(id)
-                    ? new Optional<ICharacter>(_characterStateCache.OtherCharacters[id])
-                    : Optional<ICharacter>.Empty;
-
                 var character = _currentMapStateRepository.Characters[id];
-                if (!cached.HasValue)
-                {
-                    _characterStateCache.UpdateCharacterState(id, character);
 
-                    var renderer = InitializeRendererForCharacter(character);
+                _characterStateCache.HasCharacterWithID(id)
+                    .SomeWhen(b => b)
+                    .Map(_ => _characterStateCache.OtherCharacters[id])
+                    .Match(
+                        some: cached =>
+                        {
+                            if (cached != character)
+                            {
+                                if (_characterRendererRepository.CharacterRenderers.ContainsKey(id))
+                                    _characterRendererRepository.CharacterRenderers[id].Character = character;
+                                _characterStateCache.UpdateCharacterState(id, character);
+                            }
+                        },
+                        none: () =>
+                        {
+                            _characterStateCache.UpdateCharacterState(id, character);
 
-                    if (_characterRendererRepository.CharacterRenderers.ContainsKey(id))
-                    {
-                        _characterRendererRepository.CharacterRenderers[id].Dispose();
-                        _characterRendererRepository.CharacterRenderers.Remove(id);
-                    }
-                    _characterRendererRepository.CharacterRenderers.Add(id, renderer);
-                }
-                else if (cached.Value != character)
-                {
-                    if (_characterRendererRepository.CharacterRenderers.ContainsKey(id))
-                        _characterRendererRepository.CharacterRenderers[id].Character = character;
-                    _characterStateCache.UpdateCharacterState(id, character);
-                }
+                            var renderer = InitializeRendererForCharacter(character);
+
+                            if (_characterRendererRepository.CharacterRenderers.ContainsKey(id))
+                            {
+                                _characterRendererRepository.CharacterRenderers[id].Dispose();
+                                _characterRendererRepository.CharacterRenderers.Remove(id);
+                            }
+                            _characterRendererRepository.CharacterRenderers.Add(id, renderer);
+                        });
 
                 if (_characterRendererRepository.NeedsWarpArriveAnimation.Contains(id) &&
                     _characterRendererRepository.CharacterRenderers.ContainsKey(id))
@@ -101,7 +111,7 @@ namespace EndlessClient.Rendering.Character
 
         private void UpdateAllCharacters(GameTime gameTime)
         {
-            _characterRendererRepository.MainCharacterRenderer.Update(gameTime);
+            _characterRendererRepository.MainCharacterRenderer.MatchSome(x => x.Update(gameTime));
             foreach (var renderer in _characterRendererRepository.CharacterRenderers.Values)
                 renderer.Update(gameTime);
         }
@@ -135,24 +145,25 @@ namespace EndlessClient.Rendering.Character
 
             foreach (var character in _currentMapStateRepository.Characters.Values.Where(x => x.RenderProperties.IsDead))
             {
-                var actionTime = _characterStateCache.DeathStartTimes.SingleOrDefault(x => x.UniqueID == character.ID);
-                if (actionTime == null)
-                {
-                    _characterStateCache.AddDeathStartTime(character.ID);
-                }
-                else if (actionTime.ActionTimer.ElapsedMilliseconds >= 2)
-                {
-                    _characterStateCache.RemoveDeathStartTime(character.ID);
-                    _characterStateCache.RemoveCharacterState(character.ID);
+                _characterStateCache.DeathStartTimes.SingleOrNone(x => x.UniqueID == character.ID)
+                    .Match(
+                        none: () => _characterStateCache.AddDeathStartTime(character.ID),
+                        some: actionTime =>
+                        {
+                            if (actionTime.ActionTimer.ElapsedMilliseconds >= 2)
+                            {
+                                _characterStateCache.RemoveDeathStartTime(character.ID);
+                                _characterStateCache.RemoveCharacterState(character.ID);
 
-                    if (_characterRendererRepository.CharacterRenderers.ContainsKey(character.ID))
-                    {
-                        _characterRendererRepository.CharacterRenderers[character.ID].Dispose();
-                        _characterRendererRepository.CharacterRenderers.Remove(character.ID);
-                    }
+                                if (_characterRendererRepository.CharacterRenderers.ContainsKey(character.ID))
+                                {
+                                    _characterRendererRepository.CharacterRenderers[character.ID].Dispose();
+                                    _characterRendererRepository.CharacterRenderers.Remove(character.ID);
+                                }
 
-                    deadCharacters.Add(character.ID);
-                }
+                                deadCharacters.Add(character.ID);
+                            }
+                        });
             }
 
             foreach (var id in deadCharacters)

@@ -4,6 +4,7 @@ using EOLib;
 using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
 using Microsoft.Xna.Framework;
+using Optional;
 
 namespace EndlessClient.Rendering.NPC
 {
@@ -51,14 +52,18 @@ namespace EndlessClient.Rendering.NPC
         {
             foreach (var npc in _currentMapStateProvider.NPCs)
             {
-                var cached = _npcStateCache.HasNPCStateWithIndex(npc.Index)
-                    ? new Optional<INPC>(_npcStateCache.NPCStates[npc.Index])
-                    : Optional<INPC>.Empty;
-
-                if (!cached.HasValue)
-                    CreateAndCacheRendererForNPC(npc);
-                else if (cached.Value != npc)
-                    UpdateCachedNPC(npc);
+                _npcStateCache.HasNPCStateWithIndex(npc.Index)
+                    .SomeWhen(b => b)
+                    .Map(_ => _npcStateCache.NPCStates[npc.Index])
+                    .Match(
+                        some: n =>
+                        {
+                            if (n != npc)
+                            {
+                                UpdateCachedNPC(npc);
+                            }
+                        },
+                        none: () => CreateAndCacheRendererForNPC(npc));
             }
         }
 

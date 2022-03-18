@@ -7,6 +7,7 @@ using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.Domain.NPC;
 using EOLib.IO.Repositories;
+using Optional;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -33,7 +34,7 @@ namespace EOBot
                 _enfFileProvider = enfFileProvider;
             }
 
-            public void NPCTakeDamage(short npcIndex, int fromPlayerId, int damageToNpc, short npcPctHealth, EOLib.Optional<int> spellId)
+            public void NPCTakeDamage(short npcIndex, int fromPlayerId, int damageToNpc, short npcPctHealth, Option<int> spellId)
             {
                 if (fromPlayerId != _characterProvider.MainCharacter.ID)
                     return;
@@ -50,7 +51,7 @@ namespace EOBot
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.Hit, $"{damageToNpc,7} - {npcPctHealth,3}% HP - {npcIndex,2} - {npcName ?? string.Empty}", color);
             }
 
-            public void RemoveNPCFromView(int npcIndex, int playerId, EOLib.Optional<short> spellId, EOLib.Optional<int> damage, bool showDeathAnimation)
+            public void RemoveNPCFromView(int npcIndex, int playerId, Option<short> spellId, Option<int> damage, bool showDeathAnimation)
             {
             }
 

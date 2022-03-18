@@ -1,13 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.Extensions;
 using EOLib.Net;
 using EOLib.Net.Handlers;
+using Optional.Collections;
+using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers
 {
@@ -44,16 +43,12 @@ namespace EOLib.PacketHandlers
             var weight = packet.ReadChar();
             var maxWeight = packet.ReadChar();
 
-            var existing = _characterInventoryRepository.ItemInventory.OptionalSingle(x => x.ItemID == id);
-            if (existing.HasValue)
-            {
-                _characterInventoryRepository.ItemInventory.Remove(existing.Value);
-                _characterInventoryRepository.ItemInventory.Add(new InventoryItem(id, existing.Value.Amount + amountTaken));
-            }
-            else
-            {
-                _characterInventoryRepository.ItemInventory.Add(new InventoryItem(id, amountTaken));
-            }
+            var existing = _characterInventoryRepository.ItemInventory.SingleOrNone(x => x.ItemID == id);
+            existing.MatchSome(x => _characterInventoryRepository.ItemInventory.Remove(x));
+
+            existing.Map(x => x.WithAmount(x.Amount + amountTaken))
+                .Match(some: _characterInventoryRepository.ItemInventory.Add,
+                       none: () => _characterInventoryRepository.ItemInventory.Add(new InventoryItem(id, amountTaken)));
 
             var newStats = _characterRepository.MainCharacter.Stats
                 .WithNewStat(CharacterStat.Weight, weight)

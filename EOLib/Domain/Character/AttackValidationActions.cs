@@ -25,14 +25,15 @@ namespace EOLib.Domain.Character
             if (_characterProvider.MainCharacter.Stats[CharacterStat.SP] <= 0)
                 return AttackValidationError.Exhausted;
 
-            var cellState = _mapCellStateProvider.GetCellStateAt(
-                _characterProvider.MainCharacter.RenderProperties.GetDestinationX(),
-                _characterProvider.MainCharacter.RenderProperties.GetDestinationY());
-            if (cellState.NPC.HasValue && cellState.NPC.Value.OpponentID.HasValue &&
-                cellState.NPC.Value.OpponentID != _characterProvider.MainCharacter.ID)
-                return AttackValidationError.NotYourBattle;
+            var rp = _characterProvider.MainCharacter.RenderProperties;
 
-            return AttackValidationError.OK;
+            return _mapCellStateProvider
+                .GetCellStateAt(rp.GetDestinationX(), rp.GetDestinationY())
+                .NPC.Match(
+                    some: npc => npc.OpponentID.Match(
+                        some: id => id != _characterProvider.MainCharacter.ID ? AttackValidationError.NotYourBattle : AttackValidationError.OK,
+                        none: () => AttackValidationError.OK),
+                    none: () => AttackValidationError.OK);
         }
     }
 

@@ -20,5 +20,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AutomaticTypeMapper" Version="1.4.1" />
+    <PackageReference Include="Optional" Version="4.0.0" />
   </ItemGroup>
 </Project>

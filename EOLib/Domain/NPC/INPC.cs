@@ -1,4 +1,5 @@
 ﻿using EOLib.Domain.Spells;
+using Optional;
 
 namespace EOLib.Domain.NPC
 {
@@ -14,7 +15,7 @@ namespace EOLib.Domain.NPC
 
         NPCFrame Frame { get; }
 
-        Optional<short> OpponentID { get; }
+        Option<short> OpponentID { get; }
 
         INPC WithX(byte x);
 
@@ -24,6 +25,6 @@ namespace EOLib.Domain.NPC
 
         INPC WithFrame(NPCFrame frame);
 
-        INPC WithOpponentID(Optional<short> opponentID);
+        INPC WithOpponentID(short opponentID);
     }
 }

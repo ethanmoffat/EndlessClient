@@ -4,8 +4,8 @@ using EndlessClient.GameExecution;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
-using EOLib.Extensions;
 using Microsoft.Xna.Framework;
+using Optional.Collections;
 
 namespace EndlessClient.Rendering.NPC
 {
@@ -66,21 +66,21 @@ namespace EndlessClient.Rendering.NPC
             {
                 if (pair.ActionTimer.ElapsedMilliseconds >= ACTION_FRAME_TIME_MS)
                 {
-                    var npc = _currentMapStateRepository.NPCs.OptionalSingle(x => x.Index == pair.UniqueID);
-                    if (!npc.HasValue)
-                    {
-                        npcsDoneWalking.Add(pair);
-                        continue;
-                    }
+                    var npc = _currentMapStateRepository.NPCs.SingleOrNone(x => x.Index == pair.UniqueID);
 
-                    var nextFrameNPC = AnimateOneWalkFrame(npc.Value);
-                    pair.UpdateActionStartTime();
+                    npc.Match(
+                        some: n =>
+                        {
+                            var nextFrameNPC = AnimateOneWalkFrame(n);
+                            pair.UpdateActionStartTime();
 
-                    if (nextFrameNPC.Frame == NPCFrame.Standing)
-                        npcsDoneWalking.Add(pair);
+                            if (nextFrameNPC.Frame == NPCFrame.Standing)
+                                npcsDoneWalking.Add(pair);
 
-                    _currentMapStateRepository.NPCs.Remove(npc.Value);
-                    _currentMapStateRepository.NPCs.Add(nextFrameNPC);
+                            _currentMapStateRepository.NPCs.Remove(n);
+                            _currentMapStateRepository.NPCs.Add(nextFrameNPC);
+                        },
+                        none: () => npcsDoneWalking.Add(pair));
                 }
             }
 
@@ -94,21 +94,22 @@ namespace EndlessClient.Rendering.NPC
             {
                 if (pair.ActionTimer.ElapsedMilliseconds >= ACTION_FRAME_TIME_MS)
                 {
-                    var npc = _currentMapStateRepository.NPCs.OptionalSingle(x => x.Index == pair.UniqueID);
-                    if (!npc.HasValue)
-                    {
-                        npcsDoneAttacking.Add(pair);
-                        continue;
-                    }
+                    var npc = _currentMapStateRepository.NPCs.SingleOrNone(x => x.Index == pair.UniqueID);
 
-                    var nextFrameNPC = npc.Value.WithNextAttackFrame();
-                    pair.UpdateActionStartTime();
+                    npc.Match(
+                        some: n =>
+                        {
+                            var nextFrameNPC = n.WithNextAttackFrame();
+                            pair.UpdateActionStartTime();
 
-                    if (nextFrameNPC.Frame == NPCFrame.Standing)
-                        npcsDoneAttacking.Add(pair);
+                            if (nextFrameNPC.Frame == NPCFrame.Standing)
+                                npcsDoneAttacking.Add(pair);
 
-                    _currentMapStateRepository.NPCs.Remove(npc.Value);
-                    _currentMapStateRepository.NPCs.Add(nextFrameNPC);
+                            _currentMapStateRepository.NPCs.Remove(n);
+                            _currentMapStateRepository.NPCs.Add(nextFrameNPC);
+
+                        },
+                        none: () => npcsDoneAttacking.Add(pair));
                 }
             }
 

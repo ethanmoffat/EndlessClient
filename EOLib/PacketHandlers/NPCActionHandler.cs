@@ -9,6 +9,7 @@ using EOLib.Domain.NPC;
 using EOLib.IO.Repositories;
 using EOLib.Net;
 using EOLib.Net.Handlers;
+using Optional;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -70,20 +71,20 @@ namespace EOLib.PacketHandlers
             }
             catch (InvalidOperationException) { return false; }
 
-            var updatedNpc = Optional<INPC>.Empty;
+            var updatedNpc = Option.None<INPC>();
             switch (num255s)
             {
                 case NPC_WALK_ACTION: HandleNPCWalk(packet, npc); break;
-                case NPC_ATTK_ACTION: updatedNpc = HandleNPCAttack(packet, npc); break;
+                case NPC_ATTK_ACTION: updatedNpc = Option.Some(HandleNPCAttack(packet, npc)); break;
                 case NPC_TALK_ACTION: HandleNPCTalk(packet, npc); break;
                 default: throw new MalformedPacketException("Unknown NPC action " + num255s + " specified in packet from server!", packet);
             }
 
-            if (updatedNpc.HasValue)
+            updatedNpc.MatchSome(n =>
             {
                 _currentMapStateRepository.NPCs.Remove(npc);
-                _currentMapStateRepository.NPCs.Add(updatedNpc.Value);
-            }
+                _currentMapStateRepository.NPCs.Add(n);
+            });
 
             return true;
         }
@@ -107,7 +108,7 @@ namespace EOLib.PacketHandlers
                 notifier.StartNPCWalkAnimation(npc.Index);
         }
 
-        private Optional<INPC> HandleNPCAttack(IPacket packet, INPC npc)
+        private INPC HandleNPCAttack(IPacket packet, INPC npc)
         {
             var isDead = packet.ReadChar() == 2; //2 if target player is dead, 1 if alive
             var npcDirection = (EODirection)packet.ReadChar();
@@ -145,7 +146,7 @@ namespace EOLib.PacketHandlers
             foreach (var notifier in _npcAnimationNotifiers)
                 notifier.StartNPCAttackAnimation(npc.Index);
 
-            return new Optional<INPC>(npc.WithDirection(npcDirection));
+            return npc.WithDirection(npcDirection);
         }
 
         private void HandleNPCTalk(IPacket packet, INPC npc)

@@ -126,10 +126,11 @@ namespace EndlessClient.Rendering.Map
 
         private void ShowWarpBubbles(WarpAnimation animation)
         {
-            if (animation == WarpAnimation.Admin)
+            _characterRendererRepository.MainCharacterRenderer.MatchSome(r =>
             {
-                _characterRendererRepository.MainCharacterRenderer.ShowWarpArrive();
-            }
+                if (animation == WarpAnimation.Admin)
+                    r.ShowWarpArrive();
+            });
         }
 
         private void RedrawGroundLayer()

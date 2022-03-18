@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using EOLib;
 using EOLib.Domain.Account;
+using Optional;
 using XNAControls;
 
 namespace EndlessClient.Dialogs.Actions
@@ -11,7 +12,7 @@ namespace EndlessClient.Dialogs.Actions
 
         Task<XNADialogResult> ShowCreatePendingDialog();
 
-        Task<Optional<IChangePasswordParameters>> ShowChangePasswordDialog();
+        Task<Option<IChangePasswordParameters>> ShowChangePasswordDialog();
 
         void ShowCreateParameterValidationError(CreateAccountParameterResult validationResult);
         

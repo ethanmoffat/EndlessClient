@@ -9,6 +9,7 @@ using EOLib;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Notifiers;
 using EOLib.Localization;
+using Optional;
 
 namespace EndlessClient.HUD.Chat
 {
@@ -34,23 +35,23 @@ namespace EndlessClient.HUD.Chat
         public void NotifyPrivateMessageRecipientNotFound(string recipientName)
         {
             var whichTab = _chatRepository.PMTarget1.ToLower() == recipientName.ToLower()
-                ? new Optional<ChatTab>(ChatTab.Private1)
+                ? Option.Some(ChatTab.Private1)
                 : _chatRepository.PMTarget2.ToLower() == recipientName.ToLower()
-                    ? new Optional<ChatTab>(ChatTab.Private2)
-                    : Optional<ChatTab>.Empty;
+                    ? Option.Some(ChatTab.Private2)
+                    : Option.None<ChatTab>();
 
-            if (whichTab.HasValue)
+            whichTab.MatchSome(tab =>
             {
-                if (whichTab == ChatTab.Private1)
+                if (tab == ChatTab.Private1)
                     _chatRepository.PMTarget1 = string.Empty;
-                else if (whichTab == ChatTab.Private2)
+                else if (tab == ChatTab.Private2)
                     _chatRepository.PMTarget2 = string.Empty;
 
-                _chatRepository.AllChat[whichTab].Clear();
+                _chatRepository.AllChat[tab].Clear();
 
                 var chatPanel = _hudControlProvider.GetComponent<ChatPanel>(HudControlIdentifier.ChatPanel);
-                chatPanel.ClosePMTab(whichTab);
-            }
+                chatPanel.ClosePMTab(tab);
+            });
         }
 
         public void NotifyPlayerMutedByAdmin(string adminName)

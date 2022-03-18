@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Optional;
 
 namespace EOLib.Domain.NPC
 {
@@ -16,7 +17,7 @@ namespace EOLib.Domain.NPC
 
         public NPCFrame Frame { get; private set; }
 
-        public Optional<short> OpponentID { get; private set; }
+        public Option<short> OpponentID { get; private set; }
 
         public NPC(int id, byte index)
         {
@@ -52,10 +53,10 @@ namespace EOLib.Domain.NPC
             return copy;
         }
 
-        public INPC WithOpponentID(Optional<short> opponentID)
+        public INPC WithOpponentID(short opponentID)
         {
             var copy = MakeCopy(this);
-            copy.OpponentID = opponentID;
+            copy.OpponentID = Option.Some(opponentID);
             return copy;
         }
 
@@ -80,7 +81,7 @@ namespace EOLib.Domain.NPC
                    Y == npc.Y &&
                    Direction == npc.Direction &&
                    Frame == npc.Frame &&
-                   EqualityComparer<Optional<short>>.Default.Equals(OpponentID, npc.OpponentID);
+                   OpponentID.Equals(npc.OpponentID);
         }
 
         public override int GetHashCode()

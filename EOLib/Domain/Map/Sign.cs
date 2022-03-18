@@ -9,6 +9,14 @@ namespace EOLib.Domain.Map
 
         public string Message { get; private set; }
 
+        public static ISign None => new Sign();
+
+        private Sign()
+        {
+            Title = string.Empty;
+            Message = string.Empty;
+        }
+
         public Sign(SignMapEntity sign)
         {
             Title = Filter(sign.Title);

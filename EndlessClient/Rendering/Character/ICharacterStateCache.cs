@@ -1,12 +1,12 @@
-﻿using System.Collections.Generic;
-using EOLib;
-using EOLib.Domain.Character;
+﻿using EOLib.Domain.Character;
+using Optional;
+using System.Collections.Generic;
 
 namespace EndlessClient.Rendering.Character
 {
     public interface ICharacterStateCache
     {
-        Optional<ICharacter> MainCharacter { get; }
+        Option<ICharacter> MainCharacter { get; }
 
         IReadOnlyDictionary<int, ICharacter> OtherCharacters { get; }
 

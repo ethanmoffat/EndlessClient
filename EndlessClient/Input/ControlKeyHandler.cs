@@ -1,8 +1,8 @@
 ﻿using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
-using EOLib;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework.Input;
+using Optional;
 
 namespace EndlessClient.Input
 {
@@ -20,14 +20,14 @@ namespace EndlessClient.Input
             _controlKeyController = controlKeyController;
         }
 
-        protected override Optional<Keys> HandleInput()
+        protected override Option<Keys> HandleInput()
         {
             if (IsKeyHeld(Keys.LeftControl) && _controlKeyController.Attack())
-                return Keys.LeftControl;
+                return Option.Some(Keys.LeftControl);
             if (IsKeyHeld(Keys.RightControl) && _controlKeyController.Attack())
-                return Keys.RightControl;
+                return Option.Some(Keys.RightControl);
 
-            return Optional<Keys>.Empty;
+            return Option.None<Keys>();
         }
     }
 }
