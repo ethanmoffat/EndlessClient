@@ -6,6 +6,7 @@ using EOLib.Domain.Account;
 using EOLib.Net;
 using EOLib.Net.Communication;
 using XNAControls;
+using Optional;
 
 namespace EndlessClient.Controllers
 {
@@ -78,19 +79,19 @@ namespace EndlessClient.Controllers
 
         public async Task ChangePassword()
         {
-            var changePasswordParameters = await _accountDialogDisplayActions.ShowChangePasswordDialog();
-            if (!changePasswordParameters.HasValue)
-                return;
+            var changePasswordResult = await _accountDialogDisplayActions.ShowChangePasswordDialog();
+            changePasswordResult.MatchSome(async changePasswordParameters =>
+                {
+                    var changePasswordOperation = _networkOperationFactory.CreateSafeBlockingOperation(
+                        async () => await _accountActions.ChangePassword(changePasswordParameters),
+                        SetInitialStateAndShowError,
+                        SetInitialStateAndShowError);
+                    if (!await changePasswordOperation.Invoke())
+                        return;
 
-            var changePasswordOperation = _networkOperationFactory.CreateSafeBlockingOperation(
-                async () => await _accountActions.ChangePassword(changePasswordParameters.Value),
-                SetInitialStateAndShowError,
-                SetInitialStateAndShowError);
-            if (!await changePasswordOperation.Invoke())
-                return;
-
-            var result = changePasswordOperation.Result;
-            _accountDialogDisplayActions.ShowCreateAccountServerError(result);
+                    var result = changePasswordOperation.Result;
+                    _accountDialogDisplayActions.ShowCreateAccountServerError(result);
+                });
         }
 
         private void SetInitialStateAndShowError(NoDataSentException ex)

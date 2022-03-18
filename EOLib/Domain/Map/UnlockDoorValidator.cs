@@ -4,6 +4,7 @@ using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.IO.Map;
 using EOLib.IO.Repositories;
+using Optional;
 
 namespace EOLib.Domain.Map
 {
@@ -22,21 +23,23 @@ namespace EOLib.Domain.Map
 
         public bool CanMainCharacterOpenDoor(IWarp warp)
         {
-            var itemName = GetRequiredKey(warp);
-
-            return !itemName.HasValue || _characterInventoryProvider.ItemInventory
-                       .Select(x => _eifFileProvider.EIFFile[x.ItemID].Name)
-                       .Any(x => string.Compare(x, itemName, StringComparison.InvariantCultureIgnoreCase) == 0);
+            return GetRequiredKey(warp).Match(
+                some: keyName => _characterInventoryProvider
+                    .ItemInventory
+                    .Where(x => _eifFileProvider.EIFFile[x.ItemID].Type == IO.ItemType.Key)
+                    .Select(x => _eifFileProvider.EIFFile[x.ItemID].Name)
+                    .Any(keyName.Equals),
+                none: () => true);
         }
 
-        public Optional<string> GetRequiredKey(IWarp warp)
+        public Option<string> GetRequiredKey(IWarp warp)
         {
             switch (warp.DoorType)
             {
-                case DoorSpec.LockedSilver: return "Silver Key";
-                case DoorSpec.LockedCrystal: return "Crystal Key";
-                case DoorSpec.LockedWraith: return "Wraith Key";
-                default: return Optional<string>.Empty;
+                case DoorSpec.LockedSilver: return Option.Some("Silver Key");
+                case DoorSpec.LockedCrystal: return Option.Some("Crystal Key");
+                case DoorSpec.LockedWraith: return Option.Some("Wraith Key");
+                default: return Option.None<string>();
             }
         }
     }
@@ -45,6 +48,6 @@ namespace EOLib.Domain.Map
     {
         bool CanMainCharacterOpenDoor(IWarp warp);
 
-        Optional<string> GetRequiredKey(IWarp warp);
+        Option<string> GetRequiredKey(IWarp warp);
     }
 }

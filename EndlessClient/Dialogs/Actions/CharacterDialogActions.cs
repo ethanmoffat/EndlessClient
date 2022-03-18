@@ -1,10 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EndlessClient.Dialogs.Factories;
-using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Localization;
+using Optional;
+using System;
+using System.Threading.Tasks;
 using XNAControls;
 
 namespace EndlessClient.Dialogs.Actions
@@ -22,13 +22,12 @@ namespace EndlessClient.Dialogs.Actions
             _createCharacterDialogFactory = createCharacterDialogFactory;
         }
 
-        public async Task<Optional<ICharacterCreateParameters>> ShowCreateCharacterDialog()
+        public async Task<Option<ICharacterCreateParameters>> ShowCreateCharacterDialog()
         {
             var dialog = _createCharacterDialogFactory.BuildCreateCharacterDialog();
             var result = await dialog.ShowDialogAsync();
-            return result == XNADialogResult.OK
-                ? new CharacterCreateParameters(dialog.Name, dialog.Gender, dialog.HairStyle, dialog.HairColor, dialog.Race)
-                : Optional<ICharacterCreateParameters>.Empty;
+            return result.SomeWhen(x => x == XNADialogResult.OK)
+                .Map<ICharacterCreateParameters>(x => new CharacterCreateParameters(dialog.Name, dialog.Gender, dialog.HairStyle, dialog.HairColor, dialog.Race));
         }
 
         public void ShowCharacterReplyDialog(CharacterReply response)

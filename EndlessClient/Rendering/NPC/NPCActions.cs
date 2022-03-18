@@ -7,6 +7,7 @@ using EndlessClient.Rendering.Chat;
 using EOLib;
 using EOLib.Domain.Notifiers;
 using EOLib.IO.Repositories;
+using Optional;
 
 namespace EndlessClient.Rendering.NPC
 {
@@ -54,7 +55,7 @@ namespace EndlessClient.Rendering.NPC
             Animator.StartAttackAnimation(npcIndex);
         }
 
-        public void RemoveNPCFromView(int npcIndex, int playerId, Optional<short> spellId, Optional<int> damage, bool showDeathAnimation)
+        public void RemoveNPCFromView(int npcIndex, int playerId, Option<short> spellId, Option<int> damage, bool showDeathAnimation)
         {
             //possible that the server might send a packet for the npc to be removed by the map switch is completed
             if (!_hudControlProvider.IsInGame || !_npcRendererRepository.NPCRenderers.ContainsKey(npcIndex))
@@ -71,17 +72,14 @@ namespace EndlessClient.Rendering.NPC
             {
                 _npcRendererRepository.NPCRenderers[npcIndex].StartDying();
 
-                if (spellId.HasValue)
+                spellId.MatchSome(spell =>
                 {
-                    var graphic = _esfFileProvider.ESFFile[spellId.Value].Graphic;
+                    var graphic = _esfFileProvider.ESFFile[spell].Graphic;
                     _npcRendererRepository.NPCRenderers[npcIndex].ShowSpellAnimation(graphic);
                     ShoutSpellCast(playerId);
-                }
+                });
 
-                if (damage.HasValue)
-                {
-                    _npcRendererRepository.NPCRenderers[npcIndex].ShowDamageCounter(damage.Value, 0, isHeal: false);
-                }
+                damage.MatchSome(d => _npcRendererRepository.NPCRenderers[npcIndex].ShowDamageCounter(d, 0, isHeal: false));
             }
         }
 
@@ -90,18 +88,18 @@ namespace EndlessClient.Rendering.NPC
             _chatBubbleActions.ShowChatBubbleForNPC(npcIndex, message);
         }
 
-        public void NPCTakeDamage(short npcIndex, int fromPlayerId, int damageToNpc, short npcPctHealth, Optional<int> spellId)
+        public void NPCTakeDamage(short npcIndex, int fromPlayerId, int damageToNpc, short npcPctHealth, Option<int> spellId)
         {
             _npcRendererRepository.NPCRenderers[npcIndex].ShowDamageCounter(damageToNpc, npcPctHealth, isHeal: false);
 
-            if (spellId.HasValue)
+            spellId.MatchSome(spell =>
             {
                 var renderer = _npcRendererRepository.NPCRenderers[npcIndex];
 
-                var graphic = _esfFileProvider.ESFFile[spellId.Value].Graphic;
+                var graphic = _esfFileProvider.ESFFile[spell].Graphic;
                 renderer.ShowSpellAnimation(graphic);
                 ShoutSpellCast(fromPlayerId);
-            }
+            });
         }
 
         private void ShoutSpellCast(int playerId)

@@ -16,6 +16,7 @@ using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Optional;
 using XNAControls;
 
 namespace EndlessClient.Rendering.Character
@@ -445,7 +446,7 @@ namespace EndlessClient.Rendering.Character
             if (isHeal)
                 _healthBarRenderer.SetHealth(damage, percentHealth);
             else
-                _healthBarRenderer.SetDamage(damage == 0 ? Optional<int>.Empty : new Optional<int>(damage), percentHealth);
+                _healthBarRenderer.SetDamage(damage.SomeWhen(d => d > 0), percentHealth);
         }
 
         public void ShowChatBubble(string message, bool isGroupChat)

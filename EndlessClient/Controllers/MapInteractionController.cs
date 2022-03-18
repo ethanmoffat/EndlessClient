@@ -9,8 +9,8 @@ using EndlessClient.Rendering.Character;
 using EOLib.Domain.Character;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
-using EOLib.Extensions;
 using EOLib.Localization;
+using Optional.Collections;
 using System;
 using System.Threading.Tasks;
 
@@ -55,18 +55,20 @@ namespace EndlessClient.Controllers
                 return;
             }
 
-            var item = cellState.Items.OptionalFirst();
-            if (item.HasValue)
+            var optionalItem = cellState.Items.FirstOrNone();
+            if (optionalItem.HasValue)
             {
-                if (!_inventorySpaceValidator.ItemFits(item.Value))
+                var item = optionalItem.ValueOr(Item.None);
+                if (!_inventorySpaceValidator.ItemFits(item))
                     _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
                 else
-                    HandlePickupResult(_mapActions.PickUpItem(item.Value), item.Value);
+                    HandlePickupResult(_mapActions.PickUpItem(item), item);
             }
             else if (cellState.NPC.HasValue) { /* TODO: spell cast */ }
             else if (cellState.Sign.HasValue)
             {
-                var messageBox = _eoMessageBoxFactory.CreateMessageBox(cellState.Sign.Value.Message, cellState.Sign.Value.Title);
+                var sign = cellState.Sign.ValueOr(Sign.None);
+                var messageBox = _eoMessageBoxFactory.CreateMessageBox(sign.Message, sign.Title);
                 await messageBox.ShowDialogAsync();
             }
             else if (cellState.Chest.HasValue) { /* TODO: chest interaction */ }
@@ -96,7 +98,7 @@ namespace EndlessClient.Controllers
                     var extra = string.Empty;
                     if (item.OwningPlayerID.HasValue)
                     {
-                        var playerId = item.OwningPlayerID.Value;
+                        var playerId = item.OwningPlayerID.ValueOr(0);
                         message = EOResourceID.STATUS_LABEL_ITEM_PICKUP_PROTECTED_BY;
                         if (_currentMapStateProvider.Characters.ContainsKey(playerId))
                         {

@@ -18,6 +18,7 @@ using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Optional;
 using XNAControls;
 
 namespace EndlessClient.Rendering
@@ -158,13 +159,13 @@ namespace EndlessClient.Rendering
             else if (cellState.Items.Any())
             {
                 _cursorIndex = CursorIndex.HoverItem;
-                UpdateMapItemLabel(new Optional<IItem>(cellState.Items.Last()));
+                UpdateMapItemLabel(Option.Some(cellState.Items.Last()));
             }
             else if (cellState.TileSpec != TileSpec.None)
                 UpdateCursorIndexForTileSpec(cellState.TileSpec);
 
             if (!cellState.Items.Any())
-                UpdateMapItemLabel(Optional<IItem>.Empty);
+                UpdateMapItemLabel(Option.None<IItem>());
 
             if (_startClickTime.HasValue && (DateTime.Now - _startClickTime.Value).TotalMilliseconds > 350)
             {
@@ -195,25 +196,29 @@ namespace EndlessClient.Rendering
             return new Vector2(x*32 - y*32 + 288 - cOffX, y*16 + x*16 + 144 - cOffY);
         }
 
-        private void UpdateMapItemLabel(Optional<IItem> item)
+        private void UpdateMapItemLabel(Option<IItem> item)
         {
-            if (!item.HasValue)
-            {
-                _mapItemText.Visible = false;
-                _mapItemText.Text = string.Empty;
-            }
-            else if (!_mapItemText.Visible)
-            {
-                _mapItemText.Visible = true;
-                _mapItemText.Text = _itemStringService.GetStringForMapDisplay(
-                    _eifFileProvider.EIFFile[item.Value.ItemID], item.Value.Amount);
-                _mapItemText.ResizeBasedOnText();
-                _mapItemText.ForeColor = GetColorForMapDisplay(_eifFileProvider.EIFFile[item.Value.ItemID]);
+            item.Match(
+                some: i =>
+                {
+                    if (!_mapItemText.Visible)
+                    {
+                        var data = _eifFileProvider.EIFFile[i.ItemID];
+                        _mapItemText.Visible = true;
+                        _mapItemText.Text = _itemStringService.GetStringForMapDisplay(data, i.Amount);
+                        _mapItemText.ResizeBasedOnText();
+                        _mapItemText.ForeColor = GetColorForMapDisplay(data);
 
-                //relative to cursor DrawPosition, since this control is a parent of MapItemText
-                _mapItemText.DrawPosition = new Vector2(_drawArea.X + 32 - _mapItemText.ActualWidth/2f,
-                                                        _drawArea.Y + -_mapItemText.ActualHeight - 4);
-            }
+                        //relative to cursor DrawPosition, since this control is a parent of MapItemText
+                        _mapItemText.DrawPosition = new Vector2(_drawArea.X + 32 - _mapItemText.ActualWidth / 2f,
+                                                                _drawArea.Y + -_mapItemText.ActualHeight - 4);
+                    }
+                },
+                none: () =>
+                {
+                    _mapItemText.Visible = false;
+                    _mapItemText.Text = string.Empty;
+                });
         }
 
         private void UpdateCursorIndexForTileSpec(TileSpec tileSpec)

@@ -5,6 +5,7 @@ using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.Net;
 using EOLib.Net.Handlers;
+using Optional;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,9 +33,9 @@ namespace EOLib.PacketHandlers
 
         public override bool HandlePacket(IPacket packet)
         {
-            var spellId = Optional<int>.Empty;
-            if (Family == PacketFamily.Cast)
-                spellId = packet.ReadShort();
+            var spellId = Family
+                .SomeWhen(x => x == PacketFamily.Cast)
+                .Map<int>(_ => packet.ReadShort());
 
             var fromPlayerId = packet.ReadShort();
             var fromDirection = (EODirection)packet.ReadChar();

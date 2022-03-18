@@ -2,9 +2,10 @@
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.NPC;
-using EOLib.Extensions;
 using EOLib.IO.Map;
 using EOLib.IO.Repositories;
+using Optional;
+using Optional.Collections;
 using System.Linq;
 
 namespace EOLib.Domain.Map
@@ -36,8 +37,8 @@ namespace EOLib.Domain.Map
             var sign = CurrentMap.Signs.FirstOrDefault(s => s.X == x && s.Y == y);
 
             var character = _mapStateProvider.Characters.Values.Concat(new[] { _characterProvider.MainCharacter })
-                .OptionalFirst(c => CharacterAtCoordinates(c, x, y));
-            var npc = _mapStateProvider.NPCs.OptionalFirst(n => NPCAtCoordinates(n, x, y));
+                .FirstOrNone(c => CharacterAtCoordinates(c, x, y));
+            var npc = _mapStateProvider.NPCs.FirstOrNone(n => NPCAtCoordinates(n, x, y));
             var items = _mapStateProvider.MapItems.Where(i => i.X == x && i.Y == y);
 
             return new MapCellState
@@ -46,9 +47,9 @@ namespace EOLib.Domain.Map
                 Coordinate = new MapCoordinate(x, y),
                 Items      = items.ToList(),
                 TileSpec   = tileSpec,
-                Warp       = warp == null ? Optional<IWarp>.Empty : new Warp(warp),
-                Chest      = chest == null ? Optional<IChest>.Empty : new Chest(chest),
-                Sign       = sign == null ? Optional<ISign>.Empty : new Sign(sign),
+                Warp       = warp.SomeNotNull().Map<IWarp>(w => new Warp(w)),
+                Chest      = chest.SomeNotNull().Map<IChest>(c => new Chest(c)),
+                Sign       = sign.SomeNotNull().Map<ISign>(s => new Sign(s)),
                 Character  = character,
                 NPC        = npc
             };

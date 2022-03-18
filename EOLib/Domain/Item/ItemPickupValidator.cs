@@ -29,9 +29,9 @@ namespace EOLib.Domain.Item
             if (xDif > 2 || yDif > 2)
                 return ItemPickupResult.TooFar;
 
-            if (item.OwningPlayerID.HasValue && mainCharacter.ID != item.OwningPlayerID.Value && item.DropTime.HasValue)
+            if (mainCharacter.ID != item.OwningPlayerID.ValueOr(mainCharacter.ID))
             {
-                var dropTime = item.DropTime.Value;
+                var dropTime = item.DropTime.ValueOr(now);
                 if (item.IsNPCDrop && (now - dropTime).TotalSeconds <= _configurationProvider.NPCDropProtectTime ||
                     !item.IsNPCDrop && (now - dropTime).TotalSeconds <= _configurationProvider.PlayerDropProtectTime)
                     return ItemPickupResult.DropProtection;

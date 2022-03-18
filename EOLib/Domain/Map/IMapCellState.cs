@@ -2,6 +2,7 @@
 using EOLib.Domain.Character;
 using EOLib.Domain.NPC;
 using EOLib.IO.Map;
+using Optional;
 
 namespace EOLib.Domain.Map
 {
@@ -15,14 +16,14 @@ namespace EOLib.Domain.Map
 
         TileSpec TileSpec { get; }
 
-        Optional<INPC> NPC { get; }
+        Option<INPC> NPC { get; }
 
-        Optional<ICharacter> Character { get; }
+        Option<ICharacter> Character { get; }
         
-        Optional<IChest> Chest { get; }
+        Option<IChest> Chest { get; }
 
-        Optional<IWarp> Warp { get; }
+        Option<IWarp> Warp { get; }
 
-        Optional<ISign> Sign { get; }
+        Option<ISign> Sign { get; }
     }
 }

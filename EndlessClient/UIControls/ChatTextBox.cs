@@ -4,6 +4,7 @@ using EOLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Optional;
 using XNAControls;
 
 namespace EndlessClient.UIControls
@@ -14,7 +15,7 @@ namespace EndlessClient.UIControls
     public class ChatTextBox : XNATextBox
     {
         private bool _ignoreAllInput;
-        private Optional<DateTime> _endMuteTime;
+        private Option<DateTime> _endMuteTime;
 
         public ChatTextBox(IContentManagerProvider contentManagerProvider)
             : base(new Rectangle(124, 308, 440, 19),
@@ -22,22 +23,25 @@ namespace EndlessClient.UIControls
                 caretTexture: contentManagerProvider.Content.Load<Texture2D>("cursor"))
         {
             MaxChars = 140;
-            _endMuteTime = Optional<DateTime>.Empty;
+            _endMuteTime = Option.None<DateTime>();
         }
 
         public void SetMuted(DateTime endMuteTime)
         {
             _ignoreAllInput = true;
-            _endMuteTime = endMuteTime;
+            _endMuteTime = Option.Some(endMuteTime);
         }
 
         protected override void OnUpdateControl(GameTime gameTime)
         {
-            if (_endMuteTime.HasValue && DateTime.Now > _endMuteTime)
+            _endMuteTime.MatchSome(endTime =>
             {
-                _endMuteTime = Optional<DateTime>.Empty;
-                _ignoreAllInput = false;
-            }
+                if (DateTime.Now > endTime)
+                {
+                    _endMuteTime = Option.None<DateTime>();
+                    _ignoreAllInput = false;
+                }
+            });
 
             base.OnUpdateControl(gameTime);
         }

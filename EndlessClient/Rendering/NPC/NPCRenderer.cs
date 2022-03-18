@@ -14,6 +14,7 @@ using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Optional;
 using XNAControls;
 
 namespace EndlessClient.Rendering.NPC
@@ -165,7 +166,7 @@ namespace EndlessClient.Rendering.NPC
 
         public void ShowDamageCounter(int damage, int percentHealth, bool isHeal)
         {
-            var optionalDamage = damage == 0 ? Optional<int>.Empty : new Optional<int>(damage);
+            var optionalDamage = damage.SomeWhen(d => d > 0);
             _healthBarRenderer.SetDamage(optionalDamage, percentHealth);
         }
 

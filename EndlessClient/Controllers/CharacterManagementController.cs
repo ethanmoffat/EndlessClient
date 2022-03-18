@@ -14,6 +14,7 @@ namespace EndlessClient.Controllers
     [MappedType(BaseType = typeof(ICharacterManagementController))]
     public class CharacterManagementController : ICharacterManagementController
     {
+        private readonly ISafeNetworkOperationFactory _safeNetworkOperationFactory;
         private readonly ICharacterManagementActions _characterManagementActions;
         private readonly IErrorDialogDisplayAction _errorDialogDisplayAction;
         private readonly ICharacterDialogActions _characterDialogActions;
@@ -22,7 +23,8 @@ namespace EndlessClient.Controllers
         private readonly IGameStateActions _gameStateActions;
         private readonly ICharacterSelectorRepository _characterSelectorRepository;
 
-        public CharacterManagementController(ICharacterManagementActions characterManagementActions,
+        public CharacterManagementController(ISafeNetworkOperationFactory safeNetworkOperationFactory,
+                                             ICharacterManagementActions characterManagementActions,
                                              IErrorDialogDisplayAction errorDialogDisplayAction,
                                              ICharacterDialogActions characterDialogActions,
                                              IBackgroundReceiveActions backgroundReceiveActions,
@@ -30,6 +32,7 @@ namespace EndlessClient.Controllers
                                              IGameStateActions gameStateActions,
                                              ICharacterSelectorRepository characterSelectorRepository)
         {
+            _safeNetworkOperationFactory = safeNetworkOperationFactory;
             _characterManagementActions = characterManagementActions;
             _errorDialogDisplayAction = errorDialogDisplayAction;
             _characterDialogActions = characterDialogActions;
@@ -41,50 +44,25 @@ namespace EndlessClient.Controllers
 
         public async Task CreateCharacter()
         {
-            short createID;
-            try
-            {
-                createID = await _characterManagementActions.RequestCharacterCreation();
-            }
-            catch (NoDataSentException)
-            {
-                SetInitialStateAndShowError();
-                DisconnectAndStopReceiving();
+            var requestCreateOp = _safeNetworkOperationFactory.CreateSafeBlockingOperation(_characterManagementActions.RequestCharacterCreation, SendError, RecvError);
+            if (!await requestCreateOp.Invoke())
                 return;
-            }
-            catch (EmptyPacketReceivedException)
-            {
-                SetInitialStateAndShowError();
-                DisconnectAndStopReceiving();
-                return;
-            }
+
+            var createID = requestCreateOp.Result;
 
             //todo: make not approved character names cancel the dialog close
-            var parameters = await _characterDialogActions.ShowCreateCharacterDialog();
-            if (!parameters.HasValue)
-                return;
+            var showResult = await _characterDialogActions.ShowCreateCharacterDialog();
+            showResult.MatchSome(async parameters =>
+            {
+                var createOp = _safeNetworkOperationFactory.CreateSafeBlockingOperation(
+                    () => _characterManagementActions.CreateCharacter(parameters, createID), SendError, RecvError);
+                if (!await createOp.Invoke())
+                    return;
 
-            CharacterReply response;
-            try
-            {
-                response = await _characterManagementActions.CreateCharacter(parameters.Value, createID);
-            }
-            catch (NoDataSentException)
-            {
-                SetInitialStateAndShowError();
-                DisconnectAndStopReceiving();
-                return;
-            }
-            catch (EmptyPacketReceivedException)
-            {
-                SetInitialStateAndShowError();
-                DisconnectAndStopReceiving();
-                return;
-            }
-
-            if (response == CharacterReply.Ok)
-                _gameStateActions.RefreshCurrentState();
-            _characterDialogActions.ShowCharacterReplyDialog(response);
+                if (createOp.Result == CharacterReply.Ok)
+                    _gameStateActions.RefreshCurrentState();
+                _characterDialogActions.ShowCharacterReplyDialog(createOp.Result);
+            });
         }
 
         public async Task DeleteCharacter(ICharacter characterToDelete)
@@ -97,45 +75,21 @@ namespace EndlessClient.Controllers
                 return;
             }
 
-            short takeID;
-            try
-            {
-                takeID = await _characterManagementActions.RequestCharacterDelete();
-            }
-            catch (NoDataSentException)
-            {
-                SetInitialStateAndShowError();
-                DisconnectAndStopReceiving();
+            var requestDeleteOp = _safeNetworkOperationFactory.CreateSafeBlockingOperation(_characterManagementActions.RequestCharacterDelete, SendError, RecvError);
+            if (!await requestDeleteOp.Invoke())
                 return;
-            }
-            catch (EmptyPacketReceivedException)
-            {
-                SetInitialStateAndShowError();
-                DisconnectAndStopReceiving();
-                return;
-            }
+
+            var takeID = requestDeleteOp.Result;
 
             var dialogResult = await _characterDialogActions.ShowConfirmDeleteWarning(characterToDelete.Name);
             if (dialogResult != XNADialogResult.OK)
                 return;
 
-            CharacterReply response;
-            try
-            {
-                response = await _characterManagementActions.DeleteCharacter(takeID);
-            }
-            catch (NoDataSentException)
-            {
-                SetInitialStateAndShowError();
-                DisconnectAndStopReceiving();
+            var deleteOp = _safeNetworkOperationFactory.CreateSafeBlockingOperation(() => _characterManagementActions.DeleteCharacter(takeID), SendError, RecvError);
+            if (!await deleteOp.Invoke())
                 return;
-            }
-            catch (EmptyPacketReceivedException)
-            {
-                SetInitialStateAndShowError();
-                DisconnectAndStopReceiving();
-                return;
-            }
+
+            var response = deleteOp.Result;
 
             _characterSelectorRepository.CharacterForDelete = null;
             if (response != CharacterReply.Deleted)
@@ -146,6 +100,18 @@ namespace EndlessClient.Controllers
             }
             
             _gameStateActions.RefreshCurrentState();
+        }
+
+        private void SendError(NoDataSentException ndes)
+        {
+            SetInitialStateAndShowError();
+            DisconnectAndStopReceiving();
+        }
+
+        private void RecvError(EmptyPacketReceivedException epre)
+        {
+            SetInitialStateAndShowError();
+            DisconnectAndStopReceiving();
         }
 
         private void SetInitialStateAndShowError()

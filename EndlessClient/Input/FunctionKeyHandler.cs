@@ -3,6 +3,7 @@ using EndlessClient.GameExecution;
 using EOLib;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework.Input;
+using Optional;
 
 namespace EndlessClient.Input
 {
@@ -20,13 +21,13 @@ namespace EndlessClient.Input
             _functionKeyController = functionKeyController;
         }
 
-        protected override Optional<Keys> HandleInput()
+        protected override Option<Keys> HandleInput()
         {
             if (IsKeyPressedOnce(Keys.F11) && _functionKeyController.Sit())
-                return Keys.F11;
+                return Option.Some(Keys.F11);
 
             if (IsKeyPressedOnce(Keys.F12) && _functionKeyController.RefreshMapState())
-                return Keys.F12;
+                return Option.Some(Keys.F12);
 
             // todo: spell selection
             // commented code from FunctionKeyListener
@@ -48,7 +49,7 @@ namespace EndlessClient.Input
             //    }
             //}
 
-            return Optional<Keys>.Empty;
+            return Option.None<Keys>();
         }
 
         //private void _handleSpellFunc(int spellIndex)

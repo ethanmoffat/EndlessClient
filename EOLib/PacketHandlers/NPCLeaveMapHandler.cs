@@ -5,6 +5,7 @@ using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.Net;
 using EOLib.Net.Handlers;
+using Optional;
 using System;
 using System.Collections.Generic;
 
@@ -37,9 +38,9 @@ namespace EOLib.PacketHandlers
 
         public override bool HandlePacket(IPacket packet)
         {
-            var spellID = Optional<short>.Empty;
-            if (packet.Family == PacketFamily.Cast)
-                spellID = packet.ReadShort();
+            var spellID = packet.Family
+                .SomeWhen(f => f == PacketFamily.Cast)
+                .Map(f => packet.ReadShort());
 
             var playerID = packet.ReadShort(); //player that is protecting the item
             var playerDirection = (EODirection)packet.ReadChar();
@@ -51,7 +52,7 @@ namespace EOLib.PacketHandlers
             //packet is removing the NPC from view due to out of range of character
             if (packet.ReadPosition == packet.Length)
             {
-                RemoveNPCFromView(deadNPCIndex, playerID, spellID, damage: Optional<int>.Empty, showDeathAnimation: false);
+                RemoveNPCFromView(deadNPCIndex, playerID, spellID, damage: Option.None<int>(), showDeathAnimation: false);
                 return true;
             }
 
@@ -62,7 +63,7 @@ namespace EOLib.PacketHandlers
             var droppedAmount = packet.ReadInt();
 
             var damageDoneToNPC = packet.ReadThree();
-            RemoveNPCFromView(deadNPCIndex, playerID, spellID, damageDoneToNPC, showDeathAnimation: true);
+            RemoveNPCFromView(deadNPCIndex, playerID, spellID, Option.Some(damageDoneToNPC), showDeathAnimation: true);
 
             if (packet.Family == PacketFamily.Cast)
             {
@@ -87,7 +88,7 @@ namespace EOLib.PacketHandlers
             return true;
         }
 
-        private void RemoveNPCFromView(short deadNPCIndex, int playerId, Optional<short> spellId, Optional<int> damage, bool showDeathAnimation)
+        private void RemoveNPCFromView(short deadNPCIndex, int playerId, Option<short> spellId, Option<int> damage, bool showDeathAnimation)
         {
             foreach (var notifier in _npcAnimationNotifiers)
                 notifier.RemoveNPCFromView(deadNPCIndex, playerId, spellId, damage, showDeathAnimation);

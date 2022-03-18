@@ -1,9 +1,10 @@
-﻿using System;
-using System.Linq;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.IO.Map;
+using Optional;
+using System;
+using System.Linq;
 
 namespace EOLib.Domain.Character
 {
@@ -48,19 +49,19 @@ namespace EOLib.Domain.Character
             var cellState = _mapCellStateProvider.GetCellStateAt(gridX, gridY);
             return IsCellStateWalkable(cellState);
         }
-
         public bool IsCellStateWalkable(IMapCellState cellState)
         {
-            var mainCharacter = _characterProvider.MainCharacter;
+            var mc = _characterProvider.MainCharacter;
 
-            if (cellState.Character.HasValue && cellState.Character.Value != mainCharacter) //todo: walk through players after certain elapsed time
-                return mainCharacter.NoWall && IsTileSpecWalkable(cellState.TileSpec);
-            if (cellState.NPC.HasValue)
-                return mainCharacter.NoWall && IsTileSpecWalkable(cellState.TileSpec);
-            if (cellState.Warp.HasValue)
-                return mainCharacter.NoWall || IsWarpWalkable(cellState.Warp.Value, cellState.TileSpec);
+            var cellChar = cellState.Character.FlatMap(c => c.SomeWhen(cc => cc != mc));
 
-            return mainCharacter.NoWall || IsTileSpecWalkable(cellState.TileSpec);
+            return cellChar.Match(
+                some: _ => mc.NoWall && IsTileSpecWalkable(cellState.TileSpec),
+                none: () => cellState.NPC.Match(
+                    some: _ => mc.NoWall && IsTileSpecWalkable(cellState.TileSpec),
+                    none: () => cellState.Warp.Match(
+                        some: w => mc.NoWall || IsWarpWalkable(w, cellState.TileSpec),
+                        none: () => mc.NoWall || IsTileSpecWalkable(cellState.TileSpec))));
         }
 
         private bool IsWarpWalkable(IWarp warp, TileSpec tile)

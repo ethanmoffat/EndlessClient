@@ -1,7 +1,7 @@
-﻿using EOLib;
-using EOLib.Graphics;
+﻿using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Optional;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,7 +43,7 @@ namespace EndlessClient.Rendering
             _numberSourceRectangles = new List<Rectangle>();
         }
 
-        public void SetDamage(Optional<int> value, int percentHealth)
+        public void SetDamage(Option<int> value, int percentHealth)
         {
             Visible = true;
             _isMiss = !value.HasValue;
@@ -51,12 +51,11 @@ namespace EndlessClient.Rendering
 
             _numberSourceRectangles.Clear();
 
-            if (!value.HasValue)
-                _numberSourceRectangles.Add(new Rectangle(_numberSpritesOffset + new Point(92, 0), new Point(30, 11)));
-            else
-                _numberSourceRectangles.AddRange(
-                    GetNumberSourceRectangles(value, isHeal: false)
-                        .Select(x => new Rectangle(_numberSpritesOffset + x.Location, x.Size)));
+            value.Match(
+                some: v => _numberSourceRectangles.AddRange(
+                    GetNumberSourceRectangles(v, isHeal: false)
+                        .Select(x => new Rectangle(_numberSpritesOffset + x.Location, x.Size))),
+                none: () => _numberSourceRectangles.Add(new Rectangle(_numberSpritesOffset + new Point(92, 0), new Point(30, 11))));
 
             _healthBarSourceRectangle = GetHealthBarSourceRectangle(percentHealth);
             _healthBarSourceRectangle = new Rectangle(_healthBarSpritesOffset + _healthBarSourceRectangle.Location, _healthBarSourceRectangle.Size);
@@ -150,7 +149,7 @@ namespace EndlessClient.Rendering
     {
         bool Visible { get; }
 
-        void SetDamage(Optional<int> value, int percentHealth);
+        void SetDamage(Option<int> value, int percentHealth);
 
         void SetHealth(int value, int percentHealth);
 

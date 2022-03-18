@@ -1,20 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using EndlessClient.GameExecution;
+﻿using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Character;
-using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.MapEntityRenderers;
 using EndlessClient.Rendering.NPC;
-using EOLib;
 using EOLib.Config;
 using EOLib.Domain.Character;
-using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Optional;
+using System;
+using System.Collections.Generic;
 
 namespace EndlessClient.Rendering.Map
 {
@@ -39,7 +36,7 @@ namespace EndlessClient.Rendering.Map
         private MapTransitionState _mapTransitionState = MapTransitionState.Default;
         private int? _lastMapChecksum;
 
-        private Optional<MapQuakeState> _quakeState;
+        private Option<MapQuakeState> _quakeState;
 
         private bool MouseOver
         {
@@ -136,18 +133,18 @@ namespace EndlessClient.Rendering.Map
 
         public void StartMapTransition()
         {
-            _mapTransitionState = new MapTransitionState(DateTime.Now, 1);
+            _mapTransitionState = new MapTransitionState(Option.Some(DateTime.Now), 1);
         }
 
         public void StartEarthquake(byte strength)
         {
-            _quakeState = new MapQuakeState(strength);
+            _quakeState = Option.Some(new MapQuakeState(strength));
         }
 
         public void RedrawGroundLayer()
         {
             _lastMapChecksum = null;
-            _mapTransitionState = new MapTransitionState(DateTime.Now - new TimeSpan(0, 5, 0), 255);
+            _mapTransitionState = new MapTransitionState(Option.Some(DateTime.Now - new TimeSpan(0, 5, 0)), 255);
         }
 
         private void UpdateQuakeState()
@@ -159,21 +156,17 @@ namespace EndlessClient.Rendering.Map
             // 4. flip direction
             // 5. keep going until specific number of "direction flips" has elapsed
 
-            if (!_quakeState.HasValue)
-                return;
-
-            _quakeState = _quakeState.Value.NextOffset();
-
-            var quakeState = _quakeState.Value;
-            if (quakeState.OffsetReached)
+            _quakeState.MatchSome(q =>
             {
-                _quakeState = quakeState.NextState();
-            }
+                var next = q.NextOffset();
 
-            if (quakeState.Done)
-            {
-                _quakeState = Optional<MapQuakeState>.Empty;
-            }
+                if (next.OffsetReached)
+                    next = next.NextState();
+
+                _quakeState = next.Done
+                    ? Option.None<MapQuakeState>()
+                    : Option.Some(next);
+            });
         }
 
         private void DrawGroundLayerToRenderTarget()
@@ -201,7 +194,7 @@ namespace EndlessClient.Rendering.Map
             }
 
             if (transitionComplete)
-                _mapTransitionState = new MapTransitionState(Optional<DateTime>.Empty, 0);
+                _mapTransitionState = new MapTransitionState(Option.None<DateTime>(), 0);
 
             _sb.End();
             GraphicsDevice.SetRenderTarget(null);
@@ -263,7 +256,7 @@ namespace EndlessClient.Rendering.Map
         {
             spriteBatch.Begin();
 
-            var offset = _quakeState.HasValue ? _quakeState.Value.Offset : 0;
+            var offset = _quakeState.Map(qs => qs.Offset).Match(some: o => o, none: () => 0);
 
             spriteBatch.Draw(_mapBaseTarget, GetGroundLayerDrawPosition() + new Vector2(offset, 0), Color.White);
             DrawBaseLayers(spriteBatch);
@@ -277,7 +270,8 @@ namespace EndlessClient.Rendering.Map
 
         private void DrawBaseLayers(SpriteBatch spriteBatch)
         {
-            var offset = _quakeState.HasValue ? _quakeState.Value.Offset : 0;
+            var offset = _quakeState.Map(qs => qs.Offset).Match(some: o => o, none: () => 0);
+
             var renderBounds = _mapRenderDistanceCalculator.CalculateRenderBounds(_characterProvider.MainCharacter, _currentMapProvider.CurrentMap);
 
             for (var row = renderBounds.FirstRow; row <= renderBounds.LastRow; row++)
@@ -318,7 +312,7 @@ namespace EndlessClient.Rendering.Map
         {
             if (!_configurationProvider.ShowTransition)
             {
-                _mapTransitionState = new MapTransitionState(Optional<DateTime>.Empty, 0);
+                _mapTransitionState = new MapTransitionState(Option.None<DateTime>(), 0);
                 return 255;
             }
 
@@ -326,7 +320,7 @@ namespace EndlessClient.Rendering.Map
             var metric = Math.Max(Math.Abs(objX - character.RenderProperties.MapX),
                                   Math.Abs(objY - character.RenderProperties.MapY));
 
-            int alpha;
+            int alpha = 0;
             if (!_mapTransitionState.StartTime.HasValue ||
                 metric < _mapTransitionState.TransitionMetric ||
                 _mapTransitionState.TransitionMetric == 0)
@@ -335,11 +329,15 @@ namespace EndlessClient.Rendering.Map
             }
             else if (metric == _mapTransitionState.TransitionMetric)
             {
-                var ms = (DateTime.Now - _mapTransitionState.StartTime).TotalMilliseconds;
-                alpha = (int)Math.Round(ms / TRANSITION_TIME_MS * 255);
+                _mapTransitionState.StartTime
+                    .MatchSome(startTime =>
+                    {
+                        var ms = (DateTime.Now - startTime).TotalMilliseconds;
+                        alpha = (int)Math.Round(ms / TRANSITION_TIME_MS * 255);
 
-                if (ms / TRANSITION_TIME_MS >= 1)
-                    _mapTransitionState = new MapTransitionState(DateTime.Now, _mapTransitionState.TransitionMetric + 1);
+                        if (ms / TRANSITION_TIME_MS >= 1)
+                            _mapTransitionState = new MapTransitionState(Option.Some(DateTime.Now), _mapTransitionState.TransitionMetric + 1);
+                    });
             }
             else
                 alpha = 0;
@@ -363,13 +361,13 @@ namespace EndlessClient.Rendering.Map
 
     internal struct MapTransitionState
     {
-        internal static MapTransitionState Default => new MapTransitionState(Optional<DateTime>.Empty, 0);
+        internal static MapTransitionState Default => new MapTransitionState(Option.None<DateTime>(), 0);
 
-        internal Optional<DateTime> StartTime { get; }
+        internal Option<DateTime> StartTime { get; }
 
         internal int TransitionMetric { get; }
 
-        internal MapTransitionState(Optional<DateTime> startTime, int transitionMetric)
+        internal MapTransitionState(Option<DateTime> startTime, int transitionMetric)
             : this()
         {
             StartTime = startTime;
