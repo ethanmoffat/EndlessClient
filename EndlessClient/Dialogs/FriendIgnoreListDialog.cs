@@ -100,9 +100,9 @@ namespace EndlessClient.Dialogs
 
             Instance = dlg;
 
-            List<OnlineEntry> onlineList;
-            apiHandle.RequestOnlinePlayers(false, out onlineList);
-            Instance.SetActiveItemList(onlineList.Select(_oe => _oe.Name).ToList());
+            //List<OnlineEntry> onlineList;
+            //apiHandle.RequestOnlinePlayers(false, out onlineList);
+            //Instance.SetActiveItemList(onlineList.Select(_oe => _oe.Name).ToList());
 
             EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, isIgnoreList ? EOResourceID.STATUS_LABEL_IGNORE_LIST : EOResourceID.STATUS_LABEL_FRIEND_LIST,
                 OldWorld.GetString(EOResourceID.STATUS_LABEL_USE_RIGHT_MOUSE_CLICK_DELETE));

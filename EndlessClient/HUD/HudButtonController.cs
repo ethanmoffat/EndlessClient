@@ -1,4 +1,8 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.ControlSets;
+using EndlessClient.HUD.Controls;
+using EndlessClient.HUD.Panels;
+using EOLib.Domain.Online;
 
 namespace EndlessClient.HUD
 {
@@ -6,10 +10,16 @@ namespace EndlessClient.HUD
     public class HudButtonController : IHudButtonController
     {
         private readonly IHudStateActions _hudStateActions;
+        private readonly IOnlinePlayerActions _onlinePlayerActions;
+        private readonly IHudControlProvider _hudControlProvider;
 
-        public HudButtonController(IHudStateActions hudStateActions)
+        public HudButtonController(IHudStateActions hudStateActions,
+                                   IOnlinePlayerActions onlinePlayerActions,
+                                   IHudControlProvider hudControlProvider)
         {
             _hudStateActions = hudStateActions;
+            _onlinePlayerActions = onlinePlayerActions;
+            _hudControlProvider = hudControlProvider;
         }
 
         public void ClickInventory()
@@ -42,9 +52,13 @@ namespace EndlessClient.HUD
             _hudStateActions.SwitchToState(InGameStates.Stats);
         }
 
-        public void ClickOnlineList()
+        public async void ClickOnlineList()
         {
+            var onlinePlayers = await _onlinePlayerActions.GetOnlinePlayersAsync(fullList: true);
             _hudStateActions.SwitchToState(InGameStates.OnlineList);
+
+            _hudControlProvider.GetComponent<OnlineListPanel>(HudControlIdentifier.OnlineListPanel)
+                .UpdateOnlinePlayers(onlinePlayers);
         }
 
         public void ClickParty()

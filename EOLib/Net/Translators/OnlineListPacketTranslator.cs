@@ -18,7 +18,7 @@ namespace EOLib.Net.Translators
 
         public IOnlineListData TranslatePacket(IPacket packet)
         {
-            var reply = (InitReply)packet.ReadByte();
+            var reply = (InitReply)packet.ReadChar();
 
             if (reply != InitReply.AllPlayersList && reply != InitReply.FriendPlayersList)
                 throw new MalformedPacketException($"Expected online list or friend list init data, but was {reply}", packet);
