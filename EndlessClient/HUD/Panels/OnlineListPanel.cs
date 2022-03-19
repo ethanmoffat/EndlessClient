@@ -9,7 +9,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Optional.Unsafe;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using XNAControls;
@@ -118,6 +117,9 @@ namespace EndlessClient.HUD.Panels
                 PreviousMouseState.LeftButton == ButtonState.Pressed)
             {
                 _filter = (Filter)(((int)_filter + 1) % (int)Filter.Max);
+                if (_filter == Filter.Party) // todo: show this when guild/party is supported
+                    _filter = (Filter)(((int)_filter + 1) % (int)Filter.Max);
+
                 _scrollBar.ScrollToTop();
 
                 switch (_filter)
