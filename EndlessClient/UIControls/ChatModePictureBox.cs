@@ -64,7 +64,7 @@ namespace EndlessClient.UIControls
                 },
                 none: () =>
                 {
-                    if (SingleCharTypedOrDeleted())
+                    if (AtLeastOneCharTypedOrDeleted())
                     {
                         UpdateSourceRectangleForMode(_chatModeCalculator.CalculateMode(ChatTextBox.Text));
                         _lastChat = ChatTextBox.Text;
@@ -74,11 +74,11 @@ namespace EndlessClient.UIControls
             base.OnUpdateControl(gameTime);
         }
 
-        private bool SingleCharTypedOrDeleted()
+        private bool AtLeastOneCharTypedOrDeleted()
         {
             return _hudControlProvider.IsInGame &&
-                   ((_lastChat.Length == 0 && ChatTextBox.Text.Length == 1) ||
-                    (_lastChat.Length == 1 && ChatTextBox.Text.Length == 0));
+                   ((_lastChat.Length == 0 && ChatTextBox.Text.Length > 0) ||
+                    (_lastChat.Length > 0 && ChatTextBox.Text.Length == 0));
         }
 
         private void UpdateSourceRectangleForMode(ChatMode mode)

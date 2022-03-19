@@ -1,4 +1,6 @@
-﻿using EndlessClient.UIControls;
+﻿using EndlessClient.ControlSets;
+using EndlessClient.HUD.Controls;
+using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Online;
 using EOLib.Extensions;
@@ -7,6 +9,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Optional.Unsafe;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using XNAControls;
@@ -24,7 +27,11 @@ namespace EndlessClient.HUD.Panels
             Max
         }
 
+        private const int DRAW_NAME_X = 18,
+                          DRAW_OFFSET_Y = 23;
+
         private readonly INativeGraphicsManager _nativeGraphicsManager;
+        private readonly IHudControlProvider _hudControlProvider;
         private readonly SpriteFont _chatFont;
 
         private readonly List<OnlinePlayerInfo> _onlineList;
@@ -39,9 +46,11 @@ namespace EndlessClient.HUD.Panels
         private List<OnlinePlayerInfo> _filteredList;
 
         public OnlineListPanel(INativeGraphicsManager nativeGraphicsManager,
+                               IHudControlProvider hudControlProvider,
                                SpriteFont chatFont)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
+            _hudControlProvider = hudControlProvider;
             _chatFont = chatFont;
             _onlineList = new List<OnlinePlayerInfo>();
 
@@ -96,6 +105,7 @@ namespace EndlessClient.HUD.Panels
 
             _totalNumberOfPlayers.Text = $"{_onlineList.Count}";
             _scrollBar.UpdateDimensions(_onlineList.Count);
+            _scrollBar.ScrollToTop();
 
             // todo: friend/ignore lists
             //m_friendList = InteractList.LoadAllFriend();
@@ -103,9 +113,9 @@ namespace EndlessClient.HUD.Panels
 
         protected override void OnUpdateControl(GameTime gameTime)
         {
-            var curState = Mouse.GetState();
-
-            if (_filterClickArea.ContainsPoint(curState.X, curState.Y) && curState.LeftButton == ButtonState.Released && PreviousMouseState.LeftButton == ButtonState.Pressed)
+            if (_filterClickArea.ContainsPoint(CurrentMouseState.X, CurrentMouseState.Y) &&
+                CurrentMouseState.LeftButton == ButtonState.Released &&
+                PreviousMouseState.LeftButton == ButtonState.Pressed)
             {
                 _filter = (Filter)(((int)_filter + 1) % (int)Filter.Max);
                 _scrollBar.ScrollToTop();
@@ -118,7 +128,24 @@ namespace EndlessClient.HUD.Panels
                     // todo: implement for party/guild
                     case Filter.Party: _filteredList.Clear(); break;
                     case Filter.All:
-                    default: _filteredList = _onlineList; break;
+                    default: _filteredList = new List<OnlinePlayerInfo>(_onlineList); break;
+                }
+
+                _scrollBar.UpdateDimensions(_filteredList.Count);
+            }
+            else if (CurrentMouseState.RightButton == ButtonState.Released &&
+                PreviousMouseState.RightButton == ButtonState.Pressed)
+            {
+                var mousePos = CurrentMouseState.Position;
+                if (mousePos.X >= DrawAreaWithParentOffset.X + DRAW_NAME_X && mousePos.X <= _scrollBar.DrawAreaWithParentOffset.X &&
+                    mousePos.Y >= DrawAreaWithParentOffset.Y + DRAW_OFFSET_Y && mousePos.Y <= DrawAreaWithParentOffset.Y + DrawAreaWithParentOffset.Height)
+                {
+                    var index = (mousePos.Y - (DrawAreaWithParentOffset.Y + DRAW_OFFSET_Y)) / 13;
+                    if (index >= 0 && index <= _filteredList.Count)
+                    {
+                        var name = _filteredList[_scrollBar.ScrollOffset + index].Name;
+                        _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox).Text = $"!{name} ";
+                    }
                 }
             }
 
@@ -130,11 +157,9 @@ namespace EndlessClient.HUD.Panels
             base.OnDrawControl(gameTime);
 
             const int DRAW_ICON_X = 4,
-                      DRAW_NAME_X = 18,
                       DRAW_TITLE_X = 133,
                       DRAW_GUILD_X = 245,
-                      DRAW_CLASS_X = 359,
-                      DRAW_OFFSET_Y = 23;
+                      DRAW_CLASS_X = 359;
 
 
             _spriteBatch.Begin();
