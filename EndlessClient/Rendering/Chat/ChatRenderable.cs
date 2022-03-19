@@ -1,7 +1,9 @@
 using EOLib.Domain.Chat;
+using EOLib.Extensions;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Optional.Unsafe;
 
 namespace EndlessClient.Rendering.Chat
 {
@@ -75,7 +77,8 @@ namespace EndlessClient.Rendering.Chat
 
         private static Rectangle? GetChatIconRectangle(ChatIcon icon)
         {
-            return icon == ChatIcon.None ? Rectangle.Empty : new Rectangle(0, (int)icon * 13, 13, 13);
+            var (x, y, width, height) = icon.GetChatIconRectangleBounds().ValueOrDefault();
+            return new Rectangle(x, y, width, height);
         }
     }
 

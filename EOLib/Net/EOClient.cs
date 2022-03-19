@@ -114,10 +114,6 @@ namespace EOLib.Net
         /// Set to 'true' when a file is requested. Changes handling for received data
         /// </summary>
         internal bool ExpectingFile { get; set; }
-        /// <summary>
-        /// Set to 'true' when online player list is requested. Changes handling for received data
-        /// </summary>
-        internal bool ExpectingPlayerList { get; set; }
 
         public EOClient(IPacketProcessActions packetProcessActions)
         {

@@ -27,7 +27,6 @@ namespace EndlessClient.HUD.Controls
 
         private readonly OldChatRenderer chatRenderer;
         private OldEOInventory inventory;
-        private readonly OldEOOnlineList m_whoIsOnline;
         private readonly OldEOPartyPanel m_party;
         private OldActiveSpells activeSpells;
 
@@ -51,7 +50,6 @@ namespace EndlessClient.HUD.Controls
 
             CreateChatTextbox();
 
-            //m_whoIsOnline = new OldEOOnlineList(pnlOnline);
             //m_party = new OldEOPartyPanel(pnlParty);
 
             m_friendList = new XNAButton(((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 27, false, true),

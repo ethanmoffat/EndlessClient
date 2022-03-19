@@ -100,7 +100,8 @@ namespace EndlessClient.HUD.Panels
 
         public OnlineListPanel CreateOnlineListPanel()
         {
-            return new OnlineListPanel(_nativeGraphicsManager) { DrawOrder = HUD_CONTROL_LAYER };
+            var chatFont = _contentManagerProvider.Content.Load<SpriteFont>(Constants.FontSize08);
+            return new OnlineListPanel(_nativeGraphicsManager, _hudControlProvider, chatFont) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public PartyPanel CreatePartyPanel()
