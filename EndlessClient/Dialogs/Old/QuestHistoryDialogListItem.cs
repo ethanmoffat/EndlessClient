@@ -6,9 +6,9 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls.Old;
 
-namespace EndlessClient.Dialogs
+namespace EndlessClient.Dialogs.Old
 {
-    public class QuestHistoryDialogListItem : ListDialogItem
+    public class QuestHistoryDialogListItem : OldListDialogItem
     {
         public string QuestName
         {
@@ -23,7 +23,7 @@ namespace EndlessClient.Dialogs
 
         private readonly bool _constructorFinished;
 
-        public QuestHistoryDialogListItem(ScrollingListDialog parent, int index = -1)
+        public QuestHistoryDialogListItem(OldScrollingListDialog parent, int index = -1)
             : base(parent, ListItemStyle.Small, index)
         {
             m_iconTexture = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 68, true);

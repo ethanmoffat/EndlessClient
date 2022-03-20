@@ -8,9 +8,9 @@ using EOLib.Localization;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 
-namespace EndlessClient.Dialogs
+namespace EndlessClient.Dialogs.Old
 {
-    public class LockerDialog : ScrollingListDialog
+    public class LockerDialog : OldScrollingListDialog
     {
         public static LockerDialog Instance { get; private set; }
 
@@ -37,7 +37,7 @@ namespace EndlessClient.Dialogs
         {
             Title = string.Format(TITLE_FMT, 0);
             Buttons = ScrollingListDialogButtons.Cancel;
-            ListItemType = ListDialogItem.ListItemStyle.Large;
+            ListItemType = OldListDialogItem.ListItemStyle.Large;
             X = x;
             Y = y;
 
@@ -50,12 +50,12 @@ namespace EndlessClient.Dialogs
             items = lockerItems;
             Title = string.Format(TITLE_FMT, lockerItems.Count);
 
-            List<ListDialogItem> listItems = new List<ListDialogItem>();
+            List<OldListDialogItem> listItems = new List<OldListDialogItem>();
             foreach (InventoryItem item in lockerItems)
             {
                 var rec = OldWorld.Instance.EIF[item.ItemID];
                 int amount = item.Amount;
-                ListDialogItem newItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large)
+                OldListDialogItem newItem = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Large)
                 {
                     Text = rec.Name,
                     SubText =

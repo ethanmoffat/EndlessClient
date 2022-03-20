@@ -9,9 +9,9 @@ using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 using XNADialogResult = XNAControls.Old.XNADialogResult;
 
-namespace EndlessClient.Dialogs
+namespace EndlessClient.Dialogs.Old
 {
-    public class SkillmasterDialog : ScrollingListDialog
+    public class SkillmasterDialog : OldScrollingListDialog
     {
         public static SkillmasterDialog Instance { get; private set; }
 
@@ -49,7 +49,7 @@ namespace EndlessClient.Dialogs
             : base(api)
         {
             Buttons = ScrollingListDialogButtons.Cancel;
-            ListItemType = ListDialogItem.ListItemStyle.Large;
+            ListItemType = OldListDialogItem.ListItemStyle.Large;
             DialogClosing += (o, e) =>
             {
                 if (e.Result == XNADialogResult.Cancel)
@@ -93,7 +93,7 @@ namespace EndlessClient.Dialogs
         {
             if (Instance == null || this != Instance) return;
 
-            ListDialogItem itemToRemove = children.OfType<ListDialogItem>().FirstOrDefault(_x => _x.ID == id);
+            OldListDialogItem itemToRemove = children.OfType<OldListDialogItem>().FirstOrDefault(_x => _x.ID == id);
             if(itemToRemove != null)
                 RemoveFromList(itemToRemove);
         }
@@ -121,7 +121,7 @@ namespace EndlessClient.Dialogs
                     string learnNum = $"{numToLearn}{OldWorld.GetString(EOResourceID.SKILLMASTER_ITEMS_TO_LEARN)}";
                     string forgetNum = $"{numToForget}{OldWorld.GetString(EOResourceID.SKILLMASTER_ITEMS_LEARNED)}";
 
-                    ListDialogItem learn = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
+                    OldListDialogItem learn = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Large, 0)
                     {
                         Text = OldWorld.GetString(EOResourceID.SKILLMASTER_WORD_LEARN),
                         SubText = learnNum,
@@ -133,7 +133,7 @@ namespace EndlessClient.Dialogs
                     learn.OnRightClick += (o, e) => _setState(SkillState.Learn);
                     AddItemToList(learn, false);
 
-                    ListDialogItem forget = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 1)
+                    OldListDialogItem forget = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Large, 1)
                     {
                         Text = OldWorld.GetString(EOResourceID.SKILLMASTER_WORD_FORGET),
                         SubText = forgetNum,
@@ -145,7 +145,7 @@ namespace EndlessClient.Dialogs
                     forget.OnRightClick += (o, e) => _setState(SkillState.Forget);
                     AddItemToList(forget, false);
 
-                    ListDialogItem forgetAll = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 2)
+                    OldListDialogItem forgetAll = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Large, 2)
                     {
                         Text = OldWorld.GetString(EOResourceID.SKILLMASTER_FORGET_ALL),
                         SubText = OldWorld.GetString(EOResourceID.SKILLMASTER_RESET_YOUR_CHARACTER),
@@ -171,7 +171,7 @@ namespace EndlessClient.Dialogs
 
                         var spellData = OldWorld.Instance.ESF[m_skills[localI].ID];
 
-                        ListDialogItem nextListItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, index++)
+                        OldListDialogItem nextListItem = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Large, index++)
                         {
                             Visible = false,
                             Text = spellData.Name,
@@ -322,7 +322,7 @@ namespace EndlessClient.Dialogs
 
             foreach (string s in drawStrings)
             {
-                ListDialogItem nextLine = new ListDialogItem(this, ListDialogItem.ListItemStyle.Small) { Text = s };
+                OldListDialogItem nextLine = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Small) { Text = s };
                 AddItemToList(nextLine, false);
             }
         }
@@ -379,7 +379,7 @@ namespace EndlessClient.Dialogs
                 drawStrings.Add(" ");
             }
 
-            //now need to take the processed draw strings and make an ListDialogItem for each one
+            //now need to take the processed draw strings and make an OldListDialogItem for each one
             foreach (string s in drawStrings)
             {
                 string next = s;
@@ -389,7 +389,7 @@ namespace EndlessClient.Dialogs
                     next = next.Remove(0, 1);
                     link = true;
                 }
-                ListDialogItem nextItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Small) { Text = next };
+                OldListDialogItem nextItem = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Small) { Text = next };
                 if (link) nextItem.SetPrimaryTextLink(forgetAllAction);
                 AddItemToList(nextItem, false);
             }

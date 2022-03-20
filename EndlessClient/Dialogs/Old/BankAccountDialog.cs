@@ -9,7 +9,7 @@ using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using XNAControls.Old;
 
-namespace EndlessClient.Dialogs
+namespace EndlessClient.Dialogs.Old
 {
     public class BankAccountDialog : EODialogBase
     {
@@ -61,7 +61,7 @@ namespace EndlessClient.Dialogs
             cancel.SetParent(this);
             cancel.OnClick += (o, e) => Close(cancel, XNADialogResult.Cancel);
 
-            ListDialogItem deposit = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
+            OldListDialogItem deposit = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Large, 0)
             {
                 Text = OldWorld.GetString(EOResourceID.DIALOG_BANK_DEPOSIT),
                 SubText =
@@ -72,7 +72,7 @@ namespace EndlessClient.Dialogs
             };
             deposit.OnLeftClick += (o, e) => _deposit();
             deposit.OnRightClick += (o, e) => _deposit();
-            ListDialogItem withdraw = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 1)
+            OldListDialogItem withdraw = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Large, 1)
             {
                 Text = OldWorld.GetString(EOResourceID.DIALOG_BANK_WITHDRAW),
                 SubText =
@@ -83,7 +83,7 @@ namespace EndlessClient.Dialogs
             };
             withdraw.OnLeftClick += (o, e) => _withdraw();
             withdraw.OnRightClick += (o, e) => _withdraw();
-            ListDialogItem upgrade = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 2)
+            OldListDialogItem upgrade = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Large, 2)
             {
                 Text = OldWorld.GetString(EOResourceID.DIALOG_BANK_LOCKER_UPGRADE),
                 SubText = OldWorld.GetString(EOResourceID.DIALOG_BANK_MORE_SPACE),

@@ -14,7 +14,7 @@ using XNADialogResult = XNAControls.Old.XNADialogResult;
 using XNALabel = XNAControls.Old.XNALabel;
 using XNATextBox = XNAControls.Old.XNATextBox;
 
-namespace EndlessClient.Dialogs
+namespace EndlessClient.Dialogs.Old
 {
     public class ItemTransferDialog : EODialogBase
     {

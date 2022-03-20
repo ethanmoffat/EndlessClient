@@ -5,9 +5,9 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls.Old;
 
-namespace EndlessClient.Dialogs
+namespace EndlessClient.Dialogs.Old
 {
-    public class QuestProgressDialogListItem : ListDialogItem
+    public class QuestProgressDialogListItem : OldListDialogItem
     {
         public int QuestContextIcon { get; set; }
 
@@ -40,7 +40,7 @@ namespace EndlessClient.Dialogs
 
         private readonly bool _constructorFinished;
 
-        public QuestProgressDialogListItem(ScrollingListDialog parent, int index = -1)
+        public QuestProgressDialogListItem(OldScrollingListDialog parent, int index = -1)
             : base(parent, ListItemStyle.Small, index)
         {
             m_iconTexture = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 68, true);

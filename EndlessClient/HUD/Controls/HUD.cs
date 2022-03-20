@@ -80,12 +80,12 @@ namespace EndlessClient.HUD.Controls
                 new Vector2(55, 0),
                 new Rectangle(331, 30, 22, 14),
                 new Rectangle(331, 30, 22, 14)) {DrawOrder = HUD_CONTROL_DRAW_ORDER};
-            m_expInfo.OnClick += (o, e) => SessionExpDialog.Show();
+            m_expInfo.OnClick += (o, e) => Dialogs.Old.SessionExpDialog.Show();
             m_questInfo = new XNAButton(((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 58),
                 new Vector2(77, 0),
                 new Rectangle(353, 30, 22, 14),
                 new Rectangle(353, 30, 22, 14)) {DrawOrder = HUD_CONTROL_DRAW_ORDER};
-            m_questInfo.OnClick += (o, e) => QuestProgressDialog.Show(m_packetAPI);
+            m_questInfo.OnClick += (o, e) => Dialogs.Old.QuestProgressDialog.Show(m_packetAPI);
 
             //no need to make this a member variable
             //it does not have any resources to dispose and it is automatically disposed by the framework
