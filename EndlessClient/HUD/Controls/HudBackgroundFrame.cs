@@ -40,6 +40,8 @@ namespace EndlessClient.HUD.Controls
         {
             _spriteBatch.Begin();
 
+            _spriteBatch.Draw(_filler, new Rectangle(0, 400, 640, 80), Color.White);
+
             _spriteBatch.Draw(_topBar, new Vector2(49, 7), Color.White);
             _spriteBatch.Draw(_mainFrame, Vector2.Zero, Color.White);
             _spriteBatch.Draw(_topLeft, Vector2.Zero, Color.White);
