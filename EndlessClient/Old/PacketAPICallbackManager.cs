@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using EndlessClient.Audio;
 using EndlessClient.Dialogs;
-using EOLib;
+using EndlessClient.Dialogs.Old;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Map;

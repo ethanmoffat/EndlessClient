@@ -1,128 +1,92 @@
 ﻿using System;
-using EndlessClient.Old;
 using EOLib;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient.Dialogs
 {
     public class ListDialogItem : XNAControl
     {
-        private static readonly object disposingLock = new object();
-        private bool m_disposing;
+        private int _index;
+        private int _xOffset, _yOffset;
 
-        /// <summary>
-        /// Optional item ID to use for this List Item Record
-        /// </summary>
-        public short ID { get; set; }
-        /// <summary>
-        /// Optional item amount to use for this List Item Record
-        /// </summary>
-        public int Amount { get; set; }
+        private IXNALabel _primaryText;
+        private IXNALabel _subText;
 
-        private int m_index;
-        /// <summary>
-        /// Get or Set the index within the parent control. 
-        /// </summary>
+        private readonly Texture2D _gfxPadThing;
+        private readonly Texture2D _backgroundColor;
+
+        private bool _drawBackground;
+
         public int Index
         {
-            get { return m_index; }
+            get { return _index; }
             set
             {
-                m_index = value;
-                DrawLocation = new Vector2(DrawLocation.X, OffsetY + (m_index * (Style == ListItemStyle.Large ? 36 : 16)));
+                _index = value;
+                DrawPosition = new Vector2(DrawPosition.X, OffsetY + (_index * (Style == ListItemStyle.Large ? 36 : 16)));
             }
         }
-
-        private int m_xOffset, m_yOffset;
 
         public int OffsetX
         {
             get
             {
-                return m_xOffset;
+                return _xOffset;
             }
             set
             {
-                int oldOff = m_xOffset;
-                m_xOffset = value;
-                DrawLocation = DrawLocation + new Vector2(m_xOffset - oldOff, 0);
+                int oldOff = _xOffset;
+                _xOffset = value;
+                DrawPosition += new Vector2(_xOffset - oldOff, 0);
             }
         }
 
-        /// <summary>
-        /// Starting Y Offset to draw list item controls
-        /// </summary>
         public int OffsetY
         {
             get
             {
-                return m_yOffset;
+                return _yOffset;
             }
             set
             {
-                int oldOff = m_yOffset;
-                m_yOffset = value;
-                DrawLocation = DrawLocation + new Vector2(0, m_yOffset - oldOff);
+                int oldOff = _yOffset;
+                _yOffset = value;
+                DrawPosition += new Vector2(0, _yOffset - oldOff);
             }
         }
 
-        /// <summary>
-        /// Style of the control - either small (single text row) or large (graphic w/two rows of text)
-        /// </summary>
         public ListItemStyle Style { get; set; }
 
-        /// <summary>
-        /// For Large style control, sets whether or not the item graphic has a background image (ie red pad thing)
-        /// </summary>
-        public bool ShowItemBackGround { get; set; }
-
-        /// <summary>
-        /// Get or set the primary text
-        /// </summary>
-        public string Text
+        public string PrimaryText
         {
-            get { return m_primaryText.Text; }
+            get { return _primaryText.Text; }
             set
             {
-                m_primaryText.Text = value;
-                m_primaryText.ResizeBasedOnText();
+                _primaryText.Text = value;
+                _primaryText.ResizeBasedOnText();
             }
         }
 
-        /// <summary>
-        /// Get or set the secondary text
-        /// </summary>
         public string SubText
         {
-            get { return m_secondaryText.Text; }
+            get { return _subText.Text; }
             set
             {
-                m_secondaryText.Text = value;
-                m_secondaryText.ResizeBasedOnText();
+                _subText.Text = value;
+                _subText.ResizeBasedOnText();
             }
         }
 
-        public Texture2D IconGraphic
-        {
-            get { return m_gfxItem; }
-            set { m_gfxItem = value; }
-        }
+        public Texture2D IconGraphic { get; set; }
+
+        public bool ShowIconBackGround { get; set; }
 
         public event EventHandler OnRightClick;
         public event EventHandler OnLeftClick;
-
-        protected XNALabel m_primaryText;
-        protected XNALabel m_secondaryText;
-
-        private readonly Texture2D m_gfxPadThing;
-        private Texture2D m_gfxItem;
-        private readonly Texture2D m_backgroundColor;
-        private bool m_drawBackground;
-        private bool m_rightClicked;
 
         public enum ListItemStyle
         {
@@ -130,190 +94,177 @@ namespace EndlessClient.Dialogs
             Large
         }
 
-        public ListDialogItem(EODialogBase parent, ListItemStyle style, int listIndex = -1)
+        public ListDialogItem(ScrollingListDialog parent, ListItemStyle style, int listIndex = -1)
         {
-            DrawLocation = new Vector2(17, DrawLocation.Y); //the base X coordinate is 17 - this can be adjusted with OffsetX property
+            DrawPosition += new Vector2(17, 0);
 
             Style = style;
             if (listIndex >= 0)
                 Index = listIndex;
 
-            _setSize(232, Style == ListItemStyle.Large ? 36 : 13);
+            SetSize(232, Style == ListItemStyle.Large ? 36 : 13);
 
             int colorFactor = Style == ListItemStyle.Large ? 0xc8 : 0xb4;
 
-            m_primaryText = new XNALabel(new Rectangle(Style == ListItemStyle.Large ? 56 : 2, Style == ListItemStyle.Large ? 5 : 0, 1, 1), Constants.FontSize08pt5)
+            _primaryText = new XNALabel(Constants.FontSize08pt5)
             {
                 AutoSize = false,
                 BackColor = Color.Transparent,
                 ForeColor = Color.FromNonPremultiplied(colorFactor, colorFactor, colorFactor, 0xff),
+                DrawPosition = Style == ListItemStyle.Large ? new Vector2(56, 5) : new Vector2(2, 0),
                 TextAlign = LabelAlignment.TopLeft,
                 Text = " "
             };
-            m_primaryText.ResizeBasedOnText();
+            _primaryText.ResizeBasedOnText();
+            _primaryText.SetParentControl(this);
+            _primaryText.Initialize();
 
-            if (Style == ListItemStyle.Large)
+            _subText = new XNALabel(Constants.FontSize08pt5)
             {
-                m_secondaryText = new XNALabel(new Rectangle(56, 20, 1, 1), Constants.FontSize08pt5)
-                {
-                    AutoSize = true,
-                    BackColor = m_primaryText.BackColor,
-                    ForeColor = m_primaryText.ForeColor,
-                    Text = " "
-                };
-                m_secondaryText.ResizeBasedOnText();
+                AutoSize = true,
+                BackColor = _primaryText.BackColor,
+                ForeColor = _primaryText.ForeColor,
+                DrawPosition = new Vector2(56, 20),
+                Text = " ",
+                Visible = Style == ListItemStyle.Large
+            };
+            _subText.ResizeBasedOnText();
+            _subText.SetParentControl(this);
+            _subText.Initialize();
 
-                m_gfxPadThing = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.MapTiles, 0, true);
-                ShowItemBackGround = true;
-            }
-            m_backgroundColor = new Texture2D(Game.GraphicsDevice, 1, 1);
-            m_backgroundColor.SetData(new[] { Color.FromNonPremultiplied(0xff, 0xff, 0xff, 64) });
+            _gfxPadThing = parent.GraphicsManager.TextureFromResource(GFXTypes.MapTiles, 0, true);
+            ShowIconBackGround = Style == ListItemStyle.Large;
 
-            SetParent(parent);
-            m_primaryText.SetParent(this);
-            if (Style == ListItemStyle.Large)
-            {
-                m_secondaryText.SetParent(this);
-            }
+            _backgroundColor = new Texture2D(Game.GraphicsDevice, 1, 1);
+            _backgroundColor.SetData(new[] { Color.White });
+
+            SetParentControl(parent);
+
             OffsetY = Style == ListItemStyle.Large ? 25 : 45;
         }
 
-        /// <summary>
-        /// turns the primary text into a link that performs the specified action. When Style is Small, the entire item becomes clickable.
-        /// </summary>
-        /// <param name="onClickAction">The action to perform</param>
-        public void SetPrimaryTextLink(Action onClickAction)
+        public void SetPrimaryClickAction(EventHandler onClickAction)
         {
-            if (m_primaryText == null)
-                return;
-            XNALabel oldText = m_primaryText;
-            m_primaryText = new XNAHyperLink(oldText.DrawArea, Constants.FontSize08pt5)
+            var oldText = _primaryText;
+            _primaryText = new XNAHyperLink(Constants.FontSize08pt5)
             {
                 AutoSize = false,
                 BackColor = oldText.BackColor,
+                DrawArea = oldText.DrawArea,
                 ForeColor = oldText.ForeColor,
-                HighlightColor = oldText.ForeColor,
+                MouseOverColor = oldText.ForeColor,
                 Text = oldText.Text,
                 Underline = true
             };
-            m_primaryText.ResizeBasedOnText();
-            ((XNAHyperLink)m_primaryText).OnClick += (o, e) => onClickAction();
-            m_primaryText.SetParent(this);
-            oldText.Close();
+            _primaryText.ResizeBasedOnText();
+
+            ((XNAHyperLink)_primaryText).OnClick += onClickAction;
+
+            _primaryText.SetParentControl(this);
+            _primaryText.Initialize();
+
+            oldText.Dispose();
 
             if (Style == ListItemStyle.Small)
-                OnLeftClick += (o, e) => onClickAction();
+                OnLeftClick += onClickAction;
         }
 
-        //turns the subtext into a link that performs the specified action
-        public void SetSubtextLink(Action onClickAction)
+        public void SetSubtextClickAction(EventHandler onClickAction)
         {
-            if (m_secondaryText == null || Style == ListItemStyle.Small)
-                return;
-            XNALabel oldText = m_secondaryText;
-            m_secondaryText = new XNAHyperLink(oldText.DrawArea, Constants.FontSize08pt5)
+            if (Style == ListItemStyle.Small)
+                throw new InvalidOperationException("Unable to set subtext click action when style is Small");
+
+            var oldText = _subText;
+            _subText = new XNAHyperLink(Constants.FontSize08pt5)
             {
                 AutoSize = false,
                 BackColor = oldText.BackColor,
+                DrawArea = oldText.DrawArea,
                 ForeColor = oldText.ForeColor,
-                HighlightColor = oldText.ForeColor,
+                MouseOverColor = oldText.ForeColor,
                 Text = oldText.Text,
                 Underline = true
             };
-            m_secondaryText.ResizeBasedOnText();
-            ((XNAHyperLink)m_secondaryText).OnClick += (o, e) => onClickAction();
-            m_secondaryText.SetParent(this);
-            oldText.Close();
+            _subText.ResizeBasedOnText();
+
+            ((XNAHyperLink)_subText).OnClick += onClickAction;
+
+            _subText.SetParentControl(this);
+            _subText.Initialize();
+
+            oldText.Dispose();
         }
 
-        public override void Update(GameTime gameTime)
+        public void Highlight()
         {
-            if (!Visible || !Game.IsActive) return;
+            _primaryText.ForeColor = Color.FromNonPremultiplied(0xf0, 0xf0, 0xf0, 0xff);
+        }
 
-            lock (disposingLock)
+        protected override void OnUpdateControl(GameTime gameTime)
+        {
+            base.OnUpdateControl(gameTime);
+
+            if (MouseOver && MouseOverPreviously)
             {
-                if (m_disposing) return;
-
-                MouseState ms = Mouse.GetState();
-
-                if (MouseOver && MouseOverPreviously)
+                _drawBackground = true;
+                if (CurrentMouseState.RightButton == ButtonState.Released &&
+                    PreviousMouseState.RightButton == ButtonState.Pressed)
                 {
-                    m_drawBackground = true;
-                    if (ms.RightButton == ButtonState.Pressed)
-                    {
-                        m_rightClicked = true;
-                    }
-
-                    if (m_rightClicked && ms.RightButton == ButtonState.Released && OnRightClick != null)
-                    {
-                        OnRightClick(this, null);
-                        m_rightClicked = false;
-                    }
-                    else if (PreviousMouseState.LeftButton == ButtonState.Pressed && ms.LeftButton == ButtonState.Released &&
-                             OnLeftClick != null)
-                    {
-                        //If the sub text is a hyperlink and the mouse is over it do the click event for the sub text and not for this item
-                        if (m_secondaryText is XNAHyperLink && m_secondaryText.MouseOver)
-                            ((XNAHyperLink)m_secondaryText).Click();
-                        else
-                            OnLeftClick(this, null);
-                    }
+                    OnRightClick?.Invoke(this, EventArgs.Empty);
                 }
-                else
+                else if(CurrentMouseState.LeftButton == ButtonState.Released &&
+                        PreviousMouseState.LeftButton == ButtonState.Pressed)
                 {
-                    m_drawBackground = false;
+                    // todo: this might cause the click event to be fired twice, need to double check it
+                    if (_subText is XNAHyperLink && _subText.MouseOver)
+                        ((XNAHyperLink)_subText).Click();
+                    else
+                        OnLeftClick(this, EventArgs.Empty);
                 }
-
-                base.Update(gameTime);
+            }
+            else
+            {
+                _drawBackground = false;
             }
         }
 
-        public override void Draw(GameTime gameTime)
+        protected override void OnDrawControl(GameTime gameTime)
         {
-            if (!Visible) return;
+            base.OnDrawControl(gameTime);
 
-            lock (disposingLock)
+            _spriteBatch.Begin();
+            if (_drawBackground)
             {
-                if (m_disposing)
-                    return;
-                SpriteBatch.Begin();
-                if (m_drawBackground)
-                {
-                    //Rectangle backgroundRect = new Rectangle(DrawAreaWithOffset.X + OffsetX, DrawAreaWithOffset.Y + OffsetY, DrawAreaWithOffset.Width, DrawAreaWithOffset.Height);
-                    SpriteBatch.Draw(m_backgroundColor, DrawAreaWithOffset, Color.White);
-                }
-                if (Style == ListItemStyle.Large)
-                {
-                    //The area for showing these is 64x36px: center the icon and background accordingly
-                    Vector2 offset = new Vector2(xOff + OffsetX + 14/*not sure of the significance of this offset*/, yOff + OffsetY + 36 * Index);
-                    if (ShowItemBackGround)
-                        SpriteBatch.Draw(m_gfxPadThing, new Vector2(offset.X + ((64 - m_gfxPadThing.Width) / 2f), offset.Y + (36 - m_gfxPadThing.Height) / 2f), Color.White);
-                    if (m_gfxItem != null)
-                        SpriteBatch.Draw(m_gfxItem,
-                            new Vector2((float)Math.Round(offset.X + ((64 - m_gfxItem.Width) / 2f)),
-                                (float)Math.Round(offset.Y + (36 - m_gfxItem.Height) / 2f)),
-                            Color.White);
-                }
-                SpriteBatch.End();
-                base.Draw(gameTime);
+                _spriteBatch.Draw(_backgroundColor, DrawAreaWithParentOffset, Color.FromNonPremultiplied(255, 255, 255, 64));
             }
+
+            if (Style == ListItemStyle.Large)
+            {
+                var offset = new Vector2(OffsetX + 14, OffsetY + 36 * Index);
+
+                if (ShowIconBackGround)
+                {
+                    _spriteBatch.Draw(_gfxPadThing, DrawPositionWithParentOffset + offset + GetCoordsFromGraphic(_gfxPadThing), Color.White);
+                }
+
+                if (IconGraphic != null)
+                {
+                    _spriteBatch.Draw(IconGraphic, DrawPositionWithParentOffset + offset + GetCoordsFromGraphic(IconGraphic), Color.White);
+                }
+            }
+
+            _spriteBatch.End();
         }
 
-        public void SetActive()
+        private static Vector2 GetCoordsFromGraphic(Texture2D sourceTexture)
         {
-            m_primaryText.ForeColor = Color.FromNonPremultiplied(0xf0, 0xf0, 0xf0, 0xff);
+            return new Vector2((float)Math.Round((64 - sourceTexture.Width) / 2f), (float)Math.Round((36 - sourceTexture.Height) / 2f));
         }
 
         protected override void Dispose(bool disposing)
         {
-            lock (disposingLock)
-            {
-                m_disposing = true;
-                if (disposing)
-                {
-                    m_backgroundColor.Dispose();
-                }
-            }
+            if (disposing)
+                _backgroundColor.Dispose();
 
             base.Dispose(disposing);
         }

@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using EndlessClient.Controllers;
-using EndlessClient.HUD;
+﻿using EndlessClient.Controllers;
+using EndlessClient.Dialogs;
 using EndlessClient.Input;
 using EOLib;
 using EOLib.Domain.Character;
-using EOLib.Domain.Extensions;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
@@ -19,6 +14,9 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Optional;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using XNAControls;
 
 namespace EndlessClient.Rendering
@@ -46,6 +44,7 @@ namespace EndlessClient.Rendering
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IMapInteractionController _mapInteractionController;
         private readonly IUserInputProvider _userInputProvider;
+        private readonly IActiveDialogProvider _activeDialogProvider;
         private readonly XNALabel _mapItemText;
 
         private Rectangle _drawArea;
@@ -66,7 +65,8 @@ namespace EndlessClient.Rendering
                                    IEIFFileProvider eifFileProvider,
                                    ICurrentMapProvider currentMapProvider,
                                    IMapInteractionController mapInteractionController,
-                                   IUserInputProvider userInputProvider)
+                                   IUserInputProvider userInputProvider,
+                                   IActiveDialogProvider activeDialogProvider)
         {
             _mouseCursorTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 24, true);
             _characterProvider = characterProvider;
@@ -77,7 +77,7 @@ namespace EndlessClient.Rendering
             _currentMapProvider = currentMapProvider;
             _mapInteractionController = mapInteractionController;
             _userInputProvider = userInputProvider;
-
+            _activeDialogProvider = activeDialogProvider;
             SingleCursorFrameArea = new Rectangle(0, 0,
                                                   _mouseCursorTexture.Width/(int) CursorIndex.NumberOfFramesInSheet,
                                                   _mouseCursorTexture.Height);
@@ -103,7 +103,7 @@ namespace EndlessClient.Rendering
         public override async void Update(GameTime gameTime)
         {
             // prevents updates if there is a dialog
-            if (!ShouldUpdate()) return;
+            if (!ShouldUpdate() || _activeDialogProvider.ActiveDialogs.Any(x => x.HasValue)) return;
 
             // todo: don't do anything if there is a context menu and mouse is over context menu
 

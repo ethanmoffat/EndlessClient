@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using EndlessClient.Dialogs;
+using EndlessClient.Dialogs.Old;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering;
 using EOLib.Config;
@@ -288,7 +289,6 @@ namespace EndlessClient.Old
             control.IgnoreDialog(typeof(BankAccountDialog));
             control.IgnoreDialog(typeof(LockerDialog));
             control.IgnoreDialog(typeof(TradeDialog));
-            control.IgnoreDialog(typeof(FriendIgnoreListDialog));
             control.IgnoreDialog(typeof(SkillmasterDialog));
             control.IgnoreDialog(typeof(QuestDialog));
             control.IgnoreDialog(typeof(QuestProgressDialog));

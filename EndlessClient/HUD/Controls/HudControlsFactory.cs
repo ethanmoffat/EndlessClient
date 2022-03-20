@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using AutomaticTypeMapper;
 using EndlessClient.Content;
 using EndlessClient.Controllers;
@@ -127,7 +128,10 @@ namespace EndlessClient.HUD.Controls
                 {HudControlIdentifier.MacroButton, CreateStateChangeButton(InGameStates.Macro)},
                 {HudControlIdentifier.SettingsButton, CreateStateChangeButton(InGameStates.Settings)},
                 {HudControlIdentifier.HelpButton, CreateStateChangeButton(InGameStates.Help)},
-                
+
+                {HudControlIdentifier.FriendList, CreateFriendListButton()},
+                {HudControlIdentifier.IgnoreList, CreateIgnoreListButton()},
+
                 {HudControlIdentifier.NewsPanel, CreateStatePanel(InGameStates.News)},
                 {HudControlIdentifier.InventoryPanel, CreateStatePanel(InGameStates.Inventory)},
                 {HudControlIdentifier.ActiveSpellsPanel, CreateStatePanel(InGameStates.ActiveSpells)},
@@ -189,14 +193,46 @@ namespace EndlessClient.HUD.Controls
             {
                 DrawOrder = HUD_CONTROL_LAYER
             };
-            retButton.OnClick += (o, e) => DoHudStateChangeClick(whichState);
+            retButton.OnClick += async (o, e) => await DoHudStateChangeClick(whichState);
             retButton.OnMouseEnter += (o, e) => _statusLabelSetter.SetStatusLabel(
                 EOResourceID.STATUS_LABEL_TYPE_BUTTON,
                 EOResourceID.STATUS_LABEL_HUD_BUTTON_HOVER_FIRST + buttonIndex);
             return retButton;
         }
 
-        private void DoHudStateChangeClick(InGameStates whichState)
+        private IXNAButton CreateFriendListButton()
+        {
+            var button = new XNAButton(
+                _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 27, false),
+                new Vector2(592, 312),
+                new Rectangle(0, 260, 17, 15),
+                new Rectangle(0, 276, 17, 15))
+            {
+                DrawOrder = HUD_CONTROL_LAYER
+            };
+            button.OnClick += async (o, e) => await _hudButtonController.ClickFriendList();
+            button.OnMouseOver += (o, e) => _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_BUTTON, EOResourceID.STATUS_LABEL_FRIEND_LIST);
+
+            return button;
+        }
+
+        private IXNAButton CreateIgnoreListButton()
+        {
+            var button = new XNAButton(
+                _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 27, false),
+                new Vector2(609, 312),
+                new Rectangle(17, 260, 17, 15),
+                new Rectangle(17, 276, 17, 15))
+            {
+                DrawOrder = HUD_CONTROL_LAYER
+            };
+            button.OnClick += async (o, e) => await _hudButtonController.ClickIgnoreList();
+            button.OnMouseOver += (o, e) => _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_BUTTON, EOResourceID.STATUS_LABEL_IGNORE_LIST);
+
+            return button;
+        }
+
+        private async Task DoHudStateChangeClick(InGameStates whichState)
         {
             switch (whichState)
             {
@@ -213,7 +249,7 @@ namespace EndlessClient.HUD.Controls
                     _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_STATS_PANEL_NOW_VIEWED);
                     break;
                 case InGameStates.OnlineList:
-                    _hudButtonController.ClickOnlineList();
+                    await _hudButtonController.ClickOnlineList();
                     _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_ONLINE_PLAYERS_NOW_VIEWED);
                     break;
                 case InGameStates.Party: _hudButtonController.ClickParty(); break;

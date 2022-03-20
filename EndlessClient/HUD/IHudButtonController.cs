@@ -1,4 +1,6 @@
-﻿namespace EndlessClient.HUD
+﻿using System.Threading.Tasks;
+
+namespace EndlessClient.HUD
 {
     public interface IHudButtonController
     {
@@ -14,7 +16,7 @@
 
         void ClickStats();
 
-        void ClickOnlineList();
+        Task ClickOnlineList();
 
         void ClickParty();
 
@@ -22,7 +24,9 @@
 
         void ClickHelp();
 
-        //friend/ignore
+        Task ClickFriendList();
+
+        Task ClickIgnoreList();
 
         //E/Q
     }

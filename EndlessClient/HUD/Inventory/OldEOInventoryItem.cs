@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using EndlessClient.Dialogs;
+using EndlessClient.Dialogs.Old;
 using EndlessClient.HUD.Panels.Old;
 using EndlessClient.Old;
 using EOLib;
