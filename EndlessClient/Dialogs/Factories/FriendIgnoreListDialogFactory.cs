@@ -4,7 +4,9 @@ using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Old;
+using EndlessClient.Services;
 using EndlessClient.UIControls;
+using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.Localization;
@@ -25,6 +27,7 @@ namespace EndlessClient.Dialogs.Factories
         private readonly IHudControlProvider _hudControlProvider;
         private readonly ITextInputDialogFactory _textInputDialogFactory;
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
+        private readonly IFriendIgnoreListService _friendIgnoreListService;
 
         public FriendIgnoreListDialogFactory(IGameStateProvider gameStateProvider,
                                              INativeGraphicsManager nativeGraphicsManager,
@@ -33,7 +36,8 @@ namespace EndlessClient.Dialogs.Factories
                                              ICharacterProvider characterProvider,
                                              IHudControlProvider hudControlProvider,
                                              ITextInputDialogFactory textInputDialogFactory,
-                                             IEOMessageBoxFactory eoMessageBoxFactory)
+                                             IEOMessageBoxFactory eoMessageBoxFactory,
+                                             IFriendIgnoreListService friendIgnoreListService)
         {
             _gameStateProvider = gameStateProvider;
             _nativeGraphicsManager = nativeGraphicsManager;
@@ -43,12 +47,12 @@ namespace EndlessClient.Dialogs.Factories
             _hudControlProvider = hudControlProvider;
             _textInputDialogFactory = textInputDialogFactory;
             _eoMessageBoxFactory = eoMessageBoxFactory;
+            _friendIgnoreListService = friendIgnoreListService;
         }
 
         public ScrollingListDialog Create(bool isFriendList)
         {
-            // todo: refactor InteractList
-            var textFileLines = isFriendList ? InteractList.LoadAllFriend() : InteractList.LoadAllIgnore();
+            var textFileLines = _friendIgnoreListService.LoadList(isFriendList ? Constants.FriendListFile : Constants.IgnoreListFile);
 
             var dialog = new ScrollingListDialog(_gameStateProvider, _nativeGraphicsManager, _dialogButtonService)
             {
@@ -67,9 +71,9 @@ namespace EndlessClient.Dialogs.Factories
             dialog.DialogClosing += (_, _) =>
             {
                 if (isFriendList)
-                    InteractList.WriteFriendList(dialog.NamesList);
+                    _friendIgnoreListService.SaveFriends(Constants.FriendListFile, dialog.NamesList);
                 else
-                    InteractList.WriteIgnoreList(dialog.NamesList);
+                    _friendIgnoreListService.SaveIgnored(Constants.IgnoreListFile, dialog.NamesList);
             };
 
             return dialog;

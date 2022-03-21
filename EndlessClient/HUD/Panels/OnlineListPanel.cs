@@ -1,5 +1,6 @@
 ﻿using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
+using EndlessClient.Services;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Online;
@@ -9,6 +10,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Optional.Unsafe;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using XNAControls;
@@ -31,6 +33,7 @@ namespace EndlessClient.HUD.Panels
 
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IHudControlProvider _hudControlProvider;
+        private readonly IFriendIgnoreListService _friendIgnoreListService;
         private readonly SpriteFont _chatFont;
 
         private readonly List<OnlinePlayerInfo> _onlineList;
@@ -43,13 +46,16 @@ namespace EndlessClient.HUD.Panels
 
         private Filter _filter;
         private List<OnlinePlayerInfo> _filteredList;
+        private IReadOnlyList<string> _friendList;
 
         public OnlineListPanel(INativeGraphicsManager nativeGraphicsManager,
                                IHudControlProvider hudControlProvider,
+                               IFriendIgnoreListService friendIgnoreListService,
                                SpriteFont chatFont)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _hudControlProvider = hudControlProvider;
+            _friendIgnoreListService = friendIgnoreListService;
             _chatFont = chatFont;
             _onlineList = new List<OnlinePlayerInfo>();
 
@@ -106,8 +112,7 @@ namespace EndlessClient.HUD.Panels
             _scrollBar.UpdateDimensions(_onlineList.Count);
             _scrollBar.ScrollToTop();
 
-            // todo: friend/ignore lists
-            //m_friendList = InteractList.LoadAllFriend();
+            _friendList = _friendIgnoreListService.LoadList(Constants.FriendListFile);
         }
 
         protected override void OnUpdateControl(GameTime gameTime)
@@ -124,8 +129,7 @@ namespace EndlessClient.HUD.Panels
 
                 switch (_filter)
                 {
-                    // todo: friend/ignore lists
-                    case Filter.Friends: _filteredList.Clear(); break;
+                    case Filter.Friends: _filteredList = _onlineList.Where(x => _friendList.Contains(x.Name, StringComparer.InvariantCultureIgnoreCase)).ToList(); break;
                     case Filter.Admins: _filteredList = _onlineList.Where(IsAdminIcon).ToList(); break;
                     // todo: implement for party/guild
                     case Filter.Party: _filteredList.Clear(); break;
