@@ -10,6 +10,7 @@ using EOLib.Graphics;
 using EOLib.Localization;
 using System;
 using System.Linq;
+using XNAControls;
 
 namespace EndlessClient.Dialogs.Factories
 {
@@ -22,13 +23,17 @@ namespace EndlessClient.Dialogs.Factories
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly ICharacterProvider _characterProvider;
         private readonly IHudControlProvider _hudControlProvider;
+        private readonly ITextInputDialogFactory _textInputDialogFactory;
+        private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
 
         public FriendIgnoreListDialogFactory(IGameStateProvider gameStateProvider,
                                              INativeGraphicsManager nativeGraphicsManager,
                                              IEODialogButtonService dialogButtonService,
                                              ILocalizedStringFinder localizedStringFinder,
                                              ICharacterProvider characterProvider,
-                                             IHudControlProvider hudControlProvider)
+                                             IHudControlProvider hudControlProvider,
+                                             ITextInputDialogFactory textInputDialogFactory,
+                                             IEOMessageBoxFactory eoMessageBoxFactory)
         {
             _gameStateProvider = gameStateProvider;
             _nativeGraphicsManager = nativeGraphicsManager;
@@ -36,36 +41,30 @@ namespace EndlessClient.Dialogs.Factories
             _localizedStringFinder = localizedStringFinder;
             _characterProvider = characterProvider;
             _hudControlProvider = hudControlProvider;
+            _textInputDialogFactory = textInputDialogFactory;
+            _eoMessageBoxFactory = eoMessageBoxFactory;
         }
 
         public ScrollingListDialog Create(bool isFriendList)
         {
             // todo: refactor InteractList
             var textFileLines = isFriendList ? InteractList.LoadAllFriend() : InteractList.LoadAllIgnore();
-            var friendOrIgnoreStr = _localizedStringFinder.GetString(isFriendList ? EOResourceID.STATUS_LABEL_FRIEND_LIST : EOResourceID.STATUS_LABEL_IGNORE_LIST);
 
             var dialog = new ScrollingListDialog(_gameStateProvider, _nativeGraphicsManager, _dialogButtonService)
             {
-                Title = $"{_characterProvider.MainCharacter.Name}'s {friendOrIgnoreStr} [{textFileLines.Count}]",
                 Buttons = ScrollingListDialogButtons.AddCancel,
                 ListItemType = ListDialogItem.ListItemStyle.Small,
             };
 
             var listItems = textFileLines.Select(x => new ListDialogItem(dialog, ListDialogItem.ListItemStyle.Small) { PrimaryText = x }).ToList();
             foreach (var item in listItems)
-            {
-                item.OnLeftClick += (o, e) => _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox).Text = $"!{item.PrimaryText} ";
-                item.OnRightClick += (o, e) =>
-                {
-                    dialog.RemoveFromList(item);
-                    dialog.Title = $"{_characterProvider.MainCharacter.Name}'s {friendOrIgnoreStr} [{dialog.NamesList.Count}]";
-                };
-            }
+                SetClickEventHandlers(item, dialog, isFriendList);
             dialog.SetItemList(listItems);
 
-            dialog.AddAction += InvokeAdd;
+            dialog.Title = GetDialogTitle(dialog, isFriendList);
 
-            dialog.CloseAction += (_, _) =>
+            dialog.AddAction += (_, _) => InvokeAdd(isFriendList, dialog);
+            dialog.DialogClosing += (_, _) =>
             {
                 if (isFriendList)
                     InteractList.WriteFriendList(dialog.NamesList);
@@ -76,48 +75,57 @@ namespace EndlessClient.Dialogs.Factories
             return dialog;
         }
 
-        private void InvokeAdd(object sender, EventArgs e)
+        private void InvokeAdd(bool isFriendList, ScrollingListDialog parentDialog)
         {
-            //e.CancelClose = true;
-            //string prompt = OldWorld.GetString(isIgnoreList ? EOResourceID.DIALOG_WHO_TO_MAKE_IGNORE : EOResourceID.DIALOG_WHO_TO_MAKE_FRIEND);
-            //TextInputDialog dlgInput = new TextInputDialog(prompt);
-            //dlgInput.DialogClosing += (_o, _e) =>
-            //{
-            //    if (_e.Result == XNADialogResult.Cancel) return;
+            string prompt = _localizedStringFinder.GetString(isFriendList ? EOResourceID.DIALOG_WHO_TO_MAKE_FRIEND : EOResourceID.DIALOG_WHO_TO_MAKE_IGNORE);
+            var inputDialog = _textInputDialogFactory.Create(prompt);
 
-            //    if (dlgInput.ResponseText.Length < 4)
-            //    {
-            //        _e.CancelClose = true;
-            //        EOMessageBox.Show(DialogResourceID.CHARACTER_CREATE_NAME_TOO_SHORT);
-            //        dlgInput.SetAsKeyboardSubscriber();
-            //        return;
-            //    }
+            inputDialog.DialogClosing += (_, e) =>
+            {
+                if (e.Result == XNADialogResult.Cancel)
+                    return;
 
-            //    if (dlg.NamesList.FindIndex(name => name.ToLower() == dlgInput.ResponseText.ToLower()) >= 0)
-            //    {
-            //        _e.CancelClose = true;
-            //        EOMessageBox.Show("You are already friends with that person!", "Invalid entry!", EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-            //        dlgInput.SetAsKeyboardSubscriber();
-            //        return;
-            //    }
+                if (inputDialog.ResponseText.Length < 4)
+                {
+                    e.Cancel = true;
+                    var messageBox = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.CHARACTER_CREATE_NAME_TOO_SHORT);
+                    messageBox.ShowDialog();
+                    return;
+                }
 
-            //    ListDialogItem newItem = new ListDialogItem(dlg, ListDialogItem.ListItemStyle.Small)
-            //    {
-            //        PrimaryText = dlgInput.ResponseText
-            //    };
-            //    newItem.OnLeftClick += (oo, ee) => EOGame.Instance.Hud.SetChatText("!" + newItem.PrimaryText + " ");
-            //    newItem.OnRightClick += (oo, ee) =>
-            //    {
-            //        dlg.RemoveFromList(newItem);
-            //        dlg.Title = string.Format("{0}'s {2} [{1}]",
-            //            charName,
-            //            dlg.NamesList.Count,
-            //            OldWorld.GetString(isIgnoreList ? EOResourceID.STATUS_LABEL_IGNORE_LIST : EOResourceID.STATUS_LABEL_FRIEND_LIST));
-            //    };
-            //    dlg.AddItemToList(newItem, true);
-            //    dlg.Title = string.Format("{0}'s {2} [{1}]", charName, dlg.NamesList.Count,
-            //        OldWorld.GetString(isIgnoreList ? EOResourceID.STATUS_LABEL_IGNORE_LIST : EOResourceID.STATUS_LABEL_FRIEND_LIST));
-            //};
+                if (parentDialog.NamesList.Any(name => string.Equals(name, inputDialog.ResponseText, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    e.Cancel = true;
+                    var messageBox = _eoMessageBoxFactory.CreateMessageBox("You are already friends with that person!", "Invalid entry!", EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                    messageBox.ShowDialog();
+                    return;
+                }
+
+                var charName = char.ToUpper(inputDialog.ResponseText[0]) + inputDialog.ResponseText.Substring(1);
+                var newItem = new ListDialogItem(parentDialog, ListDialogItem.ListItemStyle.Small) { PrimaryText = charName };
+                SetClickEventHandlers(newItem, parentDialog, isFriendList);
+
+                parentDialog.AddItemToList(newItem, sortList: true);
+                parentDialog.Title = GetDialogTitle(parentDialog, isFriendList);
+            };
+
+            inputDialog.ShowDialog();
+        }
+
+        private void SetClickEventHandlers(ListDialogItem item, ScrollingListDialog dialog, bool isFriendList)
+        {
+            item.LeftClick += (o, e) => _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox).Text = $"!{item.PrimaryText} ";
+            item.RightClick += (o, e) =>
+            {
+                dialog.RemoveFromList(item);
+                dialog.Title = GetDialogTitle(dialog, isFriendList);
+            };
+        }
+
+        private string GetDialogTitle(ScrollingListDialog dialog, bool isFriendList)
+        {
+            var friendOrIgnoreStr = _localizedStringFinder.GetString(isFriendList ? EOResourceID.STATUS_LABEL_FRIEND_LIST : EOResourceID.STATUS_LABEL_IGNORE_LIST);
+            return $"{_characterProvider.MainCharacter.Name}'s {friendOrIgnoreStr} [{dialog.NamesList.Count}]";
         }
     }
 

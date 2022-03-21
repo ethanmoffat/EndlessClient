@@ -22,7 +22,7 @@ namespace EndlessClient.Dialogs.Actions
             _activeDialogRepository.FriendIgnoreDialog.MatchNone(() =>
             {
                 var dlg = _friendIgnoreListDialogFactory.Create(isFriendList: true);
-                dlg.CloseAction += (_, _) => _activeDialogRepository.FriendIgnoreDialog = Option.None<ScrollingListDialog>();
+                dlg.DialogClosed += (_, _) => _activeDialogRepository.FriendIgnoreDialog = Option.None<ScrollingListDialog>();
                 _activeDialogRepository.FriendIgnoreDialog = Option.Some(dlg);
 
                 dlg.Show();
@@ -34,7 +34,7 @@ namespace EndlessClient.Dialogs.Actions
             _activeDialogRepository.FriendIgnoreDialog.MatchNone(() =>
             {
                 var dlg = _friendIgnoreListDialogFactory.Create(isFriendList: false);
-                dlg.CloseAction += (_, _) => _activeDialogRepository.FriendIgnoreDialog = Option.None<ScrollingListDialog>();
+                dlg.DialogClosed += (_, _) => _activeDialogRepository.FriendIgnoreDialog = Option.None<ScrollingListDialog>();
                 _activeDialogRepository.FriendIgnoreDialog = Option.Some(dlg);
 
                 dlg.Show();

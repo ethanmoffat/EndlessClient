@@ -19,6 +19,8 @@ namespace EndlessClient.Dialogs
         private readonly Texture2D _gfxPadThing;
         private readonly Texture2D _backgroundColor;
 
+        private readonly ScrollingListDialog _parentList;
+
         private bool _drawBackground;
 
         public int Index
@@ -85,8 +87,8 @@ namespace EndlessClient.Dialogs
 
         public bool ShowIconBackGround { get; set; }
 
-        public event EventHandler OnRightClick;
-        public event EventHandler OnLeftClick;
+        public event EventHandler RightClick;
+        public event EventHandler LeftClick;
 
         public enum ListItemStyle
         {
@@ -96,6 +98,8 @@ namespace EndlessClient.Dialogs
 
         public ListDialogItem(ScrollingListDialog parent, ListItemStyle style, int listIndex = -1)
         {
+            _parentList = parent;
+
             DrawPosition += new Vector2(17, 0);
 
             Style = style;
@@ -166,7 +170,7 @@ namespace EndlessClient.Dialogs
             oldText.Dispose();
 
             if (Style == ListItemStyle.Small)
-                OnLeftClick += onClickAction;
+                LeftClick += onClickAction;
         }
 
         public void SetSubtextClickAction(EventHandler onClickAction)
@@ -208,9 +212,11 @@ namespace EndlessClient.Dialogs
             {
                 _drawBackground = true;
                 if (CurrentMouseState.RightButton == ButtonState.Released &&
-                    PreviousMouseState.RightButton == ButtonState.Pressed)
+                    PreviousMouseState.RightButton == ButtonState.Pressed &&
+                    !_parentList.ChildControlClickHandled)
                 {
-                    OnRightClick?.Invoke(this, EventArgs.Empty);
+                    RightClick?.Invoke(this, EventArgs.Empty);
+                    _parentList.ChildControlClickHandled = true;
                 }
                 else if(CurrentMouseState.LeftButton == ButtonState.Released &&
                         PreviousMouseState.LeftButton == ButtonState.Pressed)
@@ -219,7 +225,9 @@ namespace EndlessClient.Dialogs
                     if (_subText is XNAHyperLink && _subText.MouseOver)
                         ((XNAHyperLink)_subText).Click();
                     else
-                        OnLeftClick(this, EventArgs.Empty);
+                        LeftClick?.Invoke(this, EventArgs.Empty);
+
+                    _parentList.ChildControlClickHandled = true;
                 }
             }
             else

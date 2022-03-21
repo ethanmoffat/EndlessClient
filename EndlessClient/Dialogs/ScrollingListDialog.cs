@@ -72,7 +72,7 @@ namespace EndlessClient.Dialogs
 
         public event EventHandler BackAction;
 
-        public event EventHandler<XNADialogResult> CloseAction;
+        public bool ChildControlClickHandled { get; set; }
 
         static ScrollingListDialog()
         {
@@ -107,7 +107,7 @@ namespace EndlessClient.Dialogs
                 Visible = false
             };
             _add.SetParentControl(this);
-            _add.OnClick += AddAction;
+            _add.OnClick += (o, e) => AddAction?.Invoke(o, e);
 
             _back = new XNAButton(dialogButtonService.SmallButtonSheet,
                 new Vector2(48, 252),
@@ -117,7 +117,7 @@ namespace EndlessClient.Dialogs
                 Visible = false
             };
             _back.SetParentControl(this);
-            _back.OnClick += BackAction;
+            _back.OnClick += (o, e) => BackAction?.Invoke(o, e);
 
             _cancel = new XNAButton(dialogButtonService.SmallButtonSheet,
                 _cancelButtonRightPosition,
@@ -127,13 +127,9 @@ namespace EndlessClient.Dialogs
                 Visible = true
             };
             _cancel.SetParentControl(this);
-            _cancel.OnClick += (_, _) =>
-            {
-                CloseAction?.Invoke(this, XNADialogResult.Cancel);
-                Close(XNADialogResult.Cancel);
-            };
+            _cancel.OnClick += (_, _) => Close(XNADialogResult.Cancel);
 
-            ItemsToShow = 5;
+            ItemsToShow = ListItemType == ListDialogItem.ListItemStyle.Large ? 5 : 12;
 
             BackgroundTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 52);
 
@@ -183,6 +179,8 @@ namespace EndlessClient.Dialogs
 
             for (int i = 0; i < _listItems.Count; ++i)
                 _listItems[i].Index = i;
+
+            item.Dispose();
         }
 
         public void HighlightTextByLabel(IReadOnlyList<string> activeLabels)
@@ -218,6 +216,8 @@ namespace EndlessClient.Dialogs
         protected override void OnUpdateControl(GameTime gameTime)
         {
             base.OnUpdateControl(gameTime);
+
+            ChildControlClickHandled = false;
 
             if (_listItems.Count > _scrollBar.LinesToRender)
             {
