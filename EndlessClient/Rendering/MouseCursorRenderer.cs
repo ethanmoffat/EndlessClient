@@ -55,7 +55,7 @@ namespace EndlessClient.Rendering
         private Option<DateTime> _startClickTime;
         private CursorIndex _clickFrame;
         private int _clickAlpha;
-        private Rectangle _clickPositionArea;
+        private Option<MapCoordinate> _clickCoordinate;
 
         public MouseCursorRenderer(INativeGraphicsManager nativeGraphicsManager,
                                    ICharacterProvider characterProvider,
@@ -91,6 +91,8 @@ namespace EndlessClient.Rendering
                 AutoSize = false,
                 DrawOrder = 10 //todo: make a better provider for draw orders (see also HudControlsFactory)
             };
+
+            _clickCoordinate = Option.None<MapCoordinate>();
         }
 
         public override void Initialize()
@@ -323,10 +325,14 @@ namespace EndlessClient.Rendering
 
                 if (_startClickTime.HasValue)
                 {
-                    spriteBatch.Draw(_mouseCursorTexture,
-                                     _clickPositionArea.Location.ToVector2() + additionalOffset,
-                                     SingleCursorFrameArea.WithPosition(new Vector2(SingleCursorFrameArea.Width * (int)_clickFrame, 0)),
-                                     Color.FromNonPremultiplied(255, 255, 255, _clickAlpha-=5));
+                    _clickCoordinate.MatchSome(c =>
+                    {
+                        var position = GetDrawCoordinatesFromGridUnits(c.X, c.Y, MainCharacterOffsetX(), MainCharacterOffsetY());
+                        spriteBatch.Draw(_mouseCursorTexture,
+                                         position + additionalOffset,
+                                         SingleCursorFrameArea.WithPosition(new Vector2(SingleCursorFrameArea.Width * (int)_clickFrame, 0)),
+                                         Color.FromNonPremultiplied(255, 255, 255, _clickAlpha -= 5));
+                    });
                 }
             }
         }
@@ -339,7 +345,7 @@ namespace EndlessClient.Rendering
             _startClickTime = Option.Some(DateTime.Now);
             _clickFrame = CursorIndex.ClickFirstFrame;
             _clickAlpha = 200;
-            _clickPositionArea = _drawArea;
+            _clickCoordinate = Option.Some(new MapCoordinate(_gridX, _gridY));
         }
 
         protected override void Dispose(bool disposing)
