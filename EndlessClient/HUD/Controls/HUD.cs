@@ -32,7 +32,7 @@ namespace EndlessClient.HUD.Controls
 
         private ChatTextBox chatTextBox;
 
-        private readonly XNAButton m_friendList, m_ignoreList, m_expInfo, m_questInfo;
+        private readonly XNAButton m_expInfo, m_questInfo;
 
         public DateTime SessionStartTime { get; private set; }
 
@@ -52,40 +52,16 @@ namespace EndlessClient.HUD.Controls
 
             //m_party = new OldEOPartyPanel(pnlParty);
 
-            m_friendList = new XNAButton(((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 27, false, true),
-                new Vector2(592, 312),
-                new Rectangle(0, 260, 17, 15),
-                new Rectangle(0, 276, 17, 15))
-            {
-                Visible = true,
-                Enabled = true,
-                DrawOrder = HUD_CONTROL_DRAW_ORDER
-            };
-            m_friendList.OnClick += (o, e) => FriendIgnoreListDialog.Show(isIgnoreList: false, apiHandle: m_packetAPI);
-            m_friendList.OnMouseOver += (o, e) => SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_BUTTON, EOResourceID.STATUS_LABEL_FRIEND_LIST);
-
-            m_ignoreList = new XNAButton(((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 27, false, true),
-                new Vector2(609, 312),
-                new Rectangle(17, 260, 17, 15),
-                new Rectangle(17, 276, 17, 15))
-            {
-                Visible = true,
-                Enabled = true,
-                DrawOrder = HUD_CONTROL_DRAW_ORDER
-            };
-            m_ignoreList.OnClick += (o, e) => FriendIgnoreListDialog.Show(isIgnoreList: true, apiHandle: m_packetAPI);
-            m_ignoreList.OnMouseOver += (o, e) => SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_BUTTON, EOResourceID.STATUS_LABEL_IGNORE_LIST);
-
             m_expInfo = new XNAButton(((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 58),
                 new Vector2(55, 0),
                 new Rectangle(331, 30, 22, 14),
                 new Rectangle(331, 30, 22, 14)) {DrawOrder = HUD_CONTROL_DRAW_ORDER};
-            m_expInfo.OnClick += (o, e) => SessionExpDialog.Show();
+            m_expInfo.OnClick += (o, e) => Dialogs.Old.SessionExpDialog.Show();
             m_questInfo = new XNAButton(((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 58),
                 new Vector2(77, 0),
                 new Rectangle(353, 30, 22, 14),
                 new Rectangle(353, 30, 22, 14)) {DrawOrder = HUD_CONTROL_DRAW_ORDER};
-            m_questInfo.OnClick += (o, e) => QuestProgressDialog.Show(m_packetAPI);
+            m_questInfo.OnClick += (o, e) => Dialogs.Old.QuestProgressDialog.Show(m_packetAPI);
 
             //no need to make this a member variable
             //it does not have any resources to dispose and it is automatically disposed by the framework
@@ -220,9 +196,6 @@ namespace EndlessClient.HUD.Controls
 
                 inventory.Dispose();
                 chatRenderer.Dispose();
-
-                m_friendList.Close();
-                m_ignoreList.Close();
 
                 m_expInfo.Close();
                 m_questInfo.Close();

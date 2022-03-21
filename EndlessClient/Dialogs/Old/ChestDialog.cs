@@ -11,7 +11,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls.Old;
 
-namespace EndlessClient.Dialogs
+namespace EndlessClient.Dialogs.Old
 {
     //todo: this should derive from ListDialog
     public class ChestDialog : EODialogBase
@@ -36,7 +36,7 @@ namespace EndlessClient.Dialogs
         public byte CurrentChestX { get; }
         public byte CurrentChestY { get; }
 
-        private ListDialogItem[] m_items;
+        private OldListDialogItem[] m_items;
 
         private ChestDialog(PacketAPI api, byte chestX, byte chestY)
             : base(api)
@@ -63,7 +63,7 @@ namespace EndlessClient.Dialogs
         public void InitializeItems(IList<InventoryItem> initialItems)
         {
             if (m_items == null)
-                m_items = new ListDialogItem[5];
+                m_items = new OldListDialogItem[5];
 
             int i = 0;
             if (initialItems.Count > 0)
@@ -81,7 +81,7 @@ namespace EndlessClient.Dialogs
                     string secondary =
                         $"x {item.Amount}  {(rec.Type == ItemType.Armor ? "(" + (rec.Gender == 0 ? OldWorld.GetString(EOResourceID.FEMALE) : OldWorld.GetString(EOResourceID.MALE)) + ")" : "")}";
 
-                    m_items[i] = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, i)
+                    m_items[i] = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Large, i)
                     {
                         Text = rec.Name,
                         SubText = secondary,
@@ -90,7 +90,7 @@ namespace EndlessClient.Dialogs
                     };
                     m_items[i].OnRightClick += (o, e) =>
                     {
-                        ListDialogItem sender = o as ListDialogItem;
+                        OldListDialogItem sender = o as OldListDialogItem;
                         if (sender == null) return;
 
                         if (!EOGame.Instance.Hud.InventoryFits(sender.ID))

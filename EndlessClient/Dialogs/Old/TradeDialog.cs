@@ -14,7 +14,7 @@ using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using XNAControls.Old;
 
-namespace EndlessClient.Dialogs
+namespace EndlessClient.Dialogs.Old
 {
     public class TradeDialog : EODialogBase
     {
@@ -31,7 +31,7 @@ namespace EndlessClient.Dialogs
         private readonly XNALabel m_leftPlayerStatus, m_rightPlayerStatus;
         private readonly OldScrollBar m_leftScroll, m_rightScroll;
         private bool m_leftAgrees, m_rightAgrees;
-        private readonly List<ListDialogItem> m_leftItems, m_rightItems;
+        private readonly List<OldListDialogItem> m_leftItems, m_rightItems;
 
         private readonly OldCharacter m_main; //local reference
 
@@ -52,8 +52,8 @@ namespace EndlessClient.Dialogs
             DialogClosing += (sender, args) => Instance = null;
             m_main = OldWorld.Instance.MainPlayer.ActiveCharacter;
 
-            m_leftItems = new List<ListDialogItem>();
-            m_rightItems = new List<ListDialogItem>();
+            m_leftItems = new List<OldListDialogItem>();
+            m_rightItems = new List<OldListDialogItem>();
 
             m_leftPlayerID = 0;
             m_rightPlayerID = 0;
@@ -138,7 +138,7 @@ namespace EndlessClient.Dialogs
         public void SetPlayerItems(short playerID, List<InventoryItem> items)
         {
             int xOffset;
-            List<ListDialogItem> collectionRef;
+            List<OldListDialogItem> collectionRef;
             OldScrollBar scrollRef;
 
             if (playerID == m_leftPlayerID)
@@ -214,7 +214,7 @@ namespace EndlessClient.Dialogs
                     ? 269 + 2 * (item.Amount >= 100000 ? 4 : (item.Amount >= 10000 ? 3 : (item.Amount >= 100 ? 2 : (item.Amount >= 2 ? 1 : 0))))
                     : 2 * rec.Graphic - 1;
 
-                var nextItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, index++)
+                var nextItem = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Large, index++)
                 {
                     Text = rec.Name,
                     SubText = secondary,
@@ -321,8 +321,8 @@ namespace EndlessClient.Dialogs
                 return;
             }
 
-            List<ListDialogItem> mainCollection = m_main.ID == m_leftPlayerID ? m_leftItems : m_rightItems;
-            List<ListDialogItem> otherCollection = m_main.ID == m_leftPlayerID ? m_rightItems : m_leftItems;
+            List<OldListDialogItem> mainCollection = m_main.ID == m_leftPlayerID ? m_leftItems : m_rightItems;
+            List<OldListDialogItem> otherCollection = m_main.ID == m_leftPlayerID ? m_rightItems : m_leftItems;
 
             //make sure that the items will fit!
             if (!((EOGame)Game).Hud.ItemsFit(
@@ -400,7 +400,7 @@ namespace EndlessClient.Dialogs
 
             //do the hiding logic for both sides
             List<OldScrollBar> scrollBars = new List<OldScrollBar> { m_leftScroll, m_rightScroll };
-            List<List<ListDialogItem>> lists = new List<List<ListDialogItem>> { m_leftItems, m_rightItems };
+            List<List<OldListDialogItem>> lists = new List<List<OldListDialogItem>> { m_leftItems, m_rightItems };
             for (int ndx = 0; ndx < 2; ++ndx)
             {
                 var list = lists[ndx];
@@ -411,7 +411,7 @@ namespace EndlessClient.Dialogs
                 {
                     for (int i = 0; i < list.Count; ++i)
                     {
-                        ListDialogItem curr = list[i];
+                        OldListDialogItem curr = list[i];
                         if (i < scroll.ScrollOffset)
                         {
                             curr.Visible = false;

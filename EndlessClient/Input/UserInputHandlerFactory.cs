@@ -1,5 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Controllers;
+using EndlessClient.Dialogs;
 using EndlessClient.GameExecution;
 using EOLib.Domain.Map;
 
@@ -15,6 +16,7 @@ namespace EndlessClient.Input
         private readonly IControlKeyController _controlKeyController;
         private readonly IFunctionKeyController _functionKeyController;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
+        private readonly IActiveDialogProvider _activeDialogProvider;
 
         public UserInputHandlerFactory(IEndlessGameProvider endlessGameProvider,
                                        IUserInputProvider userInputProvider,
@@ -22,7 +24,8 @@ namespace EndlessClient.Input
                                        IArrowKeyController arrowKeyController,
                                        IControlKeyController controlKeyController,
                                        IFunctionKeyController functionKeyController,
-                                       ICurrentMapStateProvider  currentMapStateProvider)
+                                       ICurrentMapStateProvider  currentMapStateProvider,
+                                       IActiveDialogProvider activeDialogProvider)
         {
             _endlessGameProvider = endlessGameProvider;
             _userInputProvider = userInputProvider;
@@ -31,6 +34,7 @@ namespace EndlessClient.Input
             _controlKeyController = controlKeyController;
             _functionKeyController = functionKeyController;
             _currentMapStateProvider = currentMapStateProvider;
+            _activeDialogProvider = activeDialogProvider;
         }
 
         public IUserInputHandler CreateUserInputHandler()
@@ -41,7 +45,8 @@ namespace EndlessClient.Input
                                         _arrowKeyController,
                                         _controlKeyController,
                                         _functionKeyController,
-                                        _currentMapStateProvider);
+                                        _currentMapStateProvider,
+                                        _activeDialogProvider);
         }
     }
 

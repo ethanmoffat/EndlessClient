@@ -190,8 +190,8 @@ namespace EndlessClient.Rendering
                 case MenuAction.Invite: return _eventInviteToParty;
                 case MenuAction.Trade: return _eventTrade;
                 case MenuAction.Whisper: return _eventPrivateMessage;
-                case MenuAction.Friend: return _eventAddFriend;
-                case MenuAction.Ignore: return _eventAddIgnore;
+                //case MenuAction.Friend: return _eventAddFriend;
+                //case MenuAction.Ignore: return _eventAddIgnore;
                 default: throw new ArgumentOutOfRangeException(nameof(menuAction));
             }
         }
@@ -265,20 +265,22 @@ namespace EndlessClient.Rendering
                 ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_TRADE_REQUESTED_TO_TRADE);
             }
         }
+
         private void _eventPrivateMessage(object arg1, EventArgs arg2)
         {
             EOGame.Instance.Hud.SetChatText("!" + m_rend.Character.Name);
         }
-        private void _eventAddFriend(object arg1, EventArgs arg2)
-        {
-            EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, m_rend.Character.Name, EOResourceID.STATUS_LABEL_WILL_BE_YOUR_FRIEND);
-            InteractList.WriteNewFriend(m_rend.Character.Name);
-        }
-        private void _eventAddIgnore(object arg1, EventArgs arg2)
-        {
-            EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, m_rend.Character.Name, EOResourceID.STATUS_LABEL_WILL_BE_IGNORED);
-            InteractList.WriteNewIgnore(m_rend.Character.Name);
-        }
+
+        //private void _eventAddFriend(object arg1, EventArgs arg2)
+        //{
+        //    EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, m_rend.Character.Name, EOResourceID.STATUS_LABEL_WILL_BE_YOUR_FRIEND);
+        //    InteractList.WriteNewFriend(m_rend.Character.Name);
+        //}
+        //private void _eventAddIgnore(object arg1, EventArgs arg2)
+        //{
+        //    EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, m_rend.Character.Name, EOResourceID.STATUS_LABEL_WILL_BE_IGNORED);
+        //    InteractList.WriteNewIgnore(m_rend.Character.Name);
+        //}
 
         /* DISPOSABLE PATTERN */
         public new void Dispose()

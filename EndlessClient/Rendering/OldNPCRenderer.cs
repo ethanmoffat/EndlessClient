@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Linq;
-using EndlessClient.Dialogs;
+using EndlessClient.Dialogs.Old;
 using EndlessClient.Old;
-using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Sprites;
 using EOLib;
 using EOLib.Domain.NPC;

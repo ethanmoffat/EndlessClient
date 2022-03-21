@@ -42,6 +42,9 @@ namespace EOLib
         public const string LogFilePath = "log/debug.log";
         public const string LogFileFmt = "log/{0}-debug.log";
 
+        public const string FriendListFile = "config/friends.ini";
+        public const string IgnoreListFile = "config/ignore.ini";
+
         //Should be easily customizable between different clients (based on graphics)
         //not a config option because this shouldn't be exposed at the user level
         public static readonly int[] TrapSpikeGFXObjectIDs = {449, 450, 451, 452};

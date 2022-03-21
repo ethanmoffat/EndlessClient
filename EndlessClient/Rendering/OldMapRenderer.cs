@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using EndlessClient.Audio;
-using EndlessClient.Dialogs;
+using EndlessClient.Dialogs.Old;
 using EndlessClient.Old;
 using EOLib;
 using EOLib.Domain.Character;

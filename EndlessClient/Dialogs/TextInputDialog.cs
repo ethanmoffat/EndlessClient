@@ -1,69 +1,79 @@
-﻿using EndlessClient.Dialogs.Services;
-using EndlessClient.Old;
+﻿using EndlessClient.Content;
+using EndlessClient.Dialogs.Services;
+using EndlessClient.GameExecution;
+using EndlessClient.Input;
 using EOLib;
 using EOLib.Graphics;
-using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
-using XNAButton = XNAControls.Old.XNAButton;
-using XNADialogResult = XNAControls.Old.XNADialogResult;
-using XNALabel = XNAControls.Old.XNALabel;
-using XNATextBox = XNAControls.Old.XNATextBox;
 
 namespace EndlessClient.Dialogs
 {
-    public class TextInputDialog : EODialogBase
+    public class TextInputDialog : BaseEODialog
     {
-        private readonly XNATextBox m_inputBox;
-        private readonly IKeyboardSubscriber previousSubscriber;
+        private readonly IKeyboardDispatcherRepository _keyboardDispatcherRepository;
 
-        public string ResponseText => m_inputBox.Text;
+        private readonly IXNATextBox _inputBox;
+        private readonly IKeyboardSubscriber _previousSubscriber;
 
-        public TextInputDialog(string prompt, int maxInputChars = 12)
-            : base((PacketAPI)null)
+        public string ResponseText => _inputBox.Text;
+
+        public TextInputDialog(IGameStateProvider gameStateProvider,
+                               INativeGraphicsManager nativeGraphicsManager,
+                               IEODialogButtonService eoDialogButtonService,
+                               IKeyboardDispatcherRepository keyboardDispatcherRepository,
+                               IContentManagerProvider contentManagerProvider,
+                               string prompt,
+                               int maxInputChars = 12)
+            : base(gameStateProvider)
         {
-            bgTexture = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 54);
-            _setSize(bgTexture.Width, bgTexture.Height);
+            _keyboardDispatcherRepository = keyboardDispatcherRepository;
 
-            XNALabel lblPrompt = new XNALabel(new Rectangle(16, 20, 235, 49), Constants.FontSize10)
+            BackgroundTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 54);
+            SetSize(BackgroundTexture.Width, BackgroundTexture.Height);
+
+            var lblPrompt = new XNALabel(Constants.FontSize10)
             {
                 AutoSize = false,
+                DrawArea = new Rectangle(16, 20, 235, 49),
                 ForeColor = ColorConstants.LightGrayDialogMessage,
                 TextWidth = 230,
-                RowSpacing = 3,
                 Text = prompt
             };
-            lblPrompt.SetParent(this);
+            lblPrompt.Initialize();
+            lblPrompt.SetParentControl(this);
 
-            //set this back once the dialog is closed.
-            previousSubscriber = ((EOGame)Game).Dispatcher.Subscriber;
-            DialogClosing += (o, e) => ((EOGame)Game).Dispatcher.Subscriber = previousSubscriber;
-
-            m_inputBox = new XNATextBox(new Rectangle(37, 74, 192, 19), EOGame.Instance.Content.Load<Texture2D>("cursor"), Constants.FontSize08)
+            _inputBox = new XNATextBox(new Rectangle(37, 74, 192, 19), Constants.FontSize08, caretTexture: contentManagerProvider.Content.Load<Texture2D>("cursor"))
             {
                 MaxChars = maxInputChars,
                 LeftPadding = 4,
                 TextColor = ColorConstants.LightBeigeText
             };
-            m_inputBox.SetParent(this);
-            EOGame.Instance.Dispatcher.Subscriber = m_inputBox;
+            _inputBox.Initialize();
+            _inputBox.SetParentControl(this);
 
-            XNAButton ok = new XNAButton(smallButtonSheet, new Vector2(41, 103), _getSmallButtonOut(SmallButton.Ok), _getSmallButtonOver(SmallButton.Ok)),
-                cancel = new XNAButton(smallButtonSheet, new Vector2(134, 103), _getSmallButtonOut(SmallButton.Cancel), _getSmallButtonOver(SmallButton.Cancel));
-            ok.OnClick += (o, e) => Close(ok, XNADialogResult.OK);
-            cancel.OnClick += (o, e) => Close(cancel, XNADialogResult.Cancel);
-            ok.SetParent(this);
-            cancel.SetParent(this);
+            _previousSubscriber = _keyboardDispatcherRepository.Dispatcher.Subscriber;
+            _keyboardDispatcherRepository.Dispatcher.Subscriber = _inputBox;
 
-            Center(Game.GraphicsDevice);
-            DrawLocation = new Vector2(DrawLocation.X, 107);
-            endConstructor(false);
-        }
+            var ok = new XNAButton(eoDialogButtonService.SmallButtonSheet,
+                new Vector2(41, 103),
+                eoDialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Ok),
+                eoDialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Ok));
+            ok.OnClick += (_, _) => Close(XNADialogResult.OK);
+            ok.SetParentControl(this);
 
-        public void SetAsKeyboardSubscriber()
-        {
-            ((EOGame)Game).Dispatcher.Subscriber = m_inputBox;
+            var cancel = new XNAButton(eoDialogButtonService.SmallButtonSheet,
+                new Vector2(134, 103),
+                eoDialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Cancel),
+                eoDialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Cancel));
+            cancel.OnClick += (_, _) => Close(XNADialogResult.Cancel);
+            cancel.SetParentControl(this);
+
+            DialogClosed += (_, _) => _keyboardDispatcherRepository.Dispatcher.Subscriber = _previousSubscriber;
+
+            CenterInGameView();
+            DrawPosition += new Vector2(0, 17);
         }
     }
 }

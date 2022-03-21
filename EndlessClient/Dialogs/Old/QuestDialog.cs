@@ -15,9 +15,9 @@ using XNAButton = XNAControls.Old.XNAButton;
 using XNADialogResult = XNAControls.Old.XNADialogResult;
 using XNALabel = XNAControls.Old.XNALabel;
 
-namespace EndlessClient.Dialogs
+namespace EndlessClient.Dialogs.Old
 {
-    public class QuestDialog : ScrollingListDialog
+    public class QuestDialog : OldScrollingListDialog
     {
         public static QuestDialog Instance { get; private set; }
 
@@ -143,7 +143,7 @@ namespace EndlessClient.Dialogs
             int index = 0;
             foreach (var row in rows)
             {
-                ListDialogItem rowItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Small, index++)
+                var rowItem = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Small, index++)
                 {
                     Text = row
                 };
@@ -153,12 +153,12 @@ namespace EndlessClient.Dialogs
             if (_pageIndex < _pages.Count - 1)
                 return;
 
-            ListDialogItem item = new ListDialogItem(this, ListDialogItem.ListItemStyle.Small, index++) { Text = " " };
+            OldListDialogItem item = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Small, index++) { Text = " " };
             AddItemToList(item, false);
 
             foreach (var link in _links)
             {
-                ListDialogItem linkItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Small, index++)
+                OldListDialogItem linkItem = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Small, index++)
                 {
                     Text = link.Value
                 };

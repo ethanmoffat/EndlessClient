@@ -1,7 +1,11 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.HUD.Chat;
 using EndlessClient.Rendering.Character;
+using EndlessClient.Services;
+using EOLib;
 using EOLib.Domain.Notifiers;
+using System;
+using System.Linq;
 
 namespace EndlessClient.Subscribers
 {
@@ -10,12 +14,15 @@ namespace EndlessClient.Subscribers
     {
         private readonly IChatBubbleActions _chatBubbleActions;
         private readonly ICharacterRendererProvider _characterRendererProvider;
+        private readonly IFriendIgnoreListService _friendIgnoreListService;
 
         public OtherCharacterEventSubscriber(IChatBubbleActions chatBubbleActions,
-                                             ICharacterRendererProvider characterRendererProvider)
+                                             ICharacterRendererProvider characterRendererProvider,
+                                             IFriendIgnoreListService friendIgnoreListService)
         {
             _chatBubbleActions = chatBubbleActions;
             _characterRendererProvider = characterRendererProvider;
+            _friendIgnoreListService = friendIgnoreListService;
         }
 
         public void OtherCharacterTakeDamage(int characterID,
@@ -46,6 +53,12 @@ namespace EndlessClient.Subscribers
         private void SaySomethingShared(int characterID, string message, bool isGroupChat)
         {
             if (!_characterRendererProvider.CharacterRenderers.ContainsKey(characterID))
+                return;
+
+            var name = _characterRendererProvider.CharacterRenderers[characterID].Character.Name;
+
+            var ignoreList = _friendIgnoreListService.LoadList(Constants.IgnoreListFile);
+            if (ignoreList.Any(x => x.Equals(name, StringComparison.InvariantCultureIgnoreCase)))
                 return;
 
             _characterRendererProvider.CharacterRenderers[characterID].ShowChatBubble(message, isGroupChat);

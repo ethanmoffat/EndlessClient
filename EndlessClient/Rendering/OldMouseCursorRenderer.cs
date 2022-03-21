@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using EndlessClient.Dialogs;
+using EndlessClient.Dialogs.Old;
 using EndlessClient.Old;
 using EOLib.IO.Map;
 using EOLib.Localization;

@@ -1,14 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using EndlessClient.Dialogs.Services;
-using EndlessClient.Old;
+using EndlessClient.GameExecution;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Graphics;
-using EOLib.Net.API;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient.Dialogs
 {
@@ -19,265 +18,233 @@ namespace EndlessClient.Dialogs
         BackCancel,
     }
 
-    public class ScrollingListDialog : EODialogBase
+    public class ScrollingListDialog : BaseEODialog
     {
-        //needs: - title label
-        //         - scroll bar
-        //         - lower buttons (configurable)
-        //         - list of items (names, like friend list; items, like shop)
-        //ListDialogItem needs way to set width and offsets
+        private static readonly Vector2 _cancelButtonRightPosition, _cancelButtonCenteredPosition;
 
-        private readonly List<ListDialogItem> m_listItems = new List<ListDialogItem>();
-        private readonly object m_listItemLock = new object();
-        protected OldScrollBar m_scrollBar;
+        private readonly List<ListDialogItem> _listItems;
+        protected readonly ScrollBar _scrollBar;
 
-        /// <summary>
-        /// List of strings containing the primary text field of each child item
-        /// </summary>
-        public List<string> NamesList
-        {
-            get
-            {
-                lock (m_listItemLock)
-                    return m_listItems.Select(item => item.Text).ToList();
-            }
-        }
-
-        protected XNALabel m_titleText;
+        protected readonly IXNALabel _titleText;
         private ListDialogItem.ListItemStyle _listItemType;
+
+        protected readonly XNAButton _add, _back, _cancel;
+
         private ScrollingListDialogButtons _buttons;
+
+        public IReadOnlyList<string> NamesList => _listItems.Select(item => item.PrimaryText).ToList();
 
         public string Title
         {
-            get { return m_titleText.Text; }
-            set { m_titleText.Text = value; }
+            get => _titleText.Text;
+            set => _titleText.Text = value;
         }
 
-        /// <summary>
-        /// The number of items to display in the scrolling view at one time when ListItemType is Large
-        /// </summary>
-        public int LargeItemStyleMaxItemDisplay { get; set; }
-
-        /// <summary>
-        /// The number of items to display in the scrolling view at one time when ListItemType is Small
-        /// </summary>
-        public int SmallItemStyleMaxItemDisplay { get; set; }
+        public int ItemsToShow { get; set; }
 
         public ListDialogItem.ListItemStyle ListItemType
         {
-            get { return _listItemType; }
+            get => _listItemType;
             set
             {
                 _listItemType = value;
-                m_scrollBar.LinesToRender = ListItemType == ListDialogItem.ListItemStyle.Small
-                    ? SmallItemStyleMaxItemDisplay
-                    : LargeItemStyleMaxItemDisplay;
+                _scrollBar.LinesToRender = ItemsToShow;
             }
         }
 
         public ScrollingListDialogButtons Buttons
         {
-            get { return _buttons; }
+            get => _buttons;
             set
             {
                 _buttons = value;
-                _setButtons(_buttons);
+                _add.Visible = Buttons == ScrollingListDialogButtons.AddCancel;
+                _back.Visible = Buttons == ScrollingListDialogButtons.BackCancel;
+                _cancel.DrawPosition = Buttons == ScrollingListDialogButtons.Cancel
+                    ? _cancelButtonCenteredPosition
+                    : _cancelButtonRightPosition;
             }
         }
 
-        public ScrollingListDialog(PacketAPI api = null)
-            : base(api)
+        public INativeGraphicsManager GraphicsManager { get; }
+
+        public event EventHandler AddAction;
+
+        public event EventHandler BackAction;
+
+        public bool ChildControlClickHandled { get; set; }
+
+        static ScrollingListDialog()
         {
-            _setBackgroundTexture(((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 52));
+            _cancelButtonRightPosition = new Vector2(144, 252);
+            _cancelButtonCenteredPosition = new Vector2(96, 252);
+        }
 
-            //defaults
-            LargeItemStyleMaxItemDisplay = 5;
-            SmallItemStyleMaxItemDisplay = 12;
+        public ScrollingListDialog(IGameStateProvider gameStateProvider,
+                                   INativeGraphicsManager nativeGraphicsManager,
+                                   IEODialogButtonService dialogButtonService)
+            : base(gameStateProvider)
+        {
+            _listItems = new List<ListDialogItem>();
 
-            m_titleText = new XNALabel(new Rectangle(16, 13, 253, 19), Constants.FontSize08pt75)
+            _titleText = new XNALabel(Constants.FontSize08pt75)
             {
+                DrawArea = new Rectangle(16, 13, 253, 19),
                 AutoSize = false,
                 TextAlign = LabelAlignment.MiddleLeft,
                 ForeColor = ColorConstants.LightGrayText
             };
-            m_titleText.SetParent(this);
+            _titleText.SetParentControl(this);
 
-            m_scrollBar = new OldScrollBar(this, new Vector2(252, 44), new Vector2(16, 199), ScrollBarColors.LightOnMed);
+            _scrollBar = new ScrollBar(new Vector2(252, 44), new Vector2(16, 199), ScrollBarColors.LightOnMed, nativeGraphicsManager);
+            _scrollBar.SetParentControl(this);
 
-            Center(Game.GraphicsDevice);
-            DrawLocation = new Vector2(DrawLocation.X, 15);
-            endConstructor(false);
+            _add = new XNAButton(dialogButtonService.SmallButtonSheet,
+                new Vector2(48, 252),
+                dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Add),
+                dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Add))
+            { 
+                Visible = false
+            };
+            _add.SetParentControl(this);
+            _add.OnClick += (o, e) => AddAction?.Invoke(o, e);
+
+            _back = new XNAButton(dialogButtonService.SmallButtonSheet,
+                new Vector2(48, 252),
+                dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Back),
+                dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Back))
+            {
+                Visible = false
+            };
+            _back.SetParentControl(this);
+            _back.OnClick += (o, e) => BackAction?.Invoke(o, e);
+
+            _cancel = new XNAButton(dialogButtonService.SmallButtonSheet,
+                _cancelButtonRightPosition,
+                dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Cancel),
+                dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Cancel))
+            {
+                Visible = true
+            };
+            _cancel.SetParentControl(this);
+            _cancel.OnClick += (_, _) => Close(XNADialogResult.Cancel);
+
+            ItemsToShow = ListItemType == ListDialogItem.ListItemStyle.Large ? 5 : 12;
+
+            BackgroundTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 52);
+
+            CenterInGameView();
+            DrawPosition = new Vector2(DrawPosition.X, 15);
+            GraphicsManager = nativeGraphicsManager;
         }
 
         public void SetItemList(List<ListDialogItem> itemList)
         {
-            if (itemList.Count == 0) return;
+            if (!itemList.All(x => x.Style == ListItemType))
+                throw new ArgumentException($"Expected items of type {ListItemType}", nameof(itemList));
 
-            if (m_listItems.Count == 0)
-                m_scrollBar.LinesToRender = itemList[0].Style == ListDialogItem.ListItemStyle.Large ? 5 : 12;
+            ClearItemList();
 
-            m_scrollBar.UpdateDimensions(itemList.Count);
+            _scrollBar.UpdateDimensions(itemList.Count);
 
-            ListDialogItem.ListItemStyle firstStyle = itemList[0].Style;
-            lock (m_listItemLock)
-                for (int i = 0; i < itemList.Count; ++i)
-                {
-                    m_listItems.Add(itemList[i]);
-                    m_listItems[i].Style = firstStyle;
-                    m_listItems[i].Index = i;
-                    if (i > m_scrollBar.LinesToRender)
-                        m_listItems[i].Visible = false;
-                }
+            for (int i = 0; i < itemList.Count; ++i)
+            {
+                _listItems.Add(itemList[i]);
+                _listItems[i].Index = i;
+                if (i > _scrollBar.LinesToRender)
+                    _listItems[i].Visible = false;
+            }
         }
 
         public void AddItemToList(ListDialogItem item, bool sortList)
         {
-            if (m_listItems.Count == 0)
-                m_scrollBar.LinesToRender = item.Style == ListDialogItem.ListItemStyle.Large ? LargeItemStyleMaxItemDisplay : SmallItemStyleMaxItemDisplay;
-            lock (m_listItemLock)
-            {
-                m_listItems.Add(item);
-                if (sortList)
-                    m_listItems.Sort((item1, item2) => item1.Text.CompareTo(item2.Text));
-                for (int i = 0; i < m_listItems.Count; ++i)
-                    m_listItems[i].Index = i;
-            }
-            m_scrollBar.UpdateDimensions(m_listItems.Count);
+            _listItems.Add(item);
+
+            if (sortList)
+                _listItems.Sort((item1, item2) => item1.PrimaryText.CompareTo(item2.PrimaryText));
+
+            for (int i = 0; i < _listItems.Count; ++i)
+                _listItems[i].Index = i;
+
+            _scrollBar.UpdateDimensions(_listItems.Count);
         }
 
         public void RemoveFromList(ListDialogItem item)
         {
-            int ndx;
-            lock (m_listItemLock)
-                ndx = m_listItems.FindIndex(_item => _item == item);
-            if (ndx < 0) return;
+            _listItems.Remove(item);
 
-            item.Close();
+            _scrollBar.UpdateDimensions(_listItems.Count);
+            if (_listItems.Count <= _scrollBar.LinesToRender)
+                _scrollBar.ScrollToTop();
 
-            lock (m_listItemLock)
+            for (int i = 0; i < _listItems.Count; ++i)
+                _listItems[i].Index = i;
+
+            item.Dispose();
+        }
+
+        public void HighlightTextByLabel(IReadOnlyList<string> activeLabels)
+        {
+            var matchingListItems = _listItems.Where(x => activeLabels.Any(y => y.Equals(x.PrimaryText, StringComparison.InvariantCultureIgnoreCase)));
+            foreach (var item in matchingListItems)
             {
-                m_listItems.RemoveAt(ndx);
-
-                m_scrollBar.UpdateDimensions(m_listItems.Count);
-                if (m_listItems.Count <= m_scrollBar.LinesToRender)
-                    m_scrollBar.ScrollToTop();
-
-                for (int i = 0; i < m_listItems.Count; ++i)
-                {
-                    //adjust indices (determines drawing position)
-                    m_listItems[i].Index = i;
-                }
+                item.Highlight();
             }
         }
 
-        public void SetActiveItemList(List<string> activeLabels)
+        public void ClearItemList()
         {
-            lock (m_listItemLock)
-                foreach (ListDialogItem item in m_listItems)
+            foreach (var item in _listItems)
+                item.Dispose();
+
+            _listItems.Clear();
+            _scrollBar.UpdateDimensions(0);
+            _scrollBar.ScrollToTop();
+        }
+
+        public override void Initialize()
+        {
+            _add.Initialize();
+            _back.Initialize();
+            _cancel.Initialize();
+            _scrollBar.Initialize();
+            _titleText.Initialize();
+
+            base.Initialize();
+        }
+
+        protected override void OnUpdateControl(GameTime gameTime)
+        {
+            base.OnUpdateControl(gameTime);
+
+            ChildControlClickHandled = false;
+
+            if (_listItems.Count > _scrollBar.LinesToRender)
+            {
+                for (int i = 0; i < _listItems.Count; ++i)
                 {
-                    if (activeLabels.Select(x => x.ToLower()).Contains(item.Text.ToLower()))
+                    var curr = _listItems[i];
+                    if (i < _scrollBar.ScrollOffset)
                     {
-                        item.SetActive();
+                        curr.Visible = false;
+                        continue;
+                    }
+
+                    if (i < _scrollBar.LinesToRender + _scrollBar.ScrollOffset)
+                    {
+                        curr.Visible = true;
+                        curr.Index = i - _scrollBar.ScrollOffset;
+                    }
+                    else
+                    {
+                        curr.Visible = false;
                     }
                 }
-        }
-
-        protected void ClearItemList()
-        {
-            lock (m_listItemLock)
-            {
-                foreach (ListDialogItem item in m_listItems)
-                {
-                    item.SetParent(null);
-                    item.Close();
-                }
-                m_listItems.Clear();
             }
-            m_scrollBar.UpdateDimensions(0);
-            m_scrollBar.ScrollToTop();
-        }
-
-        protected void _setBackgroundTexture(Texture2D text)
-        {
-            bgTexture = text;
-            _setSize(bgTexture.Width, bgTexture.Height);
-        }
-
-        protected void _setButtons(ScrollingListDialogButtons setButtons)
-        {
-            if (dlgButtons.Count > 0)
+            else if (_listItems.Any(_item => !_item.Visible))
             {
-                dlgButtons.ForEach(_btn =>
-                {
-                    _btn.SetParent(null);
-                    _btn.Close();
-                });
-
-                dlgButtons.Clear();
+                _listItems.ForEach(_item => _item.Visible = true);
             }
-
-            _buttons = setButtons;
-            switch (setButtons)
-            {
-                case ScrollingListDialogButtons.BackCancel:
-                case ScrollingListDialogButtons.AddCancel:
-                    {
-                        SmallButton which = setButtons == ScrollingListDialogButtons.BackCancel ? SmallButton.Back : SmallButton.Add;
-                        XNAButton add = new XNAButton(smallButtonSheet, new Vector2(48, 252), _getSmallButtonOut(which), _getSmallButtonOver(which));
-                        add.SetParent(this);
-                        add.OnClick += (o, e) => Close(add, setButtons == ScrollingListDialogButtons.BackCancel ? XNADialogResult.Back : XNADialogResult.Add);
-                        XNAButton cancel = new XNAButton(smallButtonSheet, new Vector2(144, 252), _getSmallButtonOut(SmallButton.Cancel), _getSmallButtonOver(SmallButton.Cancel));
-                        cancel.SetParent(this);
-                        cancel.OnClick += (o, e) => Close(cancel, XNADialogResult.Cancel);
-
-                        dlgButtons.Add(add);
-                        dlgButtons.Add(cancel);
-                    }
-                    break;
-                case ScrollingListDialogButtons.Cancel:
-                    {
-                        XNAButton cancel = new XNAButton(smallButtonSheet, new Vector2(96, 252), _getSmallButtonOut(SmallButton.Cancel), _getSmallButtonOver(SmallButton.Cancel));
-                        cancel.SetParent(this);
-                        cancel.OnClick += (o, e) => Close(cancel, XNADialogResult.Cancel);
-
-                        dlgButtons.Add(cancel);
-                    }
-                    break;
-            }
-        }
-
-        public override void Update(GameTime gt)
-        {
-            //which items should we render?
-            lock (m_listItemLock)
-            {
-                if (m_listItems.Count > m_scrollBar.LinesToRender)
-                {
-                    for (int i = 0; i < m_listItems.Count; ++i)
-                    {
-                        ListDialogItem curr = m_listItems[i];
-                        if (i < m_scrollBar.ScrollOffset)
-                        {
-                            curr.Visible = false;
-                            continue;
-                        }
-
-                        if (i < m_scrollBar.LinesToRender + m_scrollBar.ScrollOffset)
-                        {
-                            curr.Visible = true;
-                            curr.Index = i - m_scrollBar.ScrollOffset;
-                        }
-                        else
-                        {
-                            curr.Visible = false;
-                        }
-                    }
-                }
-                else if (m_listItems.Any(_item => !_item.Visible))
-                    m_listItems.ForEach(_item => _item.Visible = true); //all items visible if less than # lines to render
-            }
-
-            base.Update(gt);
         }
     }
 }

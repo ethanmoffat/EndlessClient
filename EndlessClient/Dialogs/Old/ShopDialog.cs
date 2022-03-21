@@ -9,9 +9,9 @@ using EOLib.Net.API;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls.Old;
 
-namespace EndlessClient.Dialogs
+namespace EndlessClient.Dialogs.Old
 {
-    public class ShopDialog : ScrollingListDialog
+    public class ShopDialog : OldScrollingListDialog
     {
         /* Process for this:
          * 1. Click shopkeeper, calls Show()
@@ -60,7 +60,7 @@ namespace EndlessClient.Dialogs
             : base(api)
         {
             Buttons = ScrollingListDialogButtons.Cancel;
-            ListItemType = ListDialogItem.ListItemStyle.Large;
+            ListItemType = OldListDialogItem.ListItemStyle.Large;
 
             ID = id;
             DialogClosing += (o, e) =>
@@ -131,7 +131,7 @@ namespace EndlessClient.Dialogs
                         string craftNum =
                             $"{m_craftItems.Count} {OldWorld.GetString(EOResourceID.DIALOG_SHOP_ITEMS_ACCEPTED)}";
 
-                        ListDialogItem buy = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
+                        OldListDialogItem buy = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Large, 0)
                         {
                             Text = OldWorld.GetString(EOResourceID.DIALOG_SHOP_BUY_ITEMS),
                             SubText = buyNum,
@@ -142,7 +142,7 @@ namespace EndlessClient.Dialogs
                         buy.OnRightClick += (o, e) => _setState(ShopState.Buying);
                         buy.ShowItemBackGround = false;
                         AddItemToList(buy, false);
-                        ListDialogItem sell = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 1)
+                        OldListDialogItem sell = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Large, 1)
                         {
                             Text = OldWorld.GetString(EOResourceID.DIALOG_SHOP_SELL_ITEMS),
                             SubText = sellNum,
@@ -155,7 +155,7 @@ namespace EndlessClient.Dialogs
                         AddItemToList(sell, false);
                         if (m_craftItems.Count > 0)
                         {
-                            ListDialogItem craft = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 2)
+                            OldListDialogItem craft = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Large, 2)
                             {
                                 Text = OldWorld.GetString(EOResourceID.DIALOG_SHOP_CRAFT_ITEMS),
                                 SubText = craftNum,
@@ -176,7 +176,7 @@ namespace EndlessClient.Dialogs
                         //re-use the logic for Buying/Selling: it is almost identical
                         bool buying = newState == ShopState.Buying;
 
-                        List<ListDialogItem> itemList = new List<ListDialogItem>();
+                        List<OldListDialogItem> itemList = new List<OldListDialogItem>();
                         foreach (ShopItem si in m_tradeItems)
                         {
                             if (si.ID <= 0 || (buying && si.Buy <= 0) ||
@@ -189,7 +189,7 @@ namespace EndlessClient.Dialogs
                                 rec.Type == ItemType.Armor ? "(" + (rec.Gender == 0 ? OldWorld.GetString(EOResourceID.FEMALE) : OldWorld.GetString(EOResourceID.MALE)) + ")" : "",
                                 OldWorld.GetString(EOResourceID.DIALOG_SHOP_PRICE));
 
-                            ListDialogItem nextItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large)
+                            OldListDialogItem nextItem = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Large)
                             {
                                 Text = rec.Name,
                                 SubText = secondary,
@@ -207,7 +207,7 @@ namespace EndlessClient.Dialogs
                     break;
                 case ShopState.Crafting:
                     {
-                        List<ListDialogItem> itemList = new List<ListDialogItem>(m_craftItems.Count);
+                        List<OldListDialogItem> itemList = new List<OldListDialogItem>(m_craftItems.Count);
                         foreach (CraftItem ci in m_craftItems)
                         {
                             if (ci.Ingredients.Count <= 0) continue;
@@ -218,7 +218,7 @@ namespace EndlessClient.Dialogs
                                 rec.Type == ItemType.Armor ? "(" + (rec.Gender == 0 ? OldWorld.GetString(EOResourceID.FEMALE) : OldWorld.GetString(EOResourceID.MALE)) + ")" : "",
                                 OldWorld.GetString(EOResourceID.DIALOG_SHOP_CRAFT_INGREDIENTS));
 
-                            ListDialogItem nextItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large)
+                            OldListDialogItem nextItem = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Large)
                             {
                                 Text = rec.Name,
                                 SubText = secondary,

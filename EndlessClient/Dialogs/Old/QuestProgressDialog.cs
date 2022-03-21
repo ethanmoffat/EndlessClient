@@ -10,9 +10,9 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls.Old;
 
-namespace EndlessClient.Dialogs
+namespace EndlessClient.Dialogs.Old
 {
-    public class QuestProgressDialog : ScrollingListDialog
+    public class QuestProgressDialog : OldScrollingListDialog
     {
         public static QuestProgressDialog Instance { get; private set; }
 
@@ -77,7 +77,7 @@ namespace EndlessClient.Dialogs
 
             m_scrollBar.DrawLocation = new Vector2(449, 44);
             SmallItemStyleMaxItemDisplay = 10;
-            ListItemType = ListDialogItem.ListItemStyle.Small;
+            ListItemType = OldListDialogItem.ListItemStyle.Small;
         }
 
         private void _setupBGTexture()
