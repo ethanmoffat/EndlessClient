@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using EndlessClient.Services;
+using EOLib;
 using EOLib.Domain.Chat;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
@@ -16,10 +19,12 @@ namespace EndlessClient.Rendering.Chat
             public bool IsFirstLineOfMultilineMessage { get; set; }
         }
 
+        private readonly IFriendIgnoreListService _friendIgnoreListService;
         private readonly SpriteFont _chatFont;
 
-        public ChatRenderableGenerator(SpriteFont chatFont)
+        public ChatRenderableGenerator(IFriendIgnoreListService friendIgnoreListService, SpriteFont chatFont)
         {
+            _friendIgnoreListService = friendIgnoreListService;
             _chatFont = chatFont;
         }
 
@@ -41,9 +46,14 @@ namespace EndlessClient.Rendering.Chat
 
         public IReadOnlyList<IChatRenderable> GenerateChatRenderables(IReadOnlyList<ChatData> chatData)
         {
+            var ignoreList = _friendIgnoreListService.LoadList(Constants.IgnoreListFile);
+
             var retList = new List<IChatRenderable>();
             foreach (var data in chatData)
             {
+                if (ignoreList.Any(x => x.Equals(data.Who, StringComparison.InvariantCultureIgnoreCase)))
+                    continue;
+
                 var splitStrings = SplitTextIntoLines(data.Who, new[] {data.Message});
                 var renderables = splitStrings.Select(
                     (pair, i) => CreateChatRenderableFromChatPair(pair, i, data))

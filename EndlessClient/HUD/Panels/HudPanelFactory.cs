@@ -61,7 +61,7 @@ namespace EndlessClient.HUD.Panels
             var chatFont = _contentManagerProvider.Content.Load<SpriteFont>(Constants.FontSize08);
 
             return new NewsPanel(_nativeGraphicsManager,
-                                 new ChatRenderableGenerator(chatFont),
+                                 new ChatRenderableGenerator(_friendIgnoreListService, chatFont),
                                  _newsProvider,
                                  chatFont) { DrawOrder = HUD_CONTROL_LAYER };
         }
@@ -86,7 +86,7 @@ namespace EndlessClient.HUD.Panels
             var chatFont = _contentManagerProvider.Content.Load<SpriteFont>(Constants.FontSize08);
 
             return new ChatPanel(_nativeGraphicsManager,
-                                 new ChatRenderableGenerator(chatFont),
+                                 new ChatRenderableGenerator(_friendIgnoreListService, chatFont),
                                  _chatProvider,
                                  _hudControlProvider,
                                  chatFont) { DrawOrder = HUD_CONTROL_LAYER };

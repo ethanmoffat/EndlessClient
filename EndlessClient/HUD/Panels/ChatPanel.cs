@@ -240,6 +240,7 @@ namespace EndlessClient.HUD.Panels
             //update scrollbar with total number of renderables
             _scrollBar.UpdateDimensions(renderables.Count);
 
+            // todo: something less annoying...notification dot until user scrolls back down?
             if (newText && renderables.Count > _scrollBar.LinesToRender)
                 _scrollBar.ScrollToEnd();
         }
