@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Linq;
-using EOLib.Domain.Character;
-using EOLib.IO;
+﻿using EOLib.Domain.Character;
 using EOLib.Net.Handlers;
 
 namespace EOLib.Net.API
@@ -72,64 +68,15 @@ namespace EOLib.Net.API
         }
     }
 
-    public struct PaperdollDisplayData
-    {
-        private readonly string name, home, partner, title, guild, rank;
-        private readonly short playerID;
-        private readonly byte clas, gender;
-        private readonly short[] paperdoll;
-        private readonly PaperdollIconType iconType;
-
-        public string Name => name;
-        public string Home => home;
-        public string Partner => partner;
-        public string Title => title;
-        public string Guild => guild;
-        public string Rank => rank;
-
-        public short PlayerID => playerID;
-        public byte Class => clas;
-        public byte Gender => gender;
-        public ReadOnlyCollection<short> Paperdoll => paperdoll.AsEnumerable().ToList().AsReadOnly();
-        public PaperdollIconType Icon => iconType;
-
-        internal PaperdollDisplayData(OldPacket pkt)
-        {
-            //need to be applied to the character that is passed to the dialog
-            name = pkt.GetBreakString();
-            home = pkt.GetBreakString();
-            partner = pkt.GetBreakString();
-            title = pkt.GetBreakString();
-            guild = pkt.GetBreakString();
-            rank = pkt.GetBreakString();
-
-            playerID = pkt.GetShort();
-            clas = pkt.GetChar();
-            gender = pkt.GetChar();
-
-            if (pkt.GetChar() != 0)
-                throw new ArgumentException("Invalid/malformed packet", nameof(pkt));
-
-            paperdoll = new short[(int)EquipLocation.PAPERDOLL_MAX];
-            for (int i = 0; i < (int)EquipLocation.PAPERDOLL_MAX; ++i)
-                paperdoll[i] = pkt.GetShort();
-
-            iconType = (PaperdollIconType)pkt.GetChar();
-        }
-    }
-
     partial class PacketAPI
     {
         public delegate void PaperdollChangeEvent(PaperdollEquipData data);
-        public delegate void PaperdollShowEvent(PaperdollDisplayData data);
         public event PaperdollChangeEvent OnPlayerPaperdollChange;
-        public event PaperdollShowEvent OnViewPaperdoll;
 
         private void _createPaperdollMembers()
         {
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.PaperDoll, PacketAction.Agree), _handlePaperdollAgree, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.PaperDoll, PacketAction.Remove), _handlePaperdollRemove, true);
-            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.PaperDoll, PacketAction.Reply), _handlePaperdollReply, true);
         }
 
         public bool EquipItem(short id, byte subLoc = 0)
@@ -150,16 +97,6 @@ namespace EOLib.Net.API
             OldPacket pkt = new OldPacket(PacketFamily.PaperDoll, PacketAction.Remove);
             pkt.AddShort(id);
             pkt.AddChar(subLoc);
-
-            return m_client.SendPacket(pkt);
-        }
-
-        public bool RequestPaperdoll(short charId)
-        {
-            if (!m_client.ConnectedAndInitialized || !Initialized) return false;
-
-            OldPacket pkt = new OldPacket(PacketFamily.PaperDoll, PacketAction.Request);
-            pkt.AddShort(charId);
 
             return m_client.SendPacket(pkt);
         }
@@ -210,22 +147,6 @@ namespace EOLib.Net.API
 
             PaperdollEquipData data = new PaperdollEquipData(pkt, true);
             OnPlayerPaperdollChange(data);
-        }
-
-        private void _handlePaperdollReply(OldPacket pkt) //sent when showing a paperdoll for a character
-        {
-            if (OnViewPaperdoll == null) return;
-
-            PaperdollDisplayData data;
-            try
-            {
-                data = new PaperdollDisplayData(pkt);
-            }
-            catch (ArgumentException)
-            {
-                return;
-            }
-            OnViewPaperdoll(data);
         }
     }
 }

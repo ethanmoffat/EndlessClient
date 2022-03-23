@@ -283,7 +283,6 @@ namespace EndlessClient.Old
 
         public static void IgnoreDialogs(XNAControl control)
         {
-            control.IgnoreDialog(typeof(EOPaperdollDialog));
             control.IgnoreDialog(typeof(ChestDialog));
             control.IgnoreDialog(typeof(ShopDialog));
             control.IgnoreDialog(typeof(BankAccountDialog));

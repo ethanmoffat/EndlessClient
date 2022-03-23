@@ -1,5 +1,8 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Dialogs.Factories;
+using EOLib.Domain.Character;
+using EOLib.Net;
+using EOLib.Net.Communication;
 using Optional;
 
 namespace EndlessClient.Dialogs.Actions
@@ -8,13 +11,19 @@ namespace EndlessClient.Dialogs.Actions
     public class InGameDialogActions : IInGameDialogActions
     {
         private readonly IFriendIgnoreListDialogFactory _friendIgnoreListDialogFactory;
+        private readonly IPaperdollDialogFactory _paperdollDialogFactory;
         private readonly IActiveDialogRepository _activeDialogRepository;
+        private readonly IPacketSendService _packetSendService;
 
         public InGameDialogActions(IFriendIgnoreListDialogFactory friendIgnoreListDialogFactory,
-                                   IActiveDialogRepository activeDialogRepository)
+                                   IPaperdollDialogFactory paperdollDialogFactory,
+                                   IActiveDialogRepository activeDialogRepository,
+                                   IPacketSendService packetSendService)
         {
             _friendIgnoreListDialogFactory = friendIgnoreListDialogFactory;
+            _paperdollDialogFactory = paperdollDialogFactory;
             _activeDialogRepository = activeDialogRepository;
+            _packetSendService = packetSendService;
         }
 
         public void ShowFriendListDialog()
@@ -40,6 +49,23 @@ namespace EndlessClient.Dialogs.Actions
                 dlg.Show();
             });
         }
+
+        public void ShowPaperdollDialog(ICharacter character)
+        {
+            _activeDialogRepository.PaperdollDialog.MatchNone(() =>
+            {
+                var packet = new PacketBuilder(PacketFamily.PaperDoll, PacketAction.Request)
+                    .AddShort((short)character.ID)
+                    .Build();
+                _packetSendService.SendPacket(packet);
+
+                var dlg = _paperdollDialogFactory.Create(character);
+                dlg.DialogClosed += (_, _) => _activeDialogRepository.PaperdollDialog = Option.None<PaperdollDialog>();
+                _activeDialogRepository.PaperdollDialog = Option.Some(dlg);
+
+                dlg.Show();
+            });
+        }
     }
 
     public interface IInGameDialogActions
@@ -47,5 +73,7 @@ namespace EndlessClient.Dialogs.Actions
         void ShowFriendListDialog();
 
         void ShowIgnoreListDialog();
+
+        void ShowPaperdollDialog(ICharacter character);
     }
 }

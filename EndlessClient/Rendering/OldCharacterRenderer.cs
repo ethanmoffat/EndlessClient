@@ -441,8 +441,8 @@ namespace EndlessClient.Rendering
             //handle right-clicking a player. menu when not ActiveCharacter, paperdoll when ActiveCharacter
             else if (rightClicked)
             {
-                if (this == OldWorld.Instance.ActiveCharacterRenderer)
-                    ((EOGame) Game).API.RequestPaperdoll((short) Character.ID);
+                if (this == OldWorld.Instance.ActiveCharacterRenderer) { }
+                    //((EOGame) Game).API.RequestPaperdoll((short) Character.ID);
                 else
                     OldWorld.Instance.ActiveMapRenderer.ShowContextMenu(this);
             }

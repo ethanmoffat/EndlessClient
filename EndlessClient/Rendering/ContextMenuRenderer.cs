@@ -184,7 +184,7 @@ namespace EndlessClient.Rendering
         {
             switch (menuAction)
             {
-                case MenuAction.Paperdoll: return _eventShowPaperdoll;
+                //case MenuAction.Paperdoll: return _eventShowPaperdoll;
                 case MenuAction.Book: return _eventShowBook;
                 case MenuAction.Join: return _eventJoinParty;
                 case MenuAction.Invite: return _eventInviteToParty;
@@ -198,11 +198,11 @@ namespace EndlessClient.Rendering
 
         /* EVENT HANDLERS FOR THE DIFFERENT MENU ITEMS */
         //todo: finish the todo items below
-        private void _eventShowPaperdoll(object sender, EventArgs e)
-        {
-            if (!m_api.RequestPaperdoll((short) m_rend.Character.ID))
-                EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-        }
+        //private void _eventShowPaperdoll(object sender, EventArgs e)
+        //{
+        //    if (!m_api.RequestPaperdoll((short) m_rend.Character.ID))
+        //        EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+        //}
         private void _eventShowBook(object arg1, EventArgs arg2)
         {
             EOMessageBox.Show("TODO: Show quest info", "TODO ITEM", EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);

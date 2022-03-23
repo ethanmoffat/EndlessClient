@@ -106,7 +106,7 @@ namespace EndlessClient.HUD.Panels.Old
             //'paperdoll' button
             m_btnPaperdoll = new XNAButton(thatWeirdSheet, new Vector2(385, 9), /*new Rectangle(39, 385, 88, 19)*/null, new Rectangle(126, 385, 88, 19));
             m_btnPaperdoll.SetParent(this);
-            m_btnPaperdoll.OnClick += (s, e) => m_api.RequestPaperdoll((short)OldWorld.Instance.MainPlayer.ActiveCharacter.ID);
+            //m_btnPaperdoll.OnClick += (s, e) => m_api.RequestPaperdoll((short)OldWorld.Instance.MainPlayer.ActiveCharacter.ID);
             //'drop' button
             //491, 398 -> 389, 68
             //0,15,38,37

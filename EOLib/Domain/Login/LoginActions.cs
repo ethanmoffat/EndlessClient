@@ -112,7 +112,6 @@ namespace EOLib.Domain.Login
                 .WithMapID(data.MapID)
                 .WithAdminLevel(data.AdminLevel)
                 .WithStats(data.CharacterStats);
-            _paperdollRepository.MainCharacterPaperdoll = data.Paperdoll.ToList();
 
             _playerInfoRepository.PlayerID = data.PlayerID;
             _playerInfoRepository.IsFirstTimePlayer = data.FirstTimePlayer;

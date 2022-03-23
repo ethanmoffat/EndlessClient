@@ -1,5 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.ControlSets;
+using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Controls;
@@ -22,6 +23,7 @@ namespace EndlessClient.Controllers
     {
         private readonly IMapActions _mapActions;
         private readonly ICharacterActions _characterActions;
+        private readonly IInGameDialogActions _inGameDialogActions;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly IStatusLabelSetter _statusLabelSetter;
@@ -31,6 +33,7 @@ namespace EndlessClient.Controllers
 
         public MapInteractionController(IMapActions mapActions,
                                         ICharacterActions characterActions,
+                                        IInGameDialogActions inGameDialogActions,
                                         ICurrentMapStateProvider currentMapStateProvider,
                                         ICharacterProvider characterProvider,
                                         IStatusLabelSetter statusLabelSetter,
@@ -40,6 +43,7 @@ namespace EndlessClient.Controllers
         {
             _mapActions = mapActions;
             _characterActions = characterActions;
+            _inGameDialogActions = inGameDialogActions;
             _currentMapStateProvider = currentMapStateProvider;
             _characterProvider = characterProvider;
             _statusLabelSetter = statusLabelSetter;
@@ -87,7 +91,17 @@ namespace EndlessClient.Controllers
             if (!cellState.Character.HasValue)
                 return;
 
-            //todo: context menu
+            cellState.Character.MatchSome(c =>
+            {
+                if (c == _characterProvider.MainCharacter)
+                {
+                    _inGameDialogActions.ShowPaperdollDialog(_characterProvider.MainCharacter);
+                }
+                else
+                {
+                    // todo: context menu
+                }
+            });
         }
 
         private void HandlePickupResult(ItemPickupResult pickupResult, IItem item)
