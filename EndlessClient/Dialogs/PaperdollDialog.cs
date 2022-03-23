@@ -217,8 +217,7 @@ namespace EndlessClient.Dialogs
                 {
                     DrawArea = GetEquipLocationRectangle(equipLocation)
                 };
-                // todo: I thought making this event-driven would be cool but I think it would be better to encapsulate this in 
-                //       PaperdollDialogItem class after all...
+
                 paperdollItem.OnMouseEnter += (_, _) =>
                 {
                     // capture values
@@ -249,6 +248,7 @@ namespace EndlessClient.Dialogs
                     var extra = r.Match(rec => $", {rec.Name}", () => string.Empty);
                     _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, msg, extra);
                 };
+
                 paperdollItem.RightClick += (_, rightClickedItem) =>
                 {
                     if (rightClickedItem.Special == ItemSpecial.Cursed)

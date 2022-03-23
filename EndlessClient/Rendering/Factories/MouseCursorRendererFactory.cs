@@ -1,7 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Controllers;
 using EndlessClient.Dialogs;
-using EndlessClient.HUD;
 using EndlessClient.Input;
 using EOLib.Domain.Character;
 using EOLib.Domain.Item;
@@ -24,6 +23,7 @@ namespace EndlessClient.Rendering.Factories
         private readonly IMapInteractionController _mapInteractionController;
         private readonly IUserInputProvider _userInputProvider;
         private readonly IActiveDialogProvider _activeDialogProvider;
+        private readonly IContextMenuProvider _contextMenuProvider;
 
         public MouseCursorRendererFactory(INativeGraphicsManager nativeGraphicsManager,
                                           ICharacterProvider characterProvider,
@@ -34,7 +34,8 @@ namespace EndlessClient.Rendering.Factories
                                           ICurrentMapProvider currentMapProvider,
                                           IMapInteractionController mapInteractionController,
                                           IUserInputProvider userInputProvider,
-                                          IActiveDialogProvider activeDialogProvider)
+                                          IActiveDialogProvider activeDialogProvider,
+                                          IContextMenuProvider contextMenuProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _characterProvider = characterProvider;
@@ -46,6 +47,7 @@ namespace EndlessClient.Rendering.Factories
             _mapInteractionController = mapInteractionController;
             _userInputProvider = userInputProvider;
             _activeDialogProvider = activeDialogProvider;
+            _contextMenuProvider = contextMenuProvider;
         }
 
         public IMouseCursorRenderer Create()
@@ -59,7 +61,8 @@ namespace EndlessClient.Rendering.Factories
                                            _currentMapProvider,
                                            _mapInteractionController,
                                            _userInputProvider,
-                                           _activeDialogProvider);
+                                           _activeDialogProvider,
+                                           _contextMenuProvider);
         }
     }
 

@@ -45,6 +45,7 @@ namespace EndlessClient.Rendering
         private readonly IMapInteractionController _mapInteractionController;
         private readonly IUserInputProvider _userInputProvider;
         private readonly IActiveDialogProvider _activeDialogProvider;
+        private readonly IContextMenuProvider _contextMenuProvider;
         private readonly XNALabel _mapItemText;
 
         private Rectangle _drawArea;
@@ -66,7 +67,8 @@ namespace EndlessClient.Rendering
                                    ICurrentMapProvider currentMapProvider,
                                    IMapInteractionController mapInteractionController,
                                    IUserInputProvider userInputProvider,
-                                   IActiveDialogProvider activeDialogProvider)
+                                   IActiveDialogProvider activeDialogProvider,
+                                   IContextMenuProvider contextMenuProvider)
         {
             _mouseCursorTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 24, true);
             _characterProvider = characterProvider;
@@ -78,6 +80,7 @@ namespace EndlessClient.Rendering
             _mapInteractionController = mapInteractionController;
             _userInputProvider = userInputProvider;
             _activeDialogProvider = activeDialogProvider;
+            _contextMenuProvider = contextMenuProvider;
             SingleCursorFrameArea = new Rectangle(0, 0,
                                                   _mouseCursorTexture.Width/(int) CursorIndex.NumberOfFramesInSheet,
                                                   _mouseCursorTexture.Height);
@@ -105,7 +108,9 @@ namespace EndlessClient.Rendering
         public override async void Update(GameTime gameTime)
         {
             // prevents updates if there is a dialog
-            if (!ShouldUpdate() || _activeDialogProvider.ActiveDialogs.Any(x => x.HasValue)) return;
+            if (!ShouldUpdate() || _activeDialogProvider.ActiveDialogs.Any(x => x.HasValue) ||
+                _contextMenuProvider.ContextMenu.HasValue)
+                return;
 
             // todo: don't do anything if there is a context menu and mouse is over context menu
 
@@ -301,6 +306,7 @@ namespace EndlessClient.Rendering
             else if (currentMouseState.RightButton == ButtonState.Released &&
                      previousMouseState.RightButton == ButtonState.Pressed)
             {
+                // todo: right click should be called from character renderer, not MouseCursorRenderer
                 _mapInteractionController.RightClick(cellState);
             }
         }
@@ -309,7 +315,8 @@ namespace EndlessClient.Rendering
 
         public void Draw(SpriteBatch spriteBatch, Vector2 additionalOffset)
         {
-            //todo: don't draw if context menu is visible and mouse is over the context menu
+            if (_contextMenuProvider.ContextMenu.HasValue)
+                return;
 
             if (_shouldDrawCursor && _gridX >= 0 && _gridY >= 0 &&
                 _gridX <= _currentMapProvider.CurrentMap.Properties.Width &&
