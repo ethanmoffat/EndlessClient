@@ -95,7 +95,7 @@ namespace EndlessClient.Controllers
             {
                 if (c == _characterProvider.MainCharacter)
                 {
-                    _inGameDialogActions.ShowPaperdollDialog(_characterProvider.MainCharacter);
+                    _inGameDialogActions.ShowPaperdollDialog(_characterProvider.MainCharacter, isMainCharacter: true);
                 }
                 else
                 {

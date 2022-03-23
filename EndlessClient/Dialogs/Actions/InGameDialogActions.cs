@@ -50,7 +50,7 @@ namespace EndlessClient.Dialogs.Actions
             });
         }
 
-        public void ShowPaperdollDialog(ICharacter character)
+        public void ShowPaperdollDialog(ICharacter character, bool isMainCharacter)
         {
             _activeDialogRepository.PaperdollDialog.MatchNone(() =>
             {
@@ -59,7 +59,7 @@ namespace EndlessClient.Dialogs.Actions
                     .Build();
                 _packetSendService.SendPacket(packet);
 
-                var dlg = _paperdollDialogFactory.Create(character);
+                var dlg = _paperdollDialogFactory.Create(character, isMainCharacter);
                 dlg.DialogClosed += (_, _) => _activeDialogRepository.PaperdollDialog = Option.None<PaperdollDialog>();
                 _activeDialogRepository.PaperdollDialog = Option.Some(dlg);
 
@@ -74,6 +74,6 @@ namespace EndlessClient.Dialogs.Actions
 
         void ShowIgnoreListDialog();
 
-        void ShowPaperdollDialog(ICharacter character);
+        void ShowPaperdollDialog(ICharacter character, bool isMainCharacter);
     }
 }

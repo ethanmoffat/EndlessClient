@@ -1,5 +1,6 @@
 ﻿using EOLib.Domain.Online;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace EOLib.Domain.Character
 {
@@ -110,6 +111,17 @@ namespace EOLib.Domain.Character
         public IPaperdollData WithIcon(OnlineIcon icon)
         {
             return new PaperdollData(Name, Home, Partner, Title, Guild, Rank, PlayerID, Class, Gender, Paperdoll, icon);
+        }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as PaperdollData;
+            if (other == null)
+                return false;
+
+            return Name == other.Name && Home == other.Home && Partner == other.Partner && Title == other.Title &&
+                Guild == other.Guild && Rank == other.Rank && PlayerID == other.PlayerID &&
+                Class == other.Class && Gender == other.Gender && Icon == other.Icon && Paperdoll.SequenceEqual(other.Paperdoll);
         }
     }
 

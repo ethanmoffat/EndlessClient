@@ -72,7 +72,7 @@ namespace EndlessClient.HUD.Chat
             _chatRepository.AllChat[ChatTab.Local].Add(chatData);
 
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION,
-                Constants.MuteDefaultTimeMinutes.ToString(CultureInfo.InvariantCulture),
+                Constants.MuteDefaultTimeMinutes.ToString(CultureInfo.InvariantCulture) + " ",
                 EOResourceID.STATUS_LABEL_MINUTES_MUTED);
         }
     }
