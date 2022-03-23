@@ -15,6 +15,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Optional;
 using Optional.Unsafe;
 using System;
+using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Dialogs
@@ -198,6 +199,12 @@ namespace EndlessClient.Dialogs
             _title.Text = Capitalize(paperdollData.Title);
             _guild.Text = Capitalize(paperdollData.Guild);
             _rank.Text = Capitalize(paperdollData.Rank);
+
+            foreach (var control in ChildControls.OfType<PaperdollDialogItem>())
+            {
+                control.SetControlUnparented();
+                control.Dispose();
+            }
 
             foreach (EquipLocation equipLocation in Enum.GetValues(typeof(EquipLocation)))
             {
