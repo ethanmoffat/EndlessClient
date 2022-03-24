@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Chat;
@@ -23,6 +24,7 @@ namespace EndlessClient.Rendering.Character
 {
     public class CharacterRenderer : DrawableGameComponent, ICharacterRenderer
     {
+        private readonly IMapInteractionController _mapInteractionController;
         private readonly IRenderTargetFactory _renderTargetFactory;
         private readonly IHealthBarRendererFactory _healthBarRendererFactory;
         private readonly IChatBubbleFactory _chatBubbleFactory;
@@ -78,6 +80,7 @@ namespace EndlessClient.Rendering.Character
 
         public CharacterRenderer(INativeGraphicsManager nativeGraphicsmanager,
                                  Game game,
+                                 IMapInteractionController mapInteractionController,
                                  IRenderTargetFactory renderTargetFactory,
                                  IHealthBarRendererFactory healthBarRendererFactory,
                                  IChatBubbleFactory chatBubbleFactory,
@@ -91,6 +94,7 @@ namespace EndlessClient.Rendering.Character
                                  ICurrentMapProvider currentMapProvider)
             : base(game)
         {
+            _mapInteractionController = mapInteractionController;
             _renderTargetFactory = renderTargetFactory;
             _healthBarRendererFactory = healthBarRendererFactory;
             _chatBubbleFactory = chatBubbleFactory;
@@ -171,7 +175,16 @@ namespace EndlessClient.Rendering.Character
                 SetGridCoordinatePosition();
 
             if (_gameStateProvider.CurrentState == GameStates.PlayingTheGame)
+            {
                 UpdateNameLabel(gameTime);
+
+                if (DrawArea.ContainsPoint(_currentMouseState.X, _currentMouseState.Y) &&
+                    _currentMouseState.RightButton == ButtonState.Released &&
+                    _previousMouseState.RightButton == ButtonState.Pressed)
+                {
+                    _mapInteractionController.RightClick(new MapCellState { Character = Option.Some(Character) });
+                }
+            }
 
             _healthBarRenderer.Update(gameTime);
 

@@ -1,4 +1,5 @@
 using AutomaticTypeMapper;
+using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.CharacterProperties;
@@ -16,6 +17,7 @@ namespace EndlessClient.Rendering.Factories
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IEndlessGameProvider _gameProvider;
+        private readonly IMapInteractionController _mapInteractionController;
         private readonly IRenderTargetFactory _renderTargetFactory;
         private readonly IHealthBarRendererFactory _healthBarRendererFactory;
         private readonly IChatBubbleFactory _chatBubbleFactory;
@@ -29,6 +31,7 @@ namespace EndlessClient.Rendering.Factories
 
         public CharacterRendererFactory(INativeGraphicsManager nativeGraphicsManager,
                                         IEndlessGameProvider gameProvider,
+                                        IMapInteractionController mapInteractionController,
                                         IRenderTargetFactory renderTargetFactory,
                                         IHealthBarRendererFactory healthBarRendererFactory,
                                         IChatBubbleFactory chatBubbleFactory,
@@ -42,6 +45,7 @@ namespace EndlessClient.Rendering.Factories
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _gameProvider = gameProvider;
+            _mapInteractionController = mapInteractionController;
             _renderTargetFactory = renderTargetFactory;
             _healthBarRendererFactory = healthBarRendererFactory;
             _chatBubbleFactory = chatBubbleFactory;
@@ -59,6 +63,7 @@ namespace EndlessClient.Rendering.Factories
             return new CharacterRenderer(
                 _nativeGraphicsManager,
                 (Game) _gameProvider.Game,
+                _mapInteractionController,
                 _renderTargetFactory,
                 _healthBarRendererFactory,
                 _chatBubbleFactory,

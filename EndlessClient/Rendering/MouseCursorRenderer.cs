@@ -298,16 +298,11 @@ namespace EndlessClient.Rendering
             var currentMouseState = _userInputProvider.CurrentMouseState;
             var previousMouseState = _userInputProvider.PreviousMouseState;
 
+            // todo: some left clicks should be on the graphic itself instead of based on the grid where the cursor is (NPC, map sign, board, etc.)
             if (currentMouseState.LeftButton == ButtonState.Released &&
                 previousMouseState.LeftButton == ButtonState.Pressed)
             {
                 await _mapInteractionController.LeftClickAsync(cellState, this);
-            }
-            else if (currentMouseState.RightButton == ButtonState.Released &&
-                     previousMouseState.RightButton == ButtonState.Pressed)
-            {
-                // todo: right click should be called from character renderer, not MouseCursorRenderer
-                _mapInteractionController.RightClick(cellState);
             }
         }
 
