@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using EndlessClient.Content;
 using EndlessClient.GameExecution;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 
@@ -43,7 +43,7 @@ namespace EndlessClient.ControlSets
         }
 
         public virtual void InitializeResources(INativeGraphicsManager gfxManager,
-                                                ContentManager xnaContentManager)
+                                                IContentProvider contentProvider)
         {
             if (_resourcesInitialized)
                 throw new InvalidOperationException("Error initializing resources: resources have already been initialized");
@@ -52,10 +52,10 @@ namespace EndlessClient.ControlSets
             _secondaryButtonTexture = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 14, true);
             _smallButtonSheet = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 15, true);
 
-            _textBoxBackground = xnaContentManager.Load<Texture2D>("tbBack");
-            _textBoxLeft = xnaContentManager.Load<Texture2D>("tbLeft");
-            _textBoxRight = xnaContentManager.Load<Texture2D>("tbRight");
-            _textBoxCursor = xnaContentManager.Load<Texture2D>("cursor");
+            _textBoxBackground = contentProvider.Textures[ContentProvider.TBBack];
+            _textBoxLeft = contentProvider.Textures[ContentProvider.TBLeft];
+            _textBoxRight = contentProvider.Textures[ContentProvider.TBRight];
+            _textBoxCursor = contentProvider.Textures[ContentProvider.Cursor];
 
             _backgroundImages = new Texture2D[7];
             for (int i = 0; i < _backgroundImages.Length; ++i)

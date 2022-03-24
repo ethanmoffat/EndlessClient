@@ -14,7 +14,7 @@ namespace EndlessClient.Dialogs.Factories
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IGameStateProvider _gameStateProvider;
         private readonly ICharacterRendererFactory _characterRendererFactory;
-        private readonly IContentManagerProvider _contentManagerProvider;
+        private readonly IContentProvider _contentProvider;
         private readonly IKeyboardDispatcherProvider _keyboardDispatcherProvider;
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
         private readonly IEODialogButtonService _dialogButtonService;
@@ -22,7 +22,7 @@ namespace EndlessClient.Dialogs.Factories
         public CreateCharacterDialogFactory(INativeGraphicsManager nativeGraphicsManager,
                                             IGameStateProvider gameStateProvider,
                                             ICharacterRendererFactory characterRendererFactory,
-                                            IContentManagerProvider contentManagerProvider,
+                                            IContentProvider contentProvider,
                                             IKeyboardDispatcherProvider keyboardDispatcherProvider,
                                             IEOMessageBoxFactory eoMessageBoxFactory,
                                             IEODialogButtonService dialogButtonService)
@@ -30,7 +30,7 @@ namespace EndlessClient.Dialogs.Factories
             _nativeGraphicsManager = nativeGraphicsManager;
             _gameStateProvider = gameStateProvider;
             _characterRendererFactory = characterRendererFactory;
-            _contentManagerProvider = contentManagerProvider;
+            _contentProvider = contentProvider;
             _keyboardDispatcherProvider = keyboardDispatcherProvider;
             _eoMessageBoxFactory = eoMessageBoxFactory;
             _dialogButtonService = dialogButtonService;
@@ -41,7 +41,7 @@ namespace EndlessClient.Dialogs.Factories
             return new CreateCharacterDialog(_nativeGraphicsManager,
                 _gameStateProvider,
                 _characterRendererFactory,
-                _contentManagerProvider.Content,
+                _contentProvider,
                 _keyboardDispatcherProvider.Dispatcher,
                 _eoMessageBoxFactory,
                 _dialogButtonService);

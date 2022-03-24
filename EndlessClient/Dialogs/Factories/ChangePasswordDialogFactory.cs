@@ -13,7 +13,7 @@ namespace EndlessClient.Dialogs.Factories
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IGameStateProvider _gameStateProvider;
-        private readonly IContentManagerProvider _contentManagerProvider;
+        private readonly IContentProvider _contentProvider;
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
         private readonly IKeyboardDispatcherProvider _keyboardDispatcherProvider;
         private readonly IPlayerInfoProvider _playerInfoProvider;
@@ -21,7 +21,7 @@ namespace EndlessClient.Dialogs.Factories
 
         public ChangePasswordDialogFactory(INativeGraphicsManager nativeGraphicsManager,
                                            IGameStateProvider gameStateProvider,
-                                           IContentManagerProvider contentManagerProvider,
+                                           IContentProvider contentProvider,
                                            IEOMessageBoxFactory eoMessageBoxFactory,
                                            IKeyboardDispatcherProvider keyboardDispatcherProvider,
                                            IPlayerInfoProvider playerInfoProvider,
@@ -29,7 +29,7 @@ namespace EndlessClient.Dialogs.Factories
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _gameStateProvider = gameStateProvider;
-            _contentManagerProvider = contentManagerProvider;
+            _contentProvider = contentProvider;
             _eoMessageBoxFactory = eoMessageBoxFactory;
             _keyboardDispatcherProvider = keyboardDispatcherProvider;
             _playerInfoProvider = playerInfoProvider;
@@ -40,7 +40,7 @@ namespace EndlessClient.Dialogs.Factories
         {
             return new ChangePasswordDialog(_nativeGraphicsManager,
                                             _gameStateProvider,
-                                            _contentManagerProvider,
+                                            _contentProvider,
                                             _eoMessageBoxFactory,
                                             _keyboardDispatcherProvider,
                                             _playerInfoProvider,

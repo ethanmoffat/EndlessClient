@@ -23,7 +23,7 @@ namespace EndlessClient.Dialogs
                                INativeGraphicsManager nativeGraphicsManager,
                                IEODialogButtonService eoDialogButtonService,
                                IKeyboardDispatcherRepository keyboardDispatcherRepository,
-                               IContentManagerProvider contentManagerProvider,
+                               IContentProvider contentProvider,
                                string prompt,
                                int maxInputChars = 12)
             : base(gameStateProvider)
@@ -44,7 +44,7 @@ namespace EndlessClient.Dialogs
             lblPrompt.Initialize();
             lblPrompt.SetParentControl(this);
 
-            _inputBox = new XNATextBox(new Rectangle(37, 74, 192, 19), Constants.FontSize08, caretTexture: contentManagerProvider.Content.Load<Texture2D>("cursor"))
+            _inputBox = new XNATextBox(new Rectangle(37, 74, 192, 19), Constants.FontSize08, caretTexture: contentProvider.Textures[ContentProvider.Cursor])
             {
                 MaxChars = maxInputChars,
                 LeftPadding = 4,

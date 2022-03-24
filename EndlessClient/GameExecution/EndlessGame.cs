@@ -20,6 +20,7 @@ namespace EndlessClient.GameExecution
     public class EndlessGame : Game, IEndlessGame
     {
         private readonly IClientWindowSizeProvider _windowSizeProvider;
+        private readonly IContentProvider _contentProvider;
         private readonly IGraphicsDeviceRepository _graphicsDeviceRepository;
         private readonly IControlSetRepository _controlSetRepository;
         private readonly IControlSetFactory _controlSetFactory;
@@ -33,6 +34,7 @@ namespace EndlessClient.GameExecution
         private KeyboardState _previousKeyState;
 
         public EndlessGame(IClientWindowSizeProvider windowSizeProvider,
+                           IContentProvider contentProvider,
                            IGraphicsDeviceRepository graphicsDeviceRepository,
                            IControlSetRepository controlSetRepository,
                            IControlSetFactory controlSetFactory,
@@ -43,6 +45,7 @@ namespace EndlessClient.GameExecution
                            IShaderRepository shaderRepository)
         {
             _windowSizeProvider = windowSizeProvider;
+            _contentProvider = contentProvider;
             _graphicsDeviceRepository = graphicsDeviceRepository;
             _controlSetRepository = controlSetRepository;
             _controlSetFactory = controlSetFactory;
@@ -70,12 +73,12 @@ namespace EndlessClient.GameExecution
             _graphicsDeviceManager.PreferredBackBufferWidth = _windowSizeProvider.Width;
             _graphicsDeviceManager.PreferredBackBufferHeight = _windowSizeProvider.Height;
             _graphicsDeviceManager.ApplyChanges();
-
-            SetUpInitialControlSet();
         }
 
         protected override void LoadContent()
         {
+            _contentProvider.Load();
+
             //todo: all the things that should load stuff as part of game's load/initialize should be broken into a pattern
             _chatBubbleTextureProvider.LoadContent();
 
@@ -93,6 +96,8 @@ namespace EndlessClient.GameExecution
                 var shaderBytes = File.ReadAllBytes(ShaderRepository.HairClipFile);
                 _shaderRepository.Shaders[ShaderRepository.HairClip] = new Effect(GraphicsDevice, shaderBytes);
             }
+
+            SetUpInitialControlSet();
 
             base.LoadContent();
         }

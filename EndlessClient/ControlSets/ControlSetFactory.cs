@@ -18,7 +18,7 @@ namespace EndlessClient.ControlSets
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly IHudControlsFactory _hudControlsFactory;
-        private readonly IContentManagerProvider _contentManagerProvider;
+        private readonly IContentProvider _contentProvider;
         private readonly IKeyboardDispatcherProvider _keyboardDispatcherProvider;
         private readonly IConfigurationProvider _configProvider;
         private readonly ICharacterInfoPanelFactory _characterInfoPanelFactory;
@@ -30,7 +30,7 @@ namespace EndlessClient.ControlSets
         public ControlSetFactory(INativeGraphicsManager nativeGraphicsManager,
                                  IEOMessageBoxFactory messageBoxFactory,
                                  IHudControlsFactory hudControlsFactory,
-                                 IContentManagerProvider contentManagerProvider,
+                                 IContentProvider contentProvider,
                                  IKeyboardDispatcherProvider keyboardDispatcherProvider,
                                  IConfigurationProvider configProvider,
                                  ICharacterInfoPanelFactory characterInfoPanelFactory)
@@ -38,7 +38,7 @@ namespace EndlessClient.ControlSets
             _nativeGraphicsManager = nativeGraphicsManager;
             _messageBoxFactory = messageBoxFactory;
             _hudControlsFactory = hudControlsFactory;
-            _contentManagerProvider = contentManagerProvider;
+            _contentProvider = contentProvider;
             _keyboardDispatcherProvider = keyboardDispatcherProvider;
             _configProvider = configProvider;
             _characterInfoPanelFactory = characterInfoPanelFactory;
@@ -51,7 +51,7 @@ namespace EndlessClient.ControlSets
                 throw new InvalidOperationException("Missing controllers - the Unity container was initialized incorrectly");
 
             var controlSet = GetSetBasedOnState(newState);
-            controlSet.InitializeResources(_nativeGraphicsManager, _contentManagerProvider.Content);
+            controlSet.InitializeResources(_nativeGraphicsManager, _contentProvider);
             controlSet.InitializeControls(currentControlSet);
             return controlSet;
         }

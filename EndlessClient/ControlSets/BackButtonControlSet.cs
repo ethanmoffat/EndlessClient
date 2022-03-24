@@ -1,8 +1,8 @@
 ﻿using System;
+using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 
@@ -21,9 +21,9 @@ namespace EndlessClient.ControlSets
             _mainButtonController = mainButtonController;
         }
 
-        public override void InitializeResources(INativeGraphicsManager gfxManager, ContentManager xnaContentManager)
+        public override void InitializeResources(INativeGraphicsManager gfxManager, IContentProvider contentProvider)
         {
-            base.InitializeResources(gfxManager, xnaContentManager);
+            base.InitializeResources(gfxManager, contentProvider);
 
             _backButtonTexture = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 24, true);
         }

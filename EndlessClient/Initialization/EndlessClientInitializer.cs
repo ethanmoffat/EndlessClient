@@ -18,7 +18,7 @@ namespace EndlessClient.Initialization
     {
         private readonly IEndlessGame _game;
         private readonly IEndlessGameRepository _endlessGameRepository;
-        private readonly IContentManagerRepository _contentManagerRepository;
+        private readonly IContentProvider _contentProvider;
         private readonly IKeyboardDispatcherRepository _keyboardDispatcherRepository;
         private readonly PacketHandlerGameComponent _packetHandlerGameComponent;
 
@@ -33,7 +33,7 @@ namespace EndlessClient.Initialization
 
         public EndlessClientInitializer(IEndlessGame game,
                                         IEndlessGameRepository endlessGameRepository,
-                                        IContentManagerRepository contentManagerRepository,
+                                        IContentProvider contentProvider,
                                         IKeyboardDispatcherRepository keyboardDispatcherRepository,
                                         PacketHandlerGameComponent packetHandlerGameComponent,
 
@@ -49,7 +49,7 @@ namespace EndlessClient.Initialization
         {
             _game = game;
             _endlessGameRepository = endlessGameRepository;
-            _contentManagerRepository = contentManagerRepository;
+            _contentProvider = contentProvider;
             _keyboardDispatcherRepository = keyboardDispatcherRepository;
             _packetHandlerGameComponent = packetHandlerGameComponent;
             _mainButtonController = mainButtonController;
@@ -69,8 +69,8 @@ namespace EndlessClient.Initialization
             _game.Components.Add(_packetHandlerGameComponent);
             _endlessGameRepository.Game = _game;
 
-            _contentManagerRepository.Content = _game.Content;
-            _contentManagerRepository.Content.RootDirectory = "ContentPipeline";
+            _game.Content.RootDirectory = "ContentPipeline";
+            _contentProvider.SetContentManager(_game.Content);
 
             _keyboardDispatcherRepository.Dispatcher = new KeyboardDispatcher(_game.Window);
 
