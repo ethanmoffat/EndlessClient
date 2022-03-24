@@ -127,6 +127,11 @@ namespace EndlessClient.Rendering
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_MENU_BELONGS_TO_PLAYER, $" {renderer.Character.Name}");
         }
 
+        protected override bool ShouldUpdate()
+        {
+            return base.ShouldUpdate();
+        }
+
         protected override void OnUpdateControl(GameTime gameTime)
         {
             int checkX = CurrentMouseState.X - DrawAreaWithParentOffset.X;

@@ -1,4 +1,5 @@
 ﻿using EOLib.Domain.Online;
+using EOLib.IO;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -24,13 +25,13 @@ namespace EOLib.Domain.Character
 
         public byte Gender { get; private set; }
 
-        public IReadOnlyList<short> Paperdoll { get; private set; }
+        public IReadOnlyDictionary<EquipLocation, short> Paperdoll { get; private set; }
 
         public OnlineIcon Icon { get; private set; }
 
         public PaperdollData()
         {
-            Paperdoll = new List<short>();
+            Paperdoll = new Dictionary<EquipLocation, short>();
         }
 
         private PaperdollData(string name,
@@ -42,7 +43,7 @@ namespace EOLib.Domain.Character
             short playerID,
             byte @class,
             byte gender,
-            IReadOnlyList<short> paperdoll,
+            IReadOnlyDictionary<EquipLocation, short> paperdoll,
             OnlineIcon icon)
         {
             Name = name;
@@ -103,7 +104,7 @@ namespace EOLib.Domain.Character
             return new PaperdollData(Name, Home, Partner, Title, Guild, Rank, PlayerID, Class, gender, Paperdoll, Icon);
         }
 
-        public IPaperdollData WithPaperdoll(IReadOnlyList<short> paperdoll)
+        public IPaperdollData WithPaperdoll(IReadOnlyDictionary<EquipLocation, short> paperdoll)
         {
             return new PaperdollData(Name, Home, Partner, Title, Guild, Rank, PlayerID, Class, Gender, paperdoll, Icon);
         }
@@ -138,7 +139,7 @@ namespace EOLib.Domain.Character
         byte Class { get; }
         byte Gender { get; }
 
-        IReadOnlyList<short> Paperdoll { get; }
+        IReadOnlyDictionary<EquipLocation, short> Paperdoll { get; }
 
         OnlineIcon Icon { get; }
 
@@ -160,7 +161,7 @@ namespace EOLib.Domain.Character
 
         IPaperdollData WithGender(byte gender);
 
-        IPaperdollData WithPaperdoll(IReadOnlyList<short> paperdoll);
+        IPaperdollData WithPaperdoll(IReadOnlyDictionary<EquipLocation, short> paperdoll);
 
         IPaperdollData WithIcon(OnlineIcon icon);
     }

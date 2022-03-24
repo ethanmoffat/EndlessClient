@@ -5,6 +5,7 @@ using EOLib.Domain.Online;
 using EOLib.IO;
 using EOLib.Net;
 using EOLib.Net.Handlers;
+using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers
 {
@@ -40,9 +41,9 @@ namespace EOLib.PacketHandlers
             if (packet.ReadChar() != 0)
                 return false;
 
-            var paperdoll = new short[(int)EquipLocation.PAPERDOLL_MAX];
-            for (int i = 0; i < (int)EquipLocation.PAPERDOLL_MAX; ++i)
-                paperdoll[i] = packet.ReadShort();
+            var paperdoll = new Dictionary<EquipLocation, short>((int)EquipLocation.PAPERDOLL_MAX);
+            for (var loc = (EquipLocation)0; loc < EquipLocation.PAPERDOLL_MAX; ++loc)
+                paperdoll[loc] = packet.ReadShort();
 
             var iconType = (OnlineIcon)packet.ReadChar();
 

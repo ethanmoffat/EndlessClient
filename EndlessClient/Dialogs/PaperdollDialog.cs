@@ -211,7 +211,7 @@ namespace EndlessClient.Dialogs
                 if (equipLocation == EquipLocation.PAPERDOLL_MAX)
                     break;
 
-                var id = paperdollData.Paperdoll[(int)equipLocation];
+                var id = paperdollData.Paperdoll[equipLocation];
                 var eifRecord = id.SomeWhen(i => i > 0).Map(i => _pubFileProvider.EIFFile[i]);
                 var paperdollItem = new PaperdollDialogItem(_nativeGraphicsManager, _isMainCharacter, equipLocation, eifRecord)
                 {
