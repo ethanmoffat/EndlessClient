@@ -496,8 +496,8 @@ namespace EndlessClient.HUD.Inventory
                     if (c.EquipItem(m_itemData.Type, (short)m_itemData.ID,
                         (short)m_itemData.DollGraphic))
                     {
-                        if (!m_api.EquipItem((short)m_itemData.ID, subLoc))
-                            EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+                        //if (!m_api.EquipItem((short)m_itemData.ID, subLoc))
+                        //    EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
                     }
                     else
                         EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION,

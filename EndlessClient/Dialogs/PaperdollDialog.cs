@@ -2,6 +2,7 @@
 using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD;
+using EndlessClient.HUD.Inventory;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Online;
@@ -25,8 +26,10 @@ namespace EndlessClient.Dialogs
         private static readonly Rectangle _iconDrawRect = new Rectangle(227, 258, 44, 21);
 
         private readonly INativeGraphicsManager _nativeGraphicsManager;
+        private readonly ICharacterActions _characterActions;
         private readonly IPaperdollProvider _paperdollProvider;
         private readonly IPubFileProvider _pubFileProvider;
+        private readonly IInventorySpaceValidator _inventorySpaceValidator;
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly bool _isMainCharacter;
@@ -48,9 +51,11 @@ namespace EndlessClient.Dialogs
 
         public PaperdollDialog(IGameStateProvider gameStateProvider,
                                INativeGraphicsManager nativeGraphicsManager,
+                               ICharacterActions characterActions,
                                IPaperdollProvider paperdollProvider,
                                IPubFileProvider pubFileProvider,
                                IEODialogButtonService eoDialogButtonService,
+                               IInventorySpaceValidator inventorySpaceValidator,
                                IEOMessageBoxFactory eoMessageBoxFactory,
                                IStatusLabelSetter statusLabelSetter,
                                ICharacter character, bool isMainCharacter)
@@ -58,9 +63,11 @@ namespace EndlessClient.Dialogs
         {
             _paperdollProvider = paperdollProvider;
             _pubFileProvider = pubFileProvider;
+            _inventorySpaceValidator = inventorySpaceValidator;
             _eoMessageBoxFactory = eoMessageBoxFactory;
             _statusLabelSetter = statusLabelSetter;
             _nativeGraphicsManager = nativeGraphicsManager;
+            _characterActions = characterActions;
             Character = character;
             _isMainCharacter = isMainCharacter;
             _characterIconSheet = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 32, true);
@@ -114,19 +121,6 @@ namespace EndlessClient.Dialogs
 
             _paperdollData = Option.None<IPaperdollData>();
         }
-
-        // todo: equip/unequip
-        //public void SetItem(EquipLocation loc, EIFRecord info)
-        //{
-        //    PaperdollDialogItem itemToUpdate = (PaperdollDialogItem)children.Find(_ctrl =>
-        //    {
-        //        PaperdollDialogItem item = _ctrl as PaperdollDialogItem;
-        //        if (item == null) return false;
-        //        return item.EquipLoc == loc;
-        //    });
-        //    if (itemToUpdate != null)
-        //        itemToUpdate.SetInfo(_getEquipLocRectangle(loc), info);
-        //}
 
         protected override void OnUpdateControl(GameTime gameTime)
         {
@@ -200,7 +194,9 @@ namespace EndlessClient.Dialogs
             _guild.Text = Capitalize(paperdollData.Guild);
             _rank.Text = Capitalize(paperdollData.Rank);
 
-            foreach (var control in ChildControls.OfType<PaperdollDialogItem>())
+            var paperdollDialogItems = ChildControls.OfType<PaperdollDialogItem>().ToList();
+
+            foreach (var control in paperdollDialogItems)
             {
                 control.SetControlUnparented();
                 control.Dispose();
@@ -256,25 +252,22 @@ namespace EndlessClient.Dialogs
                         var msgBox = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.ITEM_IS_CURSED_ITEM, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                         msgBox.ShowDialog();
                     }
-                    // todo: unequip to inventory if it fits
-                    //else if (!((EOGame)Game).Hud.InventoryFits((short)m_info.ID))
-                    //{
-                    //    ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_ITEM_UNEQUIP_NO_SPACE_LEFT);
-                    //}
-                    //else
-                    //{
-                    //    _setSize(m_area.Width, m_area.Height);
-                    //    DrawLocation = new Vector2(m_area.X + (m_area.Width / 2 - DrawArea.Width / 2),
-                    //        m_area.Y + (m_area.Height / 2 - DrawArea.Height / 2));
-
-                    //    //put back in the inventory by the packet handler response
-                    //    string locName = Enum.GetName(typeof(EquipLocation), EquipLocation);
-                    //    if (!string.IsNullOrEmpty(locName))
-                    //        m_api.UnequipItem((short)m_info.ID, (byte)(locName.Contains("2") ? 1 : 0));
-
-                    //    m_info = null;
-                    //    m_gfx = null;
-                    //}
+                    else
+                    {
+                        eifRecord.MatchSome(rec =>
+                        {
+                            if (!_inventorySpaceValidator.ItemFits(rec.Size))
+                            {
+                                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_ITEM_UNEQUIP_NO_SPACE_LEFT);
+                            }
+                            else
+                            {
+                                // packet reply handles updating the paperdoll for the character which will unrender the equipment
+                                string locName = Enum.GetName(typeof(EquipLocation), equipLocation);
+                                _characterActions.UnequipItem((short)rec.ID, alternateLocation: locName.Contains("2"));
+                            }
+                        });
+                    }
                 };
 
                 paperdollItem.SetParentControl(this);

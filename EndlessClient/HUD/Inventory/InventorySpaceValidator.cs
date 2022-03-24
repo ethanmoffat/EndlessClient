@@ -1,5 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Map;
+using EOLib.IO;
 using EOLib.IO.Repositories;
 
 namespace EndlessClient.HUD.Inventory
@@ -16,7 +17,11 @@ namespace EndlessClient.HUD.Inventory
 
         public bool ItemFits(IItem item)
         {
-            var itemSize = _eifFileProvider.EIFFile[item.ItemID].Size;
+            return ItemFits(_eifFileProvider.EIFFile[item.ItemID].Size);
+        }
+
+        public bool ItemFits(ItemSize itemSize)
+        {
             // todo: inventory grid management
             return true;
         }
@@ -25,5 +30,7 @@ namespace EndlessClient.HUD.Inventory
     public interface IInventorySpaceValidator
     {
         bool ItemFits(IItem item);
+
+        bool ItemFits(ItemSize itemSize);
     }
 }

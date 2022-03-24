@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using EndlessClient.Audio;
 using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Old;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Map;
-using EOLib.IO;
-using EOLib.IO.Extensions;
 using EOLib.Localization;
 using EOLib.Net.API;
 using XNAControls.Old;
@@ -29,8 +26,6 @@ namespace EndlessClient.Old
 
         public void AssignCallbacks()
         {
-            m_packetAPI.OnPlayerPaperdollChange += _playerPaperdollChange;
-
             //chest related
             m_packetAPI.OnChestOpened += _chestOpen;
             m_packetAPI.OnChestAgree += _chestAgree;
@@ -101,31 +96,6 @@ namespace EndlessClient.Old
 
             //spell casting
             m_packetAPI.OnCastSpellTargetGroup += _playerCastGroupSpell;
-        }
-
-        private void _playerPaperdollChange(PaperdollEquipData _data)
-        {
-            OldCharacter c;
-            if (!_data.ItemWasUnequipped)
-            {
-                var rec = OldWorld.Instance.EIF[_data.ItemID];
-                //update inventory
-                (c = OldWorld.Instance.MainPlayer.ActiveCharacter).UpdateInventoryItem(_data.ItemID, _data.ItemAmount);
-                //equip item
-                c.EquipItem(rec.Type, (short) rec.ID, (short) rec.DollGraphic, true, (sbyte) _data.SubLoc);
-                //add to paperdoll dialog
-                //if (EOPaperdollDialog.Instance != null)
-                //    EOPaperdollDialog.Instance.SetItem(rec.GetEquipLocation() + _data.SubLoc, rec);
-            }
-            else
-            {
-                c = OldWorld.Instance.MainPlayer.ActiveCharacter;
-                //update inventory
-                c.UpdateInventoryItem(_data.ItemID, 1, true); //true: add to existing quantity
-                //unequip item
-                c.UnequipItem(OldWorld.Instance.EIF[_data.ItemID].Type, _data.SubLoc);
-            }
-            c.UpdateStatsAfterEquip(_data);
         }
 
         private void _chestOpen(ChestData data)
