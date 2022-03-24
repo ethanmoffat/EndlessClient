@@ -30,7 +30,10 @@ namespace EndlessClient.UIControls
             }
 
             if ((DateTime.Now - _statusLabelTextProvider.SetTime).TotalMilliseconds > STATUS_LABEL_DISPLAY_TIME_MS)
+            {
+                Text = string.Empty;
                 Visible = false;
+            }
 
             return base.ShouldUpdate();
         }

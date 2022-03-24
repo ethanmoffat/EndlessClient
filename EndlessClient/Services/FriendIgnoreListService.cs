@@ -23,6 +23,22 @@ namespace EndlessClient.Services
             Save(isIgnore: true, path, contents);
         }
 
+        public void SaveNewFriend(string path, string name)
+        {
+            if (!File.Exists(path) || string.IsNullOrWhiteSpace(File.ReadAllText(path)))
+                Save(isIgnore: false, path, new[] { name });
+            else
+                File.AppendAllLines(path, new[] { name });
+        }
+
+        public void SaveNewIgnore(string path, string name)
+        {
+            if (!File.Exists(path) || string.IsNullOrWhiteSpace(File.ReadAllText(path)))
+                Save(isIgnore: true, path, new[] { name });
+            else
+                File.AppendAllLines(path, new[] { name });
+        }
+
         private static List<string> Load(string fileName)
         {
             List<string> allLines;
@@ -63,5 +79,9 @@ namespace EndlessClient.Services
         void SaveFriends(string path, IReadOnlyList<string> contents);
 
         void SaveIgnored(string path, IReadOnlyList<string> contents);
+
+        void SaveNewFriend(string path, string name);
+
+        void SaveNewIgnore(string path, string name);
     }
 }

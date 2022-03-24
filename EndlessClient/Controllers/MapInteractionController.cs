@@ -1,11 +1,13 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.ControlSets;
+using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Inventory;
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Character;
+using EndlessClient.Rendering.Factories;
 using EOLib.Domain.Character;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
@@ -22,30 +24,42 @@ namespace EndlessClient.Controllers
     {
         private readonly IMapActions _mapActions;
         private readonly ICharacterActions _characterActions;
+        private readonly IInGameDialogActions _inGameDialogActions;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IInventorySpaceValidator _inventorySpaceValidator;
         private readonly IHudControlProvider _hudControlProvider;
+        private readonly ICharacterRendererProvider _characterRendererProvider;
+        private readonly IContextMenuRepository _contextMenuRepository;
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
+        private readonly IContextMenuRendererFactory _contextMenuRendererFactory;
 
         public MapInteractionController(IMapActions mapActions,
                                         ICharacterActions characterActions,
+                                        IInGameDialogActions inGameDialogActions,
                                         ICurrentMapStateProvider currentMapStateProvider,
                                         ICharacterProvider characterProvider,
                                         IStatusLabelSetter statusLabelSetter,
                                         IInventorySpaceValidator inventorySpaceValidator,
                                         IHudControlProvider hudControlProvider,
-                                        IEOMessageBoxFactory eoMessageBoxFactory)
+                                        ICharacterRendererProvider characterRendererProvider,
+                                        IContextMenuRepository contextMenuRepository,
+                                        IEOMessageBoxFactory eoMessageBoxFactory,
+                                        IContextMenuRendererFactory contextMenuRendererFactory)
         {
             _mapActions = mapActions;
             _characterActions = characterActions;
+            _inGameDialogActions = inGameDialogActions;
             _currentMapStateProvider = currentMapStateProvider;
             _characterProvider = characterProvider;
             _statusLabelSetter = statusLabelSetter;
             _inventorySpaceValidator = inventorySpaceValidator;
             _hudControlProvider = hudControlProvider;
+            _characterRendererProvider = characterRendererProvider;
+            _contextMenuRepository = contextMenuRepository;
             _eoMessageBoxFactory = eoMessageBoxFactory;
+            _contextMenuRendererFactory = contextMenuRendererFactory;
         }
 
         public async Task LeftClickAsync(IMapCellState cellState, IMouseCursorRenderer mouseRenderer)
@@ -87,7 +101,24 @@ namespace EndlessClient.Controllers
             if (!cellState.Character.HasValue)
                 return;
 
-            //todo: context menu
+            cellState.Character.MatchSome(c =>
+            {
+                if (c == _characterProvider.MainCharacter)
+                {
+                    _inGameDialogActions.ShowPaperdollDialog(_characterProvider.MainCharacter, isMainCharacter: true);
+                }
+                else if (_characterRendererProvider.CharacterRenderers.ContainsKey(c.ID))
+                {
+                    _contextMenuRepository.ContextMenu = _contextMenuRepository.ContextMenu.Match(
+                        some: cmr =>
+                        {
+                            cmr.Dispose();
+                            return Option.Some(_contextMenuRendererFactory.CreateContextMenuRenderer(_characterRendererProvider.CharacterRenderers[c.ID]));
+                        },
+                        none: () => Option.Some(_contextMenuRendererFactory.CreateContextMenuRenderer(_characterRendererProvider.CharacterRenderers[c.ID])));
+                    _contextMenuRepository.ContextMenu.MatchSome(r => r.Initialize());
+                }
+            });
         }
 
         private void HandlePickupResult(ItemPickupResult pickupResult, IItem item)

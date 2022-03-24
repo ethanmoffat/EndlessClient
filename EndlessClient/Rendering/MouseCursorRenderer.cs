@@ -45,6 +45,7 @@ namespace EndlessClient.Rendering
         private readonly IMapInteractionController _mapInteractionController;
         private readonly IUserInputProvider _userInputProvider;
         private readonly IActiveDialogProvider _activeDialogProvider;
+        private readonly IContextMenuProvider _contextMenuProvider;
         private readonly XNALabel _mapItemText;
 
         private Rectangle _drawArea;
@@ -55,7 +56,7 @@ namespace EndlessClient.Rendering
         private Option<DateTime> _startClickTime;
         private CursorIndex _clickFrame;
         private int _clickAlpha;
-        private Rectangle _clickPositionArea;
+        private Option<MapCoordinate> _clickCoordinate;
 
         public MouseCursorRenderer(INativeGraphicsManager nativeGraphicsManager,
                                    ICharacterProvider characterProvider,
@@ -66,7 +67,8 @@ namespace EndlessClient.Rendering
                                    ICurrentMapProvider currentMapProvider,
                                    IMapInteractionController mapInteractionController,
                                    IUserInputProvider userInputProvider,
-                                   IActiveDialogProvider activeDialogProvider)
+                                   IActiveDialogProvider activeDialogProvider,
+                                   IContextMenuProvider contextMenuProvider)
         {
             _mouseCursorTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 24, true);
             _characterProvider = characterProvider;
@@ -78,6 +80,7 @@ namespace EndlessClient.Rendering
             _mapInteractionController = mapInteractionController;
             _userInputProvider = userInputProvider;
             _activeDialogProvider = activeDialogProvider;
+            _contextMenuProvider = contextMenuProvider;
             SingleCursorFrameArea = new Rectangle(0, 0,
                                                   _mouseCursorTexture.Width/(int) CursorIndex.NumberOfFramesInSheet,
                                                   _mouseCursorTexture.Height);
@@ -91,6 +94,8 @@ namespace EndlessClient.Rendering
                 AutoSize = false,
                 DrawOrder = 10 //todo: make a better provider for draw orders (see also HudControlsFactory)
             };
+
+            _clickCoordinate = Option.None<MapCoordinate>();
         }
 
         public override void Initialize()
@@ -103,7 +108,9 @@ namespace EndlessClient.Rendering
         public override async void Update(GameTime gameTime)
         {
             // prevents updates if there is a dialog
-            if (!ShouldUpdate() || _activeDialogProvider.ActiveDialogs.Any(x => x.HasValue)) return;
+            if (!ShouldUpdate() || _activeDialogProvider.ActiveDialogs.Any(x => x.HasValue) ||
+                _contextMenuProvider.ContextMenu.HasValue)
+                return;
 
             // todo: don't do anything if there is a context menu and mouse is over context menu
 
@@ -291,15 +298,11 @@ namespace EndlessClient.Rendering
             var currentMouseState = _userInputProvider.CurrentMouseState;
             var previousMouseState = _userInputProvider.PreviousMouseState;
 
+            // todo: some left clicks should be on the graphic itself instead of based on the grid where the cursor is (NPC, map sign, board, etc.)
             if (currentMouseState.LeftButton == ButtonState.Released &&
                 previousMouseState.LeftButton == ButtonState.Pressed)
             {
                 await _mapInteractionController.LeftClickAsync(cellState, this);
-            }
-            else if (currentMouseState.RightButton == ButtonState.Released &&
-                     previousMouseState.RightButton == ButtonState.Pressed)
-            {
-                _mapInteractionController.RightClick(cellState);
             }
         }
 
@@ -307,7 +310,8 @@ namespace EndlessClient.Rendering
 
         public void Draw(SpriteBatch spriteBatch, Vector2 additionalOffset)
         {
-            //todo: don't draw if context menu is visible and mouse is over the context menu
+            if (_contextMenuProvider.ContextMenu.HasValue)
+                return;
 
             if (_shouldDrawCursor && _gridX >= 0 && _gridY >= 0 &&
                 _gridX <= _currentMapProvider.CurrentMap.Properties.Width &&
@@ -323,10 +327,14 @@ namespace EndlessClient.Rendering
 
                 if (_startClickTime.HasValue)
                 {
-                    spriteBatch.Draw(_mouseCursorTexture,
-                                     _clickPositionArea.Location.ToVector2() + additionalOffset,
-                                     SingleCursorFrameArea.WithPosition(new Vector2(SingleCursorFrameArea.Width * (int)_clickFrame, 0)),
-                                     Color.FromNonPremultiplied(255, 255, 255, _clickAlpha-=5));
+                    _clickCoordinate.MatchSome(c =>
+                    {
+                        var position = GetDrawCoordinatesFromGridUnits(c.X, c.Y, MainCharacterOffsetX(), MainCharacterOffsetY());
+                        spriteBatch.Draw(_mouseCursorTexture,
+                                         position + additionalOffset,
+                                         SingleCursorFrameArea.WithPosition(new Vector2(SingleCursorFrameArea.Width * (int)_clickFrame, 0)),
+                                         Color.FromNonPremultiplied(255, 255, 255, _clickAlpha -= 5));
+                    });
                 }
             }
         }
@@ -339,7 +347,7 @@ namespace EndlessClient.Rendering
             _startClickTime = Option.Some(DateTime.Now);
             _clickFrame = CursorIndex.ClickFirstFrame;
             _clickAlpha = 200;
-            _clickPositionArea = _drawArea;
+            _clickCoordinate = Option.Some(new MapCoordinate(_gridX, _gridY));
         }
 
         protected override void Dispose(bool disposing)

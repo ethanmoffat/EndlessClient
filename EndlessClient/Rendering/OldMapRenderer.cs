@@ -1039,9 +1039,6 @@ namespace EndlessClient.Rendering
                 if(_miniMapRenderer != null)
                     _miniMapRenderer.Dispose();
 
-                if (_mouseCursorRenderer != null)
-                    _mouseCursorRenderer.Dispose();
-
                 base.Dispose(true);
                 _disposed = true;
 

@@ -10,12 +10,16 @@ namespace EndlessClient.Dialogs
     {
         Option<ScrollingListDialog> FriendIgnoreDialog { get; }
 
+        Option<PaperdollDialog> PaperdollDialog { get; }
+
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs { get; }
     }
 
     public interface IActiveDialogRepository
     {
         Option<ScrollingListDialog> FriendIgnoreDialog { get; set; }
+
+        Option<PaperdollDialog> PaperdollDialog { get; set;  }
 
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs { get; }
     }
@@ -25,6 +29,8 @@ namespace EndlessClient.Dialogs
     {
         public Option<ScrollingListDialog> FriendIgnoreDialog { get; set; }
 
+        public Option<PaperdollDialog> PaperdollDialog { get; set; }
+
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs
         {
             get
@@ -32,6 +38,7 @@ namespace EndlessClient.Dialogs
                 return new[]
                 {
                     FriendIgnoreDialog.Map(d => (IXNADialog)d),
+                    PaperdollDialog.Map(d => (IXNADialog)d),
                 }.ToList();
             }
         }

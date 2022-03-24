@@ -516,25 +516,6 @@ namespace EndlessClient.Old
             EquipItem(ItemType.Weapon, (short)(OldWorld.Instance.EIF.SingleOrDefault(x => x.Type == ItemType.Weapon && x.DollGraphic == newRenderData.weapon) ?? new EIFRecord()).ID, newRenderData.weapon, true);
         }
 
-        public void UpdateStatsAfterEquip(PaperdollEquipData data)
-        {
-            Stats.MaxHP = data.MaxHP;
-            Stats.MaxTP = data.MaxTP;
-
-            Stats.Str = data.Str;
-            Stats.Int = data.Int;
-            Stats.Wis = data.Wis;
-            Stats.Agi = data.Agi;
-            Stats.Con = data.Con;
-            Stats.Cha = data.Cha;
-
-            Stats.MinDam = data.MinDam;
-            Stats.MaxDam = data.MaxDam;
-            Stats.Accuracy = data.Accuracy;
-            Stats.Evade = data.Evade;
-            Stats.Armor = data.Armor;
-        }
-
         public ChestKey CanOpenChest(ChestSpawnMapEntity chest)
         {
             ChestKey permission = chest.Key;

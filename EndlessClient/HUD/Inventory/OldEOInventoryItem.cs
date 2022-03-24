@@ -117,8 +117,8 @@ namespace EndlessClient.HUD.Inventory
                 m_alpha = 255;
                 SetParent(m_preDragParent);
 
-                if (((OldEOInventory)parent).IsOverDrop() || (OldWorld.Instance.ActiveMapRenderer.MouseOver &&
-                    ChestDialog.Instance == null && EOPaperdollDialog.Instance == null && LockerDialog.Instance == null
+                if (((OldEOInventory)parent).IsOverDrop() || (OldWorld.Instance.ActiveMapRenderer.MouseOver
+                    //&& ChestDialog.Instance == null && EOPaperdollDialog.Instance == null && LockerDialog.Instance == null
                     && BankAccountDialog.Instance == null && TradeDialog.Instance == null))
                 {
                     Point loc = OldWorld.Instance.ActiveMapRenderer.MouseOver ? OldWorld.Instance.ActiveMapRenderer.GridCoords :
@@ -202,28 +202,28 @@ namespace EndlessClient.HUD.Inventory
                             EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
                     }
                 }
-                else if (EOPaperdollDialog.Instance != null && EOPaperdollDialog.Instance.MouseOver && EOPaperdollDialog.Instance.MouseOverPreviously)
-                {
-                    //equipable items should be equipped
-                    //other item types should do nothing
-                    switch (m_itemData.Type)
-                    {
-                        case ItemType.Accessory:
-                        case ItemType.Armlet:
-                        case ItemType.Armor:
-                        case ItemType.Belt:
-                        case ItemType.Boots:
-                        case ItemType.Bracer:
-                        case ItemType.Gloves:
-                        case ItemType.Hat:
-                        case ItemType.Necklace:
-                        case ItemType.Ring:
-                        case ItemType.Shield:
-                        case ItemType.Weapon:
-                            _handleDoubleClick();
-                            break;
-                    }
-                }
+                //else if (EOPaperdollDialog.Instance != null && EOPaperdollDialog.Instance.MouseOver && EOPaperdollDialog.Instance.MouseOverPreviously)
+                //{
+                //    //equipable items should be equipped
+                //    //other item types should do nothing
+                //    switch (m_itemData.Type)
+                //    {
+                //        case ItemType.Accessory:
+                //        case ItemType.Armlet:
+                //        case ItemType.Armor:
+                //        case ItemType.Belt:
+                //        case ItemType.Boots:
+                //        case ItemType.Bracer:
+                //        case ItemType.Gloves:
+                //        case ItemType.Hat:
+                //        case ItemType.Necklace:
+                //        case ItemType.Ring:
+                //        case ItemType.Shield:
+                //        case ItemType.Weapon:
+                //            _handleDoubleClick();
+                //            break;
+                //    }
+                //}
                 else if (LockerDialog.Instance != null && LockerDialog.Instance.MouseOver && LockerDialog.Instance.MouseOverPreviously)
                 {
                     byte x = LockerDialog.Instance.X;
@@ -496,8 +496,8 @@ namespace EndlessClient.HUD.Inventory
                     if (c.EquipItem(m_itemData.Type, (short)m_itemData.ID,
                         (short)m_itemData.DollGraphic))
                     {
-                        if (!m_api.EquipItem((short)m_itemData.ID, subLoc))
-                            EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+                        //if (!m_api.EquipItem((short)m_itemData.ID, subLoc))
+                        //    EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
                     }
                     else
                         EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION,

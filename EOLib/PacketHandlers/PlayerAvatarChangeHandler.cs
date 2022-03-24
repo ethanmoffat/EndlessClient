@@ -12,9 +12,9 @@ namespace EOLib.PacketHandlers
     [AutoMappedType]
     public class PlayerAvatarChangeHandler : InGameOnlyPacketHandler
     {
-        private readonly ICurrentMapStateRepository _currentMapStateRepository;
-        private readonly ICharacterRepository _characterRepository;
-        private readonly IEIFFileProvider _eifFileProvider;
+        protected readonly ICurrentMapStateRepository _currentMapStateRepository;
+        protected readonly ICharacterRepository _characterRepository;
+        protected readonly IEIFFileProvider _eifFileProvider;
 
         public override PacketFamily Family => PacketFamily.Avatar;
 

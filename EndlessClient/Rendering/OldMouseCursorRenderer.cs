@@ -11,12 +11,12 @@ using Microsoft.Xna.Framework.Input;
 
 namespace EndlessClient.Rendering
 {
-    public sealed class OldMouseCursorRenderer : IDisposable
+    public sealed class OldMouseCursorRenderer
     {
         private readonly EOGame _game;
         private readonly OldMapRenderer _parentMapRenderer;
         
-        private readonly EOMapContextMenu _contextMenu;
+        //private readonly EOMapContextMenu _contextMenu;
         private readonly OldCharacter _mainCharacter;
 
         private int _gridX, _gridY;
@@ -31,14 +31,14 @@ namespace EndlessClient.Rendering
             _game = game;
             _parentMapRenderer = parentMapRenderer;
 
-            _contextMenu = new EOMapContextMenu(_game.API);
+            //_contextMenu = new EOMapContextMenu(_game.API);
 
             _mainCharacter = OldWorld.Instance.MainPlayer.ActiveCharacter;
         }
 
         public void ShowContextMenu(OldCharacterRenderer player)
         {
-            _contextMenu.SetCharacterRenderer(player);
+            //_contextMenu.SetCharacterRenderer(player);
         }
 
         public void Update()
@@ -133,28 +133,5 @@ namespace EndlessClient.Rendering
             if (characterWithinOneUnitOfLocker && characterInSameRowOrColAsLocker)
                 LockerDialog.Show(_game.API, (byte) _gridX, (byte) _gridY);
         }
-
-        #region IDisposable
-
-        ~OldMouseCursorRenderer()
-        {
-            Dispose(false);
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        private void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                _contextMenu.Close();
-            }
-        }
-
-        #endregion
     }
 }

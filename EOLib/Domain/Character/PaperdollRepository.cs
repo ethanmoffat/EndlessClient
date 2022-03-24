@@ -1,40 +1,23 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
+using System.Collections.Generic;
 
 namespace EOLib.Domain.Character
 {
     public interface IPaperdollRepository
     {
-        List<short> MainCharacterPaperdoll { get; set; }
-
-        Dictionary<int, List<short>> VisibleCharacterPaperdolls { get; set; }
+        Dictionary<int, IPaperdollData> VisibleCharacterPaperdolls { get; set; }
     }
 
     public interface IPaperdollProvider
     {
-        IReadOnlyList<short> MainCharacterPaperdoll { get; }
-
-        IReadOnlyDictionary<int, IReadOnlyList<short>> VisibleCharacterPaperdolls { get; }
+        IReadOnlyDictionary<int, IPaperdollData> VisibleCharacterPaperdolls { get; }
     }
 
     [AutoMappedType(IsSingleton = true)]
     public class PaperdollRepository : IPaperdollRepository, IPaperdollProvider
     {
-        public List<short> MainCharacterPaperdoll { get; set; }
+        public Dictionary<int, IPaperdollData> VisibleCharacterPaperdolls { get; set; } = new Dictionary<int, IPaperdollData>();
 
-        public Dictionary<int, List<short>> VisibleCharacterPaperdolls { get; set; }
-
-        IReadOnlyList<short> IPaperdollProvider.MainCharacterPaperdoll => MainCharacterPaperdoll;
-
-        IReadOnlyDictionary<int, IReadOnlyList<short>> IPaperdollProvider.VisibleCharacterPaperdolls
-        {
-            get
-            {
-                return VisibleCharacterPaperdolls.ToDictionary(
-                    k => k.Key,
-                    v => (IReadOnlyList<short>)v.Value);
-            }
-        }
+        IReadOnlyDictionary<int, IPaperdollData> IPaperdollProvider.VisibleCharacterPaperdolls => VisibleCharacterPaperdolls;
     }
 }
