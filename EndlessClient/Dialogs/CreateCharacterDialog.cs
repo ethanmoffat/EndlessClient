@@ -1,4 +1,5 @@
 ﻿using System;
+using EndlessClient.Content;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
@@ -9,7 +10,6 @@ using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 
@@ -41,7 +41,7 @@ namespace EndlessClient.Dialogs
             INativeGraphicsManager nativeGraphicsManager,
             IGameStateProvider gameStateProvider,
             ICharacterRendererFactory rendererFactory,
-            ContentManager contentManager,
+            IContentProvider contentProvider,
             KeyboardDispatcher dispatcher,
             IEOMessageBoxFactory messageBoxFactory,
             IEODialogButtonService eoDialogButtonService)
@@ -52,7 +52,7 @@ namespace EndlessClient.Dialogs
 
             _charCreateSheet = nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 22);
 
-            var cursorTexture = contentManager.Load<Texture2D>("cursor");
+            var cursorTexture = contentProvider.Textures[ContentProvider.Cursor];
             _inputBox = new XNATextBox(new Rectangle(80, 57, 138, 19), Constants.FontSize08, caretTexture: cursorTexture)
             {
                 LeftPadding = 5,

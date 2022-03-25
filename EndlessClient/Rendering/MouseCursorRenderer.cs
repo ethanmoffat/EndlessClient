@@ -211,11 +211,13 @@ namespace EndlessClient.Rendering
             item.Match(
                 some: i =>
                 {
-                    if (!_mapItemText.Visible)
+                    var data = _eifFileProvider.EIFFile[i.ItemID];
+                    var text = _itemStringService.GetStringForMapDisplay(data, i.Amount);
+
+                    if (!_mapItemText.Visible || _mapItemText.Text != text)
                     {
-                        var data = _eifFileProvider.EIFFile[i.ItemID];
                         _mapItemText.Visible = true;
-                        _mapItemText.Text = _itemStringService.GetStringForMapDisplay(data, i.Amount);
+                        _mapItemText.Text = text;
                         _mapItemText.ResizeBasedOnText();
                         _mapItemText.ForeColor = GetColorForMapDisplay(data);
 
@@ -239,7 +241,6 @@ namespace EndlessClient.Rendering
                 case TileSpec.JammedDoor:
                 case TileSpec.MapEdge:
                 case TileSpec.FakeWall:
-                case TileSpec.NPCBoundary:
                 case TileSpec.VultTypo:
                     _shouldDrawCursor = false;
                     break;
@@ -263,6 +264,7 @@ namespace EndlessClient.Rendering
                 case TileSpec.Jukebox:
                     _cursorIndex = CursorIndex.HoverNormal;
                     break;
+                case TileSpec.NPCBoundary:
                 case TileSpec.Jump:
                 case TileSpec.Water:
                 case TileSpec.Arena:

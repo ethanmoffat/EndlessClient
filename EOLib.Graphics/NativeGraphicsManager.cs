@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using AutomaticTypeMapper;
 using Microsoft.Xna.Framework.Graphics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
 namespace EOLib.Graphics
@@ -45,12 +47,21 @@ namespace EOLib.Graphics
                 }
             }
 
-            using (var mem = new System.IO.MemoryStream())
+            using (var i = BitmapFromResource(file, resourceVal, transparent))
             {
-                using (var i = BitmapFromResource(file, resourceVal, transparent))
-                    ((Image)i).Save(mem, new PngEncoder());
-
-                ret = Texture2D.FromStream(_graphicsDeviceProvider.GraphicsDevice, mem);
+                if (!i.DangerousTryGetSinglePixelMemory(out var mem))
+                {
+                    using (var ms = new MemoryStream())
+                    {
+                        i.SaveAsPng(ms);
+                        ret = Texture2D.FromStream(_graphicsDeviceProvider.GraphicsDevice, ms);
+                    }
+                }
+                else
+                {
+                    ret = new Texture2D(_graphicsDeviceProvider.GraphicsDevice, i.Width, i.Height);
+                    ret.SetData(mem.ToArray());
+                }
             }
 
             lock (__cachelock__)
@@ -61,9 +72,9 @@ namespace EOLib.Graphics
             return ret;
         }
 
-        private IImage BitmapFromResource(GFXTypes file, int resourceVal, bool transparent)
+        private Image<Rgba32> BitmapFromResource(GFXTypes file, int resourceVal, bool transparent)
         {
-            var ret = (Image)_gfxLoader.LoadGFX(file, resourceVal);
+            var ret = (Image<Rgba32>)_gfxLoader.LoadGFX(file, resourceVal);
 
             if (transparent)
             {

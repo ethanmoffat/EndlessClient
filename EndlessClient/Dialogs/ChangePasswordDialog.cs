@@ -35,7 +35,7 @@ namespace EndlessClient.Dialogs
 
         public ChangePasswordDialog(INativeGraphicsManager nativeGraphicsManager,
                                     IGameStateProvider gameStateProvider,
-                                    IContentManagerProvider contentManagerProvider,
+                                    IContentProvider contentProvider,
                                     IEOMessageBoxFactory eoMessageBoxFactory,
                                     IKeyboardDispatcherProvider keyboardDispatcherProvider,
                                     IPlayerInfoProvider playerInfoProvider,
@@ -48,7 +48,7 @@ namespace EndlessClient.Dialogs
 
             BackgroundTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 21);
 
-            var cursorTexture = contentManagerProvider.Content.Load<Texture2D>("Cursor");
+            var cursorTexture = contentProvider.Textures[ContentProvider.Cursor];
 
             _inputBoxes = new IXNATextBox[4];
             for (int i = 0; i < _inputBoxes.Length; ++i)

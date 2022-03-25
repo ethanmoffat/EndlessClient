@@ -1,4 +1,5 @@
 ﻿using System;
+using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EOLib;
@@ -38,9 +39,9 @@ namespace EndlessClient.ControlSets
             _randomGen = new Random();
         }
 
-        public override void InitializeResources(INativeGraphicsManager gfxManager, ContentManager xnaContentManager)
+        public override void InitializeResources(INativeGraphicsManager gfxManager, IContentProvider contentProvider)
         {
-            base.InitializeResources(gfxManager, xnaContentManager);
+            base.InitializeResources(gfxManager, contentProvider);
 
             for (int i = 0; i < _personSet1.Length; ++i)
                 _personSet1[i] = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 41 + i, true);

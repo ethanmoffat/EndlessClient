@@ -8,6 +8,7 @@ using EndlessClient.HUD.Controls;
 using EndlessClient.Input;
 using EndlessClient.UIControls;
 using EOLib.Config;
+using EOLib.Domain.Login;
 using EOLib.Graphics;
 
 namespace EndlessClient.ControlSets
@@ -18,10 +19,11 @@ namespace EndlessClient.ControlSets
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly IHudControlsFactory _hudControlsFactory;
-        private readonly IContentManagerProvider _contentManagerProvider;
+        private readonly IContentProvider _contentProvider;
         private readonly IKeyboardDispatcherProvider _keyboardDispatcherProvider;
         private readonly IConfigurationProvider _configProvider;
         private readonly ICharacterInfoPanelFactory _characterInfoPanelFactory;
+        private readonly ICharacterSelectorProvider _characterSelectorProvider;
         private IMainButtonController _mainButtonController;
         private IAccountController _accountController;
         private ILoginController _loginController;
@@ -30,18 +32,20 @@ namespace EndlessClient.ControlSets
         public ControlSetFactory(INativeGraphicsManager nativeGraphicsManager,
                                  IEOMessageBoxFactory messageBoxFactory,
                                  IHudControlsFactory hudControlsFactory,
-                                 IContentManagerProvider contentManagerProvider,
+                                 IContentProvider contentProvider,
                                  IKeyboardDispatcherProvider keyboardDispatcherProvider,
                                  IConfigurationProvider configProvider,
-                                 ICharacterInfoPanelFactory characterInfoPanelFactory)
+                                 ICharacterInfoPanelFactory characterInfoPanelFactory,
+                                 ICharacterSelectorProvider characterSelectorProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _messageBoxFactory = messageBoxFactory;
             _hudControlsFactory = hudControlsFactory;
-            _contentManagerProvider = contentManagerProvider;
+            _contentProvider = contentProvider;
             _keyboardDispatcherProvider = keyboardDispatcherProvider;
             _configProvider = configProvider;
             _characterInfoPanelFactory = characterInfoPanelFactory;
+            _characterSelectorProvider = characterSelectorProvider;
         }
 
         public IControlSet CreateControlsForState(GameStates newState, IControlSet currentControlSet)
@@ -51,7 +55,7 @@ namespace EndlessClient.ControlSets
                 throw new InvalidOperationException("Missing controllers - the Unity container was initialized incorrectly");
 
             var controlSet = GetSetBasedOnState(newState);
-            controlSet.InitializeResources(_nativeGraphicsManager, _contentManagerProvider.Content);
+            controlSet.InitializeResources(_nativeGraphicsManager, _contentProvider);
             controlSet.InitializeControls(currentControlSet);
             return controlSet;
         }
@@ -89,6 +93,7 @@ namespace EndlessClient.ControlSets
                         _keyboardDispatcherProvider.Dispatcher,
                         _mainButtonController,
                         _characterInfoPanelFactory,
+                        _characterSelectorProvider,
                         _characterManagementController,
                         _accountController);
                 case GameStates.PlayingTheGame:

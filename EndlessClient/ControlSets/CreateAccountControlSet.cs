@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
@@ -7,7 +8,6 @@ using EOLib;
 using EOLib.Domain.Account;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 
@@ -41,9 +41,9 @@ namespace EndlessClient.ControlSets
             _accountController = accountController;
         }
 
-        public override void InitializeResources(INativeGraphicsManager gfxManager, ContentManager xnaContentManager)
+        public override void InitializeResources(INativeGraphicsManager gfxManager, IContentProvider contentProvider)
         {
-            base.InitializeResources(gfxManager, xnaContentManager);
+            base.InitializeResources(gfxManager, contentProvider);
 
             _labelsTexture = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 12, true);
         }

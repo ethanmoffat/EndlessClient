@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using EndlessClient.Content;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
 using EndlessClient.UIControls;
@@ -52,11 +53,12 @@ namespace EndlessClient.Dialogs
         }
 
         public ScrollingMessageDialog(INativeGraphicsManager nativeGraphicsManager,
+                                      IContentProvider contentProvider,
                                       IGameStateProvider gameStateProvider,
                                       IEODialogButtonService eoDialogButtonService)
             : base(gameStateProvider)
         {
-            _font = Game.Content.Load<SpriteFont>(Constants.FontSize08);
+            _font = contentProvider.Fonts[Constants.FontSize08];
             _textSplitter = new TextSplitter("", _font) { LineLength = 275 };
 
             BackgroundTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 40);

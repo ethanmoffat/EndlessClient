@@ -44,7 +44,7 @@ namespace EndlessClient.HUD.Controls
         private readonly IUserInputRepository _userInputRepository;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IStatusLabelTextProvider _statusLabelTextProvider;
-        private readonly IContentManagerProvider _contentManagerProvider;
+        private readonly IContentProvider _contentProvider;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IChatModeCalculator _chatModeCalculator;
@@ -68,7 +68,7 @@ namespace EndlessClient.HUD.Controls
                                   IUserInputRepository userInputRepository,
                                   IStatusLabelSetter statusLabelSetter,
                                   IStatusLabelTextProvider statusLabelTextProvider,
-                                  IContentManagerProvider contentManagerProvider,
+                                  IContentProvider contentProvider,
                                   IHudControlProvider hudControlProvider,
                                   ICurrentMapProvider currentMapProvider,
                                   IChatModeCalculator chatModeCalculator,
@@ -91,7 +91,7 @@ namespace EndlessClient.HUD.Controls
             _userInputRepository = userInputRepository;
             _statusLabelSetter = statusLabelSetter;
             _statusLabelTextProvider = statusLabelTextProvider;
-            _contentManagerProvider = contentManagerProvider;
+            _contentProvider = contentProvider;
             _hudControlProvider = hudControlProvider;
             _currentMapProvider = currentMapProvider;
             _chatModeCalculator = chatModeCalculator;
@@ -336,7 +336,7 @@ namespace EndlessClient.HUD.Controls
 
         private ChatTextBox CreateChatTextBox()
         {
-            var chatTextBox = new ChatTextBox(_contentManagerProvider)
+            var chatTextBox = new ChatTextBox(_contentProvider)
             {
                 Text = "",
                 Selected = true,

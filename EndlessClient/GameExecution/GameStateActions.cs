@@ -70,8 +70,7 @@ namespace EndlessClient.GameExecution
             var componentsToRemove = FindUnusedComponents(currentSet, nextSet);
             var disposableComponents = componentsToRemove
                 .Where(x => !(x is PacketHandlerGameComponent))
-                .OfType<IDisposable>()
-                .ToList();
+                .OfType<IDisposable>();
 
             foreach (var component in disposableComponents)
                 component.Dispose();

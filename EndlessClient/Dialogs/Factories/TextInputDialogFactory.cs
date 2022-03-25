@@ -14,19 +14,19 @@ namespace EndlessClient.Dialogs.Factories
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IEODialogButtonService _eoDialogButtonService;
         private readonly IKeyboardDispatcherRepository _keyboardDispatcherRepository;
-        private readonly IContentManagerProvider _contentManagerProvider;
+        private readonly IContentProvider _contentProvider;
 
         public TextInputDialogFactory(IGameStateProvider gameStateProvider,
                                       INativeGraphicsManager nativeGraphicsManager,
                                       IEODialogButtonService eoDialogButtonService,
                                       IKeyboardDispatcherRepository keyboardDispatcherRepository,
-                                      IContentManagerProvider contentManagerProvider)
+                                      IContentProvider contentProvider)
         {
             _gameStateProvider = gameStateProvider;
             _nativeGraphicsManager = nativeGraphicsManager;
             _eoDialogButtonService = eoDialogButtonService;
             _keyboardDispatcherRepository = keyboardDispatcherRepository;
-            _contentManagerProvider = contentManagerProvider;
+            _contentProvider = contentProvider;
         }
 
         public TextInputDialog Create(string prompt, int maxInputChars = 12)
@@ -35,7 +35,7 @@ namespace EndlessClient.Dialogs.Factories
                 _nativeGraphicsManager,
                 _eoDialogButtonService,
                 _keyboardDispatcherRepository,
-                _contentManagerProvider,
+                _contentProvider,
                 prompt,
                 maxInputChars);
         }

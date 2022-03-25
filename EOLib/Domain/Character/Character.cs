@@ -28,6 +28,12 @@ namespace EOLib.Domain.Character
 
         public bool NoWall { get; private set; }
 
+        public Character()
+        {
+            RenderProperties = new CharacterRenderProperties();
+            Stats = new CharacterStats();
+        }
+
         public ICharacter WithID(int id)
         {
             var character = MakeCopy(this);

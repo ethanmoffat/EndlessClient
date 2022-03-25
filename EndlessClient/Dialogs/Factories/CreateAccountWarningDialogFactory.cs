@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Content;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
 using EOLib.Graphics;
@@ -10,15 +11,18 @@ namespace EndlessClient.Dialogs.Factories
     public class CreateAccountWarningDialogFactory : ICreateAccountWarningDialogFactory
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
+        private readonly IContentProvider _contentProvider;
         private readonly IGameStateProvider _gameStateProvider;
         private readonly IEODialogButtonService _eoDialogButtonService;
 
         public CreateAccountWarningDialogFactory(
             INativeGraphicsManager nativeGraphicsManager,
+            IContentProvider contentProvider,
             IGameStateProvider gameStateProvider,
             IEODialogButtonService eoDialogButtonService)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
+            _contentProvider = contentProvider;
             _gameStateProvider = gameStateProvider;
             _eoDialogButtonService = eoDialogButtonService;
         }
@@ -27,6 +31,7 @@ namespace EndlessClient.Dialogs.Factories
         {
             return new ScrollingMessageDialog(
                 _nativeGraphicsManager,
+                _contentProvider,
                 _gameStateProvider,
                 _eoDialogButtonService)
             {

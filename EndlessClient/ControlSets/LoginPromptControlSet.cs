@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
+using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
@@ -44,9 +45,9 @@ namespace EndlessClient.ControlSets
             _loginController = loginController;
         }
 
-        public override void InitializeResources(INativeGraphicsManager gfxManager, ContentManager xnaContentManager)
+        public override void InitializeResources(INativeGraphicsManager gfxManager, IContentProvider contentProvider)
         {
-            base.InitializeResources(gfxManager, xnaContentManager);
+            base.InitializeResources(gfxManager, contentProvider);
 
             _loginBackgroundTexture = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 2);
         }

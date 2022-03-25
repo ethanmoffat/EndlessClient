@@ -199,7 +199,7 @@ namespace EndlessClient.UIControls
 
         private static string CapitalizeName(string name)
         {
-            return (char)(name[0] - 32) + name.Substring(1);
+            return string.IsNullOrEmpty(name) ? string.Empty : (char)(name[0] - 32) + name.Substring(1);
         }
 
         private ISpriteSheet CreateAdminGraphic(AdminLevel adminLevel)

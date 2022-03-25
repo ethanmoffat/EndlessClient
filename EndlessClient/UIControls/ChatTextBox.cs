@@ -17,10 +17,10 @@ namespace EndlessClient.UIControls
         private bool _ignoreAllInput;
         private Option<DateTime> _endMuteTime;
 
-        public ChatTextBox(IContentManagerProvider contentManagerProvider)
+        public ChatTextBox(IContentProvider contentManagerProvider)
             : base(new Rectangle(124, 308, 440, 19),
                 Constants.FontSize08,
-                caretTexture: contentManagerProvider.Content.Load<Texture2D>("cursor"))
+                caretTexture: contentManagerProvider.Textures[ContentProvider.Cursor])
         {
             MaxChars = 140;
             _endMuteTime = Option.None<DateTime>();

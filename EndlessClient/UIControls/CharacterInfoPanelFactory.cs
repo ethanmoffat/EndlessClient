@@ -5,12 +5,13 @@ using EndlessClient.Controllers;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Factories;
+using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Graphics;
 
 namespace EndlessClient.UIControls
 {
-    [MappedType(BaseType = typeof(ICharacterInfoPanelFactory), IsSingleton = true)]
+    [AutoMappedType(IsSingleton = true)]
     public class CharacterInfoPanelFactory : ICharacterInfoPanelFactory
     {
         private readonly ICharacterSelectorProvider _characterProvider;
@@ -45,16 +46,15 @@ namespace EndlessClient.UIControls
             _characterManagementController = characterManagementController;
         }
 
-        public IEnumerable<CharacterInfoPanel> CreatePanels()
+        public IEnumerable<CharacterInfoPanel> CreatePanels(IEnumerable<ICharacter> characters)
         {
             if(_loginController == null || _characterManagementController == null)
                 throw new InvalidOperationException("Missing controllers - the Unity container was initialized incorrectly");
 
             int i = 0;
-            for (; i < _characterProvider.Characters.Count; ++i)
+            foreach (var character in characters)
             {
-                var character = _characterProvider.Characters[i];
-                yield return new CharacterInfoPanel(i,
+                yield return new CharacterInfoPanel(i++,
                                                     character,
                                                     _nativeGraphicsManager,
                                                     _eoDialogButtonService,
