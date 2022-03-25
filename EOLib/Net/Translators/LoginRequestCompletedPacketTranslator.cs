@@ -39,6 +39,9 @@ namespace EOLib.Net.Translators
             var maxWeight = packet.ReadChar();
 
             var inventoryItems = GetInventoryItems(packet).ToList();
+            if (!inventoryItems.Any(x => x.ItemID == 1))
+                inventoryItems.Insert(0, new InventoryItem(1, 0));
+
             var inventorySpells = GetInventorySpells(packet).ToList();
 
             if (inventoryItems.All(x => x.ItemID != 1))

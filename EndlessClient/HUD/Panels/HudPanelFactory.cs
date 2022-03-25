@@ -2,6 +2,7 @@
 using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
+using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Services;
@@ -20,40 +21,49 @@ namespace EndlessClient.HUD.Panels
         private const int HUD_CONTROL_LAYER = 130;
 
         private readonly INativeGraphicsManager _nativeGraphicsManager;
+        private readonly IInGameDialogActions _inGameDialogActions;
         private readonly IContentProvider _contentProvider;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly INewsProvider _newsProvider;
         private readonly IChatProvider _chatProvider;
+        private readonly IPlayerInfoProvider _playerInfoProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly ICharacterInventoryProvider _characterInventoryProvider;
         private readonly IExperienceTableProvider _experienceTableProvider;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly ITrainingController _trainingController;
         private readonly IFriendIgnoreListService _friendIgnoreListService;
+        private readonly IStatusLabelSetter _statusLabelSetter;
 
         public HudPanelFactory(INativeGraphicsManager nativeGraphicsManager,
+                               IInGameDialogActions inGameDialogActions,
                                IContentProvider contentProvider,
                                IHudControlProvider hudControlProvider,
                                INewsProvider newsProvider,
                                IChatProvider chatProvider,
+                               IPlayerInfoProvider playerInfoProvider,
                                ICharacterProvider characterProvider,
                                ICharacterInventoryProvider characterInventoryProvider,
                                IExperienceTableProvider experienceTableProvider,
                                IEOMessageBoxFactory messageBoxFactory,
                                ITrainingController trainingController,
-                               IFriendIgnoreListService friendIgnoreListService)
+                               IFriendIgnoreListService friendIgnoreListService,
+                               IStatusLabelSetter statusLabelSetter)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
+            _inGameDialogActions = inGameDialogActions;
             _contentProvider = contentProvider;
             _hudControlProvider = hudControlProvider;
             _newsProvider = newsProvider;
             _chatProvider = chatProvider;
+            _playerInfoProvider = playerInfoProvider;
             _characterProvider = characterProvider;
             _characterInventoryProvider = characterInventoryProvider;
             _experienceTableProvider = experienceTableProvider;
             _messageBoxFactory = messageBoxFactory;
             _trainingController = trainingController;
             _friendIgnoreListService = friendIgnoreListService;
+            _statusLabelSetter = statusLabelSetter;
         }
 
         public NewsPanel CreateNewsPanel()
@@ -68,7 +78,12 @@ namespace EndlessClient.HUD.Panels
 
         public InventoryPanel CreateInventoryPanel()
         {
-            return new InventoryPanel(_nativeGraphicsManager) { DrawOrder = HUD_CONTROL_LAYER };
+            return new InventoryPanel(_nativeGraphicsManager,
+                _inGameDialogActions,
+                _statusLabelSetter,
+                _playerInfoProvider,
+                _characterProvider,
+                _characterInventoryProvider) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public ActiveSpellsPanel CreateActiveSpellsPanel()

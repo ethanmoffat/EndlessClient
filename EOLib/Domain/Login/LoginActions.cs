@@ -171,8 +171,8 @@ namespace EOLib.Domain.Login
                 .WithStats(stats)
                 .WithRenderProperties(mainCharacter.RenderProperties);
 
-            _characterInventoryRepository.ItemInventory = data.CharacterItemInventory.ToList();
-            _characterInventoryRepository.SpellInventory = data.CharacterSpellInventory.ToList();
+            _characterInventoryRepository.ItemInventory = new HashSet<IInventoryItem>(data.CharacterItemInventory);
+            _characterInventoryRepository.SpellInventory = new HashSet<IInventorySpell>(data.CharacterSpellInventory);
 
             _currentMapStateRepository.Characters = data.MapCharacters.Except(new[] { mainCharacter }).ToDictionary(k => k.ID, v => v);
             _currentMapStateRepository.NPCs = new HashSet<INPC>(data.MapNPCs);

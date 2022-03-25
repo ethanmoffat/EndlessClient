@@ -16,6 +16,21 @@ namespace EOLib.Domain.Character
         {
             return new InventoryItem(ItemID, newAmount);
         }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as InventoryItem;
+            if (other == null) return false;
+            return other.ItemID == ItemID && other.Amount == Amount;
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 1754760722;
+            hashCode = hashCode * -1521134295 + ItemID.GetHashCode();
+            hashCode = hashCode * -1521134295 + Amount.GetHashCode();
+            return hashCode;
+        }
     }
 
     public interface IInventoryItem
