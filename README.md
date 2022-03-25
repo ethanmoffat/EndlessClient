@@ -1,156 +1,132 @@
 EndlessClient
 =============
 
-[![Build Status](https://ethanmoffat.visualstudio.com/EndlessClient/_apis/build/status/EndlessClient%20Build?branchName=master)](https://ethanmoffat.visualstudio.com/EndlessClient/_build/latest?definitionId=14&branchName=master)
+[![Build Status](https://ethanmoffat.visualstudio.com/EndlessClient/_apis/build/status/EndlessClient%20Build?branchName=master)](https://ethanmoffat.visualstudio.com/EndlessClient/_build/latest?definitionId=14&branchName=master) [![Nuget](https://badgen.net/nuget/v/EOLib)](https://badgen.net/nuget/v/EOLib)
 
 An open source client for Endless Online written in C#
 
 #### Want more features?
-This project has been on GitHub since the end of July, 2014. It is currently suffering through a rewrite of the code. If you're looking for the more feature-complete version of the code base, see the old_code branch (now protected)
+This project has been on GitHub since the end of July, 2014. It is currently suffering through a rewrite of the code. If you're looking for the more feature-complete version of the code base, see the old_code branch (now protected).
 
 #### License Update
 
 As of 2020-05-09, this project is relicensed under the MIT license. Older versions of the code are still licensed under the GNU GPLv2 license. The tag `gplv2` has been added to the final commit for which this project is licensed under the GPLv2.
 
 #### Jump to:
- - [Getting started](#GettingStarted)
  - [Contributing](contributing.md)
+ - [Getting started](#GettingStarted)
  - [Current feature list](#SoFar)
  - [Todo list](#ToDo)
  - [New features (also todo)](#NewFeatures)
- - [Sample configuration file](#SampleConfigFile)
  - [Changes from the Original Client](#Changes)
  - [Included Utility Projects](#Utility)
+ - [EOBot](#EOBot)
 
 <a name="GettingStarted" />Getting started
 -------------
 
+### Dependencies
+
+Source builds require Visual Studio, the .Net 6.0 SDK, and the .Net 3.1 runtime (for building content with the MonoGame content builder pipeline tool). Other dependencies are installed via Nuget. MonoGame no longer needs to be installed ahead of time!
+
+.Net 6.0 runtime is required to run the pre-build binary.
+
+On Linux, the `ttf-mscorefonts-installer` package is required. Consult your distribution's package manager documentation for instructions on how to install this.
+
 ### Pre-built binary
 
-Binary releases are not currently available, but may be in the future (due to the recent addition of a CI pipeline).
+See [releases](https://github.com/ethanmoffat/EndlessClient/releases) on GitHub for Linux and Windows binaries. .Net 6.0 runtime must be installed.
 
 ### Building from source
 
-The only required external dependency is [MonoGame 3.7.1](http://community.monogame.net/t/monogame-3-7-1-release/11173). On Windows, Visual Studio (2015u3+) is used for development. Project Rider is supported on Linux, and Visual Studio 2017 for Mac will work on macOS.
-
-After installing, clone (or fork+clone) this repository locally and open the solution in your IDE of choice for your platform. All additional dependencies should be restored from Nuget and allow the game to launch after building.
+After installing, clone (or fork+clone) this repository locally and open the solution in your IDE of choice for your platform.
 
 <a name="SoFar" />Current feature list
 ---------------------
 
 - Pre-game menus and dialogs
     - Debug mode for character offset calculation (press F5 from the initial game screen in a debug build)
-- Map rendering and warping
+- Map
+    - Earthquakes
+    - Spikes
+    - Map effects
+    - Water/jump tiles
+    - Map item interaction
+    - Map signs
+    - Mouse cursor
+    - Click to walk (A* search)
+    - Animated walls and ground tiles
+    - Refresh via F12
 - Characters
-    - Walk animations
-    - Attack animations
-    - Equipment display (work in progress)
+    - All animations and equipment supported and 99.5% accurate to the original client
+    - Sitting
+    - Paperdoll display and unequipping items
+    - Health bars
+    - Context menu / paperdoll via right-click
 - NPCs
-    - Walk animations
-    - Attack animations
-    - Speech
+    - All animation frames
+    - Attacking/health bars
 - HUD status bars (HP, TP, SP, TNL)
 - Chat
     - All chat types properly handled
-    - Speech bubbles rendered
+    - Chat bubbles
 - Character stats and training
-- Mouse cursor rendering
-    - Display of the cursor on the current grid space
+- "Who is online" list
+- Friend/ignore lists
 
 <a name="Todo" />Todo list
 ---------------------
 
-GitHub issues should be used to track progress. See issues list for more detail.
-- Finish map rendering
-    - Animated walls/tiles
-- Finish mouse cursor rendering
-    - Character/NPC name rendering
-- Mouse interactions
-    - Context menu (right-click)
-    - Map sign interaction
+- Map interactions
     - Board interaction
-    - NPC interaction (quests, shops)
-- Finish character equipment rendering
-    - Fix offsets for all equipment types
-- Finish NPC alignment to grid
-- Map item interaction
-    - Item pickup/drop
-- Paperdoll
+    - NPC interaction
+        - Quests
+        - Shops
+        - Skills
+        - Inns
+        - Law/marriage
+        - Guilds
+        - Barber
+    - Jukebox
+    - Minimap rendering
+- Spell casting
+- Item use, equip, drop, junk
 - HUD panels
+    - Skills
     - Inventory
-    - Online list
     - Party
     - Settings
-- Friend/ignore list
 - Quest progress/daily exp
-- Sit/stand
-- Map refresh (F12)
+- Trade
 - Sounds/music
-    - Need to track down a cross-platform midi player for background music
+    - Music depends on a cross-platform MIDI player implementation in C#
+- Handling large (900+ entry), multi-part pub files via official EO protocol
 
 <a name="NewFeatures" />New features (also todo)
 ------------------
 
 Here's a working list of things I want to add that would be additional features on top of the original client specs:
- - Use built-in patching system prior to log-in to transfer files: help, gfx, pubs, maps, data, sounds, etc.
+ - Use built-in patching system prior to log-in to transfer files
  - More than 3 characters per account
- - Trading items between characters on the same account (with restrictions)
- - Unbounded display size, including scaling HUD with display size (basically, re-vamp the HUD to a more modern design)
+ - Trading items between characters on the same account
+ - Better display scaling
  - Timed map weather systems
- - Passive skills (planned for in original but never done)
- - In-game macros (planned for in original but never done)
-
-Most things on the above list would require changes to the server software which would significantly distance it from compatibility with eoserv and the original EO client, so they aren't top priority, but would still be pretty cool to have. I will most likely fork the project for these additional changes.
-
-
-<a name="SampleConfigFile" />Sample configuration file
-------------------
-
-Here is a sample configuration file with the available configuration settings that are currently being parsed by the client.
-
-A config file is automatically downloaded as part of the EndlessClient.Binaries nuget package and should have all these settings configured. If you would like to change any of these settings while debugging, edit the file in the packages/EndlessClient.Binaries directory as it will be copied over the file in bin/debug or bin/release.
-
-```ini
-#Destination host/ip and port to connect to
-[CONNECTION]
-Host=ewmoffat.ddns.net #or use game.eoserv.net, enhanced clone of original main server
-Port=8078
-#override the version sent from the client to the server. For testing with multiple server versions.
-[VERSION]
-Major=0
-Minor=0
-Client=28
-#individual settings
-[SETTINGS]
-Music=off #enable/disable background music
-Sound=off #enable/disable sound effects
-ShowBaloons=on #show/hide chat bubbles on map
-ShowShadows=true #show/hide shadows on map
-ShowTransition=true #enable/disable fancy transition on map (custom)
-EnableLogging=true #enable/disable logging (Warning: this causes a performance hit and should only be used for debugging purposes)
-[CUSTOM]
-#seconds after a drop that drop protection will stop (custom)
-NPCDropProtectTime=30
-PlayerDropProtectTime=5
-[LANGUAGE]
-#0=english 1=dutch 2=swedish 3=portuguese (defaults to english)
-Language=0
-#note - different keyboard layouts are not going to be supported
-[CHAT]
-Filter=off  #normal curse filter
-FilterAll=on #strict curse filter
-LogChat=off  #chat logging is currently not supported
-LogFile=CHATLOG.TXT
-HearWhisper=on
-Interaction=on
-```
+ - Passive skills
 
 <a name="Changes" />Changes From Original Client
 -------------------------------------
 
+#### Command-line arguments
+
+ **--host <server>** Overrides the server set in the config file with a different value. Convenient for testing against different servers from Visual Studio, since the build process will overwrite the configuration file in the output directory.
+
+ **--version <version>** Overrides the version set in the config file or hard-coded into the client. Convenient for connecting to different servers that might require different version numbers.
+
+ **--clonecompat** Enables Main Clone compatibility mode. This allows using Main Clone GFX files that are packaged with the v0.0.29 that Sausage and friends put together. Specifically, it uses a BitmapV3InfoHeader and culture code 1033 when loading GFX.
+
 #### Version Numbers
 
-To assist with debugging, I added a version number to the config file so it isn't limited to the hard-coded value that I upload here and can be changed more easily. This provides an easy debugging method for multiple servers that may have custom clients already with a hex-edited version number.
+For easily switching servers, there's a version number config setting so it isn't limited to the hard-coded value build into the client by default.
 
 #### Map Transitions
 
@@ -164,26 +140,15 @@ Part of the sound processing involves reading the audio data and rewriting the l
 
 #### Rendering Hair
 
-*"This is horrible" - Falco, Star Fox 64*
+A [configuration file](EndlessClient/ContentPipeline/HairClipTypes.ini) is included with that controls how hat items are rendered. This file is based on the EO main hat items. For example:
 
-*I'm not even sure how accurate this section is anymore. Hair rendering will (hopefully) be fixed up to work well with the new code base.*
+```ini
+186 = Facemask # Bandana
+187 = Standard # Mystic hat
+188 = HideHair # Hood
+```
 
-There are very subtle changes I've made to handling how hair is rendered for this client. Unlike the other features of the game, I've taken it upon myself to update the file format (GASP) for the item files to better assist with hair rendering in the client. I believe the original client had some hard-coded values for certain items that should render a certain way.
-
-EndlessClient uses a special method of rendering hair to ensure that face masks are rendered one way, hoods/helmets are rendered a second way, and hats that should clip hair are rendered a third way. In order to ensure that your pub file is up-to-date and can render this as designed, run BatchPub to use a batch-processing method of assigning the updated values to the selected items. Otherwise, the default pubs will have some weird graphics showing up when hats are equipped.
-
-NOTE: this is only for connecting to servers where you a) already have any of the relevant items and b) you want it to render properly. The pub files that are modified with this tool should be placed in the server's pub directory. If a difference in PUB files is detected client-side, it will request new files from the server and overwrite your local changes.
-
-Open up BatchPub.
-
-In step two, configure as follows: Set the field to SubType, and the value to FaceMask (for masks) or HideHair (for helmets/hoods)
-
-In step three, configure as follows: Check the checkbox, set the field to Name, set comparison to regex, and set the value to one of the following:
- - For helmets: `^[A-Za-z ]*[Hh]elm[A-Za-z ]*$`
- - For hoods: `^[A-Za-z ]*[Hh]ood[A-Za-z ]*$`
-Pirate hat (ID 314 in standard pubs) also needs to be updated to HideHair. Change search to ==, change the field to ID, and change the value to 314.
-
-For FaceMask updates, the following regex will update the correct items: `^((Frog Head)|([A-Za-z ]*[Mm]ask[A-Za-z ]*))$`
+Item ID 186 will render as a facemask (below hair), 187 will render over hair, and 188 will hide hair entirely.
 
 <a name="Utility" />Included Utility Projects
 -------------
@@ -192,7 +157,7 @@ There are a few other projects included with the EndlessClient solution that are
 
 #### Core
 
-The core projects are EndlessClient, EOLib, and EOLib.Graphics. They are the only required projects in order for the game to run.
+The core projects are EndlessClient and the EOLib projects under the "Lib" solution directory. They are the only required projects in order for the game to run.
 
 #### Test
 
@@ -200,7 +165,7 @@ Any projects with a ".Test" suffix in the name contain unit tests. These will be
 
 #### BatchMap
 
-BatchMap is designed to do batch processing and error correction on the original EMF files. When running EOSERV, a number of warning messages during map loading popped up. I created BatchMap to process map files and correct these errors so that the output of EOSERV was much less verbose when starting up.
+BatchMap is designed to do batch processing and error correction on the original EMF files. When running EOSERV with the default map files, a number of warning messages during map loading will pop up. BatchMap processes files and corrects these errors so that the output of EOSERV is much less verbose when starting up.
 
 BatchMap corrects for a number of errors, including:
  - Tiles out of map bounds
@@ -211,20 +176,20 @@ BatchMap corrects for a number of errors, including:
  - Chest spawn using non-existent item
  - Chest spawn pointing to non-chest
 
+BatchMap can easily be modified to take care of other batch processing tasks, such as dumping out values in map files for debugging or comparison.
+
 #### BatchPub
 
-BatchPub is designed to do batch processing of items within the EIF file. The goal behind this was to change all items matching a certain criteria to have the same updated property (for instance, when rendering hair, see above).
+BatchPub is designed to do batch processing of items within the EIF file. It can be used to bulk change properties in the pubs based on certain criteria.
 
 #### EOBot
 
-EOBot launches a number of "bot" connections to a server that a) create accounts if they don't exist, b) login, c) create characters if they don't exist, and d) get the characters in game.
+EOBot has recently been updated with an interpreter to make scripting of bots possible. The scripting language is the unholy offspring of javascript and php (really just inspired by the syntax of those languages). Run `EOBot --help` without any arguments to see more information on the command-line parameters it expects.
 
-Once the characters are in-game further code can be added to make them do whatever. Currently, they will send a party request to 'testuser' (if testuser is logged in) which was being used to test functionality of large parties.
+The default behavior of EOBot when not running in script mode is as a TrainerBot. See `TrainerBot.cs` for more details on the implementation.
 
-In the future I would like to be able to have a script processing system in place that allows an interpreter to control the bots that are being run. Anywhere from 1-25 bots can be launched.
+EOBot is used by https://www.github.com/ethanmoffat/etheos to execute integration tests against server instances.
 
 #### PacketDecoder
 
-PacketDecoder is built for analysing raw WireShark packet data. It provides a way to decode the raw data and convert the byte stream into values used in EO.
-
-The idea is to be able to copy/paste an init packet (to determine the encrypt/decrypt multiples) and then copy/paste the packet data that needs to be decoded for analysis.
+PacketDecoder analyzes raw WireShark packet data. It provides a way to decode the raw data and convert the byte stream into values used in EO.
