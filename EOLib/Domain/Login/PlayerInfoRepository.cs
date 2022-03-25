@@ -10,7 +10,7 @@ namespace EOLib.Domain.Login
 
         short PlayerID { get; set; }
 
-        ushort AccountCreateID { get; set; }
+        short SessionID { get; set; }
 
         bool IsFirstTimePlayer { get; set; }
 
@@ -25,7 +25,7 @@ namespace EOLib.Domain.Login
 
         short PlayerID { get; }
 
-        ushort AccountCreateID { get; set; }
+        short SessionID { get; set; }
 
         bool IsFirstTimePlayer { get; }
 
@@ -41,7 +41,7 @@ namespace EOLib.Domain.Login
 
         public short PlayerID { get; set; }
 
-        public ushort AccountCreateID { get; set; }
+        public short SessionID { get; set; }
 
         public bool IsFirstTimePlayer { get; set; }
 
@@ -52,7 +52,7 @@ namespace EOLib.Domain.Login
             LoggedInAccountName = "";
             PlayerPassword = "";
             PlayerID = 0;
-            AccountCreateID = 0;
+            SessionID = 0;
             IsFirstTimePlayer = false;
             PlayerIsInGame = false;
         }

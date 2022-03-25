@@ -113,7 +113,7 @@ namespace EOLib.Domain.Login
                 .WithAdminLevel(data.AdminLevel)
                 .WithStats(data.CharacterStats);
 
-            _playerInfoRepository.PlayerID = data.PlayerID;
+            _playerInfoRepository.SessionID = data.SessionID;
             _playerInfoRepository.IsFirstTimePlayer = data.FirstTimePlayer;
             _currentMapStateRepository.CurrentMapID = data.MapID;
 
@@ -133,7 +133,7 @@ namespace EOLib.Domain.Login
         public async Task<CharacterLoginReply> CompleteCharacterLogin()
         {
             var packet = new PacketBuilder(PacketFamily.Welcome, PacketAction.Message)
-                .AddThree((ushort)_playerInfoRepository.PlayerID)
+                .AddThree(_playerInfoRepository.SessionID)
                 .AddInt(_characterRepository.MainCharacter.ID)
                 .Build();
 

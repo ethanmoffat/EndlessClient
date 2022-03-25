@@ -71,7 +71,7 @@ namespace EOLib.Domain.Account
             var reply = (AccountReply)response.ReadShort();
             if (reply >= AccountReply.OK_CodeRange)
             {
-                _playerInfoRepository.AccountCreateID = (ushort)reply;
+                _playerInfoRepository.SessionID = (short)reply;
 
                 // Based on patch: https://github.com/eoserv/eoserv/commit/80dde6d4e7f440a93503aeec79f4a2f5931dc13d
                 // Account may change sequence start depending on the eoserv build being used
@@ -93,7 +93,7 @@ namespace EOLib.Domain.Account
         public async Task<AccountReply> CreateAccount(ICreateAccountParameters parameters)
         {
             var createAccountPacket = new PacketBuilder(PacketFamily.Account, PacketAction.Create)
-                .AddShort((short)_playerInfoRepository.AccountCreateID)
+                .AddShort((short)_playerInfoRepository.SessionID)
                 .AddByte(255)
                 .AddBreakString(parameters.AccountName)
                 .AddBreakString(parameters.Password)
