@@ -117,26 +117,31 @@ namespace EndlessClient.Rendering.Character
             _charRenderTarget = _renderTargetFactory.CreateRenderTarget();
             _sb = new SpriteBatch(Game.GraphicsDevice);
 
-            _nameLabel = new BlinkingLabel(Constants.FontSize08pt5)
+            if (_gameStateProvider.CurrentState == GameStates.PlayingTheGame)
             {
-                Visible = _gameStateProvider.CurrentState == GameStates.PlayingTheGame,
-                TextWidth = 89,
-                TextAlign = LabelAlignment.MiddleCenter,
-                ForeColor = Color.White,
-                AutoSize = true,
-                Text = _character?.Name ?? string.Empty,
-                DrawOrder = 30,
-                KeepInClientWindowBounds = false,
-            };
-            _nameLabel.Initialize();
+                _nameLabel = new BlinkingLabel(Constants.FontSize08pt5)
+                {
+                    Visible = true,
+                    TextWidth = 89,
+                    TextAlign = LabelAlignment.MiddleCenter,
+                    ForeColor = Color.White,
+                    AutoSize = true,
+                    Text = _character?.Name ?? string.Empty,
+                    DrawOrder = 30,
+                    KeepInClientWindowBounds = false,
+                };
+                _nameLabel.Initialize();
 
-            if (!_nameLabel.Game.Components.Contains(_nameLabel))
-                _nameLabel.Game.Components.Add(_nameLabel);
+                if (!_nameLabel.Game.Components.Contains(_nameLabel))
+                    _nameLabel.Game.Components.Add(_nameLabel);
 
-            _nameLabel.DrawPosition = GetNameLabelPosition();
+                _nameLabel.DrawPosition = GetNameLabelPosition();
+
+                _healthBarRenderer = _healthBarRendererFactory.CreateHealthBarRenderer(this);
+            }
+
             _previousMouseState = _currentMouseState = Mouse.GetState();
 
-            _healthBarRenderer = _healthBarRendererFactory.CreateHealthBarRenderer(this);
 
             base.Initialize();
         }
@@ -184,9 +189,9 @@ namespace EndlessClient.Rendering.Character
                 {
                     _mapInteractionController.RightClick(new MapCellState { Character = Option.Some(Character) });
                 }
-            }
 
-            _healthBarRenderer.Update(gameTime);
+                _healthBarRenderer.Update(gameTime);
+            }
 
             _previousMouseState = _currentMouseState;
 
@@ -239,7 +244,8 @@ namespace EndlessClient.Rendering.Character
                 spriteBatch.Draw(_charRenderTarget, new Vector2(0, GetSteppingStoneOffset(Character.RenderProperties)), GetAlphaColor());
             _effectRenderer.DrawInFrontOfTarget(spriteBatch);
 
-            _healthBarRenderer.DrawToSpriteBatch(spriteBatch);
+            if (_gameStateProvider.CurrentState == GameStates.PlayingTheGame)
+                _healthBarRenderer.DrawToSpriteBatch(spriteBatch);
         }
 
         #endregion
@@ -328,6 +334,9 @@ namespace EndlessClient.Rendering.Character
 
         private void UpdateNameLabel(GameTime gameTime)
         {
+            if (_gameStateProvider.CurrentState != GameStates.PlayingTheGame)
+                return;
+
             if (_healthBarRenderer.Visible)
             {
                 _nameLabel.Visible = false;
@@ -473,10 +482,10 @@ namespace EndlessClient.Rendering.Character
             if (disposing)
             {
                 _outline?.Dispose();
-                _nameLabel.Dispose();
+                _nameLabel?.Dispose();
 
-                _sb.Dispose();
-                _charRenderTarget.Dispose();
+                _sb?.Dispose();
+                _charRenderTarget?.Dispose();
             }
 
             base.Dispose(disposing);

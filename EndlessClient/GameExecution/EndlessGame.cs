@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using AutomaticTypeMapper;
 using EndlessClient.Content;
@@ -6,6 +7,8 @@ using EndlessClient.ControlSets;
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Test;
+using EndlessClient.UIControls;
+using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.IO.Actions;
@@ -29,6 +32,7 @@ namespace EndlessClient.GameExecution
         private readonly ILoggerProvider _loggerProvider;
         private readonly IChatBubbleTextureProvider _chatBubbleTextureProvider;
         private readonly IShaderRepository _shaderRepository;
+        private readonly ICharacterInfoPanelFactory _characterInfoPanelFactory;
         private GraphicsDeviceManager _graphicsDeviceManager;
 
         private KeyboardState _previousKeyState;
@@ -42,7 +46,8 @@ namespace EndlessClient.GameExecution
                            IPubFileLoadActions pubFileLoadActions,
                            ILoggerProvider loggerProvider,
                            IChatBubbleTextureProvider chatBubbleTextureProvider,
-                           IShaderRepository shaderRepository)
+                           IShaderRepository shaderRepository,
+                           ICharacterInfoPanelFactory characterInfoPanelFactory)
         {
             _windowSizeProvider = windowSizeProvider;
             _contentProvider = contentProvider;
@@ -54,6 +59,7 @@ namespace EndlessClient.GameExecution
             _loggerProvider = loggerProvider;
             _chatBubbleTextureProvider = chatBubbleTextureProvider;
             _shaderRepository = shaderRepository;
+            _characterInfoPanelFactory = characterInfoPanelFactory;
 
             _graphicsDeviceManager = new GraphicsDeviceManager(this);
 
@@ -95,6 +101,14 @@ namespace EndlessClient.GameExecution
 
                 var shaderBytes = File.ReadAllBytes(ShaderRepository.HairClipFile);
                 _shaderRepository.Shaders[ShaderRepository.HairClip] = new Effect(GraphicsDevice, shaderBytes);
+            }
+
+            // for some reason initializing these and then killing them speeds up transition from Login -> LoggedIn state
+            // TODO: figure out why this happens????
+            foreach (var panel in _characterInfoPanelFactory.CreatePanels(Enumerable.Repeat(new Character(), 3)))
+            {
+                panel.Initialize();
+                panel.Dispose();
             }
 
             SetUpInitialControlSet();

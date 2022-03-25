@@ -8,6 +8,7 @@ using EndlessClient.HUD.Controls;
 using EndlessClient.Input;
 using EndlessClient.UIControls;
 using EOLib.Config;
+using EOLib.Domain.Login;
 using EOLib.Graphics;
 
 namespace EndlessClient.ControlSets
@@ -22,6 +23,7 @@ namespace EndlessClient.ControlSets
         private readonly IKeyboardDispatcherProvider _keyboardDispatcherProvider;
         private readonly IConfigurationProvider _configProvider;
         private readonly ICharacterInfoPanelFactory _characterInfoPanelFactory;
+        private readonly ICharacterSelectorProvider _characterSelectorProvider;
         private IMainButtonController _mainButtonController;
         private IAccountController _accountController;
         private ILoginController _loginController;
@@ -33,7 +35,8 @@ namespace EndlessClient.ControlSets
                                  IContentProvider contentProvider,
                                  IKeyboardDispatcherProvider keyboardDispatcherProvider,
                                  IConfigurationProvider configProvider,
-                                 ICharacterInfoPanelFactory characterInfoPanelFactory)
+                                 ICharacterInfoPanelFactory characterInfoPanelFactory,
+                                 ICharacterSelectorProvider characterSelectorProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _messageBoxFactory = messageBoxFactory;
@@ -42,6 +45,7 @@ namespace EndlessClient.ControlSets
             _keyboardDispatcherProvider = keyboardDispatcherProvider;
             _configProvider = configProvider;
             _characterInfoPanelFactory = characterInfoPanelFactory;
+            _characterSelectorProvider = characterSelectorProvider;
         }
 
         public IControlSet CreateControlsForState(GameStates newState, IControlSet currentControlSet)
@@ -89,6 +93,7 @@ namespace EndlessClient.ControlSets
                         _keyboardDispatcherProvider.Dispatcher,
                         _mainButtonController,
                         _characterInfoPanelFactory,
+                        _characterSelectorProvider,
                         _characterManagementController,
                         _accountController);
                 case GameStates.PlayingTheGame:

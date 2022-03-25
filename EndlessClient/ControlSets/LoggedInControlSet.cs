@@ -4,6 +4,7 @@ using System.Threading;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.UIControls;
+using EOLib.Domain.Login;
 using Microsoft.Xna.Framework;
 using XNAControls;
 
@@ -12,6 +13,7 @@ namespace EndlessClient.ControlSets
     public class LoggedInControlSet : IntermediateControlSet
     {
         private readonly ICharacterInfoPanelFactory _characterInfoPanelFactory;
+        private readonly ICharacterSelectorProvider _characterSelectorProvider;
         private readonly ICharacterManagementController _characterManagementController;
         private readonly IAccountController _accountController;
         private readonly List<CharacterInfoPanel> _characterInfoPanels;
@@ -25,11 +27,13 @@ namespace EndlessClient.ControlSets
         public LoggedInControlSet(KeyboardDispatcher dispatcher,
                                   IMainButtonController mainButtonController,
                                   ICharacterInfoPanelFactory characterInfoPanelFactory,
+                                  ICharacterSelectorProvider characterSelectorProvider,
                                   ICharacterManagementController characterManagementController,
                                   IAccountController accountController)
             : base(dispatcher, mainButtonController)
         {
             _characterInfoPanelFactory = characterInfoPanelFactory;
+            _characterSelectorProvider = characterSelectorProvider;
             _characterManagementController = characterManagementController;
             _accountController = accountController;
             _characterInfoPanels = new List<CharacterInfoPanel>();
@@ -40,7 +44,7 @@ namespace EndlessClient.ControlSets
             base.InitializeControlsHelper(currentControlSet);
 
             _changePasswordButton = GetControl(currentControlSet, GameControlIdentifier.ChangePasswordButton, GetPasswordButton);
-            _characterInfoPanels.AddRange(_characterInfoPanelFactory.CreatePanels());
+            _characterInfoPanels.AddRange(_characterInfoPanelFactory.CreatePanels(_characterSelectorProvider.Characters));
 
             _allComponents.Add(_changePasswordButton);
             _allComponents.AddRange(_characterInfoPanels);
