@@ -29,7 +29,6 @@ namespace EOLib.Domain.Login
         private readonly ILoginFileChecksumRepository _loginFileChecksumRepository;
         private readonly INewsRepository _newsRepository;
         private readonly ICharacterInventoryRepository _characterInventoryRepository;
-        private readonly IPaperdollRepository _paperdollRepository;
 
         public LoginActions(IPacketSendService packetSendService,
                             IPacketTranslator<IAccountLoginData> loginPacketTranslator,
@@ -43,8 +42,7 @@ namespace EOLib.Domain.Login
                             ILoginFileChecksumRepository loginFileChecksumRepository,
                             INewsRepository newsRepository,
                             IChatRepository chatRepository,
-                            ICharacterInventoryRepository characterInventoryRepository,
-                            IPaperdollRepository paperdollRepository)
+                            ICharacterInventoryRepository characterInventoryRepository)
         {
             _packetSendService = packetSendService;
             _loginPacketTranslator = loginPacketTranslator;
@@ -57,7 +55,6 @@ namespace EOLib.Domain.Login
             _loginFileChecksumRepository = loginFileChecksumRepository;
             _newsRepository = newsRepository;
             _characterInventoryRepository = characterInventoryRepository;
-            _paperdollRepository = paperdollRepository;
         }
 
         public bool LoginParametersAreValid(ILoginParameters parameters)
