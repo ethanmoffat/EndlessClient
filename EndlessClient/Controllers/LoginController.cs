@@ -234,8 +234,7 @@ namespace EndlessClient.Controllers
         {
             foreach(var chat in _chatRepository.AllChat.Values)
             {
-                if (chat.Count > 0)
-                    chat.Clear();
+                chat.Clear();
             }
         }
 
