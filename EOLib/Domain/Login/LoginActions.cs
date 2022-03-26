@@ -133,7 +133,7 @@ namespace EOLib.Domain.Login
         public async Task<CharacterLoginReply> CompleteCharacterLogin()
         {
             var packet = new PacketBuilder(PacketFamily.Welcome, PacketAction.Message)
-                .AddThree(_playerInfoRepository.SessionID)
+                .AddThree((ushort)_playerInfoRepository.SessionID)
                 .AddInt(_characterRepository.MainCharacter.ID)
                 .Build();
 

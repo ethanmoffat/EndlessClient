@@ -26,29 +26,33 @@ namespace EOLib.Net.FileTransfer
             _pubFileDeserializer = pubFileDeserializer;
         }
 
-        public async Task<IMapFile> RequestMapFile(short mapID, short playerID)
+        public async Task<IMapFile> RequestMapFile(short mapID, short sessionID)
         {
             var request = new PacketBuilder(PacketFamily.Welcome, PacketAction.Agree)
                 .AddChar((byte)InitFileType.Map)
-                .AddShort(playerID)
+                .AddShort(sessionID)
                 .AddShort(mapID)
                 .Build();
 
-            return await GetMapFile(request, mapID, false);
+            return await GetMapFile(request, mapID);
         }
 
-        public async Task<IMapFile> RequestMapFileForWarp(short mapID)
+        public async Task<IMapFile> RequestMapFileForWarp(short mapID, short sessionID)
         {
-            var request = new PacketBuilder(PacketFamily.Warp, PacketAction.Take).Build();
-            return await GetMapFile(request, mapID, true);
+            var request = new PacketBuilder(PacketFamily.Warp, PacketAction.Take)
+                .AddShort(mapID)
+                .AddShort(sessionID)
+                .Build();
+
+            return await GetMapFile(request, mapID);
         }
 
-        public async Task<IPubFile<TRecord>> RequestFile<TRecord>(InitFileType fileType, short playerID)
+        public async Task<IPubFile<TRecord>> RequestFile<TRecord>(InitFileType fileType, short sessionID)
             where TRecord : class, IPubRecord, new()
         {
             var request = new PacketBuilder(PacketFamily.Welcome, PacketAction.Agree)
                 .AddChar((byte)fileType)
-                .AddShort(playerID)
+                .AddShort(sessionID)
                 .AddChar(1) // file id (for chunking oversize pub files)
                 .Build();
 
@@ -56,7 +60,7 @@ namespace EOLib.Net.FileTransfer
             if (!PacketIsValid(response))
                 throw new EmptyPacketReceivedException();
 
-            var responseFileType = (InitReply) response.ReadChar();
+            var responseFileType = (InitReply) response.ReadByte();
             
             var extraByte = response.ReadChar();
             if (extraByte != 1)
@@ -79,14 +83,14 @@ namespace EOLib.Net.FileTransfer
             return _pubFileDeserializer.DeserializeFromByteArray(responseBytes, factory);
         }
 
-        private async Task<IMapFile> GetMapFile(IPacket request, int mapID, bool isWarp)
+        private async Task<IMapFile> GetMapFile(IPacket request, int mapID)
         {
             var response = await _packetSendService.SendEncodedPacketAndWaitAsync(request);
             if (!PacketIsValid(response))
                 throw new EmptyPacketReceivedException();
 
-            var fileType = (InitReply)(isWarp ? response.ReadByte() : response.ReadChar());
-            if (fileType != InitReply.MapFile)
+            var fileType = (InitReply)response.ReadByte();
+            if (fileType != InitReply.MapFile && fileType != InitReply.WarpMap)
                 throw new MalformedPacketException("Invalid file type " + fileType + " when requesting a map file", response);
 
             var fileData = response.ReadBytes(response.Length - response.ReadPosition);
@@ -106,11 +110,11 @@ namespace EOLib.Net.FileTransfer
 
     public interface IFileRequestService
     {
-        Task<IMapFile> RequestMapFile(short mapID, short playerID);
+        Task<IMapFile> RequestMapFile(short mapID, short sessionID);
 
-        Task<IMapFile> RequestMapFileForWarp(short mapID);
+        Task<IMapFile> RequestMapFileForWarp(short mapID, short sessionID);
 
-        Task<IPubFile<TRecord>> RequestFile<TRecord>(InitFileType fileType, short playerID)
+        Task<IPubFile<TRecord>> RequestFile<TRecord>(InitFileType fileType, short sessionID)
             where TRecord : class, IPubRecord, new();
     }
 }
