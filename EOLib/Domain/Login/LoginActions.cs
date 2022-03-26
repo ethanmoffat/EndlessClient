@@ -3,11 +3,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutomaticTypeMapper;
 using EOLib.Domain.Character;
-using EOLib.Domain.Chat;
 using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
 using EOLib.Domain.Protocol;
-using EOLib.Localization;
 using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.FileTransfer;
@@ -34,14 +32,12 @@ namespace EOLib.Domain.Login
                             IPacketTranslator<IAccountLoginData> loginPacketTranslator,
                             IPacketTranslator<ILoginRequestGrantedData> loginRequestGrantedPacketTranslator,
                             IPacketTranslator<ILoginRequestCompletedData> loginRequestCompletedPacketTranslator,
-                            ILocalizedStringFinder localizedStringFinder,
                             ICharacterSelectorRepository characterSelectorRepository,
                             IPlayerInfoRepository playerInfoRepository,
                             ICharacterRepository characterRepository,
                             ICurrentMapStateRepository currentMapStateRepository,
                             ILoginFileChecksumRepository loginFileChecksumRepository,
                             INewsRepository newsRepository,
-                            IChatRepository chatRepository,
                             ICharacterInventoryRepository characterInventoryRepository)
         {
             _packetSendService = packetSendService;
