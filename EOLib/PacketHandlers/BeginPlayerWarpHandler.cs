@@ -72,7 +72,7 @@ namespace EOLib.PacketHandlers
                     catch (IOException) { mapIsDownloaded = false; }
 
                     if (!mapIsDownloaded || _fileRequestActions.NeedsMapForWarp(mapID, mapRid, fileSize))
-                        _fileRequestActions.GetMapFromServer(mapID, sessionID).Wait(5000);
+                        _fileRequestActions.GetMapForWarp(mapID, sessionID).Wait(5000);
 
                     SendWarpAcceptToServer(mapID, sessionID);
                     break;

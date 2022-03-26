@@ -58,9 +58,15 @@ namespace EOLib.Net.FileTransfer
             return NeedMap(mapID, expectedChecksum, fileSize);
         }
 
-        public async Task GetMapFromServer(short mapID, short sessionID)
+        public async Task GetMapForWarp(short mapID, short sessionID)
         {
             var mapFile = await _fileRequestService.RequestMapFileForWarp(mapID, sessionID);
+            SaveAndCacheMapFile(mapID, mapFile);
+        }
+
+        public async Task GetMapFromServer(short mapID, short sessionID)
+        {
+            var mapFile = await _fileRequestService.RequestMapFile(mapID, sessionID);
             SaveAndCacheMapFile(mapID, mapFile);
         }
 
@@ -144,6 +150,8 @@ namespace EOLib.Net.FileTransfer
         bool NeedsFileForLogin(InitFileType fileType, short optionalID = 0);
 
         bool NeedsMapForWarp(short mapID, byte[] mapRid, int fileSize);
+
+        Task GetMapForWarp(short mapID, short sessionID);
 
         Task GetMapFromServer(short mapID, short sessionID);
 
