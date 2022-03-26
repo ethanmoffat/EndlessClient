@@ -93,7 +93,7 @@ namespace EOLib.Domain.Account
         public async Task<AccountReply> CreateAccount(ICreateAccountParameters parameters)
         {
             var createAccountPacket = new PacketBuilder(PacketFamily.Account, PacketAction.Create)
-                .AddShort(_playerInfoRepository.SessionID)
+                .AddShort((ushort)_playerInfoRepository.SessionID)
                 .AddByte(255)
                 .AddBreakString(parameters.AccountName)
                 .AddBreakString(parameters.Password)

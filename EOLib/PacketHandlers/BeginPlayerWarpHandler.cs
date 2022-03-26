@@ -88,7 +88,7 @@ namespace EOLib.PacketHandlers
         {
             var response = new PacketBuilder(PacketFamily.Warp, PacketAction.Accept)
                 .AddShort(mapID)
-                .AddShort(sessionID)
+                .AddShort((ushort)sessionID)
                 .Build();
             _packetSendService.SendPacket(response);
         }

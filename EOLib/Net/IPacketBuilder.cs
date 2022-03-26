@@ -22,6 +22,8 @@ namespace EOLib.Net
 
         IPacketBuilder AddShort(short s);
 
+        IPacketBuilder AddShort(ushort s);
+
         IPacketBuilder AddThree(int t);
 
         IPacketBuilder AddInt(int i);

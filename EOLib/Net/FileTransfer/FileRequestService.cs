@@ -30,7 +30,7 @@ namespace EOLib.Net.FileTransfer
         {
             var request = new PacketBuilder(PacketFamily.Welcome, PacketAction.Agree)
                 .AddChar((byte)InitFileType.Map)
-                .AddShort(sessionID)
+                .AddShort((ushort)sessionID)
                 .AddShort(mapID)
                 .Build();
 
@@ -41,7 +41,7 @@ namespace EOLib.Net.FileTransfer
         {
             var request = new PacketBuilder(PacketFamily.Warp, PacketAction.Take)
                 .AddShort(mapID)
-                .AddShort(sessionID)
+                .AddShort((ushort)sessionID)
                 .Build();
 
             return await GetMapFile(request, mapID);
@@ -52,7 +52,7 @@ namespace EOLib.Net.FileTransfer
         {
             var request = new PacketBuilder(PacketFamily.Welcome, PacketAction.Agree)
                 .AddChar((byte)fileType)
-                .AddShort(sessionID)
+                .AddShort((ushort)sessionID)
                 .AddChar(1) // file id (for chunking oversize pub files)
                 .Build();
 
