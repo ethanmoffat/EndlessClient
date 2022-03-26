@@ -1,14 +1,17 @@
 ﻿using EndlessClient.Dialogs.Actions;
-using EndlessClient.UIControls;
+using EndlessClient.HUD.Inventory;
 using EOLib;
 using EOLib.Config;
 using EOLib.Domain.Character;
+using EOLib.Domain.Item;
 using EOLib.Domain.Login;
 using EOLib.Graphics;
+using EOLib.IO.Repositories;
 using EOLib.Localization;
 using Microsoft.Win32;
 using Microsoft.Xna.Framework;
 using Optional;
+using Optional.Collections;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -28,13 +31,16 @@ namespace EndlessClient.HUD.Panels
 
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IStatusLabelSetter _statusLabelSetter;
+        private readonly IItemStringService _itemStringService;
+        private readonly IInventoryService _inventoryService;
         private readonly IPlayerInfoProvider _playerInfoProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly ICharacterInventoryProvider _characterInventoryProvider;
+        private readonly IEIFFileProvider _eifFileProvider;
 
         private readonly bool[,] _usedSlots = new bool[4, InventoryRowSlots];
         private readonly Dictionary<int, int> _itemSlotMap;
-        //private readonly List<InventoryPanelItem> _childItems = new List<InventoryPanelItem>();
+        private readonly List<InventoryPanelItem> _childItems = new List<InventoryPanelItem>();
 
         private readonly IXNALabel _weightLabel;
         private readonly IXNAButton _drop, _junk, _paperdoll;
@@ -46,16 +52,21 @@ namespace EndlessClient.HUD.Panels
         public InventoryPanel(INativeGraphicsManager nativeGraphicsManager,
                               IInGameDialogActions inGameDialogActions,
                               IStatusLabelSetter statusLabelSetter,
+                              IItemStringService itemStringService,
+                              IInventoryService inventoryService,
                               IPlayerInfoProvider playerInfoProvider,
                               ICharacterProvider characterProvider,
-                              ICharacterInventoryProvider characterInventoryProvider)
+                              ICharacterInventoryProvider characterInventoryProvider,
+                              IEIFFileProvider eifFileProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _statusLabelSetter = statusLabelSetter;
+            _itemStringService = itemStringService;
+            _inventoryService = inventoryService;
             _playerInfoProvider = playerInfoProvider;
             _characterProvider = characterProvider;
             _characterInventoryProvider = characterInventoryProvider;
-
+            _eifFileProvider = eifFileProvider;
             _weightLabel = new XNALabel(Constants.FontSize08pt5)
             {
                 DrawArea = new Rectangle(385, 37, 88, 18),
@@ -124,11 +135,52 @@ namespace EndlessClient.HUD.Panels
             {
                 var added = _characterInventoryProvider.ItemInventory.Where(i => !_cachedInventory.Any(j => i.ItemID == j.ItemID));
                 var removed = _cachedInventory.Where(i => !_characterInventoryProvider.ItemInventory.Any(j => i.ItemID == j.ItemID));
-                
-                _cachedInventory = _characterInventoryProvider.ItemInventory.ToHashSet();
-                var updated = _cachedInventory.Except(added);
+                var updated = _characterInventoryProvider.ItemInventory.Except(added);
 
-                // todo: update child inventory items
+                foreach (var item in removed)
+                {
+                    var matchedItem = _childItems.SingleOrNone(x => x.InventoryItem.ItemID == item.ItemID);
+                    matchedItem.MatchSome(childItem =>
+                    {
+                        childItem.SetControlUnparented();
+                        childItem.Dispose();
+                        _childItems.Remove(childItem);
+
+                        var itemData = _eifFileProvider.EIFFile[item.ItemID];
+                        _inventoryService.ClearSlots(_usedSlots, childItem.Slot, itemData.Size);
+                    });
+                }
+
+                foreach (var item in updated)
+                {
+                    var matchedItem = _childItems.SingleOrNone(x => x.InventoryItem.ItemID == item.ItemID);
+                    matchedItem.MatchSome(childItem =>
+                    {
+                        childItem.InventoryItem = item;
+                    });
+                }
+
+                foreach (var item in added)
+                {
+                    var itemData = _eifFileProvider.EIFFile[item.ItemID];
+
+                    var preferredSlot = _itemSlotMap.SingleOrNone(x => x.Value == item.ItemID).Map(x => x.Key);
+                    var actualSlot = _inventoryService.GetNextOpenSlot(_usedSlots, itemData.Size, preferredSlot);
+
+                    actualSlot.MatchSome(slot =>
+                    {
+                        _inventoryService.SetSlots(_usedSlots, slot, itemData.Size);
+
+                        var newItem = new InventoryPanelItem(_nativeGraphicsManager, _itemStringService, _statusLabelSetter, this, slot, item, itemData);
+                        newItem.Initialize();
+                        newItem.SetParentControl(this);
+                        newItem.DrawOrder = 102 - (slot % InventoryRowSlots) * 2;
+
+                        _childItems.Add(newItem);
+                    });
+                }
+
+                _cachedInventory = _characterInventoryProvider.ItemInventory.ToHashSet();
             }
 
             base.OnUpdateControl(gameTime);
@@ -142,7 +194,9 @@ namespace EndlessClient.HUD.Panels
                 if (inventory.Load() && inventory.Sections.ContainsKey(_playerInfoProvider.LoggedInAccountName))
                 {
                     var section = inventory.Sections[_playerInfoProvider.LoggedInAccountName];
-                    // todo: write out item inventory slots to file
+
+                    foreach (var item in _childItems)
+                        section[$"{_characterProvider.MainCharacter.Name}.{item.Slot}"] = $"{item.InventoryItem.ItemID}";
                 }
 
                 _paperdoll.OnMouseEnter -= MouseOverButton;

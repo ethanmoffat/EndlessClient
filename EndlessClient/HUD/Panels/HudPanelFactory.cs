@@ -4,13 +4,16 @@ using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
+using EndlessClient.HUD.Inventory;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Services;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
+using EOLib.Domain.Item;
 using EOLib.Domain.Login;
 using EOLib.Graphics;
+using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.HUD.Panels
@@ -30,10 +33,13 @@ namespace EndlessClient.HUD.Panels
         private readonly ICharacterProvider _characterProvider;
         private readonly ICharacterInventoryProvider _characterInventoryProvider;
         private readonly IExperienceTableProvider _experienceTableProvider;
+        private readonly IEIFFileProvider _eifFileProvider;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly ITrainingController _trainingController;
         private readonly IFriendIgnoreListService _friendIgnoreListService;
         private readonly IStatusLabelSetter _statusLabelSetter;
+        private readonly IItemStringService _itemStringService;
+        private readonly IInventoryService _inventoryService;
 
         public HudPanelFactory(INativeGraphicsManager nativeGraphicsManager,
                                IInGameDialogActions inGameDialogActions,
@@ -45,10 +51,13 @@ namespace EndlessClient.HUD.Panels
                                ICharacterProvider characterProvider,
                                ICharacterInventoryProvider characterInventoryProvider,
                                IExperienceTableProvider experienceTableProvider,
+                               IEIFFileProvider eifFileProvider,
                                IEOMessageBoxFactory messageBoxFactory,
                                ITrainingController trainingController,
                                IFriendIgnoreListService friendIgnoreListService,
-                               IStatusLabelSetter statusLabelSetter)
+                               IStatusLabelSetter statusLabelSetter,
+                               IItemStringService itemStringService,
+                               IInventoryService inventoryService)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _inGameDialogActions = inGameDialogActions;
@@ -60,10 +69,13 @@ namespace EndlessClient.HUD.Panels
             _characterProvider = characterProvider;
             _characterInventoryProvider = characterInventoryProvider;
             _experienceTableProvider = experienceTableProvider;
+            _eifFileProvider = eifFileProvider;
             _messageBoxFactory = messageBoxFactory;
             _trainingController = trainingController;
             _friendIgnoreListService = friendIgnoreListService;
             _statusLabelSetter = statusLabelSetter;
+            _itemStringService = itemStringService;
+            _inventoryService = inventoryService;
         }
 
         public NewsPanel CreateNewsPanel()
@@ -81,9 +93,12 @@ namespace EndlessClient.HUD.Panels
             return new InventoryPanel(_nativeGraphicsManager,
                 _inGameDialogActions,
                 _statusLabelSetter,
+                _itemStringService,
+                _inventoryService,
                 _playerInfoProvider,
                 _characterProvider,
-                _characterInventoryProvider) { DrawOrder = HUD_CONTROL_LAYER };
+                _characterInventoryProvider,
+                _eifFileProvider) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public ActiveSpellsPanel CreateActiveSpellsPanel()

@@ -32,5 +32,7 @@ namespace EndlessClient.HUD.Inventory
         bool ItemFits(IItem item);
 
         bool ItemFits(ItemSize itemSize);
+
+        // need "ItemsFit" method for trading
     }
 }
