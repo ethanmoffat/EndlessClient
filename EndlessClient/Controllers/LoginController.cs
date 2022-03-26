@@ -182,6 +182,7 @@ namespace EndlessClient.Controllers
                     return;
                 }
 
+                ClearChat();
                 AddDefaultTextToChat();
 
                 await Task.Delay(1000); //always wait 1 second
@@ -227,6 +228,15 @@ namespace EndlessClient.Controllers
                         SetInitialStateAndShowError,
                         SetInitialStateAndShowError);
             return await op.Invoke();
+        }
+
+        private void ClearChat()
+        {
+            foreach(var chat in _chatRepository.AllChat.Values)
+            {
+                if (chat.Count > 0)
+                    chat.Clear();
+            }
         }
 
         private void AddDefaultTextToChat()
