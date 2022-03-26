@@ -182,6 +182,8 @@ namespace EndlessClient.Controllers
                     return;
                 }
 
+                // TODO: This is a temporary workaround until the bug in AutomaticTypeMapper/Unity is resolved
+                // https://github.com/ethanmoffat/EndlessClient/issues/151#issuecomment-1079738889
                 ClearChat();
                 AddDefaultTextToChat();
 
