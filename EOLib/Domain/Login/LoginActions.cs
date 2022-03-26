@@ -89,7 +89,7 @@ namespace EOLib.Domain.Login
             return data.Response;
         }
 
-        public async Task RequestCharacterLogin(ICharacter character)
+        public async Task<short> RequestCharacterLogin(ICharacter character)
         {
             var packet = new PacketBuilder(PacketFamily.Welcome, PacketAction.Request)
                 .AddInt(character.ID)
@@ -113,7 +113,6 @@ namespace EOLib.Domain.Login
                 .WithAdminLevel(data.AdminLevel)
                 .WithStats(data.CharacterStats);
 
-            _playerInfoRepository.SessionID = data.SessionID;
             _playerInfoRepository.IsFirstTimePlayer = data.FirstTimePlayer;
             _currentMapStateRepository.CurrentMapID = data.MapID;
 
@@ -128,12 +127,13 @@ namespace EOLib.Domain.Login
             _loginFileChecksumRepository.ESFLength = data.EsfLen;
             _loginFileChecksumRepository.ECFChecksum = data.EcfRid;
             _loginFileChecksumRepository.ECFLength = data.EcfLen;
+            return data.SessionID;
         }
 
-        public async Task<CharacterLoginReply> CompleteCharacterLogin()
+        public async Task<CharacterLoginReply> CompleteCharacterLogin(short sessionID)
         {
             var packet = new PacketBuilder(PacketFamily.Welcome, PacketAction.Message)
-                .AddThree((ushort)_playerInfoRepository.SessionID)
+                .AddThree((ushort)sessionID)
                 .AddInt(_characterRepository.MainCharacter.ID)
                 .Build();
 
@@ -201,8 +201,8 @@ namespace EOLib.Domain.Login
 
         Task<LoginReply> LoginToServer(ILoginParameters parameters);
 
-        Task RequestCharacterLogin(ICharacter character);
+        Task<short> RequestCharacterLogin(ICharacter character);
 
-        Task<CharacterLoginReply> CompleteCharacterLogin();
+        Task<CharacterLoginReply> CompleteCharacterLogin(short sessionID);
     }
 }

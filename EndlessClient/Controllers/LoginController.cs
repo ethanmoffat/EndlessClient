@@ -104,6 +104,8 @@ namespace EndlessClient.Controllers
             if (!await requestCharacterLoginOperation.Invoke())
                 return;
 
+            var sessionID = requestCharacterLoginOperation.Result;
+
             var unableToLoadMap = false;
             try
             {
@@ -127,7 +129,7 @@ namespace EndlessClient.Controllers
                 if (unableToLoadMap || _fileRequestActions.NeedsFileForLogin(InitFileType.Map, _currentMapStateProvider.CurrentMapID))
                 {
                     gameLoadingDialog.SetState(GameLoadingDialogState.Map);
-                    if (!await SafeGetFile(async () => await _fileRequestActions.GetMapFromServer(_currentMapStateProvider.CurrentMapID)))
+                    if (!await SafeGetFile(async () => await _fileRequestActions.GetMapFromServer(_currentMapStateProvider.CurrentMapID, sessionID)))
                         return;
                     await Task.Delay(1000);
                 }
@@ -135,7 +137,7 @@ namespace EndlessClient.Controllers
                 if (_fileRequestActions.NeedsFileForLogin(InitFileType.Item))
                 {
                     gameLoadingDialog.SetState(GameLoadingDialogState.Item);
-                    if (!await SafeGetFile(_fileRequestActions.GetItemFileFromServer))
+                    if (!await SafeGetFile(async () => await _fileRequestActions.GetItemFileFromServer(sessionID)))
                         return;
                     await Task.Delay(1000);
                 }
@@ -143,7 +145,7 @@ namespace EndlessClient.Controllers
                 if (_fileRequestActions.NeedsFileForLogin(InitFileType.Npc))
                 {
                     gameLoadingDialog.SetState(GameLoadingDialogState.NPC);
-                    if (!await SafeGetFile(_fileRequestActions.GetNPCFileFromServer))
+                    if (!await SafeGetFile(async () => await _fileRequestActions.GetNPCFileFromServer(sessionID)))
                         return;
                     await Task.Delay(1000);
                 }
@@ -151,7 +153,7 @@ namespace EndlessClient.Controllers
                 if (_fileRequestActions.NeedsFileForLogin(InitFileType.Spell))
                 {
                     gameLoadingDialog.SetState(GameLoadingDialogState.Spell);
-                    if (!await SafeGetFile(_fileRequestActions.GetSpellFileFromServer))
+                    if (!await SafeGetFile(async () => await _fileRequestActions.GetSpellFileFromServer(sessionID)))
                         return;
                     await Task.Delay(1000);
                 }
@@ -159,7 +161,7 @@ namespace EndlessClient.Controllers
                 if (_fileRequestActions.NeedsFileForLogin(InitFileType.Class))
                 {
                     gameLoadingDialog.SetState(GameLoadingDialogState.Class);
-                    if (!await SafeGetFile(_fileRequestActions.GetClassFileFromServer))
+                    if (!await SafeGetFile(async () => await _fileRequestActions.GetClassFileFromServer(sessionID)))
                         return;
                     await Task.Delay(1000);
                 }
@@ -167,7 +169,7 @@ namespace EndlessClient.Controllers
                 gameLoadingDialog.SetState(GameLoadingDialogState.LoadingGame);
 
                 var completeCharacterLoginOperation = _networkOperationFactory.CreateSafeBlockingOperation(
-                    _loginActions.CompleteCharacterLogin,
+                    (async () => await _loginActions.CompleteCharacterLogin(sessionID)),
                     SetInitialStateAndShowError,
                     SetInitialStateAndShowError);
                 if (!await completeCharacterLoginOperation.Invoke())
