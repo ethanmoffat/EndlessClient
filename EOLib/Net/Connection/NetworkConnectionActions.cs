@@ -114,7 +114,7 @@ namespace EOLib.Net.Connection
             var packet = new PacketBuilder(PacketFamily.Connection, PacketAction.Accept)
                 .AddShort((short)initializationData[InitializationDataKey.SendMultiple])
                 .AddShort((short)initializationData[InitializationDataKey.ReceiveMultiple])
-                .AddShort((ushort)_playerInfoRepository.PlayerID)
+                .AddShort(_playerInfoRepository.PlayerID)
                 .Build();
 
             _packetSendService.SendPacket(packet);

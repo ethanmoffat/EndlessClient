@@ -67,12 +67,7 @@ namespace EOLib.Net
 
         public IPacketBuilder AddShort(short s)
         {
-            return AddBytes(_encoderService.EncodeNumber(s, 2));
-        }
-
-        public IPacketBuilder AddShort(ushort s)
-        {
-            return AddBytes(_encoderService.EncodeNumber(s, 2));
+            return AddBytes(_encoderService.EncodeNumber((ushort)s, 2));
         }
 
         public IPacketBuilder AddThree(int t)
