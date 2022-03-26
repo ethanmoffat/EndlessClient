@@ -24,6 +24,8 @@ namespace EndlessClient.ControlSets
         private readonly IConfigurationProvider _configProvider;
         private readonly ICharacterInfoPanelFactory _characterInfoPanelFactory;
         private readonly ICharacterSelectorProvider _characterSelectorProvider;
+        private readonly IEndlessGameProvider _endlessGameProvider;
+        private readonly IUserInputRepository _userInputRepository;
         private IMainButtonController _mainButtonController;
         private IAccountController _accountController;
         private ILoginController _loginController;
@@ -36,7 +38,9 @@ namespace EndlessClient.ControlSets
                                  IKeyboardDispatcherProvider keyboardDispatcherProvider,
                                  IConfigurationProvider configProvider,
                                  ICharacterInfoPanelFactory characterInfoPanelFactory,
-                                 ICharacterSelectorProvider characterSelectorProvider)
+                                 ICharacterSelectorProvider characterSelectorProvider,
+                                 IEndlessGameProvider endlessGameProvider,
+                                 IUserInputRepository userInputRepository)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _messageBoxFactory = messageBoxFactory;
@@ -46,6 +50,8 @@ namespace EndlessClient.ControlSets
             _configProvider = configProvider;
             _characterInfoPanelFactory = characterInfoPanelFactory;
             _characterSelectorProvider = characterSelectorProvider;
+            _endlessGameProvider = endlessGameProvider;
+            _userInputRepository = userInputRepository;
         }
 
         public IControlSet CreateControlsForState(GameStates newState, IControlSet currentControlSet)
@@ -95,7 +101,9 @@ namespace EndlessClient.ControlSets
                         _characterInfoPanelFactory,
                         _characterSelectorProvider,
                         _characterManagementController,
-                        _accountController);
+                        _accountController,
+                        _endlessGameProvider,
+                        _userInputRepository);
                 case GameStates.PlayingTheGame:
                     return new InGameControlSet(_mainButtonController, _messageBoxFactory, _hudControlsFactory);
                 default: throw new ArgumentOutOfRangeException(nameof(newState), newState, null);

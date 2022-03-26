@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
+using EndlessClient.Input;
 using EndlessClient.UIControls;
 using EOLib.Domain.Login;
 using Microsoft.Xna.Framework;
@@ -16,6 +17,8 @@ namespace EndlessClient.ControlSets
         private readonly ICharacterSelectorProvider _characterSelectorProvider;
         private readonly ICharacterManagementController _characterManagementController;
         private readonly IAccountController _accountController;
+        private readonly IEndlessGameProvider _endlessGameProvider;
+        private readonly IUserInputRepository _userInputRepository;
         private readonly List<CharacterInfoPanel> _characterInfoPanels;
 
         private IXNAButton _changePasswordButton;
@@ -29,13 +32,17 @@ namespace EndlessClient.ControlSets
                                   ICharacterInfoPanelFactory characterInfoPanelFactory,
                                   ICharacterSelectorProvider characterSelectorProvider,
                                   ICharacterManagementController characterManagementController,
-                                  IAccountController accountController)
+                                  IAccountController accountController,
+                                  IEndlessGameProvider endlessGameProvider,
+                                  IUserInputRepository userInputRepository)
             : base(dispatcher, mainButtonController)
         {
             _characterInfoPanelFactory = characterInfoPanelFactory;
             _characterSelectorProvider = characterSelectorProvider;
             _characterManagementController = characterManagementController;
             _accountController = accountController;
+            _endlessGameProvider = endlessGameProvider;
+            _userInputRepository = userInputRepository;
             _characterInfoPanels = new List<CharacterInfoPanel>();
         }
 
@@ -46,6 +53,7 @@ namespace EndlessClient.ControlSets
             _changePasswordButton = GetControl(currentControlSet, GameControlIdentifier.ChangePasswordButton, GetPasswordButton);
             _characterInfoPanels.AddRange(_characterInfoPanelFactory.CreatePanels(_characterSelectorProvider.Characters));
 
+            _allComponents.Add(new CurrentUserInputTracker(_endlessGameProvider, _userInputRepository));
             _allComponents.Add(_changePasswordButton);
             _allComponents.AddRange(_characterInfoPanels);
         }
