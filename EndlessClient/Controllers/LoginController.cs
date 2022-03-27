@@ -182,6 +182,9 @@ namespace EndlessClient.Controllers
                     return;
                 }
 
+                // TODO: This is a temporary workaround until the bug in AutomaticTypeMapper/Unity is resolved
+                // https://github.com/ethanmoffat/EndlessClient/issues/151#issuecomment-1079738889
+                ClearChat();
                 AddDefaultTextToChat();
 
                 await Task.Delay(1000); //always wait 1 second
@@ -227,6 +230,14 @@ namespace EndlessClient.Controllers
                         SetInitialStateAndShowError,
                         SetInitialStateAndShowError);
             return await op.Invoke();
+        }
+
+        private void ClearChat()
+        {
+            foreach(var chat in _chatRepository.AllChat.Values)
+            {
+                chat.Clear();
+            }
         }
 
         private void AddDefaultTextToChat()
