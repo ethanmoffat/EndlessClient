@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using AutomaticTypeMapper;
 using EndlessClient.Controllers;
 using EndlessClient.Dialogs.Services;
+using EndlessClient.Input;
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Factories;
 using EOLib.Domain.Character;
-using EOLib.Domain.Login;
 using EOLib.Graphics;
 
 namespace EndlessClient.UIControls
@@ -14,26 +14,26 @@ namespace EndlessClient.UIControls
     [AutoMappedType(IsSingleton = true)]
     public class CharacterInfoPanelFactory : ICharacterInfoPanelFactory
     {
-        private readonly ICharacterSelectorProvider _characterProvider;
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly ICharacterRendererFactory _characterRendererFactory;
         private readonly IRendererRepositoryResetter _rendererRepositoryResetter;
         private readonly IEODialogButtonService _eoDialogButtonService;
+        private readonly IUserInputProvider _userInputProvider;
 
         private ILoginController _loginController;
         private ICharacterManagementController _characterManagementController;
 
-        public CharacterInfoPanelFactory(ICharacterSelectorProvider characterProvider,
-                                         INativeGraphicsManager nativeGraphicsManager,
+        public CharacterInfoPanelFactory(INativeGraphicsManager nativeGraphicsManager,
                                          ICharacterRendererFactory characterRendererFactory,
                                          IRendererRepositoryResetter rendererRepositoryResetter,
-                                         IEODialogButtonService eoDialogButtonService)
+                                         IEODialogButtonService eoDialogButtonService,
+                                         IUserInputProvider userInputProvider)
         {
-            _characterProvider = characterProvider;
             _nativeGraphicsManager = nativeGraphicsManager;
             _characterRendererFactory = characterRendererFactory;
             _rendererRepositoryResetter = rendererRepositoryResetter;
             _eoDialogButtonService = eoDialogButtonService;
+            _userInputProvider = userInputProvider;
         }
 
         public void InjectLoginController(ILoginController loginController)
@@ -61,7 +61,8 @@ namespace EndlessClient.UIControls
                                                     _loginController,
                                                     _characterManagementController,
                                                     _characterRendererFactory,
-                                                    _rendererRepositoryResetter);
+                                                    _rendererRepositoryResetter,
+                                                    _userInputProvider);
             }
 
             for (; i < 3; ++i)
