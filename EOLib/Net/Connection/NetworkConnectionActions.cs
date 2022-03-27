@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using AutomaticTypeMapper;
 using EOLib.Config;
+using EOLib.Domain.Login;
 using EOLib.Domain.Protocol;
 using EOLib.Net.Communication;
 using EOLib.Net.PacketProcessing;
@@ -21,6 +22,8 @@ namespace EOLib.Net.Connection
         private readonly IPacketTranslator<IInitializationData> _initPacketTranslator;
         private readonly INetworkClientFactory _networkClientFactory;
         private readonly IPacketSendService _packetSendService;
+        private readonly IPlayerInfoRepository _playerInfoRepository;
+
 
         public NetworkConnectionActions(INetworkClientRepository networkClientRepository,
                                         IConnectionStateRepository connectionStateRepository,
@@ -30,7 +33,8 @@ namespace EOLib.Net.Connection
                                         IHDSerialNumberService hdSerialNumberService,
                                         IPacketTranslator<IInitializationData> initPacketTranslator,
                                         INetworkClientFactory networkClientFactory,
-                                        IPacketSendService packetSendService)
+                                        IPacketSendService packetSendService,
+                                        IPlayerInfoRepository playerInfoRepository)
         {
             _networkClientRepository = networkClientRepository;
             _connectionStateRepository = connectionStateRepository;
@@ -41,6 +45,7 @@ namespace EOLib.Net.Connection
             _initPacketTranslator = initPacketTranslator;
             _networkClientFactory = networkClientFactory;
             _packetSendService = packetSendService;
+            _playerInfoRepository = playerInfoRepository;
         }
 
         public async Task<ConnectResult> ConnectToServer()
@@ -104,10 +109,12 @@ namespace EOLib.Net.Connection
 
         public void CompleteHandshake(IInitializationData initializationData)
         {
+            _playerInfoRepository.PlayerID = (short)initializationData[InitializationDataKey.PlayerID];
+
             var packet = new PacketBuilder(PacketFamily.Connection, PacketAction.Accept)
                 .AddShort((short)initializationData[InitializationDataKey.SendMultiple])
                 .AddShort((short)initializationData[InitializationDataKey.ReceiveMultiple])
-                .AddShort((short)initializationData[InitializationDataKey.ClientID])
+                .AddShort(_playerInfoRepository.PlayerID)
                 .Build();
 
             _packetSendService.SendPacket(packet);

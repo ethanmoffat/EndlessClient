@@ -58,42 +58,42 @@ namespace EOLib.Net.FileTransfer
             return NeedMap(mapID, expectedChecksum, fileSize);
         }
 
-        public async Task GetMapFromServer(short mapID)
+        public async Task GetMapForWarp(short mapID, short sessionID)
         {
-            var mapFile = await _fileRequestService.RequestMapFile(mapID, _playerInfoProvider.PlayerID);
+            var mapFile = await _fileRequestService.RequestMapFileForWarp(mapID, sessionID);
             SaveAndCacheMapFile(mapID, mapFile);
         }
 
-        public async Task GetMapForWarp(short mapID)
+        public async Task GetMapFromServer(short mapID, short sessionID)
         {
-            var mapFile = await _fileRequestService.RequestMapFileForWarp(mapID);
+            var mapFile = await _fileRequestService.RequestMapFile(mapID, sessionID);
             SaveAndCacheMapFile(mapID, mapFile);
         }
 
-        public async Task GetItemFileFromServer()
+        public async Task GetItemFileFromServer(short sessionID)
         {
-            var itemFile = await _fileRequestService.RequestFile<EIFRecord>(InitFileType.Item, _playerInfoProvider.PlayerID);
+            var itemFile = await _fileRequestService.RequestFile<EIFRecord>(InitFileType.Item, sessionID);
             _pubFileSaveService.SaveFile(PubFileNameConstants.PathToEIFFile, itemFile, rewriteChecksum: false);
             _pubFileRepository.EIFFile = (EIFFile)itemFile;
         }
 
-        public async Task GetNPCFileFromServer()
+        public async Task GetNPCFileFromServer(short sessionID)
         {
-            var npcFile = await _fileRequestService.RequestFile<ENFRecord>(InitFileType.Npc, _playerInfoProvider.PlayerID);
+            var npcFile = await _fileRequestService.RequestFile<ENFRecord>(InitFileType.Npc, sessionID);
             _pubFileSaveService.SaveFile(PubFileNameConstants.PathToENFFile, npcFile, rewriteChecksum: false);
             _pubFileRepository.ENFFile = (ENFFile)npcFile;
         }
 
-        public async Task GetSpellFileFromServer()
+        public async Task GetSpellFileFromServer(short sessionID)
         {
-            var spellFile = await _fileRequestService.RequestFile<ESFRecord>(InitFileType.Spell, _playerInfoProvider.PlayerID);
+            var spellFile = await _fileRequestService.RequestFile<ESFRecord>(InitFileType.Spell, sessionID);
             _pubFileSaveService.SaveFile(PubFileNameConstants.PathToESFFile, spellFile, rewriteChecksum: false);
             _pubFileRepository.ESFFile = (ESFFile)spellFile;
         }
 
-        public async Task GetClassFileFromServer()
+        public async Task GetClassFileFromServer(short sessionID)
         {
-            var classFile = await _fileRequestService.RequestFile<ECFRecord>(InitFileType.Class, _playerInfoProvider.PlayerID);
+            var classFile = await _fileRequestService.RequestFile<ECFRecord>(InitFileType.Class, sessionID);
             _pubFileSaveService.SaveFile(PubFileNameConstants.PathToECFFile, classFile, rewriteChecksum: false);
             _pubFileRepository.ECFFile = (ECFFile)classFile;
         }
@@ -151,16 +151,16 @@ namespace EOLib.Net.FileTransfer
 
         bool NeedsMapForWarp(short mapID, byte[] mapRid, int fileSize);
 
-        Task GetMapFromServer(short mapID);
+        Task GetMapForWarp(short mapID, short sessionID);
 
-        Task GetMapForWarp(short mapID);
+        Task GetMapFromServer(short mapID, short sessionID);
 
-        Task GetItemFileFromServer();
+        Task GetItemFileFromServer(short sessionID);
 
-        Task GetNPCFileFromServer();
+        Task GetNPCFileFromServer(short sessionID);
 
-        Task GetSpellFileFromServer();
+        Task GetSpellFileFromServer(short sessionID);
 
-        Task GetClassFileFromServer();
+        Task GetClassFileFromServer(short sessionID);
     }
 }
