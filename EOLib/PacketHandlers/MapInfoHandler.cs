@@ -2,7 +2,6 @@
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
-using EOLib.Domain.NPC;
 using EOLib.IO.Extensions;
 using EOLib.IO.Repositories;
 using EOLib.Net;
@@ -16,6 +15,7 @@ namespace EOLib.PacketHandlers
     {
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly ICharacterFromPacketFactory _characterFromPacketFactory;
+        private readonly INPCFromPacketFactory _npcFromPacketFactory;
         private readonly IEIFFileProvider _eifFileProvider;
 
         public override PacketFamily Family => PacketFamily.MapInfo;
@@ -25,12 +25,13 @@ namespace EOLib.PacketHandlers
         public MapInfoHandler(IPlayerInfoProvider playerInfoProvider,
                               ICurrentMapStateRepository currentMapStateRepository,
                               ICharacterFromPacketFactory characterFromPacketFactory,
-                              IEIFFileProvider eifFileProvider
+                              INPCFromPacketFactory npcFromPacketFactory
                               )
             : base(playerInfoProvider)
         {
             _currentMapStateRepository = currentMapStateRepository;
             _characterFromPacketFactory = characterFromPacketFactory;
+            _npcFromPacketFactory = npcFromPacketFactory;
         }
 
         public override bool HandlePacket(IPacket packet)
@@ -54,16 +55,8 @@ namespace EOLib.PacketHandlers
 
             while (packet.ReadPosition < packet.Length)
             {
-                var index = packet.ReadChar();
-                var id = packet.ReadShort();
-                var x = packet.ReadChar();
-                var y = packet.ReadChar();
-                var direction = (EODirection)packet.ReadChar();
-
-                INPC npc = new NPC(id, index);
-                npc = npc.WithX(x).WithY(y).WithDirection(direction).WithFrame(NPCFrame.Standing);
-
-                _currentMapStateRepository.NPCs.RemoveWhere(n => n.Index == index);
+                var npc = _npcFromPacketFactory.CreateNPC(packet);
+                _currentMapStateRepository.NPCs.RemoveWhere(n => n.Index == npc.Index);
                 _currentMapStateRepository.NPCs.Add(npc);
             }
 
