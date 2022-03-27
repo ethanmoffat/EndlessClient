@@ -38,7 +38,7 @@ namespace EOLib.Domain.Login
         short JailMap { get; }
         bool FirstTimePlayer { get; }
 
-        ILoginRequestGrantedData WithSessionID(short playerID);
+        ILoginRequestGrantedData WithSessionID(short sessionID);
         ILoginRequestGrantedData WithCharacterID(int characterID);
         ILoginRequestGrantedData WithMapID(short mapID);
         ILoginRequestGrantedData WithMapRID(IEnumerable<byte> mapRID);
