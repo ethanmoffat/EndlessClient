@@ -33,8 +33,8 @@ namespace EOLib.Domain.Login
 
         public ICharacterStats CharacterStats { get; private set; }
 
-        private List<short> _paperdoll = new List<short>((int)EquipLocation.PAPERDOLL_MAX);
-        public IReadOnlyList<short> Paperdoll => _paperdoll;
+        private IReadOnlyDictionary<EquipLocation, short> _paperdoll = new Dictionary<EquipLocation, short>();
+        public IReadOnlyDictionary<EquipLocation, short> Paperdoll => _paperdoll;
 
         public byte GuildRankNum { get; private set; }
         public short JailMap { get; private set; }
@@ -187,10 +187,10 @@ namespace EOLib.Domain.Login
             return copy;
         }
 
-        public ILoginRequestGrantedData WithPaperdoll(IEnumerable<short> paperdollItemIDs)
+        public ILoginRequestGrantedData WithPaperdoll(IReadOnlyDictionary<EquipLocation, short> paperdoll)
         {
             var copy = MakeCopy(this);
-            copy._paperdoll = paperdollItemIDs.ToList();
+            copy._paperdoll = paperdoll;
             return copy;
         }
 

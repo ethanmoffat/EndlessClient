@@ -27,6 +27,7 @@ namespace EOLib.Domain.Login
         private readonly ILoginFileChecksumRepository _loginFileChecksumRepository;
         private readonly INewsRepository _newsRepository;
         private readonly ICharacterInventoryRepository _characterInventoryRepository;
+        private readonly IPaperdollRepository _paperdollRepository;
 
         public LoginActions(IPacketSendService packetSendService,
                             IPacketTranslator<IAccountLoginData> loginPacketTranslator,
@@ -38,7 +39,8 @@ namespace EOLib.Domain.Login
                             ICurrentMapStateRepository currentMapStateRepository,
                             ILoginFileChecksumRepository loginFileChecksumRepository,
                             INewsRepository newsRepository,
-                            ICharacterInventoryRepository characterInventoryRepository)
+                            ICharacterInventoryRepository characterInventoryRepository,
+                            IPaperdollRepository paperdollRepository)
         {
             _packetSendService = packetSendService;
             _loginPacketTranslator = loginPacketTranslator;
@@ -51,6 +53,7 @@ namespace EOLib.Domain.Login
             _loginFileChecksumRepository = loginFileChecksumRepository;
             _newsRepository = newsRepository;
             _characterInventoryRepository = characterInventoryRepository;
+            _paperdollRepository = paperdollRepository;
         }
 
         public bool LoginParametersAreValid(ILoginParameters parameters)
@@ -109,6 +112,15 @@ namespace EOLib.Domain.Login
             _playerInfoRepository.PlayerID = data.PlayerID;
             _playerInfoRepository.IsFirstTimePlayer = data.FirstTimePlayer;
             _currentMapStateRepository.CurrentMapID = data.MapID;
+
+            _paperdollRepository.VisibleCharacterPaperdolls[data.PlayerID] = new PaperdollData()
+                .WithName(data.Name)
+                .WithTitle(data.Title)
+                .WithGuild(data.GuildName)
+                .WithRank(data.GuildRank)
+                .WithClass(data.ClassID)
+                .WithPlayerID(data.PlayerID)
+                .WithPaperdoll(data.Paperdoll);
 
             _loginFileChecksumRepository.MapChecksum = data.MapRID.ToArray();
             _loginFileChecksumRepository.MapLength = data.MapLen;

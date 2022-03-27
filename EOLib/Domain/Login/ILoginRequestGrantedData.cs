@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using EOLib.Domain.Character;
+using EOLib.IO;
 using EOLib.Net.Translators;
 
 namespace EOLib.Domain.Login
@@ -32,7 +33,7 @@ namespace EOLib.Domain.Login
 
         ICharacterStats CharacterStats { get; }
 
-        IReadOnlyList<short> Paperdoll { get; }
+        IReadOnlyDictionary<EquipLocation, short> Paperdoll { get; }
 
         byte GuildRankNum { get; }
         short JailMap { get; }
@@ -59,7 +60,7 @@ namespace EOLib.Domain.Login
         ILoginRequestGrantedData WithGuildTag(string guildTag);
         ILoginRequestGrantedData WithAdminLevel(AdminLevel adminLevel);
         ILoginRequestGrantedData WithCharacterStats(ICharacterStats stats);
-        ILoginRequestGrantedData WithPaperdoll(IEnumerable<short> paperdollItemIDs);
+        ILoginRequestGrantedData WithPaperdoll(IReadOnlyDictionary<EquipLocation, short> paperdoll);
         ILoginRequestGrantedData WithGuildRankNum(byte rankNum);
         ILoginRequestGrantedData WithJailMap(short jailMapID);
         ILoginRequestGrantedData WithFirstTimePlayer(bool isFirstTimePlayer);
