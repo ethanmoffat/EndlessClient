@@ -46,6 +46,7 @@ namespace EOLib.PacketHandlers
             }
             else
             {
+                _currentMapStateRepository.UnknownPlayerIDs.Add(playerID);
                 return false;
             }
 

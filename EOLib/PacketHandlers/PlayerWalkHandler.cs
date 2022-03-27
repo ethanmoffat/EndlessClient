@@ -8,6 +8,7 @@ using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.Net;
+using EOLib.Net.Communication;
 using EOLib.Net.Handlers;
 
 namespace EOLib.PacketHandlers
@@ -17,6 +18,7 @@ namespace EOLib.PacketHandlers
     {
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IEnumerable<IOtherCharacterAnimationNotifier> _otherCharacterAnimationNotifiers;
+        private readonly IPacketSendService _packetSendService;
 
         public override PacketFamily Family => PacketFamily.Walk;
 
@@ -24,36 +26,42 @@ namespace EOLib.PacketHandlers
 
         public PlayerWalkHandler(IPlayerInfoProvider playerInfoProvider,
                                  ICurrentMapStateRepository currentMapStateRepository,
-                                 IEnumerable<IOtherCharacterAnimationNotifier> otherCharacterAnimationNotifiers)
+                                 IEnumerable<IOtherCharacterAnimationNotifier> otherCharacterAnimationNotifiers,
+                                 IPacketSendService packetSendService)
             : base(playerInfoProvider)
         {
             _currentMapStateRepository = currentMapStateRepository;
             _otherCharacterAnimationNotifiers = otherCharacterAnimationNotifiers;
+            _packetSendService = packetSendService;
         }
 
         public override bool HandlePacket(IPacket packet)
         {
             var characterID = packet.ReadShort();
 
-            if (!_currentMapStateRepository.Characters.ContainsKey(characterID))
-                return false;
-
-            var dir = (EODirection)packet.ReadChar();
-            var x = packet.ReadChar();
-            var y = packet.ReadChar();
-
-            var character = _currentMapStateRepository.Characters[characterID];
-
-            // if character is walking, that means animator is handling position of character
-            // if character is not walking (this is true in EOBot), update the domain model here
-            if (!character.RenderProperties.IsActing(CharacterActionState.Walking))
+            if (_currentMapStateRepository.Characters.ContainsKey(characterID))
             {
-                var renderProperties = EnsureCorrectXAndY(character.RenderProperties.WithDirection(dir), x, y);
-                _currentMapStateRepository.Characters[characterID] = character.WithRenderProperties(renderProperties);
-            }
+                var dir = (EODirection)packet.ReadChar();
+                var x = packet.ReadChar();
+                var y = packet.ReadChar();
 
-            foreach (var notifier in _otherCharacterAnimationNotifiers)
-                notifier.StartOtherCharacterWalkAnimation(characterID, x, y, dir);
+                var character = _currentMapStateRepository.Characters[characterID];
+
+                // if character is walking, that means animator is handling position of character
+                // if character is not walking (this is true in EOBot), update the domain model here
+                if (!character.RenderProperties.IsActing(CharacterActionState.Walking))
+                {
+                    var renderProperties = EnsureCorrectXAndY(character.RenderProperties.WithDirection(dir), x, y);
+                    _currentMapStateRepository.Characters[characterID] = character.WithRenderProperties(renderProperties);
+                }
+
+                foreach (var notifier in _otherCharacterAnimationNotifiers)
+                    notifier.StartOtherCharacterWalkAnimation(characterID, x, y, dir);
+            }
+            else
+            {
+                _currentMapStateRepository.UnknownPlayerIDs.Add(characterID);
+            }
 
             return true;
         }

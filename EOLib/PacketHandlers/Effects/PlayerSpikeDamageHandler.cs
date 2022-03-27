@@ -35,16 +35,21 @@ namespace EOLib.PacketHandlers.Effects
             var isDead = packet.ReadChar() != 0;
             var damageTaken = packet.ReadThree();
 
-            if (!_currentMapStateRepository.Characters.ContainsKey(characterId))
-                return false;
-
-            var updatedCharacter = _currentMapStateRepository.Characters[characterId].WithDamage(damageTaken, isDead);
-            _currentMapStateRepository.Characters[characterId] = updatedCharacter;
-
-            foreach (var notifier in _otherCharacterEventNotifiers)
+            if (_currentMapStateRepository.Characters.ContainsKey(characterId))
             {
-                notifier.OtherCharacterTakeDamage(characterId, playerPercentHealth, damageTaken);
+                var updatedCharacter = _currentMapStateRepository.Characters[characterId].WithDamage(damageTaken, isDead);
+                _currentMapStateRepository.Characters[characterId] = updatedCharacter;
+
+                foreach (var notifier in _otherCharacterEventNotifiers)
+                {
+                    notifier.OtherCharacterTakeDamage(characterId, playerPercentHealth, damageTaken);
+                }
             }
+            else
+            {
+                _currentMapStateRepository.UnknownPlayerIDs.Add(characterId);
+            }
+            
 
             return true;
         }

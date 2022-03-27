@@ -69,7 +69,11 @@ namespace EOLib.PacketHandlers
             {
                 npc = _currentMapStateRepository.NPCs.Single(n => n.Index == index);
             }
-            catch (InvalidOperationException) { return false; }
+            catch (InvalidOperationException) 
+            {
+                _currentMapStateRepository.UnknownNPCIndexes.Add(index);
+                return false;
+            }
 
             var updatedNpc = Option.None<INPC>();
             switch (num255s)
@@ -141,6 +145,10 @@ namespace EOLib.PacketHandlers
 
                 foreach (var notifier in _otherCharacterNotifiers)
                     notifier.OtherCharacterTakeDamage(characterID, playerPercentHealth, damageTaken);
+            }
+            else
+            {
+                _currentMapStateRepository.UnknownPlayerIDs.Add(characterID);
             }
 
             foreach (var notifier in _npcAnimationNotifiers)

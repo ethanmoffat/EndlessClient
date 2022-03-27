@@ -52,6 +52,7 @@ namespace EOLib.PacketHandlers
             }
             else
             {
+                _currentMapStateRepository.UnknownPlayerIDs.Add(sourcePlayerId);
                 return false;
             }
 

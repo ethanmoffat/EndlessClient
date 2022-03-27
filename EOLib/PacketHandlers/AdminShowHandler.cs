@@ -33,12 +33,17 @@ namespace EOLib.PacketHandlers
                 _characterRepository.MainCharacter = Shown(_characterRepository.MainCharacter);
             else
             {
-                if (!_currentMapStateRepository.Characters.ContainsKey(id))
-                    return false;
-                var character = _currentMapStateRepository.Characters[id];
+                if (_currentMapStateRepository.Characters.ContainsKey(id))
+                {
+                    var character = _currentMapStateRepository.Characters[id];
 
-                var updatedCharacter = Shown(character);
-                _currentMapStateRepository.Characters[id] = updatedCharacter;
+                    var updatedCharacter = Shown(character);
+                    _currentMapStateRepository.Characters[id] = updatedCharacter;
+                }
+                else
+                {
+                    _currentMapStateRepository.UnknownPlayerIDs.Add(id);
+                }
             }
 
             return true;

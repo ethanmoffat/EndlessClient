@@ -39,12 +39,16 @@ namespace EOLib.PacketHandlers
                     notifier.NotifyWarpLeaveEffect(id, anim);
             }
 
-            if (!_currentMapStateRepository.Characters.ContainsKey(id))
-                return false;
-
-            var character = _currentMapStateRepository.Characters[id];
-            _currentMapStateRepository.Characters.Remove(id);
-            _currentMapStateRepository.VisibleSpikeTraps.Remove(new MapCoordinate(character.RenderProperties.MapX, character.RenderProperties.MapY));
+            if (_currentMapStateRepository.Characters.ContainsKey(id))
+            {
+                var character = _currentMapStateRepository.Characters[id];
+                _currentMapStateRepository.Characters.Remove(id);
+                _currentMapStateRepository.VisibleSpikeTraps.Remove(new MapCoordinate(character.RenderProperties.MapX, character.RenderProperties.MapY));
+            }
+            else
+            {
+                _currentMapStateRepository.UnknownPlayerIDs.Add(id);
+            }
 
             return true;
         }
