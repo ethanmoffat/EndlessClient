@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
@@ -8,7 +6,6 @@ using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.Net;
-using EOLib.Net.Communication;
 using EOLib.Net.Handlers;
 
 namespace EOLib.PacketHandlers
@@ -18,7 +15,6 @@ namespace EOLib.PacketHandlers
     {
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IEnumerable<IOtherCharacterAnimationNotifier> _otherCharacterAnimationNotifiers;
-        private readonly IPacketSendService _packetSendService;
 
         public override PacketFamily Family => PacketFamily.Walk;
 
@@ -26,13 +22,11 @@ namespace EOLib.PacketHandlers
 
         public PlayerWalkHandler(IPlayerInfoProvider playerInfoProvider,
                                  ICurrentMapStateRepository currentMapStateRepository,
-                                 IEnumerable<IOtherCharacterAnimationNotifier> otherCharacterAnimationNotifiers,
-                                 IPacketSendService packetSendService)
+                                 IEnumerable<IOtherCharacterAnimationNotifier> otherCharacterAnimationNotifiers)
             : base(playerInfoProvider)
         {
             _currentMapStateRepository = currentMapStateRepository;
             _otherCharacterAnimationNotifiers = otherCharacterAnimationNotifiers;
-            _packetSendService = packetSendService;
         }
 
         public override bool HandlePacket(IPacket packet)

@@ -53,6 +53,8 @@ namespace EOLib.PacketHandlers
                         character = existingCharacter.WithAppliedData(character, isRangedWeapon);
                     }
                     _currentMapStateRepository.Characters[character.ID] = character;
+                    if (packet.ReadByte() != 255)
+                        throw new MalformedPacketException("Missing 255 byte after character data", packet);
                 }
             }
 
