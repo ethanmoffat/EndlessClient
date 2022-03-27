@@ -99,7 +99,9 @@ namespace EOLib.PacketHandlers
                                none: () => new InventoryItem(itemId, amount));
 
                     _characterInventoryRepository.ItemInventory.RemoveWhere(x => x.ItemID == itemId);
-                    _characterInventoryRepository.ItemInventory.Add(updatedItem);
+
+                    if (updatedItem.Amount > 0)
+                        _characterInventoryRepository.ItemInventory.Add(updatedItem);
                 }
                 else
                 {

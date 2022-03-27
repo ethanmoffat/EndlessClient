@@ -25,6 +25,7 @@ namespace EndlessClient.HUD.Panels
 
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IInGameDialogActions _inGameDialogActions;
+        private readonly ICharacterActions _characterActions;
         private readonly IContentProvider _contentProvider;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly INewsProvider _newsProvider;
@@ -33,7 +34,8 @@ namespace EndlessClient.HUD.Panels
         private readonly ICharacterProvider _characterProvider;
         private readonly ICharacterInventoryProvider _characterInventoryProvider;
         private readonly IExperienceTableProvider _experienceTableProvider;
-        private readonly IEIFFileProvider _eifFileProvider;
+        private readonly IPubFileProvider _pubFileProvider;
+        private readonly IPaperdollProvider _paperdollProvider;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly ITrainingController _trainingController;
         private readonly IFriendIgnoreListService _friendIgnoreListService;
@@ -43,6 +45,7 @@ namespace EndlessClient.HUD.Panels
 
         public HudPanelFactory(INativeGraphicsManager nativeGraphicsManager,
                                IInGameDialogActions inGameDialogActions,
+                               ICharacterActions characterActions,
                                IContentProvider contentProvider,
                                IHudControlProvider hudControlProvider,
                                INewsProvider newsProvider,
@@ -51,7 +54,8 @@ namespace EndlessClient.HUD.Panels
                                ICharacterProvider characterProvider,
                                ICharacterInventoryProvider characterInventoryProvider,
                                IExperienceTableProvider experienceTableProvider,
-                               IEIFFileProvider eifFileProvider,
+                               IPubFileProvider pubFileProvider,
+                               IPaperdollProvider paperdollProvider,
                                IEOMessageBoxFactory messageBoxFactory,
                                ITrainingController trainingController,
                                IFriendIgnoreListService friendIgnoreListService,
@@ -61,6 +65,7 @@ namespace EndlessClient.HUD.Panels
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _inGameDialogActions = inGameDialogActions;
+            _characterActions = characterActions;
             _contentProvider = contentProvider;
             _hudControlProvider = hudControlProvider;
             _newsProvider = newsProvider;
@@ -69,7 +74,8 @@ namespace EndlessClient.HUD.Panels
             _characterProvider = characterProvider;
             _characterInventoryProvider = characterInventoryProvider;
             _experienceTableProvider = experienceTableProvider;
-            _eifFileProvider = eifFileProvider;
+            _pubFileProvider = pubFileProvider;
+            _paperdollProvider = paperdollProvider;
             _messageBoxFactory = messageBoxFactory;
             _trainingController = trainingController;
             _friendIgnoreListService = friendIgnoreListService;
@@ -92,13 +98,15 @@ namespace EndlessClient.HUD.Panels
         {
             return new InventoryPanel(_nativeGraphicsManager,
                 _inGameDialogActions,
+                _characterActions,
                 _statusLabelSetter,
                 _itemStringService,
                 _inventoryService,
                 _playerInfoProvider,
                 _characterProvider,
+                _paperdollProvider,
                 _characterInventoryProvider,
-                _eifFileProvider) { DrawOrder = HUD_CONTROL_LAYER };
+                _pubFileProvider) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public ActiveSpellsPanel CreateActiveSpellsPanel()
