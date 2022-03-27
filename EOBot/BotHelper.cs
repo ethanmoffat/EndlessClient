@@ -28,7 +28,8 @@ namespace EOBot
         {
             var accountActions = DependencyMaster.TypeRegistry[_botIndex].Resolve<IAccountActions>();
             var accParams = new CreateAccountParameters(name, password, password, name, name, name + "@eobot.net");
-            return await accountActions.CreateAccount(accParams);
+            var nameResult = await accountActions.CheckAccountNameWithServer(name);
+            return await accountActions.CreateAccount(accParams, (short)nameResult);
         }
 
         public async Task<LoginReply> LoginToAccountAsync(string name, string password)
@@ -56,7 +57,7 @@ namespace EOBot
                 await CreateCharacterAsync(name);
 
             var character = characters.Characters.Single(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
-            await loginActions.RequestCharacterLogin(character);
+            var sessionID = await loginActions.RequestCharacterLogin(character);
 
             var unableToLoadMap = false;
             try
@@ -71,21 +72,21 @@ namespace EOBot
 
             var fileRequestActions = DependencyMaster.TypeRegistry[_botIndex].Resolve<IFileRequestActions>();
             if (unableToLoadMap || fileRequestActions.NeedsFileForLogin(InitFileType.Map, mapStateProvider.CurrentMapID))
-                await fileRequestActions.GetMapFromServer(mapStateProvider.CurrentMapID);
+                await fileRequestActions.GetMapFromServer(mapStateProvider.CurrentMapID, sessionID);
 
             if (fileRequestActions.NeedsFileForLogin(InitFileType.Item))
-                await fileRequestActions.GetItemFileFromServer();
+                await fileRequestActions.GetItemFileFromServer(sessionID);
 
             if (fileRequestActions.NeedsFileForLogin(InitFileType.Npc))
-                await fileRequestActions.GetNPCFileFromServer();
+                await fileRequestActions.GetNPCFileFromServer(sessionID);
 
             if (fileRequestActions.NeedsFileForLogin(InitFileType.Spell))
-                await fileRequestActions.GetSpellFileFromServer();
+                await fileRequestActions.GetSpellFileFromServer(sessionID);
 
             if (fileRequestActions.NeedsFileForLogin(InitFileType.Class))
-                await fileRequestActions.GetClassFileFromServer();
+                await fileRequestActions.GetClassFileFromServer(sessionID);
 
-            await loginActions.CompleteCharacterLogin();
+            await loginActions.CompleteCharacterLogin(sessionID);
         }
 
         public async Task<AccountReply> ChangePasswordAsync(string name, string oldPass, string newPass)

@@ -7,7 +7,7 @@ namespace EOLib.Domain.Login
 {
     public class LoginRequestGrantedData : ILoginRequestGrantedData
     {
-        public short PlayerID { get; private set; }
+        public short SessionID { get; private set; }
         public int CharacterID { get; private set; }
 
         public short MapID { get; private set; }
@@ -40,10 +40,10 @@ namespace EOLib.Domain.Login
         public short JailMap { get; private set; }
         public bool FirstTimePlayer { get; private set; }
 
-        public ILoginRequestGrantedData WithPlayerID(short playerID)
+        public ILoginRequestGrantedData WithSessionID(short sessionID)
         {
             var copy = MakeCopy(this);
-            copy.PlayerID = playerID;
+            copy.SessionID = sessionID;
             return copy;
         }
 
@@ -219,7 +219,7 @@ namespace EOLib.Domain.Login
         {
             return new LoginRequestGrantedData
             {
-                PlayerID = source.PlayerID,
+                SessionID = source.SessionID,
                 CharacterID = source.CharacterID,
 
                 MapID = source.MapID,

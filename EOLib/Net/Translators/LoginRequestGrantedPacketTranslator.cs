@@ -16,7 +16,7 @@ namespace EOLib.Net.Translators
             if (reply != CharacterLoginReply.RequestGranted)
                 throw new MalformedPacketException("Unexpected welcome response in packet: " + reply, packet);
 
-            var playerID = packet.ReadShort();
+            var sessionID = packet.ReadShort();
             var characterID = packet.ReadInt();
 
             var mapID = packet.ReadShort();
@@ -111,7 +111,7 @@ namespace EOLib.Net.Translators
                 throw new MalformedPacketException("Missing terminating 255 byte", packet);
 
             return new LoginRequestGrantedData()
-                .WithPlayerID(playerID)
+                .WithSessionID(sessionID)
                 .WithCharacterID(characterID)
                 .WithMapID(mapID)
                 .WithMapRID(mapRid)

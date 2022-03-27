@@ -16,7 +16,7 @@ namespace EOLib.Domain.Protocol
         SequenceByte2,
         SendMultiple,
         ReceiveMultiple,
-        ClientID,
+        PlayerID,
         HashResponse,
         //response: Out of Date
         RequiredVersionNumber,
