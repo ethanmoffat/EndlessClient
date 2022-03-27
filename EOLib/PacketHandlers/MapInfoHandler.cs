@@ -25,13 +25,15 @@ namespace EOLib.PacketHandlers
         public MapInfoHandler(IPlayerInfoProvider playerInfoProvider,
                               ICurrentMapStateRepository currentMapStateRepository,
                               ICharacterFromPacketFactory characterFromPacketFactory,
-                              INPCFromPacketFactory npcFromPacketFactory
+                              INPCFromPacketFactory npcFromPacketFactory,
+                              IEIFFileProvider eifFileProvider
                               )
             : base(playerInfoProvider)
         {
             _currentMapStateRepository = currentMapStateRepository;
             _characterFromPacketFactory = characterFromPacketFactory;
             _npcFromPacketFactory = npcFromPacketFactory;
+            _eifFileProvider = eifFileProvider;
         }
 
         public override bool HandlePacket(IPacket packet)
@@ -40,6 +42,7 @@ namespace EOLib.PacketHandlers
 
             if (packet.PeekByte() == 0xFF)
             {
+                packet.ReadByte();
                 for (var i = 0; i < num_entities; i++)
                 {
                     var character = _characterFromPacketFactory.CreateCharacter(packet);
@@ -53,7 +56,7 @@ namespace EOLib.PacketHandlers
                 }
             }
 
-            while (packet.ReadPosition < packet.Length)
+            while (num_entities > 0 && packet.ReadPosition < packet.Length)
             {
                 var npc = _npcFromPacketFactory.CreateNPC(packet);
                 _currentMapStateRepository.NPCs.RemoveWhere(n => n.Index == npc.Index);
