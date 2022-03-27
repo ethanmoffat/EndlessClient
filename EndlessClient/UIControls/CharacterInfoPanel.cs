@@ -12,6 +12,7 @@ using EOLib.Domain.Character;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using XNAControls;
 
 namespace EndlessClient.UIControls
@@ -175,8 +176,9 @@ namespace EndlessClient.UIControls
         {
             _characterControl.Update(gameTime);
 
-            var keyboardState = _userInputProvider.CurrentKeyState;
-            if (keyboardState.IsKeyDown((Microsoft.Xna.Framework.Input.Keys)49+_characterIndex))
+            var previousKeyState = _userInputProvider.PreviousKeyState;
+            var currentKeyState = _userInputProvider.CurrentKeyState;
+            if (currentKeyState.IsKeyPressedOnce(previousKeyState, Keys.D1 + _characterIndex))
             {
                 Task.Run(async () => await LoginButtonClick());
             }
