@@ -164,7 +164,7 @@ namespace EOLib.Domain.Login
                 .WithNewStat(CharacterStat.MaxTP, mainCharacter.Stats[CharacterStat.MaxTP]);
 
             _characterRepository.MainCharacter = _characterRepository.MainCharacter
-                .WithID(mainCharacter.ID)
+                .WithID(_playerInfoRepository.PlayerID)
                 .WithName(mainCharacter.Name)
                 .WithMapID(mainCharacter.MapID)
                 .WithGuildTag(mainCharacter.GuildTag)
