@@ -49,7 +49,6 @@ namespace EOLib.PacketHandlers.Effects
             {
                 _currentMapStateRepository.UnknownPlayerIDs.Add(characterId);
             }
-            
 
             return true;
         }
