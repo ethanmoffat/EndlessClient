@@ -79,15 +79,6 @@ namespace EOLib.Domain.Character
             _packetSendService.SendPacket(packet);
         }
 
-        public void UseItem(short itemId)
-        {
-            var packet = new PacketBuilder(PacketFamily.Item, PacketAction.Use)
-                .AddShort(itemId)
-                .Build();
-
-            _packetSendService.SendPacket(packet);
-        }
-
         public void EquipItem(short itemId, bool alternateLocation)
         {
             var packet = new PacketBuilder(PacketFamily.PaperDoll, PacketAction.Add)
@@ -178,8 +169,6 @@ namespace EOLib.Domain.Character
         void Attack();
 
         void ToggleSit();
-
-        void UseItem(short itemId);
 
         void EquipItem(short itemId, bool alternateLocation);
 

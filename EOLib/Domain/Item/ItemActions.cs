@@ -15,6 +15,15 @@ namespace EOLib.Domain.Item
             _packetSendService = packetSendService;
         }
 
+        public void UseItem(short itemId)
+        {
+            var packet = new PacketBuilder(PacketFamily.Item, PacketAction.Use)
+                .AddShort(itemId)
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+        }
+
         public void JunkItem(IItem item)
         {
             var packet = new PacketBuilder(PacketFamily.Item, PacketAction.Junk)
@@ -28,6 +37,8 @@ namespace EOLib.Domain.Item
 
     public interface IItemActions
     {
+        void UseItem(short itemId);
+
         void JunkItem(IItem item);
     }
 }
