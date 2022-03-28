@@ -3,6 +3,7 @@ using EndlessClient.HUD.Panels;
 using EOLib.IO;
 using EOLib.IO.Extensions;
 using Optional;
+using System.Collections.Generic;
 
 namespace EndlessClient.HUD.Inventory
 {
@@ -14,7 +15,7 @@ namespace EndlessClient.HUD.Inventory
             var (sizeWidth, sizeHeight) = size.GetDimensions();
 
             var preferredSlotIsValid = preferredSlot.Match(
-                some: slot => IsSlotOpen(usedSlots, slot, size),
+                some: slot => IsSlotOpen(usedSlots, Option.None<int>(), slot, size),
                 none: () => false);
 
             if (preferredSlotIsValid)
@@ -25,7 +26,7 @@ namespace EndlessClient.HUD.Inventory
                 for (int c = 0; c < usedSlots.GetLength(1); c++)
                 {
                     var slot = r * InventoryPanel.InventoryRowSlots + c;
-                    if (!usedSlots[r, c] && IsSlotOpen(usedSlots, slot, size))
+                    if (!usedSlots[r, c] && IsSlotOpen(usedSlots, Option.None<int>(), slot, size))
                         return Option.Some(slot);
                 }
             }
@@ -43,9 +44,26 @@ namespace EndlessClient.HUD.Inventory
             SetSlotValue(usedSlots, slot, size, value: false);
         }
 
-        private bool IsSlotOpen(bool[,] usedSlots, int slot, ItemSize size)
+        public bool FitsInSlot(bool[,] usedSlots, int oldSlot, int newSlot, ItemSize size) =>
+            IsSlotOpen(usedSlots, Option.Some(oldSlot), newSlot, size);
+
+        public bool FitsInSlot(bool[,] usedSlots, int newSlot, ItemSize size) =>
+            IsSlotOpen(usedSlots, Option.None<int>(), newSlot, size);
+
+        private bool IsSlotOpen(bool[,] usedSlots, Option<int> oldSlot, int slot, ItemSize size)
         {
             var (sizeWidth, sizeHeight) = size.GetDimensions();
+
+            var ignorePoints = new List<(int X, int Y)>();
+            oldSlot.MatchSome(s =>
+            {
+                var oldCol = s % InventoryPanel.InventoryRowSlots;
+                var oldRow = s / InventoryPanel.InventoryRowSlots;
+
+                for (int r = oldRow; r < oldRow + sizeHeight; r++)
+                    for (int c = oldCol; c < oldCol + sizeWidth; c++)
+                        ignorePoints.Add((c, r));
+            });
 
             var col = slot % InventoryPanel.InventoryRowSlots;
             var row = slot / InventoryPanel.InventoryRowSlots;
@@ -53,7 +71,9 @@ namespace EndlessClient.HUD.Inventory
             {
                 for (int c = col; c < col + sizeWidth; c++)
                 {
-                    if (r >= usedSlots.GetLength(0) || c >= usedSlots.GetLength(1) || usedSlots[r, c])
+                    if (r >= usedSlots.GetLength(0) || c >= usedSlots.GetLength(1) ||
+                        r < 0 || c < 0 ||
+                        (!ignorePoints.Contains((c, r)) && usedSlots[r, c]))
                         return false;
                 }
             }
@@ -85,5 +105,9 @@ namespace EndlessClient.HUD.Inventory
         void SetSlots(bool[,] usedSlots, int slot, ItemSize size);
 
         void ClearSlots(bool[,] usedSlots, int slot, ItemSize size);
+
+        bool FitsInSlot(bool[,] usedSlots, int oldSlot, int newSlot, ItemSize size);
+
+        bool FitsInSlot(bool[,] usedSlots, int newSlot, ItemSize size);
     }
 }

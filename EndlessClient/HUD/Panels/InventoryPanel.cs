@@ -29,8 +29,6 @@ namespace EndlessClient.HUD.Panels
     {
         public const int InventoryRowSlots = 14;
 
-        // uses absolute coordinates
-        private static readonly Rectangle InventoryGridArea = new Rectangle(110, 334, 377, 116);
         private readonly ICharacterActions _characterActions;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IItemStringService _itemStringService;
@@ -41,6 +39,7 @@ namespace EndlessClient.HUD.Panels
         private readonly ICharacterInventoryProvider _characterInventoryProvider;
         private readonly IPubFileProvider _pubFileProvider;
 
+        // todo: move slot state to provider/repository pattern so it can be referenced by InventorySpaceValidator
         private readonly bool[,] _usedSlots = new bool[4, InventoryRowSlots];
         private readonly Dictionary<int, int> _itemSlotMap;
         private readonly List<InventoryPanelItem> _childItems = new List<InventoryPanelItem>();
@@ -102,7 +101,11 @@ namespace EndlessClient.HUD.Panels
 
             BackgroundImage = NativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 44);
             DrawArea = new Rectangle(102, 330, BackgroundImage.Width, BackgroundImage.Height);
+
+            Game.Exiting += SaveInventoryFile;
         }
+
+        public bool NoItemsDragging() => _childItems.All(x => !x.IsDragging);
 
         public override void Initialize()
         {
@@ -186,11 +189,11 @@ namespace EndlessClient.HUD.Panels
                         var newItem = new InventoryPanelItem(this, slot, item, itemData);
                         newItem.Initialize();
                         newItem.SetParentControl(this);
-                        newItem.DrawOrder = 102 - (slot % InventoryRowSlots) * 2;
                         newItem.Text = _itemStringService.GetStringForMapDisplay(itemData, item.Amount);
 
                         newItem.OnMouseEnter += (_, _) => _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ITEM, newItem.Text);
                         newItem.DoubleClick += HandleItemDoubleClick;
+                        newItem.DoneDragging += HandleItemDoneDragging;
 
                         _childItems.Add(newItem);
                     });
@@ -206,18 +209,12 @@ namespace EndlessClient.HUD.Panels
         {
             if (disposing)
             {
-                var inventory = new IniReader(Constants.InventoryFile);
-                if (inventory.Load() && inventory.Sections.ContainsKey(_playerInfoProvider.LoggedInAccountName))
-                {
-                    var section = inventory.Sections[_playerInfoProvider.LoggedInAccountName];
-
-                    foreach (var item in _childItems)
-                        section[$"{_characterProvider.MainCharacter.Name}.{item.Slot}"] = $"{item.InventoryItem.ItemID}";
-                }
-
                 _paperdoll.OnMouseEnter -= MouseOverButton;
                 _drop.OnMouseEnter -= MouseOverButton;
                 _junk.OnMouseEnter -= MouseOverButton;
+                Game.Exiting -= SaveInventoryFile;
+
+                SaveInventoryFile(null, EventArgs.Empty);
             }
 
             base.Dispose(disposing);
@@ -289,6 +286,24 @@ namespace EndlessClient.HUD.Panels
             }
 
             return retKey;
+        }
+
+        private void SaveInventoryFile(object sender, EventArgs e)
+        {
+            var inventory = new IniReader(Constants.InventoryFile);
+
+            var section = inventory.Load() && inventory.Sections.ContainsKey(_playerInfoProvider.LoggedInAccountName)
+                ? inventory.Sections[_playerInfoProvider.LoggedInAccountName]
+                : new SortedList<string, string>();
+
+            foreach (var item in _childItems)
+                section[$"{_characterProvider.MainCharacter.Name}.{item.Slot}"] = $"{item.InventoryItem.ItemID}";
+
+            inventory.Sections[_playerInfoProvider.LoggedInAccountName] = section;
+
+            inventory.Save();
+
+            base.UnloadContent();
         }
 
         private void HandleItemDoubleClick(object sender, EIFRecord itemData)
@@ -378,7 +393,7 @@ namespace EndlessClient.HUD.Panels
                     //if (m_itemData.ScrollMap == OldWorld.Instance.MainPlayer.ActiveCharacter.CurrentMap &&
                     //    m_itemData.ScrollX == OldWorld.Instance.MainPlayer.ActiveCharacter.X &&
                     //    m_itemData.ScrollY == OldWorld.Instance.MainPlayer.ActiveCharacter.Y)
-                        break; //already there - no need to scroll!
+                    break; //already there - no need to scroll!
                     //useItem = true;
                     break;
                 case ItemType.Heal:
@@ -417,6 +432,94 @@ namespace EndlessClient.HUD.Panels
             //if (useItem && !m_api.UseItem((short)m_itemData.ID))
             //    ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 
+        }
+
+        private void HandleItemDoneDragging(object sender, InventoryPanelItem.ItemDragCompletedEventArgs e)
+        {
+            var item = sender as InventoryPanelItem;
+            if (item == null)
+                return;
+
+            var oldSlot = item.Slot;
+            var newSlot = item.GetCurrentSlotBasedOnPosition();
+
+            // check overlapping items:
+            //   1. If there's multiple items under it, snap it back to the original slot
+            //   2. If there's only one item under it, start dragging that item
+            //   3. If there's nothing under it, make sure it fits in the inventory, otherwise snap back to original slot
+
+            var overlapped = GetOverlappingTakenSlots(newSlot, e.Data.Size, _childItems.Except(new[] { item }).Select(x => (x.Slot, x.Data.Size)))
+                .ToList();
+
+            if (overlapped.Count > 1)
+            {
+                e.RestoreOriginalSlot = true;
+
+                if (!_inventoryService.FitsInSlot(_usedSlots, oldSlot, e.Data.Size))
+                    e.ContinueDrag = true;
+            }
+            else if (overlapped.Count == 1)
+            {
+                _inventoryService.ClearSlots(_usedSlots, oldSlot, e.Data.Size);
+                _inventoryService.SetSlots(_usedSlots, newSlot, e.Data.Size);
+
+                // start a chained drag on another item (see below comment)
+                _childItems.Single(x => x.Slot == overlapped[0]).StartDragging();
+            }
+            else if (oldSlot != newSlot)
+            {
+                if (!_inventoryService.FitsInSlot(_usedSlots, oldSlot, newSlot, e.Data.Size))
+                {
+                    // if the original slot no longer fits (because this is a chained drag), don't stop dragging this item
+                    if (!_inventoryService.FitsInSlot(_usedSlots, oldSlot, e.Data.Size))
+                        e.ContinueDrag = true;
+                    else
+                        e.RestoreOriginalSlot = true;
+                }
+                else
+                {
+                    _inventoryService.ClearSlots(_usedSlots, oldSlot, e.Data.Size);
+                    _inventoryService.SetSlots(_usedSlots, newSlot, e.Data.Size);
+                }
+            }
+
+            // todo: handle drag to things (dialog, map, buttons)
+        }
+
+        private static IEnumerable<int> GetOverlappingTakenSlots(int newSlot, ItemSize size, IEnumerable<(int Slot, ItemSize Size)> items)
+        {
+            var slotX = newSlot % InventoryRowSlots;
+            var slotY = newSlot / InventoryRowSlots;
+            var slotItemDim = size.GetDimensions();
+
+            var newSlotCoords = new List<(int X, int Y)>();
+            for (int r = slotY; r < slotY + slotItemDim.Height; r++)
+                for (int c = slotX; c < slotX + slotItemDim.Width; c++)
+                    newSlotCoords.Add((c, r));
+
+            foreach (var item in items)
+            {
+                var itemX = item.Slot % InventoryRowSlots;
+                var itemY = item.Slot / InventoryRowSlots;
+                var itemDim = item.Size.GetDimensions();
+
+                var @break = false;
+                for (int r = itemY; r < itemY + itemDim.Height; r++)
+                {
+                    if (@break)
+                        break;
+
+                    for (int c = itemX; c < itemX + itemDim.Width; c++)
+                    {
+                        if (newSlotCoords.Contains((c, r)))
+                        {
+                            yield return item.Slot;
+                            @break = true;
+                            break;
+                        }
+                    }
+                }
+            }
         }
     }
 }
