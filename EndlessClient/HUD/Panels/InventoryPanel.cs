@@ -492,7 +492,203 @@ namespace EndlessClient.HUD.Panels
                 }
             }
 
+            if (e.ContinueDrag || e.RestoreOriginalSlot)
+                return;
+
             // todo: handle drag to things (dialog, map, buttons)
+            #region Unimplemented drag action
+            /*
+            if (((OldEOInventory)parent).IsOverDrop() || (OldWorld.Instance.ActiveMapRenderer.MouseOver
+                //&& ChestDialog.Instance == null && EOPaperdollDialog.Instance == null && LockerDialog.Instance == null
+                && BankAccountDialog.Instance == null && TradeDialog.Instance == null))
+            {
+                Point loc = OldWorld.Instance.ActiveMapRenderer.MouseOver ? OldWorld.Instance.ActiveMapRenderer.GridCoords :
+                    new Point(OldWorld.Instance.MainPlayer.ActiveCharacter.X, OldWorld.Instance.MainPlayer.ActiveCharacter.Y);
+
+                //in range if maximum coordinate difference is <= 2 away
+                bool inRange = Math.Abs(Math.Max(OldWorld.Instance.MainPlayer.ActiveCharacter.X - loc.X, OldWorld.Instance.MainPlayer.ActiveCharacter.Y - loc.Y)) <= 2;
+
+                if (m_itemData.Special == ItemSpecial.Lore)
+                {
+                    EOMessageBox.Show(DialogResourceID.ITEM_IS_LORE_ITEM, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                }
+                else if (OldWorld.Instance.JailMap == OldWorld.Instance.MainPlayer.ActiveCharacter.CurrentMap)
+                {
+                    EOMessageBox.Show(OldWorld.GetString(EOResourceID.JAIL_WARNING_CANNOT_DROP_ITEMS),
+                        OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
+                        EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                }
+                else if (m_inventory.Amount > 1 && inRange)
+                {
+                    ItemTransferDialog dlg = new ItemTransferDialog(m_itemData.Name, ItemTransferDialog.TransferType.DropItems,
+                        m_inventory.Amount);
+                    dlg.DialogClosing += (sender, args) =>
+                    {
+                        if (args.Result == XNADialogResult.OK)
+                        {
+                            //note: not sure of the actual limit. 10000 is arbitrary here
+                            if (dlg.SelectedAmount > 10000 && m_inventory.ItemID == 1 && !safetyCommentHasBeenShown)
+                                EOMessageBox.Show(DialogResourceID.DROP_MANY_GOLD_ON_GROUND, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader,
+                                    (o, e) => { safetyCommentHasBeenShown = true; });
+                            else if (!m_api.DropItem(m_inventory.ItemID, dlg.SelectedAmount, (byte)loc.X, (byte)loc.Y))
+                                ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
+                        }
+                    };
+                }
+                else if (inRange)
+                {
+                    if (!m_api.DropItem(m_inventory.ItemID, 1, (byte)loc.X, (byte)loc.Y))
+                        ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
+                }
+                else //if (!inRange)
+                {
+                    EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_ITEM_DROP_OUT_OF_RANGE);
+                }
+            }
+            else if (((OldEOInventory)parent).IsOverJunk())
+            {
+                if (m_inventory.Amount > 1)
+                {
+                    ItemTransferDialog dlg = new ItemTransferDialog(m_itemData.Name, ItemTransferDialog.TransferType.JunkItems,
+                        m_inventory.Amount, EOResourceID.DIALOG_TRANSFER_JUNK);
+                    dlg.DialogClosing += (sender, args) =>
+                    {
+                        if (args.Result == XNADialogResult.OK && !m_api.JunkItem(m_inventory.ItemID, dlg.SelectedAmount))
+                            ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
+                    };
+                }
+                else if (!m_api.JunkItem(m_inventory.ItemID, 1))
+                    ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
+            }
+            else if (ChestDialog.Instance != null && ChestDialog.Instance.MouseOver && ChestDialog.Instance.MouseOverPreviously)
+            {
+                if (m_itemData.Special == ItemSpecial.Lore)
+                {
+                    EOMessageBox.Show(DialogResourceID.ITEM_IS_LORE_ITEM, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                }
+                else if (m_inventory.Amount > 1)
+                {
+                    ItemTransferDialog dlg = new ItemTransferDialog(m_itemData.Name, ItemTransferDialog.TransferType.DropItems, m_inventory.Amount);
+                    dlg.DialogClosing += (sender, args) =>
+                    {
+                        if (args.Result == XNADialogResult.OK &&
+                            !m_api.ChestAddItem(ChestDialog.Instance.CurrentChestX, ChestDialog.Instance.CurrentChestY,
+                                m_inventory.ItemID, dlg.SelectedAmount))
+                            EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+                    };
+                }
+                else
+                {
+                    if (!m_api.ChestAddItem(ChestDialog.Instance.CurrentChestX, ChestDialog.Instance.CurrentChestY, m_inventory.ItemID, 1))
+                        EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+                }
+            }
+            else if (EOPaperdollDialog.Instance != null && EOPaperdollDialog.Instance.MouseOver && EOPaperdollDialog.Instance.MouseOverPreviously)
+            {
+                //equipable items should be equipped
+                //other item types should do nothing
+                switch (m_itemData.Type)
+                {
+                    case ItemType.Accessory:
+                    case ItemType.Armlet:
+                    case ItemType.Armor:
+                    case ItemType.Belt:
+                    case ItemType.Boots:
+                    case ItemType.Bracer:
+                    case ItemType.Gloves:
+                    case ItemType.Hat:
+                    case ItemType.Necklace:
+                    case ItemType.Ring:
+                    case ItemType.Shield:
+                    case ItemType.Weapon:
+                        _handleDoubleClick();
+                        break;
+                }
+            }
+            else if (LockerDialog.Instance != null && LockerDialog.Instance.MouseOver && LockerDialog.Instance.MouseOverPreviously)
+            {
+                byte x = LockerDialog.Instance.X;
+                byte y = LockerDialog.Instance.Y;
+                if (m_inventory.ItemID == 1)
+                {
+                    EOMessageBox.Show(DialogResourceID.LOCKER_DEPOSIT_GOLD_ERROR, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                }
+                else if (m_inventory.Amount > 1)
+                {
+                    ItemTransferDialog dlg = new ItemTransferDialog(m_itemData.Name, ItemTransferDialog.TransferType.ShopTransfer, m_inventory.Amount, EOResourceID.DIALOG_TRANSFER_TRANSFER);
+                    dlg.DialogClosing += (sender, args) =>
+                    {
+                        if (args.Result == XNADialogResult.OK)
+                        {
+                            if (LockerDialog.Instance.GetNewItemAmount(m_inventory.ItemID, dlg.SelectedAmount) > Constants.LockerMaxSingleItemAmount)
+                                EOMessageBox.Show(DialogResourceID.LOCKER_FULL_SINGLE_ITEM_MAX, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                            else if (!m_api.LockerAddItem(x, y, m_inventory.ItemID, dlg.SelectedAmount))
+                                EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+                        }
+                    };
+                }
+                else
+                {
+                    if (LockerDialog.Instance.GetNewItemAmount(m_inventory.ItemID, 1) > Constants.LockerMaxSingleItemAmount)
+                        EOMessageBox.Show(DialogResourceID.LOCKER_FULL_SINGLE_ITEM_MAX, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                    else if (!m_api.LockerAddItem(x, y, m_inventory.ItemID, 1))
+                        EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+                }
+            }
+            else if (BankAccountDialog.Instance != null && BankAccountDialog.Instance.MouseOver && BankAccountDialog.Instance.MouseOverPreviously && m_inventory.ItemID == 1)
+            {
+                if (m_inventory.Amount == 0)
+                {
+                    EOMessageBox.Show(DialogResourceID.BANK_ACCOUNT_UNABLE_TO_DEPOSIT, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                }
+                else if (m_inventory.Amount > 1)
+                {
+                    ItemTransferDialog dlg = new ItemTransferDialog(m_itemData.Name, ItemTransferDialog.TransferType.BankTransfer,
+                        m_inventory.Amount, EOResourceID.DIALOG_TRANSFER_DEPOSIT);
+                    dlg.DialogClosing += (o, e) =>
+                    {
+                        if (e.Result == XNADialogResult.Cancel)
+                            return;
+
+                        if (!m_api.BankDeposit(dlg.SelectedAmount))
+                            EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+                    };
+                }
+                else
+                {
+                    if (!m_api.BankDeposit(1))
+                        EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+                }
+            }
+            else if (TradeDialog.Instance != null && TradeDialog.Instance.MouseOver && TradeDialog.Instance.MouseOverPreviously
+                && !TradeDialog.Instance.MainPlayerAgrees)
+            {
+                if (m_itemData.Special == ItemSpecial.Lore)
+                {
+                    EOMessageBox.Show(DialogResourceID.ITEM_IS_LORE_ITEM);
+                }
+                else if (m_inventory.Amount > 1)
+                {
+                    ItemTransferDialog dlg = new ItemTransferDialog(m_itemData.Name, ItemTransferDialog.TransferType.TradeItems,
+                        m_inventory.Amount, EOResourceID.DIALOG_TRANSFER_OFFER);
+                    dlg.DialogClosing += (o, e) =>
+                    {
+                        if (e.Result != XNADialogResult.OK) return;
+
+                        if (!m_api.TradeAddItem(m_inventory.ItemID, dlg.SelectedAmount))
+                        {
+                            TradeDialog.Instance.Close(XNADialogResult.NO_BUTTON_PRESSED);
+                            ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
+                        }
+                    };
+                }
+                else if (!m_api.TradeAddItem(m_inventory.ItemID, 1))
+                {
+                    TradeDialog.Instance.Close(XNADialogResult.NO_BUTTON_PRESSED);
+                    ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
+                }
+            }*/
+            #endregion
         }
 
         private static IEnumerable<int> GetOverlappingTakenSlots(int newSlot, ItemSize size, IEnumerable<(int Slot, ItemSize Size)> items)

@@ -282,16 +282,16 @@ namespace EndlessClient.Dialogs.Old
                 throw new ArgumentException("Invalid player ID for trade session!");
 
             int weightDelta = 0;
-            foreach (var item in mainCollection)
-            {
-                m_main.UpdateInventoryItem(item.ItemID, -item.Amount, true);
-                weightDelta -= OldWorld.Instance.EIF[item.ItemID].Weight * item.Amount;
-            }
-            foreach (var item in otherCollection)
-            {
-                m_main.UpdateInventoryItem(item.ItemID, item.Amount, true);
-                weightDelta += OldWorld.Instance.EIF[item.ItemID].Weight * item.Amount;
-            }
+            //foreach (var item in mainCollection)
+            //{
+            //    m_main.UpdateInventoryItem(item.ItemID, -item.Amount, true);
+            //    weightDelta -= OldWorld.Instance.EIF[item.ItemID].Weight * item.Amount;
+            //}
+            //foreach (var item in otherCollection)
+            //{
+            //    m_main.UpdateInventoryItem(item.ItemID, item.Amount, true);
+            //    weightDelta += OldWorld.Instance.EIF[item.ItemID].Weight * item.Amount;
+            //}
             m_main.Weight += (byte)weightDelta;
             ((EOGame)Game).Hud.RefreshStats();
 
@@ -325,14 +325,14 @@ namespace EndlessClient.Dialogs.Old
             List<OldListDialogItem> otherCollection = m_main.ID == m_leftPlayerID ? m_rightItems : m_leftItems;
 
             //make sure that the items will fit!
-            if (!((EOGame)Game).Hud.ItemsFit(
-                    otherCollection.Select(_item => new InventoryItem(_item.ID, _item.Amount)).ToList(),
-                    mainCollection.Select(_item => new InventoryItem(_item.ID, _item.Amount)).ToList()))
-            {
-                EOMessageBox.Show(OldWorld.GetString(EOResourceID.DIALOG_TRANSFER_NOT_ENOUGH_SPACE),
-                    OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING), EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                return;
-            }
+            //if (!((EOGame)Game).Hud.ItemsFit(
+            //        otherCollection.Select(_item => new InventoryItem(_item.ID, _item.Amount)).ToList(),
+            //        mainCollection.Select(_item => new InventoryItem(_item.ID, _item.Amount)).ToList()))
+            //{
+            //    EOMessageBox.Show(OldWorld.GetString(EOResourceID.DIALOG_TRANSFER_NOT_ENOUGH_SPACE),
+            //        OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING), EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+            //    return;
+            //}
 
             //make sure the change in weight + existing weight is not greater than the max weight!
             int weightDelta = otherCollection.Sum(itemRef => OldWorld.Instance.EIF[itemRef.ID].Weight * itemRef.Amount);
@@ -387,16 +387,16 @@ namespace EndlessClient.Dialogs.Old
 
         public override void Update(GameTime gt)
         {
-            if (EOGame.Instance.Hud.IsInventoryDragging())
-            {
-                shouldClickDrag = false;
-                SuppressParentClickDrag(true);
-            }
-            else
-            {
-                shouldClickDrag = true;
-                SuppressParentClickDrag(false);
-            }
+            //if (EOGame.Instance.Hud.IsInventoryDragging())
+            //{
+            //    shouldClickDrag = false;
+            //    SuppressParentClickDrag(true);
+            //}
+            //else
+            //{
+            //    shouldClickDrag = true;
+            //    SuppressParentClickDrag(false);
+            //}
 
             //do the hiding logic for both sides
             List<OldScrollBar> scrollBars = new List<OldScrollBar> { m_leftScroll, m_rightScroll };

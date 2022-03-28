@@ -42,6 +42,6 @@ namespace EndlessClient.HUD.Inventory
 
         bool ItemFits(ItemSize itemSize);
 
-        // need "ItemsFit" method for trading
+        // todo: need "ItemsFit" method for trading
     }
 }

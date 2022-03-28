@@ -249,13 +249,13 @@ namespace EndlessClient.Dialogs.Old
             var rec = OldWorld.Instance.EIF[item.ID];
             if (isBuying)
             {
-                if (!EOGame.Instance.Hud.InventoryFits((short)item.ID))
-                {
-                    EOMessageBox.Show(OldWorld.GetString(EOResourceID.DIALOG_TRANSFER_NOT_ENOUGH_SPACE),
-                        OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
-                        EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                    return;
-                }
+                //if (!EOGame.Instance.Hud.InventoryFits((short)item.ID))
+                //{
+                //    EOMessageBox.Show(OldWorld.GetString(EOResourceID.DIALOG_TRANSFER_NOT_ENOUGH_SPACE),
+                //        OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
+                //        EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                //    return;
+                //}
 
                 if (rec.Weight + OldWorld.Instance.MainPlayer.ActiveCharacter.Weight >
                     OldWorld.Instance.MainPlayer.ActiveCharacter.MaxWeight)
@@ -343,13 +343,13 @@ namespace EndlessClient.Dialogs.Old
                 }
             }
 
-            if (!EOGame.Instance.Hud.InventoryFits((short)item.ID))
-            {
-                EOMessageBox.Show(OldWorld.GetString(EOResourceID.DIALOG_TRANSFER_NOT_ENOUGH_SPACE),
-                    OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
-                    EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                return;
-            }
+            //if (!EOGame.Instance.Hud.InventoryFits((short)item.ID))
+            //{
+            //    EOMessageBox.Show(OldWorld.GetString(EOResourceID.DIALOG_TRANSFER_NOT_ENOUGH_SPACE),
+            //        OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
+            //        EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+            //    return;
+            //}
 
             string _message2 = OldWorld.GetString(EOResourceID.DIALOG_SHOP_CRAFT_PUT_INGREDIENTS_TOGETHER) + "\n\n";
             foreach (var ingred in item.Ingredients)

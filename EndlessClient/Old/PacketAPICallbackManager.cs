@@ -115,14 +115,14 @@ namespace EndlessClient.Old
 
         private void _chestAddItem(short id, int amount, byte weight, byte maxWeight, ChestData data)
         {
-            OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight, maxWeight);
+            //OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight, maxWeight);
             ChestDialog.Instance.InitializeItems(data.Items);
             m_game.Hud.RefreshStats();
         }
 
         private void _chestGetItem(short id, int amount, byte weight, byte maxWeight, ChestData data)
         {
-            OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight, maxWeight, true);
+            //OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight, maxWeight, true);
             ChestDialog.Instance.InitializeItems(data.Items);
             m_game.Hud.RefreshStats();
         }
@@ -161,7 +161,7 @@ namespace EndlessClient.Old
             OldWorld.Instance.ActiveMapRenderer.AddMapItem(item);
             if (characterAmount >= 0) //will be -1 when another player drops
             {
-                OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(item.ItemID, characterAmount, weight, maxWeight);
+                //OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(item.ItemID, characterAmount, weight, maxWeight);
 
                 var rec = OldWorld.Instance.EIF[item.ItemID];
                 m_game.Hud.AddChat(ChatTab.System, "",
@@ -174,8 +174,8 @@ namespace EndlessClient.Old
 
         private void _itemChange(bool wasItemObtained, short id, int amount, byte weight)
         {
-            OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight,
-                OldWorld.Instance.MainPlayer.ActiveCharacter.MaxWeight, wasItemObtained);
+            //OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight,
+            //    OldWorld.Instance.MainPlayer.ActiveCharacter.MaxWeight, wasItemObtained);
         }
 
         private void _removeItemFromMap(short itemuid)
@@ -213,7 +213,7 @@ namespace EndlessClient.Old
         {
             if (BankAccountDialog.Instance == null) return;
 
-            OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, gold);
+            //OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, gold);
             BankAccountDialog.Instance.AccountBalance = $"{bankGold}";
         }
 
@@ -225,16 +225,16 @@ namespace EndlessClient.Old
 
         private void _shopTrade(int gold, short itemID, int amount, byte weight, byte maxWeight, bool isBuy)
         {
-            OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, gold);
-            OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(itemID, amount, weight, maxWeight, isBuy);
+            //OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, gold);
+            //OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(itemID, amount, weight, maxWeight, isBuy);
         }
 
         private void _shopCraft(short id, byte weight, byte maxWeight, List<InventoryItem> ingredients)
         {
-            OldCharacter c = OldWorld.Instance.MainPlayer.ActiveCharacter;
-            c.UpdateInventoryItem(id, 1, weight, maxWeight, true);
-            foreach (var ingred in ingredients)
-                c.UpdateInventoryItem(ingred.ItemID, ingred.Amount);
+            //OldCharacter c = OldWorld.Instance.MainPlayer.ActiveCharacter;
+            //c.UpdateInventoryItem(id, 1, weight, maxWeight, true);
+            //foreach (var ingred in ingredients)
+            //    c.UpdateInventoryItem(ingred.ItemID, ingred.Amount);
         }
 
         private void _lockerOpen(byte x, byte y, List<InventoryItem> items)
@@ -247,14 +247,14 @@ namespace EndlessClient.Old
         private void _lockerItemChange(short id, int amount, byte weight, byte maxWeight, bool existingAmount, List<InventoryItem> items)
         {
             if (LockerDialog.Instance == null) return;
-            OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight, maxWeight, existingAmount);
+            //OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight, maxWeight, existingAmount);
             LockerDialog.Instance.SetLockerData(items);
         }
 
         private void _lockerUpgrade(int remaining, byte upgrades)
         {
             if (BankAccountDialog.Instance == null) return;
-            OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, remaining);
+            //OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, remaining);
             BankAccountDialog.Instance.LockerUpgrades = upgrades;
             m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_LOCKER_SPACE_INCREASED);
         }
@@ -390,7 +390,7 @@ namespace EndlessClient.Old
             OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.Add(new InventorySpell(id, 0));
             if (SkillmasterDialog.Instance != null)
                 SkillmasterDialog.Instance.RemoveSkillByIDFromLearnList(id);
-            OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, remaining);
+            //OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, remaining);
             m_game.Hud.AddNewSpellToActiveSpellsByID(id);
         }
 
