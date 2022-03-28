@@ -6,10 +6,6 @@ namespace EOLib.Net.Translators
     [AutoMappedType]
     public class NPCFromPacketFactory : INPCFromPacketFactory
     {
-        public NPCFromPacketFactory()
-        {
-        }
-
         public INPC CreateNPC(IPacket packet)
         {
             var index = packet.ReadChar();
