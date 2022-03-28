@@ -38,12 +38,12 @@ namespace EOLib.PacketHandlers
 
         public override bool HandlePacket(IPacket packet)
         {
-            var num_entities = packet.ReadChar();
+            var numOfEntities = packet.ReadChar();
 
             if (packet.PeekByte() == 0xFF)
             {
                 packet.ReadByte();
-                for (var i = 0; i < num_entities; i++)
+                for (var i = 0; i < numOfEntities; i++)
                 {
                     var character = _characterFromPacketFactory.CreateCharacter(packet);
                     if (_currentMapStateRepository.Characters.ContainsKey(character.ID))
@@ -58,7 +58,7 @@ namespace EOLib.PacketHandlers
                 }
             }
 
-            while (num_entities > 0 && packet.ReadPosition < packet.Length)
+            while (packet.ReadPosition < packet.Length)
             {
                 var npc = _npcFromPacketFactory.CreateNPC(packet);
                 _currentMapStateRepository.NPCs.RemoveWhere(n => n.Index == npc.Index);
