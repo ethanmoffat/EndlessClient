@@ -60,7 +60,11 @@ namespace EndlessClient.Controllers
                 return;
 
             var createAccountOperation = _networkOperationFactory.CreateSafeBlockingOperation(
-                async () => await _accountActions.CreateAccount(createAccountParameters),
+                async () =>
+                {
+                    short sessionID = (short)nameResult;
+                    return await _accountActions.CreateAccount(createAccountParameters, sessionID);
+                },
                 SetInitialStateAndShowError,
                 SetInitialStateAndShowError);
             if (!await createAccountOperation.Invoke())

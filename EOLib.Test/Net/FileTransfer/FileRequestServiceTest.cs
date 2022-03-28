@@ -168,7 +168,7 @@ namespace EOLib.Test.Net.FileTransfer
             {
                 case InitFileType.Item:
                     packetBuilder = packetBuilder
-                        .AddChar((byte) InitReply.ItemFile).AddChar(1) //spacer
+                        .AddByte((byte) InitReply.ItemFile).AddChar(1) //spacer
                         .AddString("EIF").AddInt(1) //RID
                         .AddShort(2) //Len
                         .AddByte(1) //filler byte
@@ -177,7 +177,7 @@ namespace EOLib.Test.Net.FileTransfer
                     break;
                 case InitFileType.Npc:
                     packetBuilder = packetBuilder
-                        .AddChar((byte) InitReply.NpcFile).AddChar(1) //spacer
+                        .AddByte((byte) InitReply.NpcFile).AddChar(1) //spacer
                         .AddString("ENF").AddInt(1) //RID
                         .AddShort(2) //Len
                         .AddByte(1) //filler byte
@@ -186,7 +186,7 @@ namespace EOLib.Test.Net.FileTransfer
                     break;
                 case InitFileType.Spell:
                     packetBuilder = packetBuilder
-                        .AddChar((byte) InitReply.SpellFile).AddChar(1) //spacer
+                        .AddByte((byte) InitReply.SpellFile).AddChar(1) //spacer
                         .AddString("ESF").AddInt(1) //RID
                         .AddShort(2) //Len
                         .AddByte(1) //filler byte
@@ -195,7 +195,7 @@ namespace EOLib.Test.Net.FileTransfer
                     break;
                 case InitFileType.Class:
                     packetBuilder = packetBuilder
-                        .AddChar((byte) InitReply.ClassFile).AddChar(1) //spacer
+                        .AddByte((byte) InitReply.ClassFile).AddChar(1) //spacer
                         .AddString("ECF").AddInt(1) //RID
                         .AddShort(2) //Len
                         .AddByte(1) //filler byte

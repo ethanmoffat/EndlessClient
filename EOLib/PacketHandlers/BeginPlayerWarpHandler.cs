@@ -50,15 +50,18 @@ namespace EOLib.PacketHandlers
             _mapStateRepository.MapWarpState = WarpState.WarpStarted;
 
             var warpType = packet.ReadChar();
+            var mapID = packet.ReadShort();
+            short sessionID;
             switch (warpType)
             {
                 case WARP_SAME_MAP:
-                    SendWarpAcceptToServer(packet);
+                    sessionID = packet.ReadShort();
+                    SendWarpAcceptToServer(mapID, sessionID);
                     break;
                 case WARP_NEW_MAP:
-                    var mapID = packet.ReadShort();
                     var mapRid = packet.ReadBytes(4).ToArray();
                     var fileSize = packet.ReadThree();
+                    sessionID = packet.ReadShort();
 
                     var mapIsDownloaded = true;
                     try
@@ -69,9 +72,9 @@ namespace EOLib.PacketHandlers
                     catch (IOException) { mapIsDownloaded = false; }
 
                     if (!mapIsDownloaded || _fileRequestActions.NeedsMapForWarp(mapID, mapRid, fileSize))
-                        _fileRequestActions.GetMapForWarp(mapID).Wait(5000);
+                        _fileRequestActions.GetMapForWarp(mapID, sessionID).Wait(5000);
 
-                    SendWarpAcceptToServer(packet);
+                    SendWarpAcceptToServer(mapID, sessionID);
                     break;
                 default:
                     _mapStateRepository.MapWarpState = WarpState.None;
@@ -81,10 +84,11 @@ namespace EOLib.PacketHandlers
             return true;
         }
 
-        private void SendWarpAcceptToServer(IPacket packet)
+        private void SendWarpAcceptToServer(short mapID, short sessionID)
         {
             var response = new PacketBuilder(PacketFamily.Warp, PacketAction.Accept)
-                .AddShort(packet.ReadShort())
+                .AddShort(mapID)
+                .AddShort(sessionID)
                 .Build();
             _packetSendService.SendPacket(response);
         }

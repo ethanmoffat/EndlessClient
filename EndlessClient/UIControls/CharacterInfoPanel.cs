@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EndlessClient.Controllers;
 using EndlessClient.Dialogs.Services;
+using EndlessClient.Input;
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
@@ -11,6 +12,7 @@ using EOLib.Domain.Character;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using XNAControls;
 
 namespace EndlessClient.UIControls
@@ -24,6 +26,7 @@ namespace EndlessClient.UIControls
         private readonly IRendererRepositoryResetter _rendererRepositoryResetter;
         private readonly CharacterControl _characterControl;
         private readonly ISpriteSheet _adminGraphic;
+        private readonly IUserInputProvider _userInputProvider;
 
         private readonly Texture2D _backgroundImage;
 
@@ -31,12 +34,14 @@ namespace EndlessClient.UIControls
         private readonly IXNALabel _nameLabel, _levelLabel;
 
         private int _clickRequests;
+        private readonly int _characterIndex;
 
         //top left - 334, 36 + ndx*124
         protected CharacterInfoPanel(int characterIndex,
                                      INativeGraphicsManager gfxManager,
                                      IEODialogButtonService dialogButtonService)
         {
+            _characterIndex = characterIndex;
             _gfxManager = gfxManager;
             DrawPosition = new Vector2(334, 36 + characterIndex*124);
 
@@ -64,13 +69,15 @@ namespace EndlessClient.UIControls
                                   ILoginController loginController,
                                   ICharacterManagementController characterManagementController,
                                   ICharacterRendererFactory rendererFactory,
-                                  IRendererRepositoryResetter rendererRepositoryResetter)
+                                  IRendererRepositoryResetter rendererRepositoryResetter,
+                                  IUserInputProvider userInputProvider)
             : this(characterIndex, gfxManager, dialogButtonService)
         {
             _character = character;
             _loginController = loginController;
             _characterManagementController = characterManagementController;
             _rendererRepositoryResetter = rendererRepositoryResetter;
+            _userInputProvider = userInputProvider;
 
             _characterControl = new CharacterControl(character, rendererFactory)
             {
@@ -168,6 +175,13 @@ namespace EndlessClient.UIControls
         protected virtual void DoUpdateLogic(GameTime gameTime)
         {
             _characterControl.Update(gameTime);
+
+            var previousKeyState = _userInputProvider.PreviousKeyState;
+            var currentKeyState = _userInputProvider.CurrentKeyState;
+            if (currentKeyState.IsKeyPressedOnce(previousKeyState, Keys.D1 + _characterIndex))
+            {
+                Task.Run(async () => await LoginButtonClick());
+            }
         }
 
         protected virtual void DoDrawLogic(GameTime gameTime)

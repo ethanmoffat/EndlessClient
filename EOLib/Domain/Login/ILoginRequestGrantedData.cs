@@ -7,7 +7,7 @@ namespace EOLib.Domain.Login
 {
     public interface ILoginRequestGrantedData : ITranslatedData
     {
-        short PlayerID { get; }
+        short SessionID { get; }
         int CharacterID { get; }
 
         short MapID { get; }
@@ -39,7 +39,7 @@ namespace EOLib.Domain.Login
         short JailMap { get; }
         bool FirstTimePlayer { get; }
 
-        ILoginRequestGrantedData WithPlayerID(short playerID);
+        ILoginRequestGrantedData WithSessionID(short sessionID);
         ILoginRequestGrantedData WithCharacterID(int characterID);
         ILoginRequestGrantedData WithMapID(short mapID);
         ILoginRequestGrantedData WithMapRID(IEnumerable<byte> mapRID);
