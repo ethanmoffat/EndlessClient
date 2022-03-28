@@ -27,6 +27,7 @@ namespace EndlessClient.HUD.Panels
 {
     public class InventoryPanel : XNAPanel, IHudPanel
     {
+        public const int InventoryRows = 4;
         public const int InventoryRowSlots = 14;
 
         private readonly ICharacterActions _characterActions;
@@ -34,14 +35,13 @@ namespace EndlessClient.HUD.Panels
         private readonly IItemStringService _itemStringService;
         private readonly IItemNameColorService _itemNameColorService;
         private readonly IInventoryService _inventoryService;
+        private readonly IInventorySlotRepository _inventorySlotRepository;
         private readonly IPlayerInfoProvider _playerInfoProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly IPaperdollProvider _paperdollProvider;
         private readonly ICharacterInventoryProvider _characterInventoryProvider;
         private readonly IPubFileProvider _pubFileProvider;
 
-        // todo: move slot state to provider/repository pattern so it can be referenced by InventorySpaceValidator
-        private readonly bool[,] _usedSlots = new bool[4, InventoryRowSlots];
         private readonly Dictionary<int, int> _itemSlotMap;
         private readonly List<InventoryPanelItem> _childItems = new List<InventoryPanelItem>();
 
@@ -61,6 +61,7 @@ namespace EndlessClient.HUD.Panels
                               IItemStringService itemStringService,
                               IItemNameColorService itemNameColorService,
                               IInventoryService inventoryService,
+                              IInventorySlotRepository inventorySlotRepository,
                               IPlayerInfoProvider playerInfoProvider,
                               ICharacterProvider characterProvider,
                               IPaperdollProvider paperdollProvider,
@@ -73,6 +74,7 @@ namespace EndlessClient.HUD.Panels
             _itemStringService = itemStringService;
             _itemNameColorService = itemNameColorService;
             _inventoryService = inventoryService;
+            _inventorySlotRepository = inventorySlotRepository;
             _playerInfoProvider = playerInfoProvider;
             _characterProvider = characterProvider;
             _paperdollProvider = paperdollProvider;
@@ -162,7 +164,7 @@ namespace EndlessClient.HUD.Panels
                         _childItems.Remove(childItem);
 
                         var itemData = _pubFileProvider.EIFFile[item.ItemID];
-                        _inventoryService.ClearSlots(_usedSlots, childItem.Slot, itemData.Size);
+                        _inventoryService.ClearSlots(_inventorySlotRepository.FilledSlots, childItem.Slot, itemData.Size);
                     });
                 }
 
@@ -183,11 +185,11 @@ namespace EndlessClient.HUD.Panels
                     var itemData = _pubFileProvider.EIFFile[item.ItemID];
 
                     var preferredSlot = _itemSlotMap.SingleOrNone(x => x.Value == item.ItemID).Map(x => x.Key);
-                    var actualSlot = _inventoryService.GetNextOpenSlot(_usedSlots, itemData.Size, preferredSlot);
+                    var actualSlot = _inventoryService.GetNextOpenSlot(_inventorySlotRepository.FilledSlots, itemData.Size, preferredSlot);
 
                     actualSlot.MatchSome(slot =>
                     {
-                        _inventoryService.SetSlots(_usedSlots, slot, itemData.Size);
+                        _inventoryService.SetSlots(_inventorySlotRepository.FilledSlots, slot, itemData.Size);
 
                         var newItem = new InventoryPanelItem(_itemNameColorService, this, slot, item, itemData);
                         newItem.Initialize();
@@ -462,31 +464,31 @@ namespace EndlessClient.HUD.Panels
             {
                 e.RestoreOriginalSlot = true;
 
-                if (!_inventoryService.FitsInSlot(_usedSlots, oldSlot, e.Data.Size))
+                if (!_inventoryService.FitsInSlot(_inventorySlotRepository.FilledSlots, oldSlot, e.Data.Size))
                     e.ContinueDrag = true;
             }
             else if (overlapped.Count == 1)
             {
-                _inventoryService.ClearSlots(_usedSlots, oldSlot, e.Data.Size);
-                _inventoryService.SetSlots(_usedSlots, newSlot, e.Data.Size);
+                _inventoryService.ClearSlots(_inventorySlotRepository.FilledSlots, oldSlot, e.Data.Size);
+                _inventoryService.SetSlots(_inventorySlotRepository.FilledSlots, newSlot, e.Data.Size);
 
                 // start a chained drag on another item (see below comment)
                 _childItems.Single(x => x.Slot == overlapped[0]).StartDragging();
             }
             else if (oldSlot != newSlot)
             {
-                if (!_inventoryService.FitsInSlot(_usedSlots, oldSlot, newSlot, e.Data.Size))
+                if (!_inventoryService.FitsInSlot(_inventorySlotRepository.FilledSlots, oldSlot, newSlot, e.Data.Size))
                 {
                     // if the original slot no longer fits (because this is a chained drag), don't stop dragging this item
-                    if (!_inventoryService.FitsInSlot(_usedSlots, oldSlot, e.Data.Size))
+                    if (!_inventoryService.FitsInSlot(_inventorySlotRepository.FilledSlots, oldSlot, e.Data.Size))
                         e.ContinueDrag = true;
                     else
                         e.RestoreOriginalSlot = true;
                 }
                 else
                 {
-                    _inventoryService.ClearSlots(_usedSlots, oldSlot, e.Data.Size);
-                    _inventoryService.SetSlots(_usedSlots, newSlot, e.Data.Size);
+                    _inventoryService.ClearSlots(_inventorySlotRepository.FilledSlots, oldSlot, e.Data.Size);
+                    _inventoryService.SetSlots(_inventorySlotRepository.FilledSlots, newSlot, e.Data.Size);
                 }
             }
 

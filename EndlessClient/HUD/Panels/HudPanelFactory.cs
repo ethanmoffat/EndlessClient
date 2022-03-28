@@ -36,6 +36,7 @@ namespace EndlessClient.HUD.Panels
         private readonly IExperienceTableProvider _experienceTableProvider;
         private readonly IPubFileProvider _pubFileProvider;
         private readonly IPaperdollProvider _paperdollProvider;
+        private readonly IInventorySlotRepository _inventorySlotRepository;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly ITrainingController _trainingController;
         private readonly IFriendIgnoreListService _friendIgnoreListService;
@@ -57,6 +58,7 @@ namespace EndlessClient.HUD.Panels
                                IExperienceTableProvider experienceTableProvider,
                                IPubFileProvider pubFileProvider,
                                IPaperdollProvider paperdollProvider,
+                               IInventorySlotRepository inventorySlotRepository,
                                IEOMessageBoxFactory messageBoxFactory,
                                ITrainingController trainingController,
                                IFriendIgnoreListService friendIgnoreListService,
@@ -78,6 +80,7 @@ namespace EndlessClient.HUD.Panels
             _experienceTableProvider = experienceTableProvider;
             _pubFileProvider = pubFileProvider;
             _paperdollProvider = paperdollProvider;
+            _inventorySlotRepository = inventorySlotRepository;
             _messageBoxFactory = messageBoxFactory;
             _trainingController = trainingController;
             _friendIgnoreListService = friendIgnoreListService;
@@ -106,6 +109,7 @@ namespace EndlessClient.HUD.Panels
                 _itemStringService,
                 _itemNameColorService,
                 _inventoryService,
+                _inventorySlotRepository,
                 _playerInfoProvider,
                 _characterProvider,
                 _paperdollProvider,
