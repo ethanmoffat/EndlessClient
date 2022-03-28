@@ -79,26 +79,6 @@ namespace EOLib.Domain.Character
             _packetSendService.SendPacket(packet);
         }
 
-        public void EquipItem(short itemId, bool alternateLocation)
-        {
-            var packet = new PacketBuilder(PacketFamily.PaperDoll, PacketAction.Add)
-                .AddShort(itemId)
-                .AddChar((byte)(alternateLocation ? 1 : 0))
-                .Build();
-
-            _packetSendService.SendPacket(packet);
-        }
-
-        public void UnequipItem(short itemId, bool alternateLocation)
-        {
-            var packet = new PacketBuilder(PacketFamily.PaperDoll, PacketAction.Remove)
-                .AddShort(itemId)
-                .AddChar((byte)(alternateLocation ? 1 : 0))
-                .Build();
-
-            _packetSendService.SendPacket(packet);
-        }
-
         public void PrepareCastSpell(int spellId)
         {
             var packet = new PacketBuilder(PacketFamily.Spell, PacketAction.Request)
@@ -169,10 +149,6 @@ namespace EOLib.Domain.Character
         void Attack();
 
         void ToggleSit();
-
-        void EquipItem(short itemId, bool alternateLocation);
-
-        void UnequipItem(short itemId, bool alternateLocation);
 
         void PrepareCastSpell(int spellId);
 

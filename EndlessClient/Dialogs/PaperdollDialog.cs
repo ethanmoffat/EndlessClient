@@ -1,4 +1,5 @@
-﻿using EndlessClient.Dialogs.Factories;
+﻿using EndlessClient.Controllers;
+using EndlessClient.Dialogs.Factories;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD;
@@ -26,7 +27,7 @@ namespace EndlessClient.Dialogs
         private static readonly Rectangle _iconDrawRect = new Rectangle(227, 258, 44, 21);
 
         private readonly INativeGraphicsManager _nativeGraphicsManager;
-        private readonly ICharacterActions _characterActions;
+        private readonly IInventoryController _inventoryController;
         private readonly IPaperdollProvider _paperdollProvider;
         private readonly IPubFileProvider _pubFileProvider;
         private readonly IInventorySpaceValidator _inventorySpaceValidator;
@@ -51,7 +52,7 @@ namespace EndlessClient.Dialogs
 
         public PaperdollDialog(IGameStateProvider gameStateProvider,
                                INativeGraphicsManager nativeGraphicsManager,
-                               ICharacterActions characterActions,
+                               IInventoryController inventoryController,
                                IPaperdollProvider paperdollProvider,
                                IPubFileProvider pubFileProvider,
                                IEODialogButtonService eoDialogButtonService,
@@ -67,7 +68,7 @@ namespace EndlessClient.Dialogs
             _eoMessageBoxFactory = eoMessageBoxFactory;
             _statusLabelSetter = statusLabelSetter;
             _nativeGraphicsManager = nativeGraphicsManager;
-            _characterActions = characterActions;
+            _inventoryController = inventoryController;
             Character = character;
             _isMainCharacter = isMainCharacter;
             _characterIconSheet = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 32, true);
@@ -216,12 +217,8 @@ namespace EndlessClient.Dialogs
 
                 paperdollItem.OnMouseEnter += (_, _) =>
                 {
-                    // capture values
-                    var l = equipLocation;
-                    var r = eifRecord;
-
                     EOResourceID msg;
-                    switch (l)
+                    switch (equipLocation)
                     {
                         case EquipLocation.Boots: msg = EOResourceID.STATUS_LABEL_PAPERDOLL_BOOTS_EQUIPMENT; break;
                         case EquipLocation.Accessory: msg = EOResourceID.STATUS_LABEL_PAPERDOLL_MISC_EQUIPMENT; break;
@@ -241,7 +238,7 @@ namespace EndlessClient.Dialogs
                         default: throw new ArgumentOutOfRangeException();
                     }
 
-                    var extra = r.Match(rec => $", {rec.Name}", () => string.Empty);
+                    var extra = eifRecord.Match(rec => $", {rec.Name}", () => string.Empty);
                     _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, msg, extra);
                 };
 
@@ -263,8 +260,7 @@ namespace EndlessClient.Dialogs
                             else
                             {
                                 // packet reply handles updating the paperdoll for the character which will unrender the equipment
-                                string locName = Enum.GetName(typeof(EquipLocation), equipLocation);
-                                _characterActions.UnequipItem((short)rec.ID, alternateLocation: locName.Contains("2"));
+                                _inventoryController.UnequipItem(equipLocation);
                             }
                         });
                     }

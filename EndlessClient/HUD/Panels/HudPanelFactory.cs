@@ -12,6 +12,7 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Item;
 using EOLib.Domain.Login;
+using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework.Graphics;
@@ -24,8 +25,7 @@ namespace EndlessClient.HUD.Panels
         private const int HUD_CONTROL_LAYER = 130;
 
         private readonly INativeGraphicsManager _nativeGraphicsManager;
-        private readonly IInGameDialogActions _inGameDialogActions;
-        private readonly ICharacterActions _characterActions;
+        private readonly IInventoryController _inventoryController;
         private readonly IContentProvider _contentProvider;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly INewsProvider _newsProvider;
@@ -35,7 +35,6 @@ namespace EndlessClient.HUD.Panels
         private readonly ICharacterInventoryProvider _characterInventoryProvider;
         private readonly IExperienceTableProvider _experienceTableProvider;
         private readonly IPubFileProvider _pubFileProvider;
-        private readonly IPaperdollProvider _paperdollProvider;
         private readonly IInventorySlotRepository _inventorySlotRepository;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly ITrainingController _trainingController;
@@ -46,8 +45,7 @@ namespace EndlessClient.HUD.Panels
         private readonly IInventoryService _inventoryService;
 
         public HudPanelFactory(INativeGraphicsManager nativeGraphicsManager,
-                               IInGameDialogActions inGameDialogActions,
-                               ICharacterActions characterActions,
+                               IInventoryController inventoryController,
                                IContentProvider contentProvider,
                                IHudControlProvider hudControlProvider,
                                INewsProvider newsProvider,
@@ -57,7 +55,6 @@ namespace EndlessClient.HUD.Panels
                                ICharacterInventoryProvider characterInventoryProvider,
                                IExperienceTableProvider experienceTableProvider,
                                IPubFileProvider pubFileProvider,
-                               IPaperdollProvider paperdollProvider,
                                IInventorySlotRepository inventorySlotRepository,
                                IEOMessageBoxFactory messageBoxFactory,
                                ITrainingController trainingController,
@@ -68,8 +65,7 @@ namespace EndlessClient.HUD.Panels
                                IInventoryService inventoryService)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
-            _inGameDialogActions = inGameDialogActions;
-            _characterActions = characterActions;
+            _inventoryController = inventoryController;
             _contentProvider = contentProvider;
             _hudControlProvider = hudControlProvider;
             _newsProvider = newsProvider;
@@ -79,7 +75,6 @@ namespace EndlessClient.HUD.Panels
             _characterInventoryProvider = characterInventoryProvider;
             _experienceTableProvider = experienceTableProvider;
             _pubFileProvider = pubFileProvider;
-            _paperdollProvider = paperdollProvider;
             _inventorySlotRepository = inventorySlotRepository;
             _messageBoxFactory = messageBoxFactory;
             _trainingController = trainingController;
@@ -103,8 +98,7 @@ namespace EndlessClient.HUD.Panels
         public InventoryPanel CreateInventoryPanel()
         {
             return new InventoryPanel(_nativeGraphicsManager,
-                _inGameDialogActions,
-                _characterActions,
+                _inventoryController,
                 _statusLabelSetter,
                 _itemStringService,
                 _itemNameColorService,
@@ -112,7 +106,6 @@ namespace EndlessClient.HUD.Panels
                 _inventorySlotRepository,
                 _playerInfoProvider,
                 _characterProvider,
-                _paperdollProvider,
                 _characterInventoryProvider,
                 _pubFileProvider) { DrawOrder = HUD_CONTROL_LAYER };
         }

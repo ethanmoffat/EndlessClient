@@ -75,5 +75,15 @@ namespace EndlessClient.Dialogs.Factories
                 whichButtons,
                 style);
         }
+
+        public IXNADialog CreateMessageBox(EOResourceID message,
+                                           EOResourceID caption,
+                                           EODialogButtons whichButtons = EODialogButtons.Ok,
+                                           EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader)
+        {
+            var messageText = _localizedStringFinder.GetString(message);
+            var captionText = _localizedStringFinder.GetString(caption);
+            return CreateMessageBox(messageText, captionText, whichButtons, style);
+        }
     }
 }

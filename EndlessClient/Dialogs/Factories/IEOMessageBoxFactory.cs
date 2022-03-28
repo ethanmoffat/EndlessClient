@@ -23,5 +23,10 @@ namespace EndlessClient.Dialogs.Factories
                                     string extraData,
                                     EODialogButtons whichButtons = EODialogButtons.Ok,
                                     EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader);
+
+        IXNADialog CreateMessageBox(EOResourceID message,
+                                    EOResourceID caption,
+                                    EODialogButtons whichButtons = EODialogButtons.Ok,
+                                    EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader);
     }
 }
