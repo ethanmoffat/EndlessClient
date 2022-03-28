@@ -107,6 +107,11 @@ namespace EOLib.PacketHandlers
                 }
             });
 
+            update.MatchNone(() =>
+            {
+                _currentMapStateRepository.UnknownPlayerIDs.Add(playerId);
+            });
+
             return true;
         }
     }

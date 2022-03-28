@@ -3,6 +3,7 @@ using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Net;
 using EOLib.Net.Handlers;
+using System.Linq;
 
 namespace EOLib.PacketHandlers
 {
@@ -23,8 +24,25 @@ namespace EOLib.PacketHandlers
 
         public override bool HandlePacket(IPacket packet)
         {
-            if (packet.ReadByte() != 255 || packet.ReadByte() != 255)
-                return false;
+            while (packet.PeekByte() != 0xFF)
+            {
+                var playerID = packet.ReadShort();
+                if (!_currentMapStateRepository.Characters.ContainsKey(playerID))
+                {
+                    _currentMapStateRepository.UnknownPlayerIDs.Add(playerID);
+                }
+            }
+            packet.ReadByte();
+
+            while (packet.PeekByte() != 0xFF)
+            {
+                var index = packet.ReadChar();
+                if (!_currentMapStateRepository.NPCs.Any((npc) => npc.Index == index))
+                {
+                    _currentMapStateRepository.UnknownNPCIndexes.Add(index);
+                }
+            }
+            packet.ReadByte();
 
             var numberOfMapItems = packet.PeekEndString().Length / 9;
             for (int i = 0; i < numberOfMapItems; ++i)

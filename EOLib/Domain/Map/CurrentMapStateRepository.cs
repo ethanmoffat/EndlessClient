@@ -24,6 +24,10 @@ namespace EOLib.Domain.Map
         HashSet<MapCoordinate> VisibleSpikeTraps { get; set; }
 
         WarpState MapWarpState { get; set; }
+
+        HashSet<short> UnknownPlayerIDs { get; set; }
+
+        HashSet<byte> UnknownNPCIndexes { get; set; }
     }
 
     public interface ICurrentMapStateProvider
@@ -44,7 +48,11 @@ namespace EOLib.Domain.Map
 
         IReadOnlyCollection<MapCoordinate> VisibleSpikeTraps { get; }
 
-        WarpState MapWarpState { get; set; }
+        WarpState MapWarpState { get; }
+
+        HashSet<short> UnknownPlayerIDs { get; }
+
+        HashSet<byte> UnknownNPCIndexes { get; }
     }
 
     [AutoMappedType(IsSingleton = true)]
@@ -67,6 +75,10 @@ namespace EOLib.Domain.Map
         public HashSet<MapCoordinate> VisibleSpikeTraps { get; set;  }
 
         public WarpState MapWarpState { get; set; }
+
+        public HashSet<short> UnknownPlayerIDs { get; set; }
+
+        public HashSet<byte> UnknownNPCIndexes { get; set; }
 
         IReadOnlyDictionary<int, ICharacter> ICurrentMapStateProvider.Characters => Characters;
 
@@ -96,6 +108,8 @@ namespace EOLib.Domain.Map
             OpenDoors = new HashSet<IWarp>();
             PendingDoors = new HashSet<IWarp>();
             VisibleSpikeTraps = new HashSet<MapCoordinate>();
+            UnknownPlayerIDs = new HashSet<short>();
+            UnknownNPCIndexes = new HashSet<byte>();
 
             MapWarpState = WarpState.None;
         }

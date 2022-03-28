@@ -68,6 +68,10 @@ namespace EOLib.PacketHandlers
                 var updatedCharacter = _currentMapStateRepository.Characters[fromPlayerId].WithRenderProperties(renderProps);
                 _currentMapStateRepository.Characters[fromPlayerId] = updatedCharacter;
             }
+            else
+            {
+                _currentMapStateRepository.UnknownPlayerIDs.Add(fromPlayerId);
+            }
 
             // todo: this has the potential to bug out if the opponent ID is never reset and the player dies/leaves
             try
@@ -79,7 +83,11 @@ namespace EOLib.PacketHandlers
                 foreach (var notifier in _npcNotifiers)
                     notifier.NPCTakeDamage(npcIndex, fromPlayerId, damageToNpc, npcPctHealth, spellId);
             }
-            catch (InvalidOperationException) { return false; }
+            catch (InvalidOperationException)
+            {
+                _currentMapStateRepository.UnknownNPCIndexes.Add((byte)npcIndex);
+                return true;
+            }
 
             return true;
         }

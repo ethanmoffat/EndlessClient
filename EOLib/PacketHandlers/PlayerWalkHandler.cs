@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
@@ -35,25 +33,29 @@ namespace EOLib.PacketHandlers
         {
             var characterID = packet.ReadShort();
 
-            if (!_currentMapStateRepository.Characters.ContainsKey(characterID))
-                return false;
-
-            var dir = (EODirection)packet.ReadChar();
-            var x = packet.ReadChar();
-            var y = packet.ReadChar();
-
-            var character = _currentMapStateRepository.Characters[characterID];
-
-            // if character is walking, that means animator is handling position of character
-            // if character is not walking (this is true in EOBot), update the domain model here
-            if (!character.RenderProperties.IsActing(CharacterActionState.Walking))
+            if (_currentMapStateRepository.Characters.ContainsKey(characterID))
             {
-                var renderProperties = EnsureCorrectXAndY(character.RenderProperties.WithDirection(dir), x, y);
-                _currentMapStateRepository.Characters[characterID] = character.WithRenderProperties(renderProperties);
-            }
+                var dir = (EODirection)packet.ReadChar();
+                var x = packet.ReadChar();
+                var y = packet.ReadChar();
 
-            foreach (var notifier in _otherCharacterAnimationNotifiers)
-                notifier.StartOtherCharacterWalkAnimation(characterID, x, y, dir);
+                var character = _currentMapStateRepository.Characters[characterID];
+
+                // if character is walking, that means animator is handling position of character
+                // if character is not walking (this is true in EOBot), update the domain model here
+                if (!character.RenderProperties.IsActing(CharacterActionState.Walking))
+                {
+                    var renderProperties = EnsureCorrectXAndY(character.RenderProperties.WithDirection(dir), x, y);
+                    _currentMapStateRepository.Characters[characterID] = character.WithRenderProperties(renderProperties);
+                }
+
+                foreach (var notifier in _otherCharacterAnimationNotifiers)
+                    notifier.StartOtherCharacterWalkAnimation(characterID, x, y, dir);
+            }
+            else
+            {
+                _currentMapStateRepository.UnknownPlayerIDs.Add(characterID);
+            }
 
             return true;
         }

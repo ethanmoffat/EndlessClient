@@ -113,6 +113,10 @@ namespace EOLib.PacketHandlers
                 var updatedCharacter = _currentMapStateRepository.Characters[playerID].WithRenderProperties(updatedRenderProps);
                 _currentMapStateRepository.Characters[playerID] = updatedCharacter;
             }
+            else
+            {
+                _currentMapStateRepository.UnknownPlayerIDs.Add(playerID);
+            }
         }
 
         private void UpdateCharacterStat(CharacterStat whichStat, int statValue)
