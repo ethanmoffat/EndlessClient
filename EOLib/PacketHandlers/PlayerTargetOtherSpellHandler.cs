@@ -53,7 +53,7 @@ namespace EOLib.PacketHandlers
             else
             {
                 _currentMapStateRepository.UnknownPlayerIDs.Add(sourcePlayerId);
-                return false;
+                return true;
             }
 
             if (packet.ReadPosition != packet.Length)

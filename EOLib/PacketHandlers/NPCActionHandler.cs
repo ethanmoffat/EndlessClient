@@ -72,7 +72,7 @@ namespace EOLib.PacketHandlers
             catch (InvalidOperationException) 
             {
                 _currentMapStateRepository.UnknownNPCIndexes.Add(index);
-                return false;
+                return true;
             }
 
             var updatedNpc = Option.None<INPC>();

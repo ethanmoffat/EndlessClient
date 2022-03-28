@@ -86,7 +86,7 @@ namespace EOLib.PacketHandlers
             catch (InvalidOperationException)
             {
                 _currentMapStateRepository.UnknownNPCIndexes.Add((byte)npcIndex);
-                return false;
+                return true;
             }
 
             return true;
