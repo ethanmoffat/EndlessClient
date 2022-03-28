@@ -45,16 +45,16 @@ namespace EndlessClient.Network
                 try
                 {
                     if (request != null)
+                    {
                         _packetSendService.SendPacket(request);
+                        _currentMapStateRepository.UnknownNPCIndexes.Clear();
+                        _currentMapStateRepository.UnknownPlayerIDs.Clear();
+                    }
                 }
                 catch (NoDataSentException)
-                {
-                    // do nothing.. should we log these?
-                }
+                { } // Swallow error. Will try again on next interval
                 finally
                 {
-                    _currentMapStateRepository.UnknownNPCIndexes.Clear();
-                    _currentMapStateRepository.UnknownPlayerIDs.Clear();
                     _lastRequestTime = DateTime.Now;
                 }
             }
