@@ -1,5 +1,6 @@
 ﻿using EndlessClient.Controllers;
 using EndlessClient.Dialogs;
+using EndlessClient.HUD;
 using EndlessClient.Input;
 using EOLib;
 using EOLib.Domain.Character;
@@ -40,6 +41,7 @@ namespace EndlessClient.Rendering
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
         private readonly IMapCellStateProvider _mapCellStateProvider;
         private readonly IItemStringService _itemStringService;
+        private readonly IItemNameColorService _itemNameColorService;
         private readonly IEIFFileProvider _eifFileProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IMapInteractionController _mapInteractionController;
@@ -63,6 +65,7 @@ namespace EndlessClient.Rendering
                                    IRenderOffsetCalculator renderOffsetCalculator,
                                    IMapCellStateProvider mapCellStateProvider,
                                    IItemStringService itemStringService,
+                                   IItemNameColorService itemNameColorService,
                                    IEIFFileProvider eifFileProvider,
                                    ICurrentMapProvider currentMapProvider,
                                    IMapInteractionController mapInteractionController,
@@ -75,6 +78,7 @@ namespace EndlessClient.Rendering
             _renderOffsetCalculator = renderOffsetCalculator;
             _mapCellStateProvider = mapCellStateProvider;
             _itemStringService = itemStringService;
+            _itemNameColorService = itemNameColorService;
             _eifFileProvider = eifFileProvider;
             _currentMapProvider = currentMapProvider;
             _mapInteractionController = mapInteractionController;
@@ -219,7 +223,7 @@ namespace EndlessClient.Rendering
                         _mapItemText.Visible = true;
                         _mapItemText.Text = text;
                         _mapItemText.ResizeBasedOnText();
-                        _mapItemText.ForeColor = GetColorForMapDisplay(data);
+                        _mapItemText.ForeColor = _itemNameColorService.GetColorForMapDisplay(data);
 
                         //relative to cursor DrawPosition, since this control is a parent of MapItemText
                         _mapItemText.DrawPosition = new Vector2(_drawArea.X + 32 - _mapItemText.ActualWidth / 2f,
@@ -278,21 +282,6 @@ namespace EndlessClient.Rendering
                 default:
                     throw new ArgumentOutOfRangeException(nameof(tileSpec), tileSpec, null);
             }
-        }
-
-        //todo: extract this into a service (also used by inventory)
-        private static Color GetColorForMapDisplay(EIFRecord record)
-        {
-            switch (record.Special)
-            {
-                case ItemSpecial.Lore:
-                case ItemSpecial.Unique:
-                    return Color.FromNonPremultiplied(0xff, 0xf0, 0xa5, 0xff);
-                case ItemSpecial.Rare:
-                    return Color.FromNonPremultiplied(0xf5, 0xc8, 0x9c, 0xff);
-            }
-
-            return Color.White;
         }
 
         private async Task CheckForClicks(IMapCellState cellState)

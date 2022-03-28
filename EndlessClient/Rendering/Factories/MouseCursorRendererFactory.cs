@@ -1,6 +1,7 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Controllers;
 using EndlessClient.Dialogs;
+using EndlessClient.HUD;
 using EndlessClient.Input;
 using EOLib.Domain.Character;
 using EOLib.Domain.Item;
@@ -18,6 +19,7 @@ namespace EndlessClient.Rendering.Factories
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
         private readonly IMapCellStateProvider _mapCellStateProvider;
         private readonly IItemStringService _itemStringService;
+        private readonly IItemNameColorService _itemNameColorService;
         private readonly IEIFFileProvider _eifFileProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IMapInteractionController _mapInteractionController;
@@ -30,6 +32,7 @@ namespace EndlessClient.Rendering.Factories
                                           IRenderOffsetCalculator renderOffsetCalculator,
                                           IMapCellStateProvider mapCellStateProvider,
                                           IItemStringService itemStringService,
+                                          IItemNameColorService itemNameColorService,
                                           IEIFFileProvider eifFileProvider,
                                           ICurrentMapProvider currentMapProvider,
                                           IMapInteractionController mapInteractionController,
@@ -42,6 +45,7 @@ namespace EndlessClient.Rendering.Factories
             _renderOffsetCalculator = renderOffsetCalculator;
             _mapCellStateProvider = mapCellStateProvider;
             _itemStringService = itemStringService;
+            _itemNameColorService = itemNameColorService;
             _eifFileProvider = eifFileProvider;
             _currentMapProvider = currentMapProvider;
             _mapInteractionController = mapInteractionController;
@@ -57,6 +61,7 @@ namespace EndlessClient.Rendering.Factories
                                            _renderOffsetCalculator,
                                            _mapCellStateProvider,
                                            _itemStringService,
+                                           _itemNameColorService,
                                            _eifFileProvider,
                                            _currentMapProvider,
                                            _mapInteractionController,

@@ -32,6 +32,7 @@ namespace EndlessClient.HUD.Panels
         private readonly ICharacterActions _characterActions;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IItemStringService _itemStringService;
+        private readonly IItemNameColorService _itemNameColorService;
         private readonly IInventoryService _inventoryService;
         private readonly IPlayerInfoProvider _playerInfoProvider;
         private readonly ICharacterProvider _characterProvider;
@@ -58,6 +59,7 @@ namespace EndlessClient.HUD.Panels
                               ICharacterActions characterActions,
                               IStatusLabelSetter statusLabelSetter,
                               IItemStringService itemStringService,
+                              IItemNameColorService itemNameColorService,
                               IInventoryService inventoryService,
                               IPlayerInfoProvider playerInfoProvider,
                               ICharacterProvider characterProvider,
@@ -69,6 +71,7 @@ namespace EndlessClient.HUD.Panels
             _characterActions = characterActions;
             _statusLabelSetter = statusLabelSetter;
             _itemStringService = itemStringService;
+            _itemNameColorService = itemNameColorService;
             _inventoryService = inventoryService;
             _playerInfoProvider = playerInfoProvider;
             _characterProvider = characterProvider;
@@ -186,7 +189,7 @@ namespace EndlessClient.HUD.Panels
                     {
                         _inventoryService.SetSlots(_usedSlots, slot, itemData.Size);
 
-                        var newItem = new InventoryPanelItem(this, slot, item, itemData);
+                        var newItem = new InventoryPanelItem(_itemNameColorService, this, slot, item, itemData);
                         newItem.Initialize();
                         newItem.SetParentControl(this);
                         newItem.Text = _itemStringService.GetStringForMapDisplay(itemData, item.Amount);

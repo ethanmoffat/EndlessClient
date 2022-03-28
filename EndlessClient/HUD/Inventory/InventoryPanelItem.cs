@@ -81,7 +81,7 @@ namespace EndlessClient.HUD.Inventory
         public event EventHandler<EIFRecord> DoubleClick;
         public event EventHandler<ItemDragCompletedEventArgs> DoneDragging;
 
-        public InventoryPanelItem(InventoryPanel inventoryPanel, int slot, IInventoryItem inventoryItem, EIFRecord data)
+        public InventoryPanelItem(IItemNameColorService itemNameColorService, InventoryPanel inventoryPanel, int slot, IInventoryItem inventoryItem, EIFRecord data)
         {
             _inventoryPanel = inventoryPanel;
             Slot = slot;
@@ -97,7 +97,7 @@ namespace EndlessClient.HUD.Inventory
                 Visible = false,
                 AutoSize = false,
                 TextAlign = LabelAlignment.MiddleCenter,
-                ForeColor = ColorConstants.LightGrayText,
+                ForeColor = itemNameColorService.GetColorForInventoryDisplay(Data),
                 BackColor = Color.FromNonPremultiplied(30, 30, 30, 160),
                 Text = string.Empty
             };

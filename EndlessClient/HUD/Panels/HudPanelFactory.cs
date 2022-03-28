@@ -41,6 +41,7 @@ namespace EndlessClient.HUD.Panels
         private readonly IFriendIgnoreListService _friendIgnoreListService;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IItemStringService _itemStringService;
+        private readonly IItemNameColorService _itemNameColorService;
         private readonly IInventoryService _inventoryService;
 
         public HudPanelFactory(INativeGraphicsManager nativeGraphicsManager,
@@ -61,6 +62,7 @@ namespace EndlessClient.HUD.Panels
                                IFriendIgnoreListService friendIgnoreListService,
                                IStatusLabelSetter statusLabelSetter,
                                IItemStringService itemStringService,
+                               IItemNameColorService itemNameColorService,
                                IInventoryService inventoryService)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
@@ -81,6 +83,7 @@ namespace EndlessClient.HUD.Panels
             _friendIgnoreListService = friendIgnoreListService;
             _statusLabelSetter = statusLabelSetter;
             _itemStringService = itemStringService;
+            _itemNameColorService = itemNameColorService;
             _inventoryService = inventoryService;
         }
 
@@ -101,6 +104,7 @@ namespace EndlessClient.HUD.Panels
                 _characterActions,
                 _statusLabelSetter,
                 _itemStringService,
+                _itemNameColorService,
                 _inventoryService,
                 _playerInfoProvider,
                 _characterProvider,
