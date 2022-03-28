@@ -27,7 +27,7 @@ namespace EndlessClient.HUD.Inventory
         }
 
         // uses absolute coordinates
-        private static readonly Rectangle InventoryGridArea = new Rectangle(110, 334, 377, 116);
+        private static readonly Rectangle InventoryGridArea = new Rectangle(114, 338, 363, 102);
 
         private readonly InventoryPanel _inventoryPanel;
         private readonly Texture2D _itemGraphic;
@@ -214,13 +214,16 @@ namespace EndlessClient.HUD.Inventory
 
             if (MouseOver)
             {
-                // slot based on current mouse position if being dragged
-                var currentSlot = GetCurrentSlotBasedOnPosition();
-                var drawPosition = GetPosition(currentSlot) + (_beingDragged ? _oldOffset : ImmediateParent.DrawPositionWithParentOffset);
-
-                if (InventoryGridArea.Contains(drawPosition))
+                if (!_beingDragged || InventoryGridArea.Contains(CurrentMouseState.Position))
                 {
-                    _spriteBatch.Draw(_highlightBackground, DrawArea.WithPosition(drawPosition), Color.White);
+                    // slot based on current mouse position if being dragged
+                    var currentSlot = GetCurrentSlotBasedOnPosition();
+                    var drawPosition = GetPosition(currentSlot) + (_beingDragged ? _oldOffset : ImmediateParent.DrawPositionWithParentOffset);
+
+                    if (InventoryGridArea.Contains(DrawArea.WithPosition(drawPosition)))
+                    {
+                        _spriteBatch.Draw(_highlightBackground, DrawArea.WithPosition(drawPosition), Color.White);
+                    }
                 }
             }
 

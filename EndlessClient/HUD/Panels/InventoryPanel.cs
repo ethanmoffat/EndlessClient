@@ -195,6 +195,10 @@ namespace EndlessClient.HUD.Panels
                         newItem.DoubleClick += HandleItemDoubleClick;
                         newItem.DoneDragging += HandleItemDoneDragging;
 
+                        // side-effect of calling newItem.SetParentControl(this) is that the draw order gets reset
+                        // setting the slot manually here resets it so the item labels render appropriately
+                        newItem.Slot = slot;
+
                         _childItems.Add(newItem);
                     });
                 }
