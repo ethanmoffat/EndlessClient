@@ -48,7 +48,7 @@ namespace EOLib.Domain.Map
 
         IReadOnlyCollection<MapCoordinate> VisibleSpikeTraps { get; }
 
-        WarpState MapWarpState { get; set; }
+        WarpState MapWarpState { get; }
 
         HashSet<short> UnknownPlayerIDs { get; }
 
