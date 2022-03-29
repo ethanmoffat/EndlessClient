@@ -135,10 +135,11 @@ namespace EndlessClient.HUD.Panels
                 some: stats =>
                 {
                     stats.SomeWhen(s => s != _characterProvider.MainCharacter.Stats)
-                        .MatchSome(s =>
+                        .MatchSome(_ =>
                         {
-                            _cachedStats = Option.Some(_characterProvider.MainCharacter.Stats);
-                            _weightLabel.Text = $"{stats[CharacterStat.Weight]} / {stats[CharacterStat.MaxWeight]}";
+                            var newStats = _characterProvider.MainCharacter.Stats;
+                            _cachedStats = Option.Some(newStats);
+                            _weightLabel.Text = $"{newStats[CharacterStat.Weight]} / {newStats[CharacterStat.MaxWeight]}";
                         });
                 },
                 none: () =>
