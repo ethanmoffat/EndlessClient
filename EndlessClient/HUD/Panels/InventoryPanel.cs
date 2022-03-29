@@ -160,7 +160,8 @@ namespace EndlessClient.HUD.Panels
             {
                 var added = _characterInventoryProvider.ItemInventory.Where(i => !_cachedInventory.Any(j => i.ItemID == j.ItemID));
                 var removed = _cachedInventory.Where(i => !_characterInventoryProvider.ItemInventory.Any(j => i.ItemID == j.ItemID));
-                var updated = _characterInventoryProvider.ItemInventory.Except(added);
+                var updated = _characterInventoryProvider.ItemInventory.Except(added)
+                    .Where(i => _cachedInventory.Any(j => i.ItemID == j.ItemID && i.Amount != j.Amount));
 
                 foreach (var item in removed)
                 {
