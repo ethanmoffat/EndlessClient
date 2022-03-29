@@ -44,6 +44,17 @@ namespace EOLib.Domain.Item
             _packetSendService.SendPacket(packet);
         }
 
+        public void DropItem(short itemId, int amount, MapCoordinate dropPoint)
+        {
+            var packet = new PacketBuilder(PacketFamily.Item, PacketAction.Drop)
+                .AddShort(itemId)
+                .AddInt(amount)
+                .AddChar((byte)dropPoint.X)
+                .AddChar((byte)dropPoint.Y)
+                .Build();
+            _packetSendService.SendPacket(packet);
+        }
+
         public void JunkItem(IItem item)
         {
             var packet = new PacketBuilder(PacketFamily.Item, PacketAction.Junk)
@@ -62,6 +73,8 @@ namespace EOLib.Domain.Item
         void EquipItem(short itemId, bool alternateLocation);
 
         void UnequipItem(short itemId, bool alternateLocation);
+
+        void DropItem(short itemId, int amount, MapCoordinate dropPoint);
 
         void JunkItem(IItem item);
     }

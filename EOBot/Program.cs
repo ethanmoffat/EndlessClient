@@ -125,6 +125,10 @@ namespace EOBot
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.Item, $"{weight,3}/{maxWeight,3} - weight - {inventoryCount.Amount} in inventory");
             }
 
+            public void DropItem(short id, int amountDropped)
+            {
+            }
+
             public void JunkItem(short id, int amountRemoved)
             {
                 var inventoryCount = _characterInventoryProvider.ItemInventory.SingleOrDefault(x => x.ItemID == id);

@@ -1,5 +1,8 @@
 ﻿using EndlessClient.Controllers;
+using EndlessClient.ControlSets;
+using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Inventory;
+using EndlessClient.Rendering.Map;
 using EOLib;
 using EOLib.Config;
 using EOLib.Domain.Character;
@@ -39,6 +42,7 @@ namespace EndlessClient.HUD.Panels
         private readonly ICharacterProvider _characterProvider;
         private readonly ICharacterInventoryProvider _characterInventoryProvider;
         private readonly IPubFileProvider _pubFileProvider; // todo: this can probably become EIFFileProvider
+        private readonly IHudControlProvider _hudControlProvider;
         private readonly Dictionary<int, int> _itemSlotMap;
         private readonly List<InventoryPanelItem> _childItems = new List<InventoryPanelItem>();
 
@@ -61,7 +65,8 @@ namespace EndlessClient.HUD.Panels
                               IPlayerInfoProvider playerInfoProvider,
                               ICharacterProvider characterProvider,
                               ICharacterInventoryProvider characterInventoryProvider,
-                              IPubFileProvider pubFileProvider)
+                              IPubFileProvider pubFileProvider,
+                              IHudControlProvider hudControlProvider)
         {
             NativeGraphicsManager = nativeGraphicsManager;
             _inventoryController = inventoryController;
@@ -74,7 +79,7 @@ namespace EndlessClient.HUD.Panels
             _characterProvider = characterProvider;
             _characterInventoryProvider = characterInventoryProvider;
             _pubFileProvider = pubFileProvider;
-
+            _hudControlProvider = hudControlProvider;
             _weightLabel = new XNALabel(Constants.FontSize08pt5)
             {
                 DrawArea = new Rectangle(385, 37, 88, 18),
@@ -90,9 +95,15 @@ namespace EndlessClient.HUD.Panels
 
             _paperdoll = new XNAButton(weirdOffsetSheet, new Vector2(385, 9), new Rectangle(39, 385, 88, 19), new Rectangle(126, 385, 88, 19));
             _paperdoll.OnMouseEnter += MouseOverButton;
-            _paperdoll.OnClick += (_, _) => _inventoryController.ShowPaperdollDialog();
+            _paperdoll.OnClick += (_, _) =>
+            {
+                if (NoItemsDragging())
+                    _inventoryController.ShowPaperdollDialog();
+            };
+
             _drop = new XNAButton(weirdOffsetSheet, new Vector2(389, 68), new Rectangle(0, 15, 38, 37), new Rectangle(0, 52, 38, 37));
             _drop.OnMouseEnter += MouseOverButton;
+
             _junk = new XNAButton(weirdOffsetSheet, new Vector2(431, 68), new Rectangle(0, 89, 38, 37), new Rectangle(0, 126, 38, 37));
             _junk.OnMouseEnter += MouseOverButton;
 
@@ -172,7 +183,7 @@ namespace EndlessClient.HUD.Panels
                     matchedItem.MatchSome(childItem =>
                     {
                         childItem.InventoryItem = item;
-                        childItem.Text = _itemStringService.GetStringForMapDisplay(itemData, item.Amount);
+                        childItem.Text = _itemStringService.GetStringForInventoryDisplay(itemData, item.Amount);
                     });
                 }
 
@@ -190,7 +201,7 @@ namespace EndlessClient.HUD.Panels
                         var newItem = new InventoryPanelItem(_itemNameColorService, this, slot, item, itemData);
                         newItem.Initialize();
                         newItem.SetParentControl(this);
-                        newItem.Text = _itemStringService.GetStringForMapDisplay(itemData, item.Amount);
+                        newItem.Text = _itemStringService.GetStringForInventoryDisplay(itemData, item.Amount);
 
                         newItem.OnMouseEnter += (_, _) => _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ITEM, newItem.Text);
                         newItem.DoubleClick += HandleItemDoubleClick;
@@ -332,6 +343,24 @@ namespace EndlessClient.HUD.Panels
                 return;
 
             var oldSlot = item.Slot;
+
+            var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
+
+            // todo: if this is a chained drag, restoring the original slot could overlap with another item
+            if (_drop.MouseOver || mapRenderer.MouseOver)
+            {
+                e.RestoreOriginalSlot = true;
+                _inventoryController.DropItem(item.Data, item.InventoryItem);
+                return;
+            }
+            else if (_junk.MouseOver)
+            {
+                e.RestoreOriginalSlot = true;
+                _inventoryController.JunkItem(item.Data, item.InventoryItem);
+                return;
+            }
+
+            var fitsInOldSlot = _inventoryService.FitsInSlot(_inventorySlotRepository.FilledSlots, oldSlot, e.Data.Size);
             var newSlot = item.GetCurrentSlotBasedOnPosition();
 
             // check overlapping items:
@@ -346,7 +375,7 @@ namespace EndlessClient.HUD.Panels
             {
                 e.RestoreOriginalSlot = true;
 
-                if (!_inventoryService.FitsInSlot(_inventorySlotRepository.FilledSlots, oldSlot, e.Data.Size))
+                if (!fitsInOldSlot)
                     e.ContinueDrag = true;
             }
             else if (overlapped.Count == 1)
@@ -362,7 +391,7 @@ namespace EndlessClient.HUD.Panels
                 if (!_inventoryService.FitsInSlot(_inventorySlotRepository.FilledSlots, oldSlot, newSlot, e.Data.Size))
                 {
                     // if the original slot no longer fits (because this is a chained drag), don't stop dragging this item
-                    if (!_inventoryService.FitsInSlot(_inventorySlotRepository.FilledSlots, oldSlot, e.Data.Size))
+                    if (!fitsInOldSlot)
                         e.ContinueDrag = true;
                     else
                         e.RestoreOriginalSlot = true;
@@ -372,23 +401,6 @@ namespace EndlessClient.HUD.Panels
                     _inventoryService.ClearSlots(_inventorySlotRepository.FilledSlots, oldSlot, e.Data.Size);
                     _inventoryService.SetSlots(_inventorySlotRepository.FilledSlots, newSlot, e.Data.Size);
                 }
-            }
-
-            if (e.ContinueDrag || e.RestoreOriginalSlot)
-                return;
-
-            // todo: handle drag to things (dialog, map, buttons)
-            if (_drop.MouseOver)
-            {
-                _inventoryController.DropItem(item.Data, item.InventoryItem);
-            }
-            else if (_junk.MouseOver)
-            {
-                _inventoryController.JunkItem(item.Data, item.InventoryItem);
-            }
-            else if (_paperdoll.MouseOver)
-            {
-                _inventoryController.EquipItem(item.Data);
             }
 
             #region Unimplemented drag action

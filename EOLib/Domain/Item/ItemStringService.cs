@@ -1,5 +1,4 @@
 ﻿using System;
-
 using AutomaticTypeMapper;
 using EOLib.IO.Pub;
 
@@ -13,6 +12,11 @@ namespace EOLib.Domain.Item
             if (amount <= 0)
                 throw new ArgumentException("Amount must not be zero!", nameof(amount));
 
+            return GetStringForInventoryDisplay(record, amount);
+        }
+
+        public string GetStringForInventoryDisplay(EIFRecord record, int amount)
+        {
             if (record.ID == 1)
                 return $"{amount} {record.Name}";
 
@@ -23,5 +27,7 @@ namespace EOLib.Domain.Item
     public interface IItemStringService
     {
         string GetStringForMapDisplay(EIFRecord record, int amount);
+
+        string GetStringForInventoryDisplay(EIFRecord record, int amount);
     }
 }

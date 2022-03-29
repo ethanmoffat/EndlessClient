@@ -38,7 +38,7 @@ namespace EndlessClient.Rendering.Map
 
         private Option<MapQuakeState> _quakeState;
 
-        private bool MouseOver
+        public bool MouseOver
         {
             get
             {
@@ -47,6 +47,8 @@ namespace EndlessClient.Rendering.Map
                 return Game.IsActive && ms.X > 0 && ms.Y > 0 && ms.X < 640 && ms.Y < 320;
             }
         }
+
+        public MapCoordinate GridCoordinates => _mouseCursorRenderer.GridCoordinates;
 
         public MapRenderer(IEndlessGame endlessGame,
                            IRenderTargetFactory renderTargetFactory,

@@ -37,8 +37,6 @@ namespace EndlessClient.Old
             m_packetAPI.OnPlayerHeal += _playerHeal;
 
             //item related
-            m_packetAPI.OnRemoveItemFromMap += _removeItemFromMap;
-            m_packetAPI.OnDropItem += _dropItem;
             m_packetAPI.OnItemChange += _itemChange;
 
             m_packetAPI.OnMapMutation += _mapMutate;
@@ -145,42 +143,10 @@ namespace EndlessClient.Old
             OldWorld.Instance.ActiveMapRenderer.OtherPlayerHeal(playerid, healamount, percenthealth);
         }
 
-        //private void _junkItem(short id, int amountRemoved, int amountRemaining, byte weight, byte maxWeight)
-        //{
-        //    OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountRemaining, weight, maxWeight);
-
-        //    var rec = OldWorld.Instance.EIF[id];
-        //    m_game.Hud.AddChat(ChatTab.System, "",
-        //        $"{OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED)} {amountRemoved} {rec.Name}", ChatIcon.DownArrow);
-        //    m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED,
-        //        $" {amountRemoved} {rec.Name}");
-        //}
-
-        private void _dropItem(int characterAmount, byte weight, byte maxWeight, OldMapItem item)
-        {
-            OldWorld.Instance.ActiveMapRenderer.AddMapItem(item);
-            if (characterAmount >= 0) //will be -1 when another player drops
-            {
-                //OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(item.ItemID, characterAmount, weight, maxWeight);
-
-                var rec = OldWorld.Instance.EIF[item.ItemID];
-                m_game.Hud.AddChat(ChatTab.System, "",
-                    $"{OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_DROP_YOU_DROPPED)} {item.Amount} {rec.Name}",
-                        ChatIcon.DownArrow);
-                m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_DROP_YOU_DROPPED,
-                    $" {item.Amount} {rec.Name}");
-            }
-        }
-
         private void _itemChange(bool wasItemObtained, short id, int amount, byte weight)
         {
             //OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight,
             //    OldWorld.Instance.MainPlayer.ActiveCharacter.MaxWeight, wasItemObtained);
-        }
-
-        private void _removeItemFromMap(short itemuid)
-        {
-            OldWorld.Instance.ActiveMapRenderer.RemoveMapItem(itemuid);
         }
 
         private void _mapMutate()

@@ -107,7 +107,8 @@ namespace EndlessClient.HUD.Panels
                 _playerInfoProvider,
                 _characterProvider,
                 _characterInventoryProvider,
-                _pubFileProvider) { DrawOrder = HUD_CONTROL_LAYER };
+                _pubFileProvider,
+                _hudControlProvider) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public ActiveSpellsPanel CreateActiveSpellsPanel()

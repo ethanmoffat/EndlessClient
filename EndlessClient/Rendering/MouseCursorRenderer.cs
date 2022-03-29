@@ -50,7 +50,6 @@ namespace EndlessClient.Rendering
         private readonly IContextMenuProvider _contextMenuProvider;
         private readonly XNALabel _mapItemText;
 
-        private Rectangle _drawArea;
         private int _gridX, _gridY;
         private CursorIndex _cursorIndex;
         private bool _shouldDrawCursor;
@@ -59,6 +58,8 @@ namespace EndlessClient.Rendering
         private CursorIndex _clickFrame;
         private int _clickAlpha;
         private Option<MapCoordinate> _clickCoordinate;
+
+        public MapCoordinate GridCoordinates => new MapCoordinate(_gridX, _gridY);
 
         public MouseCursorRenderer(INativeGraphicsManager nativeGraphicsManager,
                                    ICharacterProvider characterProvider,
@@ -88,7 +89,7 @@ namespace EndlessClient.Rendering
             SingleCursorFrameArea = new Rectangle(0, 0,
                                                   _mouseCursorTexture.Width/(int) CursorIndex.NumberOfFramesInSheet,
                                                   _mouseCursorTexture.Height);
-            _drawArea = SingleCursorFrameArea;
+            DrawArea = SingleCursorFrameArea;
 
             _mapItemText = new XNALabel(Constants.FontSize08pt75)
             {
@@ -153,10 +154,10 @@ namespace EndlessClient.Rendering
         private void UpdateDrawPostionBasedOnGridPosition(int offsetX, int offsetY)
         {
             var drawPosition = GetDrawCoordinatesFromGridUnits(_gridX, _gridY, offsetX, offsetY);
-            _drawArea = new Rectangle((int)drawPosition.X,
+            DrawArea = new Rectangle((int)drawPosition.X,
                                       (int)drawPosition.Y,
-                                      _drawArea.Width,
-                                      _drawArea.Height);
+                                      DrawArea.Width,
+                                      DrawArea.Height);
         }
 
         private void UpdateCursorSourceRectangle(IMapCellState cellState)
@@ -226,8 +227,8 @@ namespace EndlessClient.Rendering
                         _mapItemText.ForeColor = _itemNameColorService.GetColorForMapDisplay(data);
 
                         //relative to cursor DrawPosition, since this control is a parent of MapItemText
-                        _mapItemText.DrawPosition = new Vector2(_drawArea.X + 32 - _mapItemText.ActualWidth / 2f,
-                                                                _drawArea.Y + -_mapItemText.ActualHeight - 4);
+                        _mapItemText.DrawPosition = new Vector2(DrawArea.X + 32 - _mapItemText.ActualWidth / 2f,
+                                                                DrawArea.Y + -_mapItemText.ActualHeight - 4);
                     }
                 },
                 none: () =>
@@ -309,7 +310,7 @@ namespace EndlessClient.Rendering
                 _gridY <= _currentMapProvider.CurrentMap.Properties.Height)
             {
                 spriteBatch.Draw(_mouseCursorTexture,
-                                 _drawArea.Location.ToVector2() + additionalOffset,
+                                 DrawArea.Location.ToVector2() + additionalOffset,
                                  new Rectangle(SingleCursorFrameArea.Width*(int) _cursorIndex,
                                                0,
                                                SingleCursorFrameArea.Width,
@@ -351,11 +352,9 @@ namespace EndlessClient.Rendering
         }
     }
 
-    public interface IMouseCursorRenderer : IDisposable
+    public interface IMouseCursorRenderer : IXNAControl, IDisposable
     {
-        void Initialize();
-
-        void Update(GameTime gameTime);
+        MapCoordinate GridCoordinates { get; }
 
         void Draw(SpriteBatch spriteBatch, Vector2 additionalOffset);
 

@@ -11,89 +11,13 @@ namespace EOLib.Net.API
 
     partial class PacketAPI
     {
-        /// <summary>
-        /// Occurs when any player drops an item - if characterAmount == -1, this means the item was dropped by a player other than MainPlayer
-        /// </summary>
-        public event PlayerItemDropEvent OnDropItem;
-        public event RemoveMapItemEvent OnRemoveItemFromMap;
         public event ItemChangeEvent OnItemChange;
 
         private void _createItemMembers()
         {
-            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Item, PacketAction.Drop), _handleItemDrop, true);
-            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Item, PacketAction.Add), _handleItemAdd, true);
-            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Item, PacketAction.Remove), _handleItemRemove, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Item, PacketAction.Obtain), _handleItemObtain, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Item, PacketAction.Kick), _handleItemKick, true);
             //todo: handle ITEM_ACCEPT (ExpReward item type) (I think it shows the level up animation?)
-        }
-
-        public bool DropItem(short id, int amount, byte x = 255, byte y = 255) //255 means use character's current location
-        {
-            if (!m_client.ConnectedAndInitialized || !Initialized)
-                return false;
-
-            OldPacket pkt = new OldPacket(PacketFamily.Item, PacketAction.Drop);
-            pkt.AddShort(id);
-            pkt.AddInt(amount);
-            if (x == 255 && y == 255)
-            {
-                pkt.AddByte(x);
-                pkt.AddByte(y);
-            }
-            else
-            {
-                pkt.AddChar(x);
-                pkt.AddChar(y);
-            }
-
-            return m_client.SendPacket(pkt);
-        }
-        
-        private void _handleItemDrop(OldPacket pkt)
-        {
-            if (OnDropItem == null) return;
-            short _id = pkt.GetShort();
-            int _amount = pkt.GetThree();
-            int characterAmount = pkt.GetInt(); //amount remaining for the character
-            OldMapItem item = new OldMapItem
-            {
-                ItemID = _id,
-                Amount = _amount,
-                UniqueID = pkt.GetShort(),
-                X = pkt.GetChar(),
-                Y = pkt.GetChar(),
-                //turn off drop protection since main player dropped it
-                DropTime = DateTime.Now.AddSeconds(-5),
-                IsNPCDrop = false,
-                OwningPlayerID = 0 //id of 0 means the currently logged in player owns it
-            };
-            byte characterWeight = pkt.GetChar(), characterMaxWeight = pkt.GetChar(); //character adjusted weights
-            
-            OnDropItem(characterAmount, characterWeight, characterMaxWeight, item);
-        }
-
-        private void _handleItemAdd(OldPacket pkt)
-        {
-            if (OnDropItem == null) return;
-            OldMapItem item = new OldMapItem
-            {
-                ItemID = pkt.GetShort(),
-                UniqueID = pkt.GetShort(),
-                Amount = pkt.GetThree(),
-                X = pkt.GetChar(),
-                Y = pkt.GetChar(),
-                DropTime = DateTime.Now,
-                IsNPCDrop = false,
-                OwningPlayerID = -1 //another player dropped. drop protection says "Item protected" w/o player name
-            };
-            OnDropItem(-1, 0, 0, item);
-        }
-
-        private void _handleItemRemove(OldPacket pkt)
-        {
-            if (OnRemoveItemFromMap != null)
-                OnRemoveItemFromMap(pkt.GetShort());
         }
 
         private void _handleItemObtain(OldPacket pkt)

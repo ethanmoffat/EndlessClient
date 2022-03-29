@@ -3,7 +3,6 @@ using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Controls;
-using EndlessClient.Old;
 using EndlessClient.Services;
 using EndlessClient.UIControls;
 using EOLib;

@@ -1,7 +1,11 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.ControlSets;
 using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Actions;
+using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD;
+using EndlessClient.HUD.Controls;
+using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
@@ -12,6 +16,7 @@ using EOLib.IO.Repositories;
 using EOLib.Localization;
 using System;
 using System.Linq;
+using XNAControls;
 
 namespace EndlessClient.Controllers
 {
@@ -23,21 +28,33 @@ namespace EndlessClient.Controllers
         private readonly ICharacterProvider _characterProvider;
         private readonly IPaperdollProvider _paperdollProvider;
         private readonly IPubFileProvider _pubFileProvider;
+        private readonly IHudControlProvider _hudControlProvider;
+        private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly IStatusLabelSetter _statusLabelSetter;
+        private readonly IItemTransferDialogFactory _itemTransferDialogFactory;
+        private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
 
         public InventoryController(IItemActions itemActions,
                                    IInGameDialogActions inGameDialogActions,
                                    ICharacterProvider characterProvider,
                                    IPaperdollProvider paperdollProvider,
                                    IPubFileProvider pubFileProvider,
-                                   IStatusLabelSetter statusLabelSetter)
+                                   IHudControlProvider hudControlProvider,
+                                   ICurrentMapStateProvider currentMapStateProvider,
+                                   IStatusLabelSetter statusLabelSetter,
+                                   IItemTransferDialogFactory itemTransferDialogFactory,
+                                   IEOMessageBoxFactory eoMessageBoxFactory)
         {
             _itemActions = itemActions;
             _inGameDialogActions = inGameDialogActions;
             _characterProvider = characterProvider;
             _paperdollProvider = paperdollProvider;
             _pubFileProvider = pubFileProvider;
+            _hudControlProvider = hudControlProvider;
+            _currentMapStateProvider = currentMapStateProvider;
             _statusLabelSetter = statusLabelSetter;
+            _itemTransferDialogFactory = itemTransferDialogFactory;
+            _eoMessageBoxFactory = eoMessageBoxFactory;
         }
 
         public void ShowPaperdollDialog()
@@ -191,52 +208,71 @@ namespace EndlessClient.Controllers
             /*
             if (((OldEOInventory)parent).IsOverDrop() || (OldWorld.Instance.ActiveMapRenderer.MouseOver
                 //&& ChestDialog.Instance == null && EOPaperdollDialog.Instance == null && LockerDialog.Instance == null
-                && BankAccountDialog.Instance == null && TradeDialog.Instance == null))
+                && BankAccountDialog.Instance == null && TradeDialog.Instance == null))*/
+
+            var rp = _characterProvider.MainCharacter.RenderProperties;
+
+            var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
+            var dropPoint = mapRenderer.MouseOver
+                ? mapRenderer.GridCoordinates
+                : new MapCoordinate(rp.MapX, rp.MapY);
+
+            var inRange = Math.Max(Math.Abs(rp.MapX - dropPoint.X), Math.Abs(rp.MapY - dropPoint.Y)) <= 2;
+
+            // todo: move validation logic to validator class
+            if (itemData.Special == ItemSpecial.Lore)
             {
-                Point loc = OldWorld.Instance.ActiveMapRenderer.MouseOver ? OldWorld.Instance.ActiveMapRenderer.GridCoords :
-                    new Point(OldWorld.Instance.MainPlayer.ActiveCharacter.X, OldWorld.Instance.MainPlayer.ActiveCharacter.Y);
-
-                //in range if maximum coordinate difference is <= 2 away
-                bool inRange = Math.Abs(Math.Max(OldWorld.Instance.MainPlayer.ActiveCharacter.X - loc.X, OldWorld.Instance.MainPlayer.ActiveCharacter.Y - loc.Y)) <= 2;
-
-                if (m_itemData.Special == ItemSpecial.Lore)
+                var msgBox = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.ITEM_IS_LORE_ITEM, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                msgBox.ShowDialog();
+            }
+            else if (_currentMapStateProvider.JailMapID == _currentMapStateProvider.CurrentMapID)
+            {
+                var msgBox = _eoMessageBoxFactory.CreateMessageBox(
+                    EOResourceID.JAIL_WARNING_CANNOT_DROP_ITEMS,
+                    EOResourceID.STATUS_LABEL_TYPE_WARNING,
+                    EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                msgBox.ShowDialog();
+            }
+            else if (inRange)
+            {
+                if (inventoryItem.Amount > 1)
                 {
-                    EOMessageBox.Show(DialogResourceID.ITEM_IS_LORE_ITEM, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                }
-                else if (OldWorld.Instance.JailMap == OldWorld.Instance.MainPlayer.ActiveCharacter.CurrentMap)
-                {
-                    EOMessageBox.Show(OldWorld.GetString(EOResourceID.JAIL_WARNING_CANNOT_DROP_ITEMS),
-                        OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
-                        EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                }
-                else if (m_inventory.Amount > 1 && inRange)
-                {
-                    ItemTransferDialog dlg = new ItemTransferDialog(m_itemData.Name, ItemTransferDialog.TransferType.DropItems,
-                        m_inventory.Amount);
-                    dlg.DialogClosing += (sender, args) =>
+                    var transferDialog = _itemTransferDialogFactory.CreateItemTransferDialog(
+                        itemData.Name,
+                        ItemTransferDialog.TransferType.DropItems,
+                        inventoryItem.Amount,
+                        EOResourceID.DIALOG_TRANSFER_DROP);
+                    transferDialog.DialogClosing += (sender, e) =>
                     {
-                        if (args.Result == XNADialogResult.OK)
+                        if (e.Result == XNADialogResult.OK)
                         {
-                            //note: not sure of the actual limit. 10000 is arbitrary here
-                            if (dlg.SelectedAmount > 10000 && m_inventory.ItemID == 1 && !safetyCommentHasBeenShown)
-                                EOMessageBox.Show(DialogResourceID.DROP_MANY_GOLD_ON_GROUND, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader,
-                                    (o, e) => { safetyCommentHasBeenShown = true; });
-                            else if (!m_api.DropItem(m_inventory.ItemID, dlg.SelectedAmount, (byte)loc.X, (byte)loc.Y))
-                                ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
+                            if (inventoryItem.ItemID == 1 && transferDialog.SelectedAmount > 10000)
+                            {
+                                var warningMsg = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.DROP_MANY_GOLD_ON_GROUND, EODialogButtons.OkCancel);
+                                warningMsg.DialogClosing += (_, warningArgs) =>
+                                {
+                                    if (warningArgs.Result == XNADialogResult.OK)
+                                        _itemActions.DropItem(inventoryItem.ItemID, transferDialog.SelectedAmount, dropPoint);
+                                };
+                                warningMsg.ShowDialog();
+                            }
+                            else
+                            {
+                                _itemActions.DropItem(inventoryItem.ItemID, transferDialog.SelectedAmount, dropPoint);
+                            }
                         }
                     };
+                    transferDialog.ShowDialog();
                 }
-                else if (inRange)
+                else
                 {
-                    if (!m_api.DropItem(m_inventory.ItemID, 1, (byte)loc.X, (byte)loc.Y))
-                        ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
-                }
-                else //if (!inRange)
-                {
-                    EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_ITEM_DROP_OUT_OF_RANGE);
+                    _itemActions.DropItem(inventoryItem.ItemID, 1, dropPoint);
                 }
             }
-            */
+            else
+            {
+                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_ITEM_DROP_OUT_OF_RANGE);
+            }
         }
 
         public void JunkItem(EIFRecord itemData, IInventoryItem inventoryItem)
