@@ -305,14 +305,16 @@ namespace EndlessClient.HUD.Panels
                 ? inventory.Sections[_playerInfoProvider.LoggedInAccountName]
                 : new SortedList<string, string>();
 
+            var existing = section.Where(x => x.Key.Contains(_characterProvider.MainCharacter.Name)).Select(x => x.Key).ToList();
+            foreach (var key in existing)
+                section.Remove(key);
+
             foreach (var item in _childItems)
                 section[$"{_characterProvider.MainCharacter.Name}.{item.Slot}"] = $"{item.InventoryItem.ItemID}";
 
             inventory.Sections[_playerInfoProvider.LoggedInAccountName] = section;
 
             inventory.Save();
-
-            base.UnloadContent();
         }
 
         private void HandleItemDoubleClick(object sender, EIFRecord itemData)
