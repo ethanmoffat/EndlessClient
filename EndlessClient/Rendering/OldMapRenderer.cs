@@ -187,29 +187,6 @@ namespace EndlessClient.Rendering
             }
         }
 
-        public void OtherPlayerHeal(short ID, int healAmount, int pctHealth)
-        {
-            lock (_characterListLock)
-            {
-                OldCharacterRenderer rend = ID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID
-                    ? OldWorld.Instance.ActiveCharacterRenderer
-                    : _characterRenderers.Find(_rend => _rend.Character.ID == ID);
-
-                if (rend == null) return; //couldn't find other player :(
-
-                if (healAmount > 0)
-                {
-                    rend.Character.Stats.HP = (short) Math.Max(rend.Character.Stats.HP + healAmount, rend.Character.Stats.MaxHP);
-                    if (rend.Character == OldWorld.Instance.MainPlayer.ActiveCharacter)
-                    {
-                        //update health in UI
-                        EOGame.Instance.Hud.RefreshStats();
-                    }
-                    rend.SetDamageCounterValue(healAmount, pctHealth, true);
-                }
-            }
-        }
-
         public void PlayerCastSpellGroup(short fromPlayerID, short spellID, short spellHPgain, List<GroupSpellTarget> spellTargets)
         {
             lock (_characterListLock)

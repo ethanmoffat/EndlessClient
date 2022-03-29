@@ -412,8 +412,8 @@ namespace EndlessClient.Old
         public void Emote(Emote whichEmote)
         {
             if (this == OldWorld.Instance.MainPlayer.ActiveCharacter &&
-                whichEmote != EOLib.Net.API.Emote.LevelUp &&
-                whichEmote != EOLib.Net.API.Emote.Trade)
+                whichEmote != EOLib.Domain.Character.Emote.LevelUp &&
+                whichEmote != EOLib.Domain.Character.Emote.Trade)
             {
                 if (m_packetAPI.ReportEmote(whichEmote))
                     RenderData.SetEmote(whichEmote);

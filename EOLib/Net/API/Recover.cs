@@ -9,12 +9,10 @@ namespace EOLib.Net.API
     partial class PacketAPI
     {
         public event RecoverReplyEvent OnRecoverReply;
-        public event PlayerHealEvent OnPlayerHeal;
 
         private void _createRecoverMembers()
         {
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Recover, PacketAction.Reply), _handleRecoverReply, true);
-            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Recover, PacketAction.Agree), _handleRecoverAgree, true);
         }
 
         private void _handleRecoverReply(OldPacket pkt)
@@ -34,13 +32,6 @@ namespace EOLib.Net.API
 
                 OnRecoverReply(exp, karma, level, statpoints, skillpoints);
             }
-        }
-
-        private void _handleRecoverAgree(OldPacket pkt)
-        {
-            //when a heal item is used by another player
-            if (OnPlayerHeal != null)
-                OnPlayerHeal(pkt.GetShort(), pkt.GetInt(), pkt.GetChar()); //player id - hp gain - percent heal
         }
     }
 }

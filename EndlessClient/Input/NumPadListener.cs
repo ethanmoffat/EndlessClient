@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using EOLib.Net.API;
+using EOLib.Domain.Character;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 

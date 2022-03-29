@@ -51,7 +51,7 @@ namespace EOLib.PacketHandlers.Effects
                 var damageDealt = packet.ReadShort();
 
                 foreach (var notifier in _otherCharacterEventNotifiers)
-                    notifier.OtherCharacterTakeDamage(otherCharacterId, otherCharacterPercentHealth, damageDealt);
+                    notifier.OtherCharacterTakeDamage(otherCharacterId, otherCharacterPercentHealth, damageDealt, isHeal: false);
             }
 
             return true;

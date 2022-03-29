@@ -4,7 +4,7 @@ namespace EOLib.Domain.Notifiers
 {
     public interface IOtherCharacterEventNotifier
     {
-        void OtherCharacterTakeDamage(int characterID, int playerPercentHealth, int damageTaken);
+        void OtherCharacterTakeDamage(int characterID, int playerPercentHealth, int damageTaken, bool isHeal);
 
         void OtherCharacterSaySomething(int characterID, string message);
 
@@ -16,7 +16,7 @@ namespace EOLib.Domain.Notifiers
     [AutoMappedType]
     public class NoOpOtherCharacterEventNotifier : IOtherCharacterEventNotifier
     {
-        public void OtherCharacterTakeDamage(int characterID, int playerPercentHealth, int damageTaken) { }
+        public void OtherCharacterTakeDamage(int characterID, int playerPercentHealth, int damageTaken, bool isHeal) { }
 
         public void OtherCharacterSaySomething(int characterID, string message) { }
 

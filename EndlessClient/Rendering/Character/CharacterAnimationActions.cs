@@ -16,7 +16,7 @@ namespace EndlessClient.Rendering.Character
     [MappedType(BaseType = typeof(ICharacterAnimationActions))]
     [MappedType(BaseType = typeof(IOtherCharacterAnimationNotifier))]
     [MappedType(BaseType = typeof(IEffectNotifier))]
-    public class CharacterAnimationActions : ICharacterAnimationActions, IOtherCharacterAnimationNotifier, IEffectNotifier
+    public class CharacterAnimationActions : ICharacterAnimationActions, IOtherCharacterAnimationNotifier, IEffectNotifier, IEmoteNotifier
     {
         private readonly IHudControlProvider _hudControlProvider;
         private readonly ICharacterRepository _characterRepository;
@@ -109,7 +109,10 @@ namespace EndlessClient.Rendering.Character
 
         public void NotifyPotionEffect(short playerId, int effectId)
         {
-            _characterRendererProvider.CharacterRenderers[playerId].ShowPotionAnimation(effectId);
+            if (playerId == _characterRepository.MainCharacter.ID)
+                _characterRendererProvider.MainCharacterRenderer.MatchSome(cr => cr.ShowPotionAnimation(effectId));
+            else if (_characterRendererProvider.CharacterRenderers.ContainsKey(playerId))
+                _characterRendererProvider.CharacterRenderers[playerId].ShowPotionAnimation(effectId);
         }
 
         public void NotifyStartSpellCast(short playerId, short spellId)
@@ -208,6 +211,11 @@ namespace EndlessClient.Rendering.Character
 
                 });
             });
+        }
+
+        public void NotifyEmote(short playerId, Emote emote)
+        {
+            // todo: start emote animation
         }
 
         private ICharacterAnimator Animator => _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator);

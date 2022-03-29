@@ -144,7 +144,7 @@ namespace EOLib.PacketHandlers
                 _currentMapStateRepository.Characters[characterID] = updatedCharacter;
 
                 foreach (var notifier in _otherCharacterNotifiers)
-                    notifier.OtherCharacterTakeDamage(characterID, playerPercentHealth, damageTaken);
+                    notifier.OtherCharacterTakeDamage(characterID, playerPercentHealth, damageTaken, isHeal: false);
             }
             else
             {

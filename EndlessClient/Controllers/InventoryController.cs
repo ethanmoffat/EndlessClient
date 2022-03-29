@@ -101,7 +101,7 @@ namespace EndlessClient.Controllers
 
                 case ItemType.CureCurse:
                     var paperdollItems = _paperdollProvider.VisibleCharacterPaperdolls[_characterProvider.MainCharacter.ID].Paperdoll.Values;
-                    if (paperdollItems.Select(id => _eifFileProvider.EIFFile[id].Special).Any(s => s == ItemSpecial.Cursed))
+                    if (paperdollItems.Where(id => id > 0).Select(id => _eifFileProvider.EIFFile[id].Special).Any(s => s == ItemSpecial.Cursed))
                     {
                         var msgBox = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.ITEM_CURSE_REMOVE_PROMPT, EODialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader);
                         msgBox.DialogClosing += (o, e) =>
@@ -115,7 +115,7 @@ namespace EndlessClient.Controllers
                     }
                     break;
                 case ItemType.EffectPotion:
-                case ItemType.EXPReward:
+                case ItemType.EXPReward: // todo: EXPReward has not been tested
                     useItem = true;
                     break;
                 // Not implemented server - side

@@ -34,7 +34,6 @@ namespace EndlessClient.Old
 
             //recovery related
             m_packetAPI.OnRecoverReply += _recoverReply;
-            m_packetAPI.OnPlayerHeal += _playerHeal;
 
             m_packetAPI.OnMapMutation += _mapMutate;
 
@@ -133,11 +132,6 @@ namespace EndlessClient.Old
             OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.SkillPoints = skillpoints;
 
             m_game.Hud.RefreshStats();
-        }
-
-        private void _playerHeal(short playerid, int healamount, byte percenthealth)
-        {
-            OldWorld.Instance.ActiveMapRenderer.OtherPlayerHeal(playerid, healamount, percenthealth);
         }
 
         private void _mapMutate()
