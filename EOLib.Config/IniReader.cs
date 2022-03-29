@@ -68,6 +68,30 @@ namespace EOLib.Config
             return true;
         }
 
+        public void Save()
+        {
+            try
+            {
+                using (var sw = new StreamWriter(_filename))
+                {
+                    foreach (var section in _sections)
+                    {
+                        sw.WriteLine($"[{section.Key}]");
+
+                        foreach (var kvp in section.Value)
+                        {
+                            sw.WriteLine($"{kvp.Key}={kvp.Value}");
+                        }
+
+                        sw.WriteLine();
+                    }
+                }
+            }
+            catch (IOException)
+            {
+            }
+        }
+
         public bool GetValue(string section, string key, out string value)
         {
             value = null;

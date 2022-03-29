@@ -26,7 +26,6 @@ namespace EndlessClient.HUD.Controls
         private const int HUD_CONTROL_DRAW_ORDER = 101;
 
         private readonly OldChatRenderer chatRenderer;
-        private OldEOInventory inventory;
         private readonly OldEOPartyPanel m_party;
         private OldActiveSpells activeSpells;
 
@@ -95,7 +94,6 @@ namespace EndlessClient.HUD.Controls
 
             //the draw orders are adjusted for child items in the constructor.
             //calling SetParent will break this.
-            //inventory = new OldEOInventory(pnlInventory, m_packetAPI);
 
             //activeSpells = new OldActiveSpells(pnlActiveSpells, m_packetAPI);
             activeSpells.Initialize();
@@ -141,33 +139,8 @@ namespace EndlessClient.HUD.Controls
             //SetStatusLabelText(string.Format("[ {0} ] {1}", typeText, detail));
         }
 
-        public bool UpdateInventory(InventoryItem item)
-        {
-            if (item.Amount <= 0)
-                inventory.RemoveItem(item.ItemID);
-            else
-                return inventory.UpdateItem(item);
-            return true;
-        }
-        public bool IsInventoryDragging()
-        {
-            return !inventory.NoItemsDragging();
-        }
-        public bool InventoryFits(short id)
-        {
-            return inventory.ItemFits(id);
-        }
-        public bool ItemsFit(List<InventoryItem> newItems, List<InventoryItem> oldItems = null)
-        {
-            return inventory.ItemsFit(newItems, oldItems);
-        }
-        public void DisableEffectPotionUse() { inventory.DisableEffectPotions(); }
-        public void EnableEffectPotionUse() { inventory.EnableEffectPotions(); }
-
         public void RefreshStats()
         {
-            if(inventory != null)
-                inventory.UpdateWeightLabel();
             if (activeSpells != null)
                 activeSpells.RefreshTotalSkillPoints();
         }
@@ -194,7 +167,6 @@ namespace EndlessClient.HUD.Controls
             {
                 m_packetAPI.Dispose();
 
-                inventory.Dispose();
                 chatRenderer.Dispose();
 
                 m_expInfo.Close();

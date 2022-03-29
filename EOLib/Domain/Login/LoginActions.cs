@@ -3,11 +3,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutomaticTypeMapper;
 using EOLib.Domain.Character;
-using EOLib.Domain.Chat;
 using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
 using EOLib.Domain.Protocol;
-using EOLib.Localization;
 using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.FileTransfer;
@@ -35,14 +33,12 @@ namespace EOLib.Domain.Login
                             IPacketTranslator<IAccountLoginData> loginPacketTranslator,
                             IPacketTranslator<ILoginRequestGrantedData> loginRequestGrantedPacketTranslator,
                             IPacketTranslator<ILoginRequestCompletedData> loginRequestCompletedPacketTranslator,
-                            ILocalizedStringFinder localizedStringFinder,
                             ICharacterSelectorRepository characterSelectorRepository,
                             IPlayerInfoRepository playerInfoRepository,
                             ICharacterRepository characterRepository,
                             ICurrentMapStateRepository currentMapStateRepository,
                             ILoginFileChecksumRepository loginFileChecksumRepository,
                             INewsRepository newsRepository,
-                            IChatRepository chatRepository,
                             ICharacterInventoryRepository characterInventoryRepository,
                             IPaperdollRepository paperdollRepository)
         {
@@ -116,6 +112,15 @@ namespace EOLib.Domain.Login
             _playerInfoRepository.IsFirstTimePlayer = data.FirstTimePlayer;
             _currentMapStateRepository.CurrentMapID = data.MapID;
 
+            _paperdollRepository.VisibleCharacterPaperdolls[data.SessionID] = new PaperdollData()
+                .WithName(data.Name)
+                .WithTitle(data.Title)
+                .WithGuild(data.GuildName)
+                .WithRank(data.GuildRank)
+                .WithClass(data.ClassID)
+                .WithPlayerID(data.SessionID)
+                .WithPaperdoll(data.Paperdoll);
+
             _loginFileChecksumRepository.MapChecksum = data.MapRID.ToArray();
             _loginFileChecksumRepository.MapLength = data.MapLen;
 
@@ -171,8 +176,8 @@ namespace EOLib.Domain.Login
                 .WithStats(stats)
                 .WithRenderProperties(mainCharacter.RenderProperties);
 
-            _characterInventoryRepository.ItemInventory = data.CharacterItemInventory.ToList();
-            _characterInventoryRepository.SpellInventory = data.CharacterSpellInventory.ToList();
+            _characterInventoryRepository.ItemInventory = new HashSet<IInventoryItem>(data.CharacterItemInventory);
+            _characterInventoryRepository.SpellInventory = new HashSet<IInventorySpell>(data.CharacterSpellInventory);
 
             _currentMapStateRepository.Characters = data.MapCharacters.Except(new[] { mainCharacter }).ToDictionary(k => k.ID, v => v);
             _currentMapStateRepository.NPCs = new HashSet<INPC>(data.MapNPCs);

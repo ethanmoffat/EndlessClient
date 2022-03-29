@@ -34,6 +34,12 @@ namespace EndlessClient.HUD
                                _localizedStringFinder.GetString(text));
         }
 
+        public void SetStatusLabel(EOResourceID type, string text)
+        {
+            CheckStatusLabelType(type);
+            SetStatusLabelText(_localizedStringFinder.GetString(type), text);
+        }
+
         private void SetStatusLabelText(string type, string text, string extra = "")
         {
             _statusLabelTextRepository.StatusText = $"[ {type} ] {text}{extra}";

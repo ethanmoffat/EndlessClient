@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using AutomaticTypeMapper;
 using EOLib.Domain.Character;
@@ -93,10 +94,10 @@ namespace EOLib.Net.Translators
                 .WithNewStat(CharacterStat.Constituion, dispCon)
                 .WithNewStat(CharacterStat.Charisma, dispCha);
 
-            var paperDoll = new short[(int)EquipLocation.PAPERDOLL_MAX];
-            for (int i = 0; i < (int)EquipLocation.PAPERDOLL_MAX; ++i)
+            var paperDoll = new Dictionary<EquipLocation, short>();
+            for (var equipLocation = (EquipLocation)0; equipLocation < EquipLocation.PAPERDOLL_MAX; ++equipLocation)
             {
-                paperDoll[i] = packet.ReadShort();
+                paperDoll[equipLocation] = packet.ReadShort();
             }
 
             var guildRankNum = packet.ReadChar();

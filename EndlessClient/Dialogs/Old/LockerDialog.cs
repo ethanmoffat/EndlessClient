@@ -80,13 +80,13 @@ namespace EndlessClient.Dialogs.Old
 
         private void _removeItem(EIFRecord item, int amount)
         {
-            if (!EOGame.Instance.Hud.InventoryFits((short)item.ID))
-            {
-                EOMessageBox.Show(OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT),
-                    OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
-                    EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                return;
-            }
+            //if (!EOGame.Instance.Hud.InventoryFits((short)item.ID))
+            //{
+            //    EOMessageBox.Show(OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT),
+            //        OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
+            //        EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+            //    return;
+            //}
 
             if (OldWorld.Instance.MainPlayer.ActiveCharacter.Weight + item.Weight * amount > OldWorld.Instance.MainPlayer.ActiveCharacter.MaxWeight)
             {
@@ -103,16 +103,16 @@ namespace EndlessClient.Dialogs.Old
         public override void Update(GameTime gt)
         {
             if (!Game.IsActive) return;
-            if (EOGame.Instance.Hud.IsInventoryDragging())
-            {
-                shouldClickDrag = false;
-                SuppressParentClickDrag(true);
-            }
-            else
-            {
-                shouldClickDrag = true;
-                SuppressParentClickDrag(false);
-            }
+            //if (EOGame.Instance.Hud.IsInventoryDragging())
+            //{
+            //    shouldClickDrag = false;
+            //    SuppressParentClickDrag(true);
+            //}
+            //else
+            //{
+            //    shouldClickDrag = true;
+            //    SuppressParentClickDrag(false);
+            //}
 
             base.Update(gt);
         }

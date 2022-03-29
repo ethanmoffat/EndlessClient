@@ -98,8 +98,10 @@ namespace EOLib.PacketHandlers
                         .Match(some: invItem => invItem.WithAmount(itemUnequipped ? invItem.Amount + amount : amount),
                                none: () => new InventoryItem(itemId, amount));
 
-                    _characterInventoryRepository.ItemInventory.RemoveAll(x => x.ItemID == itemId);
-                    _characterInventoryRepository.ItemInventory.Add(updatedItem);
+                    _characterInventoryRepository.ItemInventory.RemoveWhere(x => x.ItemID == itemId);
+
+                    if (updatedItem.Amount > 0)
+                        _characterInventoryRepository.ItemInventory.Add(updatedItem);
                 }
                 else
                 {

@@ -16,6 +16,21 @@
         {
             return new InventorySpell(ID, newLevel);
         }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as InventorySpell;
+            if (other == null) return false;
+            return other.ID == ID && other.Level == Level;
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 1754760722;
+            hashCode = hashCode * -1521134295 + ID.GetHashCode();
+            hashCode = hashCode * -1521134295 + Level.GetHashCode();
+            return hashCode;
+        }
     }
 
     public interface IInventorySpell

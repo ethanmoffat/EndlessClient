@@ -199,16 +199,16 @@ namespace EndlessClient.Dialogs.Old
         {
             if (!Game.IsActive) return;
 
-            if (EOGame.Instance.Hud.IsInventoryDragging())
-            {
-                shouldClickDrag = false;
-                SuppressParentClickDrag(true);
-            }
-            else
-            {
-                shouldClickDrag = true;
-                SuppressParentClickDrag(false);
-            }
+            //if (EOGame.Instance.Hud.IsInventoryDragging())
+            //{
+            //    shouldClickDrag = false;
+            //    SuppressParentClickDrag(true);
+            //}
+            //else
+            //{
+            //    shouldClickDrag = true;
+            //    SuppressParentClickDrag(false);
+            //}
 
             base.Update(gt);
         }

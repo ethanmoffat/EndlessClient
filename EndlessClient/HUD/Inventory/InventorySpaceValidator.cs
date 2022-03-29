@@ -1,7 +1,9 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Map;
 using EOLib.IO;
+using EOLib.IO.Map;
 using EOLib.IO.Repositories;
+using Optional;
 
 namespace EndlessClient.HUD.Inventory
 {
@@ -9,10 +11,16 @@ namespace EndlessClient.HUD.Inventory
     public class InventorySpaceValidator : IInventorySpaceValidator
     {
         private readonly IEIFFileProvider _eifFileProvider;
+        private readonly IInventorySlotProvider _inventorySlotProvider;
+        private readonly IInventoryService _inventoryService;
 
-        public InventorySpaceValidator(IEIFFileProvider eifFileProvider)
+        public InventorySpaceValidator(IEIFFileProvider eifFileProvider,
+                                       IInventorySlotProvider inventorySlotProvider,
+                                       IInventoryService inventoryService)
         {
             _eifFileProvider = eifFileProvider;
+            _inventorySlotProvider = inventorySlotProvider;
+            _inventoryService = inventoryService;
         }
 
         public bool ItemFits(IItem item)
@@ -22,8 +30,9 @@ namespace EndlessClient.HUD.Inventory
 
         public bool ItemFits(ItemSize itemSize)
         {
-            // todo: inventory grid management
-            return true;
+            return _inventoryService
+                .GetNextOpenSlot((Matrix<bool>)_inventorySlotProvider.FilledSlots, itemSize, Option.None<int>())
+                .HasValue;
         }
     }
 
@@ -32,5 +41,7 @@ namespace EndlessClient.HUD.Inventory
         bool ItemFits(IItem item);
 
         bool ItemFits(ItemSize itemSize);
+
+        // todo: need "ItemsFit" method for trading
     }
 }

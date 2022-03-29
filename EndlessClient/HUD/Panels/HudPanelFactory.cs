@@ -2,14 +2,18 @@
 using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
+using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
+using EndlessClient.HUD.Inventory;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Services;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
+using EOLib.Domain.Item;
 using EOLib.Domain.Login;
 using EOLib.Graphics;
+using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.HUD.Panels
@@ -20,40 +24,70 @@ namespace EndlessClient.HUD.Panels
         private const int HUD_CONTROL_LAYER = 130;
 
         private readonly INativeGraphicsManager _nativeGraphicsManager;
+        private readonly IInGameDialogActions _inGameDialogActions;
+        private readonly ICharacterActions _characterActions;
         private readonly IContentProvider _contentProvider;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly INewsProvider _newsProvider;
         private readonly IChatProvider _chatProvider;
+        private readonly IPlayerInfoProvider _playerInfoProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly ICharacterInventoryProvider _characterInventoryProvider;
         private readonly IExperienceTableProvider _experienceTableProvider;
+        private readonly IPubFileProvider _pubFileProvider;
+        private readonly IPaperdollProvider _paperdollProvider;
+        private readonly IInventorySlotRepository _inventorySlotRepository;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly ITrainingController _trainingController;
         private readonly IFriendIgnoreListService _friendIgnoreListService;
+        private readonly IStatusLabelSetter _statusLabelSetter;
+        private readonly IItemStringService _itemStringService;
+        private readonly IItemNameColorService _itemNameColorService;
+        private readonly IInventoryService _inventoryService;
 
         public HudPanelFactory(INativeGraphicsManager nativeGraphicsManager,
+                               IInGameDialogActions inGameDialogActions,
+                               ICharacterActions characterActions,
                                IContentProvider contentProvider,
                                IHudControlProvider hudControlProvider,
                                INewsProvider newsProvider,
                                IChatProvider chatProvider,
+                               IPlayerInfoProvider playerInfoProvider,
                                ICharacterProvider characterProvider,
                                ICharacterInventoryProvider characterInventoryProvider,
                                IExperienceTableProvider experienceTableProvider,
+                               IPubFileProvider pubFileProvider,
+                               IPaperdollProvider paperdollProvider,
+                               IInventorySlotRepository inventorySlotRepository,
                                IEOMessageBoxFactory messageBoxFactory,
                                ITrainingController trainingController,
-                               IFriendIgnoreListService friendIgnoreListService)
+                               IFriendIgnoreListService friendIgnoreListService,
+                               IStatusLabelSetter statusLabelSetter,
+                               IItemStringService itemStringService,
+                               IItemNameColorService itemNameColorService,
+                               IInventoryService inventoryService)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
+            _inGameDialogActions = inGameDialogActions;
+            _characterActions = characterActions;
             _contentProvider = contentProvider;
             _hudControlProvider = hudControlProvider;
             _newsProvider = newsProvider;
             _chatProvider = chatProvider;
+            _playerInfoProvider = playerInfoProvider;
             _characterProvider = characterProvider;
             _characterInventoryProvider = characterInventoryProvider;
             _experienceTableProvider = experienceTableProvider;
+            _pubFileProvider = pubFileProvider;
+            _paperdollProvider = paperdollProvider;
+            _inventorySlotRepository = inventorySlotRepository;
             _messageBoxFactory = messageBoxFactory;
             _trainingController = trainingController;
             _friendIgnoreListService = friendIgnoreListService;
+            _statusLabelSetter = statusLabelSetter;
+            _itemStringService = itemStringService;
+            _itemNameColorService = itemNameColorService;
+            _inventoryService = inventoryService;
         }
 
         public NewsPanel CreateNewsPanel()
@@ -68,7 +102,19 @@ namespace EndlessClient.HUD.Panels
 
         public InventoryPanel CreateInventoryPanel()
         {
-            return new InventoryPanel(_nativeGraphicsManager) { DrawOrder = HUD_CONTROL_LAYER };
+            return new InventoryPanel(_nativeGraphicsManager,
+                _inGameDialogActions,
+                _characterActions,
+                _statusLabelSetter,
+                _itemStringService,
+                _itemNameColorService,
+                _inventoryService,
+                _inventorySlotRepository,
+                _playerInfoProvider,
+                _characterProvider,
+                _paperdollProvider,
+                _characterInventoryProvider,
+                _pubFileProvider) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public ActiveSpellsPanel CreateActiveSpellsPanel()

@@ -93,28 +93,28 @@ namespace EndlessClient.Dialogs.Old
                         OldListDialogItem sender = o as OldListDialogItem;
                         if (sender == null) return;
 
-                        if (!EOGame.Instance.Hud.InventoryFits(sender.ID))
-                        {
-                            string _message = OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
-                            string _caption = OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING);
-                            EOMessageBox.Show(_message, _caption, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                            ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
-                        }
-                        else if (rec.Weight * item.Amount + OldWorld.Instance.MainPlayer.ActiveCharacter.Weight >
-                                 OldWorld.Instance.MainPlayer.ActiveCharacter.MaxWeight)
-                        {
-                            EOMessageBox.Show(OldWorld.GetString(EOResourceID.DIALOG_ITS_TOO_HEAVY_WEIGHT),
-                                OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
-                                EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                        }
-                        else
-                        {
-                            if (!m_api.ChestTakeItem(CurrentChestX, CurrentChestY, sender.ID))
-                            {
-                                Close();
-                                EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-                            }
-                        }
+                        //if (!EOGame.Instance.Hud.InventoryFits(sender.ID))
+                        //{
+                        //    string _message = OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
+                        //    string _caption = OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING);
+                        //    EOMessageBox.Show(_message, _caption, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                        //    ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
+                        //}
+                        //else if (rec.Weight * item.Amount + OldWorld.Instance.MainPlayer.ActiveCharacter.Weight >
+                        //         OldWorld.Instance.MainPlayer.ActiveCharacter.MaxWeight)
+                        //{
+                        //    EOMessageBox.Show(OldWorld.GetString(EOResourceID.DIALOG_ITS_TOO_HEAVY_WEIGHT),
+                        //        OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
+                        //        EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                        //}
+                        //else
+                        //{
+                        //    if (!m_api.ChestTakeItem(CurrentChestX, CurrentChestY, sender.ID))
+                        //    {
+                        //        Close();
+                        //        EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+                        //    }
+                        //}
                     };
                 }
             }
@@ -141,16 +141,16 @@ namespace EndlessClient.Dialogs.Old
         {
             if (!Game.IsActive) return;
 
-            if (EOGame.Instance.Hud.IsInventoryDragging())
-            {
-                shouldClickDrag = false;
-                SuppressParentClickDrag(true);
-            }
-            else
-            {
-                shouldClickDrag = true;
-                SuppressParentClickDrag(false);
-            }
+            //if (EOGame.Instance.Hud.IsInventoryDragging())
+            //{
+            //    shouldClickDrag = false;
+            //    SuppressParentClickDrag(true);
+            //}
+            //else
+            //{
+            //    shouldClickDrag = true;
+            //    SuppressParentClickDrag(false);
+            //}
 
             base.Update(gt);
         }

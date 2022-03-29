@@ -6,7 +6,7 @@ namespace EOLib.IO.Map
 {
     public class Matrix<T> : IReadOnlyMatrix<T>
     {
-        private static readonly Matrix<T> _empty = new Matrix<T>(0, 0);
+        private static readonly Matrix<T> _empty = new Matrix<T>(new T[0,0]);
         public static Matrix<T> Empty => _empty;
 
         private readonly T[,] _arr;
@@ -16,22 +16,22 @@ namespace EOLib.IO.Map
         public int Rows { get; }
         public int Cols { get; }
 
-        private Matrix(int rows, int cols)
+        private Matrix(T[,] other)
         {
-            Rows = rows;
-            Cols = cols;
-            _arr = new T[rows, cols];
+            Rows = other.GetLength(0);
+            Cols = other.GetLength(1);
+            _arr = other;
         }
 
         public Matrix(int rows, int cols, T defaultValue)
-            : this(rows, cols)
+            : this(new T[rows, cols])
         {
             _default = defaultValue;
             Fill(defaultValue);
         } 
 
         public Matrix(Matrix<T> other)
-            : this(other.Rows, other.Cols)
+            : this(new T[other.Rows, other.Cols])
         {
             for (int row = 0; row < other.Rows; ++row)
                 for (int col = 0; col < other.Cols; ++col)
@@ -70,16 +70,12 @@ namespace EOLib.IO.Map
 
         public static implicit operator T[,](Matrix<T> array)
         {
-            var ret = new T[array.Rows, array.Cols];
-            Array.Copy(array._arr, ret, ret.Length);
-            return ret;
+            return array._arr;
         }
 
         public static implicit operator Matrix<T>(T[,] array)
         {
-            var ret = new Matrix<T>(array.GetLength(0), array.GetLength(1));
-            Array.Copy(array, ret._arr, array.Length);
-            return ret;
+            return new Matrix<T>(array);
         }
 
         public IEnumerator<IList<T>> GetEnumerator()
