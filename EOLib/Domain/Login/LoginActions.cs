@@ -112,13 +112,13 @@ namespace EOLib.Domain.Login
             _playerInfoRepository.IsFirstTimePlayer = data.FirstTimePlayer;
             _currentMapStateRepository.CurrentMapID = data.MapID;
 
-            _paperdollRepository.VisibleCharacterPaperdolls[data.PlayerID] = new PaperdollData()
+            _paperdollRepository.VisibleCharacterPaperdolls[data.SessionID] = new PaperdollData()
                 .WithName(data.Name)
                 .WithTitle(data.Title)
                 .WithGuild(data.GuildName)
                 .WithRank(data.GuildRank)
                 .WithClass(data.ClassID)
-                .WithPlayerID(data.PlayerID)
+                .WithPlayerID(data.SessionID)
                 .WithPaperdoll(data.Paperdoll);
 
             _loginFileChecksumRepository.MapChecksum = data.MapRID.ToArray();
