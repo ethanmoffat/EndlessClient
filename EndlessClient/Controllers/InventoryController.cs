@@ -25,11 +25,11 @@ namespace EndlessClient.Controllers
     {
         private readonly IItemActions _itemActions;
         private readonly IInGameDialogActions _inGameDialogActions;
+        private readonly IItemEquipValidator _itemEquipValidator;
+        private readonly IItemDropValidator _itemDropValidator;
         private readonly ICharacterProvider _characterProvider;
         private readonly IPaperdollProvider _paperdollProvider;
-        private readonly IPubFileProvider _pubFileProvider;
         private readonly IHudControlProvider _hudControlProvider;
-        private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IEIFFileProvider _eifFileProvider;
         private readonly IActiveDialogProvider _activeDialogProvider;
@@ -39,11 +39,11 @@ namespace EndlessClient.Controllers
 
         public InventoryController(IItemActions itemActions,
                                    IInGameDialogActions inGameDialogActions,
+                                   IItemEquipValidator itemEquipValidator,
+                                   IItemDropValidator itemDropValidator,
                                    ICharacterProvider characterProvider,
                                    IPaperdollProvider paperdollProvider,
-                                   IPubFileProvider pubFileProvider,
                                    IHudControlProvider hudControlProvider,
-                                   ICurrentMapStateProvider currentMapStateProvider,
                                    ICurrentMapProvider currentMapProvider,
                                    IEIFFileProvider eifFileProvider,
                                    IActiveDialogProvider activeDialogProvider,
@@ -53,11 +53,11 @@ namespace EndlessClient.Controllers
         {
             _itemActions = itemActions;
             _inGameDialogActions = inGameDialogActions;
+            _itemEquipValidator = itemEquipValidator;
+            _itemDropValidator = itemDropValidator;
             _characterProvider = characterProvider;
             _paperdollProvider = paperdollProvider;
-            _pubFileProvider = pubFileProvider;
             _hudControlProvider = hudControlProvider;
-            _currentMapStateProvider = currentMapStateProvider;
             _currentMapProvider = currentMapProvider;
             _eifFileProvider = eifFileProvider;
             _activeDialogProvider = activeDialogProvider;
@@ -93,11 +93,6 @@ namespace EndlessClient.Controllers
 
                     useItem = true;
                     break;
-                case ItemType.Heal:
-                case ItemType.HairDye:
-                case ItemType.Beer:
-                    useItem = true;
-                    break;
 
                 case ItemType.CureCurse:
                     var paperdollItems = _paperdollProvider.VisibleCharacterPaperdolls[_characterProvider.MainCharacter.ID].Paperdoll.Values;
@@ -114,10 +109,15 @@ namespace EndlessClient.Controllers
                         msgBox.ShowDialog();
                     }
                     break;
+
+                case ItemType.Heal:
+                case ItemType.HairDye:
+                case ItemType.Beer:
                 case ItemType.EffectPotion:
                 case ItemType.EXPReward: // todo: EXPReward has not been tested
                     useItem = true;
                     break;
+
                 // Not implemented server - side
                 case ItemType.SkillReward:
                 case ItemType.StatReward:
@@ -132,81 +132,31 @@ namespace EndlessClient.Controllers
 
         public void EquipItem(EIFRecord itemData)
         {
-            if (itemData.Type < ItemType.Weapon || itemData.Type > ItemType.Bracer)
-                throw new ArgumentException("Item is not equippable", nameof(itemData));
-
-            // todo: move validation logic to validator class
             var c = _characterProvider.MainCharacter;
-            if (!_paperdollProvider.VisibleCharacterPaperdolls.ContainsKey(c.ID))
+            var (validationResult, detail, isAlternateEquipLocation) = _itemEquipValidator.ValidateItemEquip(c, itemData);
+
+            switch (validationResult)
             {
-                // emulate client login bug: when the paperdoll doesn't exist, show an "already equipped" message
-                // see: https://eoserv.net/bugs/view_bug/441
-                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_EQUIP_TYPE_ALREADY_EQUIPPED);
-                return;
-            }
-
-            var isAlternateEquipLocation = false;
-
-            var paperdoll = _paperdollProvider.VisibleCharacterPaperdolls[c.ID].Paperdoll;
-            var equipLocation = itemData.GetEquipLocation();
-
-            switch (itemData.Type)
-            {
-                case ItemType.Armlet:
-                case ItemType.Bracer:
-                case ItemType.Ring:
-                    {
-                        if (paperdoll[equipLocation] != 0)
-                        {
-                            isAlternateEquipLocation = true;
-                            if (paperdoll[equipLocation + 1] != 0)
-                            {
-                                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_EQUIP_TYPE_ALREADY_EQUIPPED);
-                                return;
-                            }
-                        }
-                    }
+                case ItemEquipResult.NotEquippable:
+                    throw new ArgumentException("Item is not equippable", nameof(itemData));
+                case ItemEquipResult.AlreadyEquipped:
+                    _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_EQUIP_TYPE_ALREADY_EQUIPPED);
                     break;
-                case ItemType.Armor:
-                    {
-                        if (c.RenderProperties.Gender != itemData.Gender)
-                        {
-                            _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_EQUIP_DOES_NOT_FIT_GENDER);
-                            return;
-                        }
-                    }
+                case ItemEquipResult.WrongGender:
+                    _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_EQUIP_DOES_NOT_FIT_GENDER);
+                    break;
+                case ItemEquipResult.StatRequirementNotMet:
+                    _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION,
+                        EOResourceID.STATUS_LABEL_ITEM_EQUIP_THIS_ITEM_REQUIRES, detail);
+                    break;
+                case ItemEquipResult.ClassRequirementNotMet:
+                    _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION,
+                        EOResourceID.STATUS_LABEL_ITEM_EQUIP_CAN_ONLY_BE_USED_BY, detail);
+                    break;
+                case ItemEquipResult.Ok:
+                    _itemActions.EquipItem((short)itemData.ID, isAlternateEquipLocation);
                     break;
             }
-
-            var reqs = new int[6];
-            var reqNames = new[] { "STR", "INT", "WIS", "AGI", "CON", "CHA" };
-            if ((reqs[0] = itemData.StrReq) > c.Stats[CharacterStat.Strength] || (reqs[1] = itemData.IntReq) > c.Stats[CharacterStat.Intelligence]
-                || (reqs[2] = itemData.WisReq) > c.Stats[CharacterStat.Wisdom] || (reqs[3] = itemData.AgiReq) > c.Stats[CharacterStat.Agility]
-                || (reqs[4] = itemData.ConReq) > c.Stats[CharacterStat.Constituion] || (reqs[5] = itemData.ChaReq) > c.Stats[CharacterStat.Charisma])
-            {
-                var req = reqs.Select((i, n) => new { Req = n, Ndx = i }).First(x => x.Req > 0);
-
-                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION,
-                    EOResourceID.STATUS_LABEL_ITEM_EQUIP_THIS_ITEM_REQUIRES,
-                    $" {reqs[req.Ndx]} {reqNames[req.Ndx]}");
-                return;
-            }
-
-            if (itemData.ClassReq > 0 && itemData.ClassReq != c.ClassID)
-            {
-                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION,
-                    EOResourceID.STATUS_LABEL_ITEM_EQUIP_CAN_ONLY_BE_USED_BY,
-                    _pubFileProvider.ECFFile[itemData.ClassReq].Name);
-                return;
-            }
-
-            if (paperdoll[equipLocation] != 0 && !isAlternateEquipLocation)
-            {
-                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_EQUIP_TYPE_ALREADY_EQUIPPED);
-                return;
-            }
-
-            _itemActions.EquipItem((short)itemData.ID, isAlternateEquipLocation);
         }
 
         public void UnequipItem(EquipLocation equipLocation)
@@ -219,7 +169,7 @@ namespace EndlessClient.Controllers
         public void DropItem(EIFRecord itemData, IInventoryItem inventoryItem)
         {
             var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
-            if (_activeDialogProvider.ActiveDialogs.Any() && mapRenderer.MouseOver)
+            if (_activeDialogProvider.ActiveDialogs.Any(x => x.HasValue) && mapRenderer.MouseOver)
                 return;
 
             var rp = _characterProvider.MainCharacter.RenderProperties;
@@ -227,15 +177,14 @@ namespace EndlessClient.Controllers
                 ? mapRenderer.GridCoordinates
                 : new MapCoordinate(rp.MapX, rp.MapY);
 
-            var inRange = Math.Max(Math.Abs(rp.MapX - dropPoint.X), Math.Abs(rp.MapY - dropPoint.Y)) <= 2;
+            var validationResult = _itemDropValidator.ValidateItemDrop(_characterProvider.MainCharacter, inventoryItem, dropPoint);
 
-            // todo: move validation logic to validator class
-            if (itemData.Special == ItemSpecial.Lore)
+            if (validationResult == ItemDropResult.Lore)
             {
                 var msgBox = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.ITEM_IS_LORE_ITEM, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                 msgBox.ShowDialog();
             }
-            else if (_currentMapStateProvider.JailMapID == _currentMapStateProvider.CurrentMapID)
+            else if (validationResult == ItemDropResult.Jail)
             {
                 var msgBox = _eoMessageBoxFactory.CreateMessageBox(
                     EOResourceID.JAIL_WARNING_CANNOT_DROP_ITEMS,
@@ -243,7 +192,7 @@ namespace EndlessClient.Controllers
                     EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                 msgBox.ShowDialog();
             }
-            else if (inRange)
+            else if (validationResult == ItemDropResult.Ok)
             {
                 if (inventoryItem.Amount > 1)
                 {
@@ -279,7 +228,7 @@ namespace EndlessClient.Controllers
                     _itemActions.DropItem(inventoryItem.ItemID, 1, dropPoint);
                 }
             }
-            else
+            else if (validationResult == ItemDropResult.TooFar)
             {
                 _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_ITEM_DROP_OUT_OF_RANGE);
             }
