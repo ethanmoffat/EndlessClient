@@ -32,18 +32,22 @@ namespace EOLib.PacketHandlers
             var playerID = packet.ReadShort();
             var direction = (EODirection)packet.ReadChar();
 
-            if (!_currentMapStateRepository.Characters.ContainsKey(playerID))
-                return false;
-
-            var character = _currentMapStateRepository.Characters[playerID];
-            if (character.RenderProperties.Direction != direction)
+            if (_currentMapStateRepository.Characters.ContainsKey(playerID))
             {
-                var renderProperties = character.RenderProperties.WithDirection(direction);
-                _currentMapStateRepository.Characters[playerID] = character.WithRenderProperties(renderProperties);
-            }
+                var character = _currentMapStateRepository.Characters[playerID];
+                if (character.RenderProperties.Direction != direction)
+                {
+                    var renderProperties = character.RenderProperties.WithDirection(direction);
+                    _currentMapStateRepository.Characters[playerID] = character.WithRenderProperties(renderProperties);
+                }
 
-            foreach (var notifier in _otherCharacterAnimationNotifiers)
-                notifier.StartOtherCharacterAttackAnimation(playerID);
+                foreach (var notifier in _otherCharacterAnimationNotifiers)
+                    notifier.StartOtherCharacterAttackAnimation(playerID);
+            }
+            else
+            {
+                _currentMapStateRepository.UnknownPlayerIDs.Add(playerID);
+            }
 
             return true;
         }

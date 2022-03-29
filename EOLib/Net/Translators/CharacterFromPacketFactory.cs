@@ -27,7 +27,7 @@ namespace EOLib.Net.Translators
             var yLoc = packet.ReadShort();
 
             var direction = (EODirection)packet.ReadChar();
-            packet.ReadChar(); //value is always 6? Unknown use
+            var classID = packet.ReadChar();
             var guildTag = packet.ReadString(3);
 
             var level = packet.ReadChar();
@@ -78,6 +78,7 @@ namespace EOLib.Net.Translators
             return new Character()
                 .WithName(name)
                 .WithID(id)
+                .WithClassID(classID)
                 .WithMapID(mapID)
                 .WithGuildTag(guildTag)
                 .WithStats(stats)

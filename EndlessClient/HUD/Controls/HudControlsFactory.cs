@@ -10,6 +10,7 @@ using EndlessClient.HUD.Chat;
 using EndlessClient.HUD.Panels;
 using EndlessClient.HUD.StatusBars;
 using EndlessClient.Input;
+using EndlessClient.Network;
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
@@ -19,6 +20,7 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.Localization;
+using EOLib.Net.Communication;
 using Microsoft.Xna.Framework;
 using XNAControls;
 
@@ -53,6 +55,7 @@ namespace EndlessClient.HUD.Controls
         private readonly IPathFinder _pathFinder;
         private readonly ICharacterActions _characterActions;
         private readonly IWalkValidationActions _walkValidationActions;
+        private readonly IPacketSendService _packetSendService;
         private IChatController _chatController;
 
         public HudControlsFactory(IHudButtonController hudButtonController,
@@ -76,7 +79,8 @@ namespace EndlessClient.HUD.Controls
                                   IArrowKeyController arrowKeyController,
                                   IPathFinder pathFinder,
                                   ICharacterActions characterActions,
-                                  IWalkValidationActions walkValidationActions)
+                                  IWalkValidationActions walkValidationActions,
+                                  IPacketSendService packetSendService)
         {
             _hudButtonController = hudButtonController;
             _hudPanelFactory = hudPanelFactory;
@@ -100,6 +104,7 @@ namespace EndlessClient.HUD.Controls
             _pathFinder = pathFinder;
             _characterActions = characterActions;
             _walkValidationActions = walkValidationActions;
+            _packetSendService = packetSendService;
         }
 
         public void InjectChatController(IChatController chatController)
@@ -158,6 +163,7 @@ namespace EndlessClient.HUD.Controls
                 {HudControlIdentifier.UserInputHandler, CreateUserInputHandler()},
                 {HudControlIdentifier.CharacterAnimator, CreateCharacterAnimator()},
                 {HudControlIdentifier.NPCAnimator, CreateNPCAnimator()},
+                {HudControlIdentifier.UnknownEntitiesRequester, CreateUnknownEntitiesRequester()},
                 {HudControlIdentifier.PreviousUserInputTracker, CreatePreviousUserInputTracker()}
             };
 
@@ -357,6 +363,11 @@ namespace EndlessClient.HUD.Controls
         private UsageTrackerComponent CreateUsageTracker()
         {
             return new UsageTrackerComponent(_endlessGameProvider, _characterRepository);
+        }
+
+        private UnknownEntitiesRequester CreateUnknownEntitiesRequester()
+        {
+            return new UnknownEntitiesRequester(_endlessGameProvider, _currentMapStateRepository, _packetSendService);
         }
 
         private StatusBarLabel CreateStatusLabel()

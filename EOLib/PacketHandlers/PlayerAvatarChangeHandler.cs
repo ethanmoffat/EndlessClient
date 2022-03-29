@@ -46,7 +46,8 @@ namespace EOLib.PacketHandlers
             }
             else
             {
-                return false;
+                _currentMapStateRepository.UnknownPlayerIDs.Add(playerID);
+                return true;
             }
 
             var currentRenderProps = currentCharacter.RenderProperties;
