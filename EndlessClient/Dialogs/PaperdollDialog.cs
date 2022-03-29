@@ -189,7 +189,10 @@ namespace EndlessClient.Dialogs
         {
             _name.Text = Capitalize(paperdollData.Name);
             _home.Text = Capitalize(paperdollData.Home);
-            _class.Text = Capitalize(_pubFileProvider.ECFFile[paperdollData.Class].Name);
+
+            paperdollData.Class.SomeWhen(x => x != 0)
+                .MatchSome(classId => _class.Text = Capitalize(_pubFileProvider.ECFFile[classId].Name));
+
             _partner.Text = Capitalize(paperdollData.Partner);
             _title.Text = Capitalize(paperdollData.Title);
             _guild.Text = Capitalize(paperdollData.Guild);
