@@ -11,6 +11,7 @@ using EOLib.Domain.Login;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.IO.Extensions;
+using EOLib.IO.Map;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
@@ -229,6 +230,9 @@ namespace EndlessClient.HUD.Panels
                 _drop.OnMouseEnter -= MouseOverButton;
                 _junk.OnMouseEnter -= MouseOverButton;
                 Game.Exiting -= SaveInventoryFile;
+
+                // todo: IResettable should work but it doesn't
+                _inventorySlotRepository.FilledSlots = new Matrix<bool>(InventoryRows, InventoryRowSlots, false);
 
                 SaveInventoryFile(null, EventArgs.Empty);
             }
