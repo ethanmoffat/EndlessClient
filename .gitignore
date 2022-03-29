@@ -259,12 +259,5 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
-# Ignore HotDog's client
-Endless Online V2/
-
-state tree.txt
-bin/
-bin-peloader/
-bin-xnacontrols/
-.idea.EndlessClient/
 .vs/
+launchSettings.json

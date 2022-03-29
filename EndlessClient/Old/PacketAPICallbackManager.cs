@@ -32,9 +32,6 @@ namespace EndlessClient.Old
             m_packetAPI.OnChestAddItem += _chestAddItem;
             m_packetAPI.OnChestGetItem += _chestGetItem;
 
-            //recovery related
-            m_packetAPI.OnRecoverReply += _recoverReply;
-
             m_packetAPI.OnMapMutation += _mapMutate;
 
             //npc related
@@ -118,19 +115,6 @@ namespace EndlessClient.Old
         {
             //OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight, maxWeight, true);
             ChestDialog.Instance.InitializeItems(data.Items);
-            m_game.Hud.RefreshStats();
-        }
-
-        private void _recoverReply(int exp, short karma, byte level, short statpoints, short skillpoints)
-        {
-            OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.Experience = exp;
-            OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.Karma = karma;
-            if (level > 0)
-                OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.Level = level;
-
-            OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.StatPoints = statpoints;
-            OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.SkillPoints = skillpoints;
-
             m_game.Hud.RefreshStats();
         }
 
