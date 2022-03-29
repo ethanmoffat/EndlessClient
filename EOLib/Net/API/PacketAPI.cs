@@ -24,7 +24,6 @@ namespace EOLib.Net.API
             _createChestMembers();
             _createEmoteMembers();
             _createInitMembers();
-            _createItemMembers();
             _createLockerMembers();
             _createMessageMembers();
             _createMusicMembers();

@@ -314,7 +314,7 @@ namespace EOBot
         private async Task JunkItem(IItem item)
         {
             ConsoleHelper.WriteMessage(ConsoleHelper.Type.JunkItem, $"{item.Amount,7} - {_itemData.Single(x => x.ID == item.ItemID).Name}");
-            await TrySend(() => _itemActions.JunkItem(item));
+            await TrySend(() => _itemActions.JunkItem(item.ItemID, item.Amount));
             await Task.Delay(TimeSpan.FromMilliseconds(ATTACK_BACKOFF_MS));
         }
 

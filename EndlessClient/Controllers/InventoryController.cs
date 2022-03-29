@@ -30,6 +30,9 @@ namespace EndlessClient.Controllers
         private readonly IPubFileProvider _pubFileProvider;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
+        private readonly ICurrentMapProvider _currentMapProvider;
+        private readonly IEIFFileProvider _eifFileProvider;
+        private readonly IActiveDialogProvider _activeDialogProvider;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IItemTransferDialogFactory _itemTransferDialogFactory;
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
@@ -41,6 +44,9 @@ namespace EndlessClient.Controllers
                                    IPubFileProvider pubFileProvider,
                                    IHudControlProvider hudControlProvider,
                                    ICurrentMapStateProvider currentMapStateProvider,
+                                   ICurrentMapProvider currentMapProvider,
+                                   IEIFFileProvider eifFileProvider,
+                                   IActiveDialogProvider activeDialogProvider,
                                    IStatusLabelSetter statusLabelSetter,
                                    IItemTransferDialogFactory itemTransferDialogFactory,
                                    IEOMessageBoxFactory eoMessageBoxFactory)
@@ -52,6 +58,9 @@ namespace EndlessClient.Controllers
             _pubFileProvider = pubFileProvider;
             _hudControlProvider = hudControlProvider;
             _currentMapStateProvider = currentMapStateProvider;
+            _currentMapProvider = currentMapProvider;
+            _eifFileProvider = eifFileProvider;
+            _activeDialogProvider = activeDialogProvider;
             _statusLabelSetter = statusLabelSetter;
             _itemTransferDialogFactory = itemTransferDialogFactory;
             _eoMessageBoxFactory = eoMessageBoxFactory;
@@ -65,56 +74,60 @@ namespace EndlessClient.Controllers
 
         public void UseItem(EIFRecord record)
         {
+            var useItem = false;
+
+            var character = _characterProvider.MainCharacter;
+
             switch (record.Type)
             {
                 //usable items
                 case ItemType.Teleport:
-                    //if (!OldWorld.Instance.ActiveMapRenderer.MapRef.Properties.CanScroll)
-                    //{
-                    //    EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_NOTHING_HAPPENED);
-                    //    break;
-                    //}
-                    //if (m_itemData.ScrollMap == OldWorld.Instance.MainPlayer.ActiveCharacter.CurrentMap &&
-                    //    m_itemData.ScrollX == OldWorld.Instance.MainPlayer.ActiveCharacter.X &&
-                    //    m_itemData.ScrollY == OldWorld.Instance.MainPlayer.ActiveCharacter.Y)
-                    break; //already there - no need to scroll!
-                           //useItem = true;
+                    if (!_currentMapProvider.CurrentMap.Properties.CanScroll)
+                    {
+                        _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_NOTHING_HAPPENED);
+                        break;
+                    }
+
+                    if (record.ScrollMap == character.MapID && record.ScrollX == character.RenderProperties.MapX && record.ScrollY == character.RenderProperties.MapY)
+                        break;
+
+                    useItem = true;
                     break;
                 case ItemType.Heal:
                 case ItemType.HairDye:
                 case ItemType.Beer:
-                    //useItem = true;
+                    useItem = true;
                     break;
+
                 case ItemType.CureCurse:
-                    //note: don't actually set the useItem bool here. Call API.UseItem if the dialog result is OK.
-                    //if (c.PaperDoll.Select(id => OldWorld.Instance.EIF[id])
-                    //               .Any(rec => rec.Special == ItemSpecial.Cursed))
-                    //{
-                    //    EOMessageBox.Show(DialogResourceID.ITEM_CURSE_REMOVE_PROMPT, EODialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
-                    //        (o, e) =>
-                    //        {
-                    //            //if (e.Result == XNADialogResult.OK && !m_api.UseItem((short)m_itemData.ID))
-                    //            //{
-                    //            //    ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
-                    //            //}
-                    //        });
-                    //}
-                    break;
-                case ItemType.EXPReward:
-                    //useItem = true;
+                    var paperdollItems = _paperdollProvider.VisibleCharacterPaperdolls[_characterProvider.MainCharacter.ID].Paperdoll.Values;
+                    if (paperdollItems.Select(id => _eifFileProvider.EIFFile[id].Special).Any(s => s == ItemSpecial.Cursed))
+                    {
+                        var msgBox = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.ITEM_CURSE_REMOVE_PROMPT, EODialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader);
+                        msgBox.DialogClosing += (o, e) =>
+                        {
+                            if (e.Result == XNADialogResult.OK)
+                            {
+                                _itemActions.UseItem((short)record.ID);
+                            }
+                        };
+                        msgBox.ShowDialog();
+                    }
                     break;
                 case ItemType.EffectPotion:
-                    //useItem = true;
+                case ItemType.EXPReward:
+                    useItem = true;
                     break;
-                    //Not implemented server-side
-                    //case ItemType.SkillReward:
-                    //    break;
-                    //case ItemType.StatReward:
-                    //    break;
+                // Not implemented server - side
+                case ItemType.SkillReward:
+                case ItemType.StatReward:
+                    break;
             }
 
-            //if (useItem && !m_api.UseItem((short)m_itemData.ID))
-            //    ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
+            if (useItem)
+            {
+                _itemActions.UseItem((short)record.ID);
+            }
         }
 
         public void EquipItem(EIFRecord itemData)
@@ -205,14 +218,11 @@ namespace EndlessClient.Controllers
 
         public void DropItem(EIFRecord itemData, IInventoryItem inventoryItem)
         {
-            /*
-            if (((OldEOInventory)parent).IsOverDrop() || (OldWorld.Instance.ActiveMapRenderer.MouseOver
-                //&& ChestDialog.Instance == null && EOPaperdollDialog.Instance == null && LockerDialog.Instance == null
-                && BankAccountDialog.Instance == null && TradeDialog.Instance == null))*/
+            var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
+            if (_activeDialogProvider.ActiveDialogs.Any() && mapRenderer.MouseOver)
+                return;
 
             var rp = _characterProvider.MainCharacter.RenderProperties;
-
-            var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
             var dropPoint = mapRenderer.MouseOver
                 ? mapRenderer.GridCoordinates
                 : new MapCoordinate(rp.MapX, rp.MapY);

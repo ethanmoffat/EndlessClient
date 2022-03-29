@@ -36,9 +36,6 @@ namespace EndlessClient.Old
             m_packetAPI.OnRecoverReply += _recoverReply;
             m_packetAPI.OnPlayerHeal += _playerHeal;
 
-            //item related
-            m_packetAPI.OnItemChange += _itemChange;
-
             m_packetAPI.OnMapMutation += _mapMutate;
 
             //npc related
@@ -141,12 +138,6 @@ namespace EndlessClient.Old
         private void _playerHeal(short playerid, int healamount, byte percenthealth)
         {
             OldWorld.Instance.ActiveMapRenderer.OtherPlayerHeal(playerid, healamount, percenthealth);
-        }
-
-        private void _itemChange(bool wasItemObtained, short id, int amount, byte weight)
-        {
-            //OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight,
-            //    OldWorld.Instance.MainPlayer.ActiveCharacter.MaxWeight, wasItemObtained);
         }
 
         private void _mapMutate()
