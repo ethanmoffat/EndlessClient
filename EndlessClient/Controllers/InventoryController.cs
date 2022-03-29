@@ -277,23 +277,26 @@ namespace EndlessClient.Controllers
 
         public void JunkItem(EIFRecord itemData, IInventoryItem inventoryItem)
         {
-            /*
-             if (((OldEOInventory)parent).IsOverJunk())
+            if (inventoryItem.Amount > 1)
             {
-                if (m_inventory.Amount > 1)
+                var transferDialog = _itemTransferDialogFactory.CreateItemTransferDialog(
+                    itemData.Name,
+                    ItemTransferDialog.TransferType.JunkItems,
+                    inventoryItem.Amount,
+                    EOResourceID.DIALOG_TRANSFER_JUNK);
+                transferDialog.DialogClosing += (sender, e) =>
                 {
-                    ItemTransferDialog dlg = new ItemTransferDialog(m_itemData.Name, ItemTransferDialog.TransferType.JunkItems,
-                        m_inventory.Amount, EOResourceID.DIALOG_TRANSFER_JUNK);
-                    dlg.DialogClosing += (sender, args) =>
+                    if (e.Result == XNADialogResult.OK)
                     {
-                        if (args.Result == XNADialogResult.OK && !m_api.JunkItem(m_inventory.ItemID, dlg.SelectedAmount))
-                            ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
-                    };
-                }
-                else if (!m_api.JunkItem(m_inventory.ItemID, 1))
-                    ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
+                        _itemActions.JunkItem(inventoryItem.ItemID, transferDialog.SelectedAmount);
+                    }
+                };
+                transferDialog.ShowDialog();
             }
-             */
+            else
+            {
+                _itemActions.JunkItem(inventoryItem.ItemID, 1);
+            }
         }
     }
 

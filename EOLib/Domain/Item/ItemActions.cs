@@ -55,11 +55,11 @@ namespace EOLib.Domain.Item
             _packetSendService.SendPacket(packet);
         }
 
-        public void JunkItem(IItem item)
+        public void JunkItem(short itemId, int amount)
         {
             var packet = new PacketBuilder(PacketFamily.Item, PacketAction.Junk)
-                .AddShort(item.ItemID)
-                .AddInt(item.Amount)
+                .AddShort(itemId)
+                .AddInt(amount)
                 .Build();
 
             _packetSendService.SendPacket(packet);
@@ -76,6 +76,6 @@ namespace EOLib.Domain.Item
 
         void DropItem(short itemId, int amount, MapCoordinate dropPoint);
 
-        void JunkItem(IItem item);
+        void JunkItem(short itemId, int amount);
     }
 }
