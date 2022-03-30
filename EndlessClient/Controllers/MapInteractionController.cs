@@ -5,6 +5,7 @@ using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Inventory;
+using EndlessClient.HUD.Panels;
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
@@ -64,7 +65,11 @@ namespace EndlessClient.Controllers
 
         public async Task LeftClickAsync(IMapCellState cellState, IMouseCursorRenderer mouseRenderer)
         {
-            if (_characterProvider.MainCharacter.RenderProperties.SitState != SitState.Standing)
+            if (!InventoryPanel.NoItemsDragging())
+            {
+                return;
+            }
+            else if (_characterProvider.MainCharacter.RenderProperties.SitState != SitState.Standing)
             {
                 _characterActions.ToggleSit();
                 return;
@@ -149,6 +154,8 @@ namespace EndlessClient.Controllers
                 default: throw new ArgumentOutOfRangeException(nameof(pickupResult), pickupResult, null);
             }
         }
+
+        private InventoryPanel InventoryPanel => _hudControlProvider.GetComponent<InventoryPanel>(HudControlIdentifier.InventoryPanel);
     }
 
     public interface IMapInteractionController

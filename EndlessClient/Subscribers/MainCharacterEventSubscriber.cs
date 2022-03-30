@@ -59,6 +59,17 @@ namespace EndlessClient.Subscribers
                 $" {amountTaken} {rec.Name}");
         }
 
+        public void DropItem(short id, int amountDropped)
+        {
+            var rec = _pubFileProvider.EIFFile[id];
+
+            var chatMessage = $"{_localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_ITEM_DROP_YOU_DROPPED)} {amountDropped} {rec.Name}";
+            _chatRepository.AllChat[ChatTab.System].Add(new ChatData(string.Empty, chatMessage, ChatIcon.DownArrow));
+
+            _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_DROP_YOU_DROPPED,
+                $" {amountDropped} {rec.Name}");
+        }
+
         public void JunkItem(short id, int amountRemoved)
         {
             var rec = _pubFileProvider.EIFFile[id];

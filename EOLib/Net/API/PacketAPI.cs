@@ -24,14 +24,12 @@ namespace EOLib.Net.API
             _createChestMembers();
             _createEmoteMembers();
             _createInitMembers();
-            _createItemMembers();
             _createLockerMembers();
             _createMessageMembers();
             _createMusicMembers();
             _createPartyMembers();
             _createNPCMembers();
             _createQuestMembers();
-            _createRecoverMembers();
             _createShopMembers();
             _createSpellMembers();
             _createStatSkillMembers();

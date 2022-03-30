@@ -11,6 +11,8 @@ namespace EOLib.PacketHandlers
     [AutoMappedType]
     public class PlayerLevelUpHandler : NPCLeaveMapHandler
     {
+        private readonly IEnumerable<IEmoteNotifier> _emoteNotifiers;
+
         public override PacketFamily Family => PacketFamily.NPC;
 
         public override PacketAction Action => PacketAction.Accept;
@@ -19,9 +21,13 @@ namespace EOLib.PacketHandlers
                                     ICurrentMapStateRepository currentMapStateRepository,
                                     ICharacterRepository characterRepository,
                                     IEnumerable<INPCActionNotifier> npcAnimationNotifiers,
-                                    IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers)
+                                    IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers,
+                                    IEnumerable<IEmoteNotifier> emoteNotifiers)
             : base(playerInfoProvider, currentMapStateRepository, characterRepository,
-                   npcAnimationNotifiers, mainCharacterEventNotifiers) { }
+                   npcAnimationNotifiers, mainCharacterEventNotifiers)
+        {
+            _emoteNotifiers = emoteNotifiers;
+        }
 
         public override bool HandlePacket(IPacket packet)
         {
@@ -44,9 +50,8 @@ namespace EOLib.PacketHandlers
                 .WithNewStat(CharacterStat.MaxSP, maxsp);
             _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);
 
-            //todo: show emote once emotes are supported
-            //    OldWorld.Instance.MainPlayer.ActiveCharacter.Emote(Emote.LevelUp);
-            //    OldWorld.Instance.ActiveCharacterRenderer.PlayerEmote();
+            foreach (var notifier in _emoteNotifiers)
+                notifier.NotifyEmote((short)_characterRepository.MainCharacter.ID, Emote.LevelUp);
 
             return true;
         }
@@ -63,8 +68,9 @@ namespace EOLib.PacketHandlers
                                                  ICurrentMapStateRepository currentMapStateRepository,
                                                  ICharacterRepository characterRepository,
                                                  IEnumerable<INPCActionNotifier> npcAnimationNotifiers,
-                                                 IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers)
+                                                 IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers,
+                                                 IEnumerable<IEmoteNotifier> emoteNotifiers)
             : base(playerInfoProvider, currentMapStateRepository, characterRepository,
-                   npcAnimationNotifiers, mainCharacterEventNotifiers) { }
+                   npcAnimationNotifiers, mainCharacterEventNotifiers, emoteNotifiers) { }
     }
 }

@@ -11,6 +11,8 @@ namespace EOLib.Domain.Notifiers
 
         void TakeItemFromMap(short id, int amountTaken);
 
+        void DropItem(short id, int amountDropped);
+
         void JunkItem(short id, int amountRemoved);
     }
 
@@ -22,6 +24,8 @@ namespace EOLib.Domain.Notifiers
         public void NotifyTakeDamage(int damageTaken, int playerPercentHealth, bool isHeal) { }
 
         public void TakeItemFromMap(short id, int amountTaken) { }
+
+        public void DropItem(short id, int amountDropped) { }
 
         public void JunkItem(short id, int amountTaken) { }
     }

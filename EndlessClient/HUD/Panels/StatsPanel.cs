@@ -5,6 +5,7 @@ using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Factories;
 using EOLib;
 using EOLib.Domain.Character;
+using EOLib.Domain.Extensions;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using XNAControls;
@@ -178,7 +179,7 @@ namespace EndlessClient.HUD.Panels
                 _otherInfo[GOLD].Text = $"{CurrentCharacterGold.Amount}";
                 _otherInfo[EXP].Text = $"{_lastCharacterStats[CharacterStat.Experience]}";
                 _otherInfo[TNL].Text = $"{ExperienceToNextLevel}";
-                _otherInfo[KARMA].Text = $"{_lastCharacterStats[CharacterStat.Karma]}";
+                _otherInfo[KARMA].Text = $"{_lastCharacterStats.GetKarmaString()}";
 
                 _characterInfo[NAME].Text = $"{_characterProvider.MainCharacter.Name}";
                 _characterInfo[GUILD].Text = $"{_characterProvider.MainCharacter.GuildName}";

@@ -42,7 +42,7 @@ namespace EOLib.PacketHandlers.Effects
 
                 foreach (var notifier in _otherCharacterEventNotifiers)
                 {
-                    notifier.OtherCharacterTakeDamage(characterId, playerPercentHealth, damageTaken);
+                    notifier.OtherCharacterTakeDamage(characterId, playerPercentHealth, damageTaken, isHeal: false);
                 }
             }
             else

@@ -42,17 +42,6 @@ namespace EOLib.Domain.Map
 
             return pickupResult;
         }
-
-        // todo: item stuff probably belongs in its own action class
-        public void JunkItem(IItem item)
-        {
-            var packet = new PacketBuilder(PacketFamily.Item, PacketAction.Junk)
-                .AddShort(item.ItemID)
-                .AddInt(item.Amount)
-                .Build();
-
-            _packetSendService.SendPacket(packet);
-        }
     }
 
     public interface IMapActions
@@ -60,7 +49,5 @@ namespace EOLib.Domain.Map
         void RequestRefresh();
 
         ItemPickupResult PickUpItem(IItem item);
-
-        void JunkItem(IItem item);
     }
 }

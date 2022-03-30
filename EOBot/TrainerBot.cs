@@ -40,6 +40,7 @@ namespace EOBot
 
         private ICharacterActions _characterActions;
         private IMapActions _mapActions;
+        private IItemActions _itemActions;
 
         private ICharacterRepository _characterRepository;
 
@@ -77,6 +78,7 @@ namespace EOBot
             var c = DependencyMaster.TypeRegistry[_index];
 
             _mapActions = c.Resolve<IMapActions>();
+            _itemActions = c.Resolve<IItemActions>();
             _characterRepository = c.Resolve<ICharacterRepository>();
             _characterActions = c.Resolve<ICharacterActions>();
             var mapCellStateProvider = c.Resolve<IMapCellStateProvider>();
@@ -312,7 +314,7 @@ namespace EOBot
         private async Task JunkItem(IItem item)
         {
             ConsoleHelper.WriteMessage(ConsoleHelper.Type.JunkItem, $"{item.Amount,7} - {_itemData.Single(x => x.ID == item.ItemID).Name}");
-            await TrySend(() => _mapActions.JunkItem(item));
+            await TrySend(() => _itemActions.JunkItem(item.ItemID, item.Amount));
             await Task.Delay(TimeSpan.FromMilliseconds(ATTACK_BACKOFF_MS));
         }
 
@@ -343,7 +345,7 @@ namespace EOBot
 
             ConsoleHelper.WriteMessage(ConsoleHelper.Type.UseItem, $"{itemToUse.Name} - {itemToUse.HP} HP - inventory: {amount - 1} - (other heal item types: {healItems.Count() - 1})");
 
-            await TrySend(() => _characterActions.UseItem((short)itemToUse.ID));
+            await TrySend(() => _itemActions.UseItem((short)itemToUse.ID));
 
             await Task.Delay(ATTACK_BACKOFF_MS);
         }

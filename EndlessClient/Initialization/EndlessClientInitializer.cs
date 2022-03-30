@@ -3,6 +3,7 @@ using AutomaticTypeMapper;
 using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
+using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Input;
@@ -13,7 +14,7 @@ using XNAControls;
 
 namespace EndlessClient.Initialization
 {
-    [MappedType(BaseType = typeof(IGameInitializer))]
+    [AutoMappedType]
     public class EndlessClientInitializer : IGameInitializer
     {
         private readonly IEndlessGame _game;
@@ -27,9 +28,11 @@ namespace EndlessClient.Initialization
         private readonly ILoginController _loginController;
         private readonly ICharacterManagementController _characterManagementController;
         private readonly IChatController _chatController;
+        private readonly IInventoryController _inventoryController;
         private readonly IControlSetFactory _controlSetFactory;
         private readonly ICharacterInfoPanelFactory _characterInfoPanelFactory;
         private readonly IHudControlsFactory _hudControlsFactory;
+        private readonly IPaperdollDialogFactory _paperdollDialogFactory;
 
         public EndlessClientInitializer(IEndlessGame game,
                                         IEndlessGameRepository endlessGameRepository,
@@ -43,9 +46,12 @@ namespace EndlessClient.Initialization
                                         ILoginController loginController,
                                         ICharacterManagementController characterManagementController,
                                         IChatController chatController,
+                                        IInventoryController inventoryController,
+                                        //factories
                                         IControlSetFactory controlSetFactory,
                                         ICharacterInfoPanelFactory characterInfoPanelFactory,
-                                        IHudControlsFactory hudControlsFactory)
+                                        IHudControlsFactory hudControlsFactory,
+                                        IPaperdollDialogFactory paperdollDialogFactory)
         {
             _game = game;
             _endlessGameRepository = endlessGameRepository;
@@ -57,9 +63,11 @@ namespace EndlessClient.Initialization
             _loginController = loginController;
             _characterManagementController = characterManagementController;
             _chatController = chatController;
+            _inventoryController = inventoryController;
             _controlSetFactory = controlSetFactory;
             _characterInfoPanelFactory = characterInfoPanelFactory;
             _hudControlsFactory = hudControlsFactory;
+            _paperdollDialogFactory = paperdollDialogFactory;
         }
 
         public void Initialize()
@@ -81,6 +89,7 @@ namespace EndlessClient.Initialization
             _characterInfoPanelFactory.InjectCharacterManagementController(_characterManagementController);
             _characterInfoPanelFactory.InjectLoginController(_loginController);
             _hudControlsFactory.InjectChatController(_chatController);
+            _paperdollDialogFactory.InjectInventoryController(_inventoryController);
         }
     }
 }

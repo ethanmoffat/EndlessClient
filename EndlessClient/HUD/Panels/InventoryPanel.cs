@@ -1,5 +1,8 @@
-﻿using EndlessClient.Dialogs.Actions;
+﻿using EndlessClient.Controllers;
+using EndlessClient.ControlSets;
+using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Inventory;
+using EndlessClient.Rendering.Map;
 using EOLib;
 using EOLib.Config;
 using EOLib.Domain.Character;
@@ -8,6 +11,7 @@ using EOLib.Domain.Login;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.IO.Extensions;
+using EOLib.IO.Map;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
@@ -29,8 +33,7 @@ namespace EndlessClient.HUD.Panels
     {
         public const int InventoryRows = 4;
         public const int InventoryRowSlots = 14;
-
-        private readonly ICharacterActions _characterActions;
+        private readonly IInventoryController _inventoryController;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IItemStringService _itemStringService;
         private readonly IItemNameColorService _itemNameColorService;
@@ -38,10 +41,9 @@ namespace EndlessClient.HUD.Panels
         private readonly IInventorySlotRepository _inventorySlotRepository;
         private readonly IPlayerInfoProvider _playerInfoProvider;
         private readonly ICharacterProvider _characterProvider;
-        private readonly IPaperdollProvider _paperdollProvider;
         private readonly ICharacterInventoryProvider _characterInventoryProvider;
-        private readonly IPubFileProvider _pubFileProvider;
-
+        private readonly IPubFileProvider _pubFileProvider; // todo: this can probably become EIFFileProvider
+        private readonly IHudControlProvider _hudControlProvider;
         private readonly Dictionary<int, int> _itemSlotMap;
         private readonly List<InventoryPanelItem> _childItems = new List<InventoryPanelItem>();
 
@@ -55,8 +57,7 @@ namespace EndlessClient.HUD.Panels
         public INativeGraphicsManager NativeGraphicsManager { get; }
 
         public InventoryPanel(INativeGraphicsManager nativeGraphicsManager,
-                              IInGameDialogActions inGameDialogActions,
-                              ICharacterActions characterActions,
+                              IInventoryController inventoryController,
                               IStatusLabelSetter statusLabelSetter,
                               IItemStringService itemStringService,
                               IItemNameColorService itemNameColorService,
@@ -64,12 +65,12 @@ namespace EndlessClient.HUD.Panels
                               IInventorySlotRepository inventorySlotRepository,
                               IPlayerInfoProvider playerInfoProvider,
                               ICharacterProvider characterProvider,
-                              IPaperdollProvider paperdollProvider,
                               ICharacterInventoryProvider characterInventoryProvider,
-                              IPubFileProvider pubFileProvider)
+                              IPubFileProvider pubFileProvider,
+                              IHudControlProvider hudControlProvider)
         {
             NativeGraphicsManager = nativeGraphicsManager;
-            _characterActions = characterActions;
+            _inventoryController = inventoryController;
             _statusLabelSetter = statusLabelSetter;
             _itemStringService = itemStringService;
             _itemNameColorService = itemNameColorService;
@@ -77,9 +78,9 @@ namespace EndlessClient.HUD.Panels
             _inventorySlotRepository = inventorySlotRepository;
             _playerInfoProvider = playerInfoProvider;
             _characterProvider = characterProvider;
-            _paperdollProvider = paperdollProvider;
             _characterInventoryProvider = characterInventoryProvider;
             _pubFileProvider = pubFileProvider;
+            _hudControlProvider = hudControlProvider;
             _weightLabel = new XNALabel(Constants.FontSize08pt5)
             {
                 DrawArea = new Rectangle(385, 37, 88, 18),
@@ -95,9 +96,15 @@ namespace EndlessClient.HUD.Panels
 
             _paperdoll = new XNAButton(weirdOffsetSheet, new Vector2(385, 9), new Rectangle(39, 385, 88, 19), new Rectangle(126, 385, 88, 19));
             _paperdoll.OnMouseEnter += MouseOverButton;
-            _paperdoll.OnClick += (_, _) => inGameDialogActions.ShowPaperdollDialog(characterProvider.MainCharacter, isMainCharacter: true);
+            _paperdoll.OnClick += (_, _) =>
+            {
+                if (NoItemsDragging())
+                    _inventoryController.ShowPaperdollDialog();
+            };
+
             _drop = new XNAButton(weirdOffsetSheet, new Vector2(389, 68), new Rectangle(0, 15, 38, 37), new Rectangle(0, 52, 38, 37));
             _drop.OnMouseEnter += MouseOverButton;
+
             _junk = new XNAButton(weirdOffsetSheet, new Vector2(431, 68), new Rectangle(0, 89, 38, 37), new Rectangle(0, 126, 38, 37));
             _junk.OnMouseEnter += MouseOverButton;
 
@@ -153,7 +160,8 @@ namespace EndlessClient.HUD.Panels
             {
                 var added = _characterInventoryProvider.ItemInventory.Where(i => !_cachedInventory.Any(j => i.ItemID == j.ItemID));
                 var removed = _cachedInventory.Where(i => !_characterInventoryProvider.ItemInventory.Any(j => i.ItemID == j.ItemID));
-                var updated = _characterInventoryProvider.ItemInventory.Except(added);
+                var updated = _characterInventoryProvider.ItemInventory.Except(added)
+                    .Where(i => _cachedInventory.Any(j => i.ItemID == j.ItemID && i.Amount != j.Amount));
 
                 foreach (var item in removed)
                 {
@@ -177,7 +185,7 @@ namespace EndlessClient.HUD.Panels
                     matchedItem.MatchSome(childItem =>
                     {
                         childItem.InventoryItem = item;
-                        childItem.Text = _itemStringService.GetStringForMapDisplay(itemData, item.Amount);
+                        childItem.Text = _itemStringService.GetStringForInventoryDisplay(itemData, item.Amount);
                     });
                 }
 
@@ -195,7 +203,7 @@ namespace EndlessClient.HUD.Panels
                         var newItem = new InventoryPanelItem(_itemNameColorService, this, slot, item, itemData);
                         newItem.Initialize();
                         newItem.SetParentControl(this);
-                        newItem.Text = _itemStringService.GetStringForMapDisplay(itemData, item.Amount);
+                        newItem.Text = _itemStringService.GetStringForInventoryDisplay(itemData, item.Amount);
 
                         newItem.OnMouseEnter += (_, _) => _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ITEM, newItem.Text);
                         newItem.DoubleClick += HandleItemDoubleClick;
@@ -223,6 +231,9 @@ namespace EndlessClient.HUD.Panels
                 _drop.OnMouseEnter -= MouseOverButton;
                 _junk.OnMouseEnter -= MouseOverButton;
                 Game.Exiting -= SaveInventoryFile;
+
+                // todo: IResettable should work but it doesn't
+                _inventorySlotRepository.FilledSlots = new Matrix<bool>(InventoryRows, InventoryRowSlots, false);
 
                 SaveInventoryFile(null, EventArgs.Empty);
             }
@@ -320,130 +331,14 @@ namespace EndlessClient.HUD.Panels
 
         private void HandleItemDoubleClick(object sender, EIFRecord itemData)
         {
-            var c = _characterProvider.MainCharacter;
-            if (!_paperdollProvider.VisibleCharacterPaperdolls.ContainsKey(c.ID))
-                return;
-
-            var isAlternateEquipLocation = false;
-
-            switch (itemData.Type)
+            if (itemData.Type >= ItemType.Weapon && itemData.Type <= ItemType.Bracer)
             {
-                case ItemType.Armlet:
-                case ItemType.Bracer:
-                case ItemType.Ring:
-                    var paperdoll = _paperdollProvider.VisibleCharacterPaperdolls[c.ID].Paperdoll;
-
-                    var equipLocation = itemData.GetEquipLocation();
-                    if (paperdoll[equipLocation] != 0)
-                    {
-                        isAlternateEquipLocation = true;
-                        if (paperdoll[equipLocation + 1] != 0)
-                        {
-                            _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_EQUIP_TYPE_ALREADY_EQUIPPED);
-                            return;
-                        }
-                    }
-
-                    goto case ItemType.Weapon;
-                case ItemType.Armor:
-                    if (c.RenderProperties.Gender != itemData.Gender)
-                    {
-                        _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_EQUIP_DOES_NOT_FIT_GENDER);
-                        return;
-                    }
-
-                    goto case ItemType.Weapon;
-                case ItemType.Accessory:
-                case ItemType.Belt:
-                case ItemType.Boots:
-                case ItemType.Gloves:
-                case ItemType.Hat:
-                case ItemType.Necklace:
-                case ItemType.Shield:
-                case ItemType.Weapon:
-                    var reqs = new int[6];
-                    var reqNames = new[] { "STR", "INT", "WIS", "AGI", "CON", "CHA" };
-                    if ((reqs[0] = itemData.StrReq) > c.Stats[CharacterStat.Strength] || (reqs[1] = itemData.IntReq) > c.Stats[CharacterStat.Intelligence]
-                     || (reqs[2] = itemData.WisReq) > c.Stats[CharacterStat.Wisdom] || (reqs[3] = itemData.AgiReq) > c.Stats[CharacterStat.Agility]
-                     || (reqs[4] = itemData.ConReq) > c.Stats[CharacterStat.Constituion] || (reqs[5] = itemData.ChaReq) > c.Stats[CharacterStat.Charisma])
-                    {
-                        var req = reqs.Select((i, n) => new { Req = n, Ndx = i }).First(x => x.Req > 0);
-
-                        _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION,
-                            EOResourceID.STATUS_LABEL_ITEM_EQUIP_THIS_ITEM_REQUIRES,
-                            $" {reqs[req.Ndx]} {reqNames[req.Ndx]}");
-                        return;
-                    }
-
-                    if (itemData.ClassReq > 0 && itemData.ClassReq != c.ClassID)
-                    {
-                        _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION,
-                            EOResourceID.STATUS_LABEL_ITEM_EQUIP_CAN_ONLY_BE_USED_BY,
-                            _pubFileProvider.ECFFile[itemData.ClassReq].Name);
-                        return;
-                    }
-
-                    paperdoll = _paperdollProvider.VisibleCharacterPaperdolls[c.ID].Paperdoll;
-                    equipLocation = itemData.GetEquipLocation();
-
-                    if (paperdoll[equipLocation] != 0 && !isAlternateEquipLocation)
-                    {
-                        _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_EQUIP_TYPE_ALREADY_EQUIPPED);
-                        return;
-                    }
-
-                    _characterActions.EquipItem((short)itemData.ID, isAlternateEquipLocation);
-
-                    break;
-                //usable items
-                case ItemType.Teleport:
-                    //if (!OldWorld.Instance.ActiveMapRenderer.MapRef.Properties.CanScroll)
-                    //{
-                    //    EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_NOTHING_HAPPENED);
-                    //    break;
-                    //}
-                    //if (m_itemData.ScrollMap == OldWorld.Instance.MainPlayer.ActiveCharacter.CurrentMap &&
-                    //    m_itemData.ScrollX == OldWorld.Instance.MainPlayer.ActiveCharacter.X &&
-                    //    m_itemData.ScrollY == OldWorld.Instance.MainPlayer.ActiveCharacter.Y)
-                    break; //already there - no need to scroll!
-                    //useItem = true;
-                    break;
-                case ItemType.Heal:
-                case ItemType.HairDye:
-                case ItemType.Beer:
-                    //useItem = true;
-                    break;
-                case ItemType.CureCurse:
-                    //note: don't actually set the useItem bool here. Call API.UseItem if the dialog result is OK.
-                    //if (c.PaperDoll.Select(id => OldWorld.Instance.EIF[id])
-                    //               .Any(rec => rec.Special == ItemSpecial.Cursed))
-                    //{
-                    //    EOMessageBox.Show(DialogResourceID.ITEM_CURSE_REMOVE_PROMPT, EODialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
-                    //        (o, e) =>
-                    //        {
-                    //            //if (e.Result == XNADialogResult.OK && !m_api.UseItem((short)m_itemData.ID))
-                    //            //{
-                    //            //    ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
-                    //            //}
-                    //        });
-                    //}
-                    break;
-                case ItemType.EXPReward:
-                    //useItem = true;
-                    break;
-                case ItemType.EffectPotion:
-                    //useItem = true;
-                    break;
-                    //Not implemented server-side
-                    //case ItemType.SkillReward:
-                    //    break;
-                    //case ItemType.StatReward:
-                    //    break;
+                _inventoryController.EquipItem(itemData);
             }
-
-            //if (useItem && !m_api.UseItem((short)m_itemData.ID))
-            //    ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
-
+            else
+            {
+                _inventoryController.UseItem(itemData);
+            }
         }
 
         private void HandleItemDoneDragging(object sender, InventoryPanelItem.ItemDragCompletedEventArgs e)
@@ -453,6 +348,24 @@ namespace EndlessClient.HUD.Panels
                 return;
 
             var oldSlot = item.Slot;
+
+            var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
+
+            // todo: if this is a chained drag, restoring the original slot could overlap with another item
+            if (_drop.MouseOver || mapRenderer.MouseOver)
+            {
+                e.RestoreOriginalSlot = true;
+                _inventoryController.DropItem(item.Data, item.InventoryItem);
+                return;
+            }
+            else if (_junk.MouseOver)
+            {
+                e.RestoreOriginalSlot = true;
+                _inventoryController.JunkItem(item.Data, item.InventoryItem);
+                return;
+            }
+
+            var fitsInOldSlot = _inventoryService.FitsInSlot(_inventorySlotRepository.FilledSlots, oldSlot, e.Data.Size);
             var newSlot = item.GetCurrentSlotBasedOnPosition();
 
             // check overlapping items:
@@ -467,7 +380,7 @@ namespace EndlessClient.HUD.Panels
             {
                 e.RestoreOriginalSlot = true;
 
-                if (!_inventoryService.FitsInSlot(_inventorySlotRepository.FilledSlots, oldSlot, e.Data.Size))
+                if (!fitsInOldSlot)
                     e.ContinueDrag = true;
             }
             else if (overlapped.Count == 1)
@@ -483,7 +396,7 @@ namespace EndlessClient.HUD.Panels
                 if (!_inventoryService.FitsInSlot(_inventorySlotRepository.FilledSlots, oldSlot, newSlot, e.Data.Size))
                 {
                     // if the original slot no longer fits (because this is a chained drag), don't stop dragging this item
-                    if (!_inventoryService.FitsInSlot(_inventorySlotRepository.FilledSlots, oldSlot, e.Data.Size))
+                    if (!fitsInOldSlot)
                         e.ContinueDrag = true;
                     else
                         e.RestoreOriginalSlot = true;
@@ -495,75 +408,9 @@ namespace EndlessClient.HUD.Panels
                 }
             }
 
-            if (e.ContinueDrag || e.RestoreOriginalSlot)
-                return;
-
-            // todo: handle drag to things (dialog, map, buttons)
             #region Unimplemented drag action
             /*
-            if (((OldEOInventory)parent).IsOverDrop() || (OldWorld.Instance.ActiveMapRenderer.MouseOver
-                //&& ChestDialog.Instance == null && EOPaperdollDialog.Instance == null && LockerDialog.Instance == null
-                && BankAccountDialog.Instance == null && TradeDialog.Instance == null))
-            {
-                Point loc = OldWorld.Instance.ActiveMapRenderer.MouseOver ? OldWorld.Instance.ActiveMapRenderer.GridCoords :
-                    new Point(OldWorld.Instance.MainPlayer.ActiveCharacter.X, OldWorld.Instance.MainPlayer.ActiveCharacter.Y);
-
-                //in range if maximum coordinate difference is <= 2 away
-                bool inRange = Math.Abs(Math.Max(OldWorld.Instance.MainPlayer.ActiveCharacter.X - loc.X, OldWorld.Instance.MainPlayer.ActiveCharacter.Y - loc.Y)) <= 2;
-
-                if (m_itemData.Special == ItemSpecial.Lore)
-                {
-                    EOMessageBox.Show(DialogResourceID.ITEM_IS_LORE_ITEM, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                }
-                else if (OldWorld.Instance.JailMap == OldWorld.Instance.MainPlayer.ActiveCharacter.CurrentMap)
-                {
-                    EOMessageBox.Show(OldWorld.GetString(EOResourceID.JAIL_WARNING_CANNOT_DROP_ITEMS),
-                        OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
-                        EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                }
-                else if (m_inventory.Amount > 1 && inRange)
-                {
-                    ItemTransferDialog dlg = new ItemTransferDialog(m_itemData.Name, ItemTransferDialog.TransferType.DropItems,
-                        m_inventory.Amount);
-                    dlg.DialogClosing += (sender, args) =>
-                    {
-                        if (args.Result == XNADialogResult.OK)
-                        {
-                            //note: not sure of the actual limit. 10000 is arbitrary here
-                            if (dlg.SelectedAmount > 10000 && m_inventory.ItemID == 1 && !safetyCommentHasBeenShown)
-                                EOMessageBox.Show(DialogResourceID.DROP_MANY_GOLD_ON_GROUND, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader,
-                                    (o, e) => { safetyCommentHasBeenShown = true; });
-                            else if (!m_api.DropItem(m_inventory.ItemID, dlg.SelectedAmount, (byte)loc.X, (byte)loc.Y))
-                                ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
-                        }
-                    };
-                }
-                else if (inRange)
-                {
-                    if (!m_api.DropItem(m_inventory.ItemID, 1, (byte)loc.X, (byte)loc.Y))
-                        ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
-                }
-                else //if (!inRange)
-                {
-                    EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_ITEM_DROP_OUT_OF_RANGE);
-                }
-            }
-            else if (((OldEOInventory)parent).IsOverJunk())
-            {
-                if (m_inventory.Amount > 1)
-                {
-                    ItemTransferDialog dlg = new ItemTransferDialog(m_itemData.Name, ItemTransferDialog.TransferType.JunkItems,
-                        m_inventory.Amount, EOResourceID.DIALOG_TRANSFER_JUNK);
-                    dlg.DialogClosing += (sender, args) =>
-                    {
-                        if (args.Result == XNADialogResult.OK && !m_api.JunkItem(m_inventory.ItemID, dlg.SelectedAmount))
-                            ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
-                    };
-                }
-                else if (!m_api.JunkItem(m_inventory.ItemID, 1))
-                    ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
-            }
-            else if (ChestDialog.Instance != null && ChestDialog.Instance.MouseOver && ChestDialog.Instance.MouseOverPreviously)
+            if (ChestDialog.Instance != null && ChestDialog.Instance.MouseOver && ChestDialog.Instance.MouseOverPreviously)
             {
                 if (m_itemData.Special == ItemSpecial.Lore)
                 {

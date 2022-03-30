@@ -111,6 +111,7 @@ namespace EOLib.Domain.Login
 
             _playerInfoRepository.IsFirstTimePlayer = data.FirstTimePlayer;
             _currentMapStateRepository.CurrentMapID = data.MapID;
+            _currentMapStateRepository.JailMapID = data.JailMap;
 
             _paperdollRepository.VisibleCharacterPaperdolls[data.SessionID] = new PaperdollData()
                 .WithName(data.Name)

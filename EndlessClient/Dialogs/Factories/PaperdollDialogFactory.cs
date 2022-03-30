@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Controllers;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD;
@@ -9,7 +10,7 @@ using EOLib.IO.Repositories;
 
 namespace EndlessClient.Dialogs.Factories
 {
-    [AutoMappedType]
+    [AutoMappedType(IsSingleton = true)]
     public class PaperdollDialogFactory : IPaperdollDialogFactory
     {
         private readonly IGameStateProvider _gameStateProvider;
@@ -20,11 +21,10 @@ namespace EndlessClient.Dialogs.Factories
         private readonly IPaperdollProvider _paperdollProvider;
         private readonly IPubFileProvider _pubFileProvider;
         private readonly INativeGraphicsManager _nativeGraphicsManager;
-        private readonly ICharacterActions _characterActions;
+        private IInventoryController _inventoryController;
 
         public PaperdollDialogFactory(IGameStateProvider gameStateProvider,
             INativeGraphicsManager nativeGraphicsManager,
-            ICharacterActions characterActions,
             IPaperdollProvider paperdollProvider,
             IPubFileProvider pubFileProvider,
             IEODialogButtonService eoDialogButtonService,
@@ -35,7 +35,6 @@ namespace EndlessClient.Dialogs.Factories
             _paperdollProvider = paperdollProvider;
             _pubFileProvider = pubFileProvider;
             _nativeGraphicsManager = nativeGraphicsManager;
-            _characterActions = characterActions;
             _gameStateProvider = gameStateProvider;
             _eoDialogButtonService = eoDialogButtonService;
             _inventorySpaceValidator = inventorySpaceValidator;
@@ -47,7 +46,7 @@ namespace EndlessClient.Dialogs.Factories
         {
             return new PaperdollDialog(_gameStateProvider,
                 _nativeGraphicsManager,
-                _characterActions,
+                _inventoryController,
                 _paperdollProvider,
                 _pubFileProvider,
                 _eoDialogButtonService,
@@ -57,10 +56,17 @@ namespace EndlessClient.Dialogs.Factories
                 character,
                 isMainCharacter);
         }
+
+        public void InjectInventoryController(IInventoryController inventoryController)
+        {
+            _inventoryController = inventoryController;
+        }
     }
 
     public interface IPaperdollDialogFactory
     {
         PaperdollDialog Create(ICharacter character, bool isMainCharacter);
+
+        void InjectInventoryController(IInventoryController inventoryController);
     }
 }

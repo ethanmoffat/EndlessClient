@@ -3,9 +3,11 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
 using EOLib.IO;
+using EOLib.IO.Extensions;
 using EOLib.IO.Repositories;
 using EOLib.Net;
 using EOLib.Net.Handlers;
+using Optional.Collections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,8 +19,10 @@ namespace EOLib.PacketHandlers.Items
     {
         private readonly ICharacterInventoryRepository _characterInventoryRepository;
         private readonly ICharacterRepository _characterRepository;
+        private readonly IPaperdollRepository _paperdollRepository;
         private readonly IEnumerable<IMainCharacterEventNotifier> _mainCharacterEventNotifiers;
         private readonly IEnumerable<IEffectNotifier> _effectNotifiers;
+        private readonly IEnumerable<IEmoteNotifier> _emoteNotifiers;
         private readonly IEIFFileProvider _itemFileProvider;
 
         public override PacketFamily Family => PacketFamily.Item;
@@ -28,15 +32,19 @@ namespace EOLib.PacketHandlers.Items
         public UseItemHandler(IPlayerInfoProvider playerInfoProvider,
                               ICharacterInventoryRepository characterInventoryRepository,
                               ICharacterRepository characterRepository,
+                              IPaperdollRepository paperdollRepository,
                               IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers,
                               IEnumerable<IEffectNotifier> effectNotifiers,
+                              IEnumerable<IEmoteNotifier> emoteNotifiers,
                               IEIFFileProvider itemFileProvider)
             : base(playerInfoProvider)
         {
             _characterInventoryRepository = characterInventoryRepository;
             _characterRepository = characterRepository;
+            _paperdollRepository = paperdollRepository;
             _mainCharacterEventNotifiers = mainCharacterEventNotifiers;
             _effectNotifiers = effectNotifiers;
+            _emoteNotifiers = emoteNotifiers;
             _itemFileProvider = itemFileProvider;
         }
 
@@ -48,18 +56,16 @@ namespace EOLib.PacketHandlers.Items
             var weight = packet.ReadChar();
             var maxWeight = packet.ReadChar();
 
-            var oldItem = _characterInventoryRepository.ItemInventory.SingleOrDefault(x => x.ItemID == itemId);
-            if (oldItem == null)
-                return false;
-
-            _characterInventoryRepository.ItemInventory.Remove(oldItem);
-            _characterInventoryRepository.ItemInventory.Add(new InventoryItem(itemId, amount));
+            var oldItem = _characterInventoryRepository.ItemInventory.SingleOrNone(x => x.ItemID == itemId);
+            oldItem.MatchSome(item => _characterInventoryRepository.ItemInventory.Remove(item));
+            if (amount > 0)
+                _characterInventoryRepository.ItemInventory.Add(new InventoryItem(itemId, amount));
 
             var character = _characterRepository.MainCharacter;
             var stats = character.Stats;
-            var renderProps = character.RenderProperties;
             stats = stats.WithNewStat(CharacterStat.Weight, weight).WithNewStat(CharacterStat.MaxWeight, maxWeight);
 
+            var renderProps = character.RenderProperties;
             switch (itemType)
             {
                 case ItemType.Teleport: break; // no-op: Warp handles the rest
@@ -107,17 +113,36 @@ namespace EOLib.PacketHandlers.Items
                     var cureCurseEvade = packet.ReadShort();
                     var cureCurseArmor = packet.ReadShort();
 
-                    var cursedItems = _itemFileProvider.EIFFile.Where(x => x.Special == ItemSpecial.Cursed).ToList();
-                    if (cursedItems.Any(x => x.Graphic == renderProps.BootsGraphic && x.Type == ItemType.Boots))
-                        renderProps = renderProps.WithBootsGraphic(0);
-                    if (cursedItems.Any(x => x.Graphic == renderProps.ArmorGraphic && x.Type == ItemType.Armor))
-                        renderProps = renderProps.WithArmorGraphic(0);
-                    if (cursedItems.Any(x => x.Graphic == renderProps.HatGraphic && x.Type == ItemType.Hat))
-                        renderProps = renderProps.WithHatGraphic(0);
-                    if (cursedItems.Any(x => x.Graphic == renderProps.ShieldGraphic && x.Type == ItemType.Shield))
-                        renderProps = renderProps.WithShieldGraphic(0);
-                    if (cursedItems.Any(x => x.Graphic == renderProps.WeaponGraphic && x.Type == ItemType.Weapon))
-                        renderProps = renderProps.WithWeaponGraphic(0, isRanged: false);
+                    if (_paperdollRepository.VisibleCharacterPaperdolls.ContainsKey(character.ID))
+                    {
+                        var paperdoll = _paperdollRepository.VisibleCharacterPaperdolls[character.ID].Paperdoll.ToDictionary(k => k.Key, v => v.Value);
+                        for (EquipLocation loc = 0; loc < EquipLocation.PAPERDOLL_MAX; loc++)
+                        {
+                            var dollItem = paperdoll[loc];
+                            if (dollItem <= 0)
+                                continue;
+
+                            var rec = _itemFileProvider.EIFFile[dollItem];
+                            if (rec.Special == ItemSpecial.Cursed)
+                            {
+                                paperdoll[loc] = 0;
+
+                                if (loc == EquipLocation.Boots)
+                                    renderProps = renderProps.WithBootsGraphic(0);
+                                else if (loc == EquipLocation.Armor)
+                                    renderProps = renderProps.WithArmorGraphic(0);
+                                else if (loc == EquipLocation.Hat)
+                                    renderProps = renderProps.WithHatGraphic(0);
+                                else if (loc == EquipLocation.Weapon)
+                                    renderProps = renderProps.WithWeaponGraphic(0, false);
+                                else if (loc == EquipLocation.Shield)
+                                    renderProps = renderProps.WithShieldGraphic(0);
+                            }
+                        }
+
+                        _paperdollRepository.VisibleCharacterPaperdolls[character.ID] =
+                            _paperdollRepository.VisibleCharacterPaperdolls[character.ID].WithPaperdoll(paperdoll);
+                    }
 
                     stats = stats.WithNewStat(CharacterStat.MaxHP, cureCurseMaxHp)
                         .WithNewStat(CharacterStat.MaxTP, cureCurseMaxTp)
@@ -134,7 +159,7 @@ namespace EOLib.PacketHandlers.Items
                         .WithNewStat(CharacterStat.Armor, cureCurseArmor);
 
                     break;
-                case ItemType.EXPReward:
+                case ItemType.EXPReward:  // todo: EXPReward has not been tested
                     var levelUpExp = packet.ReadInt();
                     var levelUpLevel = packet.ReadChar();
                     var levelUpStat = packet.ReadShort();
@@ -145,9 +170,9 @@ namespace EOLib.PacketHandlers.Items
 
                     if (stats[CharacterStat.Level] < levelUpLevel)
                     {
-                        foreach (var notifier in _effectNotifiers)
+                        foreach (var notifier in _emoteNotifiers)
                         {
-                            // todo: level up emote
+                            notifier.NotifyEmote((short)_characterRepository.MainCharacter.ID, Emote.LevelUp);
                         }
 
                         stats = stats.WithNewStat(CharacterStat.Level, levelUpLevel);
