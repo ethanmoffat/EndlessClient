@@ -138,6 +138,15 @@ namespace EOLib.Domain.Character
 
             _packetSendService.SendPacket(builder.Build());
         }
+
+        public void Emote(Emote whichEmote)
+        {
+            var packet = new PacketBuilder(PacketFamily.Emote, PacketAction.Report)
+                .AddChar((byte)whichEmote)
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+        }
     }
 
     public interface ICharacterActions
@@ -153,5 +162,7 @@ namespace EOLib.Domain.Character
         void PrepareCastSpell(int spellId);
 
         void CastSpell(int spellId, ISpellTargetable target);
+
+        void Emote(Emote whichEmote);
     }
 }

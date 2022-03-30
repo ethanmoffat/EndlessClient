@@ -51,8 +51,6 @@ namespace EndlessClient.Old
             m_packetAPI.OnLockerItemChange += _lockerItemChange;
             m_packetAPI.OnLockerUpgrade += _lockerUpgrade;
 
-            m_packetAPI.OnOtherPlayerEmote += _playerEmote;
-
             //party
             m_packetAPI.OnPartyClose += _partyClose;
             m_packetAPI.OnPartyDataRefresh += _partyDataRefresh;
@@ -192,12 +190,6 @@ namespace EndlessClient.Old
             //OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, remaining);
             BankAccountDialog.Instance.LockerUpgrades = upgrades;
             m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_LOCKER_SPACE_INCREASED);
-        }
-
-        private void _playerEmote(short playerID, Emote emote)
-        {
-            if (playerID != OldWorld.Instance.MainPlayer.ActiveCharacter.ID)
-                OldWorld.Instance.ActiveMapRenderer.OtherPlayerEmote(playerID, emote);
         }
 
         private void _partyClose()

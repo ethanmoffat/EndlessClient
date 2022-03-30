@@ -85,12 +85,12 @@ namespace EndlessClient.Rendering
 
         private EIFRecord shieldInfo, weaponInfo/*, bootsInfo, armorInfo*/, hatInfo;
 
-        private Timer _attackTimer, _emoteTimer, _spTimer, _spellCastTimer;
+        private Timer _attackTimer, _spTimer, _spellCastTimer;
         private readonly bool noLocUpdate;
 
         private readonly DamageCounter m_damageCounter;
 
-        private DateTime? m_deadTime, m_lastEmoteTime;
+        private DateTime? m_deadTime;
         private DateTime m_lastActTime;
 
         private DateTime? m_drunkTime;
@@ -208,7 +208,6 @@ namespace EndlessClient.Rendering
                 DepthFormat.None);
 
             _attackTimer = new Timer(_attackTimerCallback);
-            _emoteTimer = new Timer(_emoteTimerCallback);
             if (Character == OldWorld.Instance.MainPlayer.ActiveCharacter)
             {
                 _spTimer = new Timer(o =>
@@ -370,34 +369,34 @@ namespace EndlessClient.Rendering
         private void _checkAFKCharacter()
         {
             //5-minute timeout: start sending emotes every minute
-            if ((DateTime.Now - m_lastActTime).TotalMinutes > 5 &&
-                (m_lastEmoteTime == null || (DateTime.Now - m_lastEmoteTime.Value).TotalMinutes > 1))
-            {
-                m_lastEmoteTime = DateTime.Now;
-                Character.Emote(Emote.Moon);
-                PlayerEmote();
-            }
+            //if ((DateTime.Now - m_lastActTime).TotalMinutes > 5 &&
+            //    (m_lastEmoteTime == null || (DateTime.Now - m_lastEmoteTime.Value).TotalMinutes > 1))
+            //{
+            //    m_lastEmoteTime = DateTime.Now;
+            //    Character.Emote(Emote.Moon);
+            //    PlayerEmote();
+            //}
         }
 
         private void _checkHandleDrunkCharacter()
         {
-            if (m_drunkTime.HasValue && Character.IsDrunk)
-            {
-                //note: these timer values (between 1-6 seconds and 30 seconds) are completely arbitrary
-                if (!m_lastEmoteTime.HasValue || (DateTime.Now - m_lastEmoteTime.Value).TotalMilliseconds > m_drunkOffset)
-                {
-                    m_lastEmoteTime = DateTime.Now;
-                    Character.Emote(Emote.Drunk);
-                    PlayerEmote();
-                    m_drunkOffset = (new Random()).Next(1000, 6000); //between 1-6 seconds 
-                }
+            //if (m_drunkTime.HasValue && Character.IsDrunk)
+            //{
+            //    //note: these timer values (between 1-6 seconds and 30 seconds) are completely arbitrary
+            //    if (!m_lastEmoteTime.HasValue || (DateTime.Now - m_lastEmoteTime.Value).TotalMilliseconds > m_drunkOffset)
+            //    {
+            //        m_lastEmoteTime = DateTime.Now;
+            //        Character.Emote(Emote.Drunk);
+            //        PlayerEmote();
+            //        m_drunkOffset = (new Random()).Next(1000, 6000); //between 1-6 seconds 
+            //    }
 
-                if ((DateTime.Now - m_drunkTime.Value).TotalMilliseconds >= 30000)
-                {
-                    m_drunkTime = null;
-                    Character.IsDrunk = false;
-                }
-            }
+            //    if ((DateTime.Now - m_drunkTime.Value).TotalMilliseconds >= 30000)
+            //    {
+            //        m_drunkTime = null;
+            //        Character.IsDrunk = false;
+            //    }
+            //}
         }
 
         private bool _getMouseOverActual()
@@ -511,22 +510,6 @@ namespace EndlessClient.Rendering
             catch (ObjectDisposedException) { }
         }
 
-        public void PlayerEmote()
-        {
-            if (OldWorld.Instance.SoundEnabled && Character.RenderData.emote == Emote.LevelUp)
-                EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.LevelUp).Play();
-            //else if (!string.IsNullOrEmpty(_shoutName))
-            //    _cancelSpell(false);
-
-            const int EmoteTimeBetweenFrames = 250;
-            Data.SetUpdate(true);
-            try
-            {
-                _emoteTimer.Change(0, EmoteTimeBetweenFrames);
-            }
-            catch (ObjectDisposedException) { }
-        }
-
         public void UpdateInputTime(DateTime lastInputTime)
         {
             m_lastActTime = lastInputTime;
@@ -587,23 +570,6 @@ namespace EndlessClient.Rendering
             else
             {
                 Data.SetAttackFrame((byte) (Data.attackFrame + 1));
-            }
-
-            Data.SetUpdate(true);
-        }
-
-        private void _emoteTimerCallback(object state)
-        {
-            if (_char == null) return;
-
-            if (Data.emoteFrame == 3)
-            {
-                _char.DoneEmote();
-                _emoteTimer.Change(Timeout.Infinite, Timeout.Infinite);
-            }
-            else
-            {
-                Data.SetEmoteFrame(Data.emoteFrame + 1);
             }
 
             Data.SetUpdate(true);
@@ -1274,8 +1240,6 @@ namespace EndlessClient.Rendering
                     nameLabel.Dispose();
                 if (_attackTimer != null)
                     _attackTimer.Dispose();
-                if (_emoteTimer != null)
-                    _emoteTimer.Dispose();
                 if (_spTimer != null)
                     _spTimer.Dispose();
                 if (_charRenderTarget != null)

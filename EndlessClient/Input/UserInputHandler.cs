@@ -21,6 +21,7 @@ namespace EndlessClient.Input
                                 IArrowKeyController arrowKeyController,
                                 IControlKeyController controlKeyController,
                                 IFunctionKeyController functionKeyController,
+                                INumPadController numPadController,
                                 ICurrentMapStateProvider currentMapStateProvider,
                                 IActiveDialogProvider activeDialogProvider)
         {
@@ -41,6 +42,11 @@ namespace EndlessClient.Input
                     userInputTimeRepository,
                     functionKeyController,
                     currentMapStateProvider),
+                new NumPadHandler(endlessGameProvider,
+                    userInputProvider,
+                    userInputTimeRepository,
+                    currentMapStateProvider,
+                    numPadController),
             };
             _activeDialogProvider = activeDialogProvider;
         }

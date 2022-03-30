@@ -13,9 +13,7 @@ using Optional;
 
 namespace EndlessClient.Rendering.Character
 {
-    [MappedType(BaseType = typeof(ICharacterAnimationActions))]
-    [MappedType(BaseType = typeof(IOtherCharacterAnimationNotifier))]
-    [MappedType(BaseType = typeof(IEffectNotifier))]
+    [AutoMappedType]
     public class CharacterAnimationActions : ICharacterAnimationActions, IOtherCharacterAnimationNotifier, IEffectNotifier, IEmoteNotifier
     {
         private readonly IHudControlProvider _hudControlProvider;
@@ -215,7 +213,7 @@ namespace EndlessClient.Rendering.Character
 
         public void NotifyEmote(short playerId, Emote emote)
         {
-            // todo: start emote animation
+            Animator.Emote(playerId, emote);
         }
 
         private ICharacterAnimator Animator => _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator);
