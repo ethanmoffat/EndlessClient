@@ -14,7 +14,9 @@ namespace EndlessClient.Rendering.CharacterProperties
         private readonly SkinRenderLocationCalculator _skinRenderLocationCalculator;
 
         public override bool CanRender => _renderProperties.IsActing(CharacterActionState.Emote) &&
-                                          _renderProperties.EmoteFrame > 0;
+                                          _renderProperties.EmoteFrame > 0 &&
+                                          _renderProperties.Emote != Emote.Trade &&
+                                          _renderProperties.Emote != Emote.LevelUp;
 
         public FaceRenderer(ICharacterRenderProperties renderProperties,
                             ISpriteSheet faceSheet,

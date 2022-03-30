@@ -38,15 +38,16 @@ namespace EOLib.PacketHandlers
                 .WithNewStat(CharacterStat.Karma, karma);
 
             if (level > 0)
+            {
                 stats = stats.WithNewStat(CharacterStat.Level, level);
+                foreach (var notifier in _emoteNotifiers)
+                    notifier.NotifyEmote((short)_characterRepository.MainCharacter.ID, Emote.LevelUp);
+            }
 
-            if (level > 0 && packet.ReadPosition < packet.Length)
+            if (packet.ReadPosition < packet.Length)
             {
                 stats = stats.WithNewStat(CharacterStat.StatPoints, packet.ReadShort())
                     .WithNewStat(CharacterStat.SkillPoints, packet.ReadShort());
-
-                foreach (var notifier in _emoteNotifiers)
-                    notifier.NotifyEmote((short)_characterRepository.MainCharacter.ID, Emote.LevelUp);
             }
 
             _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);

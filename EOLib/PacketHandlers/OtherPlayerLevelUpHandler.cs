@@ -1,4 +1,5 @@
-﻿using EOLib.Domain.Character;
+﻿using AutomaticTypeMapper;
+using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
 using EOLib.Net;
@@ -7,6 +8,7 @@ using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers
 {
+    [AutoMappedType]
     public class OtherPlayerLevelUpHandler : InGameOnlyPacketHandler
     {
         private readonly IEnumerable<IEmoteNotifier> _emoteNotifiers;
