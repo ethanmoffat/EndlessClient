@@ -117,6 +117,8 @@ namespace EndlessClient.HUD.Controls
 
         public IReadOnlyDictionary<HudControlIdentifier, IGameComponent> CreateHud()
         {
+            var characterAnimator = CreateCharacterAnimator();
+
             var controls = new Dictionary<HudControlIdentifier, IGameComponent>
             {
                 {HudControlIdentifier.CurrentUserInputTracker, CreateCurrentUserInputTracker()},
@@ -164,9 +166,11 @@ namespace EndlessClient.HUD.Controls
 
                 {HudControlIdentifier.UsageTracker, CreateUsageTracker()},
                 {HudControlIdentifier.UserInputHandler, CreateUserInputHandler()},
-                {HudControlIdentifier.CharacterAnimator, CreateCharacterAnimator()},
+                {HudControlIdentifier.CharacterAnimator, characterAnimator},
                 {HudControlIdentifier.NPCAnimator, CreateNPCAnimator()},
                 {HudControlIdentifier.UnknownEntitiesRequester, CreateUnknownEntitiesRequester()},
+                {HudControlIdentifier.PeriodicEmoteHandler, CreatePeriodicEmoteHandler(characterAnimator)},
+
                 {HudControlIdentifier.PreviousUserInputTracker, CreatePreviousUserInputTracker()}
             };
 
@@ -390,12 +394,17 @@ namespace EndlessClient.HUD.Controls
 
         private ICharacterAnimator CreateCharacterAnimator()
         {
-            return new CharacterAnimator(_endlessGameProvider, _characterRepository, _currentMapStateRepository, _currentMapProvider, _userInputTimeProvider, _characterActions, _walkValidationActions, _pathFinder);
+            return new CharacterAnimator(_endlessGameProvider, _characterRepository, _currentMapStateRepository, _currentMapProvider, _characterActions, _walkValidationActions, _pathFinder);
         }
 
         private INPCAnimator CreateNPCAnimator()
         {
             return new NPCAnimator(_endlessGameProvider, _currentMapStateRepository);
+        }
+
+        private IPeriodicEmoteHandler CreatePeriodicEmoteHandler(ICharacterAnimator characterAnimator)
+        {
+            return new PeriodicEmoteHandler(_endlessGameProvider, _characterActions, _userInputTimeProvider, _characterRepository, characterAnimator);
         }
 
         private PreviousUserInputTracker CreatePreviousUserInputTracker()

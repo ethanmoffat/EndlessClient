@@ -24,7 +24,6 @@ namespace EndlessClient.Rendering.Character
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly ICurrentMapProvider _currentMapProvider;
-        private readonly IUserInputTimeProvider _userInputTimeProvider;
         private readonly ICharacterActions _characterActions;
         private readonly IWalkValidationActions _walkValidationActions;
         private readonly IPathFinder _pathFinder;
@@ -36,15 +35,6 @@ namespace EndlessClient.Rendering.Character
         private readonly Dictionary<int, RenderFrameActionTime> _otherPlayerStartSpellCastTimes;
         private readonly Dictionary<int, RenderFrameActionTime> _startEmoteTimes;
 
-        private readonly Random _random;
-
-        private Option<DateTime> _drunkStart;
-        private Option<Stopwatch> _drunkTimeSinceLastEmote;
-        private int _drunkIntervalSeconds;
-        private double _drunkTimeoutSeconds;
-
-        private Option<Stopwatch> _afkTimeSinceLastEmote;
-
         private Queue<MapCoordinate> _walkPath;
         private Option<MapCoordinate> _targetCoordinate;
 
@@ -52,7 +42,6 @@ namespace EndlessClient.Rendering.Character
                                  ICharacterRepository characterRepository,
                                  ICurrentMapStateRepository currentMapStateRepository,
                                  ICurrentMapProvider currentMapProvider,
-                                 IUserInputTimeProvider userInputTimeProvider,
                                  ICharacterActions characterActions,
                                  IWalkValidationActions walkValidationActions,
                                  IPathFinder pathFinder)
@@ -61,7 +50,6 @@ namespace EndlessClient.Rendering.Character
             _characterRepository = characterRepository;
             _currentMapStateRepository = currentMapStateRepository;
             _currentMapProvider = currentMapProvider;
-            _userInputTimeProvider = userInputTimeProvider;
             _characterActions = characterActions;
             _walkValidationActions = walkValidationActions;
             _pathFinder = pathFinder;
@@ -71,8 +59,6 @@ namespace EndlessClient.Rendering.Character
             _otherPlayerStartAttackingTimes = new Dictionary<int, RenderFrameActionTime>();
             _otherPlayerStartSpellCastTimes = new Dictionary<int, RenderFrameActionTime>();
             _startEmoteTimes = new Dictionary<int, RenderFrameActionTime>();
-
-            _random = new Random();
 
             _walkPath = new Queue<MapCoordinate>();
         }
@@ -213,11 +199,6 @@ namespace EndlessClient.Rendering.Character
 
             _startEmoteTimes[characterID] = startEmoteTime;
             return true;
-        }
-
-        public void SetDrunkTimeout(int beerPotency)
-        {
-            _drunkTimeoutSeconds = (100 + (beerPotency * 10)) / 8.0;
         }
 
         public void StopAllCharacterAnimations()
@@ -454,67 +435,6 @@ namespace EndlessClient.Rendering.Character
 
         private void AnimateCharacterEmotes()
         {
-            // todo: drunk/afk stuff might be better suited in a different game component, since they don't strictly pertain to character animation
-            _drunkStart.Match(
-                some: ds =>
-                {
-                    if ((DateTime.Now - ds).TotalSeconds > _drunkTimeoutSeconds)
-                    {
-                        _drunkStart = Option.None<DateTime>();
-                        _drunkTimeSinceLastEmote = Option.None<Stopwatch>();
-                        _drunkIntervalSeconds = 0;
-
-                        _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithRenderProperties(
-                            _characterRepository.MainCharacter.RenderProperties.WithIsDrunk(false));
-                    }
-                    else
-                    {
-                        _drunkTimeSinceLastEmote.MatchSome(dt =>
-                        {
-                            if (dt.ElapsedMilliseconds > _drunkIntervalSeconds * 1000)
-                            {
-                                _drunkIntervalSeconds = _random.Next(4, 7);
-                                _drunkTimeSinceLastEmote = Option.Some(Stopwatch.StartNew());
-
-                                if (Emote(_characterRepository.MainCharacter.ID, EOLib.Domain.Character.Emote.Drunk))
-                                    _characterActions.Emote(EOLib.Domain.Character.Emote.Drunk);
-                            }
-                        });
-                    }
-                },
-                none: () =>
-                {
-                    if (_characterRepository.MainCharacter.RenderProperties.IsDrunk)
-                    {
-                        _drunkStart = Option.Some(DateTime.Now);
-                        _drunkIntervalSeconds = _random.Next(2, 6);
-                        _drunkTimeSinceLastEmote = Option.Some(Stopwatch.StartNew());
-
-                        if (Emote(_characterRepository.MainCharacter.ID, EOLib.Domain.Character.Emote.Drunk))
-                            _characterActions.Emote(EOLib.Domain.Character.Emote.Drunk);
-                    }
-                });
-
-            if ((DateTime.Now - _userInputTimeProvider.LastInputTime).TotalMinutes >= 5)
-            {
-                _afkTimeSinceLastEmote.Match(
-                    some: at =>
-                    {
-                        if (at.Elapsed.TotalMinutes >= 1)
-                        {
-                            if (Emote(_characterRepository.MainCharacter.ID, EOLib.Domain.Character.Emote.Moon))
-                                _characterActions.Emote(EOLib.Domain.Character.Emote.Moon);
-                            _afkTimeSinceLastEmote = Option.Some(Stopwatch.StartNew());
-                        }
-                    },
-                    none: () =>
-                    {
-                        if (Emote(_characterRepository.MainCharacter.ID, EOLib.Domain.Character.Emote.Moon))
-                            _characterActions.Emote(EOLib.Domain.Character.Emote.Moon);
-                        _afkTimeSinceLastEmote = Option.Some(Stopwatch.StartNew());
-                    });
-            }
-
             var playersDoneEmoting = new HashSet<int>();
             foreach (var pair in _startEmoteTimes.Values)
             {
@@ -588,8 +508,6 @@ namespace EndlessClient.Rendering.Character
         void StartOtherCharacterSpellCast(int characterID);
 
         bool Emote(int characterID, Emote whichEmote);
-
-        void SetDrunkTimeout(int beerPotency);
 
         void StopAllCharacterAnimations();
     }

@@ -131,7 +131,7 @@ namespace EndlessClient.Controllers
                 if (record.Type == ItemType.Beer)
                 {
                     // The server does not send back the potency, it is all client-side
-                    _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator)
+                    _hudControlProvider.GetComponent<IPeriodicEmoteHandler>(HudControlIdentifier.PeriodicEmoteHandler)
                         .SetDrunkTimeout(record.BeerPotency);
                 }
             }

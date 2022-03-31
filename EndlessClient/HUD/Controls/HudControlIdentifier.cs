@@ -70,6 +70,7 @@ namespace EndlessClient.HUD.Controls
         CharacterAnimator,
         NPCAnimator,
         UnknownEntitiesRequester,
+        PeriodicEmoteHandler,
 
         PreviousUserInputTracker = Int32.MaxValue, //this should always be last!
     }
