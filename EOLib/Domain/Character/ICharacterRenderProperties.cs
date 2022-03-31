@@ -33,6 +33,7 @@ namespace EOLib.Domain.Character
 
         bool IsHidden { get; }
         bool IsDead { get; }
+        bool IsDrunk { get; }
 
         bool IsRangedWeapon { get; }
 
@@ -63,5 +64,7 @@ namespace EOLib.Domain.Character
         ICharacterRenderProperties WithIsHidden(bool hidden);
         ICharacterRenderProperties WithDead();
         ICharacterRenderProperties WithAlive();
+
+        ICharacterRenderProperties WithIsDrunk(bool drunk);
     }
 }

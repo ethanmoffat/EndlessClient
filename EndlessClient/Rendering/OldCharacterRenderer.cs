@@ -93,9 +93,6 @@ namespace EndlessClient.Rendering
         private DateTime? m_deadTime;
         private DateTime m_lastActTime;
 
-        private DateTime? m_drunkTime;
-        private int m_drunkOffset;
-
         private DateTime? _spellInvocationStartTime;
 
         private CharacterActionState State => Character.State;
@@ -252,7 +249,6 @@ namespace EndlessClient.Rendering
             {
                 _adjustSP(gameTime);
                 _checkAFKCharacter();
-                _checkHandleDrunkCharacter();
             }
         }
 
@@ -375,27 +371,6 @@ namespace EndlessClient.Rendering
             //    m_lastEmoteTime = DateTime.Now;
             //    Character.Emote(Emote.Moon);
             //    PlayerEmote();
-            //}
-        }
-
-        private void _checkHandleDrunkCharacter()
-        {
-            //if (m_drunkTime.HasValue && Character.IsDrunk)
-            //{
-            //    //note: these timer values (between 1-6 seconds and 30 seconds) are completely arbitrary
-            //    if (!m_lastEmoteTime.HasValue || (DateTime.Now - m_lastEmoteTime.Value).TotalMilliseconds > m_drunkOffset)
-            //    {
-            //        m_lastEmoteTime = DateTime.Now;
-            //        Character.Emote(Emote.Drunk);
-            //        PlayerEmote();
-            //        m_drunkOffset = (new Random()).Next(1000, 6000); //between 1-6 seconds 
-            //    }
-
-            //    if ((DateTime.Now - m_drunkTime.Value).TotalMilliseconds >= 30000)
-            //    {
-            //        m_drunkTime = null;
-            //        Character.IsDrunk = false;
-            //    }
             //}
         }
 
@@ -1077,12 +1052,6 @@ namespace EndlessClient.Rendering
         public void SetDamageCounterValue(int value, int pctHealth, bool isHeal = false)
         {
             m_damageCounter.SetValue(value, pctHealth, isHeal);
-        }
-
-        public void MakeDrunk()
-        {
-            m_drunkTime = DateTime.Now;
-            Character.IsDrunk = true;
         }
 
         #region Spell Casting

@@ -349,8 +349,8 @@ namespace EndlessClient.HUD.Controls
                 Visible = true,
                 DrawOrder = HUD_CONTROL_LAYER
             };
-            chatTextBox.OnEnterPressed += async (o, e) => await _chatController.SendChatAndClearTextBox();
-            chatTextBox.OnClicked += (o, e) => _chatController.SelectChatTextBox();
+            chatTextBox.OnEnterPressed += (_, _) => _chatController.SendChatAndClearTextBox();
+            chatTextBox.OnClicked += (_, _) => _chatController.SelectChatTextBox();
 
             return chatTextBox;
         }

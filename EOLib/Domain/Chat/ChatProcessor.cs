@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Text;
 using AutomaticTypeMapper;
 
 namespace EOLib.Domain.Chat
@@ -6,6 +8,8 @@ namespace EOLib.Domain.Chat
     [AutoMappedType]
     public class ChatProcessor : IChatProcessor
     {
+        private readonly Random _random = new Random();
+
         public string RemoveFirstCharacterIfNeeded(string chat, ChatType chatType, string targetCharacter)
         {
             switch (chatType)
@@ -33,10 +37,36 @@ namespace EOLib.Domain.Chat
                     throw new ArgumentOutOfRangeException(nameof(chatType));
             }
         }
+
+        public string MakeDrunk(string input)
+        {
+            // implementation from Phorophor::notepad (thanks Apollo)
+            // https://discord.com/channels/723989119503696013/785190349026492437/791376941822246953
+            var ret = new StringBuilder();
+
+            foreach (var c in input)
+            {
+                var repeats = _random.Next(0, 8) < 6 ? 1 : 2;
+                ret.Append(c, repeats);
+
+                if ((c == 'a' || c == 'e') && _random.NextDouble() / 1.0 < 0.555)
+                    ret.Append('j');
+
+                if ((c == 'u' || c == 'o') && _random.NextDouble() / 1.0 < 0.444)
+                    ret.Append('w');
+
+                if ((c == ' ') && _random.NextDouble() / 1.0 < 0.333)
+                    ret.Append(" *hic*");
+            }
+
+            return ret.ToString();
+        }
     }
 
     public interface IChatProcessor
     {
         string RemoveFirstCharacterIfNeeded(string input, ChatType chatType, string targetCharacter);
+
+        string MakeDrunk(string input);
     }
 }

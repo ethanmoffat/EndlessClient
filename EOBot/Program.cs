@@ -136,6 +136,8 @@ namespace EOBot
                 var maxWeight = _characterProvider.MainCharacter.Stats[CharacterStat.MaxWeight];
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.JunkItem, $"{weight,3}/{maxWeight,3} - weight - {inventoryCount?.Amount ?? 0} in inventory");
             }
+
+            public void MakeDrunk() { }
         }
 
         [AutoMappedType]

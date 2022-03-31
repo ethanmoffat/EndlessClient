@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework;
 using Optional;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace EndlessClient.Rendering.Character
@@ -32,6 +33,12 @@ namespace EndlessClient.Rendering.Character
         private readonly Dictionary<int, RenderFrameActionTime> _otherPlayerStartAttackingTimes;
         private readonly Dictionary<int, RenderFrameActionTime> _otherPlayerStartSpellCastTimes;
         private readonly Dictionary<int, RenderFrameActionTime> _startEmoteTimes;
+
+        private readonly Random _random;
+
+        private Option<DateTime> _drunkStart;
+        private Option<Stopwatch> _drunkTimeSinceLastEmote;
+        private int _drunkIntervalSeconds;
 
         private Queue<MapCoordinate> _walkPath;
         private Option<MapCoordinate> _targetCoordinate;
@@ -57,6 +64,9 @@ namespace EndlessClient.Rendering.Character
             _otherPlayerStartAttackingTimes = new Dictionary<int, RenderFrameActionTime>();
             _otherPlayerStartSpellCastTimes = new Dictionary<int, RenderFrameActionTime>();
             _startEmoteTimes = new Dictionary<int, RenderFrameActionTime>();
+
+            _random = new Random();
+
             _walkPath = new Queue<MapCoordinate>();
         }
 
@@ -172,6 +182,12 @@ namespace EndlessClient.Rendering.Character
 
         public void Emote(int characterID, Emote whichEmote)
         {
+            if (_otherPlayerStartWalkingTimes.ContainsKey(characterID) ||
+                _otherPlayerStartAttackingTimes.ContainsKey(characterID) ||
+                _otherPlayerStartSpellCastTimes.ContainsKey(characterID) ||
+                _startEmoteTimes.ContainsKey(characterID))
+                return;
+
             var startEmoteTime = new RenderFrameActionTime(characterID);
             if (characterID == _characterRepository.MainCharacter.ID)
             {
@@ -425,6 +441,51 @@ namespace EndlessClient.Rendering.Character
 
         private void AnimateCharacterEmotes()
         {
+            // todo: Special1 for FairySoda items is 10 or 100. Possible time parameter for how long effect lasts
+            // small fairysoda lasts ~ 0:30, large ~ 2:15
+            _drunkStart.Match(
+                some: ds =>
+                {
+                    if ((DateTime.Now - ds).TotalSeconds > 30)
+                    {
+                        _drunkStart = Option.None<DateTime>();
+                        _drunkTimeSinceLastEmote = Option.None<Stopwatch>();
+                        _drunkIntervalSeconds = 0;
+
+                        _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithRenderProperties(
+                            _characterRepository.MainCharacter.RenderProperties.WithIsDrunk(false));
+                    }
+                    else
+                    {
+                        _drunkTimeSinceLastEmote.MatchSome(dt =>
+                        {
+                            if (dt.ElapsedMilliseconds > _drunkIntervalSeconds * 1000)
+                            {
+                                _drunkIntervalSeconds = _random.Next(4, 7);
+                                _drunkTimeSinceLastEmote = Option.Some(Stopwatch.StartNew());
+
+                                var rp = _characterRepository.MainCharacter.RenderProperties.WithEmote(EOLib.Domain.Character.Emote.Drunk);
+                                _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithRenderProperties(rp);
+                                _startEmoteTimes[_characterRepository.MainCharacter.ID] = new RenderFrameActionTime(_characterRepository.MainCharacter.ID);
+                                _characterActions.Emote(EOLib.Domain.Character.Emote.Drunk);
+                            }
+                        });
+                    }
+                },
+                none: () =>
+                {
+                    if (_characterRepository.MainCharacter.RenderProperties.IsDrunk)
+                    {
+                        _drunkStart = Option.Some(DateTime.Now);
+                        _drunkIntervalSeconds = _random.Next(2, 6);
+                        _drunkTimeSinceLastEmote = Option.Some(Stopwatch.StartNew());
+
+                        var rp = _characterRepository.MainCharacter.RenderProperties.WithEmote(EOLib.Domain.Character.Emote.Drunk);
+                        _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithRenderProperties(rp);
+                        _startEmoteTimes[_characterRepository.MainCharacter.ID] = new RenderFrameActionTime(_characterRepository.MainCharacter.ID);
+                    }
+                });
+
             var playersDoneEmoting = new HashSet<int>();
             foreach (var pair in _startEmoteTimes.Values)
             {

@@ -28,7 +28,7 @@ namespace EndlessClient.Controllers
             var mainRenderer = _characterRendererProvider.MainCharacterRenderer;
             mainRenderer.MatchSome(renderer =>
             {
-                if (renderer.Character.RenderProperties.IsActing(CharacterActionState.Emote))
+                if (!renderer.Character.RenderProperties.IsActing(CharacterActionState.Standing))
                     return;
 
                 _characterActions.Emote(whichEmote);
