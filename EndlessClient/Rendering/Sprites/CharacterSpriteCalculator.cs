@@ -332,7 +332,7 @@ namespace EndlessClient.Rendering.Sprites
             }
             else if (characterRenderProperties.Gender == 0)
             {
-                if (characterRenderProperties.CurrentAction == CharacterActionState.Attacking)
+                if (characterRenderProperties.CurrentAction == CharacterActionState.Attacking && characterRenderProperties.RenderAttackFrame > 0)
                 {
                     walkExtra += 1;
                 }
