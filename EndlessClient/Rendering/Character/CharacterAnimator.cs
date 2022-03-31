@@ -39,6 +39,7 @@ namespace EndlessClient.Rendering.Character
         private Option<DateTime> _drunkStart;
         private Option<Stopwatch> _drunkTimeSinceLastEmote;
         private int _drunkIntervalSeconds;
+        private double _drunkTimeoutSeconds;
 
         private Queue<MapCoordinate> _walkPath;
         private Option<MapCoordinate> _targetCoordinate;
@@ -180,13 +181,13 @@ namespace EndlessClient.Rendering.Character
             _otherPlayerStartSpellCastTimes.Add(characterID, startAttackingTimeAndID);
         }
 
-        public void Emote(int characterID, Emote whichEmote)
+        public bool Emote(int characterID, Emote whichEmote)
         {
             if (_otherPlayerStartWalkingTimes.ContainsKey(characterID) ||
                 _otherPlayerStartAttackingTimes.ContainsKey(characterID) ||
                 _otherPlayerStartSpellCastTimes.ContainsKey(characterID) ||
                 _startEmoteTimes.ContainsKey(characterID))
-                return;
+                return false;
 
             var startEmoteTime = new RenderFrameActionTime(characterID);
             if (characterID == _characterRepository.MainCharacter.ID)
@@ -205,6 +206,12 @@ namespace EndlessClient.Rendering.Character
             }
 
             _startEmoteTimes[characterID] = startEmoteTime;
+            return true;
+        }
+
+        public void SetDrunkTimeout(int beerPotency)
+        {
+            _drunkTimeoutSeconds = (100 + (beerPotency * 10)) / 8.0;
         }
 
         public void StopAllCharacterAnimations()
@@ -441,12 +448,10 @@ namespace EndlessClient.Rendering.Character
 
         private void AnimateCharacterEmotes()
         {
-            // todo: Special1 for FairySoda items is 10 or 100. Possible time parameter for how long effect lasts
-            // small fairysoda lasts ~ 0:30, large ~ 2:15
             _drunkStart.Match(
                 some: ds =>
                 {
-                    if ((DateTime.Now - ds).TotalSeconds > 30)
+                    if ((DateTime.Now - ds).TotalSeconds > _drunkTimeoutSeconds)
                     {
                         _drunkStart = Option.None<DateTime>();
                         _drunkTimeSinceLastEmote = Option.None<Stopwatch>();
@@ -464,10 +469,8 @@ namespace EndlessClient.Rendering.Character
                                 _drunkIntervalSeconds = _random.Next(4, 7);
                                 _drunkTimeSinceLastEmote = Option.Some(Stopwatch.StartNew());
 
-                                var rp = _characterRepository.MainCharacter.RenderProperties.WithEmote(EOLib.Domain.Character.Emote.Drunk);
-                                _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithRenderProperties(rp);
-                                _startEmoteTimes[_characterRepository.MainCharacter.ID] = new RenderFrameActionTime(_characterRepository.MainCharacter.ID);
-                                _characterActions.Emote(EOLib.Domain.Character.Emote.Drunk);
+                                if (Emote(_characterRepository.MainCharacter.ID, EOLib.Domain.Character.Emote.Drunk))
+                                    _characterActions.Emote(EOLib.Domain.Character.Emote.Drunk);
                             }
                         });
                     }
@@ -480,9 +483,8 @@ namespace EndlessClient.Rendering.Character
                         _drunkIntervalSeconds = _random.Next(2, 6);
                         _drunkTimeSinceLastEmote = Option.Some(Stopwatch.StartNew());
 
-                        var rp = _characterRepository.MainCharacter.RenderProperties.WithEmote(EOLib.Domain.Character.Emote.Drunk);
-                        _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithRenderProperties(rp);
-                        _startEmoteTimes[_characterRepository.MainCharacter.ID] = new RenderFrameActionTime(_characterRepository.MainCharacter.ID);
+                        if (Emote(_characterRepository.MainCharacter.ID, EOLib.Domain.Character.Emote.Drunk))
+                            _characterActions.Emote(EOLib.Domain.Character.Emote.Drunk);
                     }
                 });
 
@@ -558,7 +560,9 @@ namespace EndlessClient.Rendering.Character
 
         void StartOtherCharacterSpellCast(int characterID);
 
-        void Emote(int characterID, Emote whichEmote);
+        bool Emote(int characterID, Emote whichEmote);
+
+        void SetDrunkTimeout(int beerPotency);
 
         void StopAllCharacterAnimations();
     }

@@ -5,12 +5,12 @@ using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Controls;
+using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
 using EOLib.IO;
-using EOLib.IO.Extensions;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
@@ -127,6 +127,13 @@ namespace EndlessClient.Controllers
             if (useItem)
             {
                 _itemActions.UseItem((short)record.ID);
+
+                if (record.Type == ItemType.Beer)
+                {
+                    // The server does not send back the potency, it is all client-side
+                    _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator)
+                        .SetDrunkTimeout(record.BeerPotency);
+                }
             }
         }
 
