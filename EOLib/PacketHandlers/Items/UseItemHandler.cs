@@ -158,7 +158,7 @@ namespace EOLib.PacketHandlers.Items
                         .WithNewStat(CharacterStat.Armor, cureCurseArmor);
 
                     break;
-                case ItemType.EXPReward:  // todo: EXPReward has not been tested
+                case ItemType.EXPReward:
                     var levelUpExp = packet.ReadInt();
                     var levelUpLevel = packet.ReadChar();
                     var levelUpStat = packet.ReadShort();

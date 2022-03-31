@@ -114,7 +114,7 @@ namespace EndlessClient.Controllers
                 case ItemType.HairDye:
                 case ItemType.Beer:
                 case ItemType.EffectPotion:
-                case ItemType.EXPReward: // todo: EXPReward has not been tested
+                case ItemType.EXPReward:
                     useItem = true;
                     break;
 
