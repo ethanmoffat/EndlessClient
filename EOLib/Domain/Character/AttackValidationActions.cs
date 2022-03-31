@@ -1,6 +1,9 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
+using EOLib.IO.Repositories;
+using Optional.Collections;
+using System.Linq;
 
 namespace EOLib.Domain.Character
 {
@@ -9,12 +12,15 @@ namespace EOLib.Domain.Character
     {
         private readonly ICharacterProvider _characterProvider;
         private readonly IMapCellStateProvider _mapCellStateProvider;
+        private readonly IEIFFileProvider _eifFileProvider;
 
         public AttackValidationActions(ICharacterProvider characterProvider,
-                                       IMapCellStateProvider mapCellStateProvider)
+                                       IMapCellStateProvider mapCellStateProvider,
+                                       IEIFFileProvider eifFileProvider)
         {
             _characterProvider = characterProvider;
             _mapCellStateProvider = mapCellStateProvider;
+            _eifFileProvider = eifFileProvider;
         }
 
         public AttackValidationError ValidateCharacterStateBeforeAttacking()
@@ -26,6 +32,9 @@ namespace EOLib.Domain.Character
                 return AttackValidationError.Exhausted;
 
             var rp = _characterProvider.MainCharacter.RenderProperties;
+
+            if (rp.IsRangedWeapon && (rp.ShieldGraphic == 0 || !_eifFileProvider.EIFFile.Any(x => x.DollGraphic == rp.ShieldGraphic && x.SubType == IO.ItemSubType.Arrows)))
+                return AttackValidationError.MissingArrows;
 
             return _mapCellStateProvider
                 .GetCellStateAt(rp.GetDestinationX(), rp.GetDestinationY())
@@ -47,6 +56,7 @@ namespace EOLib.Domain.Character
         OK,
         Overweight,
         Exhausted,
-        NotYourBattle
+        NotYourBattle,
+        MissingArrows
     }
 }
