@@ -91,7 +91,6 @@ namespace EndlessClient.Rendering
         private readonly DamageCounter m_damageCounter;
 
         private DateTime? m_deadTime;
-        private DateTime m_lastActTime;
 
         private DateTime? _spellInvocationStartTime;
 
@@ -221,8 +220,6 @@ namespace EndlessClient.Rendering
                 
                 _spellCastTimer = new Timer(_endSpellCast, null, Timeout.Infinite, Timeout.Infinite);
             }
-
-            m_lastActTime = DateTime.Now;
         }
 
         protected override void UnloadContent()
@@ -247,8 +244,7 @@ namespace EndlessClient.Rendering
 
             if (EOGame.Instance.State == GameStates.PlayingTheGame && this == OldWorld.Instance.ActiveCharacterRenderer)
             {
-                _adjustSP(gameTime);
-                _checkAFKCharacter();
+                _adjustSP(gameTime);;
             }
         }
 
@@ -362,18 +358,6 @@ namespace EndlessClient.Rendering
                 Character.Stats.SP = (short)(Character.Stats.SP + 1);
         }
 
-        private void _checkAFKCharacter()
-        {
-            //5-minute timeout: start sending emotes every minute
-            //if ((DateTime.Now - m_lastActTime).TotalMinutes > 5 &&
-            //    (m_lastEmoteTime == null || (DateTime.Now - m_lastEmoteTime.Value).TotalMinutes > 1))
-            //{
-            //    m_lastEmoteTime = DateTime.Now;
-            //    Character.Emote(Emote.Moon);
-            //    PlayerEmote();
-            //}
-        }
-
         private bool _getMouseOverActual()
         {
             var skinDrawLoc = _getSkinDrawLoc();
@@ -485,10 +469,6 @@ namespace EndlessClient.Rendering
             catch (ObjectDisposedException) { }
         }
 
-        public void UpdateInputTime(DateTime lastInputTime)
-        {
-            m_lastActTime = lastInputTime;
-        }
 
         public void Die()
         {

@@ -6,6 +6,7 @@ using EndlessClient.HUD;
 using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Inventory;
 using EndlessClient.HUD.Panels;
+using EndlessClient.Input;
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
@@ -33,6 +34,7 @@ namespace EndlessClient.Controllers
         private readonly IHudControlProvider _hudControlProvider;
         private readonly ICharacterRendererProvider _characterRendererProvider;
         private readonly IContextMenuRepository _contextMenuRepository;
+        private readonly IUserInputTimeRepository _userInputTimeRepository;
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
         private readonly IContextMenuRendererFactory _contextMenuRendererFactory;
 
@@ -46,6 +48,7 @@ namespace EndlessClient.Controllers
                                         IHudControlProvider hudControlProvider,
                                         ICharacterRendererProvider characterRendererProvider,
                                         IContextMenuRepository contextMenuRepository,
+                                        IUserInputTimeRepository userInputTimeRepository,
                                         IEOMessageBoxFactory eoMessageBoxFactory,
                                         IContextMenuRendererFactory contextMenuRendererFactory)
         {
@@ -59,11 +62,12 @@ namespace EndlessClient.Controllers
             _hudControlProvider = hudControlProvider;
             _characterRendererProvider = characterRendererProvider;
             _contextMenuRepository = contextMenuRepository;
+            _userInputTimeRepository = userInputTimeRepository;
             _eoMessageBoxFactory = eoMessageBoxFactory;
             _contextMenuRendererFactory = contextMenuRendererFactory;
         }
 
-        public async Task LeftClickAsync(IMapCellState cellState, IMouseCursorRenderer mouseRenderer)
+        public void LeftClick(IMapCellState cellState, IMouseCursorRenderer mouseRenderer)
         {
             if (!InventoryPanel.NoItemsDragging())
             {
@@ -89,7 +93,7 @@ namespace EndlessClient.Controllers
             {
                 var sign = cellState.Sign.ValueOr(Sign.None);
                 var messageBox = _eoMessageBoxFactory.CreateMessageBox(sign.Message, sign.Title);
-                await messageBox.ShowDialogAsync();
+                messageBox.ShowDialog();
             }
             else if (cellState.Chest.HasValue) { /* TODO: chest interaction */ }
             else if (cellState.Character.HasValue) { /* TODO: character spell cast */ }
@@ -99,6 +103,8 @@ namespace EndlessClient.Controllers
                 _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator)
                     .StartMainCharacterWalkAnimation(Option.Some(cellState.Coordinate));
             }
+
+            _userInputTimeRepository.LastInputTime = DateTime.Now;
         }
 
         public void RightClick(IMapCellState cellState)
@@ -111,6 +117,7 @@ namespace EndlessClient.Controllers
                 if (c == _characterProvider.MainCharacter)
                 {
                     _inGameDialogActions.ShowPaperdollDialog(_characterProvider.MainCharacter, isMainCharacter: true);
+                    _userInputTimeRepository.LastInputTime = DateTime.Now;
                 }
                 else if (_characterRendererProvider.CharacterRenderers.ContainsKey(c.ID))
                 {
@@ -160,7 +167,7 @@ namespace EndlessClient.Controllers
 
     public interface IMapInteractionController
     {
-        Task LeftClickAsync(IMapCellState cellState, IMouseCursorRenderer mouseRenderer);
+        void LeftClick(IMapCellState cellState, IMouseCursorRenderer mouseRenderer);
 
         void RightClick(IMapCellState cellState);
     }

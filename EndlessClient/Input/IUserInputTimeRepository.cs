@@ -8,8 +8,13 @@ namespace EndlessClient.Input
         DateTime LastInputTime { get; set; }
     }
 
-    [MappedType(BaseType = typeof(IUserInputTimeRepository), IsSingleton = true)]
-    public class UserInputTimeRepository : IUserInputTimeRepository
+    public interface IUserInputTimeProvider
+    {
+        DateTime LastInputTime { get; }
+    }
+
+    [AutoMappedType(IsSingleton = true)]
+    public class UserInputTimeRepository : IUserInputTimeRepository, IUserInputTimeProvider
     {
         public DateTime LastInputTime { get; set; }
 

@@ -1,5 +1,6 @@
 ﻿using EndlessClient.GameExecution;
 using EndlessClient.HUD;
+using EndlessClient.Input;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
@@ -23,6 +24,7 @@ namespace EndlessClient.Rendering.Character
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly ICurrentMapProvider _currentMapProvider;
+        private readonly IUserInputTimeProvider _userInputTimeProvider;
         private readonly ICharacterActions _characterActions;
         private readonly IWalkValidationActions _walkValidationActions;
         private readonly IPathFinder _pathFinder;
@@ -41,6 +43,8 @@ namespace EndlessClient.Rendering.Character
         private int _drunkIntervalSeconds;
         private double _drunkTimeoutSeconds;
 
+        private Option<Stopwatch> _afkTimeSinceLastEmote;
+
         private Queue<MapCoordinate> _walkPath;
         private Option<MapCoordinate> _targetCoordinate;
 
@@ -48,6 +52,7 @@ namespace EndlessClient.Rendering.Character
                                  ICharacterRepository characterRepository,
                                  ICurrentMapStateRepository currentMapStateRepository,
                                  ICurrentMapProvider currentMapProvider,
+                                 IUserInputTimeProvider userInputTimeProvider,
                                  ICharacterActions characterActions,
                                  IWalkValidationActions walkValidationActions,
                                  IPathFinder pathFinder)
@@ -56,6 +61,7 @@ namespace EndlessClient.Rendering.Character
             _characterRepository = characterRepository;
             _currentMapStateRepository = currentMapStateRepository;
             _currentMapProvider = currentMapProvider;
+            _userInputTimeProvider = userInputTimeProvider;
             _characterActions = characterActions;
             _walkValidationActions = walkValidationActions;
             _pathFinder = pathFinder;
@@ -448,6 +454,7 @@ namespace EndlessClient.Rendering.Character
 
         private void AnimateCharacterEmotes()
         {
+            // todo: drunk/afk stuff might be better suited in a different game component, since they don't strictly pertain to character animation
             _drunkStart.Match(
                 some: ds =>
                 {
@@ -487,6 +494,26 @@ namespace EndlessClient.Rendering.Character
                             _characterActions.Emote(EOLib.Domain.Character.Emote.Drunk);
                     }
                 });
+
+            if ((DateTime.Now - _userInputTimeProvider.LastInputTime).TotalMinutes >= 5)
+            {
+                _afkTimeSinceLastEmote.Match(
+                    some: at =>
+                    {
+                        if (at.Elapsed.TotalMinutes >= 1)
+                        {
+                            if (Emote(_characterRepository.MainCharacter.ID, EOLib.Domain.Character.Emote.Moon))
+                                _characterActions.Emote(EOLib.Domain.Character.Emote.Moon);
+                            _afkTimeSinceLastEmote = Option.Some(Stopwatch.StartNew());
+                        }
+                    },
+                    none: () =>
+                    {
+                        if (Emote(_characterRepository.MainCharacter.ID, EOLib.Domain.Character.Emote.Moon))
+                            _characterActions.Emote(EOLib.Domain.Character.Emote.Moon);
+                        _afkTimeSinceLastEmote = Option.Some(Stopwatch.StartNew());
+                    });
+            }
 
             var playersDoneEmoting = new HashSet<int>();
             foreach (var pair in _startEmoteTimes.Values)

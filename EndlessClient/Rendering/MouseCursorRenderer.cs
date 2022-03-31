@@ -110,7 +110,7 @@ namespace EndlessClient.Rendering
 
         #region Update and Helpers
 
-        public override async void Update(GameTime gameTime)
+        public override void Update(GameTime gameTime)
         {
             // prevents updates if there is a dialog
             if (!ShouldUpdate() || _activeDialogProvider.ActiveDialogs.Any(x => x.HasValue) ||
@@ -128,7 +128,7 @@ namespace EndlessClient.Rendering
             var cellState = _mapCellStateProvider.GetCellStateAt(_gridX, _gridY);
             UpdateCursorSourceRectangle(cellState);
 
-            await CheckForClicks(cellState);
+            CheckForClicks(cellState);
         }
 
         private void SetGridCoordsBasedOnMousePosition(int offsetX, int offsetY)
@@ -285,7 +285,7 @@ namespace EndlessClient.Rendering
             }
         }
 
-        private async Task CheckForClicks(IMapCellState cellState)
+        private void CheckForClicks(IMapCellState cellState)
         {
             var currentMouseState = _userInputProvider.CurrentMouseState;
             var previousMouseState = _userInputProvider.PreviousMouseState;
@@ -294,7 +294,7 @@ namespace EndlessClient.Rendering
             if (currentMouseState.LeftButton == ButtonState.Released &&
                 previousMouseState.LeftButton == ButtonState.Pressed)
             {
-                await _mapInteractionController.LeftClickAsync(cellState, this);
+                _mapInteractionController.LeftClick(cellState, this);
             }
         }
 
