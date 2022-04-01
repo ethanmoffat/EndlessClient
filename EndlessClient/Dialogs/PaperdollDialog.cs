@@ -1,9 +1,13 @@
 ﻿using EndlessClient.Controllers;
+using EndlessClient.ControlSets;
+using EndlessClient.Dialogs.Extensions;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD;
+using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Inventory;
+using EndlessClient.HUD.Panels;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Online;
@@ -17,6 +21,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Optional;
 using Optional.Unsafe;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using XNAControls;
 
@@ -37,8 +42,11 @@ namespace EndlessClient.Dialogs
         private readonly Texture2D _characterIconSheet;
         private readonly Texture2D _background;
         private Option<Rectangle> _characterIconSourceRect;
+        private readonly InventoryPanel _inventoryPanel;
 
         private Option<IPaperdollData> _paperdollData;
+
+        private readonly List<PaperdollDialogItem> _childItems;
 
         private readonly IXNALabel _name,
             _home,
@@ -55,6 +63,7 @@ namespace EndlessClient.Dialogs
                                IInventoryController inventoryController,
                                IPaperdollProvider paperdollProvider,
                                IPubFileProvider pubFileProvider,
+                               IHudControlProvider hudControlProvider,
                                IEODialogButtonService eoDialogButtonService,
                                IInventorySpaceValidator inventorySpaceValidator,
                                IEOMessageBoxFactory eoMessageBoxFactory,
@@ -73,6 +82,10 @@ namespace EndlessClient.Dialogs
             _isMainCharacter = isMainCharacter;
             _characterIconSheet = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 32, true);
             _characterIconSourceRect = Option.None<Rectangle>();
+
+            _inventoryPanel = hudControlProvider.GetComponent<InventoryPanel>(HudControlIdentifier.InventoryPanel);
+
+            _childItems = new List<PaperdollDialogItem>();
 
             _background = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 49);
             SetSize(_background.Width, _background.Height / 2);
@@ -123,10 +136,10 @@ namespace EndlessClient.Dialogs
             _paperdollData = Option.None<IPaperdollData>();
         }
 
+        public bool NoItemsDragging() => !_childItems.Any(x => x.IsBeingDragged);
+
         protected override void OnUpdateControl(GameTime gameTime)
         {
-            base.OnUpdateControl(gameTime);
-
             _paperdollData = _paperdollData.FlatMap(paperdollData =>
                 paperdollData.NoneWhen(d => _paperdollProvider.VisibleCharacterPaperdolls.ContainsKey(Character.ID) &&
                                            !_paperdollProvider.VisibleCharacterPaperdolls[Character.ID].Equals(d)));
@@ -141,19 +154,9 @@ namespace EndlessClient.Dialogs
                     }
                 });
 
-            // todo: dragging to equip/unequip from inventory
-            /*
-            if (EOGame.Instance.Hud.IsInventoryDragging())
-            {
-                shouldClickDrag = false;
-                SuppressParentClickDrag(true);
-            }
-            else
-            {
-                shouldClickDrag = true;
-                SuppressParentClickDrag(false);
-            }
-            */
+            SuppressClickDragEvent(!NoItemsDragging() || !_inventoryPanel.NoItemsDragging());
+
+            base.OnUpdateControl(gameTime);
         }
 
         protected override void OnDrawControl(GameTime gameTime)
@@ -198,9 +201,7 @@ namespace EndlessClient.Dialogs
             _guild.Text = Capitalize(paperdollData.Guild);
             _rank.Text = Capitalize(paperdollData.Rank);
 
-            var paperdollDialogItems = ChildControls.OfType<PaperdollDialogItem>().ToList();
-
-            foreach (var control in paperdollDialogItems)
+            foreach (var control in _childItems)
             {
                 control.SetControlUnparented();
                 control.Dispose();
@@ -213,9 +214,9 @@ namespace EndlessClient.Dialogs
 
                 var id = paperdollData.Paperdoll[equipLocation];
                 var eifRecord = id.SomeWhen(i => i > 0).Map(i => _pubFileProvider.EIFFile[i]);
-                var paperdollItem = new PaperdollDialogItem(_nativeGraphicsManager, _isMainCharacter, equipLocation, eifRecord)
+                var paperdollItem = new PaperdollDialogItem(_nativeGraphicsManager, _inventoryPanel, this, _isMainCharacter, equipLocation, eifRecord)
                 {
-                    DrawArea = GetEquipLocationRectangle(equipLocation)
+                    DrawArea = equipLocation.GetEquipLocationRectangle()
                 };
 
                 paperdollItem.OnMouseEnter += (_, _) =>
@@ -271,6 +272,8 @@ namespace EndlessClient.Dialogs
 
                 paperdollItem.SetParentControl(this);
                 paperdollItem.Initialize();
+
+                _childItems.Add(paperdollItem);
             }
 
             _characterIconSourceRect = Option.Some(GetOnlineIconSourceRectangle(paperdollData.Icon));
@@ -283,29 +286,6 @@ namespace EndlessClient.Dialogs
         {
             var (x, y, width, height) = icon.ToChatIcon().GetChatIconRectangleBounds().ValueOrDefault();
             return new Rectangle(x, y, width, height);
-        }
-
-        private static Rectangle GetEquipLocationRectangle(EquipLocation loc)
-        {
-            switch (loc)
-            {
-                case EquipLocation.Boots: return new Rectangle(87, 220, 56, 54);
-                case EquipLocation.Accessory: return new Rectangle(55, 250, 23, 23);
-                case EquipLocation.Gloves: return new Rectangle(22, 188, 56, 54);
-                case EquipLocation.Belt: return new Rectangle(87, 188, 56, 23);
-                case EquipLocation.Armor: return new Rectangle(86, 82, 56, 98);
-                case EquipLocation.Necklace: return new Rectangle(152, 51, 56, 23);
-                case EquipLocation.Hat: return new Rectangle(87, 21, 56, 54);
-                case EquipLocation.Shield: return new Rectangle(152, 82, 56, 98);
-                case EquipLocation.Weapon: return new Rectangle(22, 82, 56, 98);
-                case EquipLocation.Ring1: return new Rectangle(152, 190, 23, 23);
-                case EquipLocation.Ring2: return new Rectangle(185, 190, 23, 23);
-                case EquipLocation.Armlet1: return new Rectangle(152, 220, 23, 23);
-                case EquipLocation.Armlet2: return new Rectangle(185, 220, 23, 23);
-                case EquipLocation.Bracer1: return new Rectangle(152, 250, 23, 23);
-                case EquipLocation.Bracer2: return new Rectangle(185, 250, 23, 23);
-                default: throw new ArgumentOutOfRangeException(nameof(loc), "That is not a valid equipment location");
-            }
         }
     }
 }

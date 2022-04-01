@@ -8,6 +8,7 @@ using EndlessClient.GameExecution;
 using EndlessClient.HUD.Controls;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
+using Optional;
 using XNAControls;
 
 namespace EndlessClient.ControlSets
@@ -16,18 +17,20 @@ namespace EndlessClient.ControlSets
     {
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly IHudControlsFactory _hudControlsFactory;
-
+        private readonly IActiveDialogRepository _activeDialogRepository;
         private IReadOnlyDictionary<HudControlIdentifier, IGameComponent> _controls;
 
         public override GameStates GameState => GameStates.PlayingTheGame;
 
         public InGameControlSet(IMainButtonController mainButtonController,
                                 IEOMessageBoxFactory messageBoxFactory,
-                                IHudControlsFactory hudControlsFactory)
+                                IHudControlsFactory hudControlsFactory,
+                                IActiveDialogRepository activeDialogRepository)
             : base(mainButtonController)
         {
             _messageBoxFactory = messageBoxFactory;
             _hudControlsFactory = hudControlsFactory;
+            _activeDialogRepository = activeDialogRepository;
             _controls = new Dictionary<HudControlIdentifier, IGameComponent>();
         }
 
@@ -54,6 +57,16 @@ namespace EndlessClient.ControlSets
             var result = await messageBox.ShowDialogAsync();
             if (result == XNADialogResult.OK)
                 _mainButtonController.GoToInitialStateAndDisconnect();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _activeDialogRepository.Dispose();
+            }
+
+            base.Dispose(disposing);
         }
     }
 }

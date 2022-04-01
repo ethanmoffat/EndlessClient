@@ -2,6 +2,7 @@
 using AutomaticTypeMapper;
 using EndlessClient.Content;
 using EndlessClient.Controllers;
+using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Controls;
@@ -26,6 +27,7 @@ namespace EndlessClient.ControlSets
         private readonly ICharacterSelectorProvider _characterSelectorProvider;
         private readonly IEndlessGameProvider _endlessGameProvider;
         private readonly IUserInputRepository _userInputRepository;
+        private readonly IActiveDialogRepository _activeDialogRepository;
         private IMainButtonController _mainButtonController;
         private IAccountController _accountController;
         private ILoginController _loginController;
@@ -40,7 +42,8 @@ namespace EndlessClient.ControlSets
                                  ICharacterInfoPanelFactory characterInfoPanelFactory,
                                  ICharacterSelectorProvider characterSelectorProvider,
                                  IEndlessGameProvider endlessGameProvider,
-                                 IUserInputRepository userInputRepository)
+                                 IUserInputRepository userInputRepository,
+                                 IActiveDialogRepository activeDialogRepository)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _messageBoxFactory = messageBoxFactory;
@@ -52,6 +55,7 @@ namespace EndlessClient.ControlSets
             _characterSelectorProvider = characterSelectorProvider;
             _endlessGameProvider = endlessGameProvider;
             _userInputRepository = userInputRepository;
+            _activeDialogRepository = activeDialogRepository;
         }
 
         public IControlSet CreateControlsForState(GameStates newState, IControlSet currentControlSet)
@@ -105,7 +109,7 @@ namespace EndlessClient.ControlSets
                         _endlessGameProvider,
                         _userInputRepository);
                 case GameStates.PlayingTheGame:
-                    return new InGameControlSet(_mainButtonController, _messageBoxFactory, _hudControlsFactory);
+                    return new InGameControlSet(_mainButtonController, _messageBoxFactory, _hudControlsFactory, _activeDialogRepository);
                 default: throw new ArgumentOutOfRangeException(nameof(newState), newState, null);
             }
         }

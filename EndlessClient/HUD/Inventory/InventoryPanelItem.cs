@@ -1,4 +1,5 @@
-﻿using EndlessClient.HUD.Panels;
+﻿using EndlessClient.Dialogs;
+using EndlessClient.HUD.Panels;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
@@ -30,6 +31,7 @@ namespace EndlessClient.HUD.Inventory
         private static readonly Rectangle InventoryGridArea = new Rectangle(114, 338, 363, 102);
 
         private readonly InventoryPanel _inventoryPanel;
+        private readonly IActiveDialogProvider _activeDialogProvider;
         private readonly Texture2D _itemGraphic;
         private readonly Texture2D _highlightBackground;
         private readonly XNALabel _nameLabel;
@@ -58,7 +60,7 @@ namespace EndlessClient.HUD.Inventory
             {
                 _slot = value;
                 DrawPosition = GetPosition(_slot);
-                DrawOrder = 102 - (_slot % InventoryPanel.InventoryRowSlots) * 2;
+                UpdateNameLabelPosition();
             }
         }
 
@@ -71,6 +73,7 @@ namespace EndlessClient.HUD.Inventory
             {
                 _nameLabel.Text = value;
                 _nameLabel.ResizeBasedOnText(16, 9);
+                UpdateNameLabelPosition();
             }
         }
 
@@ -81,9 +84,15 @@ namespace EndlessClient.HUD.Inventory
         public event EventHandler<EIFRecord> DoubleClick;
         public event EventHandler<ItemDragCompletedEventArgs> DoneDragging;
 
-        public InventoryPanelItem(IItemNameColorService itemNameColorService, InventoryPanel inventoryPanel, int slot, IInventoryItem inventoryItem, EIFRecord data)
+        public InventoryPanelItem(IItemNameColorService itemNameColorService,
+                                  InventoryPanel inventoryPanel,
+                                  IActiveDialogProvider activeDialogProvider,
+                                  int slot,
+                                  IInventoryItem inventoryItem,
+                                  EIFRecord data)
         {
             _inventoryPanel = inventoryPanel;
+            _activeDialogProvider = activeDialogProvider;
             Slot = slot;
             InventoryItem = inventoryItem;
             Data = data;
@@ -102,7 +111,7 @@ namespace EndlessClient.HUD.Inventory
                 Text = string.Empty
             };
 
-            OnMouseEnter += (_, _) => _nameLabel.Visible = !_beingDragged;
+            OnMouseEnter += (_, _) => _nameLabel.Visible = _inventoryPanel.NoItemsDragging() && _activeDialogProvider.PaperdollDialog.Match(d => d.NoItemsDragging(), () => true);
             OnMouseLeave += (_, _) => _nameLabel.Visible = false;
 
             var (slotWidth, slotHeight) = Data.Size.GetDimensions();
@@ -136,7 +145,7 @@ namespace EndlessClient.HUD.Inventory
         public override void Initialize()
         {
             _nameLabel.Initialize();
-            _nameLabel.SetParentControl(this);
+            _nameLabel.SetParentControl(_inventoryPanel);
             _nameLabel.ResizeBasedOnText(16, 9);
 
             base.Initialize();
@@ -173,7 +182,8 @@ namespace EndlessClient.HUD.Inventory
             }
             else if (++_updateTick % 8 == 0 && !_beingDragged && MouseOver && MouseOverPreviously && MouseHeld)
             {
-                if (_inventoryPanel.NoItemsDragging())
+                if (_inventoryPanel.NoItemsDragging() &&
+                    _activeDialogProvider.PaperdollDialog.Match(dlg => dlg.NoItemsDragging(), () => true))
                 {
                     StartDragging();
                 }
@@ -243,6 +253,28 @@ namespace EndlessClient.HUD.Inventory
             }
 
             base.Dispose(disposing);
+        }
+
+        private void UpdateNameLabelPosition()
+        {
+            if (_nameLabel == null)
+                return;
+
+            // the name label is parented to the inventory panel so that all name labels draw over all items (see draw orders below)
+            // the actual position of the name label needs to be set to this control's draw position
+            var actualPosition = DrawPosition;
+
+            if (actualPosition.X + _nameLabel.DrawAreaWithParentOffset.Width + DrawArea.Width > InventoryGridArea.Width)
+            {
+                _nameLabel.DrawPosition = new Vector2(actualPosition.X -_nameLabel.DrawArea.Width, actualPosition.Y);
+            }
+            else
+            {
+                _nameLabel.DrawPosition = new Vector2(actualPosition.X + DrawArea.Width, actualPosition.Y);
+            }
+
+            DrawOrder = 110;
+            _nameLabel.DrawOrder = 200;
         }
 
         private static Vector2 GetPosition(int slot)
