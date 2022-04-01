@@ -76,6 +76,8 @@ namespace EndlessClient.GameExecution
                 component.Dispose();
             foreach (var component in componentsToRemove.Where(Game.Components.Contains))
                 Game.Components.Remove(component);
+
+            currentSet.Dispose();
         }
 
         private List<IGameComponent> FindUnusedComponents(IControlSet current, IControlSet next)

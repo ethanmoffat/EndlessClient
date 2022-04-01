@@ -1,12 +1,13 @@
 ﻿using AutomaticTypeMapper;
 using Optional;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Dialogs
 {
-    public interface IActiveDialogProvider
+    public interface IActiveDialogProvider : IDisposable
     {
         Option<ScrollingListDialog> FriendIgnoreDialog { get; }
 
@@ -15,7 +16,7 @@ namespace EndlessClient.Dialogs
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs { get; }
     }
 
-    public interface IActiveDialogRepository
+    public interface IActiveDialogRepository : IDisposable
     {
         Option<ScrollingListDialog> FriendIgnoreDialog { get; set; }
 
@@ -46,5 +47,14 @@ namespace EndlessClient.Dialogs
         IReadOnlyList<Option<IXNADialog>> IActiveDialogRepository.ActiveDialogs => ActiveDialogs;
 
         IReadOnlyList<Option<IXNADialog>> IActiveDialogProvider.ActiveDialogs => ActiveDialogs;
+
+        public void Dispose()
+        {
+            foreach (var dlg in ActiveDialogs)
+                dlg.MatchSome(d => d.Dispose());
+
+            FriendIgnoreDialog = Option.None<ScrollingListDialog>();
+            PaperdollDialog = Option.None<PaperdollDialog>();
+        }
     }
 }
