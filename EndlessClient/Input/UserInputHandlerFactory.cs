@@ -15,6 +15,7 @@ namespace EndlessClient.Input
         private readonly IArrowKeyController _arrowKeyController;
         private readonly IControlKeyController _controlKeyController;
         private readonly IFunctionKeyController _functionKeyController;
+        private readonly INumPadController _numPadController;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly IActiveDialogProvider _activeDialogProvider;
 
@@ -24,6 +25,7 @@ namespace EndlessClient.Input
                                        IArrowKeyController arrowKeyController,
                                        IControlKeyController controlKeyController,
                                        IFunctionKeyController functionKeyController,
+                                       INumPadController numPadController,
                                        ICurrentMapStateProvider  currentMapStateProvider,
                                        IActiveDialogProvider activeDialogProvider)
         {
@@ -33,6 +35,7 @@ namespace EndlessClient.Input
             _arrowKeyController = arrowKeyController;
             _controlKeyController = controlKeyController;
             _functionKeyController = functionKeyController;
+            _numPadController = numPadController;
             _currentMapStateProvider = currentMapStateProvider;
             _activeDialogProvider = activeDialogProvider;
         }
@@ -45,6 +48,7 @@ namespace EndlessClient.Input
                                         _arrowKeyController,
                                         _controlKeyController,
                                         _functionKeyController,
+                                        _numPadController,
                                         _currentMapStateProvider,
                                         _activeDialogProvider);
         }

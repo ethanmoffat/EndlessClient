@@ -9,16 +9,16 @@ using System.Collections.Generic;
 namespace EOLib.PacketHandlers
 {
     [AutoMappedType]
-    public class OtherPlayerLevelUpHandler : InGameOnlyPacketHandler
+    public class PlayerEmoteHandler : InGameOnlyPacketHandler
     {
         private readonly IEnumerable<IEmoteNotifier> _emoteNotifiers;
 
-        public override PacketFamily Family => PacketFamily.Item;
+        public override PacketFamily Family => PacketFamily.Emote;
 
-        public override PacketAction Action => PacketAction.Accept;
+        public override PacketAction Action => PacketAction.Player;
 
-        public OtherPlayerLevelUpHandler(IPlayerInfoProvider playerInfoProvider,
-                                         IEnumerable<IEmoteNotifier> emoteNotifiers)
+        public PlayerEmoteHandler(IPlayerInfoProvider playerInfoProvider,
+                                  IEnumerable<IEmoteNotifier> emoteNotifiers)
             : base(playerInfoProvider)
         {
             _emoteNotifiers = emoteNotifiers;
@@ -27,8 +27,9 @@ namespace EOLib.PacketHandlers
         public override bool HandlePacket(IPacket packet)
         {
             var playerId = packet.ReadShort();
+            var emote = (Emote)packet.ReadChar();
             foreach (var notifier in _emoteNotifiers)
-                notifier.NotifyEmote(playerId, Emote.LevelUp);
+                notifier.NotifyEmote(playerId, emote);
 
             return true;
         }

@@ -15,6 +15,8 @@ namespace EndlessClient.Rendering.CharacterProperties
         public override bool CanRender => _renderProperties.IsActing(CharacterActionState.Emote) &&
                                  _renderProperties.EmoteFrame > 0;
 
+        protected override bool ShouldFlip => false;
+
         public EmoteRenderer(ICharacterRenderProperties renderProperties,
                              ISpriteSheet emoteSheet,
                              ISpriteSheet skinSheet)
@@ -28,7 +30,7 @@ namespace EndlessClient.Rendering.CharacterProperties
         public override void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
         {
             var skinLoc = _skinRenderLocationCalculator.CalculateDrawLocationOfCharacterSkin(_skinSheet.SourceRectangle, parentCharacterDrawArea);
-            var emotePos = new Vector2(skinLoc.X - 15, parentCharacterDrawArea.Y - _emoteSheet.SheetTexture.Height + 10);
+            var emotePos = new Vector2(skinLoc.X - 15, parentCharacterDrawArea.Y - _emoteSheet.SheetTexture.Height);
             Render(spriteBatch, _emoteSheet, emotePos, 128);
         }
     }

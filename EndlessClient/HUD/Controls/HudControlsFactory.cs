@@ -56,6 +56,7 @@ namespace EndlessClient.HUD.Controls
         private readonly ICharacterActions _characterActions;
         private readonly IWalkValidationActions _walkValidationActions;
         private readonly IPacketSendService _packetSendService;
+        private readonly IUserInputTimeProvider _userInputTimeProvider;
         private IChatController _chatController;
 
         public HudControlsFactory(IHudButtonController hudButtonController,
@@ -80,7 +81,8 @@ namespace EndlessClient.HUD.Controls
                                   IPathFinder pathFinder,
                                   ICharacterActions characterActions,
                                   IWalkValidationActions walkValidationActions,
-                                  IPacketSendService packetSendService)
+                                  IPacketSendService packetSendService,
+                                  IUserInputTimeProvider userInputTimeProvider)
         {
             _hudButtonController = hudButtonController;
             _hudPanelFactory = hudPanelFactory;
@@ -105,6 +107,7 @@ namespace EndlessClient.HUD.Controls
             _characterActions = characterActions;
             _walkValidationActions = walkValidationActions;
             _packetSendService = packetSendService;
+            _userInputTimeProvider = userInputTimeProvider;
         }
 
         public void InjectChatController(IChatController chatController)
@@ -114,6 +117,8 @@ namespace EndlessClient.HUD.Controls
 
         public IReadOnlyDictionary<HudControlIdentifier, IGameComponent> CreateHud()
         {
+            var characterAnimator = CreateCharacterAnimator();
+
             var controls = new Dictionary<HudControlIdentifier, IGameComponent>
             {
                 {HudControlIdentifier.CurrentUserInputTracker, CreateCurrentUserInputTracker()},
@@ -161,9 +166,11 @@ namespace EndlessClient.HUD.Controls
 
                 {HudControlIdentifier.UsageTracker, CreateUsageTracker()},
                 {HudControlIdentifier.UserInputHandler, CreateUserInputHandler()},
-                {HudControlIdentifier.CharacterAnimator, CreateCharacterAnimator()},
+                {HudControlIdentifier.CharacterAnimator, characterAnimator},
                 {HudControlIdentifier.NPCAnimator, CreateNPCAnimator()},
                 {HudControlIdentifier.UnknownEntitiesRequester, CreateUnknownEntitiesRequester()},
+                {HudControlIdentifier.PeriodicEmoteHandler, CreatePeriodicEmoteHandler(characterAnimator)},
+
                 {HudControlIdentifier.PreviousUserInputTracker, CreatePreviousUserInputTracker()}
             };
 
@@ -349,8 +356,8 @@ namespace EndlessClient.HUD.Controls
                 Visible = true,
                 DrawOrder = HUD_CONTROL_LAYER
             };
-            chatTextBox.OnEnterPressed += async (o, e) => await _chatController.SendChatAndClearTextBox();
-            chatTextBox.OnClicked += (o, e) => _chatController.SelectChatTextBox();
+            chatTextBox.OnEnterPressed += (_, _) => _chatController.SendChatAndClearTextBox();
+            chatTextBox.OnClicked += (_, _) => _chatController.SelectChatTextBox();
 
             return chatTextBox;
         }
@@ -393,6 +400,11 @@ namespace EndlessClient.HUD.Controls
         private INPCAnimator CreateNPCAnimator()
         {
             return new NPCAnimator(_endlessGameProvider, _currentMapStateRepository);
+        }
+
+        private IPeriodicEmoteHandler CreatePeriodicEmoteHandler(ICharacterAnimator characterAnimator)
+        {
+            return new PeriodicEmoteHandler(_endlessGameProvider, _characterActions, _userInputTimeProvider, _characterRepository, characterAnimator);
         }
 
         private PreviousUserInputTracker CreatePreviousUserInputTracker()

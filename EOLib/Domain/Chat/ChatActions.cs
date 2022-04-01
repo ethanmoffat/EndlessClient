@@ -36,14 +36,14 @@ namespace EOLib.Domain.Chat
             _chatProcessor = chatProcessor;
         }
 
-        public async Task SendChatToServer(string chat, string targetCharacter)
+        public string SendChatToServer(string chat, string targetCharacter)
         {
             var chatType = _chatTypeCalculator.CalculateChatType(chat);
 
             if (chatType == ChatType.Command)
             {
                 if (HandleCommand(chat))
-                    return;
+                    return chat;
 
                 //treat unhandled command as local chat
                 chatType = ChatType.Local;
@@ -59,10 +59,15 @@ namespace EOLib.Domain.Chat
 
             chat = _chatProcessor.RemoveFirstCharacterIfNeeded(chat, chatType, targetCharacter);
 
+            if (_characterProvider.MainCharacter.RenderProperties.IsDrunk)
+                chat = _chatProcessor.MakeDrunk(chat);
+
             var chatPacket = _chatPacketBuilder.BuildChatPacket(chatType, chat, targetCharacter);
-            await _packetSendService.SendPacketAsync(chatPacket);
+            _packetSendService.SendPacket(chatPacket);
 
             AddChatForLocalDisplay(chatType, chat, targetCharacter);
+
+            return chat;
         }
 
         /// <summary>
@@ -126,6 +131,6 @@ namespace EOLib.Domain.Chat
 
     public interface IChatActions
     {
-        Task SendChatToServer(string chat, string targetCharacter);
+        string SendChatToServer(string chat, string targetCharacter);
     }
 }

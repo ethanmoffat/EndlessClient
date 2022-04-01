@@ -85,16 +85,12 @@ namespace EndlessClient.Rendering
 
         private EIFRecord shieldInfo, weaponInfo/*, bootsInfo, armorInfo*/, hatInfo;
 
-        private Timer _attackTimer, _emoteTimer, _spTimer, _spellCastTimer;
+        private Timer _attackTimer, _spTimer, _spellCastTimer;
         private readonly bool noLocUpdate;
 
         private readonly DamageCounter m_damageCounter;
 
-        private DateTime? m_deadTime, m_lastEmoteTime;
-        private DateTime m_lastActTime;
-
-        private DateTime? m_drunkTime;
-        private int m_drunkOffset;
+        private DateTime? m_deadTime;
 
         private DateTime? _spellInvocationStartTime;
 
@@ -208,7 +204,6 @@ namespace EndlessClient.Rendering
                 DepthFormat.None);
 
             _attackTimer = new Timer(_attackTimerCallback);
-            _emoteTimer = new Timer(_emoteTimerCallback);
             if (Character == OldWorld.Instance.MainPlayer.ActiveCharacter)
             {
                 _spTimer = new Timer(o =>
@@ -225,8 +220,6 @@ namespace EndlessClient.Rendering
                 
                 _spellCastTimer = new Timer(_endSpellCast, null, Timeout.Infinite, Timeout.Infinite);
             }
-
-            m_lastActTime = DateTime.Now;
         }
 
         protected override void UnloadContent()
@@ -251,9 +244,7 @@ namespace EndlessClient.Rendering
 
             if (EOGame.Instance.State == GameStates.PlayingTheGame && this == OldWorld.Instance.ActiveCharacterRenderer)
             {
-                _adjustSP(gameTime);
-                _checkAFKCharacter();
-                _checkHandleDrunkCharacter();
+                _adjustSP(gameTime);;
             }
         }
 
@@ -367,39 +358,6 @@ namespace EndlessClient.Rendering
                 Character.Stats.SP = (short)(Character.Stats.SP + 1);
         }
 
-        private void _checkAFKCharacter()
-        {
-            //5-minute timeout: start sending emotes every minute
-            if ((DateTime.Now - m_lastActTime).TotalMinutes > 5 &&
-                (m_lastEmoteTime == null || (DateTime.Now - m_lastEmoteTime.Value).TotalMinutes > 1))
-            {
-                m_lastEmoteTime = DateTime.Now;
-                Character.Emote(Emote.Moon);
-                PlayerEmote();
-            }
-        }
-
-        private void _checkHandleDrunkCharacter()
-        {
-            if (m_drunkTime.HasValue && Character.IsDrunk)
-            {
-                //note: these timer values (between 1-6 seconds and 30 seconds) are completely arbitrary
-                if (!m_lastEmoteTime.HasValue || (DateTime.Now - m_lastEmoteTime.Value).TotalMilliseconds > m_drunkOffset)
-                {
-                    m_lastEmoteTime = DateTime.Now;
-                    Character.Emote(Emote.Drunk);
-                    PlayerEmote();
-                    m_drunkOffset = (new Random()).Next(1000, 6000); //between 1-6 seconds 
-                }
-
-                if ((DateTime.Now - m_drunkTime.Value).TotalMilliseconds >= 30000)
-                {
-                    m_drunkTime = null;
-                    Character.IsDrunk = false;
-                }
-            }
-        }
-
         private bool _getMouseOverActual()
         {
             var skinDrawLoc = _getSkinDrawLoc();
@@ -511,26 +469,6 @@ namespace EndlessClient.Rendering
             catch (ObjectDisposedException) { }
         }
 
-        public void PlayerEmote()
-        {
-            if (OldWorld.Instance.SoundEnabled && Character.RenderData.emote == Emote.LevelUp)
-                EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.LevelUp).Play();
-            //else if (!string.IsNullOrEmpty(_shoutName))
-            //    _cancelSpell(false);
-
-            const int EmoteTimeBetweenFrames = 250;
-            Data.SetUpdate(true);
-            try
-            {
-                _emoteTimer.Change(0, EmoteTimeBetweenFrames);
-            }
-            catch (ObjectDisposedException) { }
-        }
-
-        public void UpdateInputTime(DateTime lastInputTime)
-        {
-            m_lastActTime = lastInputTime;
-        }
 
         public void Die()
         {
@@ -587,23 +525,6 @@ namespace EndlessClient.Rendering
             else
             {
                 Data.SetAttackFrame((byte) (Data.attackFrame + 1));
-            }
-
-            Data.SetUpdate(true);
-        }
-
-        private void _emoteTimerCallback(object state)
-        {
-            if (_char == null) return;
-
-            if (Data.emoteFrame == 3)
-            {
-                _char.DoneEmote();
-                _emoteTimer.Change(Timeout.Infinite, Timeout.Infinite);
-            }
-            else
-            {
-                Data.SetEmoteFrame(Data.emoteFrame + 1);
             }
 
             Data.SetUpdate(true);
@@ -1113,12 +1034,6 @@ namespace EndlessClient.Rendering
             m_damageCounter.SetValue(value, pctHealth, isHeal);
         }
 
-        public void MakeDrunk()
-        {
-            m_drunkTime = DateTime.Now;
-            Character.IsDrunk = true;
-        }
-
         #region Spell Casting
 
         //Workflow for spells (main player):
@@ -1274,8 +1189,6 @@ namespace EndlessClient.Rendering
                     nameLabel.Dispose();
                 if (_attackTimer != null)
                     _attackTimer.Dispose();
-                if (_emoteTimer != null)
-                    _emoteTimer.Dispose();
                 if (_spTimer != null)
                     _spTimer.Dispose();
                 if (_charRenderTarget != null)

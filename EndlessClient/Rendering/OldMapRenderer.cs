@@ -174,19 +174,6 @@ namespace EndlessClient.Rendering
             }
         }
 
-        public void OtherPlayerEmote(short playerID, Emote emote)
-        {
-            lock (_characterListLock)
-            {
-                OldCharacterRenderer rend = _characterRenderers.Find(cc => cc.Character.ID == playerID);
-                if (rend != null)
-                {
-                    rend.Character.Emote(emote);
-                    rend.PlayerEmote();
-                }
-            }
-        }
-
         public void PlayerCastSpellGroup(short fromPlayerID, short spellID, short spellHPgain, List<GroupSpellTarget> spellTargets)
         {
             lock (_characterListLock)

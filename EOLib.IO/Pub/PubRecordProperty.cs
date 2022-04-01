@@ -75,6 +75,8 @@ namespace EOLib.IO.Pub
         ItemEffect,
         [RecordData(32, 3)]
         ItemKey,
+        [RecordData(32, 3)]
+        BeerPotency,
 
         [RecordData(35, 1)]
         ItemGender,

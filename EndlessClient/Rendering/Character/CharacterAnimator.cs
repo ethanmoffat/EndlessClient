@@ -1,5 +1,6 @@
 ﻿using EndlessClient.GameExecution;
 using EndlessClient.HUD;
+using EndlessClient.Input;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
@@ -9,6 +10,7 @@ using Microsoft.Xna.Framework;
 using Optional;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace EndlessClient.Rendering.Character
@@ -17,6 +19,7 @@ namespace EndlessClient.Rendering.Character
     {
         public const int WALK_FRAME_TIME_MS = 120;
         public const int ATTACK_FRAME_TIME_MS = 100;
+        public const int EMOTE_FRAME_TIME_MS = 250;
 
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
@@ -30,6 +33,7 @@ namespace EndlessClient.Rendering.Character
         private readonly Dictionary<int, RenderFrameActionTime> _otherPlayerStartWalkingTimes;
         private readonly Dictionary<int, RenderFrameActionTime> _otherPlayerStartAttackingTimes;
         private readonly Dictionary<int, RenderFrameActionTime> _otherPlayerStartSpellCastTimes;
+        private readonly Dictionary<int, RenderFrameActionTime> _startEmoteTimes;
 
         private Queue<MapCoordinate> _walkPath;
         private Option<MapCoordinate> _targetCoordinate;
@@ -54,6 +58,8 @@ namespace EndlessClient.Rendering.Character
             _otherPlayerStartWalkingTimes = new Dictionary<int, RenderFrameActionTime>();
             _otherPlayerStartAttackingTimes = new Dictionary<int, RenderFrameActionTime>();
             _otherPlayerStartSpellCastTimes = new Dictionary<int, RenderFrameActionTime>();
+            _startEmoteTimes = new Dictionary<int, RenderFrameActionTime>();
+
             _walkPath = new Queue<MapCoordinate>();
         }
 
@@ -62,6 +68,7 @@ namespace EndlessClient.Rendering.Character
             AnimateCharacterWalking();
             AnimateCharacterAttacking();
             AnimateCharacterSpells();
+            AnimateCharacterEmotes();
 
             base.Update(gameTime);
         }
@@ -164,6 +171,34 @@ namespace EndlessClient.Rendering.Character
 
             var startAttackingTimeAndID = new RenderFrameActionTime(characterID);
             _otherPlayerStartSpellCastTimes.Add(characterID, startAttackingTimeAndID);
+        }
+
+        public bool Emote(int characterID, Emote whichEmote)
+        {
+            if (_otherPlayerStartWalkingTimes.ContainsKey(characterID) ||
+                _otherPlayerStartAttackingTimes.ContainsKey(characterID) ||
+                _otherPlayerStartSpellCastTimes.ContainsKey(characterID) ||
+                _startEmoteTimes.ContainsKey(characterID))
+                return false;
+
+            var startEmoteTime = new RenderFrameActionTime(characterID);
+            if (characterID == _characterRepository.MainCharacter.ID)
+            {
+                var rp = _characterRepository.MainCharacter.RenderProperties.WithEmote(whichEmote);
+                _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithRenderProperties(rp);
+            }
+            else if (_currentMapStateRepository.Characters.TryGetValue(characterID, out var otherCharacter))
+            {
+                var rp = otherCharacter.RenderProperties.WithEmote(whichEmote);
+                _currentMapStateRepository.Characters[characterID] = otherCharacter.WithRenderProperties(rp);
+            }
+            else
+            {
+                _currentMapStateRepository.UnknownPlayerIDs.Add((short)characterID);
+            }
+
+            _startEmoteTimes[characterID] = startEmoteTime;
+            return true;
         }
 
         public void StopAllCharacterAnimations()
@@ -396,6 +431,38 @@ namespace EndlessClient.Rendering.Character
 
         #endregion
 
+        #region Emote Animation
+
+        private void AnimateCharacterEmotes()
+        {
+            var playersDoneEmoting = new HashSet<int>();
+            foreach (var pair in _startEmoteTimes.Values)
+            {
+                if (pair.ActionTimer.ElapsedMilliseconds >= EMOTE_FRAME_TIME_MS)
+                {
+                    GetCurrentCharacterFromRepository(pair).Match(
+                        none: () => playersDoneEmoting.Add(pair.UniqueID),
+                        some: currentCharacter =>
+                        {
+                            var renderProperties = currentCharacter.RenderProperties;
+                            var nextFrameRenderProperties = renderProperties.WithNextEmoteFrame();
+
+                            pair.UpdateActionStartTime();
+                            if (nextFrameRenderProperties.IsActing(CharacterActionState.Standing))
+                                playersDoneEmoting.Add(pair.UniqueID);
+
+                            var nextFrameCharacter = currentCharacter.WithRenderProperties(nextFrameRenderProperties);
+                            UpdateCharacterInRepository(currentCharacter, nextFrameCharacter);
+                        });
+                }
+            }
+
+            foreach (var key in playersDoneEmoting)
+                _startEmoteTimes.Remove(key);
+        }
+
+        #endregion
+
         private Option<ICharacter> GetCurrentCharacterFromRepository(RenderFrameActionTime pair)
         {
             return pair.UniqueID == _characterRepository.MainCharacter.ID
@@ -439,6 +506,8 @@ namespace EndlessClient.Rendering.Character
         void StartOtherCharacterAttackAnimation(int characterID);
 
         void StartOtherCharacterSpellCast(int characterID);
+
+        bool Emote(int characterID, Emote whichEmote);
 
         void StopAllCharacterAnimations();
     }

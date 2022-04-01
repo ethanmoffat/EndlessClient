@@ -37,6 +37,7 @@ namespace EOLib.Domain.Character
 
         public bool IsHidden { get; private set; }
         public bool IsDead { get; private set; }
+        public bool IsDrunk { get; private set; }
 
         public bool IsRangedWeapon { get; private set; }
 
@@ -232,6 +233,13 @@ namespace EOLib.Domain.Character
             return props;
         }
 
+        public ICharacterRenderProperties WithIsDrunk(bool drunk)
+        {
+            var props = MakeCopy(this);
+            props.IsDrunk = drunk;
+            return props;
+        }
+
         public object Clone()
         {
             return MakeCopy(this);
@@ -269,6 +277,8 @@ namespace EOLib.Domain.Character
 
                 IsHidden = other.IsHidden,
                 IsDead = other.IsDead,
+                IsDrunk = other.IsDrunk,
+
                 IsRangedWeapon = other.IsRangedWeapon
             };
         }
@@ -298,6 +308,7 @@ namespace EOLib.Domain.Character
                    Emote == properties.Emote &&
                    IsHidden == properties.IsHidden &&
                    IsDead == properties.IsDead &&
+                   IsDrunk == properties.IsDrunk &&
                    IsRangedWeapon == properties.IsRangedWeapon;
         }
 
@@ -326,6 +337,7 @@ namespace EOLib.Domain.Character
             hashCode = hashCode * -1521134295 + Emote.GetHashCode();
             hashCode = hashCode * -1521134295 + IsHidden.GetHashCode();
             hashCode = hashCode * -1521134295 + IsDead.GetHashCode();
+            hashCode = hashCode * -1521134295 + IsDrunk.GetHashCode();
             hashCode = hashCode * -1521134295 + IsRangedWeapon.GetHashCode();
             return hashCode;
         }

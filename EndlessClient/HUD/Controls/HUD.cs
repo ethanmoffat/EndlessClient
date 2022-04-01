@@ -35,8 +35,6 @@ namespace EndlessClient.HUD.Controls
 
         public DateTime SessionStartTime { get; private set; }
 
-        private List<OldInputKeyListenerBase> m_inputListeners;
-        
         public HUD(Game g, PacketAPI api) : base(g)
         {
             if(!api.Initialized)
@@ -99,12 +97,6 @@ namespace EndlessClient.HUD.Controls
             activeSpells.Initialize();
             
             SessionStartTime = DateTime.Now;
-
-            m_inputListeners = new List<OldInputKeyListenerBase>
-            {
-                new NumPadListener()
-            };
-            m_inputListeners.ForEach(x => x.InputTimeUpdated += OldWorld.Instance.ActiveCharacterRenderer.UpdateInputTime);
 
             base.Initialize();
         }
@@ -171,12 +163,6 @@ namespace EndlessClient.HUD.Controls
 
                 m_expInfo.Close();
                 m_questInfo.Close();
-
-                if (m_inputListeners.Count > 0)
-                {
-                    m_inputListeners.ForEach(x => x.Dispose());
-                    m_inputListeners.Clear();
-                }
             }
 
             base.Dispose(disposing);

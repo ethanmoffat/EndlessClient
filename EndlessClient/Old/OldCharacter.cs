@@ -8,10 +8,8 @@ using EOLib.Domain.Character;
 using EOLib.IO;
 using EOLib.IO.Map;
 using EOLib.IO.Pub;
-using EOLib.Localization;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
-using XNAControls.Old;
 
 namespace EndlessClient.Old
 {
@@ -370,27 +368,6 @@ namespace EndlessClient.Old
         {
             State = CharacterActionState.Standing;
             RenderData.SetAttackFrame(0);
-        }
-
-        public void Emote(Emote whichEmote)
-        {
-            if (this == OldWorld.Instance.MainPlayer.ActiveCharacter &&
-                whichEmote != EOLib.Domain.Character.Emote.LevelUp &&
-                whichEmote != EOLib.Domain.Character.Emote.Trade)
-            {
-                if (m_packetAPI.ReportEmote(whichEmote))
-                    RenderData.SetEmote(whichEmote);
-                else
-                    EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-            }
-
-            RenderData.SetEmoteFrame(0);
-            RenderData.SetEmote(whichEmote);
-        }
-
-        public void DoneEmote()
-        {
-            RenderData.SetEmoteFrame(-1);
         }
 
         public ChestKey CanOpenChest(ChestSpawnMapEntity chest)

@@ -64,6 +64,11 @@ namespace EndlessClient.Controllers
                                                       EOResourceID.STATUS_LABEL_UNABLE_TO_ATTACK);
                     showAnimationAnyway = true;
                 }
+                else if (validationResult == AttackValidationError.MissingArrows)
+                {
+                    _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING,
+                                                      EOResourceID.STATUS_LABEL_YOU_HAVE_NO_ARROWS);
+                }
             }
             else
                 showAnimationAnyway = true;

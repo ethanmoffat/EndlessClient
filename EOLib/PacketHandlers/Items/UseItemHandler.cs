@@ -86,10 +86,9 @@ namespace EOLib.PacketHandlers.Items
                     renderProps = renderProps.WithHairColor(hairColor);
                     break;
                 case ItemType.Beer:
-                    // todo: drunk
-                    // old logic: 
-                    //   OldWorld.Instance.ActiveCharacterRenderer.MakeDrunk();
-                    //   m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_ITEM_USE_DRUNK);
+                    renderProps = renderProps.WithIsDrunk(true);
+                    foreach (var notifier in _emoteNotifiers)
+                        notifier.MakeMainPlayerDrunk();
                     break;
                 case ItemType.EffectPotion:
                     var potionId = packet.ReadShort();
@@ -159,7 +158,7 @@ namespace EOLib.PacketHandlers.Items
                         .WithNewStat(CharacterStat.Armor, cureCurseArmor);
 
                     break;
-                case ItemType.EXPReward:  // todo: EXPReward has not been tested
+                case ItemType.EXPReward:
                     var levelUpExp = packet.ReadInt();
                     var levelUpLevel = packet.ReadChar();
                     var levelUpStat = packet.ReadShort();

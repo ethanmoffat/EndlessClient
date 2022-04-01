@@ -40,6 +40,7 @@ namespace EOLib.IO.Pub
         public int HairColor => Get<int>(PubRecordProperty.ItemHairColor);
         public int Effect => Get<int>(PubRecordProperty.ItemEffect);
         public int Key => Get<int>(PubRecordProperty.ItemKey);
+        public int BeerPotency => Get<int>(PubRecordProperty.BeerPotency);
 
         public byte Gender => Get<byte>(PubRecordProperty.ItemGender);
         public byte ScrollX => Get<byte>(PubRecordProperty.ItemScrollX);

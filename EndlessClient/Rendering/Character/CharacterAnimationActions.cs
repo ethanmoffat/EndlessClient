@@ -1,5 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.ControlSets;
+using EndlessClient.HUD;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Rendering.Map;
 using EOLib;
@@ -9,13 +10,12 @@ using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.IO.Map;
 using EOLib.IO.Repositories;
+using EOLib.Localization;
 using Optional;
 
 namespace EndlessClient.Rendering.Character
 {
-    [MappedType(BaseType = typeof(ICharacterAnimationActions))]
-    [MappedType(BaseType = typeof(IOtherCharacterAnimationNotifier))]
-    [MappedType(BaseType = typeof(IEffectNotifier))]
+    [AutoMappedType]
     public class CharacterAnimationActions : ICharacterAnimationActions, IOtherCharacterAnimationNotifier, IEffectNotifier, IEmoteNotifier
     {
         private readonly IHudControlProvider _hudControlProvider;
@@ -25,6 +25,7 @@ namespace EndlessClient.Rendering.Character
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly ISpikeTrapActions _spikeTrapActions;
         private readonly IESFFileProvider _esfFileProvider;
+        private readonly IStatusLabelSetter _statusLabelSetter;
 
         public CharacterAnimationActions(IHudControlProvider hudControlProvider,
                                          ICharacterRepository characterRepository,
@@ -32,7 +33,8 @@ namespace EndlessClient.Rendering.Character
                                          ICharacterRendererProvider characterRendererProvider,
                                          ICurrentMapProvider currentMapProvider,
                                          ISpikeTrapActions spikeTrapActions,
-                                         IESFFileProvider esfFileProvider)
+                                         IESFFileProvider esfFileProvider,
+                                         IStatusLabelSetter statusLabelSetter)
         {
             _hudControlProvider = hudControlProvider;
             _characterRepository = characterRepository;
@@ -41,6 +43,7 @@ namespace EndlessClient.Rendering.Character
             _currentMapProvider = currentMapProvider;
             _spikeTrapActions = spikeTrapActions;
             _esfFileProvider = esfFileProvider;
+            _statusLabelSetter = statusLabelSetter;
         }
 
         public void Face(EODirection direction)
@@ -178,6 +181,16 @@ namespace EndlessClient.Rendering.Character
             mapRenderer.StartEarthquake(strength);
         }
 
+        public void NotifyEmote(short playerId, Emote emote)
+        {
+            Animator.Emote(playerId, emote);
+        }
+
+        public void MakeMainPlayerDrunk()
+        {
+            _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_ITEM_USE_DRUNK);
+        }
+
         private void ShowWaterSplashiesIfNeeded(CharacterActionState action, int characterID)
         {
             var character = characterID == _characterRepository.MainCharacter.ID
@@ -211,11 +224,6 @@ namespace EndlessClient.Rendering.Character
 
                 });
             });
-        }
-
-        public void NotifyEmote(short playerId, Emote emote)
-        {
-            // todo: start emote animation
         }
 
         private ICharacterAnimator Animator => _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator);
