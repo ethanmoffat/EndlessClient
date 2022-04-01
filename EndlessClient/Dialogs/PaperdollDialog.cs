@@ -1,9 +1,11 @@
 ﻿using EndlessClient.Controllers;
+using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Inventory;
+using EndlessClient.HUD.Panels;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Online;
@@ -30,6 +32,7 @@ namespace EndlessClient.Dialogs
         private readonly IInventoryController _inventoryController;
         private readonly IPaperdollProvider _paperdollProvider;
         private readonly IPubFileProvider _pubFileProvider;
+        private readonly IHudControlProvider _hudControlProvider;
         private readonly IInventorySpaceValidator _inventorySpaceValidator;
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
         private readonly IStatusLabelSetter _statusLabelSetter;
@@ -55,6 +58,7 @@ namespace EndlessClient.Dialogs
                                IInventoryController inventoryController,
                                IPaperdollProvider paperdollProvider,
                                IPubFileProvider pubFileProvider,
+                               IHudControlProvider hudControlProvider,
                                IEODialogButtonService eoDialogButtonService,
                                IInventorySpaceValidator inventorySpaceValidator,
                                IEOMessageBoxFactory eoMessageBoxFactory,
@@ -64,6 +68,7 @@ namespace EndlessClient.Dialogs
         {
             _paperdollProvider = paperdollProvider;
             _pubFileProvider = pubFileProvider;
+            _hudControlProvider = hudControlProvider;
             _inventorySpaceValidator = inventorySpaceValidator;
             _eoMessageBoxFactory = eoMessageBoxFactory;
             _statusLabelSetter = statusLabelSetter;
@@ -125,8 +130,6 @@ namespace EndlessClient.Dialogs
 
         protected override void OnUpdateControl(GameTime gameTime)
         {
-            base.OnUpdateControl(gameTime);
-
             _paperdollData = _paperdollData.FlatMap(paperdollData =>
                 paperdollData.NoneWhen(d => _paperdollProvider.VisibleCharacterPaperdolls.ContainsKey(Character.ID) &&
                                            !_paperdollProvider.VisibleCharacterPaperdolls[Character.ID].Equals(d)));
@@ -141,19 +144,9 @@ namespace EndlessClient.Dialogs
                     }
                 });
 
-            // todo: dragging to equip/unequip from inventory
-            /*
-            if (EOGame.Instance.Hud.IsInventoryDragging())
-            {
-                shouldClickDrag = false;
-                SuppressParentClickDrag(true);
-            }
-            else
-            {
-                shouldClickDrag = true;
-                SuppressParentClickDrag(false);
-            }
-            */
+            SuppressClickDragEvent(!_hudControlProvider.GetComponent<InventoryPanel>(HUD.Controls.HudControlIdentifier.InventoryPanel).NoItemsDragging());
+
+            base.OnUpdateControl(gameTime);
         }
 
         protected override void OnDrawControl(GameTime gameTime)

@@ -1,5 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Controllers;
+using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD;
@@ -20,6 +21,7 @@ namespace EndlessClient.Dialogs.Factories
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IPaperdollProvider _paperdollProvider;
         private readonly IPubFileProvider _pubFileProvider;
+        private readonly IHudControlProvider _hudControlProvider;
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private IInventoryController _inventoryController;
 
@@ -27,6 +29,7 @@ namespace EndlessClient.Dialogs.Factories
             INativeGraphicsManager nativeGraphicsManager,
             IPaperdollProvider paperdollProvider,
             IPubFileProvider pubFileProvider,
+            IHudControlProvider hudControlProvider,
             IEODialogButtonService eoDialogButtonService,
             IInventorySpaceValidator inventorySpaceValidator,
             IEOMessageBoxFactory eoMessageBoxFactory,
@@ -34,6 +37,7 @@ namespace EndlessClient.Dialogs.Factories
         {
             _paperdollProvider = paperdollProvider;
             _pubFileProvider = pubFileProvider;
+            _hudControlProvider = hudControlProvider;
             _nativeGraphicsManager = nativeGraphicsManager;
             _gameStateProvider = gameStateProvider;
             _eoDialogButtonService = eoDialogButtonService;
@@ -49,6 +53,7 @@ namespace EndlessClient.Dialogs.Factories
                 _inventoryController,
                 _paperdollProvider,
                 _pubFileProvider,
+                _hudControlProvider,
                 _eoDialogButtonService,
                 _inventorySpaceValidator,
                 _eoMessageBoxFactory,
