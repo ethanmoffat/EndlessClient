@@ -1,5 +1,6 @@
 ﻿using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
+using EndlessClient.Dialogs;
 using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Inventory;
 using EndlessClient.Rendering.Map;
@@ -44,6 +45,7 @@ namespace EndlessClient.HUD.Panels
         private readonly ICharacterInventoryProvider _characterInventoryProvider;
         private readonly IPubFileProvider _pubFileProvider; // todo: this can probably become EIFFileProvider
         private readonly IHudControlProvider _hudControlProvider;
+        private readonly IActiveDialogProvider _activeDialogProvider;
         private readonly Dictionary<int, int> _itemSlotMap;
         private readonly List<InventoryPanelItem> _childItems = new List<InventoryPanelItem>();
 
@@ -67,7 +69,8 @@ namespace EndlessClient.HUD.Panels
                               ICharacterProvider characterProvider,
                               ICharacterInventoryProvider characterInventoryProvider,
                               IPubFileProvider pubFileProvider,
-                              IHudControlProvider hudControlProvider)
+                              IHudControlProvider hudControlProvider,
+                              IActiveDialogProvider activeDialogProvider)
         {
             NativeGraphicsManager = nativeGraphicsManager;
             _inventoryController = inventoryController;
@@ -81,6 +84,7 @@ namespace EndlessClient.HUD.Panels
             _characterInventoryProvider = characterInventoryProvider;
             _pubFileProvider = pubFileProvider;
             _hudControlProvider = hudControlProvider;
+            _activeDialogProvider = activeDialogProvider;
             _weightLabel = new XNALabel(Constants.FontSize08pt5)
             {
                 DrawArea = new Rectangle(385, 37, 88, 18),
@@ -349,20 +353,40 @@ namespace EndlessClient.HUD.Panels
 
             var oldSlot = item.Slot;
 
-            var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
-
-            // todo: if this is a chained drag, restoring the original slot could overlap with another item
-            if (_drop.MouseOver || mapRenderer.MouseOver)
+            if (_activeDialogProvider.ActiveDialogs.All(x => !x.HasValue))
             {
-                e.RestoreOriginalSlot = true;
-                _inventoryController.DropItem(item.Data, item.InventoryItem);
-                return;
+                var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
+                // todo: if this is a chained drag, restoring the original slot could overlap with another item
+                if (_drop.MouseOver || mapRenderer.MouseOver)
+                {
+                    e.RestoreOriginalSlot = true;
+                    _inventoryController.DropItem(item.Data, item.InventoryItem);
+                    return;
+                }
+                else if (_junk.MouseOver)
+                {
+                    e.RestoreOriginalSlot = true;
+                    _inventoryController.JunkItem(item.Data, item.InventoryItem);
+                    return;
+                }
             }
-            else if (_junk.MouseOver)
+            else
             {
-                e.RestoreOriginalSlot = true;
-                _inventoryController.JunkItem(item.Data, item.InventoryItem);
-                return;
+                var dialogDrop = false;
+                _activeDialogProvider.PaperdollDialog.MatchSome(x =>
+                {
+                    if (x.MouseOver && x.MouseOverPreviously && item.Data.GetEquipLocation() != EquipLocation.PAPERDOLL_MAX)
+                    {
+                        dialogDrop = true;
+                        _inventoryController.EquipItem(item.Data);
+                    }
+                });
+
+                if (dialogDrop)
+                {
+                    e.RestoreOriginalSlot = true;
+                    return;
+                }
             }
 
             var fitsInOldSlot = _inventoryService.FitsInSlot(_inventorySlotRepository.FilledSlots, oldSlot, e.Data.Size);
@@ -431,28 +455,6 @@ namespace EndlessClient.HUD.Panels
                 {
                     if (!m_api.ChestAddItem(ChestDialog.Instance.CurrentChestX, ChestDialog.Instance.CurrentChestY, m_inventory.ItemID, 1))
                         EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-                }
-            }
-            else if (EOPaperdollDialog.Instance != null && EOPaperdollDialog.Instance.MouseOver && EOPaperdollDialog.Instance.MouseOverPreviously)
-            {
-                //equipable items should be equipped
-                //other item types should do nothing
-                switch (m_itemData.Type)
-                {
-                    case ItemType.Accessory:
-                    case ItemType.Armlet:
-                    case ItemType.Armor:
-                    case ItemType.Belt:
-                    case ItemType.Boots:
-                    case ItemType.Bracer:
-                    case ItemType.Gloves:
-                    case ItemType.Hat:
-                    case ItemType.Necklace:
-                    case ItemType.Ring:
-                    case ItemType.Shield:
-                    case ItemType.Weapon:
-                        _handleDoubleClick();
-                        break;
                 }
             }
             else if (LockerDialog.Instance != null && LockerDialog.Instance.MouseOver && LockerDialog.Instance.MouseOverPreviously)

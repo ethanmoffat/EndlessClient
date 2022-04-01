@@ -2,7 +2,7 @@
 using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
-using EndlessClient.Dialogs.Actions;
+using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD.Inventory;
 using EndlessClient.Rendering.Chat;
@@ -12,10 +12,8 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Item;
 using EOLib.Domain.Login;
-using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.IO.Repositories;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.HUD.Panels
 {
@@ -43,6 +41,7 @@ namespace EndlessClient.HUD.Panels
         private readonly IItemStringService _itemStringService;
         private readonly IItemNameColorService _itemNameColorService;
         private readonly IInventoryService _inventoryService;
+        private readonly IActiveDialogProvider _activeDialogProvider;
 
         public HudPanelFactory(INativeGraphicsManager nativeGraphicsManager,
                                IInventoryController inventoryController,
@@ -62,7 +61,8 @@ namespace EndlessClient.HUD.Panels
                                IStatusLabelSetter statusLabelSetter,
                                IItemStringService itemStringService,
                                IItemNameColorService itemNameColorService,
-                               IInventoryService inventoryService)
+                               IInventoryService inventoryService,
+                               IActiveDialogProvider activeDialogProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _inventoryController = inventoryController;
@@ -83,6 +83,7 @@ namespace EndlessClient.HUD.Panels
             _itemStringService = itemStringService;
             _itemNameColorService = itemNameColorService;
             _inventoryService = inventoryService;
+            _activeDialogProvider = activeDialogProvider;
         }
 
         public NewsPanel CreateNewsPanel()
@@ -108,7 +109,8 @@ namespace EndlessClient.HUD.Panels
                 _characterProvider,
                 _characterInventoryProvider,
                 _pubFileProvider,
-                _hudControlProvider) { DrawOrder = HUD_CONTROL_LAYER };
+                _hudControlProvider,
+                _activeDialogProvider) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public ActiveSpellsPanel CreateActiveSpellsPanel()
