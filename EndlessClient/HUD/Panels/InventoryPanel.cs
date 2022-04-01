@@ -204,7 +204,7 @@ namespace EndlessClient.HUD.Panels
                     {
                         _inventoryService.SetSlots(_inventorySlotRepository.FilledSlots, slot, itemData.Size);
 
-                        var newItem = new InventoryPanelItem(_itemNameColorService, this, slot, item, itemData);
+                        var newItem = new InventoryPanelItem(_itemNameColorService, this, _activeDialogProvider, slot, item, itemData);
                         newItem.Initialize();
                         newItem.SetParentControl(this);
                         newItem.Text = _itemStringService.GetStringForInventoryDisplay(itemData, item.Amount);
