@@ -40,7 +40,7 @@ namespace EOLib.Domain.Chat
 
         public string MakeDrunk(string input)
         {
-            // implementation from Phorophor::notepad (thanks Apollo)
+            // implementation from Phorophor::notepad (thanks Blo)
             // https://discord.com/channels/723989119503696013/785190349026492437/791376941822246953
             var ret = new StringBuilder();
 
