@@ -11,13 +11,13 @@ using EndlessClient.Rendering;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
 using EOLib.Domain.Character;
+using EOLib.Domain.Interact;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
 using EOLib.Localization;
 using Optional;
 using Optional.Collections;
 using System;
-using System.Threading.Tasks;
 
 namespace EndlessClient.Controllers
 {
@@ -27,6 +27,7 @@ namespace EndlessClient.Controllers
         private readonly IMapActions _mapActions;
         private readonly ICharacterActions _characterActions;
         private readonly IInGameDialogActions _inGameDialogActions;
+        private readonly IPaperdollActions _paperdollActions;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly IStatusLabelSetter _statusLabelSetter;
@@ -41,6 +42,7 @@ namespace EndlessClient.Controllers
         public MapInteractionController(IMapActions mapActions,
                                         ICharacterActions characterActions,
                                         IInGameDialogActions inGameDialogActions,
+                                        IPaperdollActions paperdollActions,
                                         ICurrentMapStateProvider currentMapStateProvider,
                                         ICharacterProvider characterProvider,
                                         IStatusLabelSetter statusLabelSetter,
@@ -55,6 +57,7 @@ namespace EndlessClient.Controllers
             _mapActions = mapActions;
             _characterActions = characterActions;
             _inGameDialogActions = inGameDialogActions;
+            _paperdollActions = paperdollActions;
             _currentMapStateProvider = currentMapStateProvider;
             _characterProvider = characterProvider;
             _statusLabelSetter = statusLabelSetter;
@@ -116,6 +119,7 @@ namespace EndlessClient.Controllers
             {
                 if (c == _characterProvider.MainCharacter)
                 {
+                    _paperdollActions.RequestPaperdoll(_characterProvider.MainCharacter.ID);
                     _inGameDialogActions.ShowPaperdollDialog(_characterProvider.MainCharacter, isMainCharacter: true);
                     _userInputTimeRepository.LastInputTime = DateTime.Now;
                 }

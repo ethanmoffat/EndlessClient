@@ -4,6 +4,7 @@ using EndlessClient.Dialogs.Actions;
 using EndlessClient.HUD;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Services;
+using EOLib.Domain.Interact;
 using EOLib.Graphics;
 
 namespace EndlessClient.Rendering.Factories
@@ -13,6 +14,7 @@ namespace EndlessClient.Rendering.Factories
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IInGameDialogActions _inGameDialogActions;
+        private readonly IPaperdollActions _paperdollActions;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IFriendIgnoreListService _friendIgnoreListService;
         private readonly IHudControlProvider _hudControlProvider;
@@ -20,6 +22,7 @@ namespace EndlessClient.Rendering.Factories
 
         public ContextMenuRendererFactory(INativeGraphicsManager nativeGraphicsManager,
             IInGameDialogActions inGameDialogActions,
+            IPaperdollActions paperdollActions,
             IStatusLabelSetter statusLabelSetter,
             IFriendIgnoreListService friendIgnoreListService,
             IHudControlProvider hudControlProvider,
@@ -27,6 +30,7 @@ namespace EndlessClient.Rendering.Factories
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _inGameDialogActions = inGameDialogActions;
+            _paperdollActions = paperdollActions;
             _statusLabelSetter = statusLabelSetter;
             _friendIgnoreListService = friendIgnoreListService;
             _hudControlProvider = hudControlProvider;
@@ -37,6 +41,7 @@ namespace EndlessClient.Rendering.Factories
         {
             return new ContextMenuRenderer(_nativeGraphicsManager,
                 _inGameDialogActions,
+                _paperdollActions,
                 _statusLabelSetter,
                 _friendIgnoreListService,
                 _hudControlProvider,
