@@ -4,7 +4,6 @@ using EOLib.Domain.Login;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 using Optional.Collections;
-using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Interact.Shop
 {
@@ -18,9 +17,9 @@ namespace EOLib.PacketHandlers.Interact.Shop
 
         public override PacketAction Action => PacketAction.Create;
 
-        protected ShopCraftHandler(IPlayerInfoProvider playerInfoProvider,
-                                   ICharacterRepository characterRepository,
-                                   ICharacterInventoryRepository characterInventoryRepository)
+        public ShopCraftHandler(IPlayerInfoProvider playerInfoProvider,
+                                ICharacterRepository characterRepository,
+                                ICharacterInventoryRepository characterInventoryRepository)
             : base(playerInfoProvider)
         {
             _characterRepository = characterRepository;
