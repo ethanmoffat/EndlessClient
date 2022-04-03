@@ -42,7 +42,6 @@ namespace EndlessClient.Old
             m_packetAPI.OnBankChange += _bankChange;
 
             //shop
-            m_packetAPI.OnShopOpen += _shopOpen;
             m_packetAPI.OnShopTradeItem += _shopTrade;
             m_packetAPI.OnShopCraftItem += _shopCraft;
 
@@ -148,12 +147,6 @@ namespace EndlessClient.Old
 
             //OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, gold);
             BankAccountDialog.Instance.AccountBalance = $"{bankGold}";
-        }
-
-        private void _shopOpen(int shopid, string name, List<ShopItem> tradeitems, List<CraftItem> craftitems)
-        {
-            if (ShopDialog.Instance == null) return;
-            ShopDialog.Instance.SetShopData(shopid, name, tradeitems, craftitems);
         }
 
         private void _shopTrade(int gold, short itemID, int amount, byte weight, byte maxWeight, bool isBuy)

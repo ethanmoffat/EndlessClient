@@ -124,6 +124,24 @@ namespace EOLib.Domain.Character
                 Guild == other.Guild && Rank == other.Rank && PlayerID == other.PlayerID &&
                 Class == other.Class && Gender == other.Gender && Icon == other.Icon && Paperdoll.SequenceEqual(other.Paperdoll);
         }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 170256730;
+            hashCode = hashCode * -1521134295 + Name.GetHashCode();
+            hashCode = hashCode * -1521134295 + Home.GetHashCode();
+            hashCode = hashCode * -1521134295 + Partner.GetHashCode();
+            hashCode = hashCode * -1521134295 + Title.GetHashCode();
+            hashCode = hashCode * -1521134295 + Guild.GetHashCode();
+            hashCode = hashCode * -1521134295 + Rank.GetHashCode();
+            hashCode = hashCode * -1521134295 + PlayerID.GetHashCode();
+            hashCode = hashCode * -1521134295 + Class.GetHashCode();
+            hashCode = hashCode * -1521134295 + Gender.GetHashCode();
+            hashCode = hashCode * -1521134295 + Paperdoll.Select(x => (int)x.Value)
+                .Aggregate(hashCode * -1521134295, (a, b) => a * -1521134295 + b.GetHashCode());
+            hashCode = hashCode * -1521134295 + Icon.GetHashCode();
+            return hashCode;
+        }
     }
 
     public interface IPaperdollData

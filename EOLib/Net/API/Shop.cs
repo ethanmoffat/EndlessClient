@@ -43,30 +43,16 @@ namespace EOLib.Net.API
 
     partial class PacketAPI
     {
-        public delegate void ShopOpenEvent(int shopID, string name, List<ShopItem> tradeItems, List<CraftItem> craftItems);
         public delegate void ShopTradeEvent(int goldRemaining, short itemID, int amount, byte weight, byte maxWeight, bool isBuy);
         public delegate void ShopCraftEvent(short itemID, byte weight, byte maxWeight, List<InventoryItem> ingredients);
-        public event ShopOpenEvent OnShopOpen;
         public event ShopTradeEvent OnShopTradeItem;
         public event ShopCraftEvent OnShopCraftItem;
 
         private void _createShopMembers()
         {
-            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Shop, PacketAction.Open), _handleShopOpen, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Shop, PacketAction.Buy), _handleShopBuy, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Shop, PacketAction.Sell), _handleShopSell, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Shop, PacketAction.Create), _handleShopCreate, true);
-        }
-
-        public bool RequestShop(short npcIndex)
-        {
-            if (!m_client.ConnectedAndInitialized || !Initialized)
-                return false;
-
-            OldPacket pkt = new OldPacket(PacketFamily.Shop, PacketAction.Open);
-            pkt.AddShort(npcIndex);
-
-            return m_client.SendPacket(pkt);
         }
 
         /// <summary>
@@ -111,41 +97,6 @@ namespace EOLib.Net.API
             pkt.AddShort(ItemID);
 
             return m_client.SendPacket(pkt);
-        }
-        
-        /// <summary>
-        /// Handles SHOP_OPEN from server, contains shop data for a shop dialog
-        /// </summary>
-        private void _handleShopOpen(OldPacket pkt)
-        {
-            if (OnShopOpen == null) return;
-
-            int shopKeeperID = pkt.GetShort();
-            string shopName = pkt.GetBreakString();
-
-            List<ShopItem> tradeItems = new List<ShopItem>();
-            while (pkt.PeekByte() != 255)
-            {
-                ShopItem nextItem = new ShopItem(pkt.GetShort(), pkt.GetThree(), pkt.GetThree(), pkt.GetChar());
-                tradeItems.Add(nextItem);
-            }
-            pkt.GetByte();
-
-            List<CraftItem> craftItems = new List<CraftItem>();
-            while (pkt.PeekByte() != 255)
-            {
-                int ID = pkt.GetShort();
-                List<Tuple<int, int>> ingreds = new List<Tuple<int, int>>();
-
-                for (int i = 0; i < 4; ++i)
-                {
-                    ingreds.Add(new Tuple<int, int>(pkt.GetShort(), pkt.GetChar()));
-                }
-                craftItems.Add(new CraftItem(ID, ingreds));
-            }
-            pkt.GetByte();
-
-            OnShopOpen(shopKeeperID, shopName, tradeItems, craftItems);
         }
 
         /// <summary>

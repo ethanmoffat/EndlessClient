@@ -20,7 +20,7 @@ namespace EndlessClient.Dialogs.Services
         NUM_BUTTONS
     }
 
-    [MappedType(BaseType = typeof(IEODialogButtonService))]
+    [AutoMappedType]
     public class EODialogButtonService : IEODialogButtonService
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;

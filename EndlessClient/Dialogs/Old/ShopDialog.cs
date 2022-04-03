@@ -31,12 +31,12 @@ namespace EndlessClient.Dialogs.Old
             Instance = new ShopDialog(api, shopKeeper.NPC.Data.ID);
 
             //request from server is based on the map index
-            if (!api.RequestShop(shopKeeper.NPC.Index))
-            {
-                Instance.Close();
-                Instance = null;
-                EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-            }
+            //if (!api.RequestShop(shopKeeper.NPC.Index))
+            //{
+            //    Instance.Close();
+            //    Instance = null;
+            //    EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+            //}
         }
 
         private enum ShopState
