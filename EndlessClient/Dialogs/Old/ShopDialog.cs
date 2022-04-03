@@ -51,8 +51,8 @@ namespace EndlessClient.Dialogs.Old
         public int ID { get; private set; }
 
         private ShopState m_state;
-        private List<ShopItem> m_tradeItems;
-        private List<CraftItem> m_craftItems;
+        //private List<ShopItem> m_tradeItems;
+        //private List<CraftItem> m_craftItems;
 
         private static Texture2D BuyIcon, SellIcon, CraftIcon;
 
@@ -88,16 +88,16 @@ namespace EndlessClient.Dialogs.Old
             }
         }
 
-        public void SetShopData(int id, string Name, List<ShopItem> tradeItems, List<CraftItem> craftItems)
-        {
-            if (Instance == null || this != Instance || ID != id) return;
-            Title = Name;
+        //public void SetShopData(int id, string Name, List<ShopItem> tradeItems, List<CraftItem> craftItems)
+        //{
+        //    if (Instance == null || this != Instance || ID != id) return;
+        //    Title = Name;
 
-            m_tradeItems = tradeItems;
-            m_craftItems = craftItems;
+        //    m_tradeItems = tradeItems;
+        //    m_craftItems = craftItems;
 
-            _setState(ShopState.Initial);
-        }
+        //    _setState(ShopState.Initial);
+        //}
 
         private void _setState(ShopState newState)
         {
@@ -105,68 +105,68 @@ namespace EndlessClient.Dialogs.Old
 
             if (old == newState) return;
 
-            int buyNumInt = m_tradeItems.FindAll(x => x.Buy > 0).Count;
-            int sellNumInt = m_tradeItems.FindAll(x => OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory.FindIndex(item => item.ItemID == x.ID) >= 0 && x.Sell > 0).Count;
+            //int buyNumInt = m_tradeItems.FindAll(x => x.Buy > 0).Count;
+            //int sellNumInt = m_tradeItems.FindAll(x => OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory.FindIndex(item => item.ItemID == x.ID) >= 0 && x.Sell > 0).Count;
 
-            if (newState == ShopState.Buying && buyNumInt <= 0)
-            {
-                EOMessageBox.Show(DialogResourceID.SHOP_NOTHING_IS_FOR_SALE, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                return;
-            }
+            //if (newState == ShopState.Buying && buyNumInt <= 0)
+            //{
+            //    EOMessageBox.Show(DialogResourceID.SHOP_NOTHING_IS_FOR_SALE, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+            //    return;
+            //}
 
-            if (newState == ShopState.Selling && sellNumInt <= 0)
-            {
-                EOMessageBox.Show(DialogResourceID.SHOP_NOT_BUYING_YOUR_ITEMS, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                return;
-            }
+            //if (newState == ShopState.Selling && sellNumInt <= 0)
+            //{
+            //    EOMessageBox.Show(DialogResourceID.SHOP_NOT_BUYING_YOUR_ITEMS, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+            //    return;
+            //}
 
             ClearItemList();
             switch (newState)
             {
                 case ShopState.Initial:
                     {
-                        string buyNum =
-                            $"{m_tradeItems.FindAll(x => x.Buy > 0).Count} {OldWorld.GetString(EOResourceID.DIALOG_SHOP_ITEMS_IN_STORE)}";
-                        string sellNum = $"{sellNumInt} {OldWorld.GetString(EOResourceID.DIALOG_SHOP_ITEMS_ACCEPTED)}";
-                        string craftNum =
-                            $"{m_craftItems.Count} {OldWorld.GetString(EOResourceID.DIALOG_SHOP_ITEMS_ACCEPTED)}";
+                        //string buyNum =
+                        //    $"{m_tradeItems.FindAll(x => x.Buy > 0).Count} {OldWorld.GetString(EOResourceID.DIALOG_SHOP_ITEMS_IN_STORE)}";
+                        //string sellNum = $"{sellNumInt} {OldWorld.GetString(EOResourceID.DIALOG_SHOP_ITEMS_ACCEPTED)}";
+                        //string craftNum =
+                        //    $"{m_craftItems.Count} {OldWorld.GetString(EOResourceID.DIALOG_SHOP_ITEMS_ACCEPTED)}";
 
-                        OldListDialogItem buy = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Large, 0)
-                        {
-                            Text = OldWorld.GetString(EOResourceID.DIALOG_SHOP_BUY_ITEMS),
-                            SubText = buyNum,
-                            IconGraphic = BuyIcon,
-                            OffsetY = 45
-                        };
-                        buy.OnLeftClick += (o, e) => _setState(ShopState.Buying);
-                        buy.OnRightClick += (o, e) => _setState(ShopState.Buying);
-                        buy.ShowItemBackGround = false;
-                        AddItemToList(buy, false);
-                        OldListDialogItem sell = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Large, 1)
-                        {
-                            Text = OldWorld.GetString(EOResourceID.DIALOG_SHOP_SELL_ITEMS),
-                            SubText = sellNum,
-                            IconGraphic = SellIcon,
-                            OffsetY = 45
-                        };
-                        sell.OnLeftClick += (o, e) => _setState(ShopState.Selling);
-                        sell.OnRightClick += (o, e) => _setState(ShopState.Selling);
-                        sell.ShowItemBackGround = false;
-                        AddItemToList(sell, false);
-                        if (m_craftItems.Count > 0)
-                        {
-                            OldListDialogItem craft = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Large, 2)
-                            {
-                                Text = OldWorld.GetString(EOResourceID.DIALOG_SHOP_CRAFT_ITEMS),
-                                SubText = craftNum,
-                                IconGraphic = CraftIcon,
-                                OffsetY = 45
-                            };
-                            craft.OnLeftClick += (o, e) => _setState(ShopState.Crafting);
-                            craft.OnRightClick += (o, e) => _setState(ShopState.Crafting);
-                            craft.ShowItemBackGround = false;
-                            AddItemToList(craft, false);
-                        }
+                        //OldListDialogItem buy = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Large, 0)
+                        //{
+                        //    Text = OldWorld.GetString(EOResourceID.DIALOG_SHOP_BUY_ITEMS),
+                        //    SubText = buyNum,
+                        //    IconGraphic = BuyIcon,
+                        //    OffsetY = 45
+                        //};
+                        //buy.OnLeftClick += (o, e) => _setState(ShopState.Buying);
+                        //buy.OnRightClick += (o, e) => _setState(ShopState.Buying);
+                        //buy.ShowItemBackGround = false;
+                        //AddItemToList(buy, false);
+                        //OldListDialogItem sell = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Large, 1)
+                        //{
+                        //    Text = OldWorld.GetString(EOResourceID.DIALOG_SHOP_SELL_ITEMS),
+                        //    SubText = sellNum,
+                        //    IconGraphic = SellIcon,
+                        //    OffsetY = 45
+                        //};
+                        //sell.OnLeftClick += (o, e) => _setState(ShopState.Selling);
+                        //sell.OnRightClick += (o, e) => _setState(ShopState.Selling);
+                        //sell.ShowItemBackGround = false;
+                        //AddItemToList(sell, false);
+                        //if (m_craftItems.Count > 0)
+                        //{
+                        //    OldListDialogItem craft = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Large, 2)
+                        //    {
+                        //        Text = OldWorld.GetString(EOResourceID.DIALOG_SHOP_CRAFT_ITEMS),
+                        //        SubText = craftNum,
+                        //        IconGraphic = CraftIcon,
+                        //        OffsetY = 45
+                        //    };
+                        //    craft.OnLeftClick += (o, e) => _setState(ShopState.Crafting);
+                        //    craft.OnRightClick += (o, e) => _setState(ShopState.Crafting);
+                        //    craft.ShowItemBackGround = false;
+                        //    AddItemToList(craft, false);
+                        //}
                         _setButtons(ScrollingListDialogButtons.Cancel);
                     }
                     break;
@@ -177,60 +177,60 @@ namespace EndlessClient.Dialogs.Old
                         bool buying = newState == ShopState.Buying;
 
                         List<OldListDialogItem> itemList = new List<OldListDialogItem>();
-                        foreach (ShopItem si in m_tradeItems)
-                        {
-                            if (si.ID <= 0 || (buying && si.Buy <= 0) ||
-                                (!buying && (si.Sell <= 0 || OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory.FindIndex(inv => inv.ItemID == si.ID) < 0)))
-                                continue;
+                        //foreach (ShopItem si in m_tradeItems)
+                        //{
+                        //    if (si.ID <= 0 || (buying && si.Buy <= 0) ||
+                        //        (!buying && (si.Sell <= 0 || OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory.FindIndex(inv => inv.ItemID == si.ID) < 0)))
+                        //        continue;
 
-                            ShopItem localItem = si;
-                            var rec = OldWorld.Instance.EIF[si.ID];
-                            string secondary = string.Format("{2}: {0} {1}", buying ? si.Buy : si.Sell,
-                                rec.Type == ItemType.Armor ? "(" + (rec.Gender == 0 ? OldWorld.GetString(EOResourceID.FEMALE) : OldWorld.GetString(EOResourceID.MALE)) + ")" : "",
-                                OldWorld.GetString(EOResourceID.DIALOG_SHOP_PRICE));
+                        //    ShopItem localItem = si;
+                        //    var rec = OldWorld.Instance.EIF[si.ID];
+                        //    string secondary = string.Format("{2}: {0} {1}", buying ? si.Buy : si.Sell,
+                        //        rec.Type == ItemType.Armor ? "(" + (rec.Gender == 0 ? OldWorld.GetString(EOResourceID.FEMALE) : OldWorld.GetString(EOResourceID.MALE)) + ")" : "",
+                        //        OldWorld.GetString(EOResourceID.DIALOG_SHOP_PRICE));
 
-                            OldListDialogItem nextItem = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Large)
-                            {
-                                Text = rec.Name,
-                                SubText = secondary,
-                                IconGraphic = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.Items, 2 * rec.Graphic - 1, true),
-                                OffsetY = 45
-                            };
-                            nextItem.OnLeftClick += (o, e) => _buySellItem(localItem);
-                            nextItem.OnRightClick += (o, e) => _buySellItem(localItem);
+                        //    OldListDialogItem nextItem = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Large)
+                        //    {
+                        //        Text = rec.Name,
+                        //        SubText = secondary,
+                        //        IconGraphic = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.Items, 2 * rec.Graphic - 1, true),
+                        //        OffsetY = 45
+                        //    };
+                        //    nextItem.OnLeftClick += (o, e) => _buySellItem(localItem);
+                        //    nextItem.OnRightClick += (o, e) => _buySellItem(localItem);
 
-                            itemList.Add(nextItem);
-                        }
+                        //    itemList.Add(nextItem);
+                        //}
                         SetItemList(itemList);
                         _setButtons(ScrollingListDialogButtons.BackCancel);
                     }
                     break;
                 case ShopState.Crafting:
                     {
-                        List<OldListDialogItem> itemList = new List<OldListDialogItem>(m_craftItems.Count);
-                        foreach (CraftItem ci in m_craftItems)
-                        {
-                            if (ci.Ingredients.Count <= 0) continue;
+                        //List<OldListDialogItem> itemList = new List<OldListDialogItem>(m_craftItems.Count);
+                        //foreach (CraftItem ci in m_craftItems)
+                        //{
+                        //    if (ci.Ingredients.Count <= 0) continue;
 
-                            CraftItem localItem = ci;
-                            var rec = OldWorld.Instance.EIF[ci.ID];
-                            string secondary = string.Format("{2}: {0} {1}", ci.Ingredients.Count,
-                                rec.Type == ItemType.Armor ? "(" + (rec.Gender == 0 ? OldWorld.GetString(EOResourceID.FEMALE) : OldWorld.GetString(EOResourceID.MALE)) + ")" : "",
-                                OldWorld.GetString(EOResourceID.DIALOG_SHOP_CRAFT_INGREDIENTS));
+                        //    CraftItem localItem = ci;
+                        //    var rec = OldWorld.Instance.EIF[ci.ID];
+                        //    string secondary = string.Format("{2}: {0} {1}", ci.Ingredients.Count,
+                        //        rec.Type == ItemType.Armor ? "(" + (rec.Gender == 0 ? OldWorld.GetString(EOResourceID.FEMALE) : OldWorld.GetString(EOResourceID.MALE)) + ")" : "",
+                        //        OldWorld.GetString(EOResourceID.DIALOG_SHOP_CRAFT_INGREDIENTS));
 
-                            OldListDialogItem nextItem = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Large)
-                            {
-                                Text = rec.Name,
-                                SubText = secondary,
-                                IconGraphic = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.Items, 2 * rec.Graphic - 1, true),
-                                OffsetY = 45
-                            };
-                            nextItem.OnLeftClick += (o, e) => _craftItem(localItem);
-                            nextItem.OnRightClick += (o, e) => _craftItem(localItem);
+                        //    OldListDialogItem nextItem = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Large)
+                        //    {
+                        //        Text = rec.Name,
+                        //        SubText = secondary,
+                        //        IconGraphic = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.Items, 2 * rec.Graphic - 1, true),
+                        //        OffsetY = 45
+                        //    };
+                        //    nextItem.OnLeftClick += (o, e) => _craftItem(localItem);
+                        //    nextItem.OnRightClick += (o, e) => _craftItem(localItem);
 
-                            itemList.Add(nextItem);
-                        }
-                        SetItemList(itemList);
+                        //    itemList.Add(nextItem);
+                        //}
+                        //SetItemList(itemList);
                         _setButtons(ScrollingListDialogButtons.BackCancel);
                     }
                     break;
@@ -239,109 +239,109 @@ namespace EndlessClient.Dialogs.Old
             m_state = newState;
         }
 
-        private void _buySellItem(ShopItem item)
+        private void _buySellItem(object item)
         {
-            if (m_state != ShopState.Buying && m_state != ShopState.Selling)
-                return;
-            bool isBuying = m_state == ShopState.Buying;
+            //if (m_state != ShopState.Buying && m_state != ShopState.Selling)
+            //    return;
+            //bool isBuying = m_state == ShopState.Buying;
 
-            InventoryItem ii = OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory.Find(x => (isBuying ? x.ItemID == 1 : x.ItemID == item.ID));
-            var rec = OldWorld.Instance.EIF[item.ID];
-            if (isBuying)
-            {
-                //if (!EOGame.Instance.Hud.InventoryFits((short)item.ID))
-                //{
-                //    EOMessageBox.Show(OldWorld.GetString(EOResourceID.DIALOG_TRANSFER_NOT_ENOUGH_SPACE),
-                //        OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
-                //        EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                //    return;
-                //}
+            //InventoryItem ii = OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory.Find(x => (isBuying ? x.ItemID == 1 : x.ItemID == item.ID));
+            //var rec = OldWorld.Instance.EIF[item.ID];
+            //if (isBuying)
+            //{
+            //    if (!EOGame.Instance.Hud.InventoryFits((short)item.ID))
+            //    {
+            //        EOMessageBox.Show(OldWorld.GetString(EOResourceID.DIALOG_TRANSFER_NOT_ENOUGH_SPACE),
+            //            OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
+            //            EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+            //        return;
+            //    }
 
-                if (rec.Weight + OldWorld.Instance.MainPlayer.ActiveCharacter.Weight >
-                    OldWorld.Instance.MainPlayer.ActiveCharacter.MaxWeight)
-                {
-                    EOMessageBox.Show(OldWorld.GetString(EOResourceID.DIALOG_TRANSFER_NOT_ENOUGH_WEIGHT),
-                        OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
-                        EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                    return;
-                }
+            //    if (rec.Weight + OldWorld.Instance.MainPlayer.ActiveCharacter.Weight >
+            //        OldWorld.Instance.MainPlayer.ActiveCharacter.MaxWeight)
+            //    {
+            //        EOMessageBox.Show(OldWorld.GetString(EOResourceID.DIALOG_TRANSFER_NOT_ENOUGH_WEIGHT),
+            //            OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
+            //            EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+            //        return;
+            //    }
 
-                if (ii.Amount < item.Buy)
-                {
-                    EOMessageBox.Show(DialogResourceID.WARNING_YOU_HAVE_NOT_ENOUGH, " gold.", EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                    return;
-                }
-            }
-            else if (ii.Amount == 0)
-                return; //can't sell if amount of item is 0
+            //    if (ii.Amount < item.Buy)
+            //    {
+            //        EOMessageBox.Show(DialogResourceID.WARNING_YOU_HAVE_NOT_ENOUGH, " gold.", EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+            //        return;
+            //    }
+            //}
+            //else if (ii.Amount == 0)
+            //    return; //can't sell if amount of item is 0
 
-            //special case: no need for prompting if selling an item with count == 1 in inventory
-            if (!isBuying && ii.Amount == 1)
-            {
-                string _message =
-                    $"{OldWorld.GetString(EOResourceID.DIALOG_WORD_SELL)} 1 {rec.Name} {OldWorld.GetString(EOResourceID.DIALOG_WORD_FOR)} {item.Sell} gold?";
-                EOMessageBox.Show(_message, OldWorld.GetString(EOResourceID.DIALOG_SHOP_SELL_ITEMS), EODialogButtons.OkCancel,
-                    EOMessageBoxStyle.SmallDialogSmallHeader, (oo, ee) =>
-                    {
-                        if (ee.Result == XNADialogResult.OK && !m_api.SellItem((short)item.ID, 1))
-                        {
-                            EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-                        }
-                    });
-            }
-            else
-            {
-                ItemTransferDialog dlg = new ItemTransferDialog(rec.Name, ItemTransferDialog.TransferType.ShopTransfer,
-                    isBuying ? item.MaxBuy : ii.Amount, isBuying ? EOResourceID.DIALOG_TRANSFER_BUY : EOResourceID.DIALOG_TRANSFER_SELL);
-                dlg.DialogClosing += (o, e) =>
-                {
-                    if (e.Result == XNADialogResult.OK)
-                    {
-                        string _message =
-                            $"{OldWorld.GetString(isBuying ? EOResourceID.DIALOG_WORD_BUY : EOResourceID.DIALOG_WORD_SELL)} {dlg.SelectedAmount} {rec.Name} {OldWorld.GetString(EOResourceID.DIALOG_WORD_FOR)} {(isBuying ? item.Buy : item.Sell)*dlg.SelectedAmount} gold?";
+            ////special case: no need for prompting if selling an item with count == 1 in inventory
+            //if (!isBuying && ii.Amount == 1)
+            //{
+            //    string _message =
+            //        $"{OldWorld.GetString(EOResourceID.DIALOG_WORD_SELL)} 1 {rec.Name} {OldWorld.GetString(EOResourceID.DIALOG_WORD_FOR)} {item.Sell} gold?";
+            //    EOMessageBox.Show(_message, OldWorld.GetString(EOResourceID.DIALOG_SHOP_SELL_ITEMS), EODialogButtons.OkCancel,
+            //        EOMessageBoxStyle.SmallDialogSmallHeader, (oo, ee) =>
+            //        {
+            //            if (ee.Result == XNADialogResult.OK && !m_api.SellItem((short)item.ID, 1))
+            //            {
+            //                EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+            //            }
+            //        });
+            //}
+            //else
+            //{
+            //    ItemTransferDialog dlg = new ItemTransferDialog(rec.Name, ItemTransferDialog.TransferType.ShopTransfer,
+            //        isBuying ? item.MaxBuy : ii.Amount, isBuying ? EOResourceID.DIALOG_TRANSFER_BUY : EOResourceID.DIALOG_TRANSFER_SELL);
+            //    dlg.DialogClosing += (o, e) =>
+            //    {
+            //        if (e.Result == XNADialogResult.OK)
+            //        {
+            //            string _message =
+            //                $"{OldWorld.GetString(isBuying ? EOResourceID.DIALOG_WORD_BUY : EOResourceID.DIALOG_WORD_SELL)} {dlg.SelectedAmount} {rec.Name} {OldWorld.GetString(EOResourceID.DIALOG_WORD_FOR)} {(isBuying ? item.Buy : item.Sell)*dlg.SelectedAmount} gold?";
 
-                        EOMessageBox.Show(_message,
-                            OldWorld.GetString(isBuying ? EOResourceID.DIALOG_SHOP_BUY_ITEMS : EOResourceID.DIALOG_SHOP_SELL_ITEMS),
-                            EODialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader, (oo, ee) =>
-                            {
-                                if (ee.Result == XNADialogResult.OK)
-                                {
-                                    //only actually do the buy/sell if the user then clicks "OK" in the second prompt
-                                    if (isBuying && !m_api.BuyItem((short)item.ID, dlg.SelectedAmount) ||
-                                        !isBuying && !m_api.SellItem((short)item.ID, dlg.SelectedAmount))
-                                    {
-                                        EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-                                    }
-                                }
-                            });
-                    }
-                };
-            }
+            //            EOMessageBox.Show(_message,
+            //                OldWorld.GetString(isBuying ? EOResourceID.DIALOG_SHOP_BUY_ITEMS : EOResourceID.DIALOG_SHOP_SELL_ITEMS),
+            //                EODialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader, (oo, ee) =>
+            //                {
+            //                    if (ee.Result == XNADialogResult.OK)
+            //                    {
+            //                        //only actually do the buy/sell if the user then clicks "OK" in the second prompt
+            //                        if (isBuying && !m_api.BuyItem((short)item.ID, dlg.SelectedAmount) ||
+            //                            !isBuying && !m_api.SellItem((short)item.ID, dlg.SelectedAmount))
+            //                        {
+            //                            EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+            //                        }
+            //                    }
+            //                });
+            //        }
+            //    };
+            //}
         }
 
-        private void _craftItem(CraftItem item)
+        private void _craftItem(object item)
         {
-            if (m_state != ShopState.Crafting)
-                return;
+            //if (m_state != ShopState.Crafting)
+            //    return;
 
-            var craftItemRec = OldWorld.Instance.EIF[item.ID];
-            // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var ingredient in item.Ingredients)
-            {
-                if (OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory.FindIndex(_item => _item.ItemID == ingredient.Item1 && _item.Amount >= ingredient.Item2) < 0)
-                {
-                    string _message = OldWorld.GetString(EOResourceID.DIALOG_SHOP_CRAFT_MISSING_INGREDIENTS) + "\n\n";
-                    foreach (var ingred in item.Ingredients)
-                    {
-                        var localRec = OldWorld.Instance.EIF[ingred.Item1];
-                        _message += $"+  {ingred.Item2}  {localRec.Name}\n";
-                    }
-                    string _caption =
-                        $"{OldWorld.GetString(EOResourceID.DIALOG_SHOP_CRAFT_INGREDIENTS)} {OldWorld.GetString(EOResourceID.DIALOG_WORD_FOR)} {craftItemRec.Name}";
-                    EOMessageBox.Show(_message, _caption, EODialogButtons.Cancel, EOMessageBoxStyle.LargeDialogSmallHeader);
-                    return;
-                }
-            }
+            //var craftItemRec = OldWorld.Instance.EIF[item.ID];
+            //// ReSharper disable once LoopCanBeConvertedToQuery
+            //foreach (var ingredient in item.Ingredients)
+            //{
+            //    if (OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory.FindIndex(_item => _item.ItemID == ingredient.Item1 && _item.Amount >= ingredient.Item2) < 0)
+            //    {
+            //        string _message = OldWorld.GetString(EOResourceID.DIALOG_SHOP_CRAFT_MISSING_INGREDIENTS) + "\n\n";
+            //        foreach (var ingred in item.Ingredients)
+            //        {
+            //            var localRec = OldWorld.Instance.EIF[ingred.Item1];
+            //            _message += $"+  {ingred.Item2}  {localRec.Name}\n";
+            //        }
+            //        string _caption =
+            //            $"{OldWorld.GetString(EOResourceID.DIALOG_SHOP_CRAFT_INGREDIENTS)} {OldWorld.GetString(EOResourceID.DIALOG_WORD_FOR)} {craftItemRec.Name}";
+            //        EOMessageBox.Show(_message, _caption, EODialogButtons.Cancel, EOMessageBoxStyle.LargeDialogSmallHeader);
+            //        return;
+            //    }
+            //}
 
             //if (!EOGame.Instance.Hud.InventoryFits((short)item.ID))
             //{
@@ -351,21 +351,21 @@ namespace EndlessClient.Dialogs.Old
             //    return;
             //}
 
-            string _message2 = OldWorld.GetString(EOResourceID.DIALOG_SHOP_CRAFT_PUT_INGREDIENTS_TOGETHER) + "\n\n";
-            foreach (var ingred in item.Ingredients)
-            {
-                var localRec = OldWorld.Instance.EIF[ingred.Item1];
-                _message2 += $"+  {ingred.Item2}  {localRec.Name}\n";
-            }
-            string _caption2 =
-                $"{OldWorld.GetString(EOResourceID.DIALOG_SHOP_CRAFT_INGREDIENTS)} {OldWorld.GetString(EOResourceID.DIALOG_WORD_FOR)} {craftItemRec.Name}";
-            EOMessageBox.Show(_message2, _caption2, EODialogButtons.OkCancel, EOMessageBoxStyle.LargeDialogSmallHeader, (o, e) =>
-            {
-                if (e.Result == XNADialogResult.OK && !m_api.CraftItem((short)item.ID))
-                {
-                    EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-                }
-            });
+            //string _message2 = OldWorld.GetString(EOResourceID.DIALOG_SHOP_CRAFT_PUT_INGREDIENTS_TOGETHER) + "\n\n";
+            //foreach (var ingred in item.Ingredients)
+            //{
+            //    var localRec = OldWorld.Instance.EIF[ingred.Item1];
+            //    _message2 += $"+  {ingred.Item2}  {localRec.Name}\n";
+            //}
+            //string _caption2 =
+            //    $"{OldWorld.GetString(EOResourceID.DIALOG_SHOP_CRAFT_INGREDIENTS)} {OldWorld.GetString(EOResourceID.DIALOG_WORD_FOR)} {craftItemRec.Name}";
+            //EOMessageBox.Show(_message2, _caption2, EODialogButtons.OkCancel, EOMessageBoxStyle.LargeDialogSmallHeader, (o, e) =>
+            //{
+            //    if (e.Result == XNADialogResult.OK && !m_api.CraftItem((short)item.ID))
+            //    {
+            //        EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+            //    }
+            //});
         }
     }
 }
