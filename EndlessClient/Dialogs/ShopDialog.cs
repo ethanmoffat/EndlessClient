@@ -125,8 +125,7 @@ namespace EndlessClient.Dialogs
 
                 return;
             }
-
-            if (state == ShopState.Selling && _sellItems.Count == 0)
+            else if (state == ShopState.Selling && _sellItems.Count == 0)
             {
                 var msg = _messageBoxFactory.CreateMessageBox(DialogResourceID.SHOP_NOT_BUYING_YOUR_ITEMS);
                 msg.ShowDialog();
@@ -167,21 +166,25 @@ namespace EndlessClient.Dialogs
                         sellItem.LeftClick += (_, _) => SetState(ShopState.Selling);
                         sellItem.Initialize();
 
-                        var craftItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large)
-                        {
-                            PrimaryText = _localizedStringFinder.GetString(EOResourceID.DIALOG_SHOP_CRAFT_ITEMS),
-                            SubText = $"{_craftItems.Count} {_localizedStringFinder.GetString(EOResourceID.DIALOG_SHOP_ITEMS_ACCEPTED)}",
-                            IconGraphic = _dialogIconService.IconSheet,
-                            IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.Craft),
-                            ShowIconBackGround = false,
-                            OffsetY = 45,
-                        };
-                        craftItem.LeftClick += (_, _) => SetState(ShopState.Crafting);
-                        craftItem.Initialize();
-
                         AddItemToList(buyItem, sortList: false);
                         AddItemToList(sellItem, sortList: false);
-                        AddItemToList(craftItem, sortList: false);
+
+                        if (_craftItems.Count > 0)
+                        {
+                            var craftItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large)
+                            {
+                                PrimaryText = _localizedStringFinder.GetString(EOResourceID.DIALOG_SHOP_CRAFT_ITEMS),
+                                SubText = $"{_craftItems.Count} {_localizedStringFinder.GetString(EOResourceID.DIALOG_SHOP_ITEMS_ACCEPTED)}",
+                                IconGraphic = _dialogIconService.IconSheet,
+                                IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.Craft),
+                                ShowIconBackGround = false,
+                                OffsetY = 45,
+                            };
+                            craftItem.LeftClick += (_, _) => SetState(ShopState.Crafting);
+                            craftItem.Initialize();
+
+                            AddItemToList(craftItem, sortList: false);
+                        }
 
                         Buttons = ScrollingListDialogButtons.Cancel;
                     }
