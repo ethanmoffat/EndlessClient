@@ -246,7 +246,7 @@ namespace EndlessClient.Rendering
 
         private void CreateMouseoverName()
         {
-            _mouseoverName = new XNALabel(new Rectangle(1, 1, 1, 1), Constants.FontSize08pt75)
+            _mouseoverName = new XNALabel(new Rectangle(1, 1, 1, 1), Constants.FontSize09)
             {
                 Visible = false,
                 Text = NPC.Data.Name,

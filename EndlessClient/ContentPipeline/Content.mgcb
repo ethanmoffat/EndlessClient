@@ -235,11 +235,11 @@
 /processorParam:TextureFormat=Compressed
 /build:Fonts/InGame_Main_08pt5.spritefont
 
-#begin Fonts/InGame_Main_08pt75.spritefont
+#begin Fonts/InGame_Main_09.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
 /processorParam:TextureFormat=Compressed
-/build:Fonts/InGame_Main_08pt75.spritefont
+/build:Fonts/InGame_Main_09.spritefont
 
 #begin Fonts/InGame_Main_10.spritefont
 /importer:FontDescriptionImporter

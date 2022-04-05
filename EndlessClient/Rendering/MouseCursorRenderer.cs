@@ -91,7 +91,7 @@ namespace EndlessClient.Rendering
                                                   _mouseCursorTexture.Height);
             DrawArea = SingleCursorFrameArea;
 
-            _mapItemText = new XNALabel(Constants.FontSize08pt75)
+            _mapItemText = new XNALabel(Constants.FontSize09)
             {
                 Visible = false,
                 Text = string.Empty,

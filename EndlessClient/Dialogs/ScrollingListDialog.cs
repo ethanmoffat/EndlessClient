@@ -89,7 +89,7 @@ namespace EndlessClient.Dialogs
         {
             _listItems = new List<ListDialogItem>();
 
-            _titleText = new XNALabel(Constants.FontSize08pt75)
+            _titleText = new XNALabel(Constants.FontSize09)
             {
                 DrawArea = new Rectangle(16, 13, 253, 19),
                 AutoSize = false,

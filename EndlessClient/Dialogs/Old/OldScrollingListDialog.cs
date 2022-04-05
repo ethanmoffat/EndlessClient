@@ -94,7 +94,7 @@ namespace EndlessClient.Dialogs.Old
             LargeItemStyleMaxItemDisplay = 5;
             SmallItemStyleMaxItemDisplay = 12;
 
-            m_titleText = new XNALabel(new Rectangle(16, 13, 253, 19), Constants.FontSize08pt75)
+            m_titleText = new XNALabel(new Rectangle(16, 13, 253, 19), Constants.FontSize09)
             {
                 AutoSize = false,
                 TextAlign = LabelAlignment.MiddleLeft,

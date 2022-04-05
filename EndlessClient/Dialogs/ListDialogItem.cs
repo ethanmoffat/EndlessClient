@@ -112,7 +112,7 @@ namespace EndlessClient.Dialogs
 
             int colorFactor = Style == ListItemStyle.Large ? 0xc8 : 0xb4;
 
-            _primaryText = new XNALabel(Constants.FontSize08pt5)
+            _primaryText = new XNALabel(Constants.FontSize09)
             {
                 AutoSize = false,
                 BackColor = Color.Transparent,
@@ -125,7 +125,7 @@ namespace EndlessClient.Dialogs
             _primaryText.SetParentControl(this);
             _primaryText.Initialize();
 
-            _subText = new XNALabel(Constants.FontSize08pt5)
+            _subText = new XNALabel(Constants.FontSize09)
             {
                 AutoSize = true,
                 BackColor = _primaryText.BackColor,
@@ -152,7 +152,7 @@ namespace EndlessClient.Dialogs
         public void SetPrimaryClickAction(EventHandler onClickAction)
         {
             var oldText = _primaryText;
-            _primaryText = new XNAHyperLink(Constants.FontSize08pt5)
+            _primaryText = new XNAHyperLink(Constants.FontSize09)
             {
                 AutoSize = false,
                 BackColor = oldText.BackColor,
@@ -181,7 +181,7 @@ namespace EndlessClient.Dialogs
                 throw new InvalidOperationException("Unable to set subtext click action when style is Small");
 
             var oldText = _subText;
-            _subText = new XNAHyperLink(Constants.FontSize08pt5)
+            _subText = new XNAHyperLink(Constants.FontSize09)
             {
                 AutoSize = false,
                 BackColor = oldText.BackColor,

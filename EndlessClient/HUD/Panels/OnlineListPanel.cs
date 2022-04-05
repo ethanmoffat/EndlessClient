@@ -62,7 +62,7 @@ namespace EndlessClient.HUD.Panels
             BackgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 36);
             DrawArea = new Rectangle(102, 330, BackgroundImage.Width, BackgroundImage.Height);
 
-            _totalNumberOfPlayers = new XNALabel(Constants.FontSize08pt75)
+            _totalNumberOfPlayers = new XNALabel(Constants.FontSize09)
             {
                 AutoSize = false,
                 ForeColor = ColorConstants.LightGrayText,
