@@ -8,9 +8,11 @@ using EOLib.IO.Repositories;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Optional;
+using Optional.Collections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using XNAControls;
 
 namespace EndlessClient.Dialogs
 {
@@ -25,6 +27,7 @@ namespace EndlessClient.Dialogs
             Crafting
         }
 
+        private readonly IShopActions _shopActions;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly IItemTransferDialogFactory _itemTransferDialogFactory;
         private readonly IEODialogIconService _dialogIconService;
@@ -32,6 +35,7 @@ namespace EndlessClient.Dialogs
         private readonly IShopDataProvider _shopDataProvider;
         private readonly ICharacterInventoryProvider _characterInventoryProvider;
         private readonly IEIFFileProvider _eifFileProvider;
+        private readonly ICharacterProvider _characterProvider;
         private readonly IInventorySpaceValidator _inventorySpaceValidator;
         private IReadOnlyList<IShopItem> _buyItems, _sellItems;
         private IReadOnlyList<IShopCraftItem> _craftItems;
@@ -39,8 +43,11 @@ namespace EndlessClient.Dialogs
         private ShopState _state;
 
         private Option<int> _cachedShopId;
+        private HashSet<IInventoryItem> _cachedInventory;
+        private ulong _tick;
 
         public ShopDialog(INativeGraphicsManager nativeGraphicsManager,
+                          IShopActions shopActions,
                           IEOMessageBoxFactory messageBoxFactory,
                           IItemTransferDialogFactory itemTransferDialogFactory,
                           IEODialogButtonService dialogButtonService,
@@ -49,9 +56,11 @@ namespace EndlessClient.Dialogs
                           IShopDataProvider shopDataProvider,
                           ICharacterInventoryProvider characterInventoryProvider,
                           IEIFFileProvider eifFileProvider,
+                          ICharacterProvider characterProvider,
                           IInventorySpaceValidator inventorySpaceValidator)
             : base(nativeGraphicsManager, dialogButtonService)
         {
+            _shopActions = shopActions;
             _messageBoxFactory = messageBoxFactory;
             _itemTransferDialogFactory = itemTransferDialogFactory;
             _dialogIconService = dialogIconService;
@@ -59,12 +68,15 @@ namespace EndlessClient.Dialogs
             _shopDataProvider = shopDataProvider;
             _characterInventoryProvider = characterInventoryProvider;
             _eifFileProvider = eifFileProvider;
+            _characterProvider = characterProvider;
             _inventorySpaceValidator = inventorySpaceValidator;
 
             Buttons = ScrollingListDialogButtons.Cancel;
             ListItemType = ListDialogItem.ListItemStyle.Large;
 
             BackAction += (_, _) => SetState(ShopState.Initial);
+
+            _cachedInventory = new HashSet<IInventoryItem>(_characterInventoryProvider.ItemInventory);
         }
 
         protected override void OnUpdateControl(GameTime gameTime)
@@ -86,18 +98,31 @@ namespace EndlessClient.Dialogs
                     });
             });
 
+            if (++_tick % 8 == 0 && !_cachedInventory.SetEquals(_characterInventoryProvider.ItemInventory))
+            {
+                _sellItems = _shopDataProvider.TradeItems.Where(x => x.Sell > 0 && _characterInventoryProvider.ItemInventory.Any(inv => inv.ItemID == x.ID && inv.Amount > 0)).ToList();
+                _cachedInventory = new HashSet<IInventoryItem>(_characterInventoryProvider.ItemInventory);
+
+                if (_state == ShopState.Selling)
+                    SetState(ShopState.Selling);
+            }
+
             base.OnUpdateControl(gameTime);
         }
 
         private void SetState(ShopState state)
         {
-            if (_state == state || state == ShopState.None)
+            if (state == ShopState.None)
                 return;
 
             if (state == ShopState.Buying && _buyItems.Count == 0)
             {
                 var msg = _messageBoxFactory.CreateMessageBox(DialogResourceID.SHOP_NOTHING_IS_FOR_SALE);
                 msg.ShowDialog();
+
+                if (_state != ShopState.Initial)
+                    SetState(ShopState.Initial);
+
                 return;
             }
 
@@ -105,6 +130,10 @@ namespace EndlessClient.Dialogs
             {
                 var msg = _messageBoxFactory.CreateMessageBox(DialogResourceID.SHOP_NOT_BUYING_YOUR_ITEMS);
                 msg.ShowDialog();
+
+                if (_state != ShopState.Initial)
+                    SetState(ShopState.Initial);
+
                 return;
             }
 
@@ -191,7 +220,7 @@ namespace EndlessClient.Dialogs
                 case ShopState.Crafting:
                     {
                         var items = new List<ListDialogItem>();
-                        foreach (var item in _craftItems.Where(x => x.Ingredients.Count > 0))
+                        foreach (var item in _craftItems)
                         {
                             var data = _eifFileProvider.EIFFile[item.ID];
                             var genderExtra = data.Type == EOLib.IO.ItemType.Armor ? $"({_localizedStringFinder.GetString(EOResourceID.FEMALE - data.Gender)})" : string.Empty;
@@ -222,87 +251,98 @@ namespace EndlessClient.Dialogs
 
         private void TradeItem(object sender, EventArgs e)
         {
-            var listItemIndex = ((ListDialogItem)sender).Index;
+            if (_state != ShopState.Buying && _state != ShopState.Selling)
+                return;
+
+            var listItemIndex = ((ListDialogItem)sender).Index + _scrollBar.ScrollOffset;
             var buying = _state == ShopState.Buying;
 
-            var shopItem = (buying ? _buyItems : _sellItems)[listItemIndex];
+            var collection = (buying ? _buyItems : _sellItems);
+            if (listItemIndex >= collection.Count)
+                return;
 
-            //if (m_state != ShopState.Buying && m_state != ShopState.Selling)
-            //    return;
-            //bool isBuying = m_state == ShopState.Buying;
+            // todo: move some of this stuff into a controller class?
+            var shopItem = collection[listItemIndex];
+            var data = _eifFileProvider.EIFFile[shopItem.ID];
 
-            //InventoryItem ii = OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory.Find(x => (isBuying ? x.ItemID == 1 : x.ItemID == item.ID));
-            //var rec = OldWorld.Instance.EIF[item.ID];
-            //if (isBuying)
-            //{
-            //    if (!EOGame.Instance.Hud.InventoryFits((short)item.ID))
-            //    {
-            //        EOMessageBox.Show(OldWorld.GetString(EOResourceID.DIALOG_TRANSFER_NOT_ENOUGH_SPACE),
-            //            OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
-            //            EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-            //        return;
-            //    }
+            var inventoryItem = _characterInventoryProvider.ItemInventory
+                .SingleOrNone(x => buying ? x.ItemID == 1 : x.ItemID == shopItem.ID);
 
-            //    if (rec.Weight + OldWorld.Instance.MainPlayer.ActiveCharacter.Weight >
-            //        OldWorld.Instance.MainPlayer.ActiveCharacter.MaxWeight)
-            //    {
-            //        EOMessageBox.Show(OldWorld.GetString(EOResourceID.DIALOG_TRANSFER_NOT_ENOUGH_WEIGHT),
-            //            OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
-            //            EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-            //        return;
-            //    }
+            // todo: move this stuff into a validator class?
+            if (buying)
+            {
+                if (!_inventorySpaceValidator.ItemFits(data.Size))
+                {
+                    var msg = _messageBoxFactory.CreateMessageBox(EOResourceID.DIALOG_TRANSFER_NOT_ENOUGH_SPACE, EOResourceID.STATUS_LABEL_TYPE_WARNING);
+                    msg.ShowDialog();
+                    return;
+                }
 
-            //    if (ii.Amount < item.Buy)
-            //    {
-            //        EOMessageBox.Show(DialogResourceID.WARNING_YOU_HAVE_NOT_ENOUGH, " gold.", EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-            //        return;
-            //    }
-            //}
-            //else if (ii.Amount == 0)
-            //    return; //can't sell if amount of item is 0
+                var stats = _characterProvider.MainCharacter.Stats;
+                if (data.Weight + stats[CharacterStat.Weight] > stats[CharacterStat.MaxWeight])
+                {
+                    var msg = _messageBoxFactory.CreateMessageBox(EOResourceID.DIALOG_TRANSFER_NOT_ENOUGH_WEIGHT, EOResourceID.STATUS_LABEL_TYPE_WARNING);
+                    msg.ShowDialog();
+                    return;
+                }
 
-            ////special case: no need for prompting if selling an item with count == 1 in inventory
-            //if (!isBuying && ii.Amount == 1)
-            //{
-            //    string _message =
-            //        $"{OldWorld.GetString(EOResourceID.DIALOG_WORD_SELL)} 1 {rec.Name} {OldWorld.GetString(EOResourceID.DIALOG_WORD_FOR)} {item.Sell} gold?";
-            //    EOMessageBox.Show(_message, OldWorld.GetString(EOResourceID.DIALOG_SHOP_SELL_ITEMS), EODialogButtons.OkCancel,
-            //        EOMessageBoxStyle.SmallDialogSmallHeader, (oo, ee) =>
-            //        {
-            //            if (ee.Result == XNADialogResult.OK && !m_api.SellItem((short)item.ID, 1))
-            //            {
-            //                EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-            //            }
-            //        });
-            //}
-            //else
-            //{
-            //    ItemTransferDialog dlg = new ItemTransferDialog(rec.Name, ItemTransferDialog.TransferType.ShopTransfer,
-            //        isBuying ? item.MaxBuy : ii.Amount, isBuying ? EOResourceID.DIALOG_TRANSFER_BUY : EOResourceID.DIALOG_TRANSFER_SELL);
-            //    dlg.DialogClosing += (o, e) =>
-            //    {
-            //        if (e.Result == XNADialogResult.OK)
-            //        {
-            //            string _message =
-            //                $"{OldWorld.GetString(isBuying ? EOResourceID.DIALOG_WORD_BUY : EOResourceID.DIALOG_WORD_SELL)} {dlg.SelectedAmount} {rec.Name} {OldWorld.GetString(EOResourceID.DIALOG_WORD_FOR)} {(isBuying ? item.Buy : item.Sell)*dlg.SelectedAmount} gold?";
+                var hasEnoughGold = inventoryItem.Match(some: x => x.Amount >= shopItem.Buy, none: () => false);
+                if (!hasEnoughGold)
+                {
+                    var msg = _messageBoxFactory.CreateMessageBox(DialogResourceID.WARNING_YOU_HAVE_NOT_ENOUGH, " gold.");
+                    msg.ShowDialog();
+                    return;
+                }
+            }
+            else
+            {
+                var hasEnoughItem = inventoryItem.Match(some: x => x.Amount > 0, none: () => false);
+                if (!hasEnoughItem)
+                {
+                    var msg = _messageBoxFactory.CreateMessageBox(DialogResourceID.SHOP_NOT_BUYING_YOUR_ITEMS);
+                    msg.ShowDialog();
+                    return;
+                }
+            }
 
-            //            EOMessageBox.Show(_message,
-            //                OldWorld.GetString(isBuying ? EOResourceID.DIALOG_SHOP_BUY_ITEMS : EOResourceID.DIALOG_SHOP_SELL_ITEMS),
-            //                EODialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader, (oo, ee) =>
-            //                {
-            //                    if (ee.Result == XNADialogResult.OK)
-            //                    {
-            //                        //only actually do the buy/sell if the user then clicks "OK" in the second prompt
-            //                        if (isBuying && !m_api.BuyItem((short)item.ID, dlg.SelectedAmount) ||
-            //                            !isBuying && !m_api.SellItem((short)item.ID, dlg.SelectedAmount))
-            //                        {
-            //                            EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-            //                        }
-            //                    }
-            //                });
-            //        }
-            //    };
-            //}
+            var needItemTransferDialog = (buying && shopItem.MaxBuy == 1) || (!buying && inventoryItem.Match(x => x.Amount != 1, () => false));
+
+            if (needItemTransferDialog)
+            {
+                var itemTransferDialog = _itemTransferDialogFactory.CreateItemTransferDialog(data.Name,
+                    ItemTransferDialog.TransferType.ShopTransfer,
+                    buying ? shopItem.MaxBuy : inventoryItem.Match(x => x.Amount, () => 0),
+                    buying ? EOResourceID.DIALOG_TRANSFER_BUY : EOResourceID.DIALOG_TRANSFER_SELL);
+                itemTransferDialog.DialogClosing += (_, e) =>
+                {
+                    if (e.Result == XNADialogResult.OK)
+                        ConfirmAndExecuteTrade(itemTransferDialog.SelectedAmount);
+                };
+
+                itemTransferDialog.ShowDialog();
+            }
+            else
+            {
+                ConfirmAndExecuteTrade(amount: 1);
+            }
+
+            void ConfirmAndExecuteTrade(int amount)
+            {
+                var message = $"{_localizedStringFinder.GetString(buying ? EOResourceID.DIALOG_WORD_BUY : EOResourceID.DIALOG_WORD_SELL)} {amount} {data.Name} " +
+                    $"{_localizedStringFinder.GetString(EOResourceID.DIALOG_WORD_FOR)} {(buying ? shopItem.Buy : shopItem.Sell) * amount} gold?";
+                var dlg = _messageBoxFactory.CreateMessageBox(message, _localizedStringFinder.GetString(buying ? EOResourceID.DIALOG_SHOP_BUY_ITEMS : EOResourceID.DIALOG_SHOP_SELL_ITEMS), EODialogButtons.OkCancel);
+                dlg.DialogClosing += (_, e) =>
+                {
+                    if (e.Result == XNADialogResult.Cancel)
+                        return;
+
+                    if (buying)
+                        _shopActions.BuyItem((short)shopItem.ID, amount);
+                    else
+                        _shopActions.SellItem((short)shopItem.ID, amount);
+                };
+                dlg.ShowDialog();
+            }
         }
 
         private void CraftItem(object sender, EventArgs e)

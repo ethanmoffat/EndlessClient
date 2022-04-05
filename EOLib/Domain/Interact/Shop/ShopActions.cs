@@ -1,8 +1,10 @@
-﻿using EOLib.Net;
+﻿using AutomaticTypeMapper;
+using EOLib.Net;
 using EOLib.Net.Communication;
 
 namespace EOLib.Domain.Interact.Shop
 {
+    [AutoMappedType]
     public class ShopActions : IShopActions
     {
         private readonly IPacketSendService _packetSendService;

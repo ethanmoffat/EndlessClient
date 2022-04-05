@@ -50,9 +50,11 @@ namespace EOLib.PacketHandlers.Interact.Shop
 
                 for (int i = 0; i < 4; ++i)
                 {
-                    ingreds.Add(new ShopCraftIngredient(
-                        id: packet.ReadShort(),
-                        amount: packet.ReadChar()));
+                    var nextIngredient = new ShopCraftIngredient(id: packet.ReadShort(), amount: packet.ReadChar());
+                    if (nextIngredient.ID == 0)
+                        continue;
+
+                    ingreds.Add(nextIngredient);
                 }
                 craftItems.Add(new ShopCraftItem(id, ingreds));
             }

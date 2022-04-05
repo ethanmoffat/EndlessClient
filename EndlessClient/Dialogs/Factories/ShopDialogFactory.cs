@@ -14,6 +14,7 @@ namespace EndlessClient.Dialogs.Factories
     public class ShopDialogFactory : IShopDialogFactory
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
+        private readonly IShopActions _shopActions;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly IItemTransferDialogFactory _itemTransferDialogFactory;
         private readonly IEODialogButtonService _dialogButtonService;
@@ -22,9 +23,11 @@ namespace EndlessClient.Dialogs.Factories
         private readonly IShopDataProvider _shopDataProvider;
         private readonly ICharacterInventoryProvider _characterInventoryProvider;
         private readonly IEIFFileProvider _eifFileProvider;
+        private readonly ICharacterProvider _characterProvider;
         private readonly IInventorySpaceValidator _inventorySpaceValidator;
 
         public ShopDialogFactory(INativeGraphicsManager nativeGraphicsManager,
+                                 IShopActions shopActions,
                                  IEOMessageBoxFactory messageBoxFactory,
                                  IItemTransferDialogFactory itemTransferDialogFactory,
                                  IEODialogButtonService dialogButtonService,
@@ -33,9 +36,11 @@ namespace EndlessClient.Dialogs.Factories
                                  IShopDataProvider shopDataProvider,
                                  ICharacterInventoryProvider characterInventoryProvider,
                                  IEIFFileProvider eifFileProvider,
+                                 ICharacterProvider characterProvider,
                                  IInventorySpaceValidator inventorySpaceValidator)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
+            _shopActions = shopActions;
             _messageBoxFactory = messageBoxFactory;
             _itemTransferDialogFactory = itemTransferDialogFactory;
             _dialogButtonService = dialogButtonService;
@@ -44,12 +49,14 @@ namespace EndlessClient.Dialogs.Factories
             _shopDataProvider = shopDataProvider;
             _characterInventoryProvider = characterInventoryProvider;
             _eifFileProvider = eifFileProvider;
+            _characterProvider = characterProvider;
             _inventorySpaceValidator = inventorySpaceValidator;
         }
 
         public ShopDialog Create()
         {
             return new ShopDialog(_nativeGraphicsManager,
+                _shopActions,
                 _messageBoxFactory,
                 _itemTransferDialogFactory,
                 _dialogButtonService,
@@ -58,6 +65,7 @@ namespace EndlessClient.Dialogs.Factories
                 _shopDataProvider,
                 _characterInventoryProvider,
                 _eifFileProvider,
+                _characterProvider,
                 _inventorySpaceValidator);
         }
     }

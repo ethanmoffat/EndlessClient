@@ -43,7 +43,7 @@ namespace EOLib.PacketHandlers.Interact.Shop
                         some: existing =>
                         {
                             _characterInventoryRepository.ItemInventory.RemoveWhere(x => x.ItemID == itemId);
-                            _characterInventoryRepository.ItemInventory.Add(shopBuy);
+                            _characterInventoryRepository.ItemInventory.Add(shopBuy.WithAmount(existing.Amount + shopBuy.Amount));
                         },
                         none: () => _characterInventoryRepository.ItemInventory.Add(shopBuy));
             }
