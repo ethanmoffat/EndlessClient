@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace EOLib.Domain.Interact.Shop
 {
-    public interface IShopDataRepository
+    public interface IShopDataRepository : IResettable
     {
         int ShopID { get; set; }
 
@@ -14,7 +14,7 @@ namespace EOLib.Domain.Interact.Shop
         List<IShopCraftItem> CraftItems { get; set; }
     }
 
-    public interface IShopDataProvider
+    public interface IShopDataProvider : IResettable
     {
         int ShopID { get; }
 
@@ -26,7 +26,7 @@ namespace EOLib.Domain.Interact.Shop
     }
 
     [AutoMappedType(IsSingleton = true)]
-    public class ShopDataRepository : IShopDataProvider, IShopDataRepository, IResettable
+    public class ShopDataRepository : IShopDataProvider, IShopDataRepository
     {
         public int ShopID { get; set; }
         public string ShopName { get; set; }
