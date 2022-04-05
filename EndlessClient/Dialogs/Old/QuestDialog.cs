@@ -19,25 +19,25 @@ namespace EndlessClient.Dialogs.Old
 {
     public class QuestDialog : OldScrollingListDialog
     {
-        public static QuestDialog Instance { get; private set; }
+        //public static QuestDialog Instance { get; private set; }
 
-        public static void Show(PacketAPI api, short npcIndex, short questID, string name)
-        {
-            NPCName = name;
+        //public static void Show(PacketAPI api, short npcIndex, short questID, string name)
+        //{
+        //    NPCName = name;
 
-            //note: dialog is created in packet callback! sometimes talking to the quest NPC does nothing (if you already completed)!
+        //    //note: dialog is created in packet callback! sometimes talking to the quest NPC does nothing (if you already completed)!
 
-            if (!api.TalkToQuestNPC(npcIndex, questID))
-                EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-        }
+        //    if (!api.TalkToQuestNPC(npcIndex, questID))
+        //        EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+        //}
 
-        public static void SetupInstance(PacketAPI api)
-        {
-            if(Instance != null)
-                Instance.Close(null, XNADialogResult.NO_BUTTON_PRESSED);
+        //public static void SetupInstance(PacketAPI api)
+        //{
+        //    if(Instance != null)
+        //        Instance.Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 
-            Instance = new QuestDialog(api);
-        }
+        //    Instance = new QuestDialog(api);
+        //}
 
         private QuestState _stateInfo;
         private Dictionary<short, string> _dialogNames, _links;
@@ -53,10 +53,10 @@ namespace EndlessClient.Dialogs.Old
             {
                 if (e.Result == XNADialogResult.OK)
                 {
-                    if (!m_api.RespondToQuestDialog(_stateInfo, DialogReply.Ok))
-                        ((EOGame) Game).DoShowLostConnectionDialogAndReturnToMainMenu();
+                    //if (!m_api.RespondToQuestDialog(_stateInfo, DialogReply.Ok))
+                    //    ((EOGame) Game).DoShowLostConnectionDialogAndReturnToMainMenu();
                 }
-                Instance = null;
+                //Instance = null;
             };
 
             _dialogNames = new Dictionary<short, string>();
@@ -240,11 +240,11 @@ namespace EndlessClient.Dialogs.Old
         private void _clickLink(byte linkID)
         {
             //send to server with linkID
-            if (!m_api.RespondToQuestDialog(_stateInfo, DialogReply.Link, linkID))
-            {
-                Close(null, XNADialogResult.NO_BUTTON_PRESSED);
-                ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
-            }
+            //if (!m_api.RespondToQuestDialog(_stateInfo, DialogReply.Link, linkID))
+            //{
+            //    Close(null, XNADialogResult.NO_BUTTON_PRESSED);
+            //    ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
+            //}
 
             Close(null, XNADialogResult.Cancel);
         }

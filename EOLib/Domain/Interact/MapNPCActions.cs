@@ -22,10 +22,22 @@ namespace EOLib.Domain.Interact
 
             _packetSendService.SendPacket(packet);
         }
+
+        public void RequestQuest(short index, short vendorId)
+        {
+            var packet = new PacketBuilder(PacketFamily.Quest, PacketAction.Use)
+                .AddShort(index)
+                .AddShort(vendorId)
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+        }
     }
 
     public interface IMapNPCActions
     {
         void RequestShop(byte index);
+
+        void RequestQuest(short index, short vendorId);
     }
 }

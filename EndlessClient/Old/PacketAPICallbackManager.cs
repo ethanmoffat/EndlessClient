@@ -69,7 +69,6 @@ namespace EndlessClient.Old
             m_packetAPI.OnCharacterStatsReset += _statskillReset;
 
             //quests
-            m_packetAPI.OnQuestDialog += _questDialog;
             m_packetAPI.OnViewQuestProgress += _questProgress;
             m_packetAPI.OnViewQuestHistory += _questHistory;
 
@@ -339,17 +338,6 @@ namespace EndlessClient.Old
             c.Stats.Armor = data.Armor;
             m_game.Hud.RefreshStats();
             m_game.Hud.RemoveAllSpells();
-        }
-
-        private void _questDialog(QuestState stateinfo, Dictionary<short, string> dialognames, List<string> pages, Dictionary<short, string> links)
-        {
-            if (QuestDialog.Instance == null)
-                QuestDialog.SetupInstance(m_packetAPI);
-
-            if (QuestDialog.Instance == null)
-                throw new InvalidOperationException("Something went wrong creating the instance");
-
-            QuestDialog.Instance.SetDisplayData(stateinfo, dialognames, pages, links);
         }
 
         private void _questProgress(short numquests, List<InProgressQuestData> questinfo)
