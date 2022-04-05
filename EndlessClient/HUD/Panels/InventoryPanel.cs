@@ -355,38 +355,44 @@ namespace EndlessClient.HUD.Panels
 
             if (_activeDialogProvider.ActiveDialogs.All(x => !x.HasValue))
             {
-                var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
                 // todo: if this is a chained drag, restoring the original slot could overlap with another item
-                if (_drop.MouseOver || mapRenderer.MouseOver)
+                var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
+                if (mapRenderer.MouseOver)
                 {
                     e.RestoreOriginalSlot = true;
                     _inventoryController.DropItem(item.Data, item.InventoryItem);
                     return;
                 }
-                else if (_junk.MouseOver)
-                {
-                    e.RestoreOriginalSlot = true;
-                    _inventoryController.JunkItem(item.Data, item.InventoryItem);
-                    return;
-                }
             }
-            else
-            {
-                var dialogDrop = false;
-                _activeDialogProvider.PaperdollDialog.MatchSome(x =>
-                {
-                    if (x.MouseOver && x.MouseOverPreviously && item.Data.GetEquipLocation() != EquipLocation.PAPERDOLL_MAX)
-                    {
-                        dialogDrop = true;
-                        _inventoryController.EquipItem(item.Data);
-                    }
-                });
 
-                if (dialogDrop)
+            // todo: if this is a chained drag, restoring the original slot could overlap with another item
+            if (_drop.MouseOver)
+            {
+                e.RestoreOriginalSlot = true;
+                _inventoryController.DropItem(item.Data, item.InventoryItem);
+                return;
+            }
+            else if (_junk.MouseOver)
+            {
+                e.RestoreOriginalSlot = true;
+                _inventoryController.JunkItem(item.Data, item.InventoryItem);
+                return;
+            }
+
+            var dialogDrop = false;
+            _activeDialogProvider.PaperdollDialog.MatchSome(x =>
+            {
+                if (x.MouseOver && x.MouseOverPreviously && item.Data.GetEquipLocation() != EquipLocation.PAPERDOLL_MAX)
                 {
-                    e.RestoreOriginalSlot = true;
-                    return;
+                    dialogDrop = true;
+                    _inventoryController.EquipItem(item.Data);
                 }
+            });
+
+            if (dialogDrop)
+            {
+                e.RestoreOriginalSlot = true;
+                return;
             }
 
             var fitsInOldSlot = _inventoryService.FitsInSlot(_inventorySlotRepository.FilledSlots, oldSlot, e.Data.Size);
