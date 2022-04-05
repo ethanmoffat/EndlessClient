@@ -350,55 +350,70 @@ namespace EndlessClient.Dialogs
 
         private void CraftItem(object sender, EventArgs e)
         {
-            var listItemIndex = ((ListDialogItem)sender).Index;
+            if (_state != ShopState.Crafting)
+                return;
 
+            var listItemIndex = ((ListDialogItem)sender).Index + _scrollBar.ScrollOffset;
+
+            if (listItemIndex >= _craftItems.Count)
+                return;
+
+            // todo: move some of this stuff into a controller class?
             var craftItem = _craftItems[listItemIndex];
+            var data = _eifFileProvider.EIFFile[craftItem.ID];
 
-            //if (m_state != ShopState.Crafting)
-            //    return;
+            // todo: move this stuff into a validator class?
+            foreach (var ingredient in craftItem.Ingredients)
+            {
+                if (!_characterInventoryProvider.ItemInventory.Any(x => x.ItemID == ingredient.ID && x.Amount >= ingredient.Amount))
+                {
+                    var message = BuildMessage(EOResourceID.DIALOG_SHOP_CRAFT_MISSING_INGREDIENTS);
+                    var caption = BuildCaption(EOResourceID.DIALOG_SHOP_CRAFT_INGREDIENTS);
+                    
+                    var dlg = _messageBoxFactory.CreateMessageBox(message, caption, EODialogButtons.Cancel, EOMessageBoxStyle.LargeDialogSmallHeader);
+                    dlg.ShowDialog();
 
-            //var craftItemRec = OldWorld.Instance.EIF[item.ID];
-            //// ReSharper disable once LoopCanBeConvertedToQuery
-            //foreach (var ingredient in item.Ingredients)
-            //{
-            //    if (OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory.FindIndex(_item => _item.ItemID == ingredient.Item1 && _item.Amount >= ingredient.Item2) < 0)
-            //    {
-            //        string _message = OldWorld.GetString(EOResourceID.DIALOG_SHOP_CRAFT_MISSING_INGREDIENTS) + "\n\n";
-            //        foreach (var ingred in item.Ingredients)
-            //        {
-            //            var localRec = OldWorld.Instance.EIF[ingred.Item1];
-            //            _message += $"+  {ingred.Item2}  {localRec.Name}\n";
-            //        }
-            //        string _caption =
-            //            $"{OldWorld.GetString(EOResourceID.DIALOG_SHOP_CRAFT_INGREDIENTS)} {OldWorld.GetString(EOResourceID.DIALOG_WORD_FOR)} {craftItemRec.Name}";
-            //        EOMessageBox.Show(_message, _caption, EODialogButtons.Cancel, EOMessageBoxStyle.LargeDialogSmallHeader);
-            //        return;
-            //    }
-            //}
+                    return;
+                }
+            }
 
-            //if (!EOGame.Instance.Hud.InventoryFits((short)item.ID))
-            //{
-            //    EOMessageBox.Show(OldWorld.GetString(EOResourceID.DIALOG_TRANSFER_NOT_ENOUGH_SPACE),
-            //        OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
-            //        EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-            //    return;
-            //}
+            if (!_inventorySpaceValidator.ItemFits(data.Size))
+            {
+                var msg = _messageBoxFactory.CreateMessageBox(EOResourceID.DIALOG_TRANSFER_NOT_ENOUGH_SPACE, EOResourceID.STATUS_LABEL_TYPE_WARNING);
+                msg.ShowDialog();
+                return;
+            }
 
-            //string _message2 = OldWorld.GetString(EOResourceID.DIALOG_SHOP_CRAFT_PUT_INGREDIENTS_TOGETHER) + "\n\n";
-            //foreach (var ingred in item.Ingredients)
-            //{
-            //    var localRec = OldWorld.Instance.EIF[ingred.Item1];
-            //    _message2 += $"+  {ingred.Item2}  {localRec.Name}\n";
-            //}
-            //string _caption2 =
-            //    $"{OldWorld.GetString(EOResourceID.DIALOG_SHOP_CRAFT_INGREDIENTS)} {OldWorld.GetString(EOResourceID.DIALOG_WORD_FOR)} {craftItemRec.Name}";
-            //EOMessageBox.Show(_message2, _caption2, EODialogButtons.OkCancel, EOMessageBoxStyle.LargeDialogSmallHeader, (o, e) =>
-            //{
-            //    if (e.Result == XNADialogResult.OK && !m_api.CraftItem((short)item.ID))
-            //    {
-            //        EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-            //    }
-            //});
+            var message2 = BuildMessage(EOResourceID.DIALOG_SHOP_CRAFT_PUT_INGREDIENTS_TOGETHER);
+            var caption2 = BuildCaption(EOResourceID.DIALOG_SHOP_CRAFT_INGREDIENTS);
+
+            var dlg2 = _messageBoxFactory.CreateMessageBox(message2, caption2, EODialogButtons.OkCancel, EOMessageBoxStyle.LargeDialogSmallHeader);
+            dlg2.DialogClosing += (o, e) =>
+            {
+                if (e.Result == XNADialogResult.Cancel)
+                    return;
+
+                _shopActions.CraftItem((short)craftItem.ID);
+            };
+            dlg2.ShowDialog();
+
+            string BuildMessage(EOResourceID resource)
+            {
+                var message = _localizedStringFinder.GetString(resource) + "\n\n";
+
+                foreach (var ingred in craftItem.Ingredients)
+                {
+                    var ingredData = _eifFileProvider.EIFFile[ingred.ID];
+                    message += $"+  {ingred.Amount}  {ingredData.Name}\n";
+                }
+
+                return message;
+            }
+
+            string BuildCaption(EOResourceID resource)
+            {
+                return $"{_localizedStringFinder.GetString(resource)} {_localizedStringFinder.GetString(EOResourceID.DIALOG_WORD_FOR)} {data.Name}";
+            }
         }
     }
 }
