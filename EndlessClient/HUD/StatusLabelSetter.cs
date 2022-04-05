@@ -1,11 +1,12 @@
 using System;
 using AutomaticTypeMapper;
+using EOLib.Domain.Interact.Quest;
 using EOLib.Localization;
 
 namespace EndlessClient.HUD
 {
     [MappedType(BaseType = typeof(IStatusLabelSetter))]
-    public class StatusLabelSetter : IStatusLabelSetter
+    public class StatusLabelSetter : IStatusLabelSetter, IStatusLabelNotifier
     {
         private readonly IStatusLabelTextRepository _statusLabelTextRepository;
         private readonly ILocalizedStringFinder _localizedStringFinder;
@@ -38,6 +39,11 @@ namespace EndlessClient.HUD
         {
             CheckStatusLabelType(type);
             SetStatusLabelText(_localizedStringFinder.GetString(type), text);
+        }
+
+        public void ShowWarning(string message)
+        {
+            SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, message);
         }
 
         private void SetStatusLabelText(string type, string text, string extra = "")
