@@ -11,14 +11,17 @@ namespace EndlessClient.Dialogs.Actions
         private readonly IFriendIgnoreListDialogFactory _friendIgnoreListDialogFactory;
         private readonly IPaperdollDialogFactory _paperdollDialogFactory;
         private readonly IActiveDialogRepository _activeDialogRepository;
+        private readonly IShopDialogFactory _shopDialogFactory;
 
         public InGameDialogActions(IFriendIgnoreListDialogFactory friendIgnoreListDialogFactory,
                                    IPaperdollDialogFactory paperdollDialogFactory,
-                                   IActiveDialogRepository activeDialogRepository)
+                                   IActiveDialogRepository activeDialogRepository,
+                                   IShopDialogFactory shopDialogFactory)
         {
             _friendIgnoreListDialogFactory = friendIgnoreListDialogFactory;
             _paperdollDialogFactory = paperdollDialogFactory;
             _activeDialogRepository = activeDialogRepository;
+            _shopDialogFactory = shopDialogFactory;
         }
 
         public void ShowFriendListDialog()
@@ -56,6 +59,18 @@ namespace EndlessClient.Dialogs.Actions
                 dlg.Show();
             });
         }
+
+        public void ShowShopDialog()
+        {
+            _activeDialogRepository.ShopDialog.MatchNone(() =>
+            {
+                var dlg = _shopDialogFactory.Create();
+                dlg.DialogClosed += (_, _) => _activeDialogRepository.ShopDialog = Option.None<ShopDialog>();
+                _activeDialogRepository.ShopDialog = Option.Some(dlg);
+
+                dlg.Show();
+            });
+        }
     }
 
     public interface IInGameDialogActions
@@ -65,5 +80,7 @@ namespace EndlessClient.Dialogs.Actions
         void ShowIgnoreListDialog();
 
         void ShowPaperdollDialog(ICharacter character, bool isMainCharacter);
+
+        void ShowShopDialog();
     }
 }

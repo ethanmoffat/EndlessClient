@@ -332,7 +332,6 @@ namespace EndlessClient.Rendering
                 PacketAPI api = ((EOGame)Game).API;
                 switch (NPC.Data.Type)
                 {
-                    case NPCType.Shop: ShopDialog.Show(api, this); break;
                     case NPCType.Inn: break;
                     case NPCType.Bank: BankAccountDialog.Show(api, NPC.Index); break;
                     case NPCType.Barber: break;

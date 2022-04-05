@@ -53,7 +53,7 @@ namespace EndlessClient.Dialogs.Factories
         {
             var textFileLines = _friendIgnoreListService.LoadList(isFriendList ? Constants.FriendListFile : Constants.IgnoreListFile);
 
-            var dialog = new ScrollingListDialog(_gameStateProvider, _nativeGraphicsManager, _dialogButtonService)
+            var dialog = new ScrollingListDialog(_nativeGraphicsManager, _dialogButtonService)
             {
                 Buttons = ScrollingListDialogButtons.AddCancel,
                 ListItemType = ListDialogItem.ListItemStyle.Small,

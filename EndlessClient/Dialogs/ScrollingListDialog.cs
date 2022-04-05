@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using EndlessClient.Dialogs.Services;
-using EndlessClient.GameExecution;
+﻿using EndlessClient.Dialogs.Services;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Dialogs
@@ -32,6 +31,9 @@ namespace EndlessClient.Dialogs
 
         private ScrollingListDialogButtons _buttons;
 
+        // cancel button debounce
+        private bool _otherClicked;
+
         public IReadOnlyList<string> NamesList => _listItems.Select(item => item.PrimaryText).ToList();
 
         public string Title
@@ -48,6 +50,7 @@ namespace EndlessClient.Dialogs
             set
             {
                 _listItemType = value;
+                ItemsToShow = _listItemType == ListDialogItem.ListItemStyle.Large ? 5 : 12;
                 _scrollBar.LinesToRender = ItemsToShow;
             }
         }
@@ -80,10 +83,9 @@ namespace EndlessClient.Dialogs
             _cancelButtonCenteredPosition = new Vector2(96, 252);
         }
 
-        public ScrollingListDialog(IGameStateProvider gameStateProvider,
-                                   INativeGraphicsManager nativeGraphicsManager,
+        public ScrollingListDialog(INativeGraphicsManager nativeGraphicsManager,
                                    IEODialogButtonService dialogButtonService)
-            : base(gameStateProvider)
+            : base(isInGame: true)
         {
             _listItems = new List<ListDialogItem>();
 
@@ -104,30 +106,35 @@ namespace EndlessClient.Dialogs
                 dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Add),
                 dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Add))
             { 
-                Visible = false
+                Visible = false,
+                UpdateOrder = 1,
             };
             _add.SetParentControl(this);
             _add.OnClick += (o, e) => AddAction?.Invoke(o, e);
+            AddAction += (_, _) => _otherClicked = true;
 
             _back = new XNAButton(dialogButtonService.SmallButtonSheet,
                 new Vector2(48, 252),
                 dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Back),
                 dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Back))
             {
-                Visible = false
+                Visible = false,
+                UpdateOrder = 1,
             };
             _back.SetParentControl(this);
             _back.OnClick += (o, e) => BackAction?.Invoke(o, e);
+            BackAction += (_, _) => _otherClicked = true;
 
             _cancel = new XNAButton(dialogButtonService.SmallButtonSheet,
                 _cancelButtonRightPosition,
                 dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Cancel),
                 dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Cancel))
             {
-                Visible = true
+                Visible = true,
+                UpdateOrder = 2,
             };
             _cancel.SetParentControl(this);
-            _cancel.OnClick += (_, _) => Close(XNADialogResult.Cancel);
+            _cancel.OnClick += (_, _) => { if (!_otherClicked) { Close(XNADialogResult.Cancel); } };
 
             ItemsToShow = ListItemType == ListDialogItem.ListItemStyle.Large ? 5 : 12;
 
@@ -215,8 +222,6 @@ namespace EndlessClient.Dialogs
 
         protected override void OnUpdateControl(GameTime gameTime)
         {
-            base.OnUpdateControl(gameTime);
-
             ChildControlClickHandled = false;
 
             if (_listItems.Count > _scrollBar.LinesToRender)
@@ -245,6 +250,10 @@ namespace EndlessClient.Dialogs
             {
                 _listItems.ForEach(_item => _item.Visible = true);
             }
+
+            base.OnUpdateControl(gameTime);
+
+            _otherClicked = false;
         }
     }
 }

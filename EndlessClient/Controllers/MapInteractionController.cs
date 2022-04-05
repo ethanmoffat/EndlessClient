@@ -72,7 +72,7 @@ namespace EndlessClient.Controllers
 
         public void LeftClick(IMapCellState cellState, IMouseCursorRenderer mouseRenderer)
         {
-            if (!InventoryPanel.NoItemsDragging())
+            if (!InventoryPanel.NoItemsDragging() || cellState.Character.HasValue || cellState.NPC.HasValue)
             {
                 return;
             }
@@ -91,7 +91,6 @@ namespace EndlessClient.Controllers
                 else
                     HandlePickupResult(_mapActions.PickUpItem(item), item);
             }
-            else if (cellState.NPC.HasValue) { /* TODO: spell cast */ }
             else if (cellState.Sign.HasValue)
             {
                 var sign = cellState.Sign.ValueOr(Sign.None);
@@ -99,17 +98,18 @@ namespace EndlessClient.Controllers
                 messageBox.ShowDialog();
             }
             else if (cellState.Chest.HasValue) { /* TODO: chest interaction */ }
-            else if (cellState.Character.HasValue) { /* TODO: character spell cast */ }
             else if (cellState.InBounds)
             {
                 mouseRenderer.AnimateClick();
                 _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator)
                     .StartMainCharacterWalkAnimation(Option.Some(cellState.Coordinate));
             }
+            // todo: board, jukebox
 
             _userInputTimeRepository.LastInputTime = DateTime.Now;
         }
 
+        // todo: move to new controller for character interaction
         public void RightClick(IMapCellState cellState)
         {
             if (!cellState.Character.HasValue)
