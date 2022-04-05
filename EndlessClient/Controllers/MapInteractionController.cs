@@ -72,13 +72,8 @@ namespace EndlessClient.Controllers
 
         public void LeftClick(IMapCellState cellState, IMouseCursorRenderer mouseRenderer)
         {
-            if (!InventoryPanel.NoItemsDragging() || cellState.Character.HasValue || cellState.NPC.HasValue)
+            if (!InventoryPanel.NoItemsDragging())
             {
-                return;
-            }
-            else if (_characterProvider.MainCharacter.RenderProperties.SitState != SitState.Standing)
-            {
-                _characterActions.ToggleSit();
                 return;
             }
 
@@ -98,6 +93,10 @@ namespace EndlessClient.Controllers
                 messageBox.ShowDialog();
             }
             else if (cellState.Chest.HasValue) { /* TODO: chest interaction */ }
+            else if (_characterProvider.MainCharacter.RenderProperties.SitState != SitState.Standing)
+            {
+                _characterActions.ToggleSit();
+            }
             else if (cellState.InBounds)
             {
                 mouseRenderer.AnimateClick();
