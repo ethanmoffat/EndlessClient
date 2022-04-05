@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Chat;
@@ -31,6 +32,7 @@ namespace EndlessClient.Rendering.NPC
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
         private readonly IHealthBarRendererFactory _healthBarRendererFactory;
         private readonly IChatBubbleFactory _chatBubbleFactory;
+        private readonly INPCInteractionController _npcInteractionController;
         private readonly Rectangle _baseTextureFrameRectangle;
         private readonly int _readonlyTopPixel, _readonlyBottomPixel;
         private readonly bool _hasStandingAnimation;
@@ -72,6 +74,7 @@ namespace EndlessClient.Rendering.NPC
                            IRenderOffsetCalculator renderOffsetCalculator,
                            IHealthBarRendererFactory healthBarRendererFactory,
                            IChatBubbleFactory chatBubbleFactory,
+                           INPCInteractionController npcInteractionController,
                            INPC initialNPC)
             : base((Game)endlessGameProvider.Game)
         {
@@ -83,6 +86,7 @@ namespace EndlessClient.Rendering.NPC
             _renderOffsetCalculator = renderOffsetCalculator;
             _healthBarRendererFactory = healthBarRendererFactory;
             _chatBubbleFactory = chatBubbleFactory;
+            _npcInteractionController = npcInteractionController;
             _baseTextureFrameRectangle = GetStandingFrameRectangle();
             _readonlyTopPixel = GetTopPixel();
             _readonlyBottomPixel = GetBottomPixel();
@@ -133,6 +137,13 @@ namespace EndlessClient.Rendering.NPC
 
             _nameLabel.Visible = DrawArea.Contains(_currentMouseState.Position) && !_healthBarRenderer.Visible && !_isDying;
             _nameLabel.DrawPosition = GetNameLabelPosition();
+
+            if (DrawArea.ContainsPoint(_currentMouseState.X, _currentMouseState.Y) &&
+                _currentMouseState.LeftButton == ButtonState.Released &&
+                _previousMouseState.LeftButton == ButtonState.Pressed)
+            {
+                _npcInteractionController.ShowNPCDialog(NPC);
+            }
 
             _effectRenderer.Update();
             _healthBarRenderer.Update(gameTime);

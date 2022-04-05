@@ -95,7 +95,7 @@ namespace EndlessClient.UIControls
             };
             _nameLabel.SetParentControl(this);
 
-            _levelLabel = new XNALabel(Constants.FontSize08pt75)
+            _levelLabel = new XNALabel(Constants.FontSize09)
             {
                 DrawArea = GetLevelLabelLocation(),
                 ForeColor = ColorConstants.BeigeText,

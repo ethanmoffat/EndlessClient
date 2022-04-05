@@ -8,6 +8,7 @@ using EndlessClient.Rendering.Character;
 using EndlessClient.Services;
 using EndlessClient.UIControls;
 using EOLib;
+using EOLib.Domain.Interact;
 using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
@@ -38,6 +39,7 @@ namespace EndlessClient.Rendering
         private readonly Dictionary<Rectangle, Action> _menuActions;
         private Option<Rectangle> _overRect;
         private readonly IInGameDialogActions _inGameDialogActions;
+        private readonly IPaperdollActions _paperdollActions;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IFriendIgnoreListService _friendIgnoreListService;
         private readonly IHudControlProvider _hudControlProvider;
@@ -48,6 +50,7 @@ namespace EndlessClient.Rendering
 
         public ContextMenuRenderer(INativeGraphicsManager nativeGraphicsManager,
                                    IInGameDialogActions inGameDialogActions,
+                                   IPaperdollActions paperdollActions,
                                    IStatusLabelSetter statusLabelSetter,
                                    IFriendIgnoreListService friendIgnoreListService,
                                    IHudControlProvider hudControlProvider,
@@ -56,6 +59,7 @@ namespace EndlessClient.Rendering
         {
             _menuActions = new Dictionary<Rectangle, Action>();
             _inGameDialogActions = inGameDialogActions;
+            _paperdollActions = paperdollActions;
             _statusLabelSetter = statusLabelSetter;
             _friendIgnoreListService = friendIgnoreListService;
             _hudControlProvider = hudControlProvider;
@@ -210,6 +214,7 @@ namespace EndlessClient.Rendering
 
         private void ShowPaperdollAction()
         {
+            _paperdollActions.RequestPaperdoll(_characterRenderer.Character.ID);
             _inGameDialogActions.ShowPaperdollDialog(_characterRenderer.Character, isMainCharacter: false);
         }
 

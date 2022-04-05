@@ -1,8 +1,7 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Dialogs.Factories;
 using EOLib.Domain.Character;
-using EOLib.Net;
-using EOLib.Net.Communication;
+using EOLib.Domain.Interact.Shop;
 using Optional;
 
 namespace EndlessClient.Dialogs.Actions
@@ -13,17 +12,20 @@ namespace EndlessClient.Dialogs.Actions
         private readonly IFriendIgnoreListDialogFactory _friendIgnoreListDialogFactory;
         private readonly IPaperdollDialogFactory _paperdollDialogFactory;
         private readonly IActiveDialogRepository _activeDialogRepository;
-        private readonly IPacketSendService _packetSendService;
+        private readonly IShopDataRepository _shopDataRepository;
+        private readonly IShopDialogFactory _shopDialogFactory;
 
         public InGameDialogActions(IFriendIgnoreListDialogFactory friendIgnoreListDialogFactory,
                                    IPaperdollDialogFactory paperdollDialogFactory,
                                    IActiveDialogRepository activeDialogRepository,
-                                   IPacketSendService packetSendService)
+                                   IShopDataRepository shopDataRepository,
+                                   IShopDialogFactory shopDialogFactory)
         {
             _friendIgnoreListDialogFactory = friendIgnoreListDialogFactory;
             _paperdollDialogFactory = paperdollDialogFactory;
             _activeDialogRepository = activeDialogRepository;
-            _packetSendService = packetSendService;
+            _shopDataRepository = shopDataRepository;
+            _shopDialogFactory = shopDialogFactory;
         }
 
         public void ShowFriendListDialog()
@@ -54,14 +56,25 @@ namespace EndlessClient.Dialogs.Actions
         {
             _activeDialogRepository.PaperdollDialog.MatchNone(() =>
             {
-                var packet = new PacketBuilder(PacketFamily.PaperDoll, PacketAction.Request)
-                    .AddShort((short)character.ID)
-                    .Build();
-                _packetSendService.SendPacket(packet);
-
                 var dlg = _paperdollDialogFactory.Create(character, isMainCharacter);
                 dlg.DialogClosed += (_, _) => _activeDialogRepository.PaperdollDialog = Option.None<PaperdollDialog>();
                 _activeDialogRepository.PaperdollDialog = Option.Some(dlg);
+
+                dlg.Show();
+            });
+        }
+
+        public void ShowShopDialog()
+        {
+            _activeDialogRepository.ShopDialog.MatchNone(() =>
+            {
+                var dlg = _shopDialogFactory.Create();
+                dlg.DialogClosed += (_, _) =>
+                {
+                    _activeDialogRepository.ShopDialog = Option.None<ShopDialog>();
+                    _shopDataRepository.ResetState();
+                };
+                _activeDialogRepository.ShopDialog = Option.Some(dlg);
 
                 dlg.Show();
             });
@@ -75,5 +88,7 @@ namespace EndlessClient.Dialogs.Actions
         void ShowIgnoreListDialog();
 
         void ShowPaperdollDialog(ICharacter character, bool isMainCharacter);
+
+        void ShowShopDialog();
     }
 }

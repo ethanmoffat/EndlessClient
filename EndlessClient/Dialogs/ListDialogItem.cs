@@ -10,6 +10,12 @@ namespace EndlessClient.Dialogs
 {
     public class ListDialogItem : XNAControl
     {
+        public enum ListItemStyle
+        {
+            Small,
+            Large
+        }
+
         private int _index;
         private int _xOffset, _yOffset;
 
@@ -85,16 +91,12 @@ namespace EndlessClient.Dialogs
 
         public Texture2D IconGraphic { get; set; }
 
+        public Rectangle? IconGraphicSource { get; set; }
+
         public bool ShowIconBackGround { get; set; }
 
         public event EventHandler RightClick;
         public event EventHandler LeftClick;
-
-        public enum ListItemStyle
-        {
-            Small,
-            Large
-        }
 
         public ListDialogItem(ScrollingListDialog parent, ListItemStyle style, int listIndex = -1)
         {
@@ -110,7 +112,7 @@ namespace EndlessClient.Dialogs
 
             int colorFactor = Style == ListItemStyle.Large ? 0xc8 : 0xb4;
 
-            _primaryText = new XNALabel(Constants.FontSize08pt5)
+            _primaryText = new XNALabel(Constants.FontSize09)
             {
                 AutoSize = false,
                 BackColor = Color.Transparent,
@@ -123,7 +125,7 @@ namespace EndlessClient.Dialogs
             _primaryText.SetParentControl(this);
             _primaryText.Initialize();
 
-            _subText = new XNALabel(Constants.FontSize08pt5)
+            _subText = new XNALabel(Constants.FontSize09)
             {
                 AutoSize = true,
                 BackColor = _primaryText.BackColor,
@@ -150,7 +152,7 @@ namespace EndlessClient.Dialogs
         public void SetPrimaryClickAction(EventHandler onClickAction)
         {
             var oldText = _primaryText;
-            _primaryText = new XNAHyperLink(Constants.FontSize08pt5)
+            _primaryText = new XNAHyperLink(Constants.FontSize09)
             {
                 AutoSize = false,
                 BackColor = oldText.BackColor,
@@ -179,7 +181,7 @@ namespace EndlessClient.Dialogs
                 throw new InvalidOperationException("Unable to set subtext click action when style is Small");
 
             var oldText = _subText;
-            _subText = new XNAHyperLink(Constants.FontSize08pt5)
+            _subText = new XNAHyperLink(Constants.FontSize09)
             {
                 AutoSize = false,
                 BackColor = oldText.BackColor,
@@ -248,25 +250,24 @@ namespace EndlessClient.Dialogs
 
             if (Style == ListItemStyle.Large)
             {
-                var offset = new Vector2(OffsetX + 14, OffsetY + 36 * Index);
-
                 if (ShowIconBackGround)
                 {
-                    _spriteBatch.Draw(_gfxPadThing, DrawPositionWithParentOffset + offset + GetCoordsFromGraphic(_gfxPadThing), Color.White);
+                    _spriteBatch.Draw(_gfxPadThing, DrawPositionWithParentOffset + GetCoordsFromGraphic(_gfxPadThing.Bounds), Color.White);
                 }
 
                 if (IconGraphic != null)
                 {
-                    _spriteBatch.Draw(IconGraphic, DrawPositionWithParentOffset + offset + GetCoordsFromGraphic(IconGraphic), Color.White);
+                    var graphicOffset = IconGraphicSource.HasValue ? GetCoordsFromGraphic(IconGraphicSource.Value) : GetCoordsFromGraphic(IconGraphic.Bounds);
+                    _spriteBatch.Draw(IconGraphic, DrawPositionWithParentOffset + graphicOffset, IconGraphicSource, Color.White);
                 }
             }
 
             _spriteBatch.End();
         }
 
-        private static Vector2 GetCoordsFromGraphic(Texture2D sourceTexture)
+        private static Vector2 GetCoordsFromGraphic(Rectangle sourceTextureArea)
         {
-            return new Vector2((float)Math.Round((64 - sourceTexture.Width) / 2f), (float)Math.Round((36 - sourceTexture.Height) / 2f));
+            return new Vector2((float)Math.Round((56 - sourceTextureArea.Width) / 2f), (float)Math.Round((36 - sourceTextureArea.Height) / 2f));
         }
 
         protected override void Dispose(bool disposing)

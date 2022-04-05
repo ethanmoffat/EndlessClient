@@ -54,7 +54,7 @@ namespace EOLib
         public const string FontSize07 = @"Fonts/InGame_Main_07";
         public const string FontSize08 = @"Fonts/InGame_Main_08";
         public const string FontSize08pt5 = @"Fonts/InGame_Main_08pt5";
-        public const string FontSize08pt75 = @"Fonts/InGame_Main_08pt75";
+        public const string FontSize09 = @"Fonts/InGame_Main_09";
         public const string FontSize10 = @"Fonts/InGame_Main_10";
 
         public const int OutOfBand_Packets_Handled_Per_Update = 10;

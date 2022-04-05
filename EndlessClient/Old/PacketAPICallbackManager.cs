@@ -41,11 +41,6 @@ namespace EndlessClient.Old
             m_packetAPI.OnBankOpen += _bankOpen;
             m_packetAPI.OnBankChange += _bankChange;
 
-            //shop
-            m_packetAPI.OnShopOpen += _shopOpen;
-            m_packetAPI.OnShopTradeItem += _shopTrade;
-            m_packetAPI.OnShopCraftItem += _shopCraft;
-
             //locker
             m_packetAPI.OnLockerOpen += _lockerOpen;
             m_packetAPI.OnLockerItemChange += _lockerItemChange;
@@ -148,26 +143,6 @@ namespace EndlessClient.Old
 
             //OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, gold);
             BankAccountDialog.Instance.AccountBalance = $"{bankGold}";
-        }
-
-        private void _shopOpen(int shopid, string name, List<ShopItem> tradeitems, List<CraftItem> craftitems)
-        {
-            if (ShopDialog.Instance == null) return;
-            ShopDialog.Instance.SetShopData(shopid, name, tradeitems, craftitems);
-        }
-
-        private void _shopTrade(int gold, short itemID, int amount, byte weight, byte maxWeight, bool isBuy)
-        {
-            //OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, gold);
-            //OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(itemID, amount, weight, maxWeight, isBuy);
-        }
-
-        private void _shopCraft(short id, byte weight, byte maxWeight, List<InventoryItem> ingredients)
-        {
-            //OldCharacter c = OldWorld.Instance.MainPlayer.ActiveCharacter;
-            //c.UpdateInventoryItem(id, 1, weight, maxWeight, true);
-            //foreach (var ingred in ingredients)
-            //    c.UpdateInventoryItem(ingred.ItemID, ingred.Amount);
         }
 
         private void _lockerOpen(byte x, byte y, List<InventoryItem> items)

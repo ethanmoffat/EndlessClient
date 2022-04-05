@@ -8,6 +8,7 @@ using EndlessClient.HUD.Controls;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
+using EOLib.Domain.Interact;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
 using EOLib.IO;
@@ -25,6 +26,7 @@ namespace EndlessClient.Controllers
     {
         private readonly IItemActions _itemActions;
         private readonly IInGameDialogActions _inGameDialogActions;
+        private readonly IPaperdollActions _paperdollActions;
         private readonly IItemEquipValidator _itemEquipValidator;
         private readonly IItemDropValidator _itemDropValidator;
         private readonly ICharacterProvider _characterProvider;
@@ -39,6 +41,7 @@ namespace EndlessClient.Controllers
 
         public InventoryController(IItemActions itemActions,
                                    IInGameDialogActions inGameDialogActions,
+                                   IPaperdollActions paperdollActions,
                                    IItemEquipValidator itemEquipValidator,
                                    IItemDropValidator itemDropValidator,
                                    ICharacterProvider characterProvider,
@@ -53,6 +56,7 @@ namespace EndlessClient.Controllers
         {
             _itemActions = itemActions;
             _inGameDialogActions = inGameDialogActions;
+            _paperdollActions = paperdollActions;
             _itemEquipValidator = itemEquipValidator;
             _itemDropValidator = itemDropValidator;
             _characterProvider = characterProvider;
@@ -69,6 +73,7 @@ namespace EndlessClient.Controllers
         public void ShowPaperdollDialog()
         {
             // when called from inventory controller, paperdoll is for the main character
+            _paperdollActions.RequestPaperdoll(_characterProvider.MainCharacter.ID);
             _inGameDialogActions.ShowPaperdollDialog(_characterProvider.MainCharacter, isMainCharacter: true);
         }
 

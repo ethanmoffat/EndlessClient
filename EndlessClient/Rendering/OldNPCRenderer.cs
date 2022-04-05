@@ -246,7 +246,7 @@ namespace EndlessClient.Rendering
 
         private void CreateMouseoverName()
         {
-            _mouseoverName = new XNALabel(new Rectangle(1, 1, 1, 1), Constants.FontSize08pt75)
+            _mouseoverName = new XNALabel(new Rectangle(1, 1, 1, 1), Constants.FontSize09)
             {
                 Visible = false,
                 Text = NPC.Data.Name,
@@ -332,7 +332,6 @@ namespace EndlessClient.Rendering
                 PacketAPI api = ((EOGame)Game).API;
                 switch (NPC.Data.Type)
                 {
-                    case NPCType.Shop: ShopDialog.Show(api, this); break;
                     case NPCType.Inn: break;
                     case NPCType.Bank: BankAccountDialog.Show(api, NPC.Index); break;
                     case NPCType.Barber: break;

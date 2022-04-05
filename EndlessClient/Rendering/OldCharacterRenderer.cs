@@ -160,7 +160,7 @@ namespace EndlessClient.Rendering
             if (data.name.Length > 0)
             {
                 //362, 167 abs loc
-                levelLabel = new XNALabel(new Rectangle(-32, 75, 1, 1), Constants.FontSize08pt75)
+                levelLabel = new XNALabel(new Rectangle(-32, 75, 1, 1), Constants.FontSize09)
                 {
                     ForeColor = ColorConstants.BeigeText,
                     Text = data.level.ToString()

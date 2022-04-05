@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Chat;
@@ -21,6 +22,7 @@ namespace EndlessClient.Rendering.NPC
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
         private readonly IHealthBarRendererFactory _healthBarRendererFactory;
         private readonly IChatBubbleFactory _chatBubbleFactory;
+        private readonly INPCInteractionController _npcInteractionController;
 
         public NPCRendererFactory(INativeGraphicsManager nativeGraphicsManager,
                                   IEndlessGameProvider endlessGameProvider,
@@ -29,7 +31,8 @@ namespace EndlessClient.Rendering.NPC
                                   INPCSpriteSheet npcSpriteSheet,
                                   IRenderOffsetCalculator renderOffsetCalculator,
                                   IHealthBarRendererFactory healthBarRendererFactory,
-                                  IChatBubbleFactory chatBubbleFactory)
+                                  IChatBubbleFactory chatBubbleFactory,
+                                  INPCInteractionController npcInteractionController)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _endlessGameProvider = endlessGameProvider;
@@ -39,6 +42,7 @@ namespace EndlessClient.Rendering.NPC
             _renderOffsetCalculator = renderOffsetCalculator;
             _healthBarRendererFactory = healthBarRendererFactory;
             _chatBubbleFactory = chatBubbleFactory;
+            _npcInteractionController = npcInteractionController;
         }
 
         public INPCRenderer CreateRendererFor(INPC npc)
@@ -51,6 +55,7 @@ namespace EndlessClient.Rendering.NPC
                                    _renderOffsetCalculator,
                                    _healthBarRendererFactory,
                                    _chatBubbleFactory,
+                                   _npcInteractionController,
                                    npc);
         }
     }
