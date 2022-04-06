@@ -39,6 +39,6 @@ namespace EOLib.Domain.Interact.Quest
 
     public interface IQuestActions
     {
-        void RespondToQuestDialog(DialogReply reply, byte linkId);
+        void RespondToQuestDialog(DialogReply reply, byte linkId = 0);
     }
 }

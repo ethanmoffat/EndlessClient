@@ -32,6 +32,10 @@ namespace EndlessClient.Controllers
                     _mapNpcActions.RequestShop(npc.Index);
                     _inGameDialogActions.ShowShopDialog();
                     break;
+                case EOLib.IO.NPCType.Quest:
+                    _mapNpcActions.RequestQuest(npc.Index, data.VendorID);
+                    _inGameDialogActions.ShowQuestDialog(npc);
+                    break;
             }
         }
     }

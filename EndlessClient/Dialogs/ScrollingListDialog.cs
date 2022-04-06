@@ -67,8 +67,11 @@ namespace EndlessClient.Dialogs
             get => _listItemType;
             set
             {
+                if (value == ListDialogItem.ListItemStyle.Large && DialogSize == ScrollingListDialogSize.SmallDialog)
+                    throw new InvalidOperationException("Can't use large ListDialogItem with small scrolling dialog");
+
                 _listItemType = value;
-                ItemsToShow = _listItemType == ListDialogItem.ListItemStyle.Large ? 5 : 12;
+                ItemsToShow = _listItemType == ListDialogItem.ListItemStyle.Large ? 5 : DialogSize == ScrollingListDialogSize.SmallDialog ? 6 : 12;
                 _scrollBar.LinesToRender = ItemsToShow;
             }
         }
@@ -140,7 +143,7 @@ namespace EndlessClient.Dialogs
 
             _titleText = new XNALabel(Constants.FontSize09)
             {
-                DrawArea = new Rectangle(16, 13, 253, 19), // todo: might need to use (16, 16, 255, 18) for SmallDialog
+                DrawArea = isLargeDialog ? new Rectangle(16, 13, 253, 19) : new Rectangle(16, 16, 255, 18),
                 AutoSize = false,
                 TextAlign = LabelAlignment.MiddleLeft,
                 ForeColor = ColorConstants.LightGrayText
@@ -207,7 +210,7 @@ namespace EndlessClient.Dialogs
             _cancel.SetParentControl(this);
             _cancel.OnClick += (_, _) => { if (!_otherClicked) { Close(XNADialogResult.Cancel); } };
 
-            ItemsToShow = ListItemType == ListDialogItem.ListItemStyle.Large ? 5 : 12;
+            ItemsToShow = ListItemType == ListDialogItem.ListItemStyle.Large ? 5 : DialogSize == ScrollingListDialogSize.SmallDialog ? 6 : 12;
 
             _button1Position = new Vector2(isLargeDialog ? 48 : 89, yCoord);
             _button2Position = new Vector2(isLargeDialog ? 144 : 183, yCoord);
