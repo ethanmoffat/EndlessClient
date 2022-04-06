@@ -5,7 +5,7 @@ using EOLib.Localization;
 
 namespace EndlessClient.HUD
 {
-    [MappedType(BaseType = typeof(IStatusLabelSetter))]
+    [AutoMappedType]
     public class StatusLabelSetter : IStatusLabelSetter, IStatusLabelNotifier
     {
         private readonly IStatusLabelTextRepository _statusLabelTextRepository;
