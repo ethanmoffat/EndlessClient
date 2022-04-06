@@ -34,7 +34,7 @@ namespace EndlessClient.Subscribers
         {
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION,
                                               EOResourceID.STATUS_LABEL_YOU_GAINED_EXP,
-                $"{expDifference} EXP");
+                $" {expDifference} EXP");
 
             var youGained = _localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_YOU_GAINED_EXP);
             var message = $"{youGained} {expDifference} EXP";
