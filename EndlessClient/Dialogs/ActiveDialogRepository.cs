@@ -15,6 +15,8 @@ namespace EndlessClient.Dialogs
 
         Option<ShopDialog> ShopDialog { get; }
 
+        Option<QuestDialog> QuestDialog { get; }
+
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs { get; }
     }
 
@@ -25,6 +27,8 @@ namespace EndlessClient.Dialogs
         Option<PaperdollDialog> PaperdollDialog { get; set; }
 
         Option<ShopDialog> ShopDialog { get; set; }
+
+        Option<QuestDialog> QuestDialog { get; set; }
 
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs { get; }
     }
@@ -38,6 +42,8 @@ namespace EndlessClient.Dialogs
 
         public Option<ShopDialog> ShopDialog { get; set; }
 
+        public Option<QuestDialog> QuestDialog { get; set; }
+
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs
         {
             get
@@ -47,6 +53,7 @@ namespace EndlessClient.Dialogs
                     FriendIgnoreDialog.Map(d => (IXNADialog)d),
                     PaperdollDialog.Map(d => (IXNADialog)d),
                     ShopDialog.Map(d => (IXNADialog)d),
+                    QuestDialog.Map(d => (IXNADialog)d),
                 }.ToList();
             }
         }
@@ -63,6 +70,7 @@ namespace EndlessClient.Dialogs
             FriendIgnoreDialog = Option.None<ScrollingListDialog>();
             PaperdollDialog = Option.None<PaperdollDialog>();
             ShopDialog = Option.None<ShopDialog>();
+            QuestDialog = Option.None<QuestDialog>();
         }
     }
 }

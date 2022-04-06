@@ -5,8 +5,6 @@ using EndlessClient.Audio;
 using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Old;
 using EOLib.Domain.Character;
-using EOLib.Domain.Chat;
-using EOLib.Domain.Map;
 using EOLib.Localization;
 using EOLib.Net.API;
 using XNAControls.Old;
@@ -71,10 +69,8 @@ namespace EndlessClient.Old
             m_packetAPI.OnCharacterStatsReset += _statskillReset;
 
             //quests
-            m_packetAPI.OnQuestDialog += _questDialog;
             m_packetAPI.OnViewQuestProgress += _questProgress;
             m_packetAPI.OnViewQuestHistory += _questHistory;
-            m_packetAPI.OnStatusMessage += _setStatusLabel;
 
             m_packetAPI.OnPlaySoundEffect += _playSoundEffect;
 
@@ -344,17 +340,6 @@ namespace EndlessClient.Old
             m_game.Hud.RemoveAllSpells();
         }
 
-        private void _questDialog(QuestState stateinfo, Dictionary<short, string> dialognames, List<string> pages, Dictionary<short, string> links)
-        {
-            if (QuestDialog.Instance == null)
-                QuestDialog.SetupInstance(m_packetAPI);
-
-            if (QuestDialog.Instance == null)
-                throw new InvalidOperationException("Something went wrong creating the instance");
-
-            QuestDialog.Instance.SetDisplayData(stateinfo, dialognames, pages, links);
-        }
-
         private void _questProgress(short numquests, List<InProgressQuestData> questinfo)
         {
             if (QuestProgressDialog.Instance == null) return;
@@ -367,12 +352,6 @@ namespace EndlessClient.Old
             if (QuestProgressDialog.Instance == null) return;
 
             QuestProgressDialog.Instance.SetHistoryDisplayData(numquests, completedquestnames);
-        }
-
-        private void _setStatusLabel(string message)
-        {
-            m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, message);
-            m_game.Hud.AddChat(ChatTab.System, "", message, ChatIcon.QuestMessage, ChatColor.Server);
         }
 
         private void _playSoundEffect(int effectID)

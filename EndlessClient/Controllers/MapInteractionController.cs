@@ -97,7 +97,7 @@ namespace EndlessClient.Controllers
             {
                 _characterActions.ToggleSit();
             }
-            else if (cellState.InBounds)
+            else if (cellState.InBounds && !cellState.Character.HasValue && !cellState.NPC.HasValue)
             {
                 mouseRenderer.AnimateClick();
                 _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator)

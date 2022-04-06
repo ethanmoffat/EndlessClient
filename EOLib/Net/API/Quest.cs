@@ -4,12 +4,6 @@ using EOLib.Net.Handlers;
 
 namespace EOLib.Net.API
 {
-    public enum DialogEntry : byte
-    {
-        DialogText = 1,
-        DialogLink
-    }
-
     public enum DialogReply : byte
     {
         Ok = 1,
@@ -116,43 +110,12 @@ namespace EOLib.Net.API
 
     partial class PacketAPI
     {
-        public event QuestDialogEvent OnQuestDialog;
         public event ViewQuestProgressEvent OnViewQuestProgress;
         public event ViewQuestHistoryEvent OnViewQuestHistory;
 
         private void _createQuestMembers()
         {
-            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Quest, PacketAction.Dialog), _handleQuestDialog, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Quest, PacketAction.List), _handleQuestList, true);
-        }
-
-        public bool TalkToQuestNPC(short npcIndex, short questID)
-        {
-            if (!Initialized || !m_client.ConnectedAndInitialized)
-                return false;
-
-            OldPacket pkt = new OldPacket(PacketFamily.Quest, PacketAction.Use);
-            pkt.AddShort(npcIndex);
-            pkt.AddShort(questID);
-
-            return m_client.SendPacket(pkt);
-        }
-
-        public bool RespondToQuestDialog(QuestState state, DialogReply reply, byte action = 0)
-        {
-            if (!Initialized || !m_client.ConnectedAndInitialized)
-                return false;
-
-            OldPacket pkt = new OldPacket(PacketFamily.Quest, PacketAction.Accept);
-            pkt.AddShort(state.SessionID); //session ID - ignored by default EOSERV
-            pkt.AddShort(state.DialogID); //dialog ID - ignored by default EOSERV
-            pkt.AddShort(state.QuestID);
-            pkt.AddShort(state.NPCIndex); //npc index - ignored by default EOSERV
-            pkt.AddChar((byte) reply);
-            if (reply == DialogReply.Link)
-                pkt.AddChar(action);
-
-            return m_client.SendPacket(pkt);
         }
 
         public bool RequestQuestHistory(QuestPage page)
@@ -164,44 +127,6 @@ namespace EOLib.Net.API
             pkt.AddChar((byte) page);
 
             return m_client.SendPacket(pkt);
-        }
-
-        private void _handleQuestDialog(OldPacket pkt)
-        {
-            if (OnQuestDialog == null) return;
-
-            int numDialogs = pkt.GetChar();
-            short vendorID = pkt.GetShort();
-            short questID = pkt.GetShort();
-            short sessionID = pkt.GetShort(); //not used by eoserv
-            short dialogID = pkt.GetShort(); //not used by eoserv
-            if (pkt.GetByte() != 255) return;
-
-            QuestState stateInfo = new QuestState(sessionID, dialogID, questID, vendorID);
-
-            var dialogNames = new Dictionary<short, string>(numDialogs);
-            for (int i = 0; i < numDialogs; ++i)
-            {
-                dialogNames.Add(pkt.GetShort(), pkt.GetBreakString());
-            }
-
-            var pages = new List<string>();
-            var links = new Dictionary<short, string>();
-            while (pkt.ReadPos != pkt.Length)
-            {
-                var entry = (DialogEntry) pkt.GetShort();
-                switch (entry)
-                {
-                    case DialogEntry.DialogText:
-                        pages.Add(pkt.GetBreakString());
-                        break;
-                    case DialogEntry.DialogLink:
-                        links.Add(pkt.GetShort(), pkt.GetBreakString());
-                        break;
-                }
-            }
-
-            OnQuestDialog(stateInfo, dialogNames, pages, links);
         }
 
         private void _handleQuestList(OldPacket pkt)

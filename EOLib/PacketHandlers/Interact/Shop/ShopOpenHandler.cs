@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EOLib.Domain.Interact;
 using EOLib.Domain.Interact.Shop;
 using EOLib.Domain.Login;
 using EOLib.Net;
@@ -11,16 +12,19 @@ namespace EOLib.PacketHandlers.Interact.Shop
     public class ShopOpenHandler : InGameOnlyPacketHandler
     {
         private readonly IShopDataRepository _shopDataRepository;
+        private readonly IEnumerable<INPCInteractionNotifier> _npcInteractionNotifiers;
 
         public override PacketFamily Family => PacketFamily.Shop;
 
         public override PacketAction Action => PacketAction.Open;
 
         public ShopOpenHandler(IPlayerInfoProvider playerInfoProvider,
-                               IShopDataRepository shopDataRepository)
+                               IShopDataRepository shopDataRepository,
+                               IEnumerable<INPCInteractionNotifier> npcInteractionNotifiers)
             : base(playerInfoProvider)
         {
             _shopDataRepository = shopDataRepository;
+            _npcInteractionNotifiers = npcInteractionNotifiers;
         }
 
         public override bool HandlePacket(IPacket packet)
@@ -61,6 +65,9 @@ namespace EOLib.PacketHandlers.Interact.Shop
             packet.ReadByte();
 
             _shopDataRepository.CraftItems = craftItems;
+
+            foreach (var notifier in _npcInteractionNotifiers)
+                notifier.NotifyInteractionFromNPC(IO.NPCType.Shop);
 
             return true;
         }

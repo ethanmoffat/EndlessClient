@@ -339,7 +339,6 @@ namespace EndlessClient.Rendering
                     case NPCType.Priest: break;
                     case NPCType.Law: break;
                     case NPCType.Skills: SkillmasterDialog.Show(api, NPC.Index); break;
-                    case NPCType.Quest: QuestDialog.Show(api, NPC.Index, NPC.Data.VendorID, NPC.Data.Name); break;
                 }
             }
         }

@@ -89,6 +89,7 @@ namespace EndlessClient.Content
         private void RefreshFonts()
         {
             _fonts[Constants.FontSize08] = _content.Load<SpriteFont>(Constants.FontSize08);
+            _fonts[Constants.FontSize09] = _content.Load<SpriteFont>(Constants.FontSize09);
         }
     }
 }

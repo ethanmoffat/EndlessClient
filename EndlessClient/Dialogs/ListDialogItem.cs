@@ -223,10 +223,9 @@ namespace EndlessClient.Dialogs
                 else if(CurrentMouseState.LeftButton == ButtonState.Released &&
                         PreviousMouseState.LeftButton == ButtonState.Pressed)
                 {
-                    // todo: this might cause the click event to be fired twice, need to double check it
-                    if (_subText is XNAHyperLink && _subText.MouseOver)
-                        ((XNAHyperLink)_subText).Click();
-                    else
+                    if ((_subText is IXNAHyperLink && !_subText.MouseOver) ||
+                        (_primaryText is IXNAHyperLink && !_primaryText.MouseOver) ||
+                        !(_primaryText is IXNAHyperLink || _subText is IXNAHyperLink))
                         LeftClick?.Invoke(this, EventArgs.Empty);
 
                     _parentList.ChildControlClickHandled = true;
