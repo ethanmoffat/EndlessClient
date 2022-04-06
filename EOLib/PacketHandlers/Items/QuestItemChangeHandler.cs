@@ -31,19 +31,20 @@ namespace EOLib.PacketHandlers.Items
             var amount = packet.ReadThree();
             var weight = packet.ReadChar();
 
-            var inventoryItem = _inventoryRepository.ItemInventory.SingleOrNone(x => x.ItemID == id);
-            inventoryItem.MatchSome(x => _inventoryRepository.ItemInventory.Remove(x));
+            var inventoryItem = _inventoryRepository.ItemInventory
+                .SingleOrNone(x => x.ItemID == id)
+                .Match(x => x, () => new InventoryItem(id, 0));
+            _inventoryRepository.ItemInventory.Remove(inventoryItem);
 
             if (amount > 0)
             {
-                var amountRemaining = inventoryItem.Match(
-                    some: x => Action == PacketAction.Kick ? x.Amount - amount : x.Amount + amount,
-                    none: () => Action == PacketAction.Kick ? 0 : amount);
+                var amountRemaining = Action == PacketAction.Kick
+                    ? amount
+                    : inventoryItem.Amount + amount;
 
                 if (amountRemaining > 0)
                 {
-                    inventoryItem.Map(x => x.WithAmount(amount))
-                        .MatchSome(x => _inventoryRepository.ItemInventory.Add(x));
+                    _inventoryRepository.ItemInventory.Add(inventoryItem.WithAmount(amountRemaining));
                 }
             }
 
