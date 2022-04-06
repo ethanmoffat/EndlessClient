@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EOLib.Domain.Interact;
 using EOLib.Domain.Interact.Quest;
 using EOLib.Domain.Login;
 using EOLib.Net;
@@ -12,6 +13,7 @@ namespace EOLib.PacketHandlers.Quest
     public class QuestDialogHandler : InGameOnlyPacketHandler
     {
         private readonly IQuestDataRepository _questDataRepository;
+        private readonly IEnumerable<INPCInteractionNotifier> _npcInteractionNotifiers;
 
         private enum DialogEntryType : byte
         {
@@ -24,10 +26,12 @@ namespace EOLib.PacketHandlers.Quest
         public override PacketAction Action => PacketAction.Dialog;
 
         public QuestDialogHandler(IPlayerInfoProvider playerInfoProvider,
-                                  IQuestDataRepository questDataRepository)
+                                  IQuestDataRepository questDataRepository,
+                                  IEnumerable<INPCInteractionNotifier> npcInteractionNotifiers)
             : base(playerInfoProvider)
         {
             _questDataRepository = questDataRepository;
+            _npcInteractionNotifiers = npcInteractionNotifiers;
         }
 
         public override bool HandlePacket(IPacket packet)
@@ -69,6 +73,9 @@ namespace EOLib.PacketHandlers.Quest
                 .WithActions(links);
 
             _questDataRepository.QuestDialogData = Option.Some(questData);
+
+            foreach (var notifier in _npcInteractionNotifiers)
+                notifier.NotifyInteractionFromNPC(IO.NPCType.Quest);
 
             return true;
         }

@@ -19,7 +19,6 @@ namespace EndlessClient.Dialogs
         private readonly IQuestDataProvider _questDataProvider;
         private readonly IENFFileProvider _enfFileProvider;
         private readonly IContentProvider _contentProvider;
-        private readonly INPC _questNpc;
 
         private Option<IQuestDialogData> _cachedData;
 
@@ -30,15 +29,13 @@ namespace EndlessClient.Dialogs
                            IEODialogButtonService dialogButtonService,
                            IQuestDataProvider questDataProvider,
                            IENFFileProvider enfFileProvider,
-                           IContentProvider contentProvider,
-                           INPC questNpc)
+                           IContentProvider contentProvider)
             : base(nativeGraphicsManager, dialogButtonService, dialogSize: ScrollingListDialogSize.SmallDialog)
         {
             _questActions = questActions;
             _questDataProvider = questDataProvider;
             _enfFileProvider = enfFileProvider;
             _contentProvider = contentProvider;
-            _questNpc = questNpc;
 
             _cachedData = Option.None<IQuestDialogData>();
 
@@ -86,7 +83,7 @@ namespace EndlessClient.Dialogs
 
         private void UpdateTitle(IQuestDialogData repoData)
         {
-            var npcName = _enfFileProvider.ENFFile[_questNpc.ID].Name;
+            var npcName = _enfFileProvider.ENFFile[_questDataProvider.RequestedNPC.ID].Name;
             var titleText = npcName;
             if (!repoData.DialogTitles.ContainsKey(repoData.VendorID) && repoData.DialogTitles.Count == 1)
                 titleText += $" - {repoData.DialogTitles[0]}";

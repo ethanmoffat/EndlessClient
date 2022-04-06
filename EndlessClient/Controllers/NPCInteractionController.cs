@@ -1,5 +1,4 @@
 ﻿using AutomaticTypeMapper;
-using EndlessClient.Dialogs.Actions;
 using EOLib.Domain.Interact;
 using EOLib.Domain.NPC;
 using EOLib.IO.Repositories;
@@ -10,15 +9,12 @@ namespace EndlessClient.Controllers
     public class NPCInteractionController : INPCInteractionController
     {
         private readonly IMapNPCActions _mapNpcActions;
-        private readonly IInGameDialogActions _inGameDialogActions;
         private readonly IENFFileProvider _enfFileProvider;
 
         public NPCInteractionController(IMapNPCActions mapNpcActions,
-                                        IInGameDialogActions inGameDialogActions,
                                         IENFFileProvider enfFileProvider)
         {
             _mapNpcActions = mapNpcActions;
-            _inGameDialogActions = inGameDialogActions;
             _enfFileProvider = enfFileProvider;
         }
 
@@ -29,12 +25,10 @@ namespace EndlessClient.Controllers
             switch(data.Type)
             {
                 case EOLib.IO.NPCType.Shop:
-                    _mapNpcActions.RequestShop(npc.Index);
-                    _inGameDialogActions.ShowShopDialog();
+                    _mapNpcActions.RequestShop(npc);
                     break;
                 case EOLib.IO.NPCType.Quest:
-                    _mapNpcActions.RequestQuest(npc.Index, data.VendorID);
-                    _inGameDialogActions.ShowQuestDialog(npc);
+                    _mapNpcActions.RequestQuest(npc);
                     break;
             }
         }

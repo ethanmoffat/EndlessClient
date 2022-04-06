@@ -2,7 +2,6 @@
 using EndlessClient.Content;
 using EndlessClient.Dialogs.Services;
 using EOLib.Domain.Interact.Quest;
-using EOLib.Domain.NPC;
 using EOLib.Graphics;
 using EOLib.IO.Repositories;
 
@@ -33,20 +32,19 @@ namespace EndlessClient.Dialogs.Factories
             _contentProvider = contentProvider;
         }
 
-        public QuestDialog Create(INPC npc)
+        public QuestDialog Create()
         {
             return new QuestDialog(_nativeGraphicsManager,
                                    _questActions,
                                    _dialogButtonService,
                                    _questDataProvider,
                                    _enfFileProvider,
-                                   _contentProvider,
-                                   npc);
+                                   _contentProvider);
         }
     }
 
     public interface IQuestDialogFactory
     {
-        QuestDialog Create(INPC npc);
+        QuestDialog Create();
     }
 }

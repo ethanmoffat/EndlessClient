@@ -1,15 +1,17 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Dialogs.Factories;
 using EOLib.Domain.Character;
+using EOLib.Domain.Interact;
 using EOLib.Domain.Interact.Quest;
 using EOLib.Domain.Interact.Shop;
 using EOLib.Domain.NPC;
+using EOLib.IO;
 using Optional;
 
 namespace EndlessClient.Dialogs.Actions
 {
     [AutoMappedType]
-    public class InGameDialogActions : IInGameDialogActions
+    public class InGameDialogActions : IInGameDialogActions, INPCInteractionNotifier
     {
         private readonly IFriendIgnoreListDialogFactory _friendIgnoreListDialogFactory;
         private readonly IPaperdollDialogFactory _paperdollDialogFactory;
@@ -72,6 +74,19 @@ namespace EndlessClient.Dialogs.Actions
             });
         }
 
+        public void NotifyInteractionFromNPC(NPCType npcType)
+        {
+            // originally, these methods were called directly from NPCInteractionController
+            // however, this resulted in empty responses (e.g. no shop or quest) showing an empty dialog
+            // instead, wait for the response packet to notify this class and then show the dialog
+            //    once data has been received from the server
+            switch (npcType)
+            {
+                case NPCType.Shop: ShowShopDialog(); break;
+                case NPCType.Quest: ShowQuestDialog(); break;
+            }
+        }
+
         public void ShowShopDialog()
         {
             _activeDialogRepository.ShopDialog.MatchNone(() =>
@@ -88,11 +103,11 @@ namespace EndlessClient.Dialogs.Actions
             });
         }
 
-        public void ShowQuestDialog(INPC npc)
+        public void ShowQuestDialog()
         {
             _activeDialogRepository.QuestDialog.MatchNone(() =>
             {
-                var dlg = _questDialogFactory.Create(npc);
+                var dlg = _questDialogFactory.Create();
                 dlg.DialogClosed += (_, _) =>
                 {
                     _activeDialogRepository.QuestDialog = Option.None<QuestDialog>();
@@ -115,6 +130,6 @@ namespace EndlessClient.Dialogs.Actions
 
         void ShowShopDialog();
 
-        void ShowQuestDialog(INPC npc);
+        void ShowQuestDialog();
     }
 }
