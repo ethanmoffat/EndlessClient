@@ -224,7 +224,8 @@ namespace EndlessClient.Dialogs
                         PreviousMouseState.LeftButton == ButtonState.Pressed)
                 {
                     if ((_subText is IXNAHyperLink && !_subText.MouseOver) ||
-                        (_primaryText is IXNAHyperLink && !_primaryText.MouseOver))
+                        (_primaryText is IXNAHyperLink && !_primaryText.MouseOver) ||
+                        !(_primaryText is IXNAHyperLink || _subText is IXNAHyperLink))
                         LeftClick?.Invoke(this, EventArgs.Empty);
 
                     _parentList.ChildControlClickHandled = true;

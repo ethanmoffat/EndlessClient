@@ -24,7 +24,6 @@ namespace EndlessClient.Dialogs
         private Option<IQuestDialogData> _cachedData;
 
         private int _pageIndex = 0;
-        private bool _actionClicked = false;
 
         public QuestDialog(INativeGraphicsManager nativeGraphicsManager,
                            IQuestActions questActions,
