@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EOLib.Domain.Interact.Quest;
 using EOLib.Domain.NPC;
 using EOLib.IO.Repositories;
 using EOLib.Net;
@@ -11,12 +12,15 @@ namespace EOLib.Domain.Interact
     {
         private readonly IPacketSendService _packetSendService;
         private readonly IENFFileProvider _enfFileProvider;
+        private readonly IQuestDataRepository _questDataRepository;
 
         public MapNPCActions(IPacketSendService packetSendService,
-                             IENFFileProvider enfFileProvider)
+                             IENFFileProvider enfFileProvider,
+                             IQuestDataRepository questDataRepository)
         {
             _packetSendService = packetSendService;
             _enfFileProvider = enfFileProvider;
+            _questDataRepository = questDataRepository;
         }
 
         public void RequestShop(INPC npc)
@@ -30,6 +34,8 @@ namespace EOLib.Domain.Interact
 
         public void RequestQuest(INPC npc)
         {
+            _questDataRepository.RequestedNPC = npc;
+
             var data = _enfFileProvider.ENFFile[npc.ID];
 
             var packet = new PacketBuilder(PacketFamily.Quest, PacketAction.Use)
