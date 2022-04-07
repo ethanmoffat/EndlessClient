@@ -34,7 +34,7 @@ namespace EOLib.PacketHandlers.Quest
                     {
                         var progress = new List<IQuestProgressData>(numQuests);
 
-                        for (int i = 0; i < numQuests; i++)
+                        for (int i = 0; packet.ReadPosition < packet.Length && i < numQuests; i++)
                         {
                             var progressData = new QuestProgressData()
                                 .WithName(packet.ReadBreakString())
@@ -56,7 +56,7 @@ namespace EOLib.PacketHandlers.Quest
                     {
                         var completedQuests = new List<string>(numQuests);
 
-                        for (int i = 0; i < numQuests; i++)
+                        for (int i = 0; packet.ReadPosition < packet.Length && i < numQuests; i++)
                             completedQuests.Add(packet.ReadBreakString());
 
                         _questDataRepository.QuestHistory = completedQuests;

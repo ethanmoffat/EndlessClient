@@ -154,6 +154,9 @@ namespace EndlessClient.HUD.Controls
                 {HudControlIdentifier.SettingsPanel, CreateStatePanel(InGameStates.Settings)},
                 {HudControlIdentifier.HelpPanel, CreateStatePanel(InGameStates.Help)},
 
+                {HudControlIdentifier.UsageAndStatsButton, CreateUsageAndStatsButton()},
+                {HudControlIdentifier.QuestsButton, CreateQuestButton()},
+
                 {HudControlIdentifier.HPStatusBar, CreateHPStatusBar()},
                 {HudControlIdentifier.TPStatusBar, CreateTPStatusBar()},
                 {HudControlIdentifier.SPStatusBar, CreateSPStatusBar()},
@@ -300,6 +303,35 @@ namespace EndlessClient.HUD.Controls
                 retPanel.Visible = false;
 
             return retPanel;
+        }
+
+        private IGameComponent CreateUsageAndStatsButton()
+        {
+            var btn = new XNAButton(
+                _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 58),
+                new Vector2(55, 0),
+                new Rectangle(331, 30, 22, 14),
+                new Rectangle(331, 30, 22, 14))
+            {
+                DrawOrder = HUD_CONTROL_LAYER
+            };
+            btn.OnClick += (_, _) => _hudButtonController.ClickUsageAndStats();
+            return btn;
+
+        }
+
+        private IGameComponent CreateQuestButton()
+        {
+            var btn = new XNAButton(
+                _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 58),
+                new Vector2(77, 0),
+                new Rectangle(353, 30, 22, 14),
+                new Rectangle(353, 30, 22, 14))
+            {
+                DrawOrder = HUD_CONTROL_LAYER
+            };
+            btn.OnClick += (_, _) => _hudButtonController.ClickQuestStatus();
+            return btn;
         }
 
         private IGameComponent CreateHPStatusBar()

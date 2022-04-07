@@ -36,6 +36,7 @@ namespace EndlessClient.Dialogs
 
     public enum ScrollingListDialogSize
     {
+        // todo: exp dialog adds another one. Maybe need to name these after the specific dialogs they represent
         Large,            // standard dialog with large list items (chest, locker, shop)
         Medium,           // quest progress/history dialog
         MediumWithHeader, // todo: implement boards
@@ -69,7 +70,22 @@ namespace EndlessClient.Dialogs
             set => _titleText.Text = value;
         }
 
-        public int ItemsToShow { get; set; }
+        public int ItemsToShow
+        {
+            get
+            {
+                if (ListItemType == ListDialogItem.ListItemStyle.Large)
+                    return 5;
+
+                switch (DialogSize)
+                {
+                    case ScrollingListDialogSize.Large: return 12;
+                    case ScrollingListDialogSize.Medium: return 10;
+                    case ScrollingListDialogSize.Small: return 6;
+                    default: throw new NotImplementedException();
+                }
+            }
+        }
 
         public ListDialogItem.ListItemStyle ListItemType
         {
@@ -80,7 +96,6 @@ namespace EndlessClient.Dialogs
                     throw new InvalidOperationException("Can't use large ListDialogItem with small scrolling dialog");
 
                 _listItemType = value;
-                ItemsToShow = _listItemType == ListDialogItem.ListItemStyle.Large ? 5 : DialogSize == ScrollingListDialogSize.Small ? 6 : 12;
                 _scrollBar.LinesToRender = ItemsToShow;
             }
         }
@@ -250,8 +265,6 @@ namespace EndlessClient.Dialogs
             _cancel.SetParentControl(this);
             _cancel.OnClick += (_, _) => { if (!_otherClicked) { Close(XNADialogResult.Cancel); } };
 
-            ItemsToShow = ListItemType == ListDialogItem.ListItemStyle.Large ? 5 : DialogSize == ScrollingListDialogSize.Small ? 6 : 12;
-
             _button1Position = GetButton1Position(DialogSize);
             _button2Position = GetButton2Position(DialogSize);
             _buttonCenterPosition = GetButtonCenterPosition(DrawArea, _ok.DrawArea, DialogSize);
@@ -277,6 +290,8 @@ namespace EndlessClient.Dialogs
                 _listItems[i].Index = i;
                 if (i > _scrollBar.LinesToRender)
                     _listItems[i].Visible = false;
+
+                _listItems[i].Initialize();
             }
         }
 
@@ -289,6 +304,8 @@ namespace EndlessClient.Dialogs
 
             for (int i = 0; i < _listItems.Count; ++i)
                 _listItems[i].Index = i;
+
+            item.Initialize();
 
             _scrollBar.UpdateDimensions(_listItems.Count);
         }

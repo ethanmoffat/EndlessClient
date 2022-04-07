@@ -4,6 +4,7 @@ using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Panels;
+using EOLib.Domain.Interact.Quest;
 using EOLib.Domain.Online;
 using EOLib.Localization;
 using System.Linq;
@@ -17,6 +18,7 @@ namespace EndlessClient.HUD
         private readonly IHudStateActions _hudStateActions;
         private readonly IOnlinePlayerActions _onlinePlayerActions;
         private readonly IInGameDialogActions _inGameDialogActions;
+        private readonly IQuestActions _questActions;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly ILocalizedStringFinder _localizedStringFinder;
@@ -25,6 +27,7 @@ namespace EndlessClient.HUD
         public HudButtonController(IHudStateActions hudStateActions,
                                    IOnlinePlayerActions onlinePlayerActions,
                                    IInGameDialogActions inGameDialogActions,
+                                   IQuestActions questActions,
                                    IHudControlProvider hudControlProvider,
                                    IStatusLabelSetter statusLabelSetter,
                                    ILocalizedStringFinder localizedStringFinder,
@@ -33,6 +36,7 @@ namespace EndlessClient.HUD
             _hudStateActions = hudStateActions;
             _onlinePlayerActions = onlinePlayerActions;
             _inGameDialogActions = inGameDialogActions;
+            _questActions = questActions;
             _hudControlProvider = hudControlProvider;
             _statusLabelSetter = statusLabelSetter;
             _localizedStringFinder = localizedStringFinder;
@@ -115,6 +119,18 @@ namespace EndlessClient.HUD
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION,
                 EOResourceID.STATUS_LABEL_IGNORE_LIST,
                 _localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_USE_RIGHT_MOUSE_CLICK_DELETE));
+        }
+
+        public void ClickUsageAndStats()
+        {
+            // todo
+        }
+
+        public void ClickQuestStatus()
+        {
+            _questActions.RequestQuestHistory(QuestPage.Progress);
+            _questActions.RequestQuestHistory(QuestPage.History);
+            _inGameDialogActions.ShowQuestStatusDialog();
         }
     }
 }
