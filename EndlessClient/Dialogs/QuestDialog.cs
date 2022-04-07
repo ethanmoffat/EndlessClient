@@ -30,7 +30,7 @@ namespace EndlessClient.Dialogs
                            IQuestDataProvider questDataProvider,
                            IENFFileProvider enfFileProvider,
                            IContentProvider contentProvider)
-            : base(nativeGraphicsManager, dialogButtonService, dialogSize: ScrollingListDialogSize.SmallDialog)
+            : base(nativeGraphicsManager, dialogButtonService, dialogSize: ScrollingListDialogSize.Small)
         {
             _questActions = questActions;
             _questDataProvider = questDataProvider;
