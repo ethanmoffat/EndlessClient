@@ -23,11 +23,11 @@ namespace EndlessClient.Dialogs.Old
 
             Instance = new QuestProgressDialog(api);
 
-            if (!api.RequestQuestHistory(QuestPage.Progress))
-            {
-                Instance.Close(null, XNADialogResult.NO_BUTTON_PRESSED);
-                EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-            }
+            //if (!api.RequestQuestHistory(QuestPage.Progress))
+            //{
+            //    Instance.Close(null, XNADialogResult.NO_BUTTON_PRESSED);
+            //    EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+            //}
         }
 
         //controls
@@ -36,7 +36,7 @@ namespace EndlessClient.Dialogs.Old
         //state fields
         private bool _historyRequested;
         private short _numQuests;
-        private List<InProgressQuestData> _questInfo;
+        //private List<InProgressQuestData> _questInfo;
         private List<string> _completedQuests;
 
         private QuestProgressDialog(PacketAPI api)
@@ -92,14 +92,14 @@ namespace EndlessClient.Dialogs.Old
             _setBackgroundTexture(bgText);
         }
 
-        public void SetInProgressDisplayData(short numQuests, List<InProgressQuestData> questInfo)
-        {
-            ClearItemList();
-            _numQuests = numQuests;
-            _questInfo = questInfo;
-            _setTitleProgress();
-            _setMessageProgress();
-        }
+        //public void SetInProgressDisplayData(short numQuests, List<InProgressQuestData> questInfo)
+        //{
+        //    ClearItemList();
+        //    _numQuests = numQuests;
+        //    _questInfo = questInfo;
+        //    _setTitleProgress();
+        //    _setMessageProgress();
+        //}
 
         public void SetHistoryDisplayData(short numQuests, List<string> completedQuestNames)
         {
@@ -124,31 +124,31 @@ namespace EndlessClient.Dialogs.Old
 
         private void _setMessageProgress()
         {
-            if (_questInfo.Count == 0)
-            {
-                AddItemToList(new QuestProgressDialogListItem(this, 0)
-                {
-                    QuestName = OldWorld.GetString(EOResourceID.QUEST_DID_NOT_START_ANY),
-                    QuestStep = " ",
-                    ShowIcons = false,
-                    QuestProgress = " "
-                }, false);
+            //if (_questInfo.Count == 0)
+            //{
+            //    AddItemToList(new QuestProgressDialogListItem(this, 0)
+            //    {
+            //        QuestName = OldWorld.GetString(EOResourceID.QUEST_DID_NOT_START_ANY),
+            //        QuestStep = " ",
+            //        ShowIcons = false,
+            //        QuestProgress = " "
+            //    }, false);
 
-                return;
-            }
+            //    return;
+            //}
 
-            int ndx = 0;
-            foreach (var quest in _questInfo)
-            {
-                var nextItem = new QuestProgressDialogListItem(this, ndx++)
-                {
-                    QuestName = quest.Name,
-                    QuestStep = quest.Description,
-                    QuestContextIcon = quest.IconIndex,
-                    QuestProgress = quest.Target > 0 ? $"{quest.Progress} / {quest.Target}" : "n / a"
-                };
-                AddItemToList(nextItem, false);
-            }
+            //int ndx = 0;
+            //foreach (var quest in _questInfo)
+            //{
+            //    var nextItem = new QuestProgressDialogListItem(this, ndx++)
+            //    {
+            //        QuestName = quest.Name,
+            //        QuestStep = quest.Description,
+            //        QuestContextIcon = quest.IconIndex,
+            //        QuestProgress = quest.Target > 0 ? $"{quest.Progress} / {quest.Target}" : "n / a"
+            //    };
+            //    AddItemToList(nextItem, false);
+            //}
         }
 
         private void _setMessageHistory()
@@ -185,11 +185,11 @@ namespace EndlessClient.Dialogs.Old
 
             if (!_historyRequested)
             {
-                if (!m_api.RequestQuestHistory(QuestPage.History))
-                {
-                    Close(null, XNADialogResult.NO_BUTTON_PRESSED);
-                    ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
-                }
+                //if (!m_api.RequestQuestHistory(QuestPage.History))
+                //{
+                //    Close(null, XNADialogResult.NO_BUTTON_PRESSED);
+                //    ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
+                //}
                 _historyRequested = true;
             }
             else
@@ -206,7 +206,7 @@ namespace EndlessClient.Dialogs.Old
 
             m_scrollBar.ScrollToTop();
 
-            SetInProgressDisplayData(_numQuests, _questInfo);
+            //SetInProgressDisplayData(_numQuests, _questInfo);
         }
     }
 }

@@ -35,10 +35,21 @@ namespace EOLib.Domain.Interact.Quest
                 _packetSendService.SendPacket(packet);
             });
         }
+
+        public void RequestQuestHistory(QuestPage page)
+        {
+            var packet = new PacketBuilder(PacketFamily.Quest, PacketAction.List)
+                .AddChar((byte)page)
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+        }
     }
 
     public interface IQuestActions
     {
         void RespondToQuestDialog(DialogReply reply, byte linkId = 0);
+
+        void RequestQuestHistory(QuestPage page);
     }
 }

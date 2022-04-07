@@ -68,10 +68,6 @@ namespace EndlessClient.Old
             m_packetAPI.OnSpellTrain += _statskillTrainSpell;
             m_packetAPI.OnCharacterStatsReset += _statskillReset;
 
-            //quests
-            m_packetAPI.OnViewQuestProgress += _questProgress;
-            m_packetAPI.OnViewQuestHistory += _questHistory;
-
             m_packetAPI.OnPlaySoundEffect += _playSoundEffect;
 
             //spell casting
@@ -338,20 +334,6 @@ namespace EndlessClient.Old
             c.Stats.Armor = data.Armor;
             m_game.Hud.RefreshStats();
             m_game.Hud.RemoveAllSpells();
-        }
-
-        private void _questProgress(short numquests, List<InProgressQuestData> questinfo)
-        {
-            if (QuestProgressDialog.Instance == null) return;
-
-            QuestProgressDialog.Instance.SetInProgressDisplayData(numquests, questinfo);
-        }
-
-        private void _questHistory(short numquests, List<string> completedquestnames)
-        {
-            if (QuestProgressDialog.Instance == null) return;
-
-            QuestProgressDialog.Instance.SetHistoryDisplayData(numquests, completedquestnames);
         }
 
         private void _playSoundEffect(int effectID)
