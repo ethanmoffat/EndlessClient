@@ -3,6 +3,7 @@ using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,25 +14,33 @@ namespace EndlessClient.Dialogs
     [Flags]
     public enum ScrollingListDialogButtons
     {
-        Add = 1,
-        Cancel = 2,
-        Back = 4,
-        Next = 8,
-        Ok = 16,
-        DualButtons = 32,
-        // todo: if enum values are ever added to this, the logic in ScrollingListDialog.Buttons needs to be updated
-        AddCancel = DualButtons | Add | Cancel,
-        BackCancel = DualButtons | Back | Cancel,
-        BackOk = DualButtons | Back | Ok,
-        CancelOk = DualButtons | Cancel | Ok,
-        BackNext = DualButtons | Back | Next,
-        CancelNext = DualButtons | Cancel | Next,
+        None        = 0x00,
+        Add         = 0x01,
+        Cancel      = 0x02,
+        Back        = 0x04,
+        Next        = 0x08,
+        Ok          = 0x10,
+        History     = 0x20,
+        Progress    = 0x40,
+        DualButtons = 0x80,
+
+        AddCancel   = DualButtons | Add | Cancel,
+        BackCancel  = DualButtons | Back | Cancel,
+        BackOk      = DualButtons | Back | Ok,
+        CancelOk    = DualButtons | Cancel | Ok,
+        BackNext    = DualButtons | Back | Next,
+        CancelNext  = DualButtons | Cancel | Next,
+        HistoryOk   = DualButtons | History | Ok,
+        ProgressOk  = DualButtons | Progress | Ok,
     }
 
     public enum ScrollingListDialogSize
     {
-        LargeDialog,
-        SmallDialog,
+        // todo: exp dialog adds another one. Maybe need to name these after the specific dialogs they represent
+        Large,            // standard dialog with large list items (chest, locker, shop)
+        Medium,           // quest progress/history dialog
+        MediumWithHeader, // todo: implement boards
+        Small,            // npc quest dialog
     }
 
     public class ScrollingListDialog : BaseEODialog
@@ -44,6 +53,7 @@ namespace EndlessClient.Dialogs
 
         protected readonly XNAButton _add, _back, _cancel;
         protected readonly XNAButton _next, _ok;
+        protected readonly XNAButton _history, _progress;
 
         protected readonly Vector2 _button1Position, _button2Position, _buttonCenterPosition;
 
@@ -60,18 +70,32 @@ namespace EndlessClient.Dialogs
             set => _titleText.Text = value;
         }
 
-        public int ItemsToShow { get; set; }
+        public int ItemsToShow
+        {
+            get
+            {
+                if (ListItemType == ListDialogItem.ListItemStyle.Large)
+                    return 5;
+
+                switch (DialogSize)
+                {
+                    case ScrollingListDialogSize.Large: return 12;
+                    case ScrollingListDialogSize.Medium: return 10;
+                    case ScrollingListDialogSize.Small: return 6;
+                    default: throw new NotImplementedException();
+                }
+            }
+        }
 
         public ListDialogItem.ListItemStyle ListItemType
         {
             get => _listItemType;
             set
             {
-                if (value == ListDialogItem.ListItemStyle.Large && DialogSize == ScrollingListDialogSize.SmallDialog)
+                if (value == ListDialogItem.ListItemStyle.Large && DialogSize == ScrollingListDialogSize.Small)
                     throw new InvalidOperationException("Can't use large ListDialogItem with small scrolling dialog");
 
                 _listItemType = value;
-                ItemsToShow = _listItemType == ListDialogItem.ListItemStyle.Large ? 5 : DialogSize == ScrollingListDialogSize.SmallDialog ? 6 : 12;
                 _scrollBar.LinesToRender = ItemsToShow;
             }
         }
@@ -87,6 +111,8 @@ namespace EndlessClient.Dialogs
                 _next.Visible = Buttons.HasFlag(ScrollingListDialogButtons.Next);
                 _ok.Visible = Buttons.HasFlag(ScrollingListDialogButtons.Ok);
                 _cancel.Visible = Buttons.HasFlag(ScrollingListDialogButtons.Cancel);
+                _history.Visible = Buttons.HasFlag(ScrollingListDialogButtons.History);
+                _progress.Visible = Buttons.HasFlag(ScrollingListDialogButtons.Progress);
 
                 if (Buttons.HasFlag(ScrollingListDialogButtons.DualButtons))
                 {
@@ -101,6 +127,8 @@ namespace EndlessClient.Dialogs
                     {
                         _back.DrawPosition = _button1Position;
                         _cancel.DrawPosition = _button1Position;
+                        _history.DrawPosition = _button1Position;
+                        _progress.DrawPosition = _button1Position;
 
                         _next.DrawPosition = _button2Position;
                         _ok.DrawPosition = _button2Position;
@@ -127,35 +155,40 @@ namespace EndlessClient.Dialogs
 
         public event EventHandler NextAction;
 
+        public event EventHandler HistoryAction;
+
+        public event EventHandler ProgressAction;
+
         public bool ChildControlClickHandled { get; set; }
 
         public ScrollingListDialog(INativeGraphicsManager nativeGraphicsManager,
                                    IEODialogButtonService dialogButtonService,
-                                   ScrollingListDialogSize dialogSize = ScrollingListDialogSize.LargeDialog)
+                                   ScrollingListDialogSize dialogSize = ScrollingListDialogSize.Large)
             : base(isInGame: true)
         {
+            // todo: implement boards
+            if (dialogSize == ScrollingListDialogSize.MediumWithHeader)
+                throw new NotImplementedException();
+
             GraphicsManager = nativeGraphicsManager;
             DialogSize = dialogSize;
-
-            var isLargeDialog = DialogSize == ScrollingListDialogSize.LargeDialog;
 
             _listItems = new List<ListDialogItem>();
 
             _titleText = new XNALabel(Constants.FontSize09)
             {
-                DrawArea = isLargeDialog ? new Rectangle(16, 13, 253, 19) : new Rectangle(16, 16, 255, 18),
+                DrawArea = GetTitleDrawArea(DialogSize),
                 AutoSize = false,
                 TextAlign = LabelAlignment.MiddleLeft,
                 ForeColor = ColorConstants.LightGrayText
             };
             _titleText.SetParentControl(this);
 
-            _scrollBar = new ScrollBar(new Vector2(252, 44), new Vector2(16, isLargeDialog ? 199 : 99), ScrollBarColors.LightOnMed, GraphicsManager);
+            _scrollBar = new ScrollBar(new Vector2(DialogSize == ScrollingListDialogSize.Medium ? 449 : 252, 44), new Vector2(16, GetScrollBarHeight(DialogSize)), ScrollBarColors.LightOnMed, GraphicsManager);
             _scrollBar.SetParentControl(this);
 
-            BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, isLargeDialog ? 52 : 67);
-
-            var yCoord = isLargeDialog ? 252 : 152;
+            BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, GetBackgroundTexture(DialogSize));
+            BackgroundTextureSource = GetBackgroundSourceRectangle(BackgroundTexture, DialogSize);
 
             _add = new XNAButton(dialogButtonService.SmallButtonSheet, Vector2.Zero,
                 dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Add),
@@ -190,6 +223,28 @@ namespace EndlessClient.Dialogs
             _next.OnClick += (o, e) => NextAction?.Invoke(o, e);
             NextAction += (_, _) => _otherClicked = true;
 
+            _history = new XNAButton(dialogButtonService.SmallButtonSheet, Vector2.Zero,
+                dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.History),
+                dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.History))
+            {
+                Visible = false,
+                UpdateOrder = 1,
+            };
+            _history.SetParentControl(this);
+            _history.OnClick += (o, e) => HistoryAction?.Invoke(o, e);
+            HistoryAction += (_, _) => _otherClicked = true;
+
+            _progress = new XNAButton(dialogButtonService.SmallButtonSheet, Vector2.Zero,
+                dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Progress),
+                dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Progress))
+            {
+                Visible = false,
+                UpdateOrder = 1,
+            };
+            _progress.SetParentControl(this);
+            _progress.OnClick += (o, e) => ProgressAction?.Invoke(o, e);
+            ProgressAction += (_, _) => _otherClicked = true;
+
             _ok = new XNAButton(dialogButtonService.SmallButtonSheet, Vector2.Zero,
                 dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Ok),
                 dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Ok))
@@ -210,11 +265,9 @@ namespace EndlessClient.Dialogs
             _cancel.SetParentControl(this);
             _cancel.OnClick += (_, _) => { if (!_otherClicked) { Close(XNADialogResult.Cancel); } };
 
-            ItemsToShow = ListItemType == ListDialogItem.ListItemStyle.Large ? 5 : DialogSize == ScrollingListDialogSize.SmallDialog ? 6 : 12;
-
-            _button1Position = new Vector2(isLargeDialog ? 48 : 89, yCoord);
-            _button2Position = new Vector2(isLargeDialog ? 144 : 183, yCoord);
-            _buttonCenterPosition = new Vector2(96, yCoord);
+            _button1Position = GetButton1Position(DialogSize);
+            _button2Position = GetButton2Position(DialogSize);
+            _buttonCenterPosition = GetButtonCenterPosition(DrawArea, _ok.DrawArea, DialogSize);
 
             Buttons = ScrollingListDialogButtons.AddCancel;
 
@@ -237,6 +290,8 @@ namespace EndlessClient.Dialogs
                 _listItems[i].Index = i;
                 if (i > _scrollBar.LinesToRender)
                     _listItems[i].Visible = false;
+
+                _listItems[i].Initialize();
             }
         }
 
@@ -249,6 +304,8 @@ namespace EndlessClient.Dialogs
 
             for (int i = 0; i < _listItems.Count; ++i)
                 _listItems[i].Index = i;
+
+            item.Initialize();
 
             _scrollBar.UpdateDimensions(_listItems.Count);
         }
@@ -333,6 +390,78 @@ namespace EndlessClient.Dialogs
             base.OnUpdateControl(gameTime);
 
             _otherClicked = false;
+        }
+
+        private static Rectangle GetTitleDrawArea(ScrollingListDialogSize size)
+        {
+            switch(size)
+            {
+                case ScrollingListDialogSize.Large: return new Rectangle(16, 13, 253, 19);
+                case ScrollingListDialogSize.Medium: return new Rectangle(18, 14, 452, 19);
+                case ScrollingListDialogSize.Small: return new Rectangle(16, 16, 255, 18);
+                default: throw new NotImplementedException();
+            }
+        }
+
+        private static int GetScrollBarHeight(ScrollingListDialogSize size)
+        {
+            switch (size)
+            {
+                case ScrollingListDialogSize.Large:
+                case ScrollingListDialogSize.Medium: return 199;
+                case ScrollingListDialogSize.Small: return 99;
+                default: throw new NotImplementedException();
+            }
+        }
+
+        private static int GetBackgroundTexture(ScrollingListDialogSize size)
+        {
+            switch (size)
+            {
+                case ScrollingListDialogSize.Large: return 52;
+                case ScrollingListDialogSize.Medium: return 59;
+                case ScrollingListDialogSize.Small: return 67;
+                default: throw new NotImplementedException();
+            }
+        }
+
+        private static Rectangle? GetBackgroundSourceRectangle(Texture2D backgroundTexture, ScrollingListDialogSize size)
+        {
+            switch (size)
+            {
+                case ScrollingListDialogSize.Large: return null;
+                case ScrollingListDialogSize.Medium: return new Rectangle(0, 0, backgroundTexture.Width, backgroundTexture.Height / 2);
+                case ScrollingListDialogSize.Small: return null;
+                default: throw new NotImplementedException();
+            }
+        }
+
+        private static Vector2 GetButton1Position(ScrollingListDialogSize size)
+        {
+            switch (size)
+            {
+                case ScrollingListDialogSize.Large: return new Vector2(48, 252);
+                case ScrollingListDialogSize.Medium: return new Vector2(288, 252);
+                case ScrollingListDialogSize.Small: return new Vector2(89, 152);
+                default: throw new NotImplementedException();
+            }
+        }
+
+        private static Vector2 GetButton2Position(ScrollingListDialogSize size)
+        {
+            switch (size)
+            {
+                case ScrollingListDialogSize.Large: return new Vector2(144, 252);
+                case ScrollingListDialogSize.Medium: return new Vector2(380, 252);
+                case ScrollingListDialogSize.Small: return new Vector2(183, 152);
+                default: throw new NotImplementedException();
+            }
+        }
+
+        private static Vector2 GetButtonCenterPosition(Rectangle dialogArea, Rectangle buttonArea, ScrollingListDialogSize size)
+        {
+            var yCoord = GetButton1Position(size).Y;
+            return new Vector2((dialogArea.Width - buttonArea.Width) / 2, yCoord);
         }
     }
 }

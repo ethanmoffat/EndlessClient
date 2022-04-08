@@ -31,8 +31,6 @@ namespace EndlessClient.HUD.Controls
 
         private ChatTextBox chatTextBox;
 
-        private readonly XNAButton m_expInfo, m_questInfo;
-
         public DateTime SessionStartTime { get; private set; }
 
         public HUD(Game g, PacketAPI api) : base(g)
@@ -48,17 +46,6 @@ namespace EndlessClient.HUD.Controls
             CreateChatTextbox();
 
             //m_party = new OldEOPartyPanel(pnlParty);
-
-            m_expInfo = new XNAButton(((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 58),
-                new Vector2(55, 0),
-                new Rectangle(331, 30, 22, 14),
-                new Rectangle(331, 30, 22, 14)) {DrawOrder = HUD_CONTROL_DRAW_ORDER};
-            m_expInfo.OnClick += (o, e) => Dialogs.Old.SessionExpDialog.Show();
-            m_questInfo = new XNAButton(((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 58),
-                new Vector2(77, 0),
-                new Rectangle(353, 30, 22, 14),
-                new Rectangle(353, 30, 22, 14)) {DrawOrder = HUD_CONTROL_DRAW_ORDER};
-            m_questInfo.OnClick += (o, e) => Dialogs.Old.QuestProgressDialog.Show(m_packetAPI);
 
             //no need to make this a member variable
             //it does not have any resources to dispose and it is automatically disposed by the framework
@@ -160,9 +147,6 @@ namespace EndlessClient.HUD.Controls
                 m_packetAPI.Dispose();
 
                 chatRenderer.Dispose();
-
-                m_expInfo.Close();
-                m_questInfo.Close();
             }
 
             base.Dispose(disposing);

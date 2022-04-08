@@ -15,6 +15,8 @@ namespace EndlessClient.Dialogs.Actions
     {
         private readonly IFriendIgnoreListDialogFactory _friendIgnoreListDialogFactory;
         private readonly IPaperdollDialogFactory _paperdollDialogFactory;
+        private readonly ISessionExpDialogFactory _sessionExpDialogFactory;
+        private readonly IQuestStatusDialogFactory _questStatusDialogFactory;
         private readonly IActiveDialogRepository _activeDialogRepository;
         private readonly IShopDataRepository _shopDataRepository;
         private readonly IQuestDataRepository _questDataRepository;
@@ -23,14 +25,18 @@ namespace EndlessClient.Dialogs.Actions
 
         public InGameDialogActions(IFriendIgnoreListDialogFactory friendIgnoreListDialogFactory,
                                    IPaperdollDialogFactory paperdollDialogFactory,
+                                   ISessionExpDialogFactory sessionExpDialogFactory,
+                                   IQuestStatusDialogFactory questStatusDialogFactory,
+                                   IShopDialogFactory shopDialogFactory,
+                                   IQuestDialogFactory questDialogFactory,
                                    IActiveDialogRepository activeDialogRepository,
                                    IShopDataRepository shopDataRepository,
-                                   IQuestDataRepository questDataRepository,
-                                   IShopDialogFactory shopDialogFactory,
-                                   IQuestDialogFactory questDialogFactory)
+                                   IQuestDataRepository questDataRepository)
         {
             _friendIgnoreListDialogFactory = friendIgnoreListDialogFactory;
             _paperdollDialogFactory = paperdollDialogFactory;
+            _sessionExpDialogFactory = sessionExpDialogFactory;
+            _questStatusDialogFactory = questStatusDialogFactory;
             _activeDialogRepository = activeDialogRepository;
             _shopDataRepository = shopDataRepository;
             _questDataRepository = questDataRepository;
@@ -57,6 +63,30 @@ namespace EndlessClient.Dialogs.Actions
                 var dlg = _friendIgnoreListDialogFactory.Create(isFriendList: false);
                 dlg.DialogClosed += (_, _) => _activeDialogRepository.FriendIgnoreDialog = Option.None<ScrollingListDialog>();
                 _activeDialogRepository.FriendIgnoreDialog = Option.Some(dlg);
+
+                dlg.Show();
+            });
+        }
+
+        public void ShowSessionExpDialog()
+        {
+            _activeDialogRepository.SessionExpDialog.MatchNone(() =>
+            {
+                var dlg = _sessionExpDialogFactory.Create();
+                dlg.DialogClosed += (_, _) => _activeDialogRepository.SessionExpDialog = Option.None<SessionExpDialog>();
+                _activeDialogRepository.SessionExpDialog = Option.Some(dlg);
+
+                dlg.Show();
+            });
+        }
+
+        public void ShowQuestStatusDialog()
+        {
+            _activeDialogRepository.QuestStatusDialog.MatchNone(() =>
+            {
+                var dlg = _questStatusDialogFactory.Create();
+                dlg.DialogClosed += (_, _) => _activeDialogRepository.QuestStatusDialog = Option.None<QuestStatusDialog>();
+                _activeDialogRepository.QuestStatusDialog = Option.Some(dlg);
 
                 dlg.Show();
             });
@@ -125,6 +155,10 @@ namespace EndlessClient.Dialogs.Actions
         void ShowFriendListDialog();
 
         void ShowIgnoreListDialog();
+
+        void ShowSessionExpDialog();
+
+        void ShowQuestStatusDialog();
 
         void ShowPaperdollDialog(ICharacter character, bool isMainCharacter);
 

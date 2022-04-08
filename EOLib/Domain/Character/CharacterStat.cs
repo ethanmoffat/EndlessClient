@@ -30,6 +30,6 @@
         Charisma,
 
         Weight,
-        MaxWeight
+        MaxWeight,
     }
 }

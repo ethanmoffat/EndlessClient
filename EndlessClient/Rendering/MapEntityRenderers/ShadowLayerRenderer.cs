@@ -17,7 +17,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         public override MapRenderLayer RenderLayer => MapRenderLayer.Shadows;
 
-        protected override int RenderDistance => 10;
+        protected override int RenderDistance => 16;
 
         public ShadowLayerRenderer(INativeGraphicsManager nativeGraphicsManager,
                                    ICurrentMapProvider currentMapProvider,

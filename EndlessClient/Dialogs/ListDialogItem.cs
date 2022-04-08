@@ -19,8 +19,8 @@ namespace EndlessClient.Dialogs
         private int _index;
         private int _xOffset, _yOffset;
 
-        private IXNALabel _primaryText;
-        private IXNALabel _subText;
+        protected IXNALabel _primaryText;
+        protected IXNALabel _subText;
 
         private readonly Texture2D _gfxPadThing;
         private readonly Texture2D _backgroundColor;
@@ -244,7 +244,7 @@ namespace EndlessClient.Dialogs
             _spriteBatch.Begin();
             if (_drawBackground)
             {
-                _spriteBatch.Draw(_backgroundColor, DrawAreaWithParentOffset, Color.FromNonPremultiplied(255, 255, 255, 64));
+                _spriteBatch.Draw(_backgroundColor, DrawAreaWithParentOffset, Color.FromNonPremultiplied(255, 255, 255, 16));
             }
 
             if (Style == ListItemStyle.Large)

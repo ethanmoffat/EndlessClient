@@ -28,6 +28,8 @@ namespace EndlessClient.HUD
 
         Task ClickIgnoreList();
 
-        //E/Q
+        void ClickSessionExp();
+
+        void ClickQuestStatus();
     }
 }

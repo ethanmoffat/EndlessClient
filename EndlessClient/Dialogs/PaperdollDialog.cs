@@ -40,7 +40,6 @@ namespace EndlessClient.Dialogs
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly bool _isMainCharacter;
         private readonly Texture2D _characterIconSheet;
-        private readonly Texture2D _background;
         private Option<Rectangle> _characterIconSourceRect;
         private readonly InventoryPanel _inventoryPanel;
 
@@ -87,12 +86,8 @@ namespace EndlessClient.Dialogs
 
             _childItems = new List<PaperdollDialogItem>();
 
-            _background = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 49);
-            SetSize(_background.Width, _background.Height / 2);
-
-            // this needs to be set for CenterInGameView to work properly
-            // todo: fix
-            BackgroundTexture = new Texture2D(GraphicsDevice, DrawArea.Width, DrawArea.Height);
+            BackgroundTexture = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 49);
+            BackgroundTextureSource = new Rectangle(0, BackgroundTexture.Height / 2 * Character.RenderProperties.Gender, DrawArea.Width, BackgroundTexture.Height / 2);
 
             var okButton = new XNAButton(eoDialogButtonService.SmallButtonSheet,
                 new Vector2(276, 253),
@@ -161,9 +156,9 @@ namespace EndlessClient.Dialogs
 
         protected override void OnDrawControl(GameTime gameTime)
         {
-            _spriteBatch.Begin();
+            base.OnDrawControl(gameTime);
 
-            _spriteBatch.Draw(_background, DrawAreaWithParentOffset, new Rectangle(0, DrawArea.Height * Character.RenderProperties.Gender, DrawArea.Width, DrawArea.Height), Color.White);
+            _spriteBatch.Begin();
 
             _characterIconSourceRect.MatchSome(sourceRect =>
             {
@@ -176,16 +171,6 @@ namespace EndlessClient.Dialogs
             });
 
             _spriteBatch.End();
-
-            base.OnDrawControl(gameTime);
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-                BackgroundTexture.Dispose();
-
-            base.Dispose(disposing);
         }
 
         private void UpdateDisplayedData(IPaperdollData paperdollData)

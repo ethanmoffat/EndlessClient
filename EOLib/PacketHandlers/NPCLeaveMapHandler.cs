@@ -16,6 +16,7 @@ namespace EOLib.PacketHandlers
     {
         protected readonly ICurrentMapStateRepository _currentMapStateRepository;
         protected readonly ICharacterRepository _characterRepository;
+        private readonly ICharacterSessionRepository _characterSessionRepository;
         private readonly IEnumerable<INPCActionNotifier> _npcAnimationNotifiers;
         private readonly IEnumerable<IMainCharacterEventNotifier> _mainCharacterEventNotifiers;
 
@@ -26,12 +27,14 @@ namespace EOLib.PacketHandlers
         public NPCLeaveMapHandler(IPlayerInfoProvider playerInfoProvider,
                                   ICurrentMapStateRepository currentMapStateRepository,
                                   ICharacterRepository characterRepository,
+                                  ICharacterSessionRepository characterSessionRepository,
                                   IEnumerable<INPCActionNotifier> npcAnimationNotifiers,
                                   IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers)
             : base(playerInfoProvider)
         {
             _currentMapStateRepository = currentMapStateRepository;
             _characterRepository = characterRepository;
+            _characterSessionRepository = characterSessionRepository;
             _npcAnimationNotifiers = npcAnimationNotifiers;
             _mainCharacterEventNotifiers = mainCharacterEventNotifiers;
         }
@@ -79,7 +82,11 @@ namespace EOLib.PacketHandlers
                     notifier.NotifyGainedExp(expDifference);
 
                 UpdateCharacterStat(CharacterStat.Experience, playerExp);
-                //todo: update last kill, best kill, and today exp
+
+                _characterSessionRepository.LastKillExp = expDifference;
+                if (expDifference > _characterSessionRepository.BestKillExp)
+                    _characterSessionRepository.BestKillExp = expDifference;
+                _characterSessionRepository.TodayTotalExp += expDifference;
             }
 
             if (droppedItemID > 0)
@@ -153,9 +160,10 @@ namespace EOLib.PacketHandlers
         public NPCDieFromSpellCastHandler(IPlayerInfoProvider playerInfoProvider,
                                           ICurrentMapStateRepository currentMapStateRepository,
                                           ICharacterRepository characterRepository,
+                                          ICharacterSessionRepository characterSessionRepository,
                                           IEnumerable<INPCActionNotifier> npcAnimationNotifiers,
                                           IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers)
-            : base(playerInfoProvider, currentMapStateRepository, characterRepository,
+            : base(playerInfoProvider, currentMapStateRepository, characterRepository, characterSessionRepository,
                    npcAnimationNotifiers, mainCharacterEventNotifiers) { }
     }
 }
