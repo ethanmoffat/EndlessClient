@@ -45,7 +45,7 @@ namespace EndlessClient.HUD.Controls
         NewsPanel,
 
         //top bar
-        UsageAndStatsButton,
+        SessionExpButton,
         QuestsButton,
 
         HPStatusBar,

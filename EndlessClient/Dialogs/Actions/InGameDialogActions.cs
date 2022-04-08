@@ -15,6 +15,7 @@ namespace EndlessClient.Dialogs.Actions
     {
         private readonly IFriendIgnoreListDialogFactory _friendIgnoreListDialogFactory;
         private readonly IPaperdollDialogFactory _paperdollDialogFactory;
+        private readonly ISessionExpDialogFactory _sessionExpDialogFactory;
         private readonly IQuestStatusDialogFactory _questStatusDialogFactory;
         private readonly IActiveDialogRepository _activeDialogRepository;
         private readonly IShopDataRepository _shopDataRepository;
@@ -24,6 +25,7 @@ namespace EndlessClient.Dialogs.Actions
 
         public InGameDialogActions(IFriendIgnoreListDialogFactory friendIgnoreListDialogFactory,
                                    IPaperdollDialogFactory paperdollDialogFactory,
+                                   ISessionExpDialogFactory sessionExpDialogFactory,
                                    IQuestStatusDialogFactory questStatusDialogFactory,
                                    IShopDialogFactory shopDialogFactory,
                                    IQuestDialogFactory questDialogFactory,
@@ -33,6 +35,7 @@ namespace EndlessClient.Dialogs.Actions
         {
             _friendIgnoreListDialogFactory = friendIgnoreListDialogFactory;
             _paperdollDialogFactory = paperdollDialogFactory;
+            _sessionExpDialogFactory = sessionExpDialogFactory;
             _questStatusDialogFactory = questStatusDialogFactory;
             _activeDialogRepository = activeDialogRepository;
             _shopDataRepository = shopDataRepository;
@@ -60,6 +63,18 @@ namespace EndlessClient.Dialogs.Actions
                 var dlg = _friendIgnoreListDialogFactory.Create(isFriendList: false);
                 dlg.DialogClosed += (_, _) => _activeDialogRepository.FriendIgnoreDialog = Option.None<ScrollingListDialog>();
                 _activeDialogRepository.FriendIgnoreDialog = Option.Some(dlg);
+
+                dlg.Show();
+            });
+        }
+
+        public void ShowSessionExpDialog()
+        {
+            _activeDialogRepository.SessionExpDialog.MatchNone(() =>
+            {
+                var dlg = _sessionExpDialogFactory.Create();
+                dlg.DialogClosed += (_, _) => _activeDialogRepository.SessionExpDialog = Option.None<SessionExpDialog>();
+                _activeDialogRepository.SessionExpDialog = Option.Some(dlg);
 
                 dlg.Show();
             });
@@ -140,6 +155,8 @@ namespace EndlessClient.Dialogs.Actions
         void ShowFriendListDialog();
 
         void ShowIgnoreListDialog();
+
+        void ShowSessionExpDialog();
 
         void ShowQuestStatusDialog();
 

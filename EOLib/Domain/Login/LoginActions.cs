@@ -28,6 +28,7 @@ namespace EOLib.Domain.Login
         private readonly INewsRepository _newsRepository;
         private readonly ICharacterInventoryRepository _characterInventoryRepository;
         private readonly IPaperdollRepository _paperdollRepository;
+        private readonly ICharacterSessionRepository _characterSessionRepository;
 
         public LoginActions(IPacketSendService packetSendService,
                             IPacketTranslator<IAccountLoginData> loginPacketTranslator,
@@ -40,7 +41,8 @@ namespace EOLib.Domain.Login
                             ILoginFileChecksumRepository loginFileChecksumRepository,
                             INewsRepository newsRepository,
                             ICharacterInventoryRepository characterInventoryRepository,
-                            IPaperdollRepository paperdollRepository)
+                            IPaperdollRepository paperdollRepository,
+                            ICharacterSessionRepository characterSessionRepository)
         {
             _packetSendService = packetSendService;
             _loginPacketTranslator = loginPacketTranslator;
@@ -54,6 +56,7 @@ namespace EOLib.Domain.Login
             _newsRepository = newsRepository;
             _characterInventoryRepository = characterInventoryRepository;
             _paperdollRepository = paperdollRepository;
+            _characterSessionRepository = characterSessionRepository;
         }
 
         public bool LoginParametersAreValid(ILoginParameters parameters)
@@ -185,6 +188,7 @@ namespace EOLib.Domain.Login
             _currentMapStateRepository.MapItems = new HashSet<IItem>(data.MapItems);
 
             _playerInfoRepository.PlayerIsInGame = true;
+            _characterSessionRepository.ResetState();
 
             return CharacterLoginReply.RequestCompleted;
         }

@@ -121,9 +121,9 @@ namespace EndlessClient.HUD
                 _localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_USE_RIGHT_MOUSE_CLICK_DELETE));
         }
 
-        public void ClickUsageAndStats()
+        public void ClickSessionExp()
         {
-            // todo
+            _inGameDialogActions.ShowSessionExpDialog();
         }
 
         public void ClickQuestStatus()

@@ -154,7 +154,7 @@ namespace EndlessClient.HUD.Controls
                 {HudControlIdentifier.SettingsPanel, CreateStatePanel(InGameStates.Settings)},
                 {HudControlIdentifier.HelpPanel, CreateStatePanel(InGameStates.Help)},
 
-                {HudControlIdentifier.UsageAndStatsButton, CreateUsageAndStatsButton()},
+                {HudControlIdentifier.SessionExpButton, CreateSessionExpButton()},
                 {HudControlIdentifier.QuestsButton, CreateQuestButton()},
 
                 {HudControlIdentifier.HPStatusBar, CreateHPStatusBar()},
@@ -305,7 +305,7 @@ namespace EndlessClient.HUD.Controls
             return retPanel;
         }
 
-        private IGameComponent CreateUsageAndStatsButton()
+        private IGameComponent CreateSessionExpButton()
         {
             var btn = new XNAButton(
                 _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 58),
@@ -315,7 +315,7 @@ namespace EndlessClient.HUD.Controls
             {
                 DrawOrder = HUD_CONTROL_LAYER
             };
-            btn.OnClick += (_, _) => _hudButtonController.ClickUsageAndStats();
+            btn.OnClick += (_, _) => _hudButtonController.ClickSessionExp();
             return btn;
 
         }

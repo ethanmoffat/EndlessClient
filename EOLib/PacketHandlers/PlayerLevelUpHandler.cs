@@ -20,10 +20,11 @@ namespace EOLib.PacketHandlers
         public PlayerLevelUpHandler(IPlayerInfoProvider playerInfoProvider,
                                     ICurrentMapStateRepository currentMapStateRepository,
                                     ICharacterRepository characterRepository,
+                                    ICharacterSessionRepository characterSessionRepository,
                                     IEnumerable<INPCActionNotifier> npcAnimationNotifiers,
                                     IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers,
                                     IEnumerable<IEmoteNotifier> emoteNotifiers)
-            : base(playerInfoProvider, currentMapStateRepository, characterRepository,
+            : base(playerInfoProvider, currentMapStateRepository, characterRepository, characterSessionRepository,
                    npcAnimationNotifiers, mainCharacterEventNotifiers)
         {
             _emoteNotifiers = emoteNotifiers;
@@ -67,10 +68,11 @@ namespace EOLib.PacketHandlers
         public PlayerLevelUpFromSpellCastHandler(IPlayerInfoProvider playerInfoProvider,
                                                  ICurrentMapStateRepository currentMapStateRepository,
                                                  ICharacterRepository characterRepository,
+                                                 ICharacterSessionRepository characterSessionRepository,
                                                  IEnumerable<INPCActionNotifier> npcAnimationNotifiers,
                                                  IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers,
                                                  IEnumerable<IEmoteNotifier> emoteNotifiers)
-            : base(playerInfoProvider, currentMapStateRepository, characterRepository,
+            : base(playerInfoProvider, currentMapStateRepository, characterRepository, characterSessionRepository,
                    npcAnimationNotifiers, mainCharacterEventNotifiers, emoteNotifiers) { }
     }
 }
