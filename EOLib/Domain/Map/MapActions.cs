@@ -56,6 +56,16 @@ namespace EOLib.Domain.Map
             _packetSendService.SendPacket(packet);
             _currentMapStateRepository.PendingDoors.Add(warp);
         }
+
+        public void OpenChest(byte x, byte y)
+        {
+            var packet = new PacketBuilder(PacketFamily.Chest, PacketAction.Open)
+                .AddChar(x)
+                .AddChar(y)
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+        }
     }
 
     public interface IMapActions
@@ -65,5 +75,7 @@ namespace EOLib.Domain.Map
         ItemPickupResult PickUpItem(IItem item);
 
         void OpenDoor(IWarp warp);
+
+        void OpenChest(byte x, byte y);
     }
 }

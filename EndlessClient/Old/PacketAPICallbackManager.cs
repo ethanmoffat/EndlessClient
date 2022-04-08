@@ -25,7 +25,6 @@ namespace EndlessClient.Old
         public void AssignCallbacks()
         {
             //chest related
-            m_packetAPI.OnChestOpened += _chestOpen;
             m_packetAPI.OnChestAgree += _chestAgree;
             m_packetAPI.OnChestAddItem += _chestAddItem;
             m_packetAPI.OnChestGetItem += _chestGetItem;
@@ -72,15 +71,6 @@ namespace EndlessClient.Old
 
             //spell casting
             m_packetAPI.OnCastSpellTargetGroup += _playerCastGroupSpell;
-        }
-
-        private void _chestOpen(ChestData data)
-        {
-            if (ChestDialog.Instance == null || data.X != ChestDialog.Instance.CurrentChestX ||
-                data.Y != ChestDialog.Instance.CurrentChestY)
-                return;
-
-            ChestDialog.Instance.InitializeItems(data.Items);
         }
 
         private void _chestAgree(ChestData data)

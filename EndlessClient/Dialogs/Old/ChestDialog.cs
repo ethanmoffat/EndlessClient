@@ -26,11 +26,11 @@ namespace EndlessClient.Dialogs.Old
             Instance = new ChestDialog(apiHandle, chestX, chestY);
             Instance.DialogClosing += (o, e) => Instance = null;
 
-            if (!apiHandle.ChestOpen(chestX, chestY))
-            {
-                Instance.Close(null, XNADialogResult.NO_BUTTON_PRESSED);
-                EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-            }
+            //if (!apiHandle.ChestOpen(chestX, chestY))
+            //{
+            //    Instance.Close(null, XNADialogResult.NO_BUTTON_PRESSED);
+            //    EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+            //}
         }
 
         public byte CurrentChestX { get; }

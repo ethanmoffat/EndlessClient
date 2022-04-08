@@ -41,29 +41,15 @@ namespace EOLib.Net.API
     {
         public delegate void ChestDataChangeEvent(short id, int amount, byte weight, byte maxWeight, ChestData data);
 
-        public event Action<ChestData> OnChestOpened;
         public event Action<ChestData> OnChestAgree;
         public event ChestDataChangeEvent OnChestGetItem;
         public event ChestDataChangeEvent OnChestAddItem;
 
         private void _createChestMembers()
         {
-            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Chest, PacketAction.Open), _handleChestOpen, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Chest, PacketAction.Get), _handleChestGet, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Chest, PacketAction.Agree), _handleChestAgree, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Chest, PacketAction.Reply), _handleChestReply, true);
-        }
-
-        public bool ChestOpen(byte x, byte y)
-        {
-            if (!m_client.ConnectedAndInitialized || !Initialized)
-                return false;
-
-            OldPacket toSend = new OldPacket(PacketFamily.Chest, PacketAction.Open);
-            toSend.AddChar(x);
-            toSend.AddChar(y);
-
-            return m_client.SendPacket(toSend);
         }
 
         public bool ChestTakeItem(byte x, byte y, short itemID)
@@ -91,15 +77,6 @@ namespace EOLib.Net.API
             pkt.AddThree(amount);
 
             return m_client.SendPacket(pkt);
-        }
-
-        /// <summary>
-        /// Handler for CHEST_OPEN packet, sent in response to main player opening a chest
-        /// </summary>
-        private void _handleChestOpen(OldPacket pkt)
-        {
-            if (OnChestOpened != null)
-                OnChestOpened(new ChestData(pkt, true));
         }
 
         /// <summary>

@@ -108,7 +108,10 @@ namespace EndlessClient.Controllers
                 var (unwalkableAction, cellState) = _unwalkableTileActions.HandleUnwalkableTile();
                 switch (unwalkableAction)
                 {
-                    case UnwalkableTileAction.Chest: /* todo: request chest and show dialog */ break;
+                    case UnwalkableTileAction.Chest:
+                        _mapActions.OpenChest((byte)cellState.Coordinate.X, (byte)cellState.Coordinate.Y);
+                        //_inGameDialogActions.ShowChestDialog();
+                        break;
                     case UnwalkableTileAction.Chair: _characterActions.SitInChair(); break;
                     case UnwalkableTileAction.Door: cellState.Warp.MatchSome(w => _mapActions.OpenDoor(w)); break;
                 }

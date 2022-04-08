@@ -95,7 +95,8 @@ namespace EndlessClient.Controllers
             }
             else if (cellState.TileSpec == TileSpec.Chest)
             {
-                // todo: chest request, show dialog
+                _mapActions.OpenChest((byte)cellState.Coordinate.X, (byte)cellState.Coordinate.Y);
+                // _inGameDialogActions.ShowChestDialog();
             }
             else if (_characterProvider.MainCharacter.RenderProperties.SitState != SitState.Standing)
             {
