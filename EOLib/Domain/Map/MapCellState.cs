@@ -20,7 +20,7 @@ namespace EOLib.Domain.Map
 
         public Option<ICharacter> Character { get; set; }
 
-        public Option<IChest> Chest { get; set; }
+        public Option<ChestKey> ChestKey { get; set; }
 
         public Option<IWarp> Warp { get; set; }
 
@@ -33,7 +33,7 @@ namespace EOLib.Domain.Map
             TileSpec = TileSpec.None;
             NPC = Option.None<INPC>();
             Character = Option.None<ICharacter>();
-            Chest = Option.None<IChest>();
+            ChestKey = Option.None<ChestKey>();
             Warp = Option.None<IWarp>();
             Sign = Option.None<ISign>();
         }

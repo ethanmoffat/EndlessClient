@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD;
 using EOLib.Domain.Character;
@@ -20,24 +21,30 @@ namespace EndlessClient.Input
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IUnlockDoorValidator _unlockDoorValidator;
+        private readonly IUnlockChestValidator _unlockChestValidator;
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
         private readonly IPacketSendService _packetSendService;
+        private readonly IEOMessageBoxFactory _messageBoxFactory;
 
         public UnwalkableTileActions(IMapCellStateProvider mapCellStateProvider,
-                                ICharacterProvider characterProvider,
-                                IStatusLabelSetter statusLabelSetter,
-                                ICurrentMapStateRepository currentMapStateRepository,
-                                IUnlockDoorValidator unlockDoorValidator,
-                                IEOMessageBoxFactory eoMessageBoxFactory,
-                                IPacketSendService packetSendService)
+                                     ICharacterProvider characterProvider,
+                                     IStatusLabelSetter statusLabelSetter,
+                                     ICurrentMapStateRepository currentMapStateRepository,
+                                     IUnlockDoorValidator unlockDoorValidator,
+                                     IUnlockChestValidator unlockChestValidator,
+                                     IEOMessageBoxFactory eoMessageBoxFactory,
+                                     IPacketSendService packetSendService,
+                                     IEOMessageBoxFactory messageBoxFactory)
         {
             _mapCellStateProvider = mapCellStateProvider;
             _characterProvider = characterProvider;
             _statusLabelSetter = statusLabelSetter;
             _currentMapStateRepository = currentMapStateRepository;
             _unlockDoorValidator = unlockDoorValidator;
+            _unlockChestValidator = unlockChestValidator;
             _eoMessageBoxFactory = eoMessageBoxFactory;
             _packetSendService = packetSendService;
+            _messageBoxFactory = messageBoxFactory;
         }
 
         public void HandleUnwalkableTile()
@@ -116,36 +123,27 @@ namespace EndlessClient.Input
                 case TileSpec.ChairAll:
                     HandleWalkToChair();
                     break;
-                case TileSpec.Chest: //todo: chests
-                    //if (!walkValid)
-                    //{
-                    //    var chest = OldWorld.Instance.ActiveMapRenderer.MapRef.Chests.Single(_c => _c.X == destX && _c.Y == destY);
-                    //    if (chest != null)
-                    //    {
-                    //        string requiredKey = null;
-                    //        switch (Character.CanOpenChest(chest))
-                    //        {
-                    //            case ChestKey.Normal: requiredKey = "Normal Key"; break;
-                    //            case ChestKey.Silver: requiredKey = "Silver Key"; break;
-                    //            case ChestKey.Crystal: requiredKey = "Crystal Key"; break;
-                    //            case ChestKey.Wraith: requiredKey = "Wraith Key"; break;
-                    //            default:
-                    //                ChestDialog.Show(((EOGame)Game).API, (byte)chest.X, (byte)chest.Y);
-                    //                break;
-                    //        }
+                case TileSpec.Chest:
+                    cellState.ChestKey.Match(
+                        some: key =>
+                        {
+                            if (!_unlockChestValidator.CanMainCharacterOpenChest(key))
+                            {
+                                var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.CHEST_LOCKED);
+                                dlg.ShowDialog();
 
-                    //        if (requiredKey != null)
-                    //        {
-                    //            EOMessageBox.Show(DialogResourceID.CHEST_LOCKED, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                    //            ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION,
-                    //                " - " + requiredKey);
-                    //        }
-                    //    }
-                    //    else
-                    //    {
-                    //        ChestDialog.Show(((EOGame)Game).API, destX, destY);
-                    //    }
-                    //}
+                                var requiredKey = _unlockChestValidator.GetRequiredKeyName(key);
+                                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION, " - " + requiredKey);
+                            }
+                            else
+                            {
+                                // todo: chest request, show dialog
+                            }
+                        },
+                        none: () =>
+                        {
+                            // todo: chest request, show dialog
+                        });
                     break;
                 case TileSpec.BankVault: //todo: locker
                     //walkValid = Renderer.NoWall;

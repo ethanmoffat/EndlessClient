@@ -14,6 +14,7 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Interact;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
+using EOLib.IO.Map;
 using EOLib.Localization;
 using Optional;
 using Optional.Collections;
@@ -92,7 +93,10 @@ namespace EndlessClient.Controllers
                 var messageBox = _eoMessageBoxFactory.CreateMessageBox(sign.Message, sign.Title);
                 messageBox.ShowDialog();
             }
-            else if (cellState.Chest.HasValue) { /* TODO: chest interaction */ }
+            else if (cellState.TileSpec == TileSpec.Chest)
+            {
+                // todo: chest request, show dialog
+            }
             else if (_characterProvider.MainCharacter.RenderProperties.SitState != SitState.Standing)
             {
                 _characterActions.ToggleSit();

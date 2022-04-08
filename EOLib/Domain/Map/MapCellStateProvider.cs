@@ -33,7 +33,7 @@ namespace EOLib.Domain.Map
 
             var tileSpec = CurrentMap.Tiles[y, x];
             var warp = CurrentMap.Warps[y, x];
-            var chest = CurrentMap.Chests.FirstOrDefault(c => c.X == x && c.Y == y);
+            var chest = CurrentMap.Chests.Where(c => c.X == x && c.Y == y && c.Key != ChestKey.None).Select(c => c.Key).FirstOrDefault();
             var sign = CurrentMap.Signs.FirstOrDefault(s => s.X == x && s.Y == y);
 
             var character = _mapStateProvider.Characters.Values.Concat(new[] { _characterProvider.MainCharacter })
@@ -48,7 +48,7 @@ namespace EOLib.Domain.Map
                 Items      = items.ToList(),
                 TileSpec   = tileSpec,
                 Warp       = warp.SomeNotNull().Map<IWarp>(w => new Warp(w)),
-                Chest      = chest.SomeNotNull().Map<IChest>(c => new Chest(c)),
+                ChestKey   = chest.SomeNotNull(),
                 Sign       = sign.SomeNotNull().Map<ISign>(s => new Sign(s)),
                 Character  = character,
                 NPC        = npc
