@@ -12,14 +12,17 @@ namespace EOLib.Domain.Map
         private readonly IPacketSendService _packetSendService;
         private readonly IItemPickupValidator _itemPickupValidator;
         private readonly ICharacterProvider _characterProvider;
+        private readonly ICurrentMapStateRepository _currentMapStateRepository;
 
         public MapActions(IPacketSendService packetSendService,
                           IItemPickupValidator itemPickupValidator,
-                          ICharacterProvider characterProvider)
+                          ICharacterProvider characterProvider,
+                          ICurrentMapStateRepository currentMapStateRepository)
         {
             _packetSendService = packetSendService;
             _itemPickupValidator = itemPickupValidator;
             _characterProvider = characterProvider;
+            _currentMapStateRepository = currentMapStateRepository;
         }
 
         public void RequestRefresh()
@@ -42,6 +45,17 @@ namespace EOLib.Domain.Map
 
             return pickupResult;
         }
+
+        public void OpenDoor(IWarp warp)
+        {
+            var packet = new PacketBuilder(PacketFamily.Door, PacketAction.Open)
+                .AddChar((byte)warp.X)
+                .AddChar((byte)warp.Y)
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+            _currentMapStateRepository.PendingDoors.Add(warp);
+        }
     }
 
     public interface IMapActions
@@ -49,5 +63,7 @@ namespace EOLib.Domain.Map
         void RequestRefresh();
 
         ItemPickupResult PickUpItem(IItem item);
+
+        void OpenDoor(IWarp warp);
     }
 }

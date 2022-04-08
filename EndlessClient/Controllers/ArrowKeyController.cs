@@ -17,18 +17,24 @@ namespace EndlessClient.Controllers
         private readonly ICharacterProvider _characterProvider;
         private readonly IUnwalkableTileActions _unwalkableTileActions;
         private readonly ISpikeTrapActions _spikeTrapActions;
+        private readonly ICharacterActions _characterActions;
+        private readonly IMapActions _mapActions;
 
         public ArrowKeyController(IWalkValidationActions walkValidationActions,
                                   ICharacterAnimationActions characterAnimationActions,
                                   ICharacterProvider characterProvider,
                                   IUnwalkableTileActions walkErrorHandler,
-                                  ISpikeTrapActions spikeTrapActions)
+                                  ISpikeTrapActions spikeTrapActions,
+                                  ICharacterActions characterActions,
+                                  IMapActions mapActions)
         {
             _walkValidationActions = walkValidationActions;
             _characterAnimationActions = characterAnimationActions;
             _characterProvider = characterProvider;
             _unwalkableTileActions = walkErrorHandler;
             _spikeTrapActions = spikeTrapActions;
+            _characterActions = characterActions;
+            _mapActions = mapActions;
         }
 
         public bool MoveLeft()
@@ -99,7 +105,13 @@ namespace EndlessClient.Controllers
         {
             if (!_walkValidationActions.CanMoveToDestinationCoordinates())
             {
-                _unwalkableTileActions.HandleUnwalkableTile();
+                var (unwalkableAction, cellState) = _unwalkableTileActions.HandleUnwalkableTile();
+                switch (unwalkableAction)
+                {
+                    case UnwalkableTileAction.Chest: /* todo: request chest and show dialog */ break;
+                    case UnwalkableTileAction.Chair: _characterActions.SitInChair(); break;
+                    case UnwalkableTileAction.Door: cellState.Warp.MatchSome(w => _mapActions.OpenDoor(w)); break;
+                }
             }
             else
             {

@@ -79,6 +79,19 @@ namespace EOLib.Domain.Character
             _packetSendService.SendPacket(packet);
         }
 
+        public void SitInChair()
+        {
+            var rp = _characterProvider.MainCharacter.RenderProperties;
+            var action = rp.SitState == SitState.Chair ? SitAction.Stand : SitAction.Sit;
+            var packet = new PacketBuilder(PacketFamily.Chair, PacketAction.Request)
+                .AddChar((byte)action)
+                .AddChar((byte)rp.GetDestinationX())
+                .AddChar((byte)rp.GetDestinationY())
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+        }
+
         public void PrepareCastSpell(int spellId)
         {
             var packet = new PacketBuilder(PacketFamily.Spell, PacketAction.Request)
@@ -158,6 +171,8 @@ namespace EOLib.Domain.Character
         void Attack();
 
         void ToggleSit();
+
+        void SitInChair();
 
         void PrepareCastSpell(int spellId);
 

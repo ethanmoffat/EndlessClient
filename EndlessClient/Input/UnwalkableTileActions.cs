@@ -1,5 +1,4 @@
 ﻿using AutomaticTypeMapper;
-using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD;
 using EOLib.Domain.Character;
@@ -7,12 +6,17 @@ using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.IO.Map;
 using EOLib.Localization;
-using EOLib.Net;
-using EOLib.Net.Communication;
-using Optional;
 
 namespace EndlessClient.Input
 {
+    public enum UnwalkableTileAction
+    {
+        None,
+        Chair,
+        Chest,
+        Door,
+    }
+
     [AutoMappedType]
     public class UnwalkableTileActions : IUnwalkableTileActions
     {
@@ -23,7 +27,6 @@ namespace EndlessClient.Input
         private readonly IUnlockDoorValidator _unlockDoorValidator;
         private readonly IUnlockChestValidator _unlockChestValidator;
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
-        private readonly IPacketSendService _packetSendService;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
 
         public UnwalkableTileActions(IMapCellStateProvider mapCellStateProvider,
@@ -33,7 +36,6 @@ namespace EndlessClient.Input
                                      IUnlockDoorValidator unlockDoorValidator,
                                      IUnlockChestValidator unlockChestValidator,
                                      IEOMessageBoxFactory eoMessageBoxFactory,
-                                     IPacketSendService packetSendService,
                                      IEOMessageBoxFactory messageBoxFactory)
         {
             _mapCellStateProvider = mapCellStateProvider;
@@ -43,27 +45,27 @@ namespace EndlessClient.Input
             _unlockDoorValidator = unlockDoorValidator;
             _unlockChestValidator = unlockChestValidator;
             _eoMessageBoxFactory = eoMessageBoxFactory;
-            _packetSendService = packetSendService;
             _messageBoxFactory = messageBoxFactory;
         }
 
-        public void HandleUnwalkableTile()
+        public (UnwalkableTileAction, IMapCellState) HandleUnwalkableTile()
         {
             if (MainCharacter.RenderProperties.SitState != SitState.Standing)
-                return;
+                return (UnwalkableTileAction.None, new MapCellState());
 
             var destX = MainCharacter.RenderProperties.GetDestinationX();
             var destY = MainCharacter.RenderProperties.GetDestinationY();
 
             var cellState = _mapCellStateProvider.GetCellStateAt(destX, destY);
-            cellState.Character.Match(
+            var action = cellState.Character.Match(
                 some: c => HandleWalkThroughOtherCharacter(c), //todo: walk through players after certain elapsed time (3-5sec?)
                 none: () => cellState.Warp.Match(
                     some: w => HandleWalkToWarpTile(w),
                     none: () => HandleWalkToTileSpec(cellState)));
+            return (action, cellState);
         }
 
-        private void HandleWalkThroughOtherCharacter(ICharacter c)
+        private UnwalkableTileAction HandleWalkThroughOtherCharacter(ICharacter c)
         {
             //        EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION,
             //            EOResourceID.STATUS_LABEL_KEEP_MOVING_THROUGH_PLAYER);
@@ -74,9 +76,10 @@ namespace EndlessClient.Input
             //            _startWalkingThroughPlayerTime = null;
             //            goto case TileInfoReturnType.IsTileSpec;
             //        }
+            return UnwalkableTileAction.None;
         }
 
-        private void HandleWalkToWarpTile(IWarp warp)
+        private UnwalkableTileAction HandleWalkToWarpTile(IWarp warp)
         {
             if (warp.DoorType != DoorSpec.NoDoor)
             {
@@ -93,13 +96,7 @@ namespace EndlessClient.Input
                 else if (!_currentMapStateRepository.OpenDoors.Contains(warp) &&
                          !_currentMapStateRepository.PendingDoors.Contains(warp))
                 {
-                    var packet = new PacketBuilder(PacketFamily.Door, PacketAction.Open)
-                        .AddChar((byte) warp.X)
-                        .AddChar((byte) warp.Y)
-                        .Build();
-
-                    _packetSendService.SendPacket(packet);
-                    _currentMapStateRepository.PendingDoors.Add(warp);
+                    return UnwalkableTileAction.Door;
                 }
             }
             else if (warp.LevelRequirement > 0 && MainCharacter.Stats[CharacterStat.Level] < warp.LevelRequirement)
@@ -108,9 +105,11 @@ namespace EndlessClient.Input
                     EOResourceID.STATUS_LABEL_NOT_READY_TO_USE_ENTRANCE,
                     " - LVL " + warp.LevelRequirement);
             }
+
+            return UnwalkableTileAction.None;
         }
 
-        private void HandleWalkToTileSpec(IMapCellState cellState)
+        private UnwalkableTileAction HandleWalkToTileSpec(IMapCellState cellState)
         {
             switch (cellState.TileSpec)
             {
@@ -121,10 +120,9 @@ namespace EndlessClient.Input
                 case TileSpec.ChairDownRight:
                 case TileSpec.ChairUpLeft:
                 case TileSpec.ChairAll:
-                    HandleWalkToChair();
-                    break;
+                    return UnwalkableTileAction.Chair;
                 case TileSpec.Chest:
-                    cellState.ChestKey.Match(
+                    return cellState.ChestKey.Match(
                         some: key =>
                         {
                             if (!_unlockChestValidator.CanMainCharacterOpenChest(key))
@@ -134,17 +132,17 @@ namespace EndlessClient.Input
 
                                 var requiredKey = _unlockChestValidator.GetRequiredKeyName(key);
                                 _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION, " - " + requiredKey);
+                                return UnwalkableTileAction.None;
                             }
                             else
                             {
-                                // todo: chest request, show dialog
+                                return UnwalkableTileAction.Chest;
                             }
                         },
                         none: () =>
                         {
-                            // todo: chest request, show dialog
+                            return UnwalkableTileAction.Chest;
                         });
-                    break;
                 case TileSpec.BankVault: //todo: locker
                     //walkValid = Renderer.NoWall;
                     //if (!walkValid)
@@ -164,20 +162,8 @@ namespace EndlessClient.Input
                 case TileSpec.Jukebox: //todo: jukebox
                     break;
             }
-        }
 
-        private void HandleWalkToChair()
-        {
-            // server validates that chair direction is OK and that no one is already sitting there
-            var rp = _characterProvider.MainCharacter.RenderProperties;
-            var action = rp.SitState == SitState.Chair ? SitAction.Stand : SitAction.Sit;
-            var packet = new PacketBuilder(PacketFamily.Chair, PacketAction.Request)
-                .AddChar((byte)action)
-                .AddChar((byte)rp.GetDestinationX())
-                .AddChar((byte)rp.GetDestinationY())
-                .Build();
-
-            _packetSendService.SendPacket(packet);
+            return UnwalkableTileAction.None;
         }
 
         private ICharacter MainCharacter => _characterProvider.MainCharacter;
@@ -185,6 +171,6 @@ namespace EndlessClient.Input
 
     public interface IUnwalkableTileActions
     {
-        void HandleUnwalkableTile();
+        (UnwalkableTileAction, IMapCellState) HandleUnwalkableTile();
     }
 }
