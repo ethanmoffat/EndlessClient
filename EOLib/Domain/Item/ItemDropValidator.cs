@@ -20,6 +20,12 @@ namespace EOLib.Domain.Item
             _currentMapStateProvider = currentMapStateProvider;
         }
 
+        public ItemDropResult ValidateItemDrop(ICharacter mainCharacter, IInventoryItem item)
+        {
+            var coord = new MapCoordinate(mainCharacter.RenderProperties.MapX, mainCharacter.RenderProperties.MapY);
+            return ValidateItemDrop(mainCharacter, item, coord);
+        }
+
         public ItemDropResult ValidateItemDrop(ICharacter mainCharacter, IInventoryItem item, MapCoordinate dropPoint)
         {
             if (item.ItemID <= 0)
@@ -43,6 +49,8 @@ namespace EOLib.Domain.Item
 
     public interface IItemDropValidator
     {
+        ItemDropResult ValidateItemDrop(ICharacter mainCharacter, IInventoryItem item);
+
         ItemDropResult ValidateItemDrop(ICharacter mainCharacter, IInventoryItem item, MapCoordinate dropPoint);
     }
 }

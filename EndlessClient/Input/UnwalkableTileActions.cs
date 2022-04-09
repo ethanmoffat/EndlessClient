@@ -6,12 +6,17 @@ using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.IO.Map;
 using EOLib.Localization;
-using EOLib.Net;
-using EOLib.Net.Communication;
-using Optional;
 
 namespace EndlessClient.Input
 {
+    public enum UnwalkableTileAction
+    {
+        None,
+        Chair,
+        Chest,
+        Door,
+    }
+
     [AutoMappedType]
     public class UnwalkableTileActions : IUnwalkableTileActions
     {
@@ -20,43 +25,47 @@ namespace EndlessClient.Input
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IUnlockDoorValidator _unlockDoorValidator;
+        private readonly IUnlockChestValidator _unlockChestValidator;
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
-        private readonly IPacketSendService _packetSendService;
+        private readonly IEOMessageBoxFactory _messageBoxFactory;
 
         public UnwalkableTileActions(IMapCellStateProvider mapCellStateProvider,
-                                ICharacterProvider characterProvider,
-                                IStatusLabelSetter statusLabelSetter,
-                                ICurrentMapStateRepository currentMapStateRepository,
-                                IUnlockDoorValidator unlockDoorValidator,
-                                IEOMessageBoxFactory eoMessageBoxFactory,
-                                IPacketSendService packetSendService)
+                                     ICharacterProvider characterProvider,
+                                     IStatusLabelSetter statusLabelSetter,
+                                     ICurrentMapStateRepository currentMapStateRepository,
+                                     IUnlockDoorValidator unlockDoorValidator,
+                                     IUnlockChestValidator unlockChestValidator,
+                                     IEOMessageBoxFactory eoMessageBoxFactory,
+                                     IEOMessageBoxFactory messageBoxFactory)
         {
             _mapCellStateProvider = mapCellStateProvider;
             _characterProvider = characterProvider;
             _statusLabelSetter = statusLabelSetter;
             _currentMapStateRepository = currentMapStateRepository;
             _unlockDoorValidator = unlockDoorValidator;
+            _unlockChestValidator = unlockChestValidator;
             _eoMessageBoxFactory = eoMessageBoxFactory;
-            _packetSendService = packetSendService;
+            _messageBoxFactory = messageBoxFactory;
         }
 
-        public void HandleUnwalkableTile()
+        public (UnwalkableTileAction, IMapCellState) HandleUnwalkableTile()
         {
             if (MainCharacter.RenderProperties.SitState != SitState.Standing)
-                return;
+                return (UnwalkableTileAction.None, new MapCellState());
 
             var destX = MainCharacter.RenderProperties.GetDestinationX();
             var destY = MainCharacter.RenderProperties.GetDestinationY();
 
             var cellState = _mapCellStateProvider.GetCellStateAt(destX, destY);
-            cellState.Character.Match(
+            var action = cellState.Character.Match(
                 some: c => HandleWalkThroughOtherCharacter(c), //todo: walk through players after certain elapsed time (3-5sec?)
                 none: () => cellState.Warp.Match(
                     some: w => HandleWalkToWarpTile(w),
                     none: () => HandleWalkToTileSpec(cellState)));
+            return (action, cellState);
         }
 
-        private void HandleWalkThroughOtherCharacter(ICharacter c)
+        private UnwalkableTileAction HandleWalkThroughOtherCharacter(ICharacter c)
         {
             //        EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION,
             //            EOResourceID.STATUS_LABEL_KEEP_MOVING_THROUGH_PLAYER);
@@ -67,9 +76,10 @@ namespace EndlessClient.Input
             //            _startWalkingThroughPlayerTime = null;
             //            goto case TileInfoReturnType.IsTileSpec;
             //        }
+            return UnwalkableTileAction.None;
         }
 
-        private void HandleWalkToWarpTile(IWarp warp)
+        private UnwalkableTileAction HandleWalkToWarpTile(IWarp warp)
         {
             if (warp.DoorType != DoorSpec.NoDoor)
             {
@@ -86,13 +96,7 @@ namespace EndlessClient.Input
                 else if (!_currentMapStateRepository.OpenDoors.Contains(warp) &&
                          !_currentMapStateRepository.PendingDoors.Contains(warp))
                 {
-                    var packet = new PacketBuilder(PacketFamily.Door, PacketAction.Open)
-                        .AddChar((byte) warp.X)
-                        .AddChar((byte) warp.Y)
-                        .Build();
-
-                    _packetSendService.SendPacket(packet);
-                    _currentMapStateRepository.PendingDoors.Add(warp);
+                    return UnwalkableTileAction.Door;
                 }
             }
             else if (warp.LevelRequirement > 0 && MainCharacter.Stats[CharacterStat.Level] < warp.LevelRequirement)
@@ -101,9 +105,11 @@ namespace EndlessClient.Input
                     EOResourceID.STATUS_LABEL_NOT_READY_TO_USE_ENTRANCE,
                     " - LVL " + warp.LevelRequirement);
             }
+
+            return UnwalkableTileAction.None;
         }
 
-        private void HandleWalkToTileSpec(IMapCellState cellState)
+        private UnwalkableTileAction HandleWalkToTileSpec(IMapCellState cellState)
         {
             switch (cellState.TileSpec)
             {
@@ -114,39 +120,29 @@ namespace EndlessClient.Input
                 case TileSpec.ChairDownRight:
                 case TileSpec.ChairUpLeft:
                 case TileSpec.ChairAll:
-                    HandleWalkToChair();
-                    break;
-                case TileSpec.Chest: //todo: chests
-                    //if (!walkValid)
-                    //{
-                    //    var chest = OldWorld.Instance.ActiveMapRenderer.MapRef.Chests.Single(_c => _c.X == destX && _c.Y == destY);
-                    //    if (chest != null)
-                    //    {
-                    //        string requiredKey = null;
-                    //        switch (Character.CanOpenChest(chest))
-                    //        {
-                    //            case ChestKey.Normal: requiredKey = "Normal Key"; break;
-                    //            case ChestKey.Silver: requiredKey = "Silver Key"; break;
-                    //            case ChestKey.Crystal: requiredKey = "Crystal Key"; break;
-                    //            case ChestKey.Wraith: requiredKey = "Wraith Key"; break;
-                    //            default:
-                    //                ChestDialog.Show(((EOGame)Game).API, (byte)chest.X, (byte)chest.Y);
-                    //                break;
-                    //        }
+                    return UnwalkableTileAction.Chair;
+                case TileSpec.Chest:
+                    return cellState.ChestKey.Match(
+                        some: key =>
+                        {
+                            if (!_unlockChestValidator.CanMainCharacterOpenChest(key))
+                            {
+                                var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.CHEST_LOCKED);
+                                dlg.ShowDialog();
 
-                    //        if (requiredKey != null)
-                    //        {
-                    //            EOMessageBox.Show(DialogResourceID.CHEST_LOCKED, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                    //            ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION,
-                    //                " - " + requiredKey);
-                    //        }
-                    //    }
-                    //    else
-                    //    {
-                    //        ChestDialog.Show(((EOGame)Game).API, destX, destY);
-                    //    }
-                    //}
-                    break;
+                                var requiredKey = _unlockChestValidator.GetRequiredKeyName(key);
+                                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION, " - " + requiredKey);
+                                return UnwalkableTileAction.None;
+                            }
+                            else
+                            {
+                                return UnwalkableTileAction.Chest;
+                            }
+                        },
+                        none: () =>
+                        {
+                            return UnwalkableTileAction.Chest;
+                        });
                 case TileSpec.BankVault: //todo: locker
                     //walkValid = Renderer.NoWall;
                     //if (!walkValid)
@@ -166,20 +162,8 @@ namespace EndlessClient.Input
                 case TileSpec.Jukebox: //todo: jukebox
                     break;
             }
-        }
 
-        private void HandleWalkToChair()
-        {
-            // server validates that chair direction is OK and that no one is already sitting there
-            var rp = _characterProvider.MainCharacter.RenderProperties;
-            var action = rp.SitState == SitState.Chair ? SitAction.Stand : SitAction.Sit;
-            var packet = new PacketBuilder(PacketFamily.Chair, PacketAction.Request)
-                .AddChar((byte)action)
-                .AddChar((byte)rp.GetDestinationX())
-                .AddChar((byte)rp.GetDestinationY())
-                .Build();
-
-            _packetSendService.SendPacket(packet);
+            return UnwalkableTileAction.None;
         }
 
         private ICharacter MainCharacter => _characterProvider.MainCharacter;
@@ -187,6 +171,6 @@ namespace EndlessClient.Input
 
     public interface IUnwalkableTileActions
     {
-        void HandleUnwalkableTile();
+        (UnwalkableTileAction, IMapCellState) HandleUnwalkableTile();
     }
 }

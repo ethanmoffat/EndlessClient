@@ -4,6 +4,8 @@ namespace EOLib.Domain.Map
 {
     public struct MapCoordinate : IComparable<MapCoordinate>
     {
+        public static MapCoordinate Zero { get; } = new MapCoordinate(0, 0);
+
         public int X { get; }
 
         public int Y { get; }

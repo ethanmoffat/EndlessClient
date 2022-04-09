@@ -20,6 +20,7 @@ namespace EndlessClient.Dialogs.Actions
         private readonly IActiveDialogRepository _activeDialogRepository;
         private readonly IShopDataRepository _shopDataRepository;
         private readonly IQuestDataRepository _questDataRepository;
+        private readonly IChestDialogFactory _chestDialogFactory;
         private readonly IShopDialogFactory _shopDialogFactory;
         private readonly IQuestDialogFactory _questDialogFactory;
 
@@ -31,7 +32,8 @@ namespace EndlessClient.Dialogs.Actions
                                    IQuestDialogFactory questDialogFactory,
                                    IActiveDialogRepository activeDialogRepository,
                                    IShopDataRepository shopDataRepository,
-                                   IQuestDataRepository questDataRepository)
+                                   IQuestDataRepository questDataRepository,
+                                   IChestDialogFactory chestDialogFactory)
         {
             _friendIgnoreListDialogFactory = friendIgnoreListDialogFactory;
             _paperdollDialogFactory = paperdollDialogFactory;
@@ -40,6 +42,7 @@ namespace EndlessClient.Dialogs.Actions
             _activeDialogRepository = activeDialogRepository;
             _shopDataRepository = shopDataRepository;
             _questDataRepository = questDataRepository;
+            _chestDialogFactory = chestDialogFactory;
             _shopDialogFactory = shopDialogFactory;
             _questDialogFactory = questDialogFactory;
         }
@@ -148,6 +151,18 @@ namespace EndlessClient.Dialogs.Actions
                 dlg.Show();
             });
         }
+
+        public void ShowChestDialog()
+        {
+            _activeDialogRepository.ChestDialog.MatchNone(() =>
+            {
+                var dlg = _chestDialogFactory.Create();
+                dlg.DialogClosed += (_, _) => _activeDialogRepository.ChestDialog = Option.None<ChestDialog>();
+                _activeDialogRepository.ChestDialog = Option.Some(dlg);
+
+                dlg.Show();
+            });
+        }
     }
 
     public interface IInGameDialogActions
@@ -165,5 +180,7 @@ namespace EndlessClient.Dialogs.Actions
         void ShowShopDialog();
 
         void ShowQuestDialog();
+
+        void ShowChestDialog();
     }
 }

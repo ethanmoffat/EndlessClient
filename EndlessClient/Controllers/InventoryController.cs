@@ -27,6 +27,7 @@ namespace EndlessClient.Controllers
         private readonly IItemActions _itemActions;
         private readonly IInGameDialogActions _inGameDialogActions;
         private readonly IPaperdollActions _paperdollActions;
+        private readonly IMapActions _mapActions;
         private readonly IItemEquipValidator _itemEquipValidator;
         private readonly IItemDropValidator _itemDropValidator;
         private readonly ICharacterProvider _characterProvider;
@@ -42,6 +43,7 @@ namespace EndlessClient.Controllers
         public InventoryController(IItemActions itemActions,
                                    IInGameDialogActions inGameDialogActions,
                                    IPaperdollActions paperdollActions,
+                                   IMapActions mapActions,
                                    IItemEquipValidator itemEquipValidator,
                                    IItemDropValidator itemDropValidator,
                                    ICharacterProvider characterProvider,
@@ -57,6 +59,7 @@ namespace EndlessClient.Controllers
             _itemActions = itemActions;
             _inGameDialogActions = inGameDialogActions;
             _paperdollActions = paperdollActions;
+            _mapActions = mapActions;
             _itemEquipValidator = itemEquipValidator;
             _itemDropValidator = itemDropValidator;
             _characterProvider = characterProvider;
@@ -206,43 +209,26 @@ namespace EndlessClient.Controllers
             }
             else if (validationResult == ItemDropResult.Ok)
             {
-                if (inventoryItem.Amount > 1)
-                {
-                    var transferDialog = _itemTransferDialogFactory.CreateItemTransferDialog(
-                        itemData.Name,
-                        ItemTransferDialog.TransferType.DropItems,
-                        inventoryItem.Amount,
-                        EOResourceID.DIALOG_TRANSFER_DROP);
-                    transferDialog.DialogClosing += (sender, e) =>
-                    {
-                        if (e.Result == XNADialogResult.OK)
-                        {
-                            if (inventoryItem.ItemID == 1 && transferDialog.SelectedAmount > 10000)
-                            {
-                                var warningMsg = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.DROP_MANY_GOLD_ON_GROUND, EODialogButtons.OkCancel);
-                                warningMsg.DialogClosing += (_, warningArgs) =>
-                                {
-                                    if (warningArgs.Result == XNADialogResult.OK)
-                                        _itemActions.DropItem(inventoryItem.ItemID, transferDialog.SelectedAmount, dropPoint);
-                                };
-                                warningMsg.ShowDialog();
-                            }
-                            else
-                            {
-                                _itemActions.DropItem(inventoryItem.ItemID, transferDialog.SelectedAmount, dropPoint);
-                            }
-                        }
-                    };
-                    transferDialog.ShowDialog();
-                }
-                else
-                {
-                    _itemActions.DropItem(inventoryItem.ItemID, 1, dropPoint);
-                }
+                DoItemDrop(itemData, inventoryItem, a => _itemActions.DropItem(inventoryItem.ItemID, a, dropPoint));
             }
             else if (validationResult == ItemDropResult.TooFar)
             {
                 _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_ITEM_DROP_OUT_OF_RANGE);
+            }
+        }
+
+        public void DropItemInChest(EIFRecord itemData, IInventoryItem inventoryItem)
+        {
+            var validationResult = _itemDropValidator.ValidateItemDrop(_characterProvider.MainCharacter, inventoryItem);
+
+            if (validationResult == ItemDropResult.Lore)
+            {
+                var msgBox = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.ITEM_IS_LORE_ITEM, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                msgBox.ShowDialog();
+            }
+            else
+            {
+                DoItemDrop(itemData, inventoryItem, a => _mapActions.AddItemToChest(inventoryItem.WithAmount(a)));
             }
         }
 
@@ -269,6 +255,43 @@ namespace EndlessClient.Controllers
                 _itemActions.JunkItem(inventoryItem.ItemID, 1);
             }
         }
+
+        private void DoItemDrop(EIFRecord itemData, IInventoryItem inventoryItem, Action<int> dropAction)
+        {
+            if (inventoryItem.Amount > 1)
+            {
+                var transferDialog = _itemTransferDialogFactory.CreateItemTransferDialog(
+                    itemData.Name,
+                    ItemTransferDialog.TransferType.DropItems,
+                    inventoryItem.Amount,
+                    EOResourceID.DIALOG_TRANSFER_DROP);
+                transferDialog.DialogClosing += (sender, e) =>
+                {
+                    if (e.Result == XNADialogResult.OK)
+                    {
+                        if (inventoryItem.ItemID == 1 && transferDialog.SelectedAmount > 10000)
+                        {
+                            var warningMsg = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.DROP_MANY_GOLD_ON_GROUND, EODialogButtons.OkCancel);
+                            warningMsg.DialogClosing += (_, warningArgs) =>
+                            {
+                                if (warningArgs.Result == XNADialogResult.OK)
+                                    dropAction(transferDialog.SelectedAmount);
+                            };
+                            warningMsg.ShowDialog();
+                        }
+                        else
+                        {
+                            dropAction(transferDialog.SelectedAmount);
+                        }
+                    }
+                };
+                transferDialog.ShowDialog();
+            }
+            else
+            {
+                dropAction(1);
+            }
+        }
     }
 
     public interface IInventoryController
@@ -282,6 +305,8 @@ namespace EndlessClient.Controllers
         void UnequipItem(EquipLocation equipLocation);
 
         void DropItem(EIFRecord itemData, IInventoryItem inventoryItem);
+
+        void DropItemInChest(EIFRecord itemData, IInventoryItem inventoryItem);
 
         void JunkItem(EIFRecord itemData, IInventoryItem inventoryItem);
     }

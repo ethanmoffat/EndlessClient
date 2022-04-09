@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Dialogs.Actions;
 using EndlessClient.Input;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Map;
@@ -17,18 +18,27 @@ namespace EndlessClient.Controllers
         private readonly ICharacterProvider _characterProvider;
         private readonly IUnwalkableTileActions _unwalkableTileActions;
         private readonly ISpikeTrapActions _spikeTrapActions;
+        private readonly ICharacterActions _characterActions;
+        private readonly IMapActions _mapActions;
+        private readonly IInGameDialogActions _inGameDialogActions;
 
         public ArrowKeyController(IWalkValidationActions walkValidationActions,
                                   ICharacterAnimationActions characterAnimationActions,
                                   ICharacterProvider characterProvider,
                                   IUnwalkableTileActions walkErrorHandler,
-                                  ISpikeTrapActions spikeTrapActions)
+                                  ISpikeTrapActions spikeTrapActions,
+                                  ICharacterActions characterActions,
+                                  IMapActions mapActions,
+                                  IInGameDialogActions inGameDialogActions)
         {
             _walkValidationActions = walkValidationActions;
             _characterAnimationActions = characterAnimationActions;
             _characterProvider = characterProvider;
             _unwalkableTileActions = walkErrorHandler;
             _spikeTrapActions = spikeTrapActions;
+            _characterActions = characterActions;
+            _mapActions = mapActions;
+            _inGameDialogActions = inGameDialogActions;
         }
 
         public bool MoveLeft()
@@ -99,7 +109,16 @@ namespace EndlessClient.Controllers
         {
             if (!_walkValidationActions.CanMoveToDestinationCoordinates())
             {
-                _unwalkableTileActions.HandleUnwalkableTile();
+                var (unwalkableAction, cellState) = _unwalkableTileActions.HandleUnwalkableTile();
+                switch (unwalkableAction)
+                {
+                    case UnwalkableTileAction.Chest:
+                        _mapActions.OpenChest((byte)cellState.Coordinate.X, (byte)cellState.Coordinate.Y);
+                        _inGameDialogActions.ShowChestDialog();
+                        break;
+                    case UnwalkableTileAction.Chair: _characterActions.SitInChair(); break;
+                    case UnwalkableTileAction.Door: cellState.Warp.MatchSome(w => _mapActions.OpenDoor(w)); break;
+                }
             }
             else
             {

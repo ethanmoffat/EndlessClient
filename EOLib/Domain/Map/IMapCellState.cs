@@ -20,7 +20,7 @@ namespace EOLib.Domain.Map
 
         Option<ICharacter> Character { get; }
         
-        Option<IChest> Chest { get; }
+        Option<ChestKey> ChestKey { get; }
 
         Option<IWarp> Warp { get; }
 

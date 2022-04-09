@@ -36,8 +36,8 @@ namespace EndlessClient.Dialogs
 
     public enum ScrollingListDialogSize
     {
-        // todo: exp dialog adds another one. Maybe need to name these after the specific dialogs they represent
-        Large,            // standard dialog with large list items (chest, locker, shop)
+        Large,            // standard dialog with large list items (locker, shop, friend/ignore list)
+        LargeNoScroll,    // standard dialog with large list items / no scrollbar (chest)
         Medium,           // quest progress/history dialog
         MediumWithHeader, // todo: implement boards
         Small,            // npc quest dialog
@@ -180,11 +180,15 @@ namespace EndlessClient.Dialogs
                 DrawArea = GetTitleDrawArea(DialogSize),
                 AutoSize = false,
                 TextAlign = LabelAlignment.MiddleLeft,
-                ForeColor = ColorConstants.LightGrayText
+                ForeColor = ColorConstants.LightGrayText,
+                Visible = DialogSize != ScrollingListDialogSize.LargeNoScroll,
             };
             _titleText.SetParentControl(this);
 
-            _scrollBar = new ScrollBar(new Vector2(DialogSize == ScrollingListDialogSize.Medium ? 449 : 252, 44), new Vector2(16, GetScrollBarHeight(DialogSize)), ScrollBarColors.LightOnMed, GraphicsManager);
+            _scrollBar = new ScrollBar(new Vector2(DialogSize == ScrollingListDialogSize.Medium ? 449 : 252, 44), new Vector2(16, GetScrollBarHeight(DialogSize)), ScrollBarColors.LightOnMed, GraphicsManager)
+            {
+                Visible = DialogSize != ScrollingListDialogSize.LargeNoScroll,
+            };
             _scrollBar.SetParentControl(this);
 
             BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, GetBackgroundTexture(DialogSize));
@@ -265,8 +269,8 @@ namespace EndlessClient.Dialogs
             _cancel.SetParentControl(this);
             _cancel.OnClick += (_, _) => { if (!_otherClicked) { Close(XNADialogResult.Cancel); } };
 
-            _button1Position = GetButton1Position(DialogSize);
-            _button2Position = GetButton2Position(DialogSize);
+            _button1Position = GetButton1Position(DrawArea, _ok.DrawArea, DialogSize);
+            _button2Position = GetButton2Position(DrawArea, _ok.DrawArea, DialogSize);
             _buttonCenterPosition = GetButtonCenterPosition(DrawArea, _ok.DrawArea, DialogSize);
 
             Buttons = ScrollingListDialogButtons.AddCancel;
@@ -396,7 +400,8 @@ namespace EndlessClient.Dialogs
         {
             switch(size)
             {
-                case ScrollingListDialogSize.Large: return new Rectangle(16, 13, 253, 19);
+                case ScrollingListDialogSize.Large:
+                case ScrollingListDialogSize.LargeNoScroll: return new Rectangle(16, 13, 253, 19);
                 case ScrollingListDialogSize.Medium: return new Rectangle(18, 14, 452, 19);
                 case ScrollingListDialogSize.Small: return new Rectangle(16, 16, 255, 18);
                 default: throw new NotImplementedException();
@@ -408,6 +413,7 @@ namespace EndlessClient.Dialogs
             switch (size)
             {
                 case ScrollingListDialogSize.Large:
+                case ScrollingListDialogSize.LargeNoScroll:
                 case ScrollingListDialogSize.Medium: return 199;
                 case ScrollingListDialogSize.Small: return 99;
                 default: throw new NotImplementedException();
@@ -419,6 +425,7 @@ namespace EndlessClient.Dialogs
             switch (size)
             {
                 case ScrollingListDialogSize.Large: return 52;
+                case ScrollingListDialogSize.LargeNoScroll: return 51;
                 case ScrollingListDialogSize.Medium: return 59;
                 case ScrollingListDialogSize.Small: return 67;
                 default: throw new NotImplementedException();
@@ -429,39 +436,58 @@ namespace EndlessClient.Dialogs
         {
             switch (size)
             {
-                case ScrollingListDialogSize.Large: return null;
+                case ScrollingListDialogSize.Large:
+                case ScrollingListDialogSize.LargeNoScroll: return null;
                 case ScrollingListDialogSize.Medium: return new Rectangle(0, 0, backgroundTexture.Width, backgroundTexture.Height / 2);
                 case ScrollingListDialogSize.Small: return null;
                 default: throw new NotImplementedException();
             }
         }
 
-        private static Vector2 GetButton1Position(ScrollingListDialogSize size)
+        private static Vector2 GetButton1Position(Rectangle dialogArea, Rectangle buttonArea, ScrollingListDialogSize size)
         {
+            var yCoord = GetButtonYCoordinate(dialogArea);
             switch (size)
             {
-                case ScrollingListDialogSize.Large: return new Vector2(48, 252);
-                case ScrollingListDialogSize.Medium: return new Vector2(288, 252);
-                case ScrollingListDialogSize.Small: return new Vector2(89, 152);
+                // buttons are centered on these dialogs
+                case ScrollingListDialogSize.Large: 
+                case ScrollingListDialogSize.LargeNoScroll: return new Vector2((int)Math.Floor((dialogArea.Width - buttonArea.Width) / 2.0) - 48, yCoord);
+                // buttons are offset from center on these dialogs
+                case ScrollingListDialogSize.Medium: return new Vector2(288, yCoord);
+                case ScrollingListDialogSize.Small: return new Vector2(89, yCoord);
                 default: throw new NotImplementedException();
             }
         }
 
-        private static Vector2 GetButton2Position(ScrollingListDialogSize size)
+        private static Vector2 GetButton2Position(Rectangle dialogArea, Rectangle buttonArea, ScrollingListDialogSize size)
         {
+            var yCoord = GetButtonYCoordinate(dialogArea);
             switch (size)
             {
-                case ScrollingListDialogSize.Large: return new Vector2(144, 252);
-                case ScrollingListDialogSize.Medium: return new Vector2(380, 252);
-                case ScrollingListDialogSize.Small: return new Vector2(183, 152);
+                // buttons are centered on these dialogs
+                case ScrollingListDialogSize.Large:
+                case ScrollingListDialogSize.LargeNoScroll: return new Vector2((int)Math.Floor((dialogArea.Width - buttonArea.Width) / 2.0) + 48, yCoord);
+                // buttons are offset from center on these dialogs
+                case ScrollingListDialogSize.Medium: return new Vector2(380, yCoord);
+                case ScrollingListDialogSize.Small: return new Vector2(183, yCoord);
                 default: throw new NotImplementedException();
             }
         }
 
-        private static Vector2 GetButtonCenterPosition(Rectangle dialogArea, Rectangle buttonArea, ScrollingListDialogSize size)
+        private static Vector2 GetButtonCenterPosition(Rectangle dialogArea, Rectangle buttonArea, ScrollingListDialogSize dialogSize)
         {
-            var yCoord = GetButton1Position(size).Y;
+            // chest dialog has a button built in to the graphic that needs to be covered up...
+            if (dialogSize == ScrollingListDialogSize.LargeNoScroll)
+                return new Vector2(92, 227);
+
+            var yCoord = GetButtonYCoordinate(dialogArea);
             return new Vector2((dialogArea.Width - buttonArea.Width) / 2, yCoord);
+        }
+
+        private static int GetButtonYCoordinate(Rectangle dialogArea)
+        {
+            // this should always be 38 from the bottom
+            return dialogArea.Height - 38;
         }
     }
 }

@@ -388,6 +388,14 @@ namespace EndlessClient.HUD.Panels
                     _inventoryController.EquipItem(item.Data);
                 }
             });
+            _activeDialogProvider.ChestDialog.MatchSome(x =>
+            {
+                if (x.MouseOver && x.MouseOverPreviously)
+                {
+                    dialogDrop = true;
+                    _inventoryController.DropItemInChest(item.Data, item.InventoryItem);
+                }
+            });
 
             if (dialogDrop)
             {
@@ -440,30 +448,7 @@ namespace EndlessClient.HUD.Panels
 
             #region Unimplemented drag action
             /*
-            if (ChestDialog.Instance != null && ChestDialog.Instance.MouseOver && ChestDialog.Instance.MouseOverPreviously)
-            {
-                if (m_itemData.Special == ItemSpecial.Lore)
-                {
-                    EOMessageBox.Show(DialogResourceID.ITEM_IS_LORE_ITEM, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                }
-                else if (m_inventory.Amount > 1)
-                {
-                    ItemTransferDialog dlg = new ItemTransferDialog(m_itemData.Name, ItemTransferDialog.TransferType.DropItems, m_inventory.Amount);
-                    dlg.DialogClosing += (sender, args) =>
-                    {
-                        if (args.Result == XNADialogResult.OK &&
-                            !m_api.ChestAddItem(ChestDialog.Instance.CurrentChestX, ChestDialog.Instance.CurrentChestY,
-                                m_inventory.ItemID, dlg.SelectedAmount))
-                            EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-                    };
-                }
-                else
-                {
-                    if (!m_api.ChestAddItem(ChestDialog.Instance.CurrentChestX, ChestDialog.Instance.CurrentChestY, m_inventory.ItemID, 1))
-                        EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-                }
-            }
-            else if (LockerDialog.Instance != null && LockerDialog.Instance.MouseOver && LockerDialog.Instance.MouseOverPreviously)
+            if (LockerDialog.Instance != null && LockerDialog.Instance.MouseOver && LockerDialog.Instance.MouseOverPreviously)
             {
                 byte x = LockerDialog.Instance.X;
                 byte y = LockerDialog.Instance.Y;

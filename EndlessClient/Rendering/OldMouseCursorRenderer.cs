@@ -92,36 +92,8 @@ namespace EndlessClient.Rendering
         {
             switch (spec)
             {
-                case TileSpec.Chest: HandleChestClick(); break;
                 case TileSpec.BankVault: HandleBankVaultClick(); break;
                 //todo: boards, chairs
-            }
-        }
-
-        private void HandleChestClick()
-        {
-            var characterWithinOneUnitOfChest = Math.Max(_mainCharacter.X - _gridX, _mainCharacter.Y - _gridY) <= 1;
-            var characterInSameRowOrColAsChest = _gridX == _mainCharacter.X || _gridY == _mainCharacter.Y;
-
-            if (characterWithinOneUnitOfChest && characterInSameRowOrColAsChest)
-            {
-                var chest = MapRef.Chests.Single(_mc => _mc.X == _gridX && _mc.Y == _gridY);
-                if (chest == null) return;
-
-                string requiredKey;
-                switch (_mainCharacter.CanOpenChest(chest))
-                {
-                    case ChestKey.Normal: requiredKey = "Normal Key"; break;
-                    case ChestKey.Silver: requiredKey = "Silver Key"; break;
-                    case ChestKey.Crystal: requiredKey = "Crystal Key"; break;
-                    case ChestKey.Wraith: requiredKey = "Wraith Key"; break;
-                    default: ChestDialog.Show(_game.API, (byte)chest.X, (byte)chest.Y); return;
-                }
-                
-                EOMessageBox.Show(DialogResourceID.CHEST_LOCKED, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                _game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING,
-                    EOResourceID.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION,
-                    " - " + requiredKey);
             }
         }
 

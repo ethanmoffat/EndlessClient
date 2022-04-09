@@ -14,6 +14,7 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Interact;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
+using EOLib.IO.Map;
 using EOLib.Localization;
 using Optional;
 using Optional.Collections;
@@ -92,10 +93,20 @@ namespace EndlessClient.Controllers
                 var messageBox = _eoMessageBoxFactory.CreateMessageBox(sign.Message, sign.Title);
                 messageBox.ShowDialog();
             }
-            else if (cellState.Chest.HasValue) { /* TODO: chest interaction */ }
             else if (_characterProvider.MainCharacter.RenderProperties.SitState != SitState.Standing)
             {
                 _characterActions.ToggleSit();
+            }
+            else if (InteractableTileSpec(cellState.TileSpec) && CharacterIsCloseEnough(cellState.Coordinate))
+            {
+                switch (cellState.TileSpec)
+                {
+                    // todo: implement for other clickable tile specs (locker, jukebox, etc)
+                    case TileSpec.Chest:
+                        _mapActions.OpenChest((byte)cellState.Coordinate.X, (byte)cellState.Coordinate.Y);
+                        _inGameDialogActions.ShowChestDialog();
+                        break;
+                }
             }
             else if (cellState.InBounds && !cellState.Character.HasValue && !cellState.NPC.HasValue)
             {
@@ -166,6 +177,37 @@ namespace EndlessClient.Controllers
         }
 
         private InventoryPanel InventoryPanel => _hudControlProvider.GetComponent<InventoryPanel>(HudControlIdentifier.InventoryPanel);
+
+        private static bool InteractableTileSpec(TileSpec tileSpec)
+        {
+            switch (tileSpec)
+            {
+                case TileSpec.Chest:
+                case TileSpec.BankVault:
+                case TileSpec.Board1:
+                case TileSpec.Board2:
+                case TileSpec.Board3:
+                case TileSpec.Board4:
+                case TileSpec.Board5:
+                case TileSpec.Board6:
+                case TileSpec.Board7:
+                case TileSpec.Board8:
+                case TileSpec.Jukebox:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        private bool CharacterIsCloseEnough(MapCoordinate coordinate)
+        {
+            var x = _characterProvider.MainCharacter.RenderProperties.MapX;
+            var y = _characterProvider.MainCharacter.RenderProperties.MapY;
+
+            var withinOneUnit = Math.Max(Math.Abs(x - coordinate.X), Math.Abs(y - coordinate.Y)) <= 1;
+            var sameXOrY = x == coordinate.X || y == coordinate.Y;
+            return withinOneUnit && sameXOrY;
+        }
     }
 
     public interface IMapInteractionController

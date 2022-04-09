@@ -49,6 +49,7 @@ namespace EOLib.Domain.Character
             var cellState = _mapCellStateProvider.GetCellStateAt(gridX, gridY);
             return IsCellStateWalkable(cellState);
         }
+
         public bool IsCellStateWalkable(IMapCellState cellState)
         {
             var mc = _characterProvider.MainCharacter;
