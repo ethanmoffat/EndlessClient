@@ -152,7 +152,6 @@ namespace EndlessClient.Dialogs
                             OffsetY = 45,
                         };
                         buyItem.LeftClick += (_, _) => SetState(ShopState.Buying);
-                        buyItem.Initialize();
 
                         var sellItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large)
                         {
@@ -164,7 +163,6 @@ namespace EndlessClient.Dialogs
                             OffsetY = 45,
                         };
                         sellItem.LeftClick += (_, _) => SetState(ShopState.Selling);
-                        sellItem.Initialize();
 
                         AddItemToList(buyItem, sortList: false);
                         AddItemToList(sellItem, sortList: false);
@@ -181,7 +179,6 @@ namespace EndlessClient.Dialogs
                                 OffsetY = 45,
                             };
                             craftItem.LeftClick += (_, _) => SetState(ShopState.Crafting);
-                            craftItem.Initialize();
 
                             AddItemToList(craftItem, sortList: false);
                         }
@@ -210,7 +207,6 @@ namespace EndlessClient.Dialogs
                             };
                             listItem.LeftClick += TradeItem;
                             listItem.RightClick += TradeItem;
-                            listItem.Initialize();
 
                             items.Add(listItem);
                         }
@@ -238,7 +234,6 @@ namespace EndlessClient.Dialogs
                             };
                             listItem.LeftClick += CraftItem;
                             listItem.RightClick += CraftItem;
-                            listItem.Initialize();
 
                             items.Add(listItem);
                         }

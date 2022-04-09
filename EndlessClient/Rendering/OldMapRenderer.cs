@@ -502,11 +502,11 @@ namespace EndlessClient.Rendering
                 {
                     var itemData = OldWorld.Instance.EIF[item.ItemID];
                     var itemPos = GetDrawCoordinatesFromGridUnits(item.X + 1, item.Y, c);
-                    var itemTexture = ChestDialog.GetItemGraphic(itemData, item.Amount);
-                    _sb.Draw(itemTexture, 
-                             new Vector2(itemPos.X - (int)Math.Round(itemTexture.Width / 2.0),
-                                         itemPos.Y - (int)Math.Round(itemTexture.Height / 2.0)),
-                            Color.White);
+                    //var itemTexture = ChestDialog.GetItemGraphic(itemData, item.Amount);
+                    //_sb.Draw(itemTexture, 
+                    //         new Vector2(itemPos.X - (int)Math.Round(itemTexture.Width / 2.0),
+                    //                     itemPos.Y - (int)Math.Round(itemTexture.Height / 2.0)),
+                    //        Color.White);
                     }
             }
             _sb.End();

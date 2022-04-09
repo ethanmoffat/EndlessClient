@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Dialogs.Actions;
 using EndlessClient.Input;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Map;
@@ -19,6 +20,7 @@ namespace EndlessClient.Controllers
         private readonly ISpikeTrapActions _spikeTrapActions;
         private readonly ICharacterActions _characterActions;
         private readonly IMapActions _mapActions;
+        private readonly IInGameDialogActions _inGameDialogActions;
 
         public ArrowKeyController(IWalkValidationActions walkValidationActions,
                                   ICharacterAnimationActions characterAnimationActions,
@@ -26,7 +28,8 @@ namespace EndlessClient.Controllers
                                   IUnwalkableTileActions walkErrorHandler,
                                   ISpikeTrapActions spikeTrapActions,
                                   ICharacterActions characterActions,
-                                  IMapActions mapActions)
+                                  IMapActions mapActions,
+                                  IInGameDialogActions inGameDialogActions)
         {
             _walkValidationActions = walkValidationActions;
             _characterAnimationActions = characterAnimationActions;
@@ -35,6 +38,7 @@ namespace EndlessClient.Controllers
             _spikeTrapActions = spikeTrapActions;
             _characterActions = characterActions;
             _mapActions = mapActions;
+            _inGameDialogActions = inGameDialogActions;
         }
 
         public bool MoveLeft()
@@ -110,7 +114,7 @@ namespace EndlessClient.Controllers
                 {
                     case UnwalkableTileAction.Chest:
                         _mapActions.OpenChest((byte)cellState.Coordinate.X, (byte)cellState.Coordinate.Y);
-                        //_inGameDialogActions.ShowChestDialog();
+                        _inGameDialogActions.ShowChestDialog();
                         break;
                     case UnwalkableTileAction.Chair: _characterActions.SitInChair(); break;
                     case UnwalkableTileAction.Door: cellState.Warp.MatchSome(w => _mapActions.OpenDoor(w)); break;

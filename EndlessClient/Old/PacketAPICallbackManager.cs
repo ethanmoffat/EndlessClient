@@ -75,22 +75,22 @@ namespace EndlessClient.Old
 
         private void _chestAgree(ChestData data)
         {
-            if (ChestDialog.Instance != null)
-                ChestDialog.Instance.InitializeItems(data.Items);
+            //if (ChestDialog.Instance != null)
+            //    ChestDialog.Instance.InitializeItems(data.Items);
         }
 
         private void _chestAddItem(short id, int amount, byte weight, byte maxWeight, ChestData data)
         {
             //OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight, maxWeight);
-            ChestDialog.Instance.InitializeItems(data.Items);
-            m_game.Hud.RefreshStats();
+            //ChestDialog.Instance.InitializeItems(data.Items);
+            //m_game.Hud.RefreshStats();
         }
 
         private void _chestGetItem(short id, int amount, byte weight, byte maxWeight, ChestData data)
         {
             //OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight, maxWeight, true);
-            ChestDialog.Instance.InitializeItems(data.Items);
-            m_game.Hud.RefreshStats();
+            //ChestDialog.Instance.InitializeItems(data.Items);
+            //m_game.Hud.RefreshStats();
         }
 
         private void _mapMutate()
