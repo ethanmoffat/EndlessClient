@@ -13,16 +13,19 @@ namespace EOLib.Domain.Map
         private readonly IItemPickupValidator _itemPickupValidator;
         private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
+        private readonly IChestDataProvider _chestDataProvider;
 
         public MapActions(IPacketSendService packetSendService,
                           IItemPickupValidator itemPickupValidator,
                           ICharacterProvider characterProvider,
-                          ICurrentMapStateRepository currentMapStateRepository)
+                          ICurrentMapStateRepository currentMapStateRepository,
+                          IChestDataProvider chestDataProvider)
         {
             _packetSendService = packetSendService;
             _itemPickupValidator = itemPickupValidator;
             _characterProvider = characterProvider;
             _currentMapStateRepository = currentMapStateRepository;
+            _chestDataProvider = chestDataProvider;
         }
 
         public void RequestRefresh()
@@ -66,6 +69,29 @@ namespace EOLib.Domain.Map
 
             _packetSendService.SendPacket(packet);
         }
+
+        public void AddItemToChest(IInventoryItem item)
+        {
+            var packet = new PacketBuilder(PacketFamily.Chest, PacketAction.Add)
+                .AddChar((byte)_chestDataProvider.Location.X)
+                .AddChar((byte)_chestDataProvider.Location.Y)
+                .AddShort(item.ItemID)
+                .AddThree(item.Amount)
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+        }
+
+        public void TakeItemFromChest(short itemId)
+        {
+            var packet = new PacketBuilder(PacketFamily.Chest, PacketAction.Take)
+                .AddChar((byte)_chestDataProvider.Location.X)
+                .AddChar((byte)_chestDataProvider.Location.Y)
+                .AddShort(itemId)
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+        }
     }
 
     public interface IMapActions
@@ -77,5 +103,9 @@ namespace EOLib.Domain.Map
         void OpenDoor(IWarp warp);
 
         void OpenChest(byte x, byte y);
+
+        void AddItemToChest(IInventoryItem item);
+
+        void TakeItemFromChest(short itemId);
     }
 }

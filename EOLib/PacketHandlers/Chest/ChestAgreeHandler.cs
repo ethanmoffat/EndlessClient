@@ -8,16 +8,16 @@ using EOLib.Net.Handlers;
 namespace EOLib.PacketHandlers.Chest
 {
     [AutoMappedType]
-    public class ChestOpenHandler : InGameOnlyPacketHandler
+    public class ChestAgreeHandler : InGameOnlyPacketHandler
     {
         private readonly IChestDataRepository _chestDataRepository;
 
         public override PacketFamily Family => PacketFamily.Chest;
 
-        public override PacketAction Action => PacketAction.Open;
+        public override PacketAction Action => PacketAction.Agree;
 
-        public ChestOpenHandler(IPlayerInfoProvider playerInfoProvider,
-                                IChestDataRepository chestDataRepository)
+        public ChestAgreeHandler(IPlayerInfoProvider playerInfoProvider,
+                                 IChestDataRepository chestDataRepository)
             : base(playerInfoProvider)
         {
             _chestDataRepository = chestDataRepository;
@@ -25,11 +25,7 @@ namespace EOLib.PacketHandlers.Chest
 
         public override bool HandlePacket(IPacket packet)
         {
-            var x = packet.ReadChar();
-            var y = packet.ReadChar();
-
-            _chestDataRepository.ResetState();
-            _chestDataRepository.Location = new MapCoordinate(x, y);
+            _chestDataRepository.Items.Clear();
 
             int i = 0;
             while (packet.ReadPosition < packet.Length)

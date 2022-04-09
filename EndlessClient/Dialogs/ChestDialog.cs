@@ -123,7 +123,7 @@ namespace EndlessClient.Dialogs
             }
             else
             {
-                // todo: take chest item
+                _mapActions.TakeItemFromChest(item.ItemID);
             }
         }
     }

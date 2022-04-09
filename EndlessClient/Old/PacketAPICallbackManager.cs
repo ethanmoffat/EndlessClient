@@ -24,11 +24,6 @@ namespace EndlessClient.Old
 
         public void AssignCallbacks()
         {
-            //chest related
-            m_packetAPI.OnChestAgree += _chestAgree;
-            m_packetAPI.OnChestAddItem += _chestAddItem;
-            m_packetAPI.OnChestGetItem += _chestGetItem;
-
             m_packetAPI.OnMapMutation += _mapMutate;
 
             //npc related
@@ -71,26 +66,6 @@ namespace EndlessClient.Old
 
             //spell casting
             m_packetAPI.OnCastSpellTargetGroup += _playerCastGroupSpell;
-        }
-
-        private void _chestAgree(ChestData data)
-        {
-            //if (ChestDialog.Instance != null)
-            //    ChestDialog.Instance.InitializeItems(data.Items);
-        }
-
-        private void _chestAddItem(short id, int amount, byte weight, byte maxWeight, ChestData data)
-        {
-            //OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight, maxWeight);
-            //ChestDialog.Instance.InitializeItems(data.Items);
-            //m_game.Hud.RefreshStats();
-        }
-
-        private void _chestGetItem(short id, int amount, byte weight, byte maxWeight, ChestData data)
-        {
-            //OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight, maxWeight, true);
-            //ChestDialog.Instance.InitializeItems(data.Items);
-            //m_game.Hud.RefreshStats();
         }
 
         private void _mapMutate()
