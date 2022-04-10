@@ -5,7 +5,7 @@ using EOLib.Net;
 using EOLib.Net.Handlers;
 using Optional.Collections;
 
-namespace EOLib.PacketHandlers.Interact.Shop
+namespace EOLib.PacketHandlers.Shop
 {
     public abstract class ShopTradeHandler : InGameOnlyPacketHandler
     {

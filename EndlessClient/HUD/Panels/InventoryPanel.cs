@@ -396,6 +396,14 @@ namespace EndlessClient.HUD.Panels
                     _inventoryController.DropItemInChest(item.Data, item.InventoryItem);
                 }
             });
+            _activeDialogProvider.LockerDialog.MatchSome(x =>
+            {
+                if (x.MouseOver && x.MouseOverPreviously)
+                {
+                    dialogDrop = true;
+                    _inventoryController.DropItemInLocker(item.Data, item.InventoryItem);
+                }
+            });
 
             if (dialogDrop)
             {
@@ -448,37 +456,7 @@ namespace EndlessClient.HUD.Panels
 
             #region Unimplemented drag action
             /*
-            if (LockerDialog.Instance != null && LockerDialog.Instance.MouseOver && LockerDialog.Instance.MouseOverPreviously)
-            {
-                byte x = LockerDialog.Instance.X;
-                byte y = LockerDialog.Instance.Y;
-                if (m_inventory.ItemID == 1)
-                {
-                    EOMessageBox.Show(DialogResourceID.LOCKER_DEPOSIT_GOLD_ERROR, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                }
-                else if (m_inventory.Amount > 1)
-                {
-                    ItemTransferDialog dlg = new ItemTransferDialog(m_itemData.Name, ItemTransferDialog.TransferType.ShopTransfer, m_inventory.Amount, EOResourceID.DIALOG_TRANSFER_TRANSFER);
-                    dlg.DialogClosing += (sender, args) =>
-                    {
-                        if (args.Result == XNADialogResult.OK)
-                        {
-                            if (LockerDialog.Instance.GetNewItemAmount(m_inventory.ItemID, dlg.SelectedAmount) > Constants.LockerMaxSingleItemAmount)
-                                EOMessageBox.Show(DialogResourceID.LOCKER_FULL_SINGLE_ITEM_MAX, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                            else if (!m_api.LockerAddItem(x, y, m_inventory.ItemID, dlg.SelectedAmount))
-                                EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-                        }
-                    };
-                }
-                else
-                {
-                    if (LockerDialog.Instance.GetNewItemAmount(m_inventory.ItemID, 1) > Constants.LockerMaxSingleItemAmount)
-                        EOMessageBox.Show(DialogResourceID.LOCKER_FULL_SINGLE_ITEM_MAX, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                    else if (!m_api.LockerAddItem(x, y, m_inventory.ItemID, 1))
-                        EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-                }
-            }
-            else if (BankAccountDialog.Instance != null && BankAccountDialog.Instance.MouseOver && BankAccountDialog.Instance.MouseOverPreviously && m_inventory.ItemID == 1)
+            if (BankAccountDialog.Instance != null && BankAccountDialog.Instance.MouseOver && BankAccountDialog.Instance.MouseOverPreviously && m_inventory.ItemID == 1)
             {
                 if (m_inventory.Amount == 0)
                 {

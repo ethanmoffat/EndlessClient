@@ -37,7 +37,6 @@ namespace EndlessClient.Rendering
                 return EOGame.Instance.IsActive && ms.X > 0 && ms.Y > 0 && ms.X < 640 && ms.Y < 320;
             }
         }
-        public Point GridCoords => _mouseCursorRenderer.GridCoords;
 
         //rendering members
         private RenderTarget2D _rtMapObjAbovePlayer, _rtMapObjBelowPlayer;
@@ -59,7 +58,6 @@ namespace EndlessClient.Rendering
         private readonly PacketAPI _api;
 
         private MiniMapRenderer _miniMapRenderer;
-        private OldMouseCursorRenderer _mouseCursorRenderer;
         
         private bool _disposed;
         private readonly object _disposingLockObject = new object();
@@ -228,11 +226,6 @@ namespace EndlessClient.Rendering
             return retChar;
         }
 
-        public void ShowContextMenu(OldCharacterRenderer player)
-        {
-            _mouseCursorRenderer.ShowContextMenu(player);
-        }
-
         #endregion
 
         #region/* PUBLIC INTERFACE -- OTHER NPCS */
@@ -318,8 +311,6 @@ namespace EndlessClient.Rendering
                 ColorDestinationBlend = Blend.One
             };
 
-            _mouseCursorRenderer = new OldMouseCursorRenderer((EOGame)Game, this);
-
             base.Initialize();
         }
 
@@ -331,10 +322,6 @@ namespace EndlessClient.Rendering
 
             //***do the map animations
             _animateWallTiles(gameTime);
-
-            //***do the cursor stuff
-            if (MouseOver)
-                _mouseCursorRenderer.Update();
 
             if (_drawingEvent == null) return;
 
@@ -414,8 +401,6 @@ namespace EndlessClient.Rendering
                     _mapLoadTime = null;
 
                 _sb.Begin();
-
-                _mouseCursorRenderer.Draw(_sb);
 
                 /*_drawPlayersNPCsAndMapObjects()*/
                 _sb.Draw(_rtMapObjAbovePlayer, Vector2.Zero, Color.White);

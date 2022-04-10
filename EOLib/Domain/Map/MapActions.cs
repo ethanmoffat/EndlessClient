@@ -70,24 +70,11 @@ namespace EOLib.Domain.Map
             _packetSendService.SendPacket(packet);
         }
 
-        public void AddItemToChest(IInventoryItem item)
+        public void OpenLocker(byte x, byte y)
         {
-            var packet = new PacketBuilder(PacketFamily.Chest, PacketAction.Add)
-                .AddChar((byte)_chestDataProvider.Location.X)
-                .AddChar((byte)_chestDataProvider.Location.Y)
-                .AddShort(item.ItemID)
-                .AddThree(item.Amount)
-                .Build();
-
-            _packetSendService.SendPacket(packet);
-        }
-
-        public void TakeItemFromChest(short itemId)
-        {
-            var packet = new PacketBuilder(PacketFamily.Chest, PacketAction.Take)
-                .AddChar((byte)_chestDataProvider.Location.X)
-                .AddChar((byte)_chestDataProvider.Location.Y)
-                .AddShort(itemId)
+            var packet = new PacketBuilder(PacketFamily.Locker, PacketAction.Open)
+                .AddChar(x)
+                .AddChar(y)
                 .Build();
 
             _packetSendService.SendPacket(packet);
@@ -104,8 +91,6 @@ namespace EOLib.Domain.Map
 
         void OpenChest(byte x, byte y);
 
-        void AddItemToChest(IInventoryItem item);
-
-        void TakeItemFromChest(short itemId);
+        void OpenLocker(byte x, byte y);
     }
 }

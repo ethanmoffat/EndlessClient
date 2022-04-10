@@ -6,7 +6,7 @@ using EOLib.Net;
 using EOLib.Net.Handlers;
 using System.Collections.Generic;
 
-namespace EOLib.PacketHandlers.Interact.Shop
+namespace EOLib.PacketHandlers.Shop
 {
     [AutoMappedType]
     public class ShopOpenHandler : InGameOnlyPacketHandler

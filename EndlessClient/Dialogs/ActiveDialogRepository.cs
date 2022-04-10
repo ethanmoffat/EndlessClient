@@ -23,6 +23,8 @@ namespace EndlessClient.Dialogs
 
         Option<ChestDialog> ChestDialog { get; }
 
+        Option<LockerDialog> LockerDialog { get; }
+
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs { get; }
     }
 
@@ -40,7 +42,9 @@ namespace EndlessClient.Dialogs
 
         Option<QuestDialog> QuestDialog { get; set; }
 
-        Option<ChestDialog> ChestDialog { get; set;  }
+        Option<ChestDialog> ChestDialog { get; set; }
+
+        Option<LockerDialog> LockerDialog { get; set;  }
 
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs { get; }
     }
@@ -62,6 +66,8 @@ namespace EndlessClient.Dialogs
 
         public Option<ChestDialog> ChestDialog { get; set; }
 
+        public Option<LockerDialog> LockerDialog { get; set; }
+
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs
         {
             get
@@ -75,6 +81,7 @@ namespace EndlessClient.Dialogs
                     ShopDialog.Map(d => (IXNADialog)d),
                     QuestDialog.Map(d => (IXNADialog)d),
                     ChestDialog.Map(d => (IXNADialog)d),
+                    LockerDialog.Map(d => (IXNADialog)d),
                 }.ToList();
             }
         }
@@ -95,6 +102,7 @@ namespace EndlessClient.Dialogs
             ShopDialog = Option.None<ShopDialog>();
             QuestDialog = Option.None<QuestDialog>();
             ChestDialog = Option.None<ChestDialog>();
+            LockerDialog = Option.None<LockerDialog>();
         }
     }
 }

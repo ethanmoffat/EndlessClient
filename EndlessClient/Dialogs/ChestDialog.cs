@@ -21,7 +21,7 @@ namespace EndlessClient.Dialogs
 {
     public class ChestDialog : ScrollingListDialog
     {
-        private readonly IMapActions _mapActions;
+        private readonly IChestActions _chestActions;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly ILocalizedStringFinder _localizedStringFinder;
@@ -36,7 +36,7 @@ namespace EndlessClient.Dialogs
         private HashSet<IInventoryItem> _cachedItems;
 
         public ChestDialog(INativeGraphicsManager nativeGraphicsManager,
-                           IMapActions mapActions,
+                           IChestActions chestActions,
                            IEOMessageBoxFactory messageBoxFactory,
                            IEODialogButtonService dialogButtonService,
                            IStatusLabelSetter statusLabelSetter,
@@ -49,7 +49,7 @@ namespace EndlessClient.Dialogs
                            ICharacterProvider characterProvider)
             : base(nativeGraphicsManager, dialogButtonService, dialogSize: ScrollingListDialogSize.LargeNoScroll)
         {
-            _mapActions = mapActions;
+            _chestActions = chestActions;
             _messageBoxFactory = messageBoxFactory;
             _statusLabelSetter = statusLabelSetter;
             _localizedStringFinder = localizedStringFinder;
@@ -109,7 +109,7 @@ namespace EndlessClient.Dialogs
 
         private void TakeItem(IInventoryItem item, EIFRecord itemData)
         {
-            if (!_inventorySpaceValidator.ItemFits(itemData.Size))
+            if (!_inventorySpaceValidator.ItemFits(item.ItemID))
             {
                 var dlg = _messageBoxFactory.CreateMessageBox(EOResourceID.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT, EOResourceID.STATUS_LABEL_TYPE_WARNING);
                 dlg.ShowDialog();
@@ -123,7 +123,7 @@ namespace EndlessClient.Dialogs
             }
             else
             {
-                _mapActions.TakeItemFromChest(item.ItemID);
+                _chestActions.TakeItemFromChest(item.ItemID);
             }
         }
     }
