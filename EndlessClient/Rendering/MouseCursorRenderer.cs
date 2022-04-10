@@ -294,7 +294,7 @@ namespace EndlessClient.Rendering
             if (currentMouseState.LeftButton == ButtonState.Released &&
                 previousMouseState.LeftButton == ButtonState.Pressed)
             {
-                _mapInteractionController.LeftClick(cellState, this);
+                _mapInteractionController.LeftClick(cellState, Option.Some<IMouseCursorRenderer>(this));
             }
         }
 

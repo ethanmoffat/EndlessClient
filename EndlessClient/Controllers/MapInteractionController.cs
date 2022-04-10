@@ -79,7 +79,7 @@ namespace EndlessClient.Controllers
             _activeDialogProvider = activeDialogProvider;
         }
 
-        public void LeftClick(IMapCellState cellState, IMouseCursorRenderer mouseRenderer)
+        public void LeftClick(IMapCellState cellState, Option<IMouseCursorRenderer> mouseRenderer)
         {
             if (!InventoryPanel.NoItemsDragging() || _activeDialogProvider.ActiveDialogs.Any(x => x.HasValue))
                 return;
@@ -128,7 +128,7 @@ namespace EndlessClient.Controllers
             }
             else if (cellState.InBounds && !cellState.Character.HasValue && !cellState.NPC.HasValue)
             {
-                mouseRenderer.AnimateClick();
+                mouseRenderer.MatchSome(r => r.AnimateClick());
                 _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator)
                     .StartMainCharacterWalkAnimation(Option.Some(cellState.Coordinate));
             }
@@ -229,7 +229,7 @@ namespace EndlessClient.Controllers
 
     public interface IMapInteractionController
     {
-        void LeftClick(IMapCellState cellState, IMouseCursorRenderer mouseRenderer);
+        void LeftClick(IMapCellState cellState, Option<IMouseCursorRenderer> mouseRenderer);
 
         void RightClick(IMapCellState cellState);
     }

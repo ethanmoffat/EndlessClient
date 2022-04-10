@@ -29,7 +29,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             _currentMapProvider = currentMapProvider;
         }
 
-        protected override Vector2 GetDrawCoordinatesFromGridUnits(int gridX, int gridY)
+        public override Vector2 GetDrawCoordinatesFromGridUnits(int gridX, int gridY)
         {
             // the height is used to offset the 0 point of the grid, which is 32 units per tile in the height of the map
             var height = CurrentMap.Properties.Height;
@@ -97,7 +97,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             return tileExists && _nativeGraphicsManager.TextureFromResource(GFXTypes.MapTiles, tileId, true).Width > TILE_FRAME_WIDTH;
         }
 
-        protected override Vector2 GetDrawCoordinatesFromGridUnits(int gridX, int gridY)
+        public override Vector2 GetDrawCoordinatesFromGridUnits(int gridX, int gridY)
         {
             var offsetX = _renderOffsetCalculator.CalculateOffsetX(_characterProvider.MainCharacter.RenderProperties) - 288;
             var offsetY = _renderOffsetCalculator.CalculateOffsetY(_characterProvider.MainCharacter.RenderProperties) - 144;
