@@ -287,6 +287,9 @@ namespace EndlessClient.Rendering
 
         private void CheckForClicks(IMapCellState cellState)
         {
+            if (_userInputProvider.ClickHandled)
+                return;
+
             var currentMouseState = _userInputProvider.CurrentMouseState;
             var previousMouseState = _userInputProvider.PreviousMouseState;
 

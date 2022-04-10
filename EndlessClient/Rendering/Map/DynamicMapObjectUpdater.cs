@@ -26,7 +26,7 @@ namespace EndlessClient.Rendering.Map
 
         private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
-        private readonly IUserInputProvider _userInputProvider;
+        private readonly IUserInputRepository _userInputRepository;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IMapObjectBoundsCalculator _mapObjectBoundsCalculator;
         private readonly IMapInteractionController _mapInteractionController;
@@ -34,14 +34,14 @@ namespace EndlessClient.Rendering.Map
 
         public DynamicMapObjectUpdater(ICharacterProvider characterProvider,
                                        ICurrentMapStateRepository currentMapStateRepository,
-                                       IUserInputProvider userInputProvider,
+                                       IUserInputRepository userInputRepository,
                                        ICurrentMapProvider currentMapProvider,
                                        IMapObjectBoundsCalculator mapObjectBoundsCalculator,
                                        IMapInteractionController mapInteractionController)
         {
             _characterProvider = characterProvider;
             _currentMapStateRepository = currentMapStateRepository;
-            _userInputProvider = userInputProvider;
+            _userInputRepository = userInputRepository;
             _currentMapProvider = currentMapProvider;
             _mapObjectBoundsCalculator = mapObjectBoundsCalculator;
             _mapInteractionController = mapInteractionController;
@@ -96,8 +96,11 @@ namespace EndlessClient.Rendering.Map
 
         private void CheckForObjectClicks()
         {
-            var mouseClicked = _userInputProvider.PreviousMouseState.LeftButton == ButtonState.Pressed &&
-                _userInputProvider.CurrentMouseState.LeftButton == ButtonState.Released;
+            if (_userInputRepository.ClickHandled)
+                return;
+
+            var mouseClicked = _userInputRepository.PreviousMouseState.LeftButton == ButtonState.Pressed &&
+                _userInputRepository.CurrentMouseState.LeftButton == ButtonState.Released;
 
             if (mouseClicked)
             {
@@ -107,7 +110,7 @@ namespace EndlessClient.Rendering.Map
                     if (gfx > 0)
                     {
                         var bounds = _mapObjectBoundsCalculator.GetMapObjectBounds(sign.X, sign.Y, gfx);
-                        if (bounds.Contains(_userInputProvider.CurrentMouseState.Position))
+                        if (bounds.Contains(_userInputRepository.CurrentMouseState.Position))
                         {
                             var cellState = new MapCellState
                             {
@@ -115,6 +118,7 @@ namespace EndlessClient.Rendering.Map
                                 Coordinate = new MapCoordinate(sign.X, sign.Y)
                             };
                             _mapInteractionController.LeftClick(cellState, Option.None<IMouseCursorRenderer>());
+                            _userInputRepository.ClickHandled = true;
                             break;
                         }
                     }
