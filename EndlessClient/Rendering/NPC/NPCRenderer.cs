@@ -2,6 +2,7 @@
 using System.Linq;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
+using EndlessClient.Input;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Effects;
@@ -33,6 +34,7 @@ namespace EndlessClient.Rendering.NPC
         private readonly IHealthBarRendererFactory _healthBarRendererFactory;
         private readonly IChatBubbleFactory _chatBubbleFactory;
         private readonly INPCInteractionController _npcInteractionController;
+        private readonly IUserInputProvider _userInputProvider;
         private readonly Rectangle _baseTextureFrameRectangle;
         private readonly int _readonlyTopPixel, _readonlyBottomPixel;
         private readonly bool _hasStandingAnimation;
@@ -42,8 +44,6 @@ namespace EndlessClient.Rendering.NPC
         private DateTime _lastStandingAnimation;
         private int _fadeAwayAlpha;
         private bool _isDying;
-        private MouseState _previousMouseState;
-        private MouseState _currentMouseState;
 
         private XNALabel _nameLabel;
         private IChatBubble _chatBubble;
@@ -75,6 +75,7 @@ namespace EndlessClient.Rendering.NPC
                            IHealthBarRendererFactory healthBarRendererFactory,
                            IChatBubbleFactory chatBubbleFactory,
                            INPCInteractionController npcInteractionController,
+                           IUserInputProvider userInputProvider,
                            INPC initialNPC)
             : base((Game)endlessGameProvider.Game)
         {
@@ -87,6 +88,8 @@ namespace EndlessClient.Rendering.NPC
             _healthBarRendererFactory = healthBarRendererFactory;
             _chatBubbleFactory = chatBubbleFactory;
             _npcInteractionController = npcInteractionController;
+            _userInputProvider = userInputProvider;
+
             _baseTextureFrameRectangle = GetStandingFrameRectangle();
             _readonlyTopPixel = GetTopPixel();
             _readonlyBottomPixel = GetBottomPixel();
@@ -120,7 +123,6 @@ namespace EndlessClient.Rendering.NPC
                 _nameLabel.Game.Components.Add(_nameLabel);
 
             _nameLabel.DrawPosition = GetNameLabelPosition();
-            _previousMouseState = _currentMouseState = Mouse.GetState();
 
             base.Initialize();
         }
@@ -129,26 +131,23 @@ namespace EndlessClient.Rendering.NPC
         {
             if (!Visible) return;
 
-            _currentMouseState = Mouse.GetState();
-
             UpdateDrawAreas();
             UpdateStandingFrameAnimation();
             UpdateDeadState();
 
-            _nameLabel.Visible = DrawArea.Contains(_currentMouseState.Position) && !_healthBarRenderer.Visible && !_isDying;
+            _nameLabel.Visible = DrawArea.Contains(_userInputProvider.CurrentMouseState.Position) && !_healthBarRenderer.Visible && !_isDying;
             _nameLabel.DrawPosition = GetNameLabelPosition();
 
-            if (DrawArea.ContainsPoint(_currentMouseState.X, _currentMouseState.Y) &&
-                _currentMouseState.LeftButton == ButtonState.Released &&
-                _previousMouseState.LeftButton == ButtonState.Pressed)
+            if (DrawArea.Contains(_userInputProvider.CurrentMouseState.Position) &&
+                _userInputProvider.CurrentMouseState.LeftButton == ButtonState.Released &&
+                _userInputProvider.PreviousMouseState.LeftButton == ButtonState.Pressed &&
+                !_userInputProvider.ClickHandled)
             {
                 _npcInteractionController.ShowNPCDialog(NPC);
             }
 
             _effectRenderer.Update();
             _healthBarRenderer.Update(gameTime);
-
-            _previousMouseState = _currentMouseState;
 
             base.Update(gameTime);
         }

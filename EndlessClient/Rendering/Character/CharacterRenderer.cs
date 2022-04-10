@@ -2,6 +2,7 @@
 using System.Linq;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
+using EndlessClient.Input;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Effects;
@@ -35,12 +36,11 @@ namespace EndlessClient.Rendering.Character
         private readonly ICharacterSpriteCalculator _characterSpriteCalculator;
         private readonly IGameStateProvider _gameStateProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
+        private readonly IUserInputProvider _userInputProvider;
         private readonly IEffectRenderer _effectRenderer;
 
         private ICharacter _character;
         private bool _textureUpdateRequired, _positionIsRelative = true;
-        private MouseState _previousMouseState;
-        private MouseState _currentMouseState;
 
         private SpriteBatch _sb;
         private RenderTarget2D _charRenderTarget;
@@ -91,7 +91,8 @@ namespace EndlessClient.Rendering.Character
                                  ICharacterSpriteCalculator characterSpriteCalculator,
                                  ICharacter character,
                                  IGameStateProvider gameStateProvider,
-                                 ICurrentMapProvider currentMapProvider)
+                                 ICurrentMapProvider currentMapProvider,
+                                 IUserInputProvider userInputProvider)
             : base(game)
         {
             _mapInteractionController = mapInteractionController;
@@ -106,6 +107,7 @@ namespace EndlessClient.Rendering.Character
             _character = character;
             _gameStateProvider = gameStateProvider;
             _currentMapProvider = currentMapProvider;
+            _userInputProvider = userInputProvider;
             _effectRenderer = new EffectRenderer(nativeGraphicsmanager, this);
             _chatBubble = new Lazy<IChatBubble>(() => _chatBubbleFactory.CreateChatBubble(this));
         }
@@ -140,9 +142,6 @@ namespace EndlessClient.Rendering.Character
                 _healthBarRenderer = _healthBarRendererFactory.CreateHealthBarRenderer(this);
             }
 
-            _previousMouseState = _currentMouseState = Mouse.GetState();
-
-
             base.Initialize();
         }
 
@@ -166,8 +165,6 @@ namespace EndlessClient.Rendering.Character
             if (!Visible)
                 return;
 
-            _currentMouseState = Mouse.GetState();
-
             if (_textureUpdateRequired)
             {
                 _characterTextures.Refresh(_character.RenderProperties);
@@ -183,17 +180,15 @@ namespace EndlessClient.Rendering.Character
             {
                 UpdateNameLabel(gameTime);
 
-                if (DrawArea.ContainsPoint(_currentMouseState.X, _currentMouseState.Y) &&
-                    _currentMouseState.RightButton == ButtonState.Released &&
-                    _previousMouseState.RightButton == ButtonState.Pressed)
+                if (DrawArea.Contains(_userInputProvider.CurrentMouseState.Position) &&
+                    _userInputProvider.CurrentMouseState.RightButton == ButtonState.Released &&
+                    _userInputProvider.PreviousMouseState.RightButton == ButtonState.Pressed)
                 {
                     _mapInteractionController.RightClick(new MapCellState { Character = Option.Some(Character) });
                 }
 
                 _healthBarRenderer.Update(gameTime);
             }
-
-            _previousMouseState = _currentMouseState;
 
             base.Update(gameTime);
         }
@@ -341,7 +336,7 @@ namespace EndlessClient.Rendering.Character
             {
                 _nameLabel.Visible = false;
             }
-            else if (DrawArea.Contains(_currentMouseState.Position))
+            else if (DrawArea.Contains(_userInputProvider.CurrentMouseState.Position))
             {
                 _nameLabel.Visible = true;
                 _nameLabel.BlinkRate = null;

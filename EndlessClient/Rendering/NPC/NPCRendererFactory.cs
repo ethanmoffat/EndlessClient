@@ -1,6 +1,7 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
+using EndlessClient.Input;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Factories;
@@ -23,6 +24,7 @@ namespace EndlessClient.Rendering.NPC
         private readonly IHealthBarRendererFactory _healthBarRendererFactory;
         private readonly IChatBubbleFactory _chatBubbleFactory;
         private readonly INPCInteractionController _npcInteractionController;
+        private readonly IUserInputProvider _userInputProvider;
 
         public NPCRendererFactory(INativeGraphicsManager nativeGraphicsManager,
                                   IEndlessGameProvider endlessGameProvider,
@@ -32,7 +34,8 @@ namespace EndlessClient.Rendering.NPC
                                   IRenderOffsetCalculator renderOffsetCalculator,
                                   IHealthBarRendererFactory healthBarRendererFactory,
                                   IChatBubbleFactory chatBubbleFactory,
-                                  INPCInteractionController npcInteractionController)
+                                  INPCInteractionController npcInteractionController,
+                                  IUserInputProvider userInputProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _endlessGameProvider = endlessGameProvider;
@@ -43,6 +46,7 @@ namespace EndlessClient.Rendering.NPC
             _healthBarRendererFactory = healthBarRendererFactory;
             _chatBubbleFactory = chatBubbleFactory;
             _npcInteractionController = npcInteractionController;
+            _userInputProvider = userInputProvider;
         }
 
         public INPCRenderer CreateRendererFor(INPC npc)
@@ -56,6 +60,7 @@ namespace EndlessClient.Rendering.NPC
                                    _healthBarRendererFactory,
                                    _chatBubbleFactory,
                                    _npcInteractionController,
+                                   _userInputProvider,
                                    npc);
         }
     }
