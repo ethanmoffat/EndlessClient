@@ -69,29 +69,6 @@ namespace EOLib.Domain.Map
 
             _packetSendService.SendPacket(packet);
         }
-
-        public void AddItemToChest(IInventoryItem item)
-        {
-            var packet = new PacketBuilder(PacketFamily.Chest, PacketAction.Add)
-                .AddChar((byte)_chestDataProvider.Location.X)
-                .AddChar((byte)_chestDataProvider.Location.Y)
-                .AddShort(item.ItemID)
-                .AddThree(item.Amount)
-                .Build();
-
-            _packetSendService.SendPacket(packet);
-        }
-
-        public void TakeItemFromChest(short itemId)
-        {
-            var packet = new PacketBuilder(PacketFamily.Chest, PacketAction.Take)
-                .AddChar((byte)_chestDataProvider.Location.X)
-                .AddChar((byte)_chestDataProvider.Location.Y)
-                .AddShort(itemId)
-                .Build();
-
-            _packetSendService.SendPacket(packet);
-        }
     }
 
     public interface IMapActions
@@ -103,9 +80,5 @@ namespace EOLib.Domain.Map
         void OpenDoor(IWarp warp);
 
         void OpenChest(byte x, byte y);
-
-        void AddItemToChest(IInventoryItem item);
-
-        void TakeItemFromChest(short itemId);
     }
 }

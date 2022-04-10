@@ -16,7 +16,7 @@ namespace EndlessClient.Dialogs.Factories
     public class ChestDialogFactory : IChestDialogFactory
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
-        private readonly IMapActions _mapActions;
+        private readonly IChestActions _chestActions;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly IEODialogButtonService _dialogButtonService;
         private readonly IStatusLabelSetter _statusLabelSetter;
@@ -29,7 +29,7 @@ namespace EndlessClient.Dialogs.Factories
         private readonly ICharacterProvider _characterProvider;
 
         public ChestDialogFactory(INativeGraphicsManager nativeGraphicsManager,
-                                  IMapActions mapActions,
+                                  IChestActions chestActions,
                                   IEOMessageBoxFactory messageBoxFactory,
                                   IEODialogButtonService dialogButtonService,
                                   IStatusLabelSetter statusLabelSetter,
@@ -42,7 +42,7 @@ namespace EndlessClient.Dialogs.Factories
                                   ICharacterProvider characterProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
-            _mapActions = mapActions;
+            _chestActions = chestActions;
             _messageBoxFactory = messageBoxFactory;
             _dialogButtonService = dialogButtonService;
             _statusLabelSetter = statusLabelSetter;
@@ -58,7 +58,7 @@ namespace EndlessClient.Dialogs.Factories
         public ChestDialog Create()
         {
             return new ChestDialog(_nativeGraphicsManager,
-                                   _mapActions,
+                                   _chestActions,
                                    _messageBoxFactory,
                                    _dialogButtonService,
                                    _statusLabelSetter,

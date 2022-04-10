@@ -34,8 +34,6 @@ namespace EndlessClient.Old
             m_packetAPI.OnBankChange += _bankChange;
 
             //locker
-            m_packetAPI.OnLockerOpen += _lockerOpen;
-            m_packetAPI.OnLockerItemChange += _lockerItemChange;
             m_packetAPI.OnLockerUpgrade += _lockerUpgrade;
 
             //party
@@ -100,20 +98,6 @@ namespace EndlessClient.Old
 
             //OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, gold);
             BankAccountDialog.Instance.AccountBalance = $"{bankGold}";
-        }
-
-        private void _lockerOpen(byte x, byte y, List<InventoryItem> items)
-        {
-            if (LockerDialog.Instance == null || LockerDialog.Instance.X != x || LockerDialog.Instance.Y != y)
-                return;
-            LockerDialog.Instance.SetLockerData(items);
-        }
-
-        private void _lockerItemChange(short id, int amount, byte weight, byte maxWeight, bool existingAmount, List<InventoryItem> items)
-        {
-            if (LockerDialog.Instance == null) return;
-            //OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight, maxWeight, existingAmount);
-            LockerDialog.Instance.SetLockerData(items);
         }
 
         private void _lockerUpgrade(int remaining, byte upgrades)

@@ -27,7 +27,7 @@ namespace EndlessClient.Controllers
         private readonly IItemActions _itemActions;
         private readonly IInGameDialogActions _inGameDialogActions;
         private readonly IPaperdollActions _paperdollActions;
-        private readonly IMapActions _mapActions;
+        private readonly IChestActions _chestActions;
         private readonly IItemEquipValidator _itemEquipValidator;
         private readonly IItemDropValidator _itemDropValidator;
         private readonly ICharacterProvider _characterProvider;
@@ -43,7 +43,7 @@ namespace EndlessClient.Controllers
         public InventoryController(IItemActions itemActions,
                                    IInGameDialogActions inGameDialogActions,
                                    IPaperdollActions paperdollActions,
-                                   IMapActions mapActions,
+                                   IChestActions chestActions,
                                    IItemEquipValidator itemEquipValidator,
                                    IItemDropValidator itemDropValidator,
                                    ICharacterProvider characterProvider,
@@ -59,7 +59,7 @@ namespace EndlessClient.Controllers
             _itemActions = itemActions;
             _inGameDialogActions = inGameDialogActions;
             _paperdollActions = paperdollActions;
-            _mapActions = mapActions;
+            _chestActions = chestActions;
             _itemEquipValidator = itemEquipValidator;
             _itemDropValidator = itemDropValidator;
             _characterProvider = characterProvider;
@@ -228,7 +228,7 @@ namespace EndlessClient.Controllers
             }
             else
             {
-                DoItemDrop(itemData, inventoryItem, a => _mapActions.AddItemToChest(inventoryItem.WithAmount(a)));
+                DoItemDrop(itemData, inventoryItem, a => _chestActions.AddItemToChest(inventoryItem.WithAmount(a)));
             }
         }
 
