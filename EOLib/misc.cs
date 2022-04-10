@@ -35,6 +35,7 @@ namespace EOLib
         public const byte ViewLength = 16;
 
         public const int LockerMaxSingleItemAmount = 200;
+        public const int MaxLockerUpgrades = 7;
         public const int PartyRequestTimeoutSeconds = 15;
         public const int TradeRequestTimeoutSeconds = 15;
         public const int MuteDefaultTimeMinutes = 5;

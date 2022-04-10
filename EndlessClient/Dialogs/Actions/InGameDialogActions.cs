@@ -4,7 +4,6 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Interact;
 using EOLib.Domain.Interact.Quest;
 using EOLib.Domain.Interact.Shop;
-using EOLib.Domain.NPC;
 using EOLib.IO;
 using Optional;
 
@@ -22,6 +21,7 @@ namespace EndlessClient.Dialogs.Actions
         private readonly IQuestDataRepository _questDataRepository;
         private readonly IChestDialogFactory _chestDialogFactory;
         private readonly ILockerDialogFactory _lockerDialogFactory;
+        private readonly IBankAccountDialogFactory _bankAccountDialogFactory;
         private readonly IShopDialogFactory _shopDialogFactory;
         private readonly IQuestDialogFactory _questDialogFactory;
 
@@ -35,7 +35,8 @@ namespace EndlessClient.Dialogs.Actions
                                    IShopDataRepository shopDataRepository,
                                    IQuestDataRepository questDataRepository,
                                    IChestDialogFactory chestDialogFactory,
-                                   ILockerDialogFactory lockerDialogFactory)
+                                   ILockerDialogFactory lockerDialogFactory,
+                                   IBankAccountDialogFactory bankAccountDialogFactory)
         {
             _friendIgnoreListDialogFactory = friendIgnoreListDialogFactory;
             _paperdollDialogFactory = paperdollDialogFactory;
@@ -46,6 +47,7 @@ namespace EndlessClient.Dialogs.Actions
             _questDataRepository = questDataRepository;
             _chestDialogFactory = chestDialogFactory;
             _lockerDialogFactory = lockerDialogFactory;
+            _bankAccountDialogFactory = bankAccountDialogFactory;
             _shopDialogFactory = shopDialogFactory;
             _questDialogFactory = questDialogFactory;
         }
@@ -178,6 +180,18 @@ namespace EndlessClient.Dialogs.Actions
                 dlg.Show();
             });
         }
+
+        public void ShowBankAccountDialog()
+        {
+            _activeDialogRepository.BankAccountDialog.MatchNone(() =>
+            {
+                var dlg = _bankAccountDialogFactory.Create();
+                dlg.DialogClosed += (_, _) => _activeDialogRepository.BankAccountDialog = Option.None<BankAccountDialog>();
+                _activeDialogRepository.BankAccountDialog = Option.Some(dlg);
+
+                dlg.Show();
+            });
+        }
     }
 
     public interface IInGameDialogActions
@@ -199,5 +213,7 @@ namespace EndlessClient.Dialogs.Actions
         void ShowChestDialog();
 
         void ShowLockerDialog();
+
+        void ShowBankAccountDialog();
     }
 }
