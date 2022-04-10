@@ -29,6 +29,7 @@ namespace EndlessClient.Controllers
         private readonly ICharacterActions _characterActions;
         private readonly IInGameDialogActions _inGameDialogActions;
         private readonly IPaperdollActions _paperdollActions;
+        private readonly IUnwalkableTileActions _unwalkableTileActions;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly IStatusLabelSetter _statusLabelSetter;
@@ -37,13 +38,14 @@ namespace EndlessClient.Controllers
         private readonly ICharacterRendererProvider _characterRendererProvider;
         private readonly IContextMenuRepository _contextMenuRepository;
         private readonly IUserInputTimeRepository _userInputTimeRepository;
-        private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
+        private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly IContextMenuRendererFactory _contextMenuRendererFactory;
 
         public MapInteractionController(IMapActions mapActions,
                                         ICharacterActions characterActions,
                                         IInGameDialogActions inGameDialogActions,
                                         IPaperdollActions paperdollActions,
+                                        IUnwalkableTileActions unwalkableTileActions,
                                         ICurrentMapStateProvider currentMapStateProvider,
                                         ICharacterProvider characterProvider,
                                         IStatusLabelSetter statusLabelSetter,
@@ -52,13 +54,14 @@ namespace EndlessClient.Controllers
                                         ICharacterRendererProvider characterRendererProvider,
                                         IContextMenuRepository contextMenuRepository,
                                         IUserInputTimeRepository userInputTimeRepository,
-                                        IEOMessageBoxFactory eoMessageBoxFactory,
+                                        IEOMessageBoxFactory messageBoxFactory,
                                         IContextMenuRendererFactory contextMenuRendererFactory)
         {
             _mapActions = mapActions;
             _characterActions = characterActions;
             _inGameDialogActions = inGameDialogActions;
             _paperdollActions = paperdollActions;
+            _unwalkableTileActions = unwalkableTileActions;
             _currentMapStateProvider = currentMapStateProvider;
             _characterProvider = characterProvider;
             _statusLabelSetter = statusLabelSetter;
@@ -67,7 +70,7 @@ namespace EndlessClient.Controllers
             _characterRendererProvider = characterRendererProvider;
             _contextMenuRepository = contextMenuRepository;
             _userInputTimeRepository = userInputTimeRepository;
-            _eoMessageBoxFactory = eoMessageBoxFactory;
+            _messageBoxFactory = messageBoxFactory;
             _contextMenuRendererFactory = contextMenuRendererFactory;
         }
 
@@ -90,7 +93,7 @@ namespace EndlessClient.Controllers
             else if (cellState.Sign.HasValue)
             {
                 var sign = cellState.Sign.ValueOr(Sign.None);
-                var messageBox = _eoMessageBoxFactory.CreateMessageBox(sign.Message, sign.Title);
+                var messageBox = _messageBoxFactory.CreateMessageBox(sign.Message, sign.Title);
                 messageBox.ShowDialog();
             }
             else if (_characterProvider.MainCharacter.RenderProperties.SitState != SitState.Standing)
@@ -99,12 +102,17 @@ namespace EndlessClient.Controllers
             }
             else if (InteractableTileSpec(cellState.TileSpec) && CharacterIsCloseEnough(cellState.Coordinate))
             {
+                var unwalkableAction = _unwalkableTileActions.HandleUnwalkableTile(cellState);
+
                 switch (cellState.TileSpec)
                 {
                     // todo: implement for other clickable tile specs (locker, jukebox, etc)
                     case TileSpec.Chest:
-                        _mapActions.OpenChest((byte)cellState.Coordinate.X, (byte)cellState.Coordinate.Y);
-                        _inGameDialogActions.ShowChestDialog();
+                        if (unwalkableAction == UnwalkableTileAction.Chest)
+                        {
+                            _mapActions.OpenChest((byte)cellState.Coordinate.X, (byte)cellState.Coordinate.Y);
+                            _inGameDialogActions.ShowChestDialog();
+                        }
                         break;
                 }
             }
