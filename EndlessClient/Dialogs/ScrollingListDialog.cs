@@ -41,6 +41,7 @@ namespace EndlessClient.Dialogs
         Medium,           // quest progress/history dialog
         MediumWithHeader, // todo: implement boards
         Small,            // npc quest dialog
+        SmallNoScroll,    // bank account dialog
     }
 
     public class ScrollingListDialog : BaseEODialog
@@ -187,7 +188,7 @@ namespace EndlessClient.Dialogs
 
             _scrollBar = new ScrollBar(new Vector2(DialogSize == ScrollingListDialogSize.Medium ? 449 : 252, 44), new Vector2(16, GetScrollBarHeight(DialogSize)), ScrollBarColors.LightOnMed, GraphicsManager)
             {
-                Visible = DialogSize != ScrollingListDialogSize.LargeNoScroll,
+                Visible = DialogSize != ScrollingListDialogSize.LargeNoScroll && DialogSize != ScrollingListDialogSize.SmallNoScroll,
             };
             _scrollBar.SetParentControl(this);
 
@@ -404,6 +405,7 @@ namespace EndlessClient.Dialogs
                 case ScrollingListDialogSize.LargeNoScroll: return new Rectangle(16, 13, 253, 19);
                 case ScrollingListDialogSize.Medium: return new Rectangle(18, 14, 452, 19);
                 case ScrollingListDialogSize.Small: return new Rectangle(16, 16, 255, 18);
+                case ScrollingListDialogSize.SmallNoScroll: return new Rectangle(129, 20, 121, 16);
                 default: throw new NotImplementedException();
             }
         }
@@ -415,7 +417,8 @@ namespace EndlessClient.Dialogs
                 case ScrollingListDialogSize.Large:
                 case ScrollingListDialogSize.LargeNoScroll:
                 case ScrollingListDialogSize.Medium: return 199;
-                case ScrollingListDialogSize.Small: return 99;
+                case ScrollingListDialogSize.Small:
+                case ScrollingListDialogSize.SmallNoScroll: return 99;
                 default: throw new NotImplementedException();
             }
         }
@@ -428,6 +431,7 @@ namespace EndlessClient.Dialogs
                 case ScrollingListDialogSize.LargeNoScroll: return 51;
                 case ScrollingListDialogSize.Medium: return 59;
                 case ScrollingListDialogSize.Small: return 67;
+                case ScrollingListDialogSize.SmallNoScroll: return 53;
                 default: throw new NotImplementedException();
             }
         }
@@ -439,7 +443,8 @@ namespace EndlessClient.Dialogs
                 case ScrollingListDialogSize.Large:
                 case ScrollingListDialogSize.LargeNoScroll: return null;
                 case ScrollingListDialogSize.Medium: return new Rectangle(0, 0, backgroundTexture.Width, backgroundTexture.Height / 2);
-                case ScrollingListDialogSize.Small: return null;
+                case ScrollingListDialogSize.Small:
+                case ScrollingListDialogSize.SmallNoScroll:  return null;
                 default: throw new NotImplementedException();
             }
         }
@@ -451,7 +456,8 @@ namespace EndlessClient.Dialogs
             {
                 // buttons are centered on these dialogs
                 case ScrollingListDialogSize.Large: 
-                case ScrollingListDialogSize.LargeNoScroll: return new Vector2((int)Math.Floor((dialogArea.Width - buttonArea.Width) / 2.0) - 48, yCoord);
+                case ScrollingListDialogSize.LargeNoScroll:
+                case ScrollingListDialogSize.SmallNoScroll: return new Vector2((int)Math.Floor((dialogArea.Width - buttonArea.Width) / 2.0) - 48, yCoord);
                 // buttons are offset from center on these dialogs
                 case ScrollingListDialogSize.Medium: return new Vector2(288, yCoord);
                 case ScrollingListDialogSize.Small: return new Vector2(89, yCoord);
@@ -466,7 +472,8 @@ namespace EndlessClient.Dialogs
             {
                 // buttons are centered on these dialogs
                 case ScrollingListDialogSize.Large:
-                case ScrollingListDialogSize.LargeNoScroll: return new Vector2((int)Math.Floor((dialogArea.Width - buttonArea.Width) / 2.0) + 48, yCoord);
+                case ScrollingListDialogSize.LargeNoScroll:
+                case ScrollingListDialogSize.SmallNoScroll: return new Vector2((int)Math.Floor((dialogArea.Width - buttonArea.Width) / 2.0) + 48, yCoord);
                 // buttons are offset from center on these dialogs
                 case ScrollingListDialogSize.Medium: return new Vector2(380, yCoord);
                 case ScrollingListDialogSize.Small: return new Vector2(183, yCoord);
@@ -479,6 +486,10 @@ namespace EndlessClient.Dialogs
             // chest dialog has a button built in to the graphic that needs to be covered up...
             if (dialogSize == ScrollingListDialogSize.LargeNoScroll)
                 return new Vector2(92, 227);
+
+            // bank dialog has a button built in to the graphic that needs to be covered up...
+            if (dialogSize == ScrollingListDialogSize.SmallNoScroll)
+                return new Vector2(92, 191);
 
             var yCoord = GetButtonYCoordinate(dialogArea);
             return new Vector2((dialogArea.Width - buttonArea.Width) / 2, yCoord);

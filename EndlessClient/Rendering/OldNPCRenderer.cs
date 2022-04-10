@@ -333,7 +333,6 @@ namespace EndlessClient.Rendering
                 switch (NPC.Data.Type)
                 {
                     case NPCType.Inn: break;
-                    case NPCType.Bank: BankAccountDialog.Show(api, NPC.Index); break;
                     case NPCType.Barber: break;
                     case NPCType.Guild: break;
                     case NPCType.Priest: break;
