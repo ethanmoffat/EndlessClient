@@ -4,6 +4,7 @@ using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Controls;
+using EndlessClient.Input;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Services;
 using EndlessClient.UIControls;
@@ -44,6 +45,7 @@ namespace EndlessClient.Rendering
         private readonly IFriendIgnoreListService _friendIgnoreListService;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly IContextMenuRepository _contextMenuRepository;
+        private readonly IUserInputRepository _userInputRepository;
         private readonly ICharacterRenderer _characterRenderer;
 
         //private DateTime? m_lastPartyRequestedTime, m_lastTradeRequestedTime;
@@ -55,6 +57,7 @@ namespace EndlessClient.Rendering
                                    IFriendIgnoreListService friendIgnoreListService,
                                    IHudControlProvider hudControlProvider,
                                    IContextMenuRepository contextMenuRepository,
+                                   IUserInputRepository userInputRepository,
                                    ICharacterRenderer characterRenderer)
         {
             _menuActions = new Dictionary<Rectangle, Action>();
@@ -64,6 +67,7 @@ namespace EndlessClient.Rendering
             _friendIgnoreListService = friendIgnoreListService;
             _hudControlProvider = hudControlProvider;
             _contextMenuRepository = contextMenuRepository;
+            _userInputRepository = userInputRepository;
             _characterRenderer = characterRenderer;
 
             //first, load up the images. split in half: the right half is the 'over' text
@@ -88,6 +92,9 @@ namespace EndlessClient.Rendering
 
             SetPositionBasedOnCharacterRenderer(_characterRenderer);
             SetSize(W, H);
+
+            // Update this before map renderer so that clicks are handled first
+            UpdateOrder = -20;
         }
 
         public override void Initialize()
@@ -152,8 +159,11 @@ namespace EndlessClient.Rendering
                     _overRect = Option.Some(sourceRect);
                     found = true;
 
-                    if (leftClicked)
+                    if (leftClicked && !_userInputRepository.ClickHandled)
+                    {
                         menuAction();
+                        _userInputRepository.ClickHandled = true;
+                    }
 
                     break;
                 }
