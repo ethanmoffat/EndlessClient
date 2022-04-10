@@ -22,12 +22,12 @@ namespace EndlessClient.Dialogs.Old
 
             Instance = new BankAccountDialog(api);
 
-            if (!api.BankOpen(npcID))
-            {
-                Instance.Close();
-                Instance = null;
-                EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-            }
+            //if (!api.BankOpen(npcID))
+            //{
+            //    Instance.Close();
+            //    Instance = null;
+            //    EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+            //}
         }
 
         private readonly XNALabel m_accountBalance;
@@ -111,11 +111,11 @@ namespace EndlessClient.Dialogs.Old
             }
             if (item.Amount == 1)
             {
-                if (!m_api.BankDeposit(1))
-                {
-                    Close(null, XNADialogResult.NO_BUTTON_PRESSED);
-                    EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-                }
+                //if (!m_api.BankDeposit(1))
+                //{
+                //    Close(null, XNADialogResult.NO_BUTTON_PRESSED);
+                //    EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+                //}
                 return;
             }
 
@@ -126,11 +126,11 @@ namespace EndlessClient.Dialogs.Old
                 if (e.Result == XNADialogResult.Cancel)
                     return;
 
-                if (!m_api.BankDeposit(dlg.SelectedAmount))
-                {
-                    Close(null, XNADialogResult.NO_BUTTON_PRESSED);
-                    EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-                }
+                //if (!m_api.BankDeposit(dlg.SelectedAmount))
+                //{
+                //    Close(null, XNADialogResult.NO_BUTTON_PRESSED);
+                //    EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+                //}
             };
         }
 
@@ -144,11 +144,11 @@ namespace EndlessClient.Dialogs.Old
             }
             if (balance == 1)
             {
-                if (!m_api.BankWithdraw(1))
-                {
-                    Close(null, XNADialogResult.NO_BUTTON_PRESSED);
-                    EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-                }
+                //if (!m_api.BankWithdraw(1))
+                //{
+                //    Close(null, XNADialogResult.NO_BUTTON_PRESSED);
+                //    EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+                //}
                 return;
             }
 
@@ -159,11 +159,11 @@ namespace EndlessClient.Dialogs.Old
                 if (e.Result == XNADialogResult.Cancel)
                     return;
 
-                if (!m_api.BankWithdraw(dlg.SelectedAmount))
-                {
-                    Close(null, XNADialogResult.NO_BUTTON_PRESSED);
-                    EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-                }
+                //if (!m_api.BankWithdraw(dlg.SelectedAmount))
+                //{
+                //    Close(null, XNADialogResult.NO_BUTTON_PRESSED);
+                //    EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+                //}
             };
         }
 

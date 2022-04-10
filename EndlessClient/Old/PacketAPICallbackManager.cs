@@ -29,13 +29,6 @@ namespace EndlessClient.Old
             //npc related
             m_packetAPI.OnRemoveChildNPCs += _removeChildNPCs;
 
-            //bank related
-            m_packetAPI.OnBankOpen += _bankOpen;
-            m_packetAPI.OnBankChange += _bankChange;
-
-            //locker
-            m_packetAPI.OnLockerUpgrade += _lockerUpgrade;
-
             //party
             m_packetAPI.OnPartyClose += _partyClose;
             m_packetAPI.OnPartyDataRefresh += _partyDataRefresh;
@@ -83,29 +76,6 @@ namespace EndlessClient.Old
         private void _removeChildNPCs(short childNPCID)
         {
             OldWorld.Instance.ActiveMapRenderer.RemoveNPCsWhere(x => x.NPC.Data.ID == childNPCID);
-        }
-
-        private void _bankOpen(int gold, int upgrades)
-        {
-            if (BankAccountDialog.Instance == null) return;
-            BankAccountDialog.Instance.AccountBalance = $"{gold}";
-            BankAccountDialog.Instance.LockerUpgrades = upgrades;
-        }
-
-        private void _bankChange(int gold, int bankGold)
-        {
-            if (BankAccountDialog.Instance == null) return;
-
-            //OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, gold);
-            BankAccountDialog.Instance.AccountBalance = $"{bankGold}";
-        }
-
-        private void _lockerUpgrade(int remaining, byte upgrades)
-        {
-            if (BankAccountDialog.Instance == null) return;
-            //OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, remaining);
-            BankAccountDialog.Instance.LockerUpgrades = upgrades;
-            m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_LOCKER_SPACE_INCREASED);
         }
 
         private void _partyClose()

@@ -45,6 +45,15 @@ namespace EOLib.Domain.Interact
 
             _packetSendService.SendPacket(packet);
         }
+
+        public void RequestBank(INPC npc)
+        {
+            var packet = new PacketBuilder(PacketFamily.Bank, PacketAction.Open)
+                .AddShort(npc.Index)
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+        }
     }
 
     public interface IMapNPCActions
@@ -52,5 +61,7 @@ namespace EOLib.Domain.Interact
         void RequestShop(INPC npc);
 
         void RequestQuest(INPC npc);
+
+        void RequestBank(INPC npc);
     }
 }
