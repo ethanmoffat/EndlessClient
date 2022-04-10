@@ -50,19 +50,28 @@ namespace EndlessClient.Input
 
         public (UnwalkableTileAction, IMapCellState) HandleUnwalkableTile()
         {
-            if (MainCharacter.RenderProperties.SitState != SitState.Standing)
-                return (UnwalkableTileAction.None, new MapCellState());
-
             var destX = MainCharacter.RenderProperties.GetDestinationX();
             var destY = MainCharacter.RenderProperties.GetDestinationY();
+            return HandleUnwalkableTile(destX, destY);
+        }
 
-            var cellState = _mapCellStateProvider.GetCellStateAt(destX, destY);
-            var action = cellState.Character.Match(
+        public (UnwalkableTileAction, IMapCellState) HandleUnwalkableTile(int x, int y)
+        {
+            var cellState = _mapCellStateProvider.GetCellStateAt(x, y);
+            var action = HandleUnwalkableTile(cellState);
+            return (action, cellState);
+        }
+
+        public UnwalkableTileAction HandleUnwalkableTile(IMapCellState cellState)
+        {
+            if (MainCharacter.RenderProperties.SitState != SitState.Standing)
+                return UnwalkableTileAction.None;
+
+            return cellState.Character.Match(
                 some: c => HandleWalkThroughOtherCharacter(c), //todo: walk through players after certain elapsed time (3-5sec?)
                 none: () => cellState.Warp.Match(
                     some: w => HandleWalkToWarpTile(w),
                     none: () => HandleWalkToTileSpec(cellState)));
-            return (action, cellState);
         }
 
         private UnwalkableTileAction HandleWalkThroughOtherCharacter(ICharacter c)
@@ -131,7 +140,7 @@ namespace EndlessClient.Input
                                 dlg.ShowDialog();
 
                                 var requiredKey = _unlockChestValidator.GetRequiredKeyName(key);
-                                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION, " - " + requiredKey);
+                                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION, requiredKey.Match(x => $" - {x}", () => string.Empty));
                                 return UnwalkableTileAction.None;
                             }
                             else
@@ -172,5 +181,9 @@ namespace EndlessClient.Input
     public interface IUnwalkableTileActions
     {
         (UnwalkableTileAction, IMapCellState) HandleUnwalkableTile();
+
+        (UnwalkableTileAction, IMapCellState) HandleUnwalkableTile(int x, int y);
+
+        UnwalkableTileAction HandleUnwalkableTile(IMapCellState mapCellState);
     }
 }
