@@ -20,8 +20,8 @@ namespace EndlessClient.Dialogs.Old
 
             Instance = new LockerDialog(api, x, y);
 
-            if (!api.OpenLocker(x, y))
-                EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+            //if (!api.OpenLocker(x, y))
+            //    EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
         }
 
         private static readonly string TITLE_FMT = OldWorld.Instance.MainPlayer.ActiveCharacter.Name + "'s " + OldWorld.GetString(EOResourceID.DIALOG_TITLE_PRIVATE_LOCKER) + " [{0}]";
@@ -96,8 +96,8 @@ namespace EndlessClient.Dialogs.Old
                 return;
             }
 
-            if (!m_api.LockerTakeItem(X, Y, (short)item.ID))
-                EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+            //if (!m_api.LockerTakeItem(X, Y, (short)item.ID))
+            //    EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
         }
 
         public override void Update(GameTime gt)

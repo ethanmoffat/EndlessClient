@@ -69,6 +69,16 @@ namespace EOLib.Domain.Map
 
             _packetSendService.SendPacket(packet);
         }
+
+        public void OpenLocker(byte x, byte y)
+        {
+            var packet = new PacketBuilder(PacketFamily.Locker, PacketAction.Open)
+                .AddChar(x)
+                .AddChar(y)
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+        }
     }
 
     public interface IMapActions
@@ -80,5 +90,7 @@ namespace EOLib.Domain.Map
         void OpenDoor(IWarp warp);
 
         void OpenChest(byte x, byte y);
+
+        void OpenLocker(byte x, byte y);
     }
 }
