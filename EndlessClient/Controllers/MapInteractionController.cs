@@ -1,5 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.ControlSets;
+using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD;
@@ -19,6 +20,7 @@ using EOLib.Localization;
 using Optional;
 using Optional.Collections;
 using System;
+using System.Linq;
 
 namespace EndlessClient.Controllers
 {
@@ -40,6 +42,7 @@ namespace EndlessClient.Controllers
         private readonly IUserInputTimeRepository _userInputTimeRepository;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly IContextMenuRendererFactory _contextMenuRendererFactory;
+        private readonly IActiveDialogProvider _activeDialogProvider;
 
         public MapInteractionController(IMapActions mapActions,
                                         ICharacterActions characterActions,
@@ -55,7 +58,8 @@ namespace EndlessClient.Controllers
                                         IContextMenuRepository contextMenuRepository,
                                         IUserInputTimeRepository userInputTimeRepository,
                                         IEOMessageBoxFactory messageBoxFactory,
-                                        IContextMenuRendererFactory contextMenuRendererFactory)
+                                        IContextMenuRendererFactory contextMenuRendererFactory,
+                                        IActiveDialogProvider activeDialogProvider)
         {
             _mapActions = mapActions;
             _characterActions = characterActions;
@@ -72,14 +76,13 @@ namespace EndlessClient.Controllers
             _userInputTimeRepository = userInputTimeRepository;
             _messageBoxFactory = messageBoxFactory;
             _contextMenuRendererFactory = contextMenuRendererFactory;
+            _activeDialogProvider = activeDialogProvider;
         }
 
         public void LeftClick(IMapCellState cellState, IMouseCursorRenderer mouseRenderer)
         {
-            if (!InventoryPanel.NoItemsDragging())
-            {
+            if (!InventoryPanel.NoItemsDragging() || _activeDialogProvider.ActiveDialogs.Any(x => x.HasValue))
                 return;
-            }
 
             var optionalItem = cellState.Items.FirstOrNone();
             if (optionalItem.HasValue)
@@ -136,7 +139,7 @@ namespace EndlessClient.Controllers
         // todo: move to new controller for character interaction
         public void RightClick(IMapCellState cellState)
         {
-            if (!cellState.Character.HasValue)
+            if (!cellState.Character.HasValue || _activeDialogProvider.ActiveDialogs.Any(x => x.HasValue))
                 return;
 
             cellState.Character.MatchSome(c =>
