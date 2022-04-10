@@ -266,7 +266,12 @@ namespace EndlessClient.Rendering.Character
                                     var characterCoord = new MapCoordinate(nextFrameRenderProperties.MapX, nextFrameRenderProperties.MapY);
 
                                     _walkPath = _targetCoordinate.Match(
-                                        some: tc => _pathFinder.FindPath(characterCoord, tc),
+                                        some: tc =>
+                                        {
+                                            if (tc.Equals(characterCoord))
+                                                return new Queue<MapCoordinate>();
+                                            return _pathFinder.FindPath(characterCoord, tc);
+                                        },
                                         none: () => new Queue<MapCoordinate>());
 
                                     if (_walkPath.Any())
