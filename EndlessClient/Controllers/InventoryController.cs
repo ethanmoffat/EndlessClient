@@ -7,6 +7,7 @@ using EndlessClient.HUD;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Map;
+using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Interact;
 using EOLib.Domain.Item;
@@ -28,6 +29,7 @@ namespace EndlessClient.Controllers
         private readonly IInGameDialogActions _inGameDialogActions;
         private readonly IPaperdollActions _paperdollActions;
         private readonly IChestActions _chestActions;
+        private readonly ILockerActions _lockerActions;
         private readonly IItemEquipValidator _itemEquipValidator;
         private readonly IItemDropValidator _itemDropValidator;
         private readonly ICharacterProvider _characterProvider;
@@ -44,6 +46,7 @@ namespace EndlessClient.Controllers
                                    IInGameDialogActions inGameDialogActions,
                                    IPaperdollActions paperdollActions,
                                    IChestActions chestActions,
+                                   ILockerActions lockerActions,
                                    IItemEquipValidator itemEquipValidator,
                                    IItemDropValidator itemDropValidator,
                                    ICharacterProvider characterProvider,
@@ -60,6 +63,7 @@ namespace EndlessClient.Controllers
             _inGameDialogActions = inGameDialogActions;
             _paperdollActions = paperdollActions;
             _chestActions = chestActions;
+            _lockerActions = lockerActions;
             _itemEquipValidator = itemEquipValidator;
             _itemDropValidator = itemDropValidator;
             _characterProvider = characterProvider;
@@ -223,12 +227,38 @@ namespace EndlessClient.Controllers
 
             if (validationResult == ItemDropResult.Lore)
             {
-                var msgBox = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.ITEM_IS_LORE_ITEM, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                var msgBox = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.ITEM_IS_LORE_ITEM);
                 msgBox.ShowDialog();
             }
             else
             {
                 DoItemDrop(itemData, inventoryItem, a => _chestActions.AddItemToChest(inventoryItem.WithAmount(a)));
+            }
+        }
+
+        public void DropItemInLocker(EIFRecord itemData, IInventoryItem inventoryItem)
+        {
+            if (inventoryItem.ItemID == 1)
+            {
+                var dlg = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.LOCKER_DEPOSIT_GOLD_ERROR);
+                dlg.ShowDialog();
+            }
+            else
+            {
+                DoItemDrop(itemData, inventoryItem, a =>
+                {
+                    if (_lockerActions.GetNewItemAmount(inventoryItem.ItemID, a) > Constants.LockerMaxSingleItemAmount)
+                    {
+                        var dlg = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.LOCKER_FULL_SINGLE_ITEM_MAX);
+                        dlg.ShowDialog();
+                    }
+                    else
+                    {
+                        _lockerActions.AddItemToLocker(inventoryItem.WithAmount(a));
+                    }
+                },
+                ItemTransferDialog.TransferType.ShopTransfer,
+                EOResourceID.DIALOG_TRANSFER_TRANSFER);
             }
         }
 
@@ -256,15 +286,17 @@ namespace EndlessClient.Controllers
             }
         }
 
-        private void DoItemDrop(EIFRecord itemData, IInventoryItem inventoryItem, Action<int> dropAction)
+        private void DoItemDrop(EIFRecord itemData, IInventoryItem inventoryItem, Action<int> dropAction,
+                                ItemTransferDialog.TransferType transferType = ItemTransferDialog.TransferType.DropItems,
+                                EOResourceID message = EOResourceID.DIALOG_TRANSFER_DROP)
         {
             if (inventoryItem.Amount > 1)
             {
                 var transferDialog = _itemTransferDialogFactory.CreateItemTransferDialog(
                     itemData.Name,
-                    ItemTransferDialog.TransferType.DropItems,
+                    transferType,
                     inventoryItem.Amount,
-                    EOResourceID.DIALOG_TRANSFER_DROP);
+                    message);
                 transferDialog.DialogClosing += (sender, e) =>
                 {
                     if (e.Result == XNADialogResult.OK)
@@ -307,6 +339,8 @@ namespace EndlessClient.Controllers
         void DropItem(EIFRecord itemData, IInventoryItem inventoryItem);
 
         void DropItemInChest(EIFRecord itemData, IInventoryItem inventoryItem);
+
+        void DropItemInLocker(EIFRecord itemData, IInventoryItem inventoryItem);
 
         void JunkItem(EIFRecord itemData, IInventoryItem inventoryItem);
     }

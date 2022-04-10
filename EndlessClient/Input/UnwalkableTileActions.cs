@@ -15,6 +15,7 @@ namespace EndlessClient.Input
         Chair,
         Chest,
         Door,
+        Locker,
     }
 
     [AutoMappedType]
@@ -152,13 +153,8 @@ namespace EndlessClient.Input
                         {
                             return UnwalkableTileAction.Chest;
                         });
-                case TileSpec.BankVault: //todo: locker
-                    //walkValid = Renderer.NoWall;
-                    //if (!walkValid)
-                    //{
-                    //    LockerDialog.Show(((EOGame)Game).API, destX, destY);
-                    //}
-                    break;
+                case TileSpec.BankVault:
+                    return UnwalkableTileAction.Locker;
                 case TileSpec.Board1: //todo: boards
                 case TileSpec.Board2:
                 case TileSpec.Board3:

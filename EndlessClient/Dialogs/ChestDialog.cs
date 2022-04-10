@@ -109,7 +109,7 @@ namespace EndlessClient.Dialogs
 
         private void TakeItem(IInventoryItem item, EIFRecord itemData)
         {
-            if (!_inventorySpaceValidator.ItemFits(itemData.Size))
+            if (!_inventorySpaceValidator.ItemFits(item.ItemID))
             {
                 var dlg = _messageBoxFactory.CreateMessageBox(EOResourceID.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT, EOResourceID.STATUS_LABEL_TYPE_WARNING);
                 dlg.ShowDialog();

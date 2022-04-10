@@ -375,8 +375,6 @@ namespace EndlessClient.Rendering
 
             bool leftClicked = PreviousMouseState.LeftButton == ButtonState.Pressed &&
                                currentState.LeftButton == ButtonState.Released;
-            bool rightClicked = PreviousMouseState.RightButton == ButtonState.Pressed &&
-                                currentState.RightButton == ButtonState.Released;
 
             if (leftClicked)
             {
@@ -395,14 +393,6 @@ namespace EndlessClient.Rendering
                         OldWorld.Instance.ActiveCharacterRenderer._prepareSpell();
                     }
                 }
-            }
-            //handle right-clicking a player. menu when not ActiveCharacter, paperdoll when ActiveCharacter
-            else if (rightClicked)
-            {
-                if (this == OldWorld.Instance.ActiveCharacterRenderer) { }
-                    //((EOGame) Game).API.RequestPaperdoll((short) Character.ID);
-                else
-                    OldWorld.Instance.ActiveMapRenderer.ShowContextMenu(this);
             }
         }
 

@@ -106,12 +106,19 @@ namespace EndlessClient.Controllers
 
                 switch (cellState.TileSpec)
                 {
-                    // todo: implement for other clickable tile specs (locker, jukebox, etc)
+                    // todo: implement for other clickable tile specs (board, jukebox, etc)
                     case TileSpec.Chest:
                         if (unwalkableAction == UnwalkableTileAction.Chest)
                         {
                             _mapActions.OpenChest((byte)cellState.Coordinate.X, (byte)cellState.Coordinate.Y);
                             _inGameDialogActions.ShowChestDialog();
+                        }
+                        break;
+                    case TileSpec.BankVault:
+                        if (unwalkableAction == UnwalkableTileAction.Locker)
+                        {
+                            _mapActions.OpenLocker((byte)cellState.Coordinate.X, (byte)cellState.Coordinate.Y);
+                            _inGameDialogActions.ShowLockerDialog();
                         }
                         break;
                 }
@@ -122,7 +129,6 @@ namespace EndlessClient.Controllers
                 _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator)
                     .StartMainCharacterWalkAnimation(Option.Some(cellState.Coordinate));
             }
-            // todo: board, jukebox
 
             _userInputTimeRepository.LastInputTime = DateTime.Now;
         }

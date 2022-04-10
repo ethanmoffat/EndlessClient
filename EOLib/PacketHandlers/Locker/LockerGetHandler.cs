@@ -47,7 +47,7 @@ namespace EOLib.PacketHandlers.Locker
                         _characterInventoryRepository.ItemInventory.Remove(existing);
                         if (amount > 0 || itemId == 1)
                         {
-                            _characterInventoryRepository.ItemInventory.Add(existing.WithAmount(existing.Amount + (Action == PacketAction.Get ? amount : -amount)));
+                            _characterInventoryRepository.ItemInventory.Add(existing.WithAmount(Action == PacketAction.Get ? existing.Amount + amount : amount));
                         }
                     },
                     none: () =>

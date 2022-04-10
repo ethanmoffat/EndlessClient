@@ -242,7 +242,7 @@ namespace EndlessClient.Dialogs
                     {
                         eifRecord.MatchSome(rec =>
                         {
-                            if (!_inventorySpaceValidator.ItemFits(rec.Size))
+                            if (!_inventorySpaceValidator.ItemFits(rec.ID))
                             {
                                 _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_ITEM_UNEQUIP_NO_SPACE_LEFT);
                             }

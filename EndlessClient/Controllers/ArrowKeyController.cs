@@ -116,6 +116,10 @@ namespace EndlessClient.Controllers
                         _mapActions.OpenChest((byte)cellState.Coordinate.X, (byte)cellState.Coordinate.Y);
                         _inGameDialogActions.ShowChestDialog();
                         break;
+                    case UnwalkableTileAction.Locker:
+                        _mapActions.OpenLocker((byte)cellState.Coordinate.X, (byte)cellState.Coordinate.Y);
+                        _inGameDialogActions.ShowLockerDialog();
+                        break;
                     case UnwalkableTileAction.Chair: _characterActions.SitInChair(); break;
                     case UnwalkableTileAction.Door: cellState.Warp.MatchSome(w => _mapActions.OpenDoor(w)); break;
                 }

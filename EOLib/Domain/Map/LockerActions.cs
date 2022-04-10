@@ -2,6 +2,7 @@
 using EOLib.Domain.Character;
 using EOLib.Net;
 using EOLib.Net.Communication;
+using Optional.Collections;
 
 namespace EOLib.Domain.Map
 {
@@ -40,13 +41,21 @@ namespace EOLib.Domain.Map
 
             _packetSendService.SendPacket(packet);
         }
+
+        public int GetNewItemAmount(short itemId, int amount)
+        {
+            return _lockerDataProvider.Items
+                .SingleOrNone(x => x.ItemID == itemId)
+                .Match(item => item.Amount + amount, () => amount);
+        }
     }
 
     public interface ILockerActions
     {
-
         void AddItemToLocker(IInventoryItem item);
 
         void TakeItemFromLocker(short itemId);
+
+        int GetNewItemAmount(short itemId, int amount);
     }
 }

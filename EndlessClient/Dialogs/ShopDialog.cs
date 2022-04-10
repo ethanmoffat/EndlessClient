@@ -269,7 +269,7 @@ namespace EndlessClient.Dialogs
             // todo: move this stuff into a validator class?
             if (buying)
             {
-                if (!_inventorySpaceValidator.ItemFits(data.Size))
+                if (!_inventorySpaceValidator.ItemFits(data.ID))
                 {
                     var msg = _messageBoxFactory.CreateMessageBox(EOResourceID.DIALOG_TRANSFER_NOT_ENOUGH_SPACE, EOResourceID.STATUS_LABEL_TYPE_WARNING);
                     msg.ShowDialog();
@@ -372,7 +372,7 @@ namespace EndlessClient.Dialogs
                 }
             }
 
-            if (!_inventorySpaceValidator.ItemFits(data.Size))
+            if (!_inventorySpaceValidator.ItemFits(data.ID))
             {
                 var msg = _messageBoxFactory.CreateMessageBox(EOResourceID.DIALOG_TRANSFER_NOT_ENOUGH_SPACE, EOResourceID.STATUS_LABEL_TYPE_WARNING);
                 msg.ShowDialog();
