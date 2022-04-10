@@ -308,7 +308,7 @@ namespace EndlessClient.HUD.Controls
         private IGameComponent CreateSessionExpButton()
         {
             var btn = new XNAButton(
-                _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 58),
+                _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 58, transparent: true),
                 new Vector2(55, 0),
                 new Rectangle(331, 30, 22, 14),
                 new Rectangle(331, 30, 22, 14))
@@ -323,7 +323,7 @@ namespace EndlessClient.HUD.Controls
         private IGameComponent CreateQuestButton()
         {
             var btn = new XNAButton(
-                _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 58),
+                _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 58, transparent: true),
                 new Vector2(77, 0),
                 new Rectangle(353, 30, 22, 14),
                 new Rectangle(353, 30, 22, 14))
