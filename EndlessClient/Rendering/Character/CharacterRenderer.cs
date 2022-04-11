@@ -227,7 +227,7 @@ namespace EndlessClient.Rendering.Character
         {
             const int x = 314; // 618 / 2.0
 
-            var skinRect = _characterTextures.Skin.SourceRectangle;
+            var skinRect = new Rectangle(0, 0, 18, 58);
             var y = (298 - skinRect.Height)/2 - skinRect.Height/4;
             SetAbsoluteScreenPosition(x, y);
         }
