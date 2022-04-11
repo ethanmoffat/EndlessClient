@@ -43,6 +43,7 @@ namespace EndlessClient.Controllers
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly IContextMenuRendererFactory _contextMenuRendererFactory;
         private readonly IActiveDialogProvider _activeDialogProvider;
+        private readonly IUserInputRepository _userInputRepository;
 
         public MapInteractionController(IMapActions mapActions,
                                         ICharacterActions characterActions,
@@ -59,7 +60,8 @@ namespace EndlessClient.Controllers
                                         IUserInputTimeRepository userInputTimeRepository,
                                         IEOMessageBoxFactory messageBoxFactory,
                                         IContextMenuRendererFactory contextMenuRendererFactory,
-                                        IActiveDialogProvider activeDialogProvider)
+                                        IActiveDialogProvider activeDialogProvider,
+                                        IUserInputRepository userInputRepository)
         {
             _mapActions = mapActions;
             _characterActions = characterActions;
@@ -77,9 +79,10 @@ namespace EndlessClient.Controllers
             _messageBoxFactory = messageBoxFactory;
             _contextMenuRendererFactory = contextMenuRendererFactory;
             _activeDialogProvider = activeDialogProvider;
+            _userInputRepository = userInputRepository;
         }
 
-        public void LeftClick(IMapCellState cellState, IMouseCursorRenderer mouseRenderer)
+        public void LeftClick(IMapCellState cellState, Option<IMouseCursorRenderer> mouseRenderer)
         {
             if (!InventoryPanel.NoItemsDragging() || _activeDialogProvider.ActiveDialogs.Any(x => x.HasValue))
                 return;
@@ -92,16 +95,22 @@ namespace EndlessClient.Controllers
                     _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
                 else
                     HandlePickupResult(_mapActions.PickUpItem(item), item);
+
+                _userInputRepository.ClickHandled = true;
             }
             else if (cellState.Sign.HasValue)
             {
                 var sign = cellState.Sign.ValueOr(Sign.None);
                 var messageBox = _messageBoxFactory.CreateMessageBox(sign.Message, sign.Title);
                 messageBox.ShowDialog();
+
+                _userInputRepository.ClickHandled = true;
             }
             else if (_characterProvider.MainCharacter.RenderProperties.SitState != SitState.Standing)
             {
                 _characterActions.ToggleSit();
+
+                _userInputRepository.ClickHandled = true;
             }
             else if (InteractableTileSpec(cellState.TileSpec) && CharacterIsCloseEnough(cellState.Coordinate))
             {
@@ -115,6 +124,8 @@ namespace EndlessClient.Controllers
                         {
                             _mapActions.OpenChest((byte)cellState.Coordinate.X, (byte)cellState.Coordinate.Y);
                             _inGameDialogActions.ShowChestDialog();
+
+                            _userInputRepository.ClickHandled = true;
                         }
                         break;
                     case TileSpec.BankVault:
@@ -122,15 +133,19 @@ namespace EndlessClient.Controllers
                         {
                             _mapActions.OpenLocker((byte)cellState.Coordinate.X, (byte)cellState.Coordinate.Y);
                             _inGameDialogActions.ShowLockerDialog();
+
+                            _userInputRepository.ClickHandled = true;
                         }
                         break;
                 }
             }
             else if (cellState.InBounds && !cellState.Character.HasValue && !cellState.NPC.HasValue)
             {
-                mouseRenderer.AnimateClick();
+                mouseRenderer.MatchSome(r => r.AnimateClick());
                 _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator)
                     .StartMainCharacterWalkAnimation(Option.Some(cellState.Coordinate));
+
+                _userInputRepository.ClickHandled = true;
             }
 
             _userInputTimeRepository.LastInputTime = DateTime.Now;
@@ -229,7 +244,7 @@ namespace EndlessClient.Controllers
 
     public interface IMapInteractionController
     {
-        void LeftClick(IMapCellState cellState, IMouseCursorRenderer mouseRenderer);
+        void LeftClick(IMapCellState cellState, Option<IMouseCursorRenderer> mouseRenderer);
 
         void RightClick(IMapCellState cellState);
     }

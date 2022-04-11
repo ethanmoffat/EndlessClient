@@ -72,7 +72,8 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             }
         }
 
-        protected virtual Vector2 GetDrawCoordinatesFromGridUnits(int gridX, int gridY)
+        // todo: this shouldn't be public, move to another service that's responsible for calculating the offsets for map entities
+        public virtual Vector2 GetDrawCoordinatesFromGridUnits(int gridX, int gridY)
         {
             const int ViewportWidthFactor = 320; // 640 * (1/2)
             const int ViewportHeightFactor = 144; // 480 * (3/10)

@@ -109,7 +109,7 @@ namespace EndlessClient.ControlSets
                         _endlessGameProvider,
                         _userInputRepository);
                 case GameStates.PlayingTheGame:
-                    return new InGameControlSet(_mainButtonController, _messageBoxFactory, _hudControlsFactory, _activeDialogRepository);
+                    return new InGameControlSet(_mainButtonController, _messageBoxFactory, _hudControlsFactory, _activeDialogRepository, _userInputRepository);
                 default: throw new ArgumentOutOfRangeException(nameof(newState), newState, null);
             }
         }

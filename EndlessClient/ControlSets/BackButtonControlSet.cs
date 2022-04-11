@@ -43,6 +43,7 @@ namespace EndlessClient.ControlSets
                 new Rectangle(0, 0, _backButtonTexture.Width, _backButtonTexture.Height / 2),
                 new Rectangle(0, _backButtonTexture.Height / 2, _backButtonTexture.Width, _backButtonTexture.Height / 2))
             {
+                UpdateOrder = -1,
                 DrawOrder = 100,
                 ClickArea = new Rectangle(4, 16, 16, 16)
             };

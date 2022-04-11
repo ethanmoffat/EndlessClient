@@ -287,6 +287,9 @@ namespace EndlessClient.Rendering
 
         private void CheckForClicks(IMapCellState cellState)
         {
+            if (_userInputProvider.ClickHandled)
+                return;
+
             var currentMouseState = _userInputProvider.CurrentMouseState;
             var previousMouseState = _userInputProvider.PreviousMouseState;
 
@@ -294,7 +297,7 @@ namespace EndlessClient.Rendering
             if (currentMouseState.LeftButton == ButtonState.Released &&
                 previousMouseState.LeftButton == ButtonState.Pressed)
             {
-                _mapInteractionController.LeftClick(cellState, this);
+                _mapInteractionController.LeftClick(cellState, Option.Some<IMouseCursorRenderer>(this));
             }
         }
 

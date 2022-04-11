@@ -21,6 +21,7 @@ namespace EndlessClient.Input
         {
             _userInputRepository.PreviousKeyState = _userInputRepository.CurrentKeyState;
             _userInputRepository.PreviousMouseState = _userInputRepository.CurrentMouseState;
+            _userInputRepository.ClickHandled = false;
 
             base.Update(gameTime);
         }

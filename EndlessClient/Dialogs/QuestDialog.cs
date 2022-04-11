@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework;
 using Optional;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Dialogs
@@ -86,7 +87,7 @@ namespace EndlessClient.Dialogs
             var npcName = _enfFileProvider.ENFFile[_questDataProvider.RequestedNPC.ID].Name;
             var titleText = npcName;
             if (!repoData.DialogTitles.ContainsKey(repoData.VendorID) && repoData.DialogTitles.Count == 1)
-                titleText += $" - {repoData.DialogTitles[0]}";
+                titleText += $" - {repoData.DialogTitles.Single().Value}";
             else if (repoData.DialogTitles.ContainsKey(repoData.VendorID))
                 titleText += $" - {repoData.DialogTitles[repoData.VendorID]}";
 

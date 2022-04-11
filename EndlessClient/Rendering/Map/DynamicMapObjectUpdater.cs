@@ -1,7 +1,12 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Controllers;
+using EndlessClient.Input;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
+using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
+using Optional;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,14 +26,25 @@ namespace EndlessClient.Rendering.Map
 
         private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
+        private readonly IUserInputRepository _userInputRepository;
+        private readonly ICurrentMapProvider _currentMapProvider;
+        private readonly IMapObjectBoundsCalculator _mapObjectBoundsCalculator;
+        private readonly IMapInteractionController _mapInteractionController;
         private readonly List<DoorTimePair> _cachedDoorState;
 
         public DynamicMapObjectUpdater(ICharacterProvider characterProvider,
-                                       ICurrentMapStateRepository currentMapStateRepository)
+                                       ICurrentMapStateRepository currentMapStateRepository,
+                                       IUserInputRepository userInputRepository,
+                                       ICurrentMapProvider currentMapProvider,
+                                       IMapObjectBoundsCalculator mapObjectBoundsCalculator,
+                                       IMapInteractionController mapInteractionController)
         {
             _characterProvider = characterProvider;
             _currentMapStateRepository = currentMapStateRepository;
-
+            _userInputRepository = userInputRepository;
+            _currentMapProvider = currentMapProvider;
+            _mapObjectBoundsCalculator = mapObjectBoundsCalculator;
+            _mapInteractionController = mapInteractionController;
             _cachedDoorState = new List<DoorTimePair>();
         }
 
@@ -39,6 +55,8 @@ namespace EndlessClient.Rendering.Map
             CloseExpiredDoors(now);
 
             RemoveStaleSpikeTraps();
+
+            CheckForObjectClicks();
         }
 
         private void OpenNewDoors(DateTime now)
@@ -74,6 +92,40 @@ namespace EndlessClient.Rendering.Map
             }
 
             _currentMapStateRepository.VisibleSpikeTraps.RemoveWhere(staleTraps.Contains);
+        }
+
+        private void CheckForObjectClicks()
+        {
+            if (_userInputRepository.ClickHandled)
+                return;
+
+            var mouseClicked = _userInputRepository.PreviousMouseState.LeftButton == ButtonState.Pressed &&
+                _userInputRepository.CurrentMouseState.LeftButton == ButtonState.Released;
+
+            if (mouseClicked)
+            {
+                foreach (var sign in _currentMapProvider.CurrentMap.Signs)
+                {
+                    var gfx = _currentMapProvider.CurrentMap.GFX[MapLayer.Objects][sign.Y, sign.X];
+                    if (gfx > 0)
+                    {
+                        var bounds = _mapObjectBoundsCalculator.GetMapObjectBounds(sign.X, sign.Y, gfx);
+                        if (bounds.Contains(_userInputRepository.CurrentMouseState.Position))
+                        {
+                            var cellState = new MapCellState
+                            {
+                                Sign = Option.Some<ISign>(new Sign(sign)),
+                                Coordinate = new MapCoordinate(sign.X, sign.Y)
+                            };
+                            _mapInteractionController.LeftClick(cellState, Option.None<IMouseCursorRenderer>());
+                            _userInputRepository.ClickHandled = true;
+                            break;
+                        }
+                    }
+                }
+
+                // todo: check for board object clicks
+            }
         }
     }
 

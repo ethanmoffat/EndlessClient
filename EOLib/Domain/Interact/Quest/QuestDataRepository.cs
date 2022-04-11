@@ -49,7 +49,6 @@ namespace EOLib.Domain.Interact.Quest
 
         public void ResetState()
         {
-            RequestedNPC = null;
             QuestDialogData = Option.None<IQuestDialogData>();
             QuestProgress = new List<IQuestProgressData>();
             QuestHistory = new List<string>();

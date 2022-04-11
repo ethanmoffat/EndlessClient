@@ -2,6 +2,7 @@
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.HUD;
+using EndlessClient.Input;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Services;
 using EOLib.Domain.Interact;
@@ -19,6 +20,7 @@ namespace EndlessClient.Rendering.Factories
         private readonly IFriendIgnoreListService _friendIgnoreListService;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly IContextMenuRepository _contextMenuRepository;
+        private readonly IUserInputRepository _userInputRepository;
 
         public ContextMenuRendererFactory(INativeGraphicsManager nativeGraphicsManager,
             IInGameDialogActions inGameDialogActions,
@@ -26,7 +28,8 @@ namespace EndlessClient.Rendering.Factories
             IStatusLabelSetter statusLabelSetter,
             IFriendIgnoreListService friendIgnoreListService,
             IHudControlProvider hudControlProvider,
-            IContextMenuRepository contextMenuRepository)
+            IContextMenuRepository contextMenuRepository,
+            IUserInputRepository userInputRepository)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _inGameDialogActions = inGameDialogActions;
@@ -35,6 +38,7 @@ namespace EndlessClient.Rendering.Factories
             _friendIgnoreListService = friendIgnoreListService;
             _hudControlProvider = hudControlProvider;
             _contextMenuRepository = contextMenuRepository;
+            _userInputRepository = userInputRepository;
         }
 
         public IContextMenuRenderer CreateContextMenuRenderer(ICharacterRenderer characterRenderer)
@@ -46,6 +50,7 @@ namespace EndlessClient.Rendering.Factories
                 _friendIgnoreListService,
                 _hudControlProvider,
                 _contextMenuRepository,
+                _userInputRepository,
                 characterRenderer);
         }
     }

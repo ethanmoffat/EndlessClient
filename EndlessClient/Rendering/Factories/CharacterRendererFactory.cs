@@ -1,6 +1,7 @@
 using AutomaticTypeMapper;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
+using EndlessClient.Input;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Chat;
@@ -28,6 +29,7 @@ namespace EndlessClient.Rendering.Factories
         private readonly ICharacterSpriteCalculator _characterSpriteCalculator;
         private readonly IGameStateProvider _gameStateProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
+        private readonly IUserInputProvider _userInputProvider;
 
         public CharacterRendererFactory(INativeGraphicsManager nativeGraphicsManager,
                                         IEndlessGameProvider gameProvider,
@@ -41,7 +43,8 @@ namespace EndlessClient.Rendering.Factories
                                         ICharacterTextures characterTextures,
                                         ICharacterSpriteCalculator characterSpriteCalculator,
                                         IGameStateProvider gameStateProvider,
-                                        ICurrentMapProvider currentMapProvider)
+                                        ICurrentMapProvider currentMapProvider,
+                                        IUserInputProvider userInputProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _gameProvider = gameProvider;
@@ -56,6 +59,7 @@ namespace EndlessClient.Rendering.Factories
             _characterSpriteCalculator = characterSpriteCalculator;
             _gameStateProvider = gameStateProvider;
             _currentMapProvider = currentMapProvider;
+            _userInputProvider = userInputProvider;
         }
 
         public ICharacterRenderer CreateCharacterRenderer(ICharacter character)
@@ -74,7 +78,8 @@ namespace EndlessClient.Rendering.Factories
                 _characterSpriteCalculator,
                 character,
                 _gameStateProvider,
-                _currentMapProvider);
+                _currentMapProvider,
+                _userInputProvider);
         }
     }
 }
