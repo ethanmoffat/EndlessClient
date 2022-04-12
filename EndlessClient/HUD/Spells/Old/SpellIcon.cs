@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace EndlessClient.HUD.Spells
+namespace EndlessClient.HUD.Spells.Old
 {
     public class SpellIcon : EmptySpellIcon
     {
@@ -61,7 +61,7 @@ namespace EndlessClient.HUD.Spells
             _spellGraphicSourceRect = new Rectangle(0, 0, _spellGraphic.Width / 2, _spellGraphic.Height);
 
             _spellLevelColor = new Texture2D(Game.GraphicsDevice, 1, 1);
-            _spellLevelColor.SetData(new[] {Color.FromNonPremultiplied(0xc9, 0xb8, 0x9b, 0xff)});
+            _spellLevelColor.SetData(new[] { Color.FromNonPremultiplied(0xc9, 0xb8, 0x9b, 0xff) });
             OnLevelChanged();
 
             _clickTime = DateTime.Now;
@@ -99,14 +99,14 @@ namespace EndlessClient.HUD.Spells
 
         private void OnSelected()
         {
-            var hud = ((EOGame) Game).Hud;
+            var hud = ((EOGame)Game).Hud;
             switch (SpellData.Target)
             {
                 case SpellTarget.Normal:
                     hud.SetStatusLabel(EOResourceID.SKILLMASTER_WORD_SPELL, SpellData.Name, EOResourceID.SPELL_WAS_SELECTED);
                     break;
                 case SpellTarget.Group:
-                    if(!hud.MainPlayerIsInParty())
+                    if (!hud.MainPlayerIsInParty())
                         hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.SPELL_ONLY_WORKS_ON_GROUP);
                     break;
             }
@@ -126,13 +126,13 @@ namespace EndlessClient.HUD.Spells
             {
                 SetIconHover(MouseOver);
                 if (MouseOver && !_parentSpellContainer.AnySpellsDragging())
-                    ((EOGame) Game).Hud.SetStatusLabel(EOResourceID.SKILLMASTER_WORD_SPELL, SpellData.Name);
+                    ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.SKILLMASTER_WORD_SPELL, SpellData.Name);
             }
         }
 
         private void SetIconHover(bool hover)
         {
-            var halfWidth = _spellGraphic.Width/2;
+            var halfWidth = _spellGraphic.Width / 2;
             _spellGraphicSourceRect = new Rectangle(hover ? halfWidth : 0, 0, halfWidth, _spellGraphic.Height);
         }
 
@@ -226,7 +226,7 @@ namespace EndlessClient.HUD.Spells
                 alphaColor = Color.FromNonPremultiplied(255, 255, 255, 128);
             }
 
-            if (targetDrawArea.Width*targetDrawArea.Height == 0)
+            if (targetDrawArea.Width * targetDrawArea.Height == 0)
                 return;
 
             SpriteBatch.Draw(_spellGraphic, targetDrawArea, _spellGraphicSourceRect, alphaColor);

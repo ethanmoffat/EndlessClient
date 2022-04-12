@@ -1,6 +1,6 @@
 ﻿using EOLib.IO.Pub;
 
-namespace EndlessClient.HUD.Spells
+namespace EndlessClient.HUD.Spells.Old
 {
     public interface ISpellIcon
     {

@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XNAControls.Old;
 
-namespace EndlessClient.HUD.Spells
+namespace EndlessClient.HUD.Spells.Old
 {
     public class EmptySpellIcon : XNAControl, ISpellIcon
     {
@@ -32,7 +32,7 @@ namespace EndlessClient.HUD.Spells
             {
                 if (value)
                 {
-                    ((EOGame) Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.SPELL_NOTHING_WAS_SELECTED);
+                    ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.SPELL_NOTHING_WAS_SELECTED);
                 }
             }
         }
