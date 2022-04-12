@@ -115,7 +115,14 @@ namespace EndlessClient.HUD.Panels
 
         public ActiveSpellsPanel CreateActiveSpellsPanel()
         {
-            return new ActiveSpellsPanel(_nativeGraphicsManager) { DrawOrder = HUD_CONTROL_LAYER };
+            return new ActiveSpellsPanel(_nativeGraphicsManager,
+                _trainingController,
+                _messageBoxFactory,
+                _statusLabelSetter,
+                _playerInfoProvider,
+                _characterProvider,
+                _characterInventoryProvider,
+                _pubFileProvider) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public PassiveSpellsPanel CreatePassiveSpellsPanel()
