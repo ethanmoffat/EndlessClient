@@ -52,6 +52,7 @@ namespace EndlessClient.HUD.Panels
         private readonly ScrollBar _scrollBar;
 
         private HashSet<IInventorySpell> _cachedSpells;
+        private ICharacterStats _cachedStats;
         private bool _confirmedTraining;
         private int _lastScrollOffset;
         private Texture2D _activeSpellIcon;
@@ -196,6 +197,10 @@ namespace EndlessClient.HUD.Panels
                     matchedSpell.MatchSome(childControl =>
                     {
                         childControl.InventorySpell = spell;
+                        if (childControl.IsSelected)
+                        {
+                            _selectedSpellLevel.Text = spell.Level.ToString();
+                        }
                     });
                 }
 
@@ -248,6 +253,19 @@ namespace EndlessClient.HUD.Panels
             if (_lastScrollOffset != _scrollBar.ScrollOffset)
             {
                 UpdateSpellItemsForScroll();
+            }
+
+            if (_cachedStats != _characterProvider.MainCharacter.Stats && _activeSpellIcon != null)
+            {
+                _cachedStats = _characterProvider.MainCharacter.Stats;
+                var skillPoints = _cachedStats[CharacterStat.SkillPoints];
+                _totalSkillPoints.Text = skillPoints.ToString();
+
+                if (skillPoints == 0)
+                {
+                    _levelUpButton1.Visible = false;
+                    _levelUpButton2.Visible = false;
+                }
             }
 
             base.OnUpdateControl(gameTime);
@@ -328,18 +346,18 @@ namespace EndlessClient.HUD.Panels
 
         private void SetSelectedSpell(object sender, EventArgs e)
         {
-            ClearSelectedSpell();
-
             var spell = (SpellPanelItem)sender;
+
+            ClearSelectedSpell(exclude: spell);
 
             var spellData = spell.SpellData;
             if (spellData.Target == EOLib.IO.SpellTarget.Normal)
-                _statusLabelSetter.SetStatusLabel(EOResourceID.SKILLMASTER_WORD_SPELL, spellData.Name, EOResourceID.SPELL_WAS_SELECTED);
+                _statusLabelSetter.SetStatusLabel(EOResourceID.SKILLMASTER_WORD_SPELL, $"{spellData.Name} ", EOResourceID.SPELL_WAS_SELECTED);
             else if (spellData.Target == EOLib.IO.SpellTarget.Group /*&& not in party*/) // todo: parties
                 _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.SPELL_ONLY_WORKS_ON_GROUP);
 
             _activeSpellIcon = NativeGraphicsManager.TextureFromResource(GFXTypes.SpellIcons, spellData.Icon);
-            
+
             _selectedSpellName.Text = spellData.Name;
             _selectedSpellName.Visible = true;
 
@@ -412,7 +430,7 @@ namespace EndlessClient.HUD.Panels
             return emptyItem;
         }
 
-        private void ClearSelectedSpell()
+        private void ClearSelectedSpell(params ISpellPanelItem[] exclude)
         {
             _activeSpellIcon = null;
 
@@ -423,9 +441,10 @@ namespace EndlessClient.HUD.Panels
 
             _levelUpButton1.Visible = _levelUpButton2.Visible = false;
 
-            foreach (var item in _childItems.Where(x => x.IsSelected))
+            foreach (var item in _childItems.Where(x => x.IsSelected).Except(exclude))
                 item.IsSelected = false;
         }
+
         private void SwapFunctionKeySourceRectangles()
         {
             var tmpRect = _functionKeyRow2Source;

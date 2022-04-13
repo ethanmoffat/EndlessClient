@@ -40,7 +40,9 @@ namespace EndlessClient.HUD.Spells
             set
             {
                 _selected = value;
-                Selected?.Invoke(this, EventArgs.Empty);
+
+                if (_selected)
+                    Selected?.Invoke(this, EventArgs.Empty);
             }
         }
 
