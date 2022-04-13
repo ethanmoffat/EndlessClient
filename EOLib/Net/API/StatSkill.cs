@@ -144,7 +144,6 @@ namespace EOLib.Net.API
         public event SpellLearnErrorEvent OnSpellLearnError;
         public event SpellLearnSuccessEvent OnSpellLearnSuccess;
         public event SpellForgetEvent OnSpellForget;
-        public event SpellTrainEvent OnSpellTrain;
         public event Action<StatResetData> OnCharacterStatsReset;
 
         private void _createStatSkillMembers()
@@ -153,7 +152,6 @@ namespace EOLib.Net.API
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Reply), _handleStatSkillReply, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Take), _handleStatSkillTake, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Remove), _handleStatSkillRemove, true);
-            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Accept), _handleStatSkillAccept, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Junk), _handleStatSkillJunk, true);
         }
 
@@ -192,33 +190,11 @@ namespace EOLib.Net.API
             return m_client.SendPacket(pkt);
         }
 
-        public bool LevelUpStat(short statID)
-        {
-            return _trainStatShared(statID, TrainType.Stat);
-        }
-
-        public bool LevelUpSpell(short spellID)
-        {
-            return _trainStatShared(spellID, TrainType.Skill);
-        }
-
         public bool ResetCharacterStatSkill()
         {
             OldPacket pkt = new OldPacket(PacketFamily.StatSkill, PacketAction.Junk);
             pkt.AddInt(1234); //shop ID, ignored by eoserv - eomain may require this to be correct
             return !m_client.ConnectedAndInitialized || !Initialized || m_client.SendPacket(pkt);
-        }
-
-        private bool _trainStatShared(short id, TrainType type)
-        {
-            if (!m_client.ConnectedAndInitialized || !Initialized)
-                return false;
-
-            OldPacket pkt = new OldPacket(PacketFamily.StatSkill, PacketAction.Add);
-            pkt.AddChar((byte)type);
-            pkt.AddShort(id);
-
-            return m_client.SendPacket(pkt);
         }
 
         //handlers
@@ -253,16 +229,6 @@ namespace EOLib.Net.API
             //short - spell id
             if (OnSpellForget != null)
                 OnSpellForget(pkt.GetShort());
-        }
-
-        //skill point added to spell
-        private void _handleStatSkillAccept(OldPacket pkt)
-        {
-            //short - character skill pts remaining
-            //short - stat ID (spell ID)
-            //short - spell level
-            if (OnSpellTrain != null)
-                OnSpellTrain(pkt.GetShort(), pkt.GetShort(), pkt.GetShort());
         }
 
         //reset character

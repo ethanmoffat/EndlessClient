@@ -321,9 +321,8 @@ namespace EndlessClient.HUD.Panels
             }
             else
             {
-                var selectedSpell = _childItems.SingleOrNone(x => x.IsSelected);
-                // todo: implement in training controller
-                //_trainingController.LevelUpSpell(selectedSpell.SpellData.ID);
+                _childItems.SingleOrNone(x => x.IsSelected)
+                    .MatchSome(x => _trainingController.AddSkillPoint(x.SpellData.ID));
             }
         }
 

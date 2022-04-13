@@ -6,11 +6,11 @@ namespace EndlessClient.Controllers
     [MappedType(BaseType = typeof(ITrainingController))]
     public class TrainingController : ITrainingController
     {
-        private readonly IStatTrainingActions _statTrainingActions;
+        private readonly ITrainingActions _trainingActions;
 
-        public TrainingController(IStatTrainingActions statTrainingActions)
+        public TrainingController(ITrainingActions trainingActions)
         {
-            _statTrainingActions = statTrainingActions;
+            _trainingActions = trainingActions;
         }
 
         public void AddStatPoint(CharacterStat whichStat)
@@ -18,7 +18,12 @@ namespace EndlessClient.Controllers
             if (InvalidStat(whichStat))
                 return;
 
-            _statTrainingActions.LevelUpStat(whichStat);
+            _trainingActions.LevelUpStat(whichStat);
+        }
+
+        public void AddSkillPoint(int spellId)
+        {
+            _trainingActions.LevelUpSkill(spellId);
         }
 
         private static bool InvalidStat(CharacterStat whichStat)
@@ -39,5 +44,7 @@ namespace EndlessClient.Controllers
     public interface ITrainingController
     {
         void AddStatPoint(CharacterStat whichStat);
+
+        void AddSkillPoint(int spellId);
     }
 }

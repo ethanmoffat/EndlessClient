@@ -293,7 +293,7 @@ namespace EndlessClient.Dialogs.Old
             //    weightDelta += OldWorld.Instance.EIF[item.ItemID].Weight * item.Amount;
             //}
             m_main.Weight += (byte)weightDelta;
-            ((EOGame)Game).Hud.RefreshStats();
+            //((EOGame)Game).Hud.RefreshStats();
 
             Close(null, XNADialogResult.NO_BUTTON_PRESSED);
             EOMessageBox.Show(DialogResourceID.TRADE_SUCCESS, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
