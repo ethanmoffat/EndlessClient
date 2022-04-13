@@ -7,6 +7,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XNAControls;
 
+using static EndlessClient.HUD.Spells.SpellPanelItem;
+
 namespace EndlessClient.HUD.Spells
 {
     public abstract class BaseSpellPanelItem : XNAControl, ISpellPanelItem
@@ -52,6 +54,8 @@ namespace EndlessClient.HUD.Spells
 
         public event EventHandler Selected;
 
+        public event EventHandler<SpellDragCompletedEventArgs> DoneDragging;
+
         private readonly Texture2D _highlightColor;
         protected readonly ActiveSpellsPanel _parentPanel;
 
@@ -92,6 +96,8 @@ namespace EndlessClient.HUD.Spells
 
             base.OnDrawControl(gameTime);
         }
+
+        protected void InvokeDragCompleted(SpellDragCompletedEventArgs e) => DoneDragging?.Invoke(this, e);
 
         protected override void Dispose(bool disposing)
         {

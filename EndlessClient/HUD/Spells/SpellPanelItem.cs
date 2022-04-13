@@ -11,6 +11,11 @@ namespace EndlessClient.HUD.Spells
 {
     public class SpellPanelItem : BaseSpellPanelItem
     {
+        public class SpellDragCompletedEventArgs
+        {
+            public bool ContinueDragging { get; set; }
+        }
+
         private readonly Texture2D _spellGraphic, _spellLevelColor;
 
         private Rectangle _spellGraphicSourceRect;
@@ -18,19 +23,12 @@ namespace EndlessClient.HUD.Spells
         private bool _dragging, _followMouse;
         private Rectangle _levelDestinationRectangle;
 
-        private IInventorySpell _inventorySpell;
-        public override IInventorySpell InventorySpell
-        {
-            get => _inventorySpell;
-            set
-            {
-                _inventorySpell = value;
+        private int _lastSlot;
+        private IInventorySpell _lastInventorySpell;
 
-                //36 is full width of level bar
-                var width = (int)(InventorySpell.Level / 100.0 * 36);
-                _levelDestinationRectangle = new Rectangle(DrawAreaWithParentOffset.X + 3, DrawAreaWithParentOffset.Y + 40, width, 6);
-            }
-        }
+        public override IInventorySpell InventorySpell { get; set; }
+
+        public override bool IsBeingDragged => _dragging;
 
         public override ESFRecord SpellData { get; }
 
@@ -56,6 +54,16 @@ namespace EndlessClient.HUD.Spells
         {
             DoClickAndDragLogic();
 
+            if (_lastSlot != DisplaySlot || _lastInventorySpell != InventorySpell)
+            {
+                //36 is full width of level bar
+                var width = (int)(InventorySpell.Level / 100.0 * 36);
+                _levelDestinationRectangle = new Rectangle(DrawAreaWithParentOffset.X + 3, DrawAreaWithParentOffset.Y + 40, width, 6);
+
+                _lastSlot = DisplaySlot;
+                _lastInventorySpell = InventorySpell;
+            }
+
             base.OnUpdateControl(gameTime);
         }
 
@@ -77,41 +85,40 @@ namespace EndlessClient.HUD.Spells
 
         private void DoClickAndDragLogic()
         {
-            //if (!_dragging && _parentPanel.AnySpellsDragging())
-            //    return;
+            if (!_dragging && _parentPanel.AnySpellsDragging())
+                return;
 
-            //var currentState = Mouse.GetState();
-            //if (LeftButtonDown(currentState))
-            //{
-            //    if (!_dragging)
-            //    {
-            //        _followMouse = true;
-            //        _clickTime = DateTime.Now;
-            //        _parentSpellContainer.SetSelectedSpellBySlot(Slot);
-            //    }
-            //    else
-            //    {
-            //        EndDragging();
-            //    }
-            //}
-            //else if (LeftButtonUp(currentState))
-            //{
-            //    if (!_dragging)
-            //    {
-            //        var clickDelta = (DateTime.Now - _clickTime).TotalMilliseconds;
-            //        if (clickDelta < 75)
-            //        {
-            //            _dragging = true;
-            //        }
-            //    }
-            //    else
-            //    {
-            //        EndDragging();
-            //    }
-            //}
+            if (LeftButtonDown)
+            {
+                if (!_dragging)
+                {
+                    _followMouse = true;
+                    _clickTime = DateTime.Now;
+                    IsSelected = true;
+                }
+                else
+                {
+                    EndDragging();
+                }
+            }
+            else if (LeftButtonUp)
+            {
+                if (!_dragging)
+                {
+                    var clickDelta = (DateTime.Now - _clickTime).TotalMilliseconds;
+                    if (clickDelta < 75)
+                    {
+                        _dragging = true;
+                    }
+                }
+                else
+                {
+                    EndDragging();
+                }
+            }
 
-            //if (!_dragging && _followMouse && (DateTime.Now - _clickTime).TotalMilliseconds >= 75)
-            //    _dragging = true;
+            if (!_dragging && _followMouse && (DateTime.Now - _clickTime).TotalMilliseconds >= 75)
+                _dragging = true;
         }
 
         private bool LeftButtonDown =>
@@ -119,24 +126,24 @@ namespace EndlessClient.HUD.Spells
             CurrentMouseState.LeftButton == ButtonState.Pressed &&
             PreviousMouseState.LeftButton == ButtonState.Released;
 
-
         private bool LeftButtonUp =>
             CurrentMouseState.LeftButton == ButtonState.Released &&
             PreviousMouseState.LeftButton == ButtonState.Pressed;
 
         private void EndDragging()
         {
-            //_dragging = false;
-            //_followMouse = false;
+            _dragging = false;
+            _followMouse = false;
 
-            //var newSlot = GetCurrentHoverSlot();
-            //_parentSpellContainer.MoveItem(this, newSlot);
+            var args = new SpellDragCompletedEventArgs();
+            InvokeDragCompleted(args);
+
+            if (args.ContinueDragging)
+            {
+                _dragging = true;
+                _followMouse = true;
+            }
         }
-
-        //private int GetCurrentHoverSlot()
-        //{
-        //    return _parentSpellContainer.GetCurrentHoverSlot();
-        //}
 
         private void DrawSpellIcon()
         {

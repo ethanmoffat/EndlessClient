@@ -3,11 +3,15 @@ using EOLib.IO.Pub;
 using System;
 using XNAControls;
 
+using static EndlessClient.HUD.Spells.SpellPanelItem;
+
 namespace EndlessClient.HUD.Spells
 {
     public interface ISpellPanelItem : IXNAControl
     {
         int Slot { get; set; }
+
+        int DisplaySlot { get; set; }
 
         bool IsSelected { get; set; }
 
@@ -18,6 +22,9 @@ namespace EndlessClient.HUD.Spells
         ESFRecord SpellData { get; }
 
         event EventHandler Clicked;
+
         event EventHandler Selected;
+
+        event EventHandler<SpellDragCompletedEventArgs> DoneDragging;
     }
 }

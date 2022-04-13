@@ -13,6 +13,7 @@ using EOLib.Localization;
 using Microsoft.Win32;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using Optional;
 using Optional.Collections;
 using System;
@@ -22,6 +23,8 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using XNAControls;
+
+using static EndlessClient.HUD.Spells.SpellPanelItem;
 
 namespace EndlessClient.HUD.Panels
 {
@@ -42,14 +45,16 @@ namespace EndlessClient.HUD.Panels
         private readonly List<ISpellPanelItem> _childItems;
 
         private readonly Texture2D _functionKeyLabelSheet;
-        private readonly Rectangle _functionKeyRow1Source, _functionKeyRow2Source;
+        private Rectangle _functionKeyRow1Source, _functionKeyRow2Source;
 
-        private XNALabel _selectedSpellName, _selectedSpellLevel, _totalSkillPoints;
-        private XNAButton _levelUpButton1, _levelUpButton2;
-        private ScrollBar _scrollBar;
+        private readonly XNALabel _selectedSpellName, _selectedSpellLevel, _totalSkillPoints;
+        private readonly XNAButton _levelUpButton1, _levelUpButton2;
+        private readonly ScrollBar _scrollBar;
 
         private HashSet<IInventorySpell> _cachedSpells;
         private bool _confirmedTraining;
+        private int _lastScrollOffset;
+        private Texture2D _activeSpellIcon;
 
         public INativeGraphicsManager NativeGraphicsManager { get; }
 
@@ -221,10 +226,9 @@ namespace EndlessClient.HUD.Panels
                         var newChild = new SpellPanelItem(this, slot, spell, spellData);
                         newChild.Initialize();
 
-                        newChild.Selected += SetSpellStatusLabelSelected;
+                        newChild.Selected += SetSelectedSpell;
                         newChild.OnMouseOver += SetSpellStatusLabelHover;
-                        //newItem.DoubleClick += HandleItemDoubleClick;
-                        //newItem.DoneDragging += HandleItemDoneDragging;
+                        newChild.DoneDragging += ItemDraggingCompleted;
 
                         _childItems.Add(newChild);
                     });
@@ -233,12 +237,70 @@ namespace EndlessClient.HUD.Panels
                 _cachedSpells = _characterInventoryProvider.SpellInventory.ToHashSet();
             }
 
+            if ((CurrentKeyState.IsKeyDown(Keys.RightShift) && PreviousKeyState.IsKeyUp(Keys.RightShift)) ||
+                (CurrentKeyState.IsKeyDown(Keys.LeftShift) && PreviousKeyState.IsKeyUp(Keys.LeftShift)) ||
+                (CurrentKeyState.IsKeyUp(Keys.RightShift) && PreviousKeyState.IsKeyDown(Keys.RightShift)) ||
+                (CurrentKeyState.IsKeyUp(Keys.LeftShift) && PreviousKeyState.IsKeyDown(Keys.LeftShift)))
+            {
+                SwapFunctionKeySourceRectangles();
+            }
+
+            if (_lastScrollOffset != _scrollBar.ScrollOffset)
+            {
+                UpdateSpellItemsForScroll();
+            }
+
             base.OnUpdateControl(gameTime);
         }
 
         protected override void OnDrawControl(GameTime gameTime)
         {
             base.OnDrawControl(gameTime);
+
+            _spriteBatch.Begin();
+
+            DrawFunctionKeyLabels();
+            DrawActiveSpell();
+
+            _spriteBatch.End();
+        }
+
+        private void DrawFunctionKeyLabels()
+        {
+            if (_scrollBar.ScrollOffset >= 2)
+                return;
+
+            for (int i = 0; i < 8; ++i)
+            {
+                var offset = _functionKeyRow1Source.Width * i;
+
+                if (_scrollBar.ScrollOffset == 0)
+                {
+                    _spriteBatch.Draw(_functionKeyLabelSheet,
+                        new Vector2(202 + 45 * i, 338),
+                        _functionKeyRow1Source.WithPosition((_functionKeyRow1Source.Location + new Point(offset, 0)).ToVector2()),
+                        Color.White);
+                }
+
+                if (_scrollBar.ScrollOffset < 2)
+                {
+                    var yCoord = _scrollBar.ScrollOffset == 0 ? 390 : 338;
+                    _spriteBatch.Draw(_functionKeyLabelSheet,
+                        new Vector2(202 + 45 * i, yCoord),
+                        _functionKeyRow2Source.WithPosition((_functionKeyRow2Source.Location + new Point(offset, 0)).ToVector2()),
+                        Color.White);
+                }
+            }
+        }
+
+        private void DrawActiveSpell()
+        {
+            if (_activeSpellIcon == null)
+                return;
+
+            var srcRect = new Rectangle(0, 0, _activeSpellIcon.Width / 2, _activeSpellIcon.Height);
+            var dstRect = new Rectangle(DrawAreaWithParentOffset.X + 32, DrawAreaWithParentOffset.Y + 14, srcRect.Width, srcRect.Height);
+            _spriteBatch.Draw(_activeSpellIcon, dstRect, srcRect, Color.White);
         }
 
         private void LevelUp_Click(object sender, EventArgs args)
@@ -259,26 +321,67 @@ namespace EndlessClient.HUD.Panels
             }
             else
             {
-                //var selectedSpell = _childItems.Single(x => x.Selected);
+                var selectedSpell = _childItems.SingleOrNone(x => x.IsSelected);
                 // todo: implement in training controller
                 //_trainingController.LevelUpSpell(selectedSpell.SpellData.ID);
             }
         }
 
-        private void SetSpellStatusLabelSelected(object sender, EventArgs e)
+        private void SetSelectedSpell(object sender, EventArgs e)
         {
-            var spell = ((SpellPanelItem)sender).SpellData;
+            ClearSelectedSpell();
 
-            if (spell.Target == EOLib.IO.SpellTarget.Normal)
-                _statusLabelSetter.SetStatusLabel(EOResourceID.SKILLMASTER_WORD_SPELL, spell.Name, EOResourceID.SPELL_WAS_SELECTED);
-            else if (spell.Target == EOLib.IO.SpellTarget.Group /*&& not in party*/) // todo: parties
+            var spell = (SpellPanelItem)sender;
+
+            var spellData = spell.SpellData;
+            if (spellData.Target == EOLib.IO.SpellTarget.Normal)
+                _statusLabelSetter.SetStatusLabel(EOResourceID.SKILLMASTER_WORD_SPELL, spellData.Name, EOResourceID.SPELL_WAS_SELECTED);
+            else if (spellData.Target == EOLib.IO.SpellTarget.Group /*&& not in party*/) // todo: parties
                 _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.SPELL_ONLY_WORKS_ON_GROUP);
+
+            _activeSpellIcon = NativeGraphicsManager.TextureFromResource(GFXTypes.SpellIcons, spellData.Icon);
+            
+            _selectedSpellName.Text = spellData.Name;
+            _selectedSpellName.Visible = true;
+
+            _selectedSpellLevel.Text = spell.InventorySpell.Level.ToString();
+
+            _levelUpButton1.Visible = _levelUpButton2.Visible = _characterProvider.MainCharacter.Stats[CharacterStat.SkillPoints] > 0;
         }
 
         private void SetSpellStatusLabelHover(object sender, EventArgs e)
         {
             var spell = ((SpellPanelItem)sender).SpellData;
             _statusLabelSetter.SetStatusLabel(EOResourceID.SKILLMASTER_WORD_SPELL, spell.Name);
+        }
+
+        private void ItemDraggingCompleted(object sender, SpellDragCompletedEventArgs e)
+        {
+            var item = (SpellPanelItem)sender;
+
+            _childItems.SingleOrNone(x => x.MouseOver)
+                .Match(child =>
+                {
+                    if (child is SpellPanelItem && child != item)
+                    {
+                        e.ContinueDragging = true;
+                    }
+                    else if (child != item)
+                    {
+                        var oldSlot = item.Slot;
+                        var oldDisplaySlot = item.DisplaySlot;
+
+                        var newSlot = child.Slot;
+                        var newDisplaySlot = child.DisplaySlot;
+
+                        item.Slot = newSlot;
+                        item.DisplaySlot = newDisplaySlot;
+
+                        child.Slot = oldSlot;
+                        child.DisplaySlot = oldDisplaySlot;
+                    }
+                },
+                () => e.ContinueDragging = true);
         }
 
         private static Option<int> GetNextOpenSlot(IEnumerable<ISpellPanelItem> childItems)
@@ -303,20 +406,59 @@ namespace EndlessClient.HUD.Panels
             emptyItem.Selected += (_, _) => _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.SPELL_NOTHING_WAS_SELECTED);
             emptyItem.Clicked += (_, _) =>
             {
-                //if (DoEmptySpellIconUpdateLogic)
-                //{
-                //    if (MouseOver && MouseOverPreviously &&
-                //        _parentSpellContainer.AnySpellsSelected() &&
-                //        !_parentSpellContainer.AnySpellsDragging() &&
-                //        Mouse.GetState().LeftButton == ButtonState.Released &&
-                //        PreviousMouseState.LeftButton == ButtonState.Pressed)
-                //    {
-                //        _parentSpellContainer.ClearSelectedSpell();
-                //    }
-                //}
+                if (!AnySpellsDragging())
+                    ClearSelectedSpell();
             };
             emptyItem.Initialize();
             return emptyItem;
+        }
+
+        private void ClearSelectedSpell()
+        {
+            _activeSpellIcon = null;
+
+            _selectedSpellName.Text = string.Empty;
+            _selectedSpellName.Visible = false;
+
+            _selectedSpellLevel.Text = "0";
+
+            _levelUpButton1.Visible = _levelUpButton2.Visible = false;
+
+            foreach (var item in _childItems.Where(x => x.IsSelected))
+                item.IsSelected = false;
+        }
+        private void SwapFunctionKeySourceRectangles()
+        {
+            var tmpRect = _functionKeyRow2Source;
+            _functionKeyRow2Source = _functionKeyRow1Source;
+            _functionKeyRow1Source = tmpRect;
+        }
+
+        private void UpdateSpellItemsForScroll()
+        {
+            var firstValidSlot = _scrollBar.ScrollOffset * SpellRowLength;
+            var lastValidSlot = firstValidSlot + 2 * SpellRowLength;
+
+            var itemsToHide = _childItems.Where(x => x.Slot < firstValidSlot || x.Slot >= lastValidSlot).ToList();
+            foreach (var item in itemsToHide)
+            {
+                ((XNAControl)item).Visible = false;
+                item.DisplaySlot = GetDisplaySlotFromSlot(item.Slot);
+            }
+
+            foreach (var item in _childItems.Except(itemsToHide))
+            {
+                ((XNAControl)item).Visible = true;
+                item.DisplaySlot = item.Slot - firstValidSlot;
+            }
+
+            _lastScrollOffset = _scrollBar.ScrollOffset;
+        }
+
+        private int GetDisplaySlotFromSlot(int newSlot)
+        {
+            var offset = _scrollBar.ScrollOffset;
+            return newSlot - SpellRowLength * offset;
         }
 
         protected override void Dispose(bool disposing)
@@ -336,7 +478,7 @@ namespace EndlessClient.HUD.Panels
         {
             var map = new Dictionary<int, int>();
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !File.Exists(Constants.InventoryFile))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !File.Exists(Constants.SpellsFile))
             {
                 using var inventoryKey = TryGetCharacterRegistryKey(accountName, characterName);
                 if (inventoryKey != null)
@@ -349,7 +491,7 @@ namespace EndlessClient.HUD.Panels
                 }
             }
 
-            var inventory = new IniReader(Constants.InventoryFile);
+            var inventory = new IniReader(Constants.SpellsFile);
             if (inventory.Load() && inventory.Sections.ContainsKey(accountName))
             {
                 var section = inventory.Sections[accountName];
@@ -392,7 +534,7 @@ namespace EndlessClient.HUD.Panels
 
         private void SaveSpellsFile(object sender, EventArgs e)
         {
-            var inventory = new IniReader(Constants.InventoryFile);
+            var inventory = new IniReader(Constants.SpellsFile);
 
             var section = inventory.Load() && inventory.Sections.ContainsKey(_playerInfoProvider.LoggedInAccountName)
                 ? inventory.Sections[_playerInfoProvider.LoggedInAccountName]
