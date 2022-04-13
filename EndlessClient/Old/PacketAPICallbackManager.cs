@@ -50,7 +50,6 @@ namespace EndlessClient.Old
             m_packetAPI.OnSpellLearnError += _statskillLearnError;
             m_packetAPI.OnSpellLearnSuccess += _statskillLearnSpellSuccess;
             m_packetAPI.OnSpellForget += _statskillForgetSpell;
-            m_packetAPI.OnSpellTrain += _statskillTrainSpell;
             m_packetAPI.OnCharacterStatsReset += _statskillReset;
 
             m_packetAPI.OnPlaySoundEffect += _playSoundEffect;
@@ -204,7 +203,7 @@ namespace EndlessClient.Old
             if (SkillmasterDialog.Instance != null)
                 SkillmasterDialog.Instance.RemoveSkillByIDFromLearnList(id);
             //OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, remaining);
-            m_game.Hud.AddNewSpellToActiveSpellsByID(id);
+            //m_game.Hud.AddNewSpellToActiveSpellsByID(id);
         }
 
         private void _statskillForgetSpell(short id)
@@ -212,19 +211,7 @@ namespace EndlessClient.Old
             OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.RemoveAll(_spell => _spell.ID == id);
             EOMessageBox.Show(DialogResourceID.SKILL_FORGET_SUCCESS, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 
-            m_game.Hud.RemoveSpellFromActiveSpellsByID(id);
-        }
-
-        private void _statskillTrainSpell(short skillPtsRemaining, short spellID, short spellLevel)
-        {
-            var character = OldWorld.Instance.MainPlayer.ActiveCharacter;
-            character.Stats.SkillPoints = skillPtsRemaining;
-
-            var spellNdx = character.Spells.FindIndex(x => x.ID == spellID);
-            character.Spells[spellNdx] = new InventorySpell(spellID, spellLevel);
-
-            m_game.Hud.RefreshStats();
-            m_game.Hud.UpdateActiveSpellLevelByID(spellID, spellLevel);
+            //m_game.Hud.RemoveSpellFromActiveSpellsByID(id);
         }
 
         private void _statskillReset(StatResetData data)
@@ -251,8 +238,8 @@ namespace EndlessClient.Old
             c.Stats.Accuracy = data.Accuracy;
             c.Stats.Evade = data.Evade;
             c.Stats.Armor = data.Armor;
-            m_game.Hud.RefreshStats();
-            m_game.Hud.RemoveAllSpells();
+            //m_game.Hud.RefreshStats();
+            //m_game.Hud.RemoveAllSpells();
         }
 
         private void _playSoundEffect(int effectID)
@@ -272,7 +259,7 @@ namespace EndlessClient.Old
             if (fromPlayerID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID)
             {
                 OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.TP = fromPlayerTP;
-                m_game.Hud.RefreshStats();
+                //m_game.Hud.RefreshStats();
             }
         }
     }

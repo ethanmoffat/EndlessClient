@@ -27,7 +27,6 @@ namespace EndlessClient.HUD.Controls
 
         private readonly OldChatRenderer chatRenderer;
         private readonly OldEOPartyPanel m_party;
-        private OldActiveSpells activeSpells;
 
         private ChatTextBox chatTextBox;
 
@@ -80,9 +79,6 @@ namespace EndlessClient.HUD.Controls
             //the draw orders are adjusted for child items in the constructor.
             //calling SetParent will break this.
 
-            //activeSpells = new OldActiveSpells(pnlActiveSpells, m_packetAPI);
-            activeSpells.Initialize();
-            
             SessionStartTime = DateTime.Now;
 
             base.Initialize();
@@ -118,25 +114,12 @@ namespace EndlessClient.HUD.Controls
             //SetStatusLabelText(string.Format("[ {0} ] {1}", typeText, detail));
         }
 
-        public void RefreshStats()
-        {
-            if (activeSpells != null)
-                activeSpells.RefreshTotalSkillPoints();
-        }
-
         public void SetPartyData(List<PartyMember> party) { m_party.SetData(party); }
         public void AddPartyMember(PartyMember member) { m_party.AddMember(member); }
         public void RemovePartyMember(short memberID) { m_party.RemoveMember(memberID); }
         public void CloseParty() { m_party.CloseParty(); }
         public bool MainPlayerIsInParty() { return m_party.PlayerIsMember((short)OldWorld.Instance.MainPlayer.ActiveCharacter.ID); }
         public bool PlayerIsPartyMember(short playerID) { return m_party.PlayerIsMember(playerID); }
-
-        public void AddNewSpellToActiveSpellsByID(int spellID) { activeSpells.AddNewSpellToNextOpenSlot(spellID); }
-        public ESFRecord GetSpellFromIndex(int index) { return activeSpells.GetSpellRecordBySlot(index); }
-        public void SetSelectedSpell(int index) { activeSpells.SetSelectedSpellBySlot(index); }
-        public void RemoveSpellFromActiveSpellsByID(int spellID) { activeSpells.RemoveSpellByID(spellID); }
-        public void UpdateActiveSpellLevelByID(short spellID, short spellLevel) { activeSpells.UpdateSpellLevelByID(spellID, spellLevel); }
-        public void RemoveAllSpells() { activeSpells.RemoveAllSpells(); }
 
         #endregion
         

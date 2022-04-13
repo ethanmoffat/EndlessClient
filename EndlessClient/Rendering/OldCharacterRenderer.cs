@@ -1039,13 +1039,13 @@ namespace EndlessClient.Rendering
         */
         public void SelectSpell(int spellIndex)
         {
-            var toCast = ((EOGame)Game).Hud.GetSpellFromIndex(spellIndex);
-            if (toCast == null) return;
+            //var toCast = ((EOGame)Game).Hud.GetSpellFromIndex(spellIndex);
+            //if (toCast == null) return;
 
-            Character.SelectSpell(toCast.ID);
-            if (toCast.Target == SpellTarget.Self ||
-                (toCast.Target == SpellTarget.Group && ((EOGame) Game).Hud.MainPlayerIsInParty()))
-                _prepareSpell();
+            //Character.SelectSpell(toCast.ID);
+            //if (toCast.Target == SpellTarget.Self ||
+            //    (toCast.Target == SpellTarget.Group && ((EOGame) Game).Hud.MainPlayerIsInParty()))
+            //    _prepareSpell();
         }
 
         public void SetSpellTarget(DrawableGameComponent target)
