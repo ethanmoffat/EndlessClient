@@ -5,13 +5,12 @@ using EOLib.Net.Communication;
 
 namespace EOLib.Domain.Character
 {
-    //todo: maybe this should go into its own namespace? Domain.Character is pretty monolithic
     [AutoMappedType]
-    public class StatTrainingActions : IStatTrainingActions
+    public class TrainingActions : ITrainingActions
     {
         private readonly IPacketSendService _packetSendService;
 
-        public StatTrainingActions(IPacketSendService packetSendService)
+        public TrainingActions(IPacketSendService packetSendService)
         {
             _packetSendService = packetSendService;
         }
@@ -24,6 +23,16 @@ namespace EOLib.Domain.Character
             var packet = new PacketBuilder(PacketFamily.StatSkill, PacketAction.Add)
                 .AddChar((byte) TrainType.Stat)
                 .AddShort((byte) GetStatIndex(whichStat))
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+        }
+
+        public void LevelUpSkill(int spellId)
+        {
+            var packet = new PacketBuilder(PacketFamily.StatSkill, PacketAction.Add)
+                .AddChar((byte)TrainType.Skill)
+                .AddShort((short)spellId)
                 .Build();
 
             _packetSendService.SendPacket(packet);
@@ -59,8 +68,10 @@ namespace EOLib.Domain.Character
         }
     }
 
-    public interface IStatTrainingActions
+    public interface ITrainingActions
     {
         void LevelUpStat(CharacterStat whichStat);
+
+        void LevelUpSkill(int spellId);
     }
 }

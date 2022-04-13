@@ -47,6 +47,7 @@ namespace EOLib
         public const string IgnoreListFile = "config/ignore.ini";
 
         public const string InventoryFile = "config/inventory.ini";
+        public const string SpellsFile = "config/spells.ini";
 
         //Should be easily customizable between different clients (based on graphics)
         //not a config option because this shouldn't be exposed at the user level

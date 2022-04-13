@@ -34,6 +34,7 @@ namespace EndlessClient.HUD.Panels
     {
         public const int InventoryRows = 4;
         public const int InventoryRowSlots = 14;
+
         private readonly IInventoryController _inventoryController;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IItemStringService _itemStringService;
@@ -46,6 +47,7 @@ namespace EndlessClient.HUD.Panels
         private readonly IPubFileProvider _pubFileProvider; // todo: this can probably become EIFFileProvider
         private readonly IHudControlProvider _hudControlProvider;
         private readonly IActiveDialogProvider _activeDialogProvider;
+
         private readonly Dictionary<int, int> _itemSlotMap;
         private readonly List<InventoryPanelItem> _childItems = new List<InventoryPanelItem>();
 
