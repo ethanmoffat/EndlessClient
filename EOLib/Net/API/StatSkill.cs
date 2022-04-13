@@ -134,15 +134,12 @@ namespace EOLib.Net.API
     }
 
     public delegate void SpellLearnErrorEvent(SkillMasterReply reply, short classID);
-    public delegate void SpellLearnSuccessEvent(short spellID, int goldRemaining);
     public delegate void SpellForgetEvent(short spellID);
-    public delegate void SpellTrainEvent(short skillPtsRemaining, short spellID, short spellLevel);
 
     partial class PacketAPI
     {
         public event Action<SkillmasterData> OnSkillmasterOpen;
         public event SpellLearnErrorEvent OnSpellLearnError;
-        public event SpellLearnSuccessEvent OnSpellLearnSuccess;
         public event SpellForgetEvent OnSpellForget;
         public event Action<StatResetData> OnCharacterStatsReset;
 
@@ -150,7 +147,6 @@ namespace EOLib.Net.API
         {
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Open), _handleStatSkillOpen, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Reply), _handleStatSkillReply, true);
-            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Take), _handleStatSkillTake, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Remove), _handleStatSkillRemove, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Junk), _handleStatSkillJunk, true);
         }
@@ -212,15 +208,6 @@ namespace EOLib.Net.API
             //short - character class
             if (OnSpellLearnError != null)
                 OnSpellLearnError((SkillMasterReply)pkt.GetShort(), pkt.GetShort());
-        }
-
-        //success learning a skill
-        private void _handleStatSkillTake(OldPacket pkt)
-        {
-            //short - spell id
-            //int - character gold remaining
-            if (OnSpellLearnSuccess != null)
-                OnSpellLearnSuccess(pkt.GetShort(), pkt.GetInt());
         }
 
         //forgetting a skill

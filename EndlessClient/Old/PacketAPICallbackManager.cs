@@ -48,7 +48,6 @@ namespace EndlessClient.Old
             //skills
             m_packetAPI.OnSkillmasterOpen += _skillmasterOpen;
             m_packetAPI.OnSpellLearnError += _statskillLearnError;
-            m_packetAPI.OnSpellLearnSuccess += _statskillLearnSpellSuccess;
             m_packetAPI.OnSpellForget += _statskillForgetSpell;
             m_packetAPI.OnCharacterStatsReset += _statskillReset;
 
@@ -195,15 +194,6 @@ namespace EndlessClient.Old
                     EOMessageBox.Show(DialogResourceID.SKILL_RESET_CHARACTER_CLEAR_PAPERDOLL, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                     break;
             }
-        }
-
-        private void _statskillLearnSpellSuccess(short id, int remaining)
-        {
-            OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.Add(new InventorySpell(id, 0));
-            if (SkillmasterDialog.Instance != null)
-                SkillmasterDialog.Instance.RemoveSkillByIDFromLearnList(id);
-            //OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, remaining);
-            //m_game.Hud.AddNewSpellToActiveSpellsByID(id);
         }
 
         private void _statskillForgetSpell(short id)
