@@ -33,19 +33,6 @@ namespace EndlessClient.HUD.Spells
             }
         }
 
-        private bool _selected;
-        public virtual bool IsSelected
-        {
-            get => _selected;
-            set
-            {
-                _selected = value;
-
-                if (_selected)
-                    Selected?.Invoke(this, EventArgs.Empty);
-            }
-        }
-
         public virtual bool IsBeingDragged => false;
 
         public abstract IInventorySpell InventorySpell { get; set; }
@@ -53,8 +40,6 @@ namespace EndlessClient.HUD.Spells
         public abstract ESFRecord SpellData { get; }
 
         public event EventHandler Clicked;
-
-        public event EventHandler Selected;
 
         public event EventHandler<SpellDragCompletedEventArgs> DoneDragging;
 
@@ -77,9 +62,9 @@ namespace EndlessClient.HUD.Spells
 
         protected override void OnUpdateControl(GameTime gameTime)
         {
-            if (MouseOver
-                && CurrentMouseState.LeftButton == ButtonState.Released
-                && PreviousMouseState.LeftButton == ButtonState.Pressed)
+            if (MouseOver && !_parentPanel.AnySpellsDragging()
+                && CurrentMouseState.LeftButton == ButtonState.Pressed
+                && PreviousMouseState.LeftButton == ButtonState.Released)
             {
                 Clicked?.Invoke(this, EventArgs.Empty);
             }

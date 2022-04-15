@@ -13,8 +13,6 @@ namespace EndlessClient.HUD.Spells
 
         int DisplaySlot { get; set; }
 
-        bool IsSelected { get; set; }
-
         bool IsBeingDragged { get; }
 
         IInventorySpell InventorySpell { get; set;  }
@@ -22,8 +20,6 @@ namespace EndlessClient.HUD.Spells
         ESFRecord SpellData { get; }
 
         event EventHandler Clicked;
-
-        event EventHandler Selected;
 
         event EventHandler<SpellDragCompletedEventArgs> DoneDragging;
     }

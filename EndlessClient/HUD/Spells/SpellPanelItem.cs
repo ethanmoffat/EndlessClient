@@ -94,7 +94,6 @@ namespace EndlessClient.HUD.Spells
                 {
                     _followMouse = true;
                     _clickTime = DateTime.Now;
-                    IsSelected = true;
                 }
                 else
                 {

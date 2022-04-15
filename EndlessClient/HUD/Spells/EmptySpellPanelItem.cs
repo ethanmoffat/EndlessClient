@@ -7,15 +7,6 @@ namespace EndlessClient.HUD.Spells
 {
     public class EmptySpellPanelItem : BaseSpellPanelItem
     {
-        public override bool IsSelected
-        {
-            get => false;
-            set
-            {
-                base.IsSelected = false;
-            }
-        }
-
         public override IInventorySpell InventorySpell
         {
             get => new InventorySpell(0, 0);
