@@ -14,6 +14,11 @@ namespace EndlessClient.HUD.Spells
         Option<int> SelectedSpellSlot { get; set; }
 
         /// <summary>
+        /// Spell info for the selected spell (based on SelectedSpellSlot value)
+        /// </summary>
+        Option<IInventorySpell> SelectedSpellInfo { get; }
+
+        /// <summary>
         /// True if the selected spell slot has been prepared by using a hotkey.
         /// </summary>
         bool SpellIsPrepared { get; set; }
@@ -28,9 +33,11 @@ namespace EndlessClient.HUD.Spells
     {
         Option<int> SelectedSpellSlot { get; }
 
+        Option<IInventorySpell> SelectedSpellInfo { get; }
+
         bool SpellIsPrepared { get; }
 
-        IReadOnlyCollection<Option<IInventorySpell>> SpellSlots { get; }
+        IReadOnlyList<Option<IInventorySpell>> SpellSlots { get; }
     }
 
     [AutoMappedType(IsSingleton = true)]
@@ -38,11 +45,18 @@ namespace EndlessClient.HUD.Spells
     {
         public Option<int> SelectedSpellSlot { get; set; }
 
+        public Option<IInventorySpell> SelectedSpellInfo =>
+            SelectedSpellSlot.Match(
+                x => SpellSlots[x].Match(
+                    y => Option.Some(y),
+                    () => Option.None<IInventorySpell>()),
+                () => Option.None<IInventorySpell>());
+
         public bool SpellIsPrepared { get; set; }
 
         public Option<IInventorySpell>[] SpellSlots { get; set; }
 
-        IReadOnlyCollection<Option<IInventorySpell>> ISpellSlotDataProvider.SpellSlots => SpellSlots;
+        IReadOnlyList<Option<IInventorySpell>> ISpellSlotDataProvider.SpellSlots => SpellSlots;
 
         public SpellSlotDataRepository()
         {

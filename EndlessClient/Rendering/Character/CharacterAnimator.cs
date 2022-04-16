@@ -5,7 +5,9 @@ using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
+using EOLib.Domain.Spells;
 using EOLib.IO.Map;
+using EOLib.IO.Pub;
 using Microsoft.Xna.Framework;
 using Optional;
 using System;
@@ -34,6 +36,10 @@ namespace EndlessClient.Rendering.Character
         private readonly Dictionary<int, RenderFrameActionTime> _otherPlayerStartAttackingTimes;
         private readonly Dictionary<int, RenderFrameActionTime> _otherPlayerStartSpellCastTimes;
         private readonly Dictionary<int, RenderFrameActionTime> _startEmoteTimes;
+
+        private Option<Stopwatch> _mainPlayerStartShoutTime;
+        private ESFRecord _shoutSpellData;
+        private ISpellTargetable _spellTarget;
 
         private Queue<MapCoordinate> _walkPath;
         private Option<MapCoordinate> _targetCoordinate;
@@ -75,6 +81,8 @@ namespace EndlessClient.Rendering.Character
 
         public void MainCharacterFace(EODirection direction)
         {
+            MainCharacterCancelSpellPrep();
+
             if (_otherPlayerStartWalkingTimes.ContainsKey(_characterRepository.MainCharacter.ID))
             {
                 _queuedDirections[_characterRepository.MainCharacter.ID] = direction;
@@ -90,6 +98,8 @@ namespace EndlessClient.Rendering.Character
 
         public void StartMainCharacterWalkAnimation(Option<MapCoordinate> targetCoordinate)
         {
+            MainCharacterCancelSpellPrep();
+
             _walkPath.Clear();
             targetCoordinate.MatchSome(tc =>
             {
@@ -121,6 +131,8 @@ namespace EndlessClient.Rendering.Character
 
         public void StartMainCharacterAttackAnimation()
         {
+            MainCharacterCancelSpellPrep();
+
             if (_otherPlayerStartAttackingTimes.ContainsKey(_characterRepository.MainCharacter.ID))
             {
                 _otherPlayerStartAttackingTimes[_characterRepository.MainCharacter.ID].Replay = true;
@@ -129,6 +141,24 @@ namespace EndlessClient.Rendering.Character
 
             var startAttackingTime = new RenderFrameActionTime(_characterRepository.MainCharacter.ID);
             _otherPlayerStartAttackingTimes.Add(_characterRepository.MainCharacter.ID, startAttackingTime);
+        }
+
+        public bool MainCharacterShoutSpellPrep(ESFRecord spellData, ISpellTargetable target)
+        {
+            if (_mainPlayerStartShoutTime.HasValue)
+                return false;
+
+            _mainPlayerStartShoutTime = Option.Some(Stopwatch.StartNew());
+            _shoutSpellData = spellData;
+            _spellTarget = target;
+            return true;
+        }
+
+        public void MainCharacterCancelSpellPrep()
+        {
+            _mainPlayerStartShoutTime = Option.None<Stopwatch>();
+            _shoutSpellData = null;
+            _spellTarget = null;
         }
 
         public void StartOtherCharacterWalkAnimation(int characterID, byte destinationX, byte destinationY, EODirection direction)
@@ -408,6 +438,18 @@ namespace EndlessClient.Rendering.Character
 
         private void AnimateCharacterSpells()
         {
+            _mainPlayerStartShoutTime.MatchSome(t =>
+            {
+                // todo: math ???
+                // grabbed this formula from OldCharacterRenderer but it isn't certain that this is correct
+                if (t.ElapsedMilliseconds > (int)Math.Round(_shoutSpellData.CastTime / 2.0 * 950))
+                {
+                    _otherPlayerStartSpellCastTimes.Add(_characterRepository.MainCharacter.ID, new RenderFrameActionTime(_characterRepository.MainCharacter.ID));
+                    _characterActions.CastSpell(_shoutSpellData.ID, _spellTarget);
+                    MainCharacterCancelSpellPrep();
+                }
+            });
+
             var playersDoneCasting = new HashSet<int>();
             foreach (var pair in _otherPlayerStartSpellCastTimes.Values)
             {
@@ -505,6 +547,10 @@ namespace EndlessClient.Rendering.Character
         void StartMainCharacterWalkAnimation(Option<MapCoordinate> targetCoordinate);
 
         void StartMainCharacterAttackAnimation();
+
+        bool MainCharacterShoutSpellPrep(ESFRecord spellData, ISpellTargetable spellTarget);
+
+        void MainCharacterCancelSpellPrep();
 
         void StartOtherCharacterWalkAnimation(int characterID, byte targetX, byte targetY, EODirection direction);
 

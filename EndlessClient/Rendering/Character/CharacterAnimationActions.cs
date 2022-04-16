@@ -8,6 +8,7 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
+using EOLib.Domain.Spells;
 using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
@@ -70,6 +71,16 @@ namespace EndlessClient.Rendering.Character
 
             Animator.StartMainCharacterAttackAnimation();
             ShowWaterSplashiesIfNeeded(CharacterActionState.Attacking, _characterRepository.MainCharacter.ID);
+        }
+
+        public bool PrepareMainCharacterSpell(int spellId, ISpellTargetable spellTarget)
+        {
+            if (!_hudControlProvider.IsInGame)
+                return false;
+
+            var spellData = _esfFileProvider.ESFFile[spellId];
+            _characterRendererProvider.MainCharacterRenderer.MatchSome(r => r.ShoutSpellPrep(spellData.Shout));
+            return Animator.MainCharacterShoutSpellPrep(spellData, spellTarget);
         }
 
         public void StartOtherCharacterWalkAnimation(int characterID, byte destinationX, byte destinationY, EODirection direction)
@@ -236,5 +247,7 @@ namespace EndlessClient.Rendering.Character
         void StartWalking();
 
         void StartAttacking();
+
+        bool PrepareMainCharacterSpell(int spellId, ISpellTargetable spellTarget);
     }
 }
