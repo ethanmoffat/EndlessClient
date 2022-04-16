@@ -247,6 +247,9 @@ namespace EndlessClient.HUD.Panels
                     });
                 }
 
+                if (added.Any())
+                    UpdateSpellItemsForScroll();
+
                 _cachedSpells = _characterInventoryProvider.SpellInventory.ToHashSet();
             }
 
