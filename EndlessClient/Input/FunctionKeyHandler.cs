@@ -22,7 +22,7 @@ namespace EndlessClient.Input
 
         protected override Option<Keys> HandleInput()
         {
-            for (var key = Keys.F1; key < Keys.F8; key++)
+            for (var key = Keys.F1; key <= Keys.F8; key++)
             {
                 if (IsKeyHeld(key))
                 {

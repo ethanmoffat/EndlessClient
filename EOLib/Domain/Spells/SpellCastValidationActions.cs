@@ -23,7 +23,7 @@ namespace EOLib.Domain.Spells
             _characterProvider = characterProvider;
         }
 
-        public SpellCastValidationResult ValidateSpellCast(int spellId, ISpellTargetable spellTarget)
+        public SpellCastValidationResult ValidateSpellCast(int spellId)
         {
             var spellData = _pubFileProvider.ESFFile[spellId];
 
@@ -32,6 +32,17 @@ namespace EOLib.Domain.Spells
                 return SpellCastValidationResult.ExhaustedNoSp;
             if (stats[CharacterStat.TP] - spellData.TP < 0)
                 return SpellCastValidationResult.ExhaustedNoTp;
+
+            return SpellCastValidationResult.Ok;
+        }
+
+        public SpellCastValidationResult ValidateSpellCast(int spellId, ISpellTargetable spellTarget)
+        {
+            var res = ValidateSpellCast(spellId);
+            if (res != SpellCastValidationResult.Ok)
+                return res;
+
+            var spellData = _pubFileProvider.ESFFile[spellId];
 
             if (spellTarget is INPC)
             {
@@ -65,6 +76,8 @@ namespace EOLib.Domain.Spells
 
     public interface ISpellCastValidationActions
     {
+        SpellCastValidationResult ValidateSpellCast(int spellId);
+
         SpellCastValidationResult ValidateSpellCast(int spellId, ISpellTargetable spellTarget);
     }
 }
