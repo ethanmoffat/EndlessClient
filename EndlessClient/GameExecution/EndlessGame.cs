@@ -1,9 +1,11 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using AutomaticTypeMapper;
 using EndlessClient.Content;
 using EndlessClient.ControlSets;
+using EndlessClient.Network;
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Test;
@@ -68,6 +70,14 @@ namespace EndlessClient.GameExecution
 
         protected override void Initialize()
         {
+            Components.ComponentRemoved += (o, e) =>
+            {
+                if (e.GameComponent is PacketHandlerGameComponent)
+                {
+                    throw new InvalidOperationException("Packet handler game component should never be removed from Game components");
+                }
+            };
+
             base.Initialize();
 
             AttemptToLoadPubFiles();
@@ -117,6 +127,7 @@ namespace EndlessClient.GameExecution
         }
 
 #if DEBUG
+
         protected override void Update(GameTime gameTime)
         {
             //todo: this is a debug-only mode launched with the F5 key.
