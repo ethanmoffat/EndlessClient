@@ -47,14 +47,13 @@ namespace EndlessClient.HUD.Spells
             _spellLevelColor.SetData(new[] { Color.White });
 
             _clickTime = DateTime.Now;
-
-            OnMouseEnter += (_, _) => SetIconHover(true);
-            OnMouseLeave += (_, _) => SetIconHover(false);
         }
 
         protected override void OnUpdateControl(GameTime gameTime)
         {
             DoClickAndDragLogic();
+
+            SetIconHover(MouseOver);
 
             if (_lastSlot != DisplaySlot || _lastInventorySpell != InventorySpell)
             {
