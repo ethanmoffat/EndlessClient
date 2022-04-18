@@ -27,6 +27,7 @@ namespace EOLib.Domain.Character
         int ActualAttackFrame { get; }
         int RenderAttackFrame { get; }
         int EmoteFrame { get; }
+        int ActualSpellCastFrame { get; }
         
         SitState SitState { get; }
         Emote Emote { get; }

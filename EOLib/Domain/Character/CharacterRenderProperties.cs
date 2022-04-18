@@ -31,6 +31,7 @@ namespace EOLib.Domain.Character
         public int ActualAttackFrame { get; private set; }
         public int RenderAttackFrame { get; private set; }
         public int EmoteFrame { get; private set; }
+        public int ActualSpellCastFrame { get; private set; }
 
         public SitState SitState { get; private set; }
         public Emote Emote { get; private set; }
@@ -179,10 +180,10 @@ namespace EOLib.Domain.Character
 
         public ICharacterRenderProperties WithNextSpellCastFrame()
         {
+            // spell cast frame ticks: 0 0 1 1 1
             var props = MakeCopy(this);
-            props.CurrentAction = props.CurrentAction == CharacterActionState.Standing
-                ? CharacterActionState.SpellCast
-                : CharacterActionState.Standing;
+            props.ActualSpellCastFrame = (props.ActualSpellCastFrame + 1) % MAX_NUMBER_OF_ATTACK_FRAMES;
+            props.CurrentAction = props.ActualSpellCastFrame == 0 ? CharacterActionState.Standing : CharacterActionState.SpellCast;
             return props;
         }
 
@@ -271,6 +272,7 @@ namespace EOLib.Domain.Character
                 ActualAttackFrame = other.ActualAttackFrame,
                 RenderAttackFrame = other.RenderAttackFrame,
                 EmoteFrame = other.EmoteFrame,
+                ActualSpellCastFrame = other.ActualSpellCastFrame,
 
                 SitState = other.SitState,
                 Emote = other.Emote,
@@ -304,6 +306,7 @@ namespace EOLib.Domain.Character
                    RenderWalkFrame == properties.RenderWalkFrame &&
                    RenderAttackFrame == properties.RenderAttackFrame &&
                    EmoteFrame == properties.EmoteFrame &&
+                   ActualSpellCastFrame == properties.ActualSpellCastFrame &&
                    SitState == properties.SitState &&
                    Emote == properties.Emote &&
                    IsHidden == properties.IsHidden &&
@@ -333,6 +336,7 @@ namespace EOLib.Domain.Character
             hashCode = hashCode * -1521134295 + ActualAttackFrame.GetHashCode();
             hashCode = hashCode * -1521134295 + RenderAttackFrame.GetHashCode();
             hashCode = hashCode * -1521134295 + EmoteFrame.GetHashCode();
+            hashCode = hashCode * -1521134295 + ActualSpellCastFrame.GetHashCode();
             hashCode = hashCode * -1521134295 + SitState.GetHashCode();
             hashCode = hashCode * -1521134295 + Emote.GetHashCode();
             hashCode = hashCode * -1521134295 + IsHidden.GetHashCode();
