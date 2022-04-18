@@ -159,8 +159,6 @@ namespace EndlessClient.Rendering.Character
 
         public void NotifyTargetOtherSpellCast(short sourcePlayerID, short targetPlayerID, short spellId, int recoveredHP, byte targetPercentHealth)
         {
-            var spellGraphic = _esfFileProvider.ESFFile[spellId].Graphic;
-
             if (sourcePlayerID == _characterRepository.MainCharacter.ID)
             {
                 _characterRendererProvider.MainCharacterRenderer.MatchSome(cr => cr.ShoutSpellCast());
@@ -171,18 +169,20 @@ namespace EndlessClient.Rendering.Character
                 _characterRendererProvider.CharacterRenderers[sourcePlayerID].ShoutSpellCast();
             }
 
+            var spellData = _esfFileProvider.ESFFile[spellId];
+
             if (targetPlayerID == _characterRepository.MainCharacter.ID)
             {
                 _characterRendererProvider.MainCharacterRenderer.MatchSome(cr =>
                 {
-                    cr.ShowSpellAnimation(spellGraphic);
-                    cr.ShowDamageCounter(recoveredHP, targetPercentHealth, isHeal: true);
+                    cr.ShowSpellAnimation(spellData.Graphic);
+                    cr.ShowDamageCounter(recoveredHP, targetPercentHealth, isHeal: spellData.Type == EOLib.IO.SpellType.Heal);
                 });
             }
             else
             {
-                _characterRendererProvider.CharacterRenderers[targetPlayerID].ShowSpellAnimation(spellGraphic);
-                _characterRendererProvider.CharacterRenderers[targetPlayerID].ShowDamageCounter(recoveredHP, targetPercentHealth, isHeal: true);
+                _characterRendererProvider.CharacterRenderers[targetPlayerID].ShowSpellAnimation(spellData.Graphic);
+                _characterRendererProvider.CharacterRenderers[targetPlayerID].ShowDamageCounter(recoveredHP, targetPercentHealth, isHeal: spellData.Type == EOLib.IO.SpellType.Heal);
             }
         }
 
