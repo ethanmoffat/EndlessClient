@@ -31,14 +31,13 @@ namespace EndlessClient.HUD.Spells
                     if (spellData.Target == EOLib.IO.SpellTarget.Normal)
                     {
                         _statusLabelSetter.SetStatusLabel(EOResourceID.SKILLMASTER_WORD_SPELL, $"{spellData.Name} ", EOResourceID.SPELL_WAS_SELECTED);
+                        _spellSlotDataRepository.SelectedSpellSlot = Option.Some(slot);
+                        _spellSlotDataRepository.SpellIsPrepared = true;
                     }
                     else if (spellData.Target == EOLib.IO.SpellTarget.Group /*&& not in party*/) // todo: parties
                     {
                         _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.SPELL_ONLY_WORKS_ON_GROUP);
                     }
-
-                    _spellSlotDataRepository.SelectedSpellSlot = Option.Some(slot);
-                    _spellSlotDataRepository.SpellIsPrepared = true;
                 },
                 none: () =>
                 {

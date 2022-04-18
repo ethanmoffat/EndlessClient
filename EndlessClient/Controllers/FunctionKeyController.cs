@@ -47,7 +47,8 @@ namespace EndlessClient.Controllers
                 _spellSlotDataProvider.SelectedSpellInfo.MatchSome(x =>
                 {
                     var spellData = _esfFileProvider.ESFFile[x.ID];
-                    if (spellData.Target == SpellTarget.Self && _characterAnimationActions.PrepareMainCharacterSpell(x.ID, _characterProvider.MainCharacter))
+                    if ((spellData.Target == SpellTarget.Self || spellData.Target == SpellTarget.Group) &&
+                        _characterAnimationActions.PrepareMainCharacterSpell(x.ID, _characterProvider.MainCharacter))
                     {
                         _characterActions.PrepareCastSpell(x.ID);
                     }
