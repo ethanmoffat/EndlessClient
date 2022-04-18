@@ -3,5 +3,7 @@
     public interface ISpellTargetable
     {
         int ID { get; }
+
+        int Index { get; }
     }
 }

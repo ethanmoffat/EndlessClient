@@ -138,7 +138,7 @@ namespace EOLib.Domain.Character
                         .AddChar(1) // unknown
                         .AddShort(1) // unknown
                         .AddShort((short)spellId)
-                        .AddShort((short)target.ID)
+                        .AddShort((short)target.Index)
                         .AddThree(DateTime.Now.ToEOTimeStamp());
                 }
                 else

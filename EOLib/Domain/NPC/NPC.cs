@@ -7,7 +7,7 @@ namespace EOLib.Domain.NPC
     {
         public int ID { get; }
 
-        public byte Index { get; }
+        public int Index { get; }
 
         public byte X { get; private set; }
 
@@ -19,7 +19,7 @@ namespace EOLib.Domain.NPC
 
         public Option<short> OpponentID { get; private set; }
 
-        public NPC(int id, byte index)
+        public NPC(int id, int index)
         {
             ID = id;
             Index = index;
