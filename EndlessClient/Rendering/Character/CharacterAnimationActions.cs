@@ -52,6 +52,7 @@ namespace EndlessClient.Rendering.Character
             if (!_hudControlProvider.IsInGame)
                 return;
 
+            CancelSpellPrep();
             Animator.MainCharacterFace(direction);
         }
 
@@ -60,6 +61,7 @@ namespace EndlessClient.Rendering.Character
             if (!_hudControlProvider.IsInGame)
                 return;
 
+            CancelSpellPrep();
             Animator.StartMainCharacterWalkAnimation(Option.None<MapCoordinate>());
             ShowWaterSplashiesIfNeeded(CharacterActionState.Walking, _characterRepository.MainCharacter.ID);
         }
@@ -69,6 +71,7 @@ namespace EndlessClient.Rendering.Character
             if (!_hudControlProvider.IsInGame)
                 return;
 
+            CancelSpellPrep();
             Animator.StartMainCharacterAttackAnimation();
             ShowWaterSplashiesIfNeeded(CharacterActionState.Attacking, _characterRepository.MainCharacter.ID);
         }
@@ -235,6 +238,12 @@ namespace EndlessClient.Rendering.Character
 
                 });
             });
+        }
+
+        private void CancelSpellPrep()
+        {
+            Animator.MainCharacterCancelSpellPrep();
+            _characterRendererProvider.MainCharacterRenderer.MatchSome(r => r.StopShout());
         }
 
         private ICharacterAnimator Animator => _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator);

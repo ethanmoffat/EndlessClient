@@ -85,8 +85,6 @@ namespace EndlessClient.Rendering.Character
 
         public void MainCharacterFace(EODirection direction)
         {
-            MainCharacterCancelSpellPrep();
-
             if (_otherPlayerStartWalkingTimes.ContainsKey(_characterRepository.MainCharacter.ID))
             {
                 _queuedDirections[_characterRepository.MainCharacter.ID] = direction;
@@ -102,8 +100,6 @@ namespace EndlessClient.Rendering.Character
 
         public void StartMainCharacterWalkAnimation(Option<MapCoordinate> targetCoordinate)
         {
-            MainCharacterCancelSpellPrep();
-
             _walkPath.Clear();
             targetCoordinate.MatchSome(tc =>
             {
@@ -135,8 +131,6 @@ namespace EndlessClient.Rendering.Character
 
         public void StartMainCharacterAttackAnimation()
         {
-            MainCharacterCancelSpellPrep();
-
             if (_otherPlayerStartAttackingTimes.ContainsKey(_characterRepository.MainCharacter.ID))
             {
                 _otherPlayerStartAttackingTimes[_characterRepository.MainCharacter.ID].Replay = true;

@@ -362,12 +362,7 @@ namespace EndlessClient.Rendering.Character
 
             if (_spellCastTime.HasValue && (DateTime.Now - _spellCastTime.Value).TotalMilliseconds >= 600)
             {
-                _nameLabel.Visible = false;
-                _nameLabel.Text = _character.Name;
-                _nameLabel.ForeColor = Color.White;
-                _nameLabel.BlinkRate = null;
-                _shoutName = string.Empty;
-                _spellCastTime = null;
+                StopShout();
             }
 
             _nameLabel.DrawPosition = GetNameLabelPosition();
@@ -461,9 +456,14 @@ namespace EndlessClient.Rendering.Character
         }
 
         // Called when the shout (spell prep time) should be cancelled without casting
-        public void StopShoutingSpell()
+        public void StopShout()
         {
+            _nameLabel.Visible = false;
+            _nameLabel.Text = _character.Name;
+            _nameLabel.ForeColor = Color.White;
+            _nameLabel.BlinkRate = null;
             _shoutName = string.Empty;
+            _spellCastTime = null;
         }
 
         public void ShowDamageCounter(int damage, int percentHealth, bool isHeal)
