@@ -7,6 +7,7 @@ using EndlessClient.HUD;
 using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Inventory;
 using EndlessClient.HUD.Panels;
+using EndlessClient.HUD.Spells;
 using EndlessClient.Input;
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Character;
@@ -15,7 +16,10 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Interact;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
+using EOLib.Domain.NPC;
+using EOLib.Domain.Spells;
 using EOLib.IO.Map;
+using EOLib.IO.Repositories;
 using EOLib.Localization;
 using Optional;
 using Optional.Collections;
@@ -32,6 +36,7 @@ namespace EndlessClient.Controllers
         private readonly IInGameDialogActions _inGameDialogActions;
         private readonly IPaperdollActions _paperdollActions;
         private readonly IUnwalkableTileActions _unwalkableTileActions;
+        private readonly ICharacterAnimationActions _characterAnimationActions;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly IStatusLabelSetter _statusLabelSetter;
@@ -44,12 +49,15 @@ namespace EndlessClient.Controllers
         private readonly IContextMenuRendererFactory _contextMenuRendererFactory;
         private readonly IActiveDialogProvider _activeDialogProvider;
         private readonly IUserInputRepository _userInputRepository;
+        private readonly ISpellSlotDataRepository _spellSlotDataRepository;
+        private readonly IENFFileProvider _enfFileProvider;
 
         public MapInteractionController(IMapActions mapActions,
                                         ICharacterActions characterActions,
                                         IInGameDialogActions inGameDialogActions,
                                         IPaperdollActions paperdollActions,
                                         IUnwalkableTileActions unwalkableTileActions,
+                                        ICharacterAnimationActions characterAnimationActions,
                                         ICurrentMapStateProvider currentMapStateProvider,
                                         ICharacterProvider characterProvider,
                                         IStatusLabelSetter statusLabelSetter,
@@ -61,13 +69,16 @@ namespace EndlessClient.Controllers
                                         IEOMessageBoxFactory messageBoxFactory,
                                         IContextMenuRendererFactory contextMenuRendererFactory,
                                         IActiveDialogProvider activeDialogProvider,
-                                        IUserInputRepository userInputRepository)
+                                        IUserInputRepository userInputRepository,
+                                        ISpellSlotDataRepository spellSlotDataRepository,
+                                        IENFFileProvider enfFileProvider)
         {
             _mapActions = mapActions;
             _characterActions = characterActions;
             _inGameDialogActions = inGameDialogActions;
             _paperdollActions = paperdollActions;
             _unwalkableTileActions = unwalkableTileActions;
+            _characterAnimationActions = characterAnimationActions;
             _currentMapStateProvider = currentMapStateProvider;
             _characterProvider = characterProvider;
             _statusLabelSetter = statusLabelSetter;
@@ -80,6 +91,8 @@ namespace EndlessClient.Controllers
             _contextMenuRendererFactory = contextMenuRendererFactory;
             _activeDialogProvider = activeDialogProvider;
             _userInputRepository = userInputRepository;
+            _spellSlotDataRepository = spellSlotDataRepository;
+            _enfFileProvider = enfFileProvider;
         }
 
         public void LeftClick(IMapCellState cellState, Option<IMouseCursorRenderer> mouseRenderer)
@@ -151,32 +164,55 @@ namespace EndlessClient.Controllers
             _userInputTimeRepository.LastInputTime = DateTime.Now;
         }
 
-        // todo: move to new controller for character interaction
-        public void RightClick(IMapCellState cellState)
+        public void LeftClick(ISpellTargetable spellTarget)
         {
-            if (!cellState.Character.HasValue || _activeDialogProvider.ActiveDialogs.Any(x => x.HasValue))
+            if (_spellSlotDataRepository.SpellIsPrepared)
+            {
+                var npcTarget = spellTarget as INPC;
+                if (npcTarget != null && _enfFileProvider.ENFFile[npcTarget.ID].Type != EOLib.IO.NPCType.Passive && _enfFileProvider.ENFFile[npcTarget.ID].Type != EOLib.IO.NPCType.Aggressive)
+                {
+                    _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.YOU_CANNOT_ATTACK_THIS_NPC);
+                }
+                else
+                {
+                    _spellSlotDataRepository.SelectedSpellInfo.MatchSome(si =>
+                    {
+                        if (_characterAnimationActions.PrepareMainCharacterSpell(si.ID, spellTarget))
+                            _characterActions.PrepareCastSpell(si.ID);
+                    });
+                }
+
+                _spellSlotDataRepository.SpellIsPrepared = false;
+                _spellSlotDataRepository.SelectedSpellSlot = Option.None<int>();
+
+                _userInputRepository.ClickHandled = true;
+            }
+
+            _userInputTimeRepository.LastInputTime = DateTime.Now;
+        }
+
+        public void RightClick(ICharacter character)
+        {
+            if (_activeDialogProvider.ActiveDialogs.Any(x => x.HasValue))
                 return;
 
-            cellState.Character.MatchSome(c =>
+            if (character == _characterProvider.MainCharacter)
             {
-                if (c == _characterProvider.MainCharacter)
-                {
-                    _paperdollActions.RequestPaperdoll(_characterProvider.MainCharacter.ID);
-                    _inGameDialogActions.ShowPaperdollDialog(_characterProvider.MainCharacter, isMainCharacter: true);
-                    _userInputTimeRepository.LastInputTime = DateTime.Now;
-                }
-                else if (_characterRendererProvider.CharacterRenderers.ContainsKey(c.ID))
-                {
-                    _contextMenuRepository.ContextMenu = _contextMenuRepository.ContextMenu.Match(
-                        some: cmr =>
-                        {
-                            cmr.Dispose();
-                            return Option.Some(_contextMenuRendererFactory.CreateContextMenuRenderer(_characterRendererProvider.CharacterRenderers[c.ID]));
-                        },
-                        none: () => Option.Some(_contextMenuRendererFactory.CreateContextMenuRenderer(_characterRendererProvider.CharacterRenderers[c.ID])));
-                    _contextMenuRepository.ContextMenu.MatchSome(r => r.Initialize());
-                }
-            });
+                _paperdollActions.RequestPaperdoll(_characterProvider.MainCharacter.ID);
+                _inGameDialogActions.ShowPaperdollDialog(_characterProvider.MainCharacter, isMainCharacter: true);
+                _userInputTimeRepository.LastInputTime = DateTime.Now;
+            }
+            else if (_characterRendererProvider.CharacterRenderers.ContainsKey(character.ID))
+            {
+                _contextMenuRepository.ContextMenu = _contextMenuRepository.ContextMenu.Match(
+                    some: cmr =>
+                    {
+                        cmr.Dispose();
+                        return Option.Some(_contextMenuRendererFactory.CreateContextMenuRenderer(_characterRendererProvider.CharacterRenderers[character.ID]));
+                    },
+                    none: () => Option.Some(_contextMenuRendererFactory.CreateContextMenuRenderer(_characterRendererProvider.CharacterRenderers[character.ID])));
+                _contextMenuRepository.ContextMenu.MatchSome(r => r.Initialize());
+            }
         }
 
         private void HandlePickupResult(ItemPickupResult pickupResult, IItem item)
@@ -246,6 +282,8 @@ namespace EndlessClient.Controllers
     {
         void LeftClick(IMapCellState cellState, Option<IMouseCursorRenderer> mouseRenderer);
 
-        void RightClick(IMapCellState cellState);
+        void LeftClick(ISpellTargetable spellTarget);
+
+        void RightClick(ICharacter character);
     }
 }

@@ -2,6 +2,7 @@
 using System.Linq;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
+using EndlessClient.HUD.Spells;
 using EndlessClient.Input;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Chat;
@@ -180,11 +181,19 @@ namespace EndlessClient.Rendering.Character
             {
                 UpdateNameLabel(gameTime);
 
-                if (DrawArea.Contains(_userInputProvider.CurrentMouseState.Position) &&
-                    _userInputProvider.CurrentMouseState.RightButton == ButtonState.Released &&
-                    _userInputProvider.PreviousMouseState.RightButton == ButtonState.Pressed)
+                if (DrawArea.Contains(_userInputProvider.CurrentMouseState.Position))
                 {
-                    _mapInteractionController.RightClick(new MapCellState { Character = Option.Some(Character) });
+                    if (_userInputProvider.CurrentMouseState.RightButton == ButtonState.Released &&
+                        _userInputProvider.PreviousMouseState.RightButton == ButtonState.Pressed)
+                    {
+                        _mapInteractionController.RightClick(Character);
+                    }
+                    else if (_userInputProvider.CurrentMouseState.LeftButton == ButtonState.Released &&
+                             _userInputProvider.PreviousMouseState.LeftButton == ButtonState.Pressed &&
+                             !_userInputProvider.ClickHandled)
+                    {
+                        _mapInteractionController.LeftClick(Character);
+                    }
                 }
 
                 _healthBarRenderer.Update(gameTime);
@@ -198,17 +207,15 @@ namespace EndlessClient.Rendering.Character
             if (!Visible || _sb.IsDisposed)
                 return;
 
-            //todo: check if this is the renderer for the main player
-            //        if hidden, draw if: they are not active character and active character is admin
+            if (!Character.RenderProperties.IsHidden || _characterProvider.MainCharacter.AdminLevel > 0)
+            {
+                _sb.Begin();
+                DrawToSpriteBatch(_sb);
 
-            _sb.Begin();
-            DrawToSpriteBatch(_sb);
-            
-            if (_sb.IsDisposed)
-                return;
-            _sb.End();
-
-            //todo: draw effect over character
+                if (_sb.IsDisposed)
+                    return;
+                _sb.End();
+            }
 
             base.Draw(gameTime);
         }

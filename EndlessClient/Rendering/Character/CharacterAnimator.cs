@@ -1,5 +1,6 @@
 ﻿using EndlessClient.GameExecution;
 using EndlessClient.HUD;
+using EndlessClient.HUD.Spells;
 using EndlessClient.Input;
 using EOLib;
 using EOLib.Domain.Character;
@@ -26,6 +27,7 @@ namespace EndlessClient.Rendering.Character
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly ICurrentMapProvider _currentMapProvider;
+        private readonly ISpellSlotDataRepository _spellSlotDataRepository;
         private readonly ICharacterActions _characterActions;
         private readonly IWalkValidationActions _walkValidationActions;
         private readonly IPathFinder _pathFinder;
@@ -48,6 +50,7 @@ namespace EndlessClient.Rendering.Character
                                  ICharacterRepository characterRepository,
                                  ICurrentMapStateRepository currentMapStateRepository,
                                  ICurrentMapProvider currentMapProvider,
+                                 ISpellSlotDataRepository spellSlotDataRepository,
                                  ICharacterActions characterActions,
                                  IWalkValidationActions walkValidationActions,
                                  IPathFinder pathFinder)
@@ -56,6 +59,7 @@ namespace EndlessClient.Rendering.Character
             _characterRepository = characterRepository;
             _currentMapStateRepository = currentMapStateRepository;
             _currentMapProvider = currentMapProvider;
+            _spellSlotDataRepository = spellSlotDataRepository;
             _characterActions = characterActions;
             _walkValidationActions = walkValidationActions;
             _pathFinder = pathFinder;
@@ -159,6 +163,9 @@ namespace EndlessClient.Rendering.Character
             _mainPlayerStartShoutTime = Option.None<Stopwatch>();
             _shoutSpellData = null;
             _spellTarget = null;
+
+            _spellSlotDataRepository.SelectedSpellSlot = Option.None<int>();
+            _spellSlotDataRepository.SpellIsPrepared = false;
         }
 
         public void StartOtherCharacterWalkAnimation(int characterID, byte destinationX, byte destinationY, EODirection direction)

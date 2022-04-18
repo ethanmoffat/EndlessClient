@@ -8,6 +8,7 @@ using EndlessClient.ControlSets;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Chat;
 using EndlessClient.HUD.Panels;
+using EndlessClient.HUD.Spells;
 using EndlessClient.HUD.StatusBars;
 using EndlessClient.Input;
 using EndlessClient.Network;
@@ -51,12 +52,12 @@ namespace EndlessClient.HUD.Controls
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IChatModeCalculator _chatModeCalculator;
         private readonly IExperienceTableProvider _experienceTableProvider;
-        private readonly IArrowKeyController _arrowKeyController;
         private readonly IPathFinder _pathFinder;
         private readonly ICharacterActions _characterActions;
         private readonly IWalkValidationActions _walkValidationActions;
         private readonly IPacketSendService _packetSendService;
         private readonly IUserInputTimeProvider _userInputTimeProvider;
+        private readonly ISpellSlotDataRepository _spellSlotDataRepository;
         private IChatController _chatController;
 
         public HudControlsFactory(IHudButtonController hudButtonController,
@@ -77,12 +78,12 @@ namespace EndlessClient.HUD.Controls
                                   ICurrentMapProvider currentMapProvider,
                                   IChatModeCalculator chatModeCalculator,
                                   IExperienceTableProvider experienceTableProvider,
-                                  IArrowKeyController arrowKeyController,
                                   IPathFinder pathFinder,
                                   ICharacterActions characterActions,
                                   IWalkValidationActions walkValidationActions,
                                   IPacketSendService packetSendService,
-                                  IUserInputTimeProvider userInputTimeProvider)
+                                  IUserInputTimeProvider userInputTimeProvider,
+                                  ISpellSlotDataRepository spellSlotDataRepository)
         {
             _hudButtonController = hudButtonController;
             _hudPanelFactory = hudPanelFactory;
@@ -102,12 +103,12 @@ namespace EndlessClient.HUD.Controls
             _currentMapProvider = currentMapProvider;
             _chatModeCalculator = chatModeCalculator;
             _experienceTableProvider = experienceTableProvider;
-            _arrowKeyController = arrowKeyController;
             _pathFinder = pathFinder;
             _characterActions = characterActions;
             _walkValidationActions = walkValidationActions;
             _packetSendService = packetSendService;
             _userInputTimeProvider = userInputTimeProvider;
+            _spellSlotDataRepository = spellSlotDataRepository;
         }
 
         public void InjectChatController(IChatController chatController)
@@ -426,7 +427,7 @@ namespace EndlessClient.HUD.Controls
 
         private ICharacterAnimator CreateCharacterAnimator()
         {
-            return new CharacterAnimator(_endlessGameProvider, _characterRepository, _currentMapStateRepository, _currentMapProvider, _characterActions, _walkValidationActions, _pathFinder);
+            return new CharacterAnimator(_endlessGameProvider, _characterRepository, _currentMapStateRepository, _currentMapProvider, _spellSlotDataRepository, _characterActions, _walkValidationActions, _pathFinder);
         }
 
         private INPCAnimator CreateNPCAnimator()

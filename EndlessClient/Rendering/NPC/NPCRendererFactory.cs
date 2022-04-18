@@ -1,6 +1,7 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
+using EndlessClient.HUD.Spells;
 using EndlessClient.Input;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Chat;
@@ -24,7 +25,9 @@ namespace EndlessClient.Rendering.NPC
         private readonly IHealthBarRendererFactory _healthBarRendererFactory;
         private readonly IChatBubbleFactory _chatBubbleFactory;
         private readonly INPCInteractionController _npcInteractionController;
+        private readonly IMapInteractionController _mapInteractionController;
         private readonly IUserInputProvider _userInputProvider;
+        private readonly ISpellSlotDataProvider _spellSlotDataProvider;
 
         public NPCRendererFactory(INativeGraphicsManager nativeGraphicsManager,
                                   IEndlessGameProvider endlessGameProvider,
@@ -35,7 +38,9 @@ namespace EndlessClient.Rendering.NPC
                                   IHealthBarRendererFactory healthBarRendererFactory,
                                   IChatBubbleFactory chatBubbleFactory,
                                   INPCInteractionController npcInteractionController,
-                                  IUserInputProvider userInputProvider)
+                                  IMapInteractionController mapInteractionController,
+                                  IUserInputProvider userInputProvider,
+                                  ISpellSlotDataProvider spellSlotDataProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _endlessGameProvider = endlessGameProvider;
@@ -46,7 +51,9 @@ namespace EndlessClient.Rendering.NPC
             _healthBarRendererFactory = healthBarRendererFactory;
             _chatBubbleFactory = chatBubbleFactory;
             _npcInteractionController = npcInteractionController;
+            _mapInteractionController = mapInteractionController;
             _userInputProvider = userInputProvider;
+            _spellSlotDataProvider = spellSlotDataProvider;
         }
 
         public INPCRenderer CreateRendererFor(INPC npc)
@@ -60,7 +67,9 @@ namespace EndlessClient.Rendering.NPC
                                    _healthBarRendererFactory,
                                    _chatBubbleFactory,
                                    _npcInteractionController,
+                                   _mapInteractionController,
                                    _userInputProvider,
+                                   _spellSlotDataProvider,
                                    npc);
         }
     }

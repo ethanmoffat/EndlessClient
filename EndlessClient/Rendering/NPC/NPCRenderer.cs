@@ -2,6 +2,7 @@
 using System.Linq;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
+using EndlessClient.HUD.Spells;
 using EndlessClient.Input;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Chat;
@@ -34,7 +35,9 @@ namespace EndlessClient.Rendering.NPC
         private readonly IHealthBarRendererFactory _healthBarRendererFactory;
         private readonly IChatBubbleFactory _chatBubbleFactory;
         private readonly INPCInteractionController _npcInteractionController;
+        private readonly IMapInteractionController _mapInteractionController;
         private readonly IUserInputProvider _userInputProvider;
+        private readonly ISpellSlotDataProvider _spellSlotDataProvider;
         private readonly Rectangle _baseTextureFrameRectangle;
         private readonly int _readonlyTopPixel, _readonlyBottomPixel;
         private readonly bool _hasStandingAnimation;
@@ -75,7 +78,9 @@ namespace EndlessClient.Rendering.NPC
                            IHealthBarRendererFactory healthBarRendererFactory,
                            IChatBubbleFactory chatBubbleFactory,
                            INPCInteractionController npcInteractionController,
+                           IMapInteractionController mapInteractionController,
                            IUserInputProvider userInputProvider,
+                           ISpellSlotDataProvider spellSlotDataProvider,
                            INPC initialNPC)
             : base((Game)endlessGameProvider.Game)
         {
@@ -88,8 +93,9 @@ namespace EndlessClient.Rendering.NPC
             _healthBarRendererFactory = healthBarRendererFactory;
             _chatBubbleFactory = chatBubbleFactory;
             _npcInteractionController = npcInteractionController;
+            _mapInteractionController = mapInteractionController;
             _userInputProvider = userInputProvider;
-
+            _spellSlotDataProvider = spellSlotDataProvider;
             _baseTextureFrameRectangle = GetStandingFrameRectangle();
             _readonlyTopPixel = GetTopPixel();
             _readonlyBottomPixel = GetBottomPixel();
@@ -143,7 +149,10 @@ namespace EndlessClient.Rendering.NPC
                 _userInputProvider.PreviousMouseState.LeftButton == ButtonState.Pressed &&
                 !_userInputProvider.ClickHandled)
             {
-                _npcInteractionController.ShowNPCDialog(NPC);
+                if (_spellSlotDataProvider.SpellIsPrepared)
+                    _mapInteractionController.LeftClick(NPC);
+                else
+                    _npcInteractionController.ShowNPCDialog(NPC);
             }
 
             _effectRenderer.Update();
