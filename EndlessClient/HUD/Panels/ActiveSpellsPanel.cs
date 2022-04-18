@@ -482,7 +482,9 @@ namespace EndlessClient.HUD.Panels
             var itemsToHide = _childItems.Where(x => x.Slot < firstValidSlot || x.Slot >= lastValidSlot).ToList();
             foreach (var item in itemsToHide)
             {
-                ((XNAControl)item).Visible = false;
+                if (!item.IsBeingDragged)
+                    ((XNAControl)item).Visible = false;
+
                 item.DisplaySlot = GetDisplaySlotFromSlot(item.Slot);
             }
 
