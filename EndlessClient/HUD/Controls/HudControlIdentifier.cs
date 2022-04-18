@@ -65,7 +65,7 @@ namespace EndlessClient.HUD.Controls
         ClockLabel,
 
         //not displayed
-        UsageTracker,
+        PeriodicStatUpdater,
         UserInputHandler,
         CharacterAnimator,
         NPCAnimator,

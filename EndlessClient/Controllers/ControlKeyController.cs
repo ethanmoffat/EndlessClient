@@ -75,7 +75,6 @@ namespace EndlessClient.Controllers
 
             if (showAnimationAnyway)
             {
-                //todo: lower SP for character when attacking
                 _characterActions.Attack();
                 _characterAnimationActions.StartAttacking();
             }

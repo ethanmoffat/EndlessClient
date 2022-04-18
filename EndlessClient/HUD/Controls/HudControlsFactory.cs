@@ -168,7 +168,7 @@ namespace EndlessClient.HUD.Controls
                 {HudControlIdentifier.ClockLabel, CreateClockLabel()},
                 {HudControlIdentifier.StatusLabel, CreateStatusLabel()},
 
-                {HudControlIdentifier.UsageTracker, CreateUsageTracker()},
+                {HudControlIdentifier.PeriodicStatUpdater, CreatePeriodicStatUpdater()},
                 {HudControlIdentifier.UserInputHandler, CreateUserInputHandler()},
                 {HudControlIdentifier.CharacterAnimator, characterAnimator},
                 {HudControlIdentifier.NPCAnimator, CreateNPCAnimator()},
@@ -400,9 +400,9 @@ namespace EndlessClient.HUD.Controls
             return new TimeLabel(_clientWindowSizeProvider) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
-        private UsageTrackerComponent CreateUsageTracker()
+        private PeriodicStatUpdaterComponent CreatePeriodicStatUpdater()
         {
-            return new UsageTrackerComponent(_endlessGameProvider, _characterRepository);
+            return new PeriodicStatUpdaterComponent(_endlessGameProvider, _characterRepository);
         }
 
         private UnknownEntitiesRequester CreateUnknownEntitiesRequester()
