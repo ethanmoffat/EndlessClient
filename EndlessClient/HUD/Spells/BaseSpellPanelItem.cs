@@ -41,7 +41,7 @@ namespace EndlessClient.HUD.Spells
 
         public event EventHandler Clicked;
 
-        public event EventHandler<SpellDragCompletedEventArgs> DoneDragging;
+        public abstract event EventHandler<SpellDragCompletedEventArgs> DoneDragging;
 
         private readonly Texture2D _highlightColor;
         protected readonly ActiveSpellsPanel _parentPanel;
@@ -83,8 +83,6 @@ namespace EndlessClient.HUD.Spells
 
             base.OnDrawControl(gameTime);
         }
-
-        protected void InvokeDragCompleted(SpellDragCompletedEventArgs e) => DoneDragging?.Invoke(this, e);
 
         protected override void Dispose(bool disposing)
         {

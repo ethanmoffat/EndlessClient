@@ -420,11 +420,7 @@ namespace EndlessClient.HUD.Panels
             _childItems.SingleOrNone(x => x.MouseOver)
                 .Match(child =>
                 {
-                    if (child is SpellPanelItem && child != item)
-                    {
-                        e.ContinueDragging = true;
-                    }
-                    else if (child != item)
+                    if (child != item)
                     {
                         var oldSlot = item.Slot;
                         var oldDisplaySlot = item.DisplaySlot;

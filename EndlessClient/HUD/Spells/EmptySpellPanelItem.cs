@@ -15,6 +15,12 @@ namespace EndlessClient.HUD.Spells
 
         public override ESFRecord SpellData => new ESFRecord();
 
+        public override event EventHandler<SpellPanelItem.SpellDragCompletedEventArgs> DoneDragging
+        {
+            add => throw new InvalidOperationException("No dragging of empty spell");
+            remove => throw new InvalidOperationException("No dragging of empty spell");
+        }
+
         public EmptySpellPanelItem(ActiveSpellsPanel parent, int slot)
             : base(parent, slot)
         {

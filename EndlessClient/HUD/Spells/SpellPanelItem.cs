@@ -32,6 +32,8 @@ namespace EndlessClient.HUD.Spells
 
         public override ESFRecord SpellData { get; }
 
+        public override event EventHandler<SpellDragCompletedEventArgs> DoneDragging;
+
         public SpellPanelItem(ActiveSpellsPanel parent, int slot, IInventorySpell spell, ESFRecord spellData)
             : base(parent, slot)
         {
@@ -135,7 +137,7 @@ namespace EndlessClient.HUD.Spells
             _followMouse = false;
 
             var args = new SpellDragCompletedEventArgs();
-            InvokeDragCompleted(args);
+            DoneDragging?.Invoke(this, args);
 
             if (args.ContinueDragging)
             {
