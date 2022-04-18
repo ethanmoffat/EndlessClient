@@ -27,6 +27,12 @@ namespace EOLib.Domain.Spells
         {
             var spellData = _pubFileProvider.ESFFile[spellId];
 
+            var stats = _characterProvider.MainCharacter.Stats;
+            if (stats[CharacterStat.SP] - spellData.SP < 0)
+                return SpellCastValidationResult.ExhaustedNoSp;
+            if (stats[CharacterStat.TP] - spellData.TP < 0)
+                return SpellCastValidationResult.ExhaustedNoTp;
+
             if (spellTarget is INPC)
             {
                 if (spellData.TargetRestrict == SpellTargetRestrict.Friendly ||

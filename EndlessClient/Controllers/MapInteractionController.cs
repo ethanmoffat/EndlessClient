@@ -173,6 +173,10 @@ namespace EndlessClient.Controllers
                         _characterActions.PrepareCastSpell(si.ID);
                     else if (result == SpellCastValidationResult.CannotAttackNPC)
                         _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.YOU_CANNOT_ATTACK_THIS_NPC);
+                    else if (result == SpellCastValidationResult.ExhaustedNoTp)
+                        _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.ATTACK_YOU_ARE_EXHAUSTED_TP);
+                    else if (result == SpellCastValidationResult.ExhaustedNoSp)
+                        _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.ATTACK_YOU_ARE_EXHAUSTED_SP);
                 });
 
                 _spellSlotDataRepository.SpellIsPrepared = false;

@@ -4,6 +4,8 @@
     {
         Ok,
         CannotAttackNPC,
-        WrongTargetType
+        WrongTargetType,
+        ExhaustedNoSp,
+        ExhaustedNoTp,
     }
 }
