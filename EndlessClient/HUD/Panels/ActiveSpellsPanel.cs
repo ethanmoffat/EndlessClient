@@ -219,7 +219,7 @@ namespace EndlessClient.HUD.Panels
                     var actualSlot = preferredSlot.Match(
                         some: x =>
                         {
-                            return _childItems.Any(ci => ci.Slot == x)
+                            return _childItems.OfType<SpellPanelItem>().Any(ci => ci.Slot == x)
                                 ? GetNextOpenSlot(_childItems)
                                 : Option.Some(x);
                         },
@@ -520,21 +520,21 @@ namespace EndlessClient.HUD.Panels
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !File.Exists(Constants.SpellsFile))
             {
-                using var inventoryKey = TryGetCharacterRegistryKey(accountName, characterName);
-                if (inventoryKey != null)
+                using var spellsKey = TryGetCharacterRegistryKey(accountName, characterName);
+                if (spellsKey != null)
                 {
-                    for (int i = 0; i < SpellRowLength * 4; ++i)
+                    for (int i = 0; i < SpellRowLength * SpellRows; ++i)
                     {
-                        if (int.TryParse(inventoryKey.GetValue($"item{i}")?.ToString() ?? string.Empty, out var id))
+                        if (int.TryParse(spellsKey.GetValue($"item{i}")?.ToString() ?? string.Empty, out var id))
                             map[i] = id;
                     }
                 }
             }
 
-            var inventory = new IniReader(Constants.SpellsFile);
-            if (inventory.Load() && inventory.Sections.ContainsKey(accountName))
+            var spells = new IniReader(Constants.SpellsFile);
+            if (spells.Load() && spells.Sections.ContainsKey(accountName))
             {
-                var section = inventory.Sections[accountName];
+                var section = spells.Sections[accountName];
                 foreach (var key in section.Keys.Where(x => x.Contains(characterName, StringComparison.OrdinalIgnoreCase)))
                 {
                     if (!key.Contains("."))
@@ -574,22 +574,22 @@ namespace EndlessClient.HUD.Panels
 
         private void SaveSpellsFile(object sender, EventArgs e)
         {
-            var inventory = new IniReader(Constants.SpellsFile);
+            var spells = new IniReader(Constants.SpellsFile);
 
-            var section = inventory.Load() && inventory.Sections.ContainsKey(_playerInfoProvider.LoggedInAccountName)
-                ? inventory.Sections[_playerInfoProvider.LoggedInAccountName]
+            var section = spells.Load() && spells.Sections.ContainsKey(_playerInfoProvider.LoggedInAccountName)
+                ? spells.Sections[_playerInfoProvider.LoggedInAccountName]
                 : new SortedList<string, string>();
 
             var existing = section.Where(x => x.Key.Contains(_characterProvider.MainCharacter.Name)).Select(x => x.Key).ToList();
             foreach (var key in existing)
                 section.Remove(key);
 
-            foreach (var item in _childItems)
+            foreach (var item in _childItems.OfType<SpellPanelItem>())
                 section[$"{_characterProvider.MainCharacter.Name}.{item.Slot}"] = $"{item.InventorySpell.ID}";
 
-            inventory.Sections[_playerInfoProvider.LoggedInAccountName] = section;
+            spells.Sections[_playerInfoProvider.LoggedInAccountName] = section;
 
-            inventory.Save();
+            spells.Save();
         }
 
         #endregion
