@@ -16,10 +16,8 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Interact;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
-using EOLib.Domain.NPC;
 using EOLib.Domain.Spells;
 using EOLib.IO.Map;
-using EOLib.IO.Repositories;
 using EOLib.Localization;
 using Optional;
 using Optional.Collections;
@@ -37,6 +35,7 @@ namespace EndlessClient.Controllers
         private readonly IPaperdollActions _paperdollActions;
         private readonly IUnwalkableTileActions _unwalkableTileActions;
         private readonly ICharacterAnimationActions _characterAnimationActions;
+        private readonly ISpellCastValidationActions _spellCastValidationActions;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly IStatusLabelSetter _statusLabelSetter;
@@ -50,7 +49,6 @@ namespace EndlessClient.Controllers
         private readonly IActiveDialogProvider _activeDialogProvider;
         private readonly IUserInputRepository _userInputRepository;
         private readonly ISpellSlotDataRepository _spellSlotDataRepository;
-        private readonly IENFFileProvider _enfFileProvider;
 
         public MapInteractionController(IMapActions mapActions,
                                         ICharacterActions characterActions,
@@ -58,6 +56,7 @@ namespace EndlessClient.Controllers
                                         IPaperdollActions paperdollActions,
                                         IUnwalkableTileActions unwalkableTileActions,
                                         ICharacterAnimationActions characterAnimationActions,
+                                        ISpellCastValidationActions spellCastValidationActions,
                                         ICurrentMapStateProvider currentMapStateProvider,
                                         ICharacterProvider characterProvider,
                                         IStatusLabelSetter statusLabelSetter,
@@ -70,8 +69,7 @@ namespace EndlessClient.Controllers
                                         IContextMenuRendererFactory contextMenuRendererFactory,
                                         IActiveDialogProvider activeDialogProvider,
                                         IUserInputRepository userInputRepository,
-                                        ISpellSlotDataRepository spellSlotDataRepository,
-                                        IENFFileProvider enfFileProvider)
+                                        ISpellSlotDataRepository spellSlotDataRepository)
         {
             _mapActions = mapActions;
             _characterActions = characterActions;
@@ -79,6 +77,7 @@ namespace EndlessClient.Controllers
             _paperdollActions = paperdollActions;
             _unwalkableTileActions = unwalkableTileActions;
             _characterAnimationActions = characterAnimationActions;
+            _spellCastValidationActions = spellCastValidationActions;
             _currentMapStateProvider = currentMapStateProvider;
             _characterProvider = characterProvider;
             _statusLabelSetter = statusLabelSetter;
@@ -92,7 +91,6 @@ namespace EndlessClient.Controllers
             _activeDialogProvider = activeDialogProvider;
             _userInputRepository = userInputRepository;
             _spellSlotDataRepository = spellSlotDataRepository;
-            _enfFileProvider = enfFileProvider;
         }
 
         public void LeftClick(IMapCellState cellState, Option<IMouseCursorRenderer> mouseRenderer)
@@ -168,19 +166,14 @@ namespace EndlessClient.Controllers
         {
             if (_spellSlotDataRepository.SpellIsPrepared)
             {
-                var npcTarget = spellTarget as INPC;
-                if (npcTarget != null && _enfFileProvider.ENFFile[npcTarget.ID].Type != EOLib.IO.NPCType.Passive && _enfFileProvider.ENFFile[npcTarget.ID].Type != EOLib.IO.NPCType.Aggressive)
+                _spellSlotDataRepository.SelectedSpellInfo.MatchSome(si =>
                 {
-                    _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.YOU_CANNOT_ATTACK_THIS_NPC);
-                }
-                else
-                {
-                    _spellSlotDataRepository.SelectedSpellInfo.MatchSome(si =>
-                    {
-                        if (_characterAnimationActions.PrepareMainCharacterSpell(si.ID, spellTarget))
-                            _characterActions.PrepareCastSpell(si.ID);
-                    });
-                }
+                    var result = _spellCastValidationActions.ValidateSpellCast(si.ID, spellTarget);
+                    if (result == SpellCastValidationResult.Ok && _characterAnimationActions.PrepareMainCharacterSpell(si.ID, spellTarget))
+                        _characterActions.PrepareCastSpell(si.ID);
+                    else if (result == SpellCastValidationResult.CannotAttackNPC)
+                        _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.YOU_CANNOT_ATTACK_THIS_NPC);
+                });
 
                 _spellSlotDataRepository.SpellIsPrepared = false;
                 _spellSlotDataRepository.SelectedSpellSlot = Option.None<int>();
