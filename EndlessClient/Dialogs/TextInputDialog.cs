@@ -1,11 +1,9 @@
 ﻿using EndlessClient.Content;
 using EndlessClient.Dialogs.Services;
-using EndlessClient.GameExecution;
 using EndlessClient.Input;
 using EOLib;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 
 namespace EndlessClient.Dialogs
@@ -19,14 +17,13 @@ namespace EndlessClient.Dialogs
 
         public string ResponseText => _inputBox.Text;
 
-        public TextInputDialog(IGameStateProvider gameStateProvider,
-                               INativeGraphicsManager nativeGraphicsManager,
+        public TextInputDialog(INativeGraphicsManager nativeGraphicsManager,
                                IEODialogButtonService eoDialogButtonService,
                                IKeyboardDispatcherRepository keyboardDispatcherRepository,
                                IContentProvider contentProvider,
                                string prompt,
                                int maxInputChars = 12)
-            : base(gameStateProvider)
+            : base(isInGame: true)
         {
             _keyboardDispatcherRepository = keyboardDispatcherRepository;
 
