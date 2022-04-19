@@ -14,15 +14,15 @@ namespace EOLib.Domain.Character
     public class CharacterActions : ICharacterActions
     {
         private readonly IPacketSendService _packetSendService;
-        private readonly ICharacterProvider _characterProvider;
+        private readonly ICharacterRepository _characterRepository;
         private readonly IESFFileProvider _spellFileProvider;
 
         public CharacterActions(IPacketSendService packetSendService,
-                                ICharacterProvider characterProvider,
+                                ICharacterRepository characterRepository,
                                 IESFFileProvider spellFileProvider)
         {
             _packetSendService = packetSendService;
-            _characterProvider = characterProvider;
+            _characterRepository = characterRepository;
             _spellFileProvider = spellFileProvider;
         }
 
@@ -37,9 +37,9 @@ namespace EOLib.Domain.Character
 
         public void Walk()
         {
-            var admin = _characterProvider.MainCharacter.NoWall &&
-                        _characterProvider.MainCharacter.AdminLevel != AdminLevel.Player;
-            var renderProperties = _characterProvider.MainCharacter.RenderProperties;
+            var admin = _characterRepository.MainCharacter.NoWall &&
+                        _characterRepository.MainCharacter.AdminLevel != AdminLevel.Player;
+            var renderProperties = _characterRepository.MainCharacter.RenderProperties;
 
             var packet = new PacketBuilder(PacketFamily.Walk, admin ? PacketAction.Admin : PacketAction.Player)
                 .AddChar((byte) renderProperties.Direction)
@@ -53,8 +53,12 @@ namespace EOLib.Domain.Character
 
         public void Attack()
         {
+            var c = _characterRepository.MainCharacter;
+            var sp = Math.Max(0, c.Stats[CharacterStat.SP] - 1);
+            _characterRepository.MainCharacter = c.WithStats(c.Stats.WithNewStat(CharacterStat.SP, sp));
+
             var packet = new PacketBuilder(PacketFamily.Attack, PacketAction.Use)
-                .AddChar((byte) _characterProvider.MainCharacter.RenderProperties.Direction)
+                .AddChar((byte) _characterRepository.MainCharacter.RenderProperties.Direction)
                 .AddThree(DateTime.Now.ToEOTimeStamp())
                 .Build();
 
@@ -63,7 +67,7 @@ namespace EOLib.Domain.Character
 
         public void ToggleSit()
         {
-            var renderProperties = _characterProvider.MainCharacter.RenderProperties;
+            var renderProperties = _characterRepository.MainCharacter.RenderProperties;
             var sitAction = renderProperties.SitState == SitState.Standing
                 ? SitAction.Sit
                 : SitAction.Stand;
@@ -81,7 +85,7 @@ namespace EOLib.Domain.Character
 
         public void SitInChair()
         {
-            var rp = _characterProvider.MainCharacter.RenderProperties;
+            var rp = _characterRepository.MainCharacter.RenderProperties;
             var action = rp.SitState == SitState.Chair ? SitAction.Stand : SitAction.Sit;
             var packet = new PacketBuilder(PacketFamily.Chair, PacketAction.Request)
                 .AddChar((byte)action)
@@ -105,6 +109,10 @@ namespace EOLib.Domain.Character
         public void CastSpell(int spellId, ISpellTargetable target)
         {
             var data = _spellFileProvider.ESFFile.Single(x => x.ID == spellId);
+
+            var c = _characterRepository.MainCharacter;
+            var sp = Math.Max(0, c.Stats[CharacterStat.SP] - data.SP);
+            _characterRepository.MainCharacter = c.WithStats(c.Stats.WithNewStat(CharacterStat.SP, sp));
 
             var action = data.Target == IO.SpellTarget.Self
                 ? PacketAction.TargetSelf
@@ -138,7 +146,7 @@ namespace EOLib.Domain.Character
                         .AddChar(1) // unknown
                         .AddShort(1) // unknown
                         .AddShort((short)spellId)
-                        .AddShort((short)target.ID)
+                        .AddShort((short)target.Index)
                         .AddThree(DateTime.Now.ToEOTimeStamp());
                 }
                 else

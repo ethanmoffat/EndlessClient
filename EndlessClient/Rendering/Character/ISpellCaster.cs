@@ -5,5 +5,7 @@
         void ShoutSpellPrep(string spellName);
 
         void ShoutSpellCast();
+
+        void StopShout();
     }
 }

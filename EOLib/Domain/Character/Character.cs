@@ -6,6 +6,8 @@ namespace EOLib.Domain.Character
     {
         public int ID { get; private set; }
 
+        public int Index => ID;
+
         public string Name { get; private set; }
 
         public string Title { get; private set; }

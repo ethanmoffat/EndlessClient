@@ -80,6 +80,8 @@ namespace EndlessClient.Rendering.Map
 
         private void ClearCharacterRenderersAndCache()
         {
+            _characterRendererRepository.MainCharacterRenderer.MatchSome(x => x.StopShout());
+
             foreach (var characterRenderer in _characterRendererRepository.CharacterRenderers)
                 characterRenderer.Value.Dispose();
             _characterRendererRepository.CharacterRenderers.Clear();

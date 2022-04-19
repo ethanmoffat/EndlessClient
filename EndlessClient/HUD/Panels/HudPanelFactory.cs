@@ -5,6 +5,7 @@ using EndlessClient.ControlSets;
 using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD.Inventory;
+using EndlessClient.HUD.Spells;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Services;
 using EOLib;
@@ -42,6 +43,7 @@ namespace EndlessClient.HUD.Panels
         private readonly IItemNameColorService _itemNameColorService;
         private readonly IInventoryService _inventoryService;
         private readonly IActiveDialogProvider _activeDialogProvider;
+        private readonly ISpellSlotDataRepository _spellSlotDataRepository;
 
         public HudPanelFactory(INativeGraphicsManager nativeGraphicsManager,
                                IInventoryController inventoryController,
@@ -62,7 +64,8 @@ namespace EndlessClient.HUD.Panels
                                IItemStringService itemStringService,
                                IItemNameColorService itemNameColorService,
                                IInventoryService inventoryService,
-                               IActiveDialogProvider activeDialogProvider)
+                               IActiveDialogProvider activeDialogProvider,
+                               ISpellSlotDataRepository spellSlotDataRepository)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _inventoryController = inventoryController;
@@ -84,6 +87,7 @@ namespace EndlessClient.HUD.Panels
             _itemNameColorService = itemNameColorService;
             _inventoryService = inventoryService;
             _activeDialogProvider = activeDialogProvider;
+            _spellSlotDataRepository = spellSlotDataRepository;
         }
 
         public NewsPanel CreateNewsPanel()
@@ -122,7 +126,8 @@ namespace EndlessClient.HUD.Panels
                 _playerInfoProvider,
                 _characterProvider,
                 _characterInventoryProvider,
-                _pubFileProvider) { DrawOrder = HUD_CONTROL_LAYER };
+                _pubFileProvider,
+                _spellSlotDataRepository) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public PassiveSpellsPanel CreatePassiveSpellsPanel()

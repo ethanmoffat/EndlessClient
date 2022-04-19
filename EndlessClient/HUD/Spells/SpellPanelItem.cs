@@ -32,6 +32,8 @@ namespace EndlessClient.HUD.Spells
 
         public override ESFRecord SpellData { get; }
 
+        public override event EventHandler<SpellDragCompletedEventArgs> DoneDragging;
+
         public SpellPanelItem(ActiveSpellsPanel parent, int slot, IInventorySpell spell, ESFRecord spellData)
             : base(parent, slot)
         {
@@ -45,14 +47,13 @@ namespace EndlessClient.HUD.Spells
             _spellLevelColor.SetData(new[] { Color.White });
 
             _clickTime = DateTime.Now;
-
-            OnMouseEnter += (_, _) => SetIconHover(true);
-            OnMouseLeave += (_, _) => SetIconHover(false);
         }
 
         protected override void OnUpdateControl(GameTime gameTime)
         {
             DoClickAndDragLogic();
+
+            SetIconHover(MouseOver);
 
             if (_lastSlot != DisplaySlot || _lastInventorySpell != InventorySpell)
             {
@@ -94,7 +95,6 @@ namespace EndlessClient.HUD.Spells
                 {
                     _followMouse = true;
                     _clickTime = DateTime.Now;
-                    IsSelected = true;
                 }
                 else
                 {
@@ -136,7 +136,7 @@ namespace EndlessClient.HUD.Spells
             _followMouse = false;
 
             var args = new SpellDragCompletedEventArgs();
-            InvokeDragCompleted(args);
+            DoneDragging?.Invoke(this, args);
 
             if (args.ContinueDragging)
             {

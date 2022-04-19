@@ -1,11 +1,14 @@
 ﻿using EndlessClient.GameExecution;
 using EndlessClient.HUD;
+using EndlessClient.HUD.Spells;
 using EndlessClient.Input;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
+using EOLib.Domain.Spells;
 using EOLib.IO.Map;
+using EOLib.IO.Pub;
 using Microsoft.Xna.Framework;
 using Optional;
 using System;
@@ -24,6 +27,7 @@ namespace EndlessClient.Rendering.Character
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly ICurrentMapProvider _currentMapProvider;
+        private readonly ISpellSlotDataRepository _spellSlotDataRepository;
         private readonly ICharacterActions _characterActions;
         private readonly IWalkValidationActions _walkValidationActions;
         private readonly IPathFinder _pathFinder;
@@ -35,6 +39,10 @@ namespace EndlessClient.Rendering.Character
         private readonly Dictionary<int, RenderFrameActionTime> _otherPlayerStartSpellCastTimes;
         private readonly Dictionary<int, RenderFrameActionTime> _startEmoteTimes;
 
+        private Option<Stopwatch> _mainPlayerStartShoutTime;
+        private ESFRecord _shoutSpellData;
+        private ISpellTargetable _spellTarget;
+
         private Queue<MapCoordinate> _walkPath;
         private Option<MapCoordinate> _targetCoordinate;
 
@@ -42,6 +50,7 @@ namespace EndlessClient.Rendering.Character
                                  ICharacterRepository characterRepository,
                                  ICurrentMapStateRepository currentMapStateRepository,
                                  ICurrentMapProvider currentMapProvider,
+                                 ISpellSlotDataRepository spellSlotDataRepository,
                                  ICharacterActions characterActions,
                                  IWalkValidationActions walkValidationActions,
                                  IPathFinder pathFinder)
@@ -50,6 +59,7 @@ namespace EndlessClient.Rendering.Character
             _characterRepository = characterRepository;
             _currentMapStateRepository = currentMapStateRepository;
             _currentMapProvider = currentMapProvider;
+            _spellSlotDataRepository = spellSlotDataRepository;
             _characterActions = characterActions;
             _walkValidationActions = walkValidationActions;
             _pathFinder = pathFinder;
@@ -129,6 +139,27 @@ namespace EndlessClient.Rendering.Character
 
             var startAttackingTime = new RenderFrameActionTime(_characterRepository.MainCharacter.ID);
             _otherPlayerStartAttackingTimes.Add(_characterRepository.MainCharacter.ID, startAttackingTime);
+        }
+
+        public bool MainCharacterShoutSpellPrep(ESFRecord spellData, ISpellTargetable target)
+        {
+            if (_mainPlayerStartShoutTime.HasValue)
+                return false;
+
+            _mainPlayerStartShoutTime = Option.Some(Stopwatch.StartNew());
+            _shoutSpellData = spellData;
+            _spellTarget = target;
+            return true;
+        }
+
+        public void MainCharacterCancelSpellPrep()
+        {
+            _mainPlayerStartShoutTime = Option.None<Stopwatch>();
+            _shoutSpellData = null;
+            _spellTarget = null;
+
+            _spellSlotDataRepository.SelectedSpellSlot = Option.None<int>();
+            _spellSlotDataRepository.SpellIsPrepared = false;
         }
 
         public void StartOtherCharacterWalkAnimation(int characterID, byte destinationX, byte destinationY, EODirection direction)
@@ -408,6 +439,18 @@ namespace EndlessClient.Rendering.Character
 
         private void AnimateCharacterSpells()
         {
+            _mainPlayerStartShoutTime.MatchSome(t =>
+            {
+                // todo: math ???
+                // grabbed this formula from OldCharacterRenderer but it isn't certain that this is correct
+                if (t.ElapsedMilliseconds > (int)Math.Round(_shoutSpellData.CastTime / 2.0 * 950))
+                {
+                    _otherPlayerStartSpellCastTimes.Add(_characterRepository.MainCharacter.ID, new RenderFrameActionTime(_characterRepository.MainCharacter.ID));
+                    _characterActions.CastSpell(_shoutSpellData.ID, _spellTarget);
+                    MainCharacterCancelSpellPrep();
+                }
+            });
+
             var playersDoneCasting = new HashSet<int>();
             foreach (var pair in _otherPlayerStartSpellCastTimes.Values)
             {
@@ -505,6 +548,10 @@ namespace EndlessClient.Rendering.Character
         void StartMainCharacterWalkAnimation(Option<MapCoordinate> targetCoordinate);
 
         void StartMainCharacterAttackAnimation();
+
+        bool MainCharacterShoutSpellPrep(ESFRecord spellData, ISpellTargetable spellTarget);
+
+        void MainCharacterCancelSpellPrep();
 
         void StartOtherCharacterWalkAnimation(int characterID, byte targetX, byte targetY, EODirection direction);
 

@@ -7,15 +7,6 @@ namespace EndlessClient.HUD.Spells
 {
     public class EmptySpellPanelItem : BaseSpellPanelItem
     {
-        public override bool IsSelected
-        {
-            get => false;
-            set
-            {
-                base.IsSelected = false;
-            }
-        }
-
         public override IInventorySpell InventorySpell
         {
             get => new InventorySpell(0, 0);
@@ -23,6 +14,12 @@ namespace EndlessClient.HUD.Spells
         }
 
         public override ESFRecord SpellData => new ESFRecord();
+
+        public override event EventHandler<SpellPanelItem.SpellDragCompletedEventArgs> DoneDragging
+        {
+            add => throw new InvalidOperationException("No dragging of empty spell");
+            remove => throw new InvalidOperationException("No dragging of empty spell");
+        }
 
         public EmptySpellPanelItem(ActiveSpellsPanel parent, int slot)
             : base(parent, slot)

@@ -5,8 +5,6 @@ namespace EOLib.Domain.NPC
 {
     public interface INPC : ISpellTargetable
     {
-        byte Index { get; }
-
         byte X { get; }
 
         byte Y { get; }

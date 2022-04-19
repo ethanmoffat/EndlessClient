@@ -40,6 +40,7 @@ namespace EndlessClient.HUD.Panels
         private readonly ICharacterProvider _characterProvider;
         private readonly ICharacterInventoryProvider _characterInventoryProvider;
         private readonly IESFFileProvider _esfFileProvider;
+        private readonly ISpellSlotDataRepository _spellSlotDataRepository;
 
         private readonly Dictionary<int, int> _spellSlotMap;
         private readonly List<ISpellPanelItem> _childItems;
@@ -53,6 +54,8 @@ namespace EndlessClient.HUD.Panels
 
         private HashSet<IInventorySpell> _cachedSpells;
         private ICharacterStats _cachedStats;
+        private Option<int> _cachedSelectedSpell;
+
         private bool _confirmedTraining;
         private int _lastScrollOffset;
         private Texture2D _activeSpellIcon;
@@ -66,7 +69,8 @@ namespace EndlessClient.HUD.Panels
                                  IPlayerInfoProvider playerInfoProvider,
                                  ICharacterProvider characterProvider,
                                  ICharacterInventoryProvider characterInventoryProvider,
-                                 IESFFileProvider esfFileProvider)
+                                 IESFFileProvider esfFileProvider,
+                                 ISpellSlotDataRepository spellSlotDataRepository)
         {
             NativeGraphicsManager = nativeGraphicsManager;
             _trainingController = trainingController;
@@ -76,6 +80,7 @@ namespace EndlessClient.HUD.Panels
             _characterProvider = characterProvider;
             _characterInventoryProvider = characterInventoryProvider;
             _esfFileProvider = esfFileProvider;
+            _spellSlotDataRepository = spellSlotDataRepository;
 
             _spellSlotMap = GetSpellSlotMap(_playerInfoProvider.LoggedInAccountName, _characterProvider.MainCharacter.Name);
             _childItems = new List<ISpellPanelItem>();
@@ -188,6 +193,7 @@ namespace EndlessClient.HUD.Panels
                         _childItems.Remove(childControl);
 
                         _childItems.Add(CreateEmptySpell(childControl.Slot));
+                        _spellSlotDataRepository.SpellSlots[childControl.Slot] = Option.None<IInventorySpell>();
                     });
                 }
 
@@ -197,10 +203,11 @@ namespace EndlessClient.HUD.Panels
                     matchedSpell.MatchSome(childControl =>
                     {
                         childControl.InventorySpell = spell;
-                        if (childControl.IsSelected)
+                        _spellSlotDataRepository.SelectedSpellSlot.MatchSome(s =>
                         {
-                            _selectedSpellLevel.Text = spell.Level.ToString();
-                        }
+                            if (childControl.Slot == s)
+                                _selectedSpellLevel.Text = spell.Level.ToString();
+                        });
                     });
                 }
 
@@ -212,7 +219,7 @@ namespace EndlessClient.HUD.Panels
                     var actualSlot = preferredSlot.Match(
                         some: x =>
                         {
-                            return _childItems.Any(ci => ci.Slot == x)
+                            return _childItems.OfType<SpellPanelItem>().Any(ci => ci.Slot == x)
                                 ? GetNextOpenSlot(_childItems)
                                 : Option.Some(x);
                         },
@@ -231,13 +238,17 @@ namespace EndlessClient.HUD.Panels
                         var newChild = new SpellPanelItem(this, slot, spell, spellData);
                         newChild.Initialize();
 
-                        newChild.Selected += SetSelectedSpell;
+                        newChild.Clicked += (sender, _) => _spellSlotDataRepository.SelectedSpellSlot = Option.Some(((SpellPanelItem)sender).Slot);
                         newChild.OnMouseOver += SetSpellStatusLabelHover;
                         newChild.DoneDragging += ItemDraggingCompleted;
 
                         _childItems.Add(newChild);
+                        _spellSlotDataRepository.SpellSlots[slot] = Option.Some(spell);
                     });
                 }
+
+                if (added.Any())
+                    UpdateSpellItemsForScroll();
 
                 _cachedSpells = _characterInventoryProvider.SpellInventory.ToHashSet();
             }
@@ -261,12 +272,31 @@ namespace EndlessClient.HUD.Panels
                 var skillPoints = _cachedStats[CharacterStat.SkillPoints];
                 _totalSkillPoints.Text = skillPoints.ToString();
 
-                if (skillPoints == 0)
-                {
-                    _levelUpButton1.Visible = false;
-                    _levelUpButton2.Visible = false;
-                }
+                _levelUpButton1.Visible = skillPoints > 0;
+                _levelUpButton2.Visible = skillPoints > 0;
             }
+
+            _cachedSelectedSpell.Match(
+                some: cached => _spellSlotDataRepository.SelectedSpellSlot.Match(
+                    some: repoSlot =>
+                    {
+                        if (cached != repoSlot)
+                        {
+                            SetSelectedSpell(repoSlot);
+                            _cachedSelectedSpell = _spellSlotDataRepository.SelectedSpellSlot;
+                        }
+                    },
+                    none: () =>
+                    {
+                        ClearSelectedSpell();
+                        _cachedSelectedSpell = Option.None<int>();
+                    }),
+                none: () => _spellSlotDataRepository.SelectedSpellSlot.MatchSome(
+                    some: repoSlot =>
+                    {
+                        SetSelectedSpell(repoSlot);
+                        _cachedSelectedSpell = _spellSlotDataRepository.SelectedSpellSlot;
+                    }));
 
             base.OnUpdateControl(gameTime);
         }
@@ -339,31 +369,42 @@ namespace EndlessClient.HUD.Panels
             }
             else
             {
-                _childItems.SingleOrNone(x => x.IsSelected)
-                    .MatchSome(x => _trainingController.AddSkillPoint(x.SpellData.ID));
+                _cachedSelectedSpell.MatchSome(slot =>
+                {
+                    _childItems.SingleOrNone(x => x.Slot == slot)
+                        .MatchSome(x => _trainingController.AddSkillPoint(x.SpellData.ID));
+                });
             }
         }
 
-        private void SetSelectedSpell(object sender, EventArgs e)
+        private void SetSelectedSpell(int slot)
         {
-            var spell = (SpellPanelItem)sender;
+            _childItems.OfType<SpellPanelItem>().SingleOrNone(x => x.Slot == slot)
+                .MatchSome(spell =>
+                {
+                    var spellData = spell.SpellData;
 
-            ClearSelectedSpell(exclude: spell);
+                    _activeSpellIcon = NativeGraphicsManager.TextureFromResource(GFXTypes.SpellIcons, spellData.Icon);
 
-            var spellData = spell.SpellData;
-            if (spellData.Target == EOLib.IO.SpellTarget.Normal)
-                _statusLabelSetter.SetStatusLabel(EOResourceID.SKILLMASTER_WORD_SPELL, $"{spellData.Name} ", EOResourceID.SPELL_WAS_SELECTED);
-            else if (spellData.Target == EOLib.IO.SpellTarget.Group /*&& not in party*/) // todo: parties
-                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.SPELL_ONLY_WORKS_ON_GROUP);
+                    _selectedSpellName.Text = spellData.Name;
+                    _selectedSpellName.Visible = true;
 
-            _activeSpellIcon = NativeGraphicsManager.TextureFromResource(GFXTypes.SpellIcons, spellData.Icon);
+                    _selectedSpellLevel.Text = spell.InventorySpell.Level.ToString();
 
-            _selectedSpellName.Text = spellData.Name;
-            _selectedSpellName.Visible = true;
+                    _levelUpButton1.Visible = _levelUpButton2.Visible = _characterProvider.MainCharacter.Stats[CharacterStat.SkillPoints] > 0;
+                });
+        }
 
-            _selectedSpellLevel.Text = spell.InventorySpell.Level.ToString();
+        private void ClearSelectedSpell()
+        {
+            _activeSpellIcon = null;
 
-            _levelUpButton1.Visible = _levelUpButton2.Visible = _characterProvider.MainCharacter.Stats[CharacterStat.SkillPoints] > 0;
+            _selectedSpellName.Text = string.Empty;
+            _selectedSpellName.Visible = false;
+
+            _selectedSpellLevel.Text = "0";
+
+            _levelUpButton1.Visible = _levelUpButton2.Visible = false;
         }
 
         private void SetSpellStatusLabelHover(object sender, EventArgs e)
@@ -379,11 +420,7 @@ namespace EndlessClient.HUD.Panels
             _childItems.SingleOrNone(x => x.MouseOver)
                 .Match(child =>
                 {
-                    if (child is SpellPanelItem && child != item)
-                    {
-                        e.ContinueDragging = true;
-                    }
-                    else if (child != item)
+                    if (child != item)
                     {
                         var oldSlot = item.Slot;
                         var oldDisplaySlot = item.DisplaySlot;
@@ -396,6 +433,11 @@ namespace EndlessClient.HUD.Panels
 
                         child.Slot = oldSlot;
                         child.DisplaySlot = oldDisplaySlot;
+
+                        _spellSlotDataRepository.SpellSlots[oldSlot] = Option.None<IInventorySpell>();
+                        _spellSlotDataRepository.SpellSlots[newSlot] = Option.Some(item.InventorySpell);
+                        _spellSlotDataRepository.SelectedSpellSlot = Option.Some(newSlot);
+                        _spellSlotDataRepository.SpellIsPrepared = false;
                     }
                 },
                 () => e.ContinueDragging = true);
@@ -420,29 +462,9 @@ namespace EndlessClient.HUD.Panels
         private ISpellPanelItem CreateEmptySpell(int slot)
         {
             var emptyItem = new EmptySpellPanelItem(this, slot);
-            emptyItem.Selected += (_, _) => _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.SPELL_NOTHING_WAS_SELECTED);
-            emptyItem.Clicked += (_, _) =>
-            {
-                if (!AnySpellsDragging())
-                    ClearSelectedSpell();
-            };
+            emptyItem.Clicked += (_, _) => _spellSlotDataRepository.SelectedSpellSlot = Option.None<int>();
             emptyItem.Initialize();
             return emptyItem;
-        }
-
-        private void ClearSelectedSpell(params ISpellPanelItem[] exclude)
-        {
-            _activeSpellIcon = null;
-
-            _selectedSpellName.Text = string.Empty;
-            _selectedSpellName.Visible = false;
-
-            _selectedSpellLevel.Text = "0";
-
-            _levelUpButton1.Visible = _levelUpButton2.Visible = false;
-
-            foreach (var item in _childItems.Where(x => x.IsSelected).Except(exclude))
-                item.IsSelected = false;
         }
 
         private void SwapFunctionKeySourceRectangles()
@@ -460,7 +482,9 @@ namespace EndlessClient.HUD.Panels
             var itemsToHide = _childItems.Where(x => x.Slot < firstValidSlot || x.Slot >= lastValidSlot).ToList();
             foreach (var item in itemsToHide)
             {
-                ((XNAControl)item).Visible = false;
+                if (!item.IsBeingDragged)
+                    ((XNAControl)item).Visible = false;
+
                 item.DisplaySlot = GetDisplaySlotFromSlot(item.Slot);
             }
 
@@ -498,21 +522,21 @@ namespace EndlessClient.HUD.Panels
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !File.Exists(Constants.SpellsFile))
             {
-                using var inventoryKey = TryGetCharacterRegistryKey(accountName, characterName);
-                if (inventoryKey != null)
+                using var spellsKey = TryGetCharacterRegistryKey(accountName, characterName);
+                if (spellsKey != null)
                 {
-                    for (int i = 0; i < SpellRowLength * 4; ++i)
+                    for (int i = 0; i < SpellRowLength * SpellRows; ++i)
                     {
-                        if (int.TryParse(inventoryKey.GetValue($"item{i}")?.ToString() ?? string.Empty, out var id))
+                        if (int.TryParse(spellsKey.GetValue($"item{i}")?.ToString() ?? string.Empty, out var id))
                             map[i] = id;
                     }
                 }
             }
 
-            var inventory = new IniReader(Constants.SpellsFile);
-            if (inventory.Load() && inventory.Sections.ContainsKey(accountName))
+            var spells = new IniReader(Constants.SpellsFile);
+            if (spells.Load() && spells.Sections.ContainsKey(accountName))
             {
-                var section = inventory.Sections[accountName];
+                var section = spells.Sections[accountName];
                 foreach (var key in section.Keys.Where(x => x.Contains(characterName, StringComparison.OrdinalIgnoreCase)))
                 {
                     if (!key.Contains("."))
@@ -552,22 +576,22 @@ namespace EndlessClient.HUD.Panels
 
         private void SaveSpellsFile(object sender, EventArgs e)
         {
-            var inventory = new IniReader(Constants.SpellsFile);
+            var spells = new IniReader(Constants.SpellsFile);
 
-            var section = inventory.Load() && inventory.Sections.ContainsKey(_playerInfoProvider.LoggedInAccountName)
-                ? inventory.Sections[_playerInfoProvider.LoggedInAccountName]
+            var section = spells.Load() && spells.Sections.ContainsKey(_playerInfoProvider.LoggedInAccountName)
+                ? spells.Sections[_playerInfoProvider.LoggedInAccountName]
                 : new SortedList<string, string>();
 
             var existing = section.Where(x => x.Key.Contains(_characterProvider.MainCharacter.Name)).Select(x => x.Key).ToList();
             foreach (var key in existing)
                 section.Remove(key);
 
-            foreach (var item in _childItems)
+            foreach (var item in _childItems.OfType<SpellPanelItem>())
                 section[$"{_characterProvider.MainCharacter.Name}.{item.Slot}"] = $"{item.InventorySpell.ID}";
 
-            inventory.Sections[_playerInfoProvider.LoggedInAccountName] = section;
+            spells.Sections[_playerInfoProvider.LoggedInAccountName] = section;
 
-            inventory.Save();
+            spells.Save();
         }
 
         #endregion

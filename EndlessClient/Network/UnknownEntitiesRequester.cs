@@ -14,6 +14,7 @@ namespace EndlessClient.Network
         private DateTime _lastRequestTime;
         private const double REQUEST_INTERVAL_SECONDS = 1;
 
+        // todo: create actions in EOLib.Domain for requesting unknown entities, instead of using packetsendservice directly
         public UnknownEntitiesRequester(IEndlessGameProvider gameProvider,
                                       ICurrentMapStateRepository currentMapStateRepository,
                                       IPacketSendService packetSendService)

@@ -8,6 +8,7 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
+using EOLib.Domain.Spells;
 using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
@@ -51,6 +52,7 @@ namespace EndlessClient.Rendering.Character
             if (!_hudControlProvider.IsInGame)
                 return;
 
+            CancelSpellPrep();
             Animator.MainCharacterFace(direction);
         }
 
@@ -59,6 +61,7 @@ namespace EndlessClient.Rendering.Character
             if (!_hudControlProvider.IsInGame)
                 return;
 
+            CancelSpellPrep();
             Animator.StartMainCharacterWalkAnimation(Option.None<MapCoordinate>());
             ShowWaterSplashiesIfNeeded(CharacterActionState.Walking, _characterRepository.MainCharacter.ID);
         }
@@ -68,8 +71,19 @@ namespace EndlessClient.Rendering.Character
             if (!_hudControlProvider.IsInGame)
                 return;
 
+            CancelSpellPrep();
             Animator.StartMainCharacterAttackAnimation();
             ShowWaterSplashiesIfNeeded(CharacterActionState.Attacking, _characterRepository.MainCharacter.ID);
+        }
+
+        public bool PrepareMainCharacterSpell(int spellId, ISpellTargetable spellTarget)
+        {
+            if (!_hudControlProvider.IsInGame)
+                return false;
+
+            var spellData = _esfFileProvider.ESFFile[spellId];
+            _characterRendererProvider.MainCharacterRenderer.MatchSome(r => r.ShoutSpellPrep(spellData.Shout));
+            return Animator.MainCharacterShoutSpellPrep(spellData, spellTarget);
         }
 
         public void StartOtherCharacterWalkAnimation(int characterID, byte destinationX, byte destinationY, EODirection direction)
@@ -148,8 +162,6 @@ namespace EndlessClient.Rendering.Character
 
         public void NotifyTargetOtherSpellCast(short sourcePlayerID, short targetPlayerID, short spellId, int recoveredHP, byte targetPercentHealth)
         {
-            var spellGraphic = _esfFileProvider.ESFFile[spellId].Graphic;
-
             if (sourcePlayerID == _characterRepository.MainCharacter.ID)
             {
                 _characterRendererProvider.MainCharacterRenderer.MatchSome(cr => cr.ShoutSpellCast());
@@ -160,18 +172,20 @@ namespace EndlessClient.Rendering.Character
                 _characterRendererProvider.CharacterRenderers[sourcePlayerID].ShoutSpellCast();
             }
 
+            var spellData = _esfFileProvider.ESFFile[spellId];
+
             if (targetPlayerID == _characterRepository.MainCharacter.ID)
             {
                 _characterRendererProvider.MainCharacterRenderer.MatchSome(cr =>
                 {
-                    cr.ShowSpellAnimation(spellGraphic);
-                    cr.ShowDamageCounter(recoveredHP, targetPercentHealth, isHeal: true);
+                    cr.ShowSpellAnimation(spellData.Graphic);
+                    cr.ShowDamageCounter(recoveredHP, targetPercentHealth, isHeal: spellData.Type == EOLib.IO.SpellType.Heal);
                 });
             }
             else
             {
-                _characterRendererProvider.CharacterRenderers[targetPlayerID].ShowSpellAnimation(spellGraphic);
-                _characterRendererProvider.CharacterRenderers[targetPlayerID].ShowDamageCounter(recoveredHP, targetPercentHealth, isHeal: true);
+                _characterRendererProvider.CharacterRenderers[targetPlayerID].ShowSpellAnimation(spellData.Graphic);
+                _characterRendererProvider.CharacterRenderers[targetPlayerID].ShowDamageCounter(recoveredHP, targetPercentHealth, isHeal: spellData.Type == EOLib.IO.SpellType.Heal);
             }
         }
 
@@ -226,6 +240,12 @@ namespace EndlessClient.Rendering.Character
             });
         }
 
+        private void CancelSpellPrep()
+        {
+            Animator.MainCharacterCancelSpellPrep();
+            _characterRendererProvider.MainCharacterRenderer.MatchSome(r => r.StopShout());
+        }
+
         private ICharacterAnimator Animator => _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator);
     }
 
@@ -236,5 +256,7 @@ namespace EndlessClient.Rendering.Character
         void StartWalking();
 
         void StartAttacking();
+
+        bool PrepareMainCharacterSpell(int spellId, ISpellTargetable spellTarget);
     }
 }
