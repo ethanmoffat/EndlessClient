@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 #if !LINUX
 using System.Windows.Forms;
 #endif
@@ -28,6 +30,8 @@ namespace EndlessClient.GameExecution
                     "Dependency setup error!",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
+#else
+                throw;
 #endif
                 return false;
             }
@@ -42,12 +46,18 @@ namespace EndlessClient.GameExecution
             catch (Exception ex)
             {
 #if !LINUX
-                ShowExceptionDialog(ex);
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    ShowExceptionDialog(ex);
+                else
+                    throw;
+#else
+                throw;
 #endif
             }
         }
 
 #if !LINUX
+        [SupportedOSPlatform("Windows")]
         private static void ShowExceptionDialog(Exception ex)
         {
             Application.EnableVisualStyles();
