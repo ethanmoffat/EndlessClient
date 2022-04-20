@@ -64,6 +64,10 @@ namespace EndlessClient.Controllers
                     _inGameDialogActions.ShowBankAccountDialog();
                     _userInputRepository.ClickHandled = true;
                     break;
+                case EOLib.IO.NPCType.Skills:
+                    _mapNpcActions.RequestSkillmaster(npc);
+                    _userInputRepository.ClickHandled = true;
+                    break;
             }
         }
     }
