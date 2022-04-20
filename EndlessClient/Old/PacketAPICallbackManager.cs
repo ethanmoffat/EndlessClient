@@ -46,7 +46,6 @@ namespace EndlessClient.Old
             m_packetAPI.OnTradeCompleted += _tradeCompleted;
 
             //skills
-            m_packetAPI.OnSpellLearnError += _statskillLearnError;
             m_packetAPI.OnSpellForget += _statskillForgetSpell;
             m_packetAPI.OnCharacterStatsReset += _statskillReset;
 
@@ -173,20 +172,6 @@ namespace EndlessClient.Old
         {
             if (TradeDialog.Instance == null) return;
             TradeDialog.Instance.CompleteTrade(id1, items1, id2, items2);
-        }
-
-        private void _statskillLearnError(SkillMasterReply reply, short id)
-        {
-            switch (reply)
-            {
-                //not sure if this will ever actually be sent because client validates data before trying to learn a skill
-                case SkillMasterReply.ErrorWrongClass:
-                    EOMessageBox.Show(DialogResourceID.SKILL_LEARN_WRONG_CLASS, " " + OldWorld.Instance.ECF[id].Name + "!", EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                    break;
-                case SkillMasterReply.ErrorRemoveItems:
-                    EOMessageBox.Show(DialogResourceID.SKILL_RESET_CHARACTER_CLEAR_PAPERDOLL, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                    break;
-            }
         }
 
         private void _statskillForgetSpell(short id)

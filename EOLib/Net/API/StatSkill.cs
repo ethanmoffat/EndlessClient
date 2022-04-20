@@ -5,61 +5,6 @@ using EOLib.Net.Handlers;
 
 namespace EOLib.Net.API
 {
-    public enum SkillMasterReply
-    {
-// ReSharper disable once UnusedMember.Global
-        ErrorRemoveItems = 1,
-        ErrorWrongClass = 2
-    }
-
-    public struct Skill
-    {
-        private readonly short m_id;
-        private readonly byte m_levelReq;
-        private readonly  byte m_classReq;
-        private readonly int m_goldCost;
-        private readonly short[] m_skillReq; //ids of other skills that are required to know before learning this skill
-        private readonly short m_strReq;
-        private readonly short m_intReq;
-        private readonly short m_wisReq;
-        private readonly short m_agiReq;
-        private readonly short m_conReq;
-        private readonly short m_chaReq;
-
-        public short ID => m_id;
-        public byte LevelReq => m_levelReq;
-        public byte ClassReq => m_classReq;
-        public int GoldReq => m_goldCost;
-        public short[] SkillReq => m_skillReq;
-        public short StrReq => m_strReq;
-        public short IntReq => m_intReq;
-        public short WisReq => m_wisReq;
-        public short AgiReq => m_agiReq;
-        public short ConReq => m_conReq;
-        public short ChaReq => m_chaReq;
-
-        internal Skill(OldPacket pkt)
-        {
-            m_id = pkt.GetShort();
-            m_levelReq = pkt.GetChar();
-            m_classReq = pkt.GetChar();
-            m_goldCost = pkt.GetInt();
-            m_skillReq = new[]
-            {
-                pkt.GetShort(),
-                pkt.GetShort(),
-                pkt.GetShort(),
-                pkt.GetShort()
-            };
-            m_strReq = pkt.GetShort();
-            m_intReq = pkt.GetShort();
-            m_wisReq = pkt.GetShort();
-            m_agiReq = pkt.GetShort();
-            m_conReq = pkt.GetShort();
-            m_chaReq = pkt.GetShort();
-        }
-    }
-
     public struct StatResetData
     {
         private readonly short m_statpts, m_skillpts, m_hp, m_maxhp, m_tp, m_maxtp, m_maxsp;
@@ -112,32 +57,17 @@ namespace EOLib.Net.API
         }
     }
 
-    public delegate void SpellLearnErrorEvent(SkillMasterReply reply, short classID);
     public delegate void SpellForgetEvent(short spellID);
 
     partial class PacketAPI
     {
-        public event SpellLearnErrorEvent OnSpellLearnError;
         public event SpellForgetEvent OnSpellForget;
         public event Action<StatResetData> OnCharacterStatsReset;
 
         private void _createStatSkillMembers()
         {
-            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Reply), _handleStatSkillReply, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Remove), _handleStatSkillRemove, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Junk), _handleStatSkillJunk, true);
-        }
-
-        public bool LearnSpell(short spellID)
-        {
-            if (!m_client.ConnectedAndInitialized || !Initialized)
-                return false;
-
-            OldPacket pkt = new OldPacket(PacketFamily.StatSkill, PacketAction.Take);
-            pkt.AddInt(1234); //shop ID, ignored by eoserv - eomain may require this to be correct
-            pkt.AddShort(spellID);
-
-            return m_client.SendPacket(pkt);
         }
 
         public bool ForgetSpell(short spellID)
@@ -157,17 +87,6 @@ namespace EOLib.Net.API
             OldPacket pkt = new OldPacket(PacketFamily.StatSkill, PacketAction.Junk);
             pkt.AddInt(1234); //shop ID, ignored by eoserv - eomain may require this to be correct
             return !m_client.ConnectedAndInitialized || !Initialized || m_client.SendPacket(pkt);
-        }
-
-        //handlers
-
-        //error learning a skill
-        private void _handleStatSkillReply(OldPacket pkt)
-        {
-            //short - should always be SKILLMASTER_REMOVE_ITEMS (1) or SKILLMASTER_WRONG_CLASS (2)
-            //short - character class
-            if (OnSpellLearnError != null)
-                OnSpellLearnError((SkillMasterReply)pkt.GetShort(), pkt.GetShort());
         }
 
         //forgetting a skill

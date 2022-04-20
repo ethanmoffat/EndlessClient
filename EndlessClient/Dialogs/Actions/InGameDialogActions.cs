@@ -1,17 +1,15 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Dialogs.Factories;
 using EOLib.Domain.Character;
-using EOLib.Domain.Interact;
 using EOLib.Domain.Interact.Quest;
 using EOLib.Domain.Interact.Shop;
 using EOLib.Domain.Interact.Skill;
-using EOLib.IO;
 using Optional;
 
 namespace EndlessClient.Dialogs.Actions
 {
     [AutoMappedType]
-    public class InGameDialogActions : IInGameDialogActions, INPCInteractionNotifier
+    public class InGameDialogActions : IInGameDialogActions
     {
         private readonly IFriendIgnoreListDialogFactory _friendIgnoreListDialogFactory;
         private readonly IPaperdollDialogFactory _paperdollDialogFactory;
@@ -117,20 +115,6 @@ namespace EndlessClient.Dialogs.Actions
 
                 dlg.Show();
             });
-        }
-
-        public void NotifyInteractionFromNPC(NPCType npcType)
-        {
-            // originally, these methods were called directly from NPCInteractionController
-            // however, this resulted in empty responses (e.g. no shop or quest) showing an empty dialog
-            // instead, wait for the response packet to notify this class and then show the dialog
-            //    once data has been received from the server
-            switch (npcType)
-            {
-                case NPCType.Shop: ShowShopDialog(); break;
-                case NPCType.Quest: ShowQuestDialog(); break;
-                case NPCType.Skills: ShowSkillmasterDialog(); break;
-            }
         }
 
         public void ShowShopDialog()

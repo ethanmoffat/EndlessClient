@@ -1,13 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.Dialogs.Services;
+using EndlessClient.HUD;
 using EOLib.Domain.Character;
 using EOLib.Domain.Interact.Skill;
 using EOLib.Graphics;
+using EOLib.IO.Repositories;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
+using Optional.Collections;
+using XNAControls;
 
 namespace EndlessClient.Dialogs
 {
@@ -28,20 +33,27 @@ namespace EndlessClient.Dialogs
         private string _cachedTitle;
 
         private bool _showingRequirements;
-
+        private readonly ISkillmasterActions _skillmasterActions;
         private readonly IEODialogIconService _dialogIconService;
         private readonly ILocalizedStringFinder _localizedStringFinder;
+        private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly ISkillDataProvider _skillDataProvider;
+        private readonly ICharacterProvider _characterProvider;
         private readonly ICharacterInventoryProvider _characterInventoryProvider;
+        private readonly IPubFileProvider _pubFileProvider;
 
         public SkillmasterDialog(INativeGraphicsManager nativeGraphicsManager,
+                                 ISkillmasterActions skillmasterActions,
                                  IEODialogButtonService dialogButtonService,
                                  IEODialogIconService dialogIconService,
                                  ILocalizedStringFinder localizedStringFinder,
+                                 IStatusLabelSetter statusLabelSetter,
                                  IEOMessageBoxFactory messageBoxFactory,
                                  ISkillDataProvider skillDataProvider,
-                                 ICharacterInventoryProvider characterInventoryProvider)
+                                 ICharacterProvider characterProvider,
+                                 ICharacterInventoryProvider characterInventoryProvider,
+                                 IPubFileProvider pubFileProvider)
             : base(nativeGraphicsManager, dialogButtonService)
         {
             Buttons = ScrollingListDialogButtons.Cancel;
@@ -53,11 +65,15 @@ namespace EndlessClient.Dialogs
 
             BackAction += BackClicked;
 
+            _skillmasterActions = skillmasterActions;
             _dialogIconService = dialogIconService;
             _localizedStringFinder = localizedStringFinder;
+            _statusLabelSetter = statusLabelSetter;
             _messageBoxFactory = messageBoxFactory;
             _skillDataProvider = skillDataProvider;
+            _characterProvider = characterProvider;
             _characterInventoryProvider = characterInventoryProvider;
+            _pubFileProvider = pubFileProvider;
 
             SetState(SkillState.Initial, regen: true);
         }
@@ -88,6 +104,7 @@ namespace EndlessClient.Dialogs
         {
             if (_state == SkillState.Learn && _showingRequirements)
             {
+                ListItemType = ListDialogItem.ListItemStyle.Large;
                 SetState(SkillState.Learn, regen: true);
                 _showingRequirements = false;
             }
@@ -168,35 +185,32 @@ namespace EndlessClient.Dialogs
                     }
                     break;
                 case SkillState.Learn:
-                {
-                    //int index = 0;
-                    //for (int i = 0; i < m_skills.Count; ++i)
-                    //{
-                    //    if (OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.FindIndex(_sp => m_skills[i].ID == _sp.ID) >= 0)
-                    //        continue;
-                    //    int localI = i;
+                    {
+                        foreach (var skill in _cachedSkills.Where(x => !_cachedSpells.Any(y => y.ID == x.Id)))
+                        {
+                            var skillRef = skill;
+                            var spellData = _pubFileProvider.ESFFile[skill.Id];
 
-                    //    var spellData = OldWorld.Instance.ESF[m_skills[localI].ID];
+                            var icon = GraphicsManager.TextureFromResource(GFXTypes.SpellIcons, spellData.Icon);
+                            var nextListItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large)
+                            {
+                                Visible = false,
+                                PrimaryText = spellData.Name,
+                                SubText = _localizedStringFinder.GetString(EOResourceID.SKILLMASTER_WORD_REQUIREMENTS),
+                                IconGraphic = icon,
+                                IconGraphicSource = new Rectangle(0, 0, icon.Width / 2, icon.Height),
+                                ShowIconBackGround = false,
+                                OffsetY = 45
+                            };
+                            nextListItem.LeftClick += (_, _) => Learn(skillRef);
+                            nextListItem.RightClick += (o, e) => Learn(skillRef);
+                            nextListItem.OnMouseEnter += (o, e) => ShowRequirementsLabel(skillRef);
+                            nextListItem.SetSubtextClickAction((_, _) => ShowRequirements(skillRef));
+                            AddItemToList(nextListItem, false);
+                        }
 
-                    //    OldListDialogItem nextListItem = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Large, index++)
-                    //    {
-                    //        Visible = false,
-                    //        Text = spellData.Name,
-                    //        SubText = OldWorld.GetString(EOResourceID.SKILLMASTER_WORD_REQUIREMENTS),
-                    //        IconGraphic = OldWorld.GetSpellIcon(spellData.Icon, false),
-                    //        ShowItemBackGround = false,
-                    //        OffsetY = 45,
-                    //        ID = m_skills[localI].ID
-                    //    };
-                    //    nextListItem.OnLeftClick += (o, e) => _learn(m_skills[localI]);
-                    //    nextListItem.OnRightClick += (o, e) => _learn(m_skills[localI]);
-                    //    nextListItem.OnMouseEnter += (o, e) => _showRequirementsLabel(m_skills[localI]);
-                    //    nextListItem.SetSubtextLink(() => _showRequirements(m_skills[localI]));
-                    //    AddItemToList(nextListItem, false);
-                    //}
-
-                    //_setButtons(ScrollingListDialogButtons.BackCancel);
-                }
+                        Buttons = ScrollingListDialogButtons.BackCancel;
+                    }
                     break;
                 case SkillState.Forget:
                 {
@@ -241,43 +255,45 @@ namespace EndlessClient.Dialogs
             _state = newState;
         }
 
-        //private void _learn(Skill skill)
-        //{
-        //    OldCharacter c = OldWorld.Instance.MainPlayer.ActiveCharacter;
+        private void Learn(Skill skill)
+        {
 
-        //    bool skillReqsMet = true;
-        //    foreach(short x in skill.SkillReq)
-        //        if (x != 0 && c.Spells.FindIndex(_sp => _sp.ID == x) < 0)
-        //            skillReqsMet = false;
+            bool skillReqsMet = true;
+            foreach (var req in skill.SkillRequirements.Where(x => x > 0))
+            {
+                if (!_characterInventoryProvider.SpellInventory.Any(s => s.ID == req))
+                {
+                    skillReqsMet = false;
+                    break;
+                }
+            }
 
-        //    //check the requirements
-        //    if (c.Stats.Str < skill.StrReq || c.Stats.Int < skill.IntReq || c.Stats.Wis < skill.WisReq ||
-        //        c.Stats.Agi < skill.AgiReq || c.Stats.Con < skill.ConReq || c.Stats.Cha < skill.ChaReq ||
-        //        c.Stats.Level < skill.LevelReq || c.Inventory.Find(_ii => _ii.ItemID == 1).Amount < skill.GoldReq || !skillReqsMet)
-        //    {
-        //        EOMessageBox.Show(DialogResourceID.SKILL_LEARN_REQS_NOT_MET, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-        //        return;
-        //    }
+            var stats = _characterProvider.MainCharacter.Stats;
 
-        //    if (skill.ClassReq > 0 && c.Class != skill.ClassReq)
-        //    {
-        //        EOMessageBox.Show(DialogResourceID.SKILL_LEARN_WRONG_CLASS, " " + OldWorld.Instance.ECF[skill.ClassReq].Name + "!", EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-        //        return;
-        //    }
-
-        //    EOMessageBox.Show(DialogResourceID.SKILL_LEARN_CONFIRMATION, " " + OldWorld.Instance.ESF[skill.ID].Name + "?", EODialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
-        //        (o, e) =>
-        //        {
-        //            if (e.Result != XNADialogResult.OK)
-        //                return;
-
-        //            if (!m_api.LearnSpell(skill.ID))
-        //            {
-        //                Close();
-        //                ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
-        //            }
-        //        });
-        //}
+            if (!skillReqsMet ||
+                stats[CharacterStat.Strength] < skill.StrRequirement || stats[CharacterStat.Intelligence] < skill.IntRequirement || stats[CharacterStat.Wisdom] < skill.WisRequirement ||
+                stats[CharacterStat.Agility] < skill.AgiRequirement || stats[CharacterStat.Constituion] < skill.ConRequirement || stats[CharacterStat.Charisma] < skill.ChaRequirement ||
+                stats[CharacterStat.Level] < skill.LevelRequirement || !_characterInventoryProvider.ItemInventory.SingleOrNone(x => x.ItemID == 1 && x.Amount >= skill.GoldRequirement).HasValue)
+            {
+                var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.SKILL_LEARN_REQS_NOT_MET);
+                dlg.ShowDialog();
+            }
+            else if (skill.ClassRequirement > 0 && _characterProvider.MainCharacter.ClassID != skill.ClassRequirement)
+            {
+                var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.SKILL_LEARN_WRONG_CLASS, $" {_pubFileProvider.ECFFile[skill.ClassRequirement].Name}!");
+                dlg.ShowDialog();
+                return;
+            }
+            else
+            {
+                var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.SKILL_LEARN_CONFIRMATION, $" {_pubFileProvider.ESFFile[skill.Id].Name}?", EODialogButtons.OkCancel);
+                dlg.DialogClosing += (o, e) =>
+                {
+                    if (e.Result == XNADialogResult.OK)
+                        _skillmasterActions.LearnSkill(skill.Id);
+                };
+            }
+        }
 
         //private void _forgetAllAction()
         //{
@@ -294,68 +310,73 @@ namespace EndlessClient.Dialogs
         //        });
         //}
 
-        //private void _showRequirements(Skill skill)
-        //{
-        //    m_showingRequirements = true;
-        //    ClearItemList();
+        private void ShowRequirements(Skill skill)
+        {
+            _showingRequirements = true;
 
-        //    List<string> drawStrings = new List<string>(15)
-        //    {
-        //        OldWorld.Instance.ESF[skill.ID].Name + (skill.ClassReq > 0 ? " [" + OldWorld.Instance.ECF[skill.ClassReq].Name + "]" : ""),
-        //        " "
-        //    };
-        //    if (skill.SkillReq.Any(x => x != 0))
-        //    {
-        //        drawStrings.AddRange(from req in skill.SkillReq where req != 0 select OldWorld.GetString(EOResourceID.SKILLMASTER_WORD_SKILL) + ": " +  OldWorld.Instance.ESF[req].Name);
-        //        drawStrings.Add(" ");
-        //    }
+            ClearItemList();
+            ListItemType = ListDialogItem.ListItemStyle.Small;
 
-        //    if(skill.StrReq > 0)
-        //        drawStrings.Add(skill.StrReq + " " + OldWorld.GetString(EOResourceID.SKILLMASTER_WORD_STRENGTH));
-        //    if (skill.IntReq > 0)
-        //        drawStrings.Add(skill.IntReq + " " + OldWorld.GetString(EOResourceID.SKILLMASTER_WORD_INTELLIGENCE));
-        //    if (skill.WisReq > 0)
-        //        drawStrings.Add(skill.WisReq + " " + OldWorld.GetString(EOResourceID.SKILLMASTER_WORD_WISDOM));
-        //    if (skill.AgiReq > 0)
-        //        drawStrings.Add(skill.AgiReq + " " + OldWorld.GetString(EOResourceID.SKILLMASTER_WORD_AGILITY));
-        //    if (skill.ConReq > 0)
-        //        drawStrings.Add(skill.ConReq + " " + OldWorld.GetString(EOResourceID.SKILLMASTER_WORD_CONSTITUTION));
-        //    if (skill.ChaReq > 0)
-        //        drawStrings.Add(skill.ChaReq + " " + OldWorld.GetString(EOResourceID.SKILLMASTER_WORD_CHARISMA));
+            var drawStrings = new List<string>
+            {
+                _pubFileProvider.ESFFile[skill.Id].Name + (skill.ClassRequirement > 0 ? $" [{_pubFileProvider.ECFFile[skill.ClassRequirement].Name}]" : string.Empty),
+                " "
+            };
 
-        //    drawStrings.Add(" ");
-        //    drawStrings.Add(skill.LevelReq + " " + OldWorld.GetString(EOResourceID.SKILLMASTER_WORD_LEVEL));
-        //    drawStrings.Add(skill.GoldReq + " " + OldWorld.Instance.EIF[1].Name);
+            if (skill.SkillRequirements.Any(x => x != 0))
+            {
+                drawStrings.AddRange(
+                    from req in skill.SkillRequirements
+                    where req != 0
+                    select _localizedStringFinder.GetString(EOResourceID.SKILLMASTER_WORD_SKILL) + ": " + _pubFileProvider.ESFFile[req].Name);
+                drawStrings.Add(" ");
+            }
 
-        //    foreach (string s in drawStrings)
-        //    {
-        //        OldListDialogItem nextLine = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Small) { Text = s };
-        //        AddItemToList(nextLine, false);
-        //    }
-        //}
+            if (skill.StrRequirement > 0)
+                drawStrings.Add($"{skill.StrRequirement} {_localizedStringFinder.GetString(EOResourceID.SKILLMASTER_WORD_STRENGTH)}");
+            if (skill.IntRequirement > 0)
+                drawStrings.Add($"{skill.IntRequirement} {_localizedStringFinder.GetString(EOResourceID.SKILLMASTER_WORD_INTELLIGENCE)}");
+            if (skill.WisRequirement > 0)
+                drawStrings.Add($"{skill.WisRequirement} {_localizedStringFinder.GetString(EOResourceID.SKILLMASTER_WORD_WISDOM)}");
+            if (skill.AgiRequirement > 0)
+                drawStrings.Add($"{skill.AgiRequirement} { _localizedStringFinder.GetString(EOResourceID.SKILLMASTER_WORD_AGILITY)}");
+            if (skill.ConRequirement > 0)
+                drawStrings.Add($"{skill.ConRequirement} {_localizedStringFinder.GetString(EOResourceID.SKILLMASTER_WORD_CONSTITUTION)}");
+            if (skill.ChaRequirement > 0)
+                drawStrings.Add($"{skill.ChaRequirement} {_localizedStringFinder.GetString(EOResourceID.SKILLMASTER_WORD_CHARISMA)}");
 
-        //private void _showRequirementsLabel(Skill skill)
-        //{
-        //    string full = $"{OldWorld.Instance.ESF[skill.ID].Name} {skill.LevelReq} LVL, ";
-        //    if (skill.StrReq > 0)
-        //        full += $"{skill.StrReq} STR, ";
-        //    if (skill.IntReq > 0)
-        //        full += $"{skill.IntReq} INT, ";
-        //    if (skill.WisReq > 0)
-        //        full += $"{skill.WisReq} WIS, ";
-        //    if (skill.AgiReq > 0)
-        //        full += $"{skill.AgiReq} AGI, ";
-        //    if (skill.ConReq > 0)
-        //        full += $"{skill.ConReq} CON, ";
-        //    if (skill.ChaReq > 0)
-        //        full += $"{skill.ChaReq} CHA, ";
-        //    if (skill.GoldReq > 0)
-        //        full += $"{skill.GoldReq} Gold";
-        //    if (skill.ClassReq > 0)
-        //        full += $", {OldWorld.Instance.ECF[skill.ClassReq].Name}";
+            drawStrings.Add(" ");
+            drawStrings.Add($"{skill.LevelRequirement} {_localizedStringFinder.GetString(EOResourceID.SKILLMASTER_WORD_LEVEL)}");
+            drawStrings.Add($"{skill.GoldRequirement} {_pubFileProvider.EIFFile[1].Name}");
 
-        //    ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, full);
-        //}
+            SetItemList(drawStrings.Select(x => new ListDialogItem(this, ListItemType) { PrimaryText = x }).ToList());
+        }
+
+        private void ShowRequirementsLabel(Skill skill)
+        {
+            var full = new StringBuilder();
+
+            full.Append($"{_pubFileProvider.ESFFile[skill.Id].Name} {skill.LevelRequirement} LVL, ");
+
+            if (skill.StrRequirement > 0)
+                full.Append($"{skill.StrRequirement} STR, ");
+            if (skill.IntRequirement > 0)
+                full.Append($"{skill.IntRequirement} INT, ");
+            if (skill.WisRequirement > 0)
+                full.Append($"{skill.WisRequirement} WIS, ");
+            if (skill.AgiRequirement > 0)
+                full.Append($"{skill.AgiRequirement} AGI, ");
+            if (skill.ConRequirement > 0)
+                full.Append($"{skill.ConRequirement} CON, ");
+            if (skill.ChaRequirement > 0)
+                full.Append($"{skill.ChaRequirement} CHA, ");
+            if (skill.GoldRequirement > 0)
+                full.Append($"{skill.GoldRequirement} {_pubFileProvider.EIFFile[1].Name}");
+            if (skill.ClassRequirement > 0)
+                full.Append($", {_pubFileProvider.ECFFile[skill.ClassRequirement].Name}");
+
+            _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, full.ToString());
+        }
 
         //private void _showForgetAllMessage(Action forgetAllAction)
         //{
