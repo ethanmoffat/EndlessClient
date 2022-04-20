@@ -60,27 +60,6 @@ namespace EOLib.Net.API
         }
     }
 
-    public struct SkillmasterData
-    {
-        private readonly short m_id;
-        private readonly string m_title;
-
-        private readonly List<Skill> m_skills;
-
-        public short ID => m_id;
-        public string Title => m_title;
-        public IList<Skill> Skills => m_skills.AsReadOnly();
-
-        internal SkillmasterData(OldPacket pkt)
-        {
-            m_id = pkt.GetShort();
-            m_title = pkt.GetBreakString();
-            m_skills = new List<Skill>();
-            while(pkt.ReadPos < pkt.Length)
-                m_skills.Add(new Skill(pkt));
-        }
-    }
-
     public struct StatResetData
     {
         private readonly short m_statpts, m_skillpts, m_hp, m_maxhp, m_tp, m_maxtp, m_maxsp;
@@ -138,28 +117,15 @@ namespace EOLib.Net.API
 
     partial class PacketAPI
     {
-        public event Action<SkillmasterData> OnSkillmasterOpen;
         public event SpellLearnErrorEvent OnSpellLearnError;
         public event SpellForgetEvent OnSpellForget;
         public event Action<StatResetData> OnCharacterStatsReset;
 
         private void _createStatSkillMembers()
         {
-            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Open), _handleStatSkillOpen, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Reply), _handleStatSkillReply, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Remove), _handleStatSkillRemove, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Junk), _handleStatSkillJunk, true);
-        }
-
-        public bool RequestSkillmaster(short skillmasterIndex)
-        {
-            if (!m_client.ConnectedAndInitialized || !Initialized)
-                return false;
-
-            OldPacket pkt = new OldPacket(PacketFamily.StatSkill, PacketAction.Open);
-            pkt.AddShort(skillmasterIndex);
-
-            return m_client.SendPacket(pkt);
         }
 
         public bool LearnSpell(short spellID)
@@ -194,12 +160,6 @@ namespace EOLib.Net.API
         }
 
         //handlers
-
-        private void _handleStatSkillOpen(OldPacket pkt)
-        {
-            if (OnSkillmasterOpen != null)
-                OnSkillmasterOpen(new SkillmasterData(pkt));
-        }
 
         //error learning a skill
         private void _handleStatSkillReply(OldPacket pkt)

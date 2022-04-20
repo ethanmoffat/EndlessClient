@@ -46,7 +46,6 @@ namespace EndlessClient.Old
             m_packetAPI.OnTradeCompleted += _tradeCompleted;
 
             //skills
-            m_packetAPI.OnSkillmasterOpen += _skillmasterOpen;
             m_packetAPI.OnSpellLearnError += _statskillLearnError;
             m_packetAPI.OnSpellForget += _statskillForgetSpell;
             m_packetAPI.OnCharacterStatsReset += _statskillReset;
@@ -174,12 +173,6 @@ namespace EndlessClient.Old
         {
             if (TradeDialog.Instance == null) return;
             TradeDialog.Instance.CompleteTrade(id1, items1, id2, items2);
-        }
-
-        private void _skillmasterOpen(SkillmasterData data)
-        {
-            if (SkillmasterDialog.Instance != null)
-                SkillmasterDialog.Instance.SetSkillmasterData(data);
         }
 
         private void _statskillLearnError(SkillMasterReply reply, short id)
