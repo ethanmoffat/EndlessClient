@@ -292,6 +292,7 @@ namespace EndlessClient.Dialogs
                     if (e.Result == XNADialogResult.OK)
                         _skillmasterActions.LearnSkill(skill.Id);
                 };
+                dlg.ShowDialog();
             }
         }
 
