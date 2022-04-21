@@ -57,5 +57,17 @@ namespace EndlessClient.Dialogs.Actions
                     break;
             }
         }
+
+        public void NotifySkillForget()
+        {
+            var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.SKILL_FORGET_SUCCESS);
+            dlg.ShowDialog();
+        }
+
+        public void NotifyStatReset()
+        {
+            var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.SKILL_RESET_CHARACTER_COMPLETE);
+            dlg.ShowDialog();
+        }
     }
 }

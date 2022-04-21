@@ -25,7 +25,6 @@ namespace EOLib.Net.API
             _createPartyMembers();
             _createNPCMembers();
             _createSpellMembers();
-            _createStatSkillMembers();
             _createTradeMembers();
         }
 

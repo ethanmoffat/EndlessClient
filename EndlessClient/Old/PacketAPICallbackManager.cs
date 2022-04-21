@@ -45,10 +45,6 @@ namespace EndlessClient.Old
             m_packetAPI.OnTradeOfferUpdate += _tradeOfferUpdate;
             m_packetAPI.OnTradeCompleted += _tradeCompleted;
 
-            //skills
-            m_packetAPI.OnSpellForget += _statskillForgetSpell;
-            m_packetAPI.OnCharacterStatsReset += _statskillReset;
-
             m_packetAPI.OnPlaySoundEffect += _playSoundEffect;
 
             //spell casting
@@ -172,42 +168,6 @@ namespace EndlessClient.Old
         {
             if (TradeDialog.Instance == null) return;
             TradeDialog.Instance.CompleteTrade(id1, items1, id2, items2);
-        }
-
-        private void _statskillForgetSpell(short id)
-        {
-            OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.RemoveAll(_spell => _spell.ID == id);
-            EOMessageBox.Show(DialogResourceID.SKILL_FORGET_SUCCESS, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-
-            //m_game.Hud.RemoveSpellFromActiveSpellsByID(id);
-        }
-
-        private void _statskillReset(StatResetData data)
-        {
-            OldCharacter c;
-            (c = OldWorld.Instance.MainPlayer.ActiveCharacter).Spells.Clear();
-            EOMessageBox.Show(DialogResourceID.SKILL_RESET_CHARACTER_COMPLETE, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-            c.Stats.StatPoints = data.StatPoints;
-            c.Stats.SkillPoints = data.SkillPoints;
-            c.Stats.HP = data.HP;
-            c.Stats.MaxHP = data.MaxHP;
-            c.Stats.TP = data.TP;
-            c.Stats.MaxTP = data.MaxTP;
-            c.Stats.SP = data.MaxSP;
-            c.Stats.MaxSP = data.MaxSP;
-            c.Stats.Str = data.Str;
-            c.Stats.Int = data.Int;
-            c.Stats.Wis = data.Wis;
-            c.Stats.Agi = data.Agi;
-            c.Stats.Con = data.Con;
-            c.Stats.Cha = data.Cha;
-            c.Stats.MinDam = data.MinDam;
-            c.Stats.MaxDam = data.MaxDam;
-            c.Stats.Accuracy = data.Accuracy;
-            c.Stats.Evade = data.Evade;
-            c.Stats.Armor = data.Armor;
-            //m_game.Hud.RefreshStats();
-            //m_game.Hud.RemoveAllSpells();
         }
 
         private void _playSoundEffect(int effectID)

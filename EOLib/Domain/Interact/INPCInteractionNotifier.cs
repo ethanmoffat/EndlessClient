@@ -9,6 +9,10 @@ namespace EOLib.Domain.Interact
         void NotifyInteractionFromNPC(NPCType npcType);
 
         void NotifySkillLearnFail(SkillmasterReply skillmasterReply, short classId);
+
+        void NotifySkillForget();
+
+        void NotifyStatReset();
     }
 
     [AutoMappedType]
@@ -17,5 +21,9 @@ namespace EOLib.Domain.Interact
         public void NotifyInteractionFromNPC(NPCType npcType) { }
 
         public void NotifySkillLearnFail(SkillmasterReply skillmasterReply, short classId) { }
+
+        public void NotifySkillForget() { }
+
+        public void NotifyStatReset() { }
     }
 }
