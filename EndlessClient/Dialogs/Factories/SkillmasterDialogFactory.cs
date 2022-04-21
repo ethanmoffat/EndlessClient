@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Content;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.HUD;
 using EOLib.Domain.Character;
@@ -19,10 +20,12 @@ namespace EndlessClient.Dialogs.Factories
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
+        private readonly ITextInputDialogFactory _textInputDialogFactory;
         private readonly ISkillDataProvider _skillDataProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly ICharacterInventoryProvider _characterInventoryProvider;
         private readonly IPubFileProvider _pubFileProvider;
+        private readonly IContentProvider _contentProvider;
 
         public SkillmasterDialogFactory(INativeGraphicsManager nativeGraphicsManager,
                                         ISkillmasterActions skillmasterActions,
@@ -31,10 +34,12 @@ namespace EndlessClient.Dialogs.Factories
                                         ILocalizedStringFinder localizedStringFinder,
                                         IStatusLabelSetter statusLabelSetter,
                                         IEOMessageBoxFactory messageBoxFactory,
+                                        ITextInputDialogFactory textInputDialogFactory,
                                         ISkillDataProvider skillDataProvider,
                                         ICharacterProvider characterProvider,
                                         ICharacterInventoryProvider characterInventoryProvider,
-                                        IPubFileProvider pubFileProvider)
+                                        IPubFileProvider pubFileProvider,
+                                        IContentProvider contentProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _skillmasterActions = skillmasterActions;
@@ -43,10 +48,12 @@ namespace EndlessClient.Dialogs.Factories
             _localizedStringFinder = localizedStringFinder;
             _statusLabelSetter = statusLabelSetter;
             _messageBoxFactory = messageBoxFactory;
+            _textInputDialogFactory = textInputDialogFactory;
             _skillDataProvider = skillDataProvider;
             _characterProvider = characterProvider;
             _characterInventoryProvider = characterInventoryProvider;
             _pubFileProvider = pubFileProvider;
+            _contentProvider = contentProvider;
         }
 
         public SkillmasterDialog Create()
@@ -58,10 +65,12 @@ namespace EndlessClient.Dialogs.Factories
                                          _localizedStringFinder,
                                          _statusLabelSetter,
                                          _messageBoxFactory,
+                                         _textInputDialogFactory,
                                          _skillDataProvider,
                                          _characterProvider,
                                          _characterInventoryProvider,
-                                         _pubFileProvider);
+                                         _pubFileProvider,
+                                         _contentProvider);
         }
     }
 

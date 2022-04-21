@@ -162,12 +162,12 @@ namespace EndlessClient.Dialogs
                 Text = oldText.Text,
                 Underline = true
             };
-            _primaryText.ResizeBasedOnText();
 
             ((XNAHyperLink)_primaryText).OnClick += onClickAction;
 
             _primaryText.SetParentControl(this);
             _primaryText.Initialize();
+            _primaryText.ResizeBasedOnText();
 
             oldText.Dispose();
 

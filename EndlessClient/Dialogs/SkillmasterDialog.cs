@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using EndlessClient.Content;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.HUD;
+using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Interact.Skill;
 using EOLib.Graphics;
@@ -38,10 +40,12 @@ namespace EndlessClient.Dialogs
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
+        private readonly ITextInputDialogFactory _textInputDialogFactory;
         private readonly ISkillDataProvider _skillDataProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly ICharacterInventoryProvider _characterInventoryProvider;
         private readonly IPubFileProvider _pubFileProvider;
+        private readonly IContentProvider _contentProvider;
 
         public SkillmasterDialog(INativeGraphicsManager nativeGraphicsManager,
                                  ISkillmasterActions skillmasterActions,
@@ -50,10 +54,12 @@ namespace EndlessClient.Dialogs
                                  ILocalizedStringFinder localizedStringFinder,
                                  IStatusLabelSetter statusLabelSetter,
                                  IEOMessageBoxFactory messageBoxFactory,
+                                 ITextInputDialogFactory textInputDialogFactory,
                                  ISkillDataProvider skillDataProvider,
                                  ICharacterProvider characterProvider,
                                  ICharacterInventoryProvider characterInventoryProvider,
-                                 IPubFileProvider pubFileProvider)
+                                 IPubFileProvider pubFileProvider,
+                                 IContentProvider contentProvider)
             : base(nativeGraphicsManager, dialogButtonService)
         {
             Buttons = ScrollingListDialogButtons.Cancel;
@@ -70,11 +76,12 @@ namespace EndlessClient.Dialogs
             _localizedStringFinder = localizedStringFinder;
             _statusLabelSetter = statusLabelSetter;
             _messageBoxFactory = messageBoxFactory;
+            _textInputDialogFactory = textInputDialogFactory;
             _skillDataProvider = skillDataProvider;
             _characterProvider = characterProvider;
             _characterInventoryProvider = characterInventoryProvider;
             _pubFileProvider = pubFileProvider;
-
+            _contentProvider = contentProvider;
             SetState(SkillState.Initial, regen: true);
         }
 
@@ -102,9 +109,10 @@ namespace EndlessClient.Dialogs
 
         private void BackClicked(object sender, EventArgs e)
         {
+            ListItemType = ListDialogItem.ListItemStyle.Large;
+
             if (_state == SkillState.Learn && _showingRequirements)
             {
-                ListItemType = ListDialogItem.ListItemStyle.Large;
                 SetState(SkillState.Learn, regen: true);
                 _showingRequirements = false;
             }
@@ -124,14 +132,14 @@ namespace EndlessClient.Dialogs
             int numToLearn = _cachedSkills.Count(x => !_cachedSpells.Any(si => si.ID == x.Id));
             int numToForget = _cachedSpells.Count;
 
+            ClearItemList();
+
             if (newState == SkillState.Learn && numToLearn == 0)
             {
                 var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.SKILL_NOTHING_MORE_TO_LEARN);
                 dlg.ShowDialog();
                 return;
             }
-
-            ClearItemList();
 
             switch (newState)
             {
@@ -213,42 +221,41 @@ namespace EndlessClient.Dialogs
                     }
                     break;
                 case SkillState.Forget:
-                {
-                        //TextInputDialog input = new TextInputDialog(OldWorld.GetString(DialogResourceID.SKILL_PROMPT_TO_FORGET, false), 32);
-                        //input.SetAsKeyboardSubscriber();
-                        //input.DialogClosing += (sender, args) =>
-                        //{
-                        //    if (args.Result == XNADialogResult.Cancel) return;
-                        //    bool found =
-                        //        OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.Any(
-                        //            _spell => OldWorld.Instance.ESF[_spell.ID].Name.ToLower() == input.ResponseText.ToLower());
+                    {
+                        var input = _textInputDialogFactory.Create(_localizedStringFinder.GetString(DialogResourceID.SKILL_PROMPT_TO_FORGET), 32);
 
-                        //    if (!found)
-                        //    {
-                        //        args.CancelClose = true;
-                        //        EOMessageBox.Show(DialogResourceID.SKILL_FORGET_ERROR_NOT_LEARNED, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                        //        input.SetAsKeyboardSubscriber();
-                        //    }
+                        input.DialogClosing += (_, args) =>
+                        {
+                            if (args.Result == XNADialogResult.Cancel)
+                                return;
 
-                        //    if (!m_api.ForgetSpell(
-                        //            OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.Find(
-                        //                _spell => OldWorld.Instance.ESF[_spell.ID].Name.ToLower() == input.ResponseText.ToLower()).ID))
-                        //    {
-                        //        Close();
-                        //        ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
-                        //    }
-                        //};
+                            _cachedSpells.SingleOrNone(s => string.Equals(_pubFileProvider.ESFFile[s.ID].Name, input.ResponseText, StringComparison.OrdinalIgnoreCase))
+                                .Match(
+                                    some: si =>
+                                    {
+                                        _skillmasterActions.ForgetSkill(si.ID);
+                                    },
+                                    none: () =>
+                                    {
+                                        args.Cancel = true;
 
-                        ////should show initial info in the actual dialog since this uses a pop-up input box
-                        ////    to select a skill to remove
-                        //newState = SkillState.Initial;
+                                        var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.SKILL_FORGET_ERROR_NOT_LEARNED);
+                                        dlg.ShowDialog();
+                                    });
+                        };
+
+                        input.ShowDialog();
+
+                        //should show initial info in the actual dialog since this uses a pop-up input box
+                        //    to select a skill to remove
+                        newState = SkillState.Initial;
                         goto case SkillState.Initial;
                     }
                 case SkillState.ForgetAll:
-                {
-                    //_showForgetAllMessage(_forgetAllAction);
-                    //_setButtons(ScrollingListDialogButtons.BackCancel);
-                }
+                    {
+                        ShowForgetAllMessage();
+                        Buttons = ScrollingListDialogButtons.BackCancel;
+                    }
                     break;
             }
 
@@ -295,21 +302,6 @@ namespace EndlessClient.Dialogs
                 dlg.ShowDialog();
             }
         }
-
-        //private void _forgetAllAction()
-        //{
-        //    EOMessageBox.Show(DialogResourceID.SKILL_RESET_CHARACTER_CONFIRMATION, EODialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
-        //        (sender, args) =>
-        //        {
-        //            if (args.Result == XNADialogResult.Cancel) return;
-
-        //            if (!m_api.ResetCharacterStatSkill())
-        //            {
-        //                Close();
-        //                ((EOGame) Game).DoShowLostConnectionDialogAndReturnToMainMenu();
-        //            }
-        //        });
-        //}
 
         private void ShowRequirements(Skill skill)
         {
@@ -379,49 +371,55 @@ namespace EndlessClient.Dialogs
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, full.ToString());
         }
 
-        //private void _showForgetAllMessage(Action forgetAllAction)
-        //{
-        //    List<string> drawStrings = new List<string>();
+        private void ShowForgetAllMessage()
+        {
+            ListItemType = ListDialogItem.ListItemStyle.Small;
 
-        //    string[] messages =
-        //    {
-        //        OldWorld.GetString(EOResourceID.SKILLMASTER_FORGET_ALL),
-        //        OldWorld.GetString(EOResourceID.SKILLMASTER_FORGET_ALL_MSG_1),
-        //        OldWorld.GetString(EOResourceID.SKILLMASTER_FORGET_ALL_MSG_2),
-        //        OldWorld.GetString(EOResourceID.SKILLMASTER_FORGET_ALL_MSG_3),
-        //        OldWorld.GetString(EOResourceID.SKILLMASTER_CLICK_HERE_TO_FORGET_ALL)
-        //    };
+            var messages = new[]
+            {
+                _localizedStringFinder.GetString(EOResourceID.SKILLMASTER_FORGET_ALL),
+                _localizedStringFinder.GetString(EOResourceID.SKILLMASTER_FORGET_ALL_MSG_1),
+                _localizedStringFinder.GetString(EOResourceID.SKILLMASTER_FORGET_ALL_MSG_2),
+                _localizedStringFinder.GetString(EOResourceID.SKILLMASTER_FORGET_ALL_MSG_3),
+                _localizedStringFinder.GetString(EOResourceID.SKILLMASTER_CLICK_HERE_TO_FORGET_ALL)
+            };
 
-        //    TextSplitter ts = new TextSplitter("", Game.Content.Load<SpriteFont>(Constants.FontSize08pt5)) { LineLength = 200 };
-        //    foreach (string s in messages)
-        //    {
-        //        ts.Text = s;
-        //        if (!ts.NeedsProcessing)
-        //        {
-        //            //no text clipping needed
-        //            drawStrings.Add(s);
-        //            drawStrings.Add(" ");
-        //            continue;
-        //        }
+            var drawStrings = new List<string>();
+            var ts = new TextSplitter(string.Empty, _contentProvider.Fonts[Constants.FontSize09]) { LineLength = 200 };
+            foreach (string s in messages)
+            {
+                ts.Text = s;
+                drawStrings.AddRange(ts.NeedsProcessing ? ts.SplitIntoLines() : new[] { s });
+                drawStrings.Add(" ");
+            }
 
-        //        drawStrings.AddRange(ts.SplitIntoLines());
-        //        drawStrings.Add(" ");
-        //    }
+            foreach (string s in drawStrings)
+            {
+                var link = s.Length > 0 && s[0] == '*';
+                var nextItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Small)
+                {
+                    PrimaryText = link ? s.Remove(0, 1) : s
+                };
 
-        //    //now need to take the processed draw strings and make an OldListDialogItem for each one
-        //    foreach (string s in drawStrings)
-        //    {
-        //        string next = s;
-        //        bool link = false;
-        //        if (next.Length > 0 && next[0] == '*')
-        //        {
-        //            next = next.Remove(0, 1);
-        //            link = true;
-        //        }
-        //        OldListDialogItem nextItem = new OldListDialogItem(this, OldListDialogItem.ListItemStyle.Small) { Text = next };
-        //        if (link) nextItem.SetPrimaryTextLink(forgetAllAction);
-        //        AddItemToList(nextItem, false);
-        //    }
-        //}
+                if (link)
+                {
+                    nextItem.SetPrimaryClickAction((_, _) =>
+                    {
+                        var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.SKILL_RESET_CHARACTER_CONFIRMATION, EODialogButtons.OkCancel);
+                        dlg.DialogClosing += (_, args) =>
+                        {
+                            // todo: test how GameServer handles character reset with paperdoll items still equipped
+                            if (args.Result == XNADialogResult.OK)
+                            {
+                                _skillmasterActions.ResetCharacter();
+                            }
+                        };
+                        dlg.ShowDialog();
+                    });
+                }
+
+                AddItemToList(nextItem, sortList: false);
+            }
+        }
     }
 }
