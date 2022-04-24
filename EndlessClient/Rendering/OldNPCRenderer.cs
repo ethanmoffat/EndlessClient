@@ -308,38 +308,6 @@ namespace EndlessClient.Rendering
 
         private void HandleLeftClick()
         {
-            bool mouseClicked = _currMouseState.LeftButton == ButtonState.Released &&
-                                _prevMouseState.LeftButton == ButtonState.Pressed;
-
-            if (mouseClicked && DrawArea.ContainsPoint(_currMouseState.X, _currMouseState.Y))
-            {
-                if (OldWorld.Instance.MainPlayer.ActiveCharacter.NeedsSpellTarget)
-                {
-                    var data = OldWorld.Instance.ESF[OldWorld.Instance.MainPlayer.ActiveCharacter.SelectedSpell];
-                    if (data.TargetRestrict != SpellTargetRestrict.Friendly)
-                    {
-                        OldWorld.Instance.ActiveCharacterRenderer.SetSpellTarget(this);
-                    }
-                    else
-                    {
-                        //todo status label message "you cannot attack this NPC"
-                        OldWorld.Instance.MainPlayer.ActiveCharacter.SelectSpell(-1);
-                    }
-
-                    return; //don't process regular click on NPC while targeting a spell
-                }
-
-                PacketAPI api = ((EOGame)Game).API;
-                switch (NPC.Data.Type)
-                {
-                    case NPCType.Inn: break;
-                    case NPCType.Barber: break;
-                    case NPCType.Guild: break;
-                    case NPCType.Priest: break;
-                    case NPCType.Law: break;
-                    case NPCType.Skills: SkillmasterDialog.Show(api, NPC.Index); break;
-                }
-            }
         }
 
         private void UpdateWalkFrameIfNeeded()

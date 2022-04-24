@@ -1,16 +1,15 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Dialogs.Factories;
 using EOLib.Domain.Character;
-using EOLib.Domain.Interact;
 using EOLib.Domain.Interact.Quest;
 using EOLib.Domain.Interact.Shop;
-using EOLib.IO;
+using EOLib.Domain.Interact.Skill;
 using Optional;
 
 namespace EndlessClient.Dialogs.Actions
 {
     [AutoMappedType]
-    public class InGameDialogActions : IInGameDialogActions, INPCInteractionNotifier
+    public class InGameDialogActions : IInGameDialogActions
     {
         private readonly IFriendIgnoreListDialogFactory _friendIgnoreListDialogFactory;
         private readonly IPaperdollDialogFactory _paperdollDialogFactory;
@@ -19,9 +18,11 @@ namespace EndlessClient.Dialogs.Actions
         private readonly IActiveDialogRepository _activeDialogRepository;
         private readonly IShopDataRepository _shopDataRepository;
         private readonly IQuestDataRepository _questDataRepository;
+        private readonly ISkillDataRepository _skillDataRepository;
         private readonly IChestDialogFactory _chestDialogFactory;
         private readonly ILockerDialogFactory _lockerDialogFactory;
         private readonly IBankAccountDialogFactory _bankAccountDialogFactory;
+        private readonly ISkillmasterDialogFactory _skillmasterDialogFactory;
         private readonly IShopDialogFactory _shopDialogFactory;
         private readonly IQuestDialogFactory _questDialogFactory;
 
@@ -34,9 +35,11 @@ namespace EndlessClient.Dialogs.Actions
                                    IActiveDialogRepository activeDialogRepository,
                                    IShopDataRepository shopDataRepository,
                                    IQuestDataRepository questDataRepository,
+                                   ISkillDataRepository skillDataRepository,
                                    IChestDialogFactory chestDialogFactory,
                                    ILockerDialogFactory lockerDialogFactory,
-                                   IBankAccountDialogFactory bankAccountDialogFactory)
+                                   IBankAccountDialogFactory bankAccountDialogFactory,
+                                   ISkillmasterDialogFactory skillmasterDialogFactory)
         {
             _friendIgnoreListDialogFactory = friendIgnoreListDialogFactory;
             _paperdollDialogFactory = paperdollDialogFactory;
@@ -45,9 +48,11 @@ namespace EndlessClient.Dialogs.Actions
             _activeDialogRepository = activeDialogRepository;
             _shopDataRepository = shopDataRepository;
             _questDataRepository = questDataRepository;
+            _skillDataRepository = skillDataRepository;
             _chestDialogFactory = chestDialogFactory;
             _lockerDialogFactory = lockerDialogFactory;
             _bankAccountDialogFactory = bankAccountDialogFactory;
+            _skillmasterDialogFactory = skillmasterDialogFactory;
             _shopDialogFactory = shopDialogFactory;
             _questDialogFactory = questDialogFactory;
         }
@@ -110,19 +115,6 @@ namespace EndlessClient.Dialogs.Actions
 
                 dlg.Show();
             });
-        }
-
-        public void NotifyInteractionFromNPC(NPCType npcType)
-        {
-            // originally, these methods were called directly from NPCInteractionController
-            // however, this resulted in empty responses (e.g. no shop or quest) showing an empty dialog
-            // instead, wait for the response packet to notify this class and then show the dialog
-            //    once data has been received from the server
-            switch (npcType)
-            {
-                case NPCType.Shop: ShowShopDialog(); break;
-                case NPCType.Quest: ShowQuestDialog(); break;
-            }
         }
 
         public void ShowShopDialog()
@@ -192,6 +184,19 @@ namespace EndlessClient.Dialogs.Actions
                 dlg.Show();
             });
         }
+
+        public void ShowSkillmasterDialog()
+        {
+            var dlg = _skillmasterDialogFactory.Create();
+            dlg.DialogClosed += (_, _) =>
+            {
+                _activeDialogRepository.SkillmasterDialog = Option.None<SkillmasterDialog>();
+                _skillDataRepository.ResetState();
+            };
+            _activeDialogRepository.SkillmasterDialog = Option.Some(dlg);
+
+            dlg.Show();
+        }
     }
 
     public interface IInGameDialogActions
@@ -215,5 +220,7 @@ namespace EndlessClient.Dialogs.Actions
         void ShowLockerDialog();
 
         void ShowBankAccountDialog();
+
+        void ShowSkillmasterDialog();
     }
 }

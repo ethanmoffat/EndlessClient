@@ -283,11 +283,7 @@ namespace EndlessClient.Old
 
         public static void IgnoreDialogs(XNAControl control)
         {
-            control.IgnoreDialog(typeof(ChestDialog));
-            control.IgnoreDialog(typeof(BankAccountDialog));
-            control.IgnoreDialog(typeof(LockerDialog));
             control.IgnoreDialog(typeof(TradeDialog));
-            control.IgnoreDialog(typeof(SkillmasterDialog));
         }
 
         public static Texture2D GetSpellIcon(short icon, bool hover)

@@ -11,7 +11,7 @@ namespace EOLib.PacketHandlers.Skill
     /// Sent when learning a skill, either via $learn command or from skillmaster
     /// </summary>
     [AutoMappedType]
-    public class StatskillTake : InGameOnlyPacketHandler
+    public class StatskillTakeHandler : InGameOnlyPacketHandler
     {
         private readonly ICharacterInventoryRepository _characterInventoryRepository;
 
@@ -19,8 +19,8 @@ namespace EOLib.PacketHandlers.Skill
 
         public override PacketAction Action => PacketAction.Take;
 
-        public StatskillTake(IPlayerInfoProvider playerInfoProvider,
-                             ICharacterInventoryRepository characterInventoryRepository)
+        public StatskillTakeHandler(IPlayerInfoProvider playerInfoProvider,
+                                    ICharacterInventoryRepository characterInventoryRepository)
             : base(playerInfoProvider)
         {
             _characterInventoryRepository = characterInventoryRepository;
