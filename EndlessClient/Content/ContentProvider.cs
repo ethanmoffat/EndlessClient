@@ -1,8 +1,12 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EOLib;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace EndlessClient.Content
 {
@@ -11,6 +15,12 @@ namespace EndlessClient.Content
         IReadOnlyDictionary<string, Texture2D> Textures { get; }
 
         IReadOnlyDictionary<string, SpriteFont> Fonts { get; }
+
+        IReadOnlyDictionary<SoundEffectID, SoundEffect> SFX { get; }
+
+        IReadOnlyList<SoundEffect> HarpNotes { get; }
+
+        IReadOnlyList<SoundEffect> GuitarNotes { get; }
 
         void SetContentManager(ContentManager content);
 
@@ -22,6 +32,9 @@ namespace EndlessClient.Content
     {
         private readonly Dictionary<string, Texture2D> _textures;
         private readonly Dictionary<string, SpriteFont> _fonts;
+        private readonly Dictionary<SoundEffectID, SoundEffect> _sfx;
+        private readonly List<SoundEffect> _harpNotes;
+        private readonly List<SoundEffect> _guitarNotes;
 
         private ContentManager _content;
 
@@ -46,10 +59,19 @@ namespace EndlessClient.Content
 
         public IReadOnlyDictionary<string, SpriteFont> Fonts => _fonts;
 
+        public IReadOnlyDictionary<SoundEffectID, SoundEffect> SFX => _sfx;
+
+        public IReadOnlyList<SoundEffect> HarpNotes => _harpNotes;
+
+        public IReadOnlyList<SoundEffect> GuitarNotes => _guitarNotes;
+
         public ContentProvider()
         {
             _textures = new Dictionary<string, Texture2D>();
             _fonts = new Dictionary<string, SpriteFont>();
+            _sfx = new Dictionary<SoundEffectID, SoundEffect>();
+            _harpNotes = new List<SoundEffect>();
+            _guitarNotes = new List<SoundEffect>();
         }
 
         public void SetContentManager(ContentManager content)
@@ -61,6 +83,9 @@ namespace EndlessClient.Content
         {
             RefreshTextures();
             RefreshFonts();
+            LoadSFX();
+            LoadHarp();
+            LoadGuitar();
         }
 
         private void RefreshTextures()
@@ -90,6 +115,41 @@ namespace EndlessClient.Content
         {
             _fonts[Constants.FontSize08] = _content.Load<SpriteFont>(Constants.FontSize08);
             _fonts[Constants.FontSize09] = _content.Load<SpriteFont>(Constants.FontSize09);
+        }
+
+        private void LoadSFX()
+        {
+            var id = (SoundEffectID)0;
+            foreach (var sfxFile in GetSoundEffects("sfx*.wav"))
+                _sfx[id++] = sfxFile;
+            if (_sfx.Count != 81)
+                throw new FileNotFoundException("Unexpected number of SFX");
+        }
+
+        private void LoadHarp()
+        {
+            _harpNotes.AddRange(GetSoundEffects("har*.wav"));
+            if (_harpNotes.Count != 36)
+                throw new FileNotFoundException("Unexpected number of harp SFX");
+        }
+
+        private void LoadGuitar()
+        {
+            _guitarNotes.AddRange(GetSoundEffects("gui*.wav"));
+            if (_guitarNotes.Count != 36)
+                throw new FileNotFoundException("Unexpected number of guitar SFX");
+        }
+
+        private static IEnumerable<SoundEffect> GetSoundEffects(string filter)
+        {
+            var sfxFiles = Directory.GetFiles(Constants.SfxDirectory, filter).ToList();
+            sfxFiles.Sort();
+
+            foreach (var file in sfxFiles)
+            {
+                using var wavStream = WAVFileValidator.GetStreamWithCorrectLengthHeader(file);
+                yield return SoundEffect.FromStream(wavStream);
+            }
         }
     }
 }

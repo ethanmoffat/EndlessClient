@@ -43,6 +43,8 @@ namespace EOLib
         public const string LogFilePath = "log/debug.log";
         public const string LogFileFmt = "log/{0}-debug.log";
 
+        public const string SfxDirectory = "sfx";
+
         public const string FriendListFile = "config/friends.ini";
         public const string IgnoreListFile = "config/ignore.ini";
 
