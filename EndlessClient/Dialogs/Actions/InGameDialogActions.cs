@@ -23,6 +23,7 @@ namespace EndlessClient.Dialogs.Actions
         private readonly ILockerDialogFactory _lockerDialogFactory;
         private readonly IBankAccountDialogFactory _bankAccountDialogFactory;
         private readonly ISkillmasterDialogFactory _skillmasterDialogFactory;
+        private readonly IBardDialogFactory _bardDialogFactory;
         private readonly IShopDialogFactory _shopDialogFactory;
         private readonly IQuestDialogFactory _questDialogFactory;
 
@@ -39,7 +40,8 @@ namespace EndlessClient.Dialogs.Actions
                                    IChestDialogFactory chestDialogFactory,
                                    ILockerDialogFactory lockerDialogFactory,
                                    IBankAccountDialogFactory bankAccountDialogFactory,
-                                   ISkillmasterDialogFactory skillmasterDialogFactory)
+                                   ISkillmasterDialogFactory skillmasterDialogFactory,
+                                   IBardDialogFactory bardDialogFactory)
         {
             _friendIgnoreListDialogFactory = friendIgnoreListDialogFactory;
             _paperdollDialogFactory = paperdollDialogFactory;
@@ -53,6 +55,7 @@ namespace EndlessClient.Dialogs.Actions
             _lockerDialogFactory = lockerDialogFactory;
             _bankAccountDialogFactory = bankAccountDialogFactory;
             _skillmasterDialogFactory = skillmasterDialogFactory;
+            _bardDialogFactory = bardDialogFactory;
             _shopDialogFactory = shopDialogFactory;
             _questDialogFactory = questDialogFactory;
         }
@@ -197,6 +200,21 @@ namespace EndlessClient.Dialogs.Actions
 
             dlg.Show();
         }
+
+        public void ShowBardDialog()
+        {
+            _activeDialogRepository.BardDialog.MatchNone(() =>
+            {
+                var dlg = _bardDialogFactory.Create();
+                dlg.DialogClosed += (_, _) =>
+                {
+                    _activeDialogRepository.BardDialog = Option.None<BardDialog>();
+                };
+                _activeDialogRepository.BardDialog = Option.Some(dlg);
+
+                dlg.Show();
+            });
+        }
     }
 
     public interface IInGameDialogActions
@@ -222,5 +240,7 @@ namespace EndlessClient.Dialogs.Actions
         void ShowBankAccountDialog();
 
         void ShowSkillmasterDialog();
+
+        void ShowBardDialog();
     }
 }

@@ -53,7 +53,10 @@ namespace EOLib
 
         //Should be easily customizable between different clients (based on graphics)
         //not a config option because this shouldn't be exposed at the user level
-        public static readonly int[] TrapSpikeGFXObjectIDs = {449, 450, 451, 452};
+        public static readonly int[] TrapSpikeGFXObjectIDs = { 449, 450, 451, 452 };
+
+        // Item IDs of instruments (there is no pub flag for this)
+        public static readonly int[] InstrumentIDs = { 349, 350 };
 
         public const string FontSize07 = @"Fonts/InGame_Main_07";
         public const string FontSize08 = @"Fonts/InGame_Main_08";

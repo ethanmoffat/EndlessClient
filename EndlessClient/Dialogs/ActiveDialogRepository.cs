@@ -29,6 +29,8 @@ namespace EndlessClient.Dialogs
 
         Option<SkillmasterDialog> SkillmasterDialog { get; }
 
+        Option<BardDialog> BardDialog { get; }
+
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs { get; }
     }
 
@@ -52,7 +54,9 @@ namespace EndlessClient.Dialogs
 
         Option<BankAccountDialog> BankAccountDialog { get; set; }
 
-        Option<SkillmasterDialog> SkillmasterDialog { get; set;  }
+        Option<SkillmasterDialog> SkillmasterDialog { get; set; }
+
+        Option<BardDialog> BardDialog { get; set; }
 
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs { get; }
     }
@@ -80,6 +84,8 @@ namespace EndlessClient.Dialogs
 
         public Option<SkillmasterDialog> SkillmasterDialog { get; set; }
 
+        public Option<BardDialog> BardDialog { get; set; }
+
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs
         {
             get
@@ -96,6 +102,7 @@ namespace EndlessClient.Dialogs
                     LockerDialog.Map(d => (IXNADialog)d),
                     BankAccountDialog.Map(d => (IXNADialog)d),
                     SkillmasterDialog.Map(d => (IXNADialog)d),
+                    BardDialog.Map(d => (IXNADialog)d),
                 }.ToList();
             }
         }
@@ -119,6 +126,7 @@ namespace EndlessClient.Dialogs
             LockerDialog = Option.None<LockerDialog>();
             BankAccountDialog = Option.None<BankAccountDialog>();
             SkillmasterDialog = Option.None<SkillmasterDialog>();
+            BardDialog = Option.None<BardDialog>();
         }
     }
 }
