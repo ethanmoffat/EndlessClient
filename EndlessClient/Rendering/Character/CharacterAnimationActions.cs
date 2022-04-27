@@ -79,7 +79,10 @@ namespace EndlessClient.Rendering.Character
                 return;
 
             CancelSpellPrep();
-            Animator.StartMainCharacterAttackAnimation(isBard: noteIndex >= 0);
+
+            if (noteIndex >= 0)
+                Animator.Emote(_characterRepository.MainCharacter.ID, EOLib.Domain.Character.Emote.MusicNotes);
+            Animator.StartMainCharacterAttackAnimation();
             ShowWaterSplashiesIfNeeded(CharacterActionState.Attacking, _characterRepository.MainCharacter.ID);
 
             PlayWeaponSound(_characterRepository.MainCharacter, noteIndex);
@@ -120,7 +123,10 @@ namespace EndlessClient.Rendering.Character
             if (!_hudControlProvider.IsInGame)
                 return;
 
-            Animator.StartOtherCharacterAttackAnimation(characterID, noteIndex >= 0);
+            if (noteIndex >= 0)
+                Animator.Emote(characterID, EOLib.Domain.Character.Emote.MusicNotes);
+
+            Animator.StartOtherCharacterAttackAnimation(characterID);
             ShowWaterSplashiesIfNeeded(CharacterActionState.Attacking, characterID);
 
             if (_currentMapStateProvider.Characters.ContainsKey(characterID))
