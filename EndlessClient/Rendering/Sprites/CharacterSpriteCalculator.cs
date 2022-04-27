@@ -26,7 +26,7 @@ namespace EndlessClient.Rendering.Sprites
             _eifFileProvider = eifFileProvider;
         }
 
-        public ISpriteSheet GetBootsTexture(ICharacterRenderProperties characterRenderProperties)
+        public ISpriteSheet GetBootsTexture(CharacterRenderProperties characterRenderProperties)
         {
             if (characterRenderProperties.BootsGraphic == 0)
                 return new EmptySpriteSheet();
@@ -66,7 +66,7 @@ namespace EndlessClient.Rendering.Sprites
             return new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, true));
         }
 
-        public ISpriteSheet GetArmorTexture(ICharacterRenderProperties characterRenderProperties)
+        public ISpriteSheet GetArmorTexture(CharacterRenderProperties characterRenderProperties)
         {
             if (characterRenderProperties.ArmorGraphic == 0)
                 return new EmptySpriteSheet();
@@ -126,7 +126,7 @@ namespace EndlessClient.Rendering.Sprites
             return new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, true));
         }
 
-        public ISpriteSheet GetHatTexture(ICharacterRenderProperties characterRenderProperties)
+        public ISpriteSheet GetHatTexture(CharacterRenderProperties characterRenderProperties)
         {
             if (characterRenderProperties.HatGraphic == 0)
                 return new EmptySpriteSheet();
@@ -140,7 +140,7 @@ namespace EndlessClient.Rendering.Sprites
             return new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, true));
         }
 
-        public ISpriteSheet GetShieldTexture(ICharacterRenderProperties characterRenderProperties)
+        public ISpriteSheet GetShieldTexture(CharacterRenderProperties characterRenderProperties)
         {
             if (characterRenderProperties.ShieldGraphic == 0)
                 return new EmptySpriteSheet();
@@ -197,7 +197,7 @@ namespace EndlessClient.Rendering.Sprites
             return new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, true));
         }
 
-        public ISpriteSheet[] GetWeaponTextures(ICharacterRenderProperties characterRenderProperties)
+        public ISpriteSheet[] GetWeaponTextures(CharacterRenderProperties characterRenderProperties)
         {
             var retTextures = new ISpriteSheet[] { new EmptySpriteSheet(), new EmptySpriteSheet() };
             if (characterRenderProperties.WeaponGraphic == 0)
@@ -272,7 +272,7 @@ namespace EndlessClient.Rendering.Sprites
             return retTextures;
         }
 
-        public ISpriteSheet GetSkinTexture(ICharacterRenderProperties characterRenderProperties)
+        public ISpriteSheet GetSkinTexture(CharacterRenderProperties characterRenderProperties)
         {
             const int SheetRows = 7;
             var sheetColumns = 4;
@@ -347,7 +347,7 @@ namespace EndlessClient.Rendering.Sprites
             return new SpriteSheet(texture, sourceArea);
         }
 
-        public ISpriteSheet GetHairTexture(ICharacterRenderProperties characterRenderProperties)
+        public ISpriteSheet GetHairTexture(CharacterRenderProperties characterRenderProperties)
         {
             // Use dummy rectangle for no hair so hats are still correctly aligned
             var hairStyle = characterRenderProperties.HairStyle == 0 ? 1 : characterRenderProperties.HairStyle;
@@ -363,7 +363,7 @@ namespace EndlessClient.Rendering.Sprites
                 : new SpriteSheet(hairTexture);
         }
 
-        public ISpriteSheet GetFaceTexture(ICharacterRenderProperties characterRenderProperties)
+        public ISpriteSheet GetFaceTexture(CharacterRenderProperties characterRenderProperties)
         {
             if (characterRenderProperties.EmoteFrame < 0 ||
                 characterRenderProperties.Emote == Emote.Trade ||
@@ -391,7 +391,7 @@ namespace EndlessClient.Rendering.Sprites
             return new SpriteSheet(texture, sourceRectangle);
         }
 
-        public ISpriteSheet GetEmoteTexture(ICharacterRenderProperties characterRenderProperties)
+        public ISpriteSheet GetEmoteTexture(CharacterRenderProperties characterRenderProperties)
         {
             if (characterRenderProperties.Emote == 0 || characterRenderProperties.EmoteFrame < 0)
                 return new EmptySpriteSheet();
@@ -496,7 +496,7 @@ namespace EndlessClient.Rendering.Sprites
             return 1;
         }
 
-        private bool BowIsEquipped(ICharacterRenderProperties characterRenderProperties)
+        private bool BowIsEquipped(CharacterRenderProperties characterRenderProperties)
         {
             if (EIFFile == null)
                 return false;

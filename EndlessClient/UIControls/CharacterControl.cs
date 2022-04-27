@@ -8,7 +8,7 @@ namespace EndlessClient.UIControls
 {
     public class CharacterControl : XNAControl
     {
-        public ICharacterRenderProperties RenderProperties
+        public CharacterRenderProperties RenderProperties
         {
             get { return _characterRenderer.Character.RenderProperties; }
 

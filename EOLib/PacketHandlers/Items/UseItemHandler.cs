@@ -133,7 +133,7 @@ namespace EOLib.PacketHandlers.Items
                                 else if (loc == EquipLocation.Hat)
                                     renderProps = renderProps.WithHatGraphic(0);
                                 else if (loc == EquipLocation.Weapon)
-                                    renderProps = renderProps.WithWeaponGraphic(0, false);
+                                    renderProps = renderProps.WithWeaponGraphic(0).WithIsRangedWeapon(false);
                                 else if (loc == EquipLocation.Shield)
                                     renderProps = renderProps.WithShieldGraphic(0);
                             }

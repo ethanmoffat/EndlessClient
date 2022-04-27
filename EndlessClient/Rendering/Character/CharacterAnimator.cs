@@ -347,7 +347,7 @@ namespace EndlessClient.Rendering.Character
                 _otherPlayerStartWalkingTimes.Remove(key);
         }
 
-        private ICharacterRenderProperties AnimateOneWalkFrame(ICharacterRenderProperties renderProperties)
+        private CharacterRenderProperties AnimateOneWalkFrame(CharacterRenderProperties renderProperties)
         {
             var isSteppingStone = _currentMapProvider.CurrentMap.Tiles[renderProperties.MapY, renderProperties.MapX] == TileSpec.Jump
                 || _currentMapProvider.CurrentMap.Tiles[renderProperties.GetDestinationY(), renderProperties.GetDestinationX()] == TileSpec.Jump;
@@ -363,7 +363,7 @@ namespace EndlessClient.Rendering.Character
             return nextFrameRenderProperties;
         }
 
-        private ICharacterRenderProperties FaceTarget(MapCoordinate characterCoord, MapCoordinate next, ICharacterRenderProperties rp)
+        private CharacterRenderProperties FaceTarget(MapCoordinate characterCoord, MapCoordinate next, CharacterRenderProperties rp)
         {
             var diff = next - characterCoord;
 

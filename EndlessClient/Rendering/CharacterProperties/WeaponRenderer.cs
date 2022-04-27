@@ -14,7 +14,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 
         public override bool CanRender => _weaponSheet.HasTexture && _renderProperties.WeaponGraphic != 0;
 
-        public WeaponRenderer(ICharacterRenderProperties renderProperties,
+        public WeaponRenderer(CharacterRenderProperties renderProperties,
                               ISpriteSheet weaponSheet)
             : base(renderProperties)
         {

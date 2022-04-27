@@ -254,7 +254,7 @@ namespace EndlessClient.Rendering.Character
 
         #region Texture Loading Helpers
 
-        private static int FigureOutTopPixel(ICharacterSpriteCalculator spriteCalculator, ICharacterRenderProperties renderProperties)
+        private static int FigureOutTopPixel(ICharacterSpriteCalculator spriteCalculator, CharacterRenderProperties renderProperties)
         {
             var spriteForSkin = spriteCalculator.GetSkinTexture(renderProperties);
             var skinData = spriteForSkin.GetSourceTextureData<Color>();
@@ -377,7 +377,7 @@ namespace EndlessClient.Rendering.Character
                                TopPixelWithOffset - 8 - _nameLabel.ActualHeight);
         }
 
-        private bool GetIsSteppingStone(ICharacterRenderProperties renderProps)
+        private bool GetIsSteppingStone(CharacterRenderProperties renderProps)
         {
             if (_gameStateProvider.CurrentState != GameStates.PlayingTheGame)
                 return false;
@@ -386,7 +386,7 @@ namespace EndlessClient.Rendering.Character
                 || (renderProps.IsActing(CharacterActionState.Walking) && _currentMapProvider.CurrentMap.Tiles[renderProps.GetDestinationY(), renderProps.GetDestinationX()] == TileSpec.Jump);
         }
 
-        private int GetSteppingStoneOffset(ICharacterRenderProperties renderProps)
+        private int GetSteppingStoneOffset(CharacterRenderProperties renderProps)
         {
             var isSteppingStone = GetIsSteppingStone(renderProps);
 

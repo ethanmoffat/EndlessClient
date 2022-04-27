@@ -63,9 +63,9 @@ namespace EndlessClient.UIControls
             RenderProperties = RenderProperties.WithHairColor((byte)((RenderProperties.HairColor + 1) % 10));
         }
 
-        private static ICharacterRenderProperties GetDefaultProperties()
+        private static CharacterRenderProperties GetDefaultProperties()
         {
-            return new CharacterRenderProperties().WithHairStyle(1);
+            return new CharacterRenderProperties.Builder { HairStyle = 1 }.ToImmutable();
         }
     }
 }

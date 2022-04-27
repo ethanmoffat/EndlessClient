@@ -17,7 +17,7 @@ namespace EOLib.Domain.Character
 
         byte ClassID { get; }
 
-        ICharacterRenderProperties RenderProperties { get; }
+        CharacterRenderProperties RenderProperties { get; }
 
         ICharacterStats Stats { get; }
 
@@ -41,7 +41,7 @@ namespace EOLib.Domain.Character
 
         ICharacter WithClassID(byte newClassID);
 
-        ICharacter WithRenderProperties(ICharacterRenderProperties renderProperties);
+        ICharacter WithRenderProperties(CharacterRenderProperties renderProperties);
 
         ICharacter WithStats(ICharacterStats stats);
 

@@ -66,7 +66,8 @@ namespace EOLib.PacketHandlers
 
                     var weaponGraphic = packet.ReadShort();
                     currentRenderProps = currentRenderProps
-                        .WithWeaponGraphic(weaponGraphic, _eifFileProvider.EIFFile.IsRangedWeapon(weaponGraphic))
+                        .WithWeaponGraphic(weaponGraphic)
+                        .WithIsRangedWeapon(_eifFileProvider.EIFFile.IsRangedWeapon(weaponGraphic))
                         .WithShieldGraphic(packet.ReadShort());
 
                     break;

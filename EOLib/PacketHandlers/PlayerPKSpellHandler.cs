@@ -60,9 +60,8 @@ namespace EOLib.PacketHandlers
 
             if (targetPlayerId == _characterRepository.MainCharacter.ID)
             {
-                var renderProps = _characterRepository.MainCharacter.RenderProperties;
-                if (targetIsDead)
-                    renderProps = renderProps.WithDead();
+                var renderProps = _characterRepository.MainCharacter.RenderProperties
+                    .WithIsDead(targetIsDead);
 
                 var stats = _characterRepository.MainCharacter.Stats;
                 stats = stats.WithNewStat(CharacterStat.HP, stats[CharacterStat.HP] - damage);
@@ -74,9 +73,7 @@ namespace EOLib.PacketHandlers
             {
                 var c = _currentMapStateRepository.Characters[targetPlayerId];
 
-                var renderProps = c.RenderProperties;
-                if (targetIsDead)
-                    renderProps = renderProps.WithDead();
+                var renderProps = c.RenderProperties.WithIsDead(targetIsDead);
 
                 var stats = c.Stats;
                 stats = stats.WithNewStat(CharacterStat.HP, stats[CharacterStat.HP] - damage);

@@ -19,6 +19,6 @@ namespace EndlessClient.Rendering.Character
         ISpriteSheet Emote { get; }
         ISpriteSheet Face { get; }
 
-        void Refresh(ICharacterRenderProperties characterRenderProperties);
+        void Refresh(CharacterRenderProperties characterRenderProperties);
     }
 }

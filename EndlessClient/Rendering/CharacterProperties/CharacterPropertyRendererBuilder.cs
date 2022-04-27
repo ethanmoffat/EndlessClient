@@ -30,7 +30,7 @@ namespace EndlessClient.Rendering.CharacterProperties
         }
 
         public IEnumerable<ICharacterPropertyRenderer> BuildList(ICharacterTextures textures,
-                                                                 ICharacterRenderProperties renderProperties)
+                                                                 CharacterRenderProperties renderProperties)
         {
             const float BaseLayer = 0.00001f;
 
@@ -65,12 +65,12 @@ namespace EndlessClient.Rendering.CharacterProperties
                 };
         }
 
-        private bool IsShieldBehindCharacter(ICharacterRenderProperties renderProperties)
+        private bool IsShieldBehindCharacter(CharacterRenderProperties renderProperties)
         {
             return renderProperties.IsFacing(EODirection.Right, EODirection.Down) && EIFFile.IsShieldOnBack(renderProperties.ShieldGraphic);
         }
 
-        private bool IsWeaponBehindCharacter(ICharacterRenderProperties renderProperties)
+        private bool IsWeaponBehindCharacter(CharacterRenderProperties renderProperties)
         {
              var weaponInfo = EIFFile.FirstOrDefault(
                 x => x.Type == ItemType.Weapon &&
@@ -83,7 +83,7 @@ namespace EndlessClient.Rendering.CharacterProperties
             return pass1 || pass2 || pass3;
         }
 
-        private HatMaskType GetHatMaskType(ICharacterRenderProperties renderProperties)
+        private HatMaskType GetHatMaskType(CharacterRenderProperties renderProperties)
         {
             var hatInfo = EIFFile.FirstOrDefault(
                 x => x.Type == ItemType.Hat &&

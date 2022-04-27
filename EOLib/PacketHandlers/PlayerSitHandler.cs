@@ -39,6 +39,7 @@ namespace EOLib.PacketHandlers
             {
                 var renderProperties = _characterRepository.MainCharacter.RenderProperties;
                 var updatedRenderProperties = renderProperties.WithSitState(sitState)
+                    .WithCurrentAction(sitState == SitState.Standing ? CharacterActionState.Standing : CharacterActionState.Sitting)
                     .WithMapX(x)
                     .WithMapY(y)
                     .WithDirection(direction);
@@ -48,6 +49,7 @@ namespace EOLib.PacketHandlers
             {
                 var oldCharacter = _currentMapStateRepository.Characters[playerId];
                 var renderProperties = oldCharacter.RenderProperties.WithSitState(sitState)
+                    .WithCurrentAction(sitState == SitState.Standing ? CharacterActionState.Standing : CharacterActionState.Sitting)
                     .WithMapX(x)
                     .WithMapY(y)
                     .WithDirection(direction);

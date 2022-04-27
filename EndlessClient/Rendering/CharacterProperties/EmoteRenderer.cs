@@ -16,7 +16,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 
         protected override bool ShouldFlip => false;
 
-        public EmoteRenderer(ICharacterRenderProperties renderProperties,
+        public EmoteRenderer(CharacterRenderProperties renderProperties,
                              ISpriteSheet emoteSheet,
                              ISpriteSheet skinSheet)
             : base(renderProperties)

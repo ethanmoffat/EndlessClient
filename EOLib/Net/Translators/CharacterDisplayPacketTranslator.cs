@@ -47,25 +47,34 @@ namespace EOLib.Net.Translators
             var stats = new CharacterStats()
                 .WithNewStat(CharacterStat.Level, packet.ReadChar());
 
-            var renderProperties = new CharacterRenderProperties()
-                .WithGender(packet.ReadChar())
-                .WithHairStyle(packet.ReadChar())
-                .WithHairColor(packet.ReadChar())
-                .WithRace(packet.ReadChar());
+            var gender = packet.ReadChar();
+            var hairStyle = packet.ReadChar();
+            var hairColor = packet.ReadChar();
+            var race = packet.ReadChar();
+            var adminLevel = (AdminLevel)packet.ReadChar();
+            var boots = packet.ReadShort();
+            var armor = packet.ReadShort();
+            var hat = packet.ReadShort();
+            var shield = packet.ReadShort();
+            var weapon = packet.ReadShort();
 
-            character = character.WithAdminLevel((AdminLevel)packet.ReadChar());
-
-            renderProperties = renderProperties
-                .WithBootsGraphic(packet.ReadShort())
-                .WithArmorGraphic(packet.ReadShort())
-                .WithHatGraphic(packet.ReadShort())
-                .WithShieldGraphic(packet.ReadShort());
-
-            var weaponGraphic = packet.ReadShort();
-            renderProperties = renderProperties.WithWeaponGraphic(weaponGraphic, _eifFileProvider.EIFFile.IsRangedWeapon(weaponGraphic));
+            var renderProperties = new CharacterRenderProperties.Builder()
+            { 
+               Gender = gender,
+               HairStyle = hairStyle,
+               HairColor = hairColor,
+               Race = race,
+               BootsGraphic = boots,
+               ArmorGraphic = armor,
+               HatGraphic = hat,
+               ShieldGraphic = shield,
+               WeaponGraphic = weapon,
+               IsRangedWeapon = _eifFileProvider.EIFFile.IsRangedWeapon(weapon),
+            };
 
             return character
-                .WithRenderProperties(renderProperties)
+                .WithAdminLevel(adminLevel)
+                .WithRenderProperties(renderProperties.ToImmutable())
                 .WithStats(stats);
         }
 

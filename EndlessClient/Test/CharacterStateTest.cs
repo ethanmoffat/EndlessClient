@@ -6,6 +6,7 @@ using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
 using EOLib;
 using EOLib.Domain.Character;
+using EOLib.Domain.Extensions;
 using EOLib.IO;
 using EOLib.IO.Extensions;
 using EOLib.IO.Pub;
@@ -43,7 +44,7 @@ namespace EndlessClient.Test
         private readonly ICharacterRendererFactory _characterRendererFactory;
         private readonly IEIFFileProvider _eifFileProvider;
 
-        private ICharacterRenderProperties _baseProperties;
+        private CharacterRenderProperties _baseProperties;
         private readonly Dictionary<ItemType, int> _itemIndices;
         private readonly List<ICharacterRenderer> _renderersForDifferentStates;
 
@@ -70,7 +71,7 @@ namespace EndlessClient.Test
         {
             DrawOrder = 0;
 
-            _baseProperties = new CharacterRenderProperties();
+            _baseProperties = new CharacterRenderProperties.Builder().ToImmutable();
             foreach (var displayState in _allDisplayStates)
             {
                 var props = GetRenderPropertiesForState(displayState);
@@ -152,7 +153,7 @@ namespace EndlessClient.Test
             else if (KeyPressed(Keys.D6) && !_isBowEquipped)
             {
                 var nextGraphic = GetNextItemGraphicMatching(ItemType.Weapon, _baseProperties.WeaponGraphic);
-                _baseProperties = _baseProperties.WithWeaponGraphic(nextGraphic, EIFFile.IsRangedWeapon(nextGraphic));
+                _baseProperties = _baseProperties.WithWeaponGraphic(nextGraphic).WithIsRangedWeapon(EIFFile.IsRangedWeapon(nextGraphic));
                 update = true;
             }
             else if (KeyPressed(Keys.D7))
@@ -172,11 +173,11 @@ namespace EndlessClient.Test
                 {
                     _lastGraphic = _baseProperties.WeaponGraphic;
                     var firstBowWeapon = EIFFile.First(x => x.Type == ItemType.Weapon && x.SubType == ItemSubType.Ranged);
-                    _baseProperties = _baseProperties.WithWeaponGraphic((short)firstBowWeapon.DollGraphic, isRanged: true);
+                    _baseProperties = _baseProperties.WithWeaponGraphic((short)firstBowWeapon.DollGraphic).WithIsRangedWeapon(true);
                 }
                 else
                 {
-                    _baseProperties = _baseProperties.WithWeaponGraphic(_lastGraphic, EIFFile.IsRangedWeapon(_lastGraphic));
+                    _baseProperties = _baseProperties.WithWeaponGraphic(_lastGraphic).WithIsRangedWeapon(EIFFile.IsRangedWeapon(_lastGraphic));
                 }
                 
                 _isBowEquipped = !_isBowEquipped;
@@ -192,7 +193,7 @@ namespace EndlessClient.Test
             if ((now - _lastWalk).TotalMilliseconds > 500)
             {
                 var rend = _renderersForDifferentStates[(int) DisplayState.WalkingAnimation];
-                rend.Character = rend.Character.WithRenderProperties(rend.Character.RenderProperties.WithNextWalkFrame());
+                rend.Character = rend.Character.WithRenderProperties(rend.Character.RenderProperties.WithNextWalkFrame(false));
                 _lastWalk = now;
             }
 
@@ -220,7 +221,7 @@ namespace EndlessClient.Test
             base.Draw(gameTime);
         }
 
-        private ICharacterRenderProperties GetRenderPropertiesForState(DisplayState displayState)
+        private CharacterRenderProperties GetRenderPropertiesForState(DisplayState displayState)
         {
             switch (displayState)
             {
@@ -246,7 +247,7 @@ namespace EndlessClient.Test
                 case DisplayState.WalkingAnimation:
                 case DisplayState.SpellCastAnimation:
                 case DisplayState.AttackingAnimation:
-                    return (ICharacterRenderProperties)_baseProperties.Clone();
+                    return _baseProperties.ToBuilder().ToImmutable();
                 default:
                     throw new ArgumentOutOfRangeException();
             }

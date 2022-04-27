@@ -27,7 +27,7 @@ namespace EndlessClient.Rendering.Character
             _characterSpriteCalculator = characterSpriteCalculator;
         }
 
-        public void Refresh(ICharacterRenderProperties characterRenderProperties)
+        public void Refresh(CharacterRenderProperties characterRenderProperties)
         {
             Boots = _characterSpriteCalculator.GetBootsTexture(characterRenderProperties);
             Armor = _characterSpriteCalculator.GetArmorTexture(characterRenderProperties);

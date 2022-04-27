@@ -13,13 +13,15 @@ namespace EOLib.Domain.Extensions
                 .WithArmorGraphic(updatedData.RenderProperties.ArmorGraphic)
                 .WithHatGraphic(updatedData.RenderProperties.HatGraphic)
                 .WithShieldGraphic(updatedData.RenderProperties.ShieldGraphic)
-                .WithWeaponGraphic(updatedData.RenderProperties.WeaponGraphic, isRangedWeapon)
+                .WithWeaponGraphic(updatedData.RenderProperties.WeaponGraphic)
+                .WithIsRangedWeapon(isRangedWeapon)
                 .WithDirection(updatedData.RenderProperties.Direction)
                 .WithHairStyle(updatedData.RenderProperties.HairStyle)
                 .WithHairColor(updatedData.RenderProperties.HairColor)
                 .WithGender(updatedData.RenderProperties.Gender)
                 .WithRace(updatedData.RenderProperties.Race)
                 .WithSitState(updatedData.RenderProperties.SitState)
+                .WithCurrentAction(updatedData.RenderProperties.SitState == SitState.Standing ? CharacterActionState.Standing : CharacterActionState.Sitting)
                 .WithMapX(updatedData.RenderProperties.MapX)
                 .WithMapY(updatedData.RenderProperties.MapY)
                 .ResetAnimationFrames();
@@ -45,9 +47,8 @@ namespace EOLib.Domain.Extensions
             var stats = original.Stats;
             stats = stats.WithNewStat(CharacterStat.HP, (short)Math.Max(stats[CharacterStat.HP] - damageTaken, 0));
 
-            var props = original.RenderProperties;
-            if (isDead)
-                props = props.WithDead();
+            var props = original.RenderProperties
+                .WithIsDead(isDead);
 
             return original.WithStats(stats).WithRenderProperties(props);
         }

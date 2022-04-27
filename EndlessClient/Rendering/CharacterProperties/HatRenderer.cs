@@ -19,7 +19,7 @@ namespace EndlessClient.Rendering.CharacterProperties
         public override bool CanRender => _hatSheet.HasTexture && _renderProperties.HatGraphic != 0;
 
         public HatRenderer(IShaderProvider shaderProvider,
-                           ICharacterRenderProperties renderProperties,
+                           CharacterRenderProperties renderProperties,
                            ISpriteSheet hatSheet,
                            ISpriteSheet hairSheet)
             : base(renderProperties)

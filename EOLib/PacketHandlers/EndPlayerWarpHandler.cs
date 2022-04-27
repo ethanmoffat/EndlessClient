@@ -56,7 +56,7 @@ namespace EOLib.PacketHandlers
 
             //character.renderproperties.isdead is set True by the attack handler
             //the character needs to be brought back to life when they are taken to the home map
-            var bringBackToLife = _characterRepository.MainCharacter.RenderProperties.WithAlive();
+            var bringBackToLife = _characterRepository.MainCharacter.RenderProperties.WithIsDead(false);
             _characterRepository.MainCharacter = _characterRepository.MainCharacter
                 .WithRenderProperties(bringBackToLife)
                 .WithAppliedData(updatedMainCharacter, _eifFileProvider.EIFFile.IsRangedWeapon(updatedMainCharacter.RenderProperties.WeaponGraphic));

@@ -1,7 +1,5 @@
 ﻿using EndlessClient.Rendering.Sprites;
-using EOLib;
 using EOLib.Domain.Character;
-using EOLib.Domain.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -14,7 +12,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 
         public override bool CanRender => _hairSheet.HasTexture && _renderProperties.HairStyle != 0;
 
-        public HairRenderer(ICharacterRenderProperties renderProperties,
+        public HairRenderer(CharacterRenderProperties renderProperties,
                             ISpriteSheet hairSheet)
             : base(renderProperties)
         {

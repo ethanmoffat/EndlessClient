@@ -22,7 +22,7 @@ namespace EOLib.Domain.Character
 
         public AdminLevel AdminLevel { get; private set; }
 
-        public ICharacterRenderProperties RenderProperties { get; private set; }
+        public CharacterRenderProperties RenderProperties { get; private set; }
 
         public ICharacterStats Stats { get; private set; }
 
@@ -32,7 +32,7 @@ namespace EOLib.Domain.Character
 
         public Character()
         {
-            RenderProperties = new CharacterRenderProperties();
+            RenderProperties = new CharacterRenderProperties.Builder().ToImmutable();
             Stats = new CharacterStats();
         }
 
@@ -92,7 +92,7 @@ namespace EOLib.Domain.Character
             return character;
         }
 
-        public ICharacter WithRenderProperties(ICharacterRenderProperties renderProperties)
+        public ICharacter WithRenderProperties(CharacterRenderProperties renderProperties)
         {
             var character = MakeCopy(this);
             character.RenderProperties = renderProperties;
@@ -167,7 +167,7 @@ namespace EOLib.Domain.Character
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(GuildTag);
             hashCode = hashCode * -1521134295 + ClassID.GetHashCode();
             hashCode = hashCode * -1521134295 + AdminLevel.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<ICharacterRenderProperties>.Default.GetHashCode(RenderProperties);
+            hashCode = hashCode * -1521134295 + EqualityComparer<CharacterRenderProperties>.Default.GetHashCode(RenderProperties);
             hashCode = hashCode * -1521134295 + EqualityComparer<ICharacterStats>.Default.GetHashCode(Stats);
             hashCode = hashCode * -1521134295 + MapID.GetHashCode();
             hashCode = hashCode * -1521134295 + NoWall.GetHashCode();

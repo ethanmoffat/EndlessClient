@@ -129,10 +129,7 @@ namespace EOLib.PacketHandlers
                 var stats = characterToUpdate.Stats;
                 stats = stats.WithNewStat(CharacterStat.HP, (short)Math.Max(stats[CharacterStat.HP] - damageTaken, 0));
 
-                var props = characterToUpdate.RenderProperties;
-                if (isDead)
-                    props = props.WithDead();
-
+                var props = characterToUpdate.RenderProperties.WithIsDead(isDead);
                 _characterRepository.MainCharacter = characterToUpdate.WithStats(stats).WithRenderProperties(props);
 
                 foreach (var notifier in _mainCharacterNotifiers)

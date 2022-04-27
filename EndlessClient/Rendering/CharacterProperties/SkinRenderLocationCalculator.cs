@@ -8,9 +8,9 @@ namespace EndlessClient.Rendering.CharacterProperties
 {
     public class SkinRenderLocationCalculator
     {
-        private readonly ICharacterRenderProperties _renderProperties;
+        private readonly CharacterRenderProperties _renderProperties;
 
-        public SkinRenderLocationCalculator(ICharacterRenderProperties renderProperties)
+        public SkinRenderLocationCalculator(CharacterRenderProperties renderProperties)
         {
             _renderProperties = renderProperties;
         }
