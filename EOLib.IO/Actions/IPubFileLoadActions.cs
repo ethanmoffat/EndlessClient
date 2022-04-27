@@ -1,10 +1,12 @@
-﻿namespace EOLib.IO.Actions
+﻿using System.Collections.Generic;
+
+namespace EOLib.IO.Actions
 {
     public interface IPubFileLoadActions
     {
-        void LoadItemFile();
+        void LoadItemFile(IEnumerable<int> rangedWeaponIds);
 
-        void LoadItemFileByName(string fileName);
+        void LoadItemFileByName(string fileName, IEnumerable<int> rangedWeaponIds);
 
         void LoadNPCFile();
 

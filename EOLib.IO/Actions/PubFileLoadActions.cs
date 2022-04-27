@@ -2,6 +2,8 @@
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace EOLib.IO.Actions
 {
@@ -27,16 +29,16 @@ namespace EOLib.IO.Actions
             _classFileLoadService = classFileLoadService;
         }
 
-        public void LoadItemFile()
+        public void LoadItemFile(IEnumerable<int> rangedWeaponIds)
         {
             var itemFile = _itemFileLoadService.LoadPubFromDefaultFile();
-            _pubFileRepository.EIFFile = itemFile;
+            _pubFileRepository.EIFFile = OverrideRangedWeapons(itemFile, rangedWeaponIds);
         }
 
-        public void LoadItemFileByName(string fileName)
+        public void LoadItemFileByName(string fileName, IEnumerable<int> rangedWeaponIds)
         {
             var itemFile = _itemFileLoadService.LoadPubFromExplicitFile(fileName);
-            _pubFileRepository.EIFFile = itemFile;
+            _pubFileRepository.EIFFile = OverrideRangedWeapons(itemFile, rangedWeaponIds);
         }
 
         public void LoadNPCFile()
@@ -73,6 +75,17 @@ namespace EOLib.IO.Actions
         {
             var classFile = _classFileLoadService.LoadPubFromExplicitFile(fileName);
             _pubFileRepository.ECFFile = classFile;
+        }
+
+        private static IPubFile<EIFRecord> OverrideRangedWeapons(IPubFile<EIFRecord> inputFile, IEnumerable<int> rangedWeaponIds)
+        {
+            var rangedItemOverrides = inputFile.Where(x => x.Type == ItemType.Weapon && rangedWeaponIds.Contains(x.ID)).ToList();
+
+            var retFile = inputFile;
+            foreach (var item in rangedItemOverrides)
+                retFile = retFile.WithUpdatedRecord((EIFRecord)item.WithProperty(PubRecordProperty.ItemSubType, (int)ItemSubType.Ranged));
+
+            return retFile;
         }
     }
 }

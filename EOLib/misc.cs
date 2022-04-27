@@ -57,6 +57,8 @@ namespace EOLib
 
         // Item IDs of instruments (there is no pub flag for this)
         public static readonly int[] InstrumentIDs = { 349, 350 };
+        // Item IDs of ranged weapons (overrides pub value)
+        public static readonly int[] RangedWeaponIDs = { 365 };
 
         public const string FontSize07 = @"Fonts/InGame_Main_07";
         public const string FontSize08 = @"Fonts/InGame_Main_08";

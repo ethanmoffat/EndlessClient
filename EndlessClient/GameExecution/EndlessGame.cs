@@ -10,6 +10,7 @@ using EndlessClient.Rendering;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Test;
 using EndlessClient.UIControls;
+using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.IO;
@@ -159,7 +160,7 @@ namespace EndlessClient.GameExecution
 
             try
             {
-                _pubFileLoadActions.LoadItemFile();
+                _pubFileLoadActions.LoadItemFile(rangedWeaponIds: Constants.RangedWeaponIDs.Concat(Constants.InstrumentIDs));
             }
             catch (IOException ioe)
             {

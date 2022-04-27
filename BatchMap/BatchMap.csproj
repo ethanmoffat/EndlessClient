@@ -13,5 +13,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\EOLib.IO\EOLib.IO.csproj" />
+    <ProjectReference Include="..\EOLib\EOLib.csproj" />
   </ItemGroup>
 </Project>

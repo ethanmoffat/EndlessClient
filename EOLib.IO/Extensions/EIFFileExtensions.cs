@@ -20,12 +20,8 @@ namespace EOLib.IO.Extensions
 
         public static bool IsRangedWeapon(this IPubFile<EIFRecord> itemFile, short graphic)
         {
-            if (itemFile == null)
-                return false;
-
-            var weaponInfo = itemFile.FirstOrDefault(x => x.Type == ItemType.Weapon && x.DollGraphic == graphic);
-
-            return weaponInfo != null && (weaponInfo.Name == "Gun" || weaponInfo.SubType == ItemSubType.Ranged);
+            var weaponInfo = itemFile?.FirstOrDefault(x => x.Type == ItemType.Weapon && x.DollGraphic == graphic);
+            return weaponInfo?.SubType == ItemSubType.Ranged;
         }
     }
 }
