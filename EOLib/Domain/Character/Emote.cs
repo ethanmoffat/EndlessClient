@@ -21,6 +21,7 @@
         /// <summary>
         /// 0 key
         /// </summary>
-        Playful = 14
+        Playful = 14,
+        MusicNotes = 15,
     }
 }

@@ -16,7 +16,8 @@ namespace EndlessClient.Rendering.CharacterProperties
         public override bool CanRender => _renderProperties.IsActing(CharacterActionState.Emote) &&
                                           _renderProperties.EmoteFrame > 0 &&
                                           _renderProperties.Emote != Emote.Trade &&
-                                          _renderProperties.Emote != Emote.LevelUp;
+                                          _renderProperties.Emote != Emote.LevelUp &&
+                                          _renderProperties.Emote != Emote.MusicNotes;
 
         public FaceRenderer(ICharacterRenderProperties renderProperties,
                             ISpriteSheet faceSheet,

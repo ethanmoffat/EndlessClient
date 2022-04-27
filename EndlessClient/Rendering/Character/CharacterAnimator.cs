@@ -129,7 +129,7 @@ namespace EndlessClient.Rendering.Character
             _characterActions.Walk();
         }
 
-        public void StartMainCharacterAttackAnimation()
+        public void StartMainCharacterAttackAnimation(bool isBard = false)
         {
             if (_otherPlayerStartAttackingTimes.ContainsKey(_characterRepository.MainCharacter.ID))
             {
@@ -139,6 +139,13 @@ namespace EndlessClient.Rendering.Character
 
             var startAttackingTime = new RenderFrameActionTime(_characterRepository.MainCharacter.ID);
             _otherPlayerStartAttackingTimes.Add(_characterRepository.MainCharacter.ID, startAttackingTime);
+
+            if (isBard)
+            {
+                var rp = _characterRepository.MainCharacter.RenderProperties.WithEmote(EOLib.Domain.Character.Emote.MusicNotes);
+                _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithRenderProperties(rp);
+                _startEmoteTimes[_characterRepository.MainCharacter.ID] = new RenderFrameActionTime(_characterRepository.MainCharacter.ID);
+            }
         }
 
         public bool MainCharacterShoutSpellPrep(ESFRecord spellData, ISpellTargetable target)
@@ -176,7 +183,7 @@ namespace EndlessClient.Rendering.Character
             _otherPlayerStartWalkingTimes.Add(characterID, startWalkingTimeAndID);
         }
 
-        public void StartOtherCharacterAttackAnimation(int characterID)
+        public void StartOtherCharacterAttackAnimation(int characterID, bool isBard = false)
         {
             if (_otherPlayerStartAttackingTimes.TryGetValue(characterID, out var _))
             {
@@ -184,8 +191,15 @@ namespace EndlessClient.Rendering.Character
                 return;
             }
 
-            var startAttackingTimeAndID = new RenderFrameActionTime(characterID);
-            _otherPlayerStartAttackingTimes.Add(characterID, startAttackingTimeAndID);
+            var startAttackingTime = new RenderFrameActionTime(characterID);
+            _otherPlayerStartAttackingTimes.Add(characterID, startAttackingTime);
+
+            if (isBard && _currentMapStateRepository.Characters.TryGetValue(characterID, out var otherCharacter))
+            {
+                var rp = otherCharacter.RenderProperties.WithEmote(EOLib.Domain.Character.Emote.MusicNotes);
+                _currentMapStateRepository.Characters[characterID] = otherCharacter.WithRenderProperties(rp);
+                _startEmoteTimes[characterID] = new RenderFrameActionTime(characterID);
+            }
         }
 
         public void StartOtherCharacterSpellCast(int characterID)
@@ -547,7 +561,7 @@ namespace EndlessClient.Rendering.Character
 
         void StartMainCharacterWalkAnimation(Option<MapCoordinate> targetCoordinate);
 
-        void StartMainCharacterAttackAnimation();
+        void StartMainCharacterAttackAnimation(bool isBard = false);
 
         bool MainCharacterShoutSpellPrep(ESFRecord spellData, ISpellTargetable spellTarget);
 
@@ -555,7 +569,7 @@ namespace EndlessClient.Rendering.Character
 
         void StartOtherCharacterWalkAnimation(int characterID, byte targetX, byte targetY, EODirection direction);
 
-        void StartOtherCharacterAttackAnimation(int characterID);
+        void StartOtherCharacterAttackAnimation(int characterID, bool isBard = false);
 
         void StartOtherCharacterSpellCast(int characterID);
 

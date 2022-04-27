@@ -174,7 +174,11 @@ namespace EOLib.Domain.Character
         {
             var props = MakeCopy(this);
             props.EmoteFrame = (props.EmoteFrame + 1) % MAX_NUMBER_OF_EMOTE_FRAMES;
-            props.CurrentAction = props.EmoteFrame == 0 ? CharacterActionState.Standing : CharacterActionState.Emote;
+            props.CurrentAction = props.EmoteFrame == 0
+                ? CharacterActionState.Standing
+                : props.CurrentAction == CharacterActionState.Attacking // when using an instrument keep the current state as "Attacking"
+                    ? CharacterActionState.Attacking
+                    : CharacterActionState.Emote;
             return props;
         }
 

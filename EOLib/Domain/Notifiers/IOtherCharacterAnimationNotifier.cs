@@ -6,7 +6,7 @@ namespace EOLib.Domain.Notifiers
     {
         void StartOtherCharacterWalkAnimation(int characterID, byte destinationX, byte destinationY, EODirection direction);
 
-        void StartOtherCharacterAttackAnimation(int characterID);
+        void StartOtherCharacterAttackAnimation(int characterID, int noteIndex = -1);
 
         void NotifyStartSpellCast(short playerId, short spellId);
 
@@ -20,7 +20,7 @@ namespace EOLib.Domain.Notifiers
     {
         public void StartOtherCharacterWalkAnimation(int characterID, byte destinationX, byte destinationY, EODirection direction) { }
 
-        public void StartOtherCharacterAttackAnimation(int characterID) { }
+        public void StartOtherCharacterAttackAnimation(int characterID, int noteIndex = -1) { }
 
         public void NotifyStartSpellCast(short playerId, short spellId) { }
 
