@@ -53,7 +53,7 @@ namespace EndlessClient.HUD.Panels
         private readonly ScrollBar _scrollBar;
 
         private HashSet<IInventorySpell> _cachedSpells;
-        private ICharacterStats _cachedStats;
+        private CharacterStats _cachedStats;
         private Option<int> _cachedSelectedSpell;
 
         private bool _confirmedTraining;

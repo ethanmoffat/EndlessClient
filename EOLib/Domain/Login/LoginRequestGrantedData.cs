@@ -31,7 +31,7 @@ namespace EOLib.Domain.Login
         public string GuildTag { get; private set; }
         public AdminLevel AdminLevel { get; private set; }
 
-        public ICharacterStats CharacterStats { get; private set; }
+        public CharacterStats CharacterStats { get; private set; }
 
         private IReadOnlyDictionary<EquipLocation, short> _paperdoll = new Dictionary<EquipLocation, short>();
         public IReadOnlyDictionary<EquipLocation, short> Paperdoll => _paperdoll;
@@ -180,7 +180,7 @@ namespace EOLib.Domain.Login
             return copy;
         }
 
-        public ILoginRequestGrantedData WithCharacterStats(ICharacterStats stats)
+        public ILoginRequestGrantedData WithCharacterStats(CharacterStats stats)
         {
             var copy = MakeCopy(this);
             copy.CharacterStats = stats;

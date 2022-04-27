@@ -31,7 +31,7 @@ namespace EOLib.Domain.Login
         string GuildTag { get; }
         AdminLevel AdminLevel { get; }
 
-        ICharacterStats CharacterStats { get; }
+        CharacterStats CharacterStats { get; }
 
         IReadOnlyDictionary<EquipLocation, short> Paperdoll { get; }
 
@@ -59,7 +59,7 @@ namespace EOLib.Domain.Login
         ILoginRequestGrantedData WithClassId(byte classID);
         ILoginRequestGrantedData WithGuildTag(string guildTag);
         ILoginRequestGrantedData WithAdminLevel(AdminLevel adminLevel);
-        ILoginRequestGrantedData WithCharacterStats(ICharacterStats stats);
+        ILoginRequestGrantedData WithCharacterStats(CharacterStats stats);
         ILoginRequestGrantedData WithPaperdoll(IReadOnlyDictionary<EquipLocation, short> paperdoll);
         ILoginRequestGrantedData WithGuildRankNum(byte rankNum);
         ILoginRequestGrantedData WithJailMap(short jailMapID);

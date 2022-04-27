@@ -19,7 +19,7 @@ namespace EOLib.Domain.Character
 
         CharacterRenderProperties RenderProperties { get; }
 
-        ICharacterStats Stats { get; }
+        CharacterStats Stats { get; }
 
         AdminLevel AdminLevel { get; }
 
@@ -43,7 +43,7 @@ namespace EOLib.Domain.Character
 
         ICharacter WithRenderProperties(CharacterRenderProperties renderProperties);
 
-        ICharacter WithStats(ICharacterStats stats);
+        ICharacter WithStats(CharacterStats stats);
 
         ICharacter WithAdminLevel(AdminLevel level);
 

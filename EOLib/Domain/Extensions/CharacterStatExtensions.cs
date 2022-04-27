@@ -4,7 +4,7 @@ namespace EOLib.Domain.Extensions
 {
     public static class CharacterStatExtensions
     {
-        public static string GetKarmaString(this ICharacterStats characterStats)
+        public static string GetKarmaString(this CharacterStats characterStats)
         {
             /* 0    - 100  = Demonic
              * 101  - 500  = Doomed

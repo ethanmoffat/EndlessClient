@@ -33,7 +33,7 @@ namespace EndlessClient.HUD.Panels
                           GOLD = 4, EXP = 5, TNL = 6, KARMA = 7;
         private readonly IXNALabel[] _otherInfo;
 
-        private ICharacterStats _lastCharacterStats;
+        private CharacterStats _lastCharacterStats;
         private IInventoryItem _lastCharacterGold;
         private bool _confirmedTraining;
 
