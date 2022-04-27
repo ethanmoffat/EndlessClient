@@ -34,7 +34,7 @@ namespace EOLib.Net.Translators
                 throw new MalformedPacketException("Missing final 255 byte after characters loop", packet);
         }
 
-        protected IEnumerable<INPC> GetNPCs(IPacket packet)
+        protected IEnumerable<NPC> GetNPCs(IPacket packet)
         {
             while (packet.PeekByte() != 255)
             {
@@ -44,10 +44,14 @@ namespace EOLib.Net.Translators
                 var y = packet.ReadChar();
                 var direction = (EODirection) packet.ReadChar();
 
-                yield return new NPC(id, index)
-                    .WithX(x)
-                    .WithY(y)
-                    .WithDirection(direction);
+                yield return new NPC.Builder()
+                {
+                    ID = id,
+                    Index = index,
+                    X = x,
+                    Y = y,
+                    Direction = direction,
+                }.ToImmutable();
             }
 
             packet.ReadByte(); //consume the tail 255 byte that broke loop iteration

@@ -20,7 +20,7 @@ namespace EOLib.Domain.Login
 
         IReadOnlyList<ICharacter> MapCharacters { get; }
 
-        IReadOnlyList<INPC> MapNPCs { get; }
+        IReadOnlyList<NPC.NPC> MapNPCs { get; }
 
         IReadOnlyList<IItem> MapItems { get; }
 
@@ -38,7 +38,7 @@ namespace EOLib.Domain.Login
 
         ILoginRequestCompletedData WithCharacters(IEnumerable<ICharacter> characters);
 
-        ILoginRequestCompletedData WithNPCs(IEnumerable<INPC> npcs);
+        ILoginRequestCompletedData WithNPCs(IEnumerable<NPC.NPC> npcs);
 
         ILoginRequestCompletedData WithItems(IEnumerable<IItem> items);
 

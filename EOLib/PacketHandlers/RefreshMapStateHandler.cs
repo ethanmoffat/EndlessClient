@@ -54,7 +54,7 @@ namespace EOLib.PacketHandlers
                 .WithRenderProperties(updatedRenderProperties);
 
             _currentMapStateRepository.Characters = data.Characters.ToDictionary(k => k.ID, v => v);
-            _currentMapStateRepository.NPCs = new HashSet<INPC>(data.NPCs);
+            _currentMapStateRepository.NPCs = new HashSet<NPC>(data.NPCs);
             _currentMapStateRepository.MapItems = new HashSet<IItem>(data.Items);
 
             _currentMapStateRepository.OpenDoors.Clear();

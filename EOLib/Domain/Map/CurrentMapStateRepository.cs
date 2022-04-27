@@ -1,7 +1,6 @@
-using System.Collections.Generic;
 using AutomaticTypeMapper;
 using EOLib.Domain.Character;
-using EOLib.Domain.NPC;
+using System.Collections.Generic;
 
 namespace EOLib.Domain.Map
 {
@@ -15,7 +14,7 @@ namespace EOLib.Domain.Map
 
         Dictionary<int, ICharacter> Characters { get; set; }
 
-        HashSet<INPC> NPCs { get; set; }
+        HashSet<NPC.NPC> NPCs { get; set; }
 
         HashSet<IItem> MapItems { get; set; }
 
@@ -42,7 +41,7 @@ namespace EOLib.Domain.Map
 
         IReadOnlyDictionary<int, ICharacter> Characters { get; }
 
-        IReadOnlyCollection<INPC> NPCs { get; }
+        IReadOnlyCollection<NPC.NPC> NPCs { get; }
 
         IReadOnlyCollection<IItem> MapItems { get; }
 
@@ -70,7 +69,7 @@ namespace EOLib.Domain.Map
 
         public Dictionary<int, ICharacter> Characters { get; set; }
 
-        public HashSet<INPC> NPCs { get; set; }
+        public HashSet<NPC.NPC> NPCs { get; set; }
 
         public HashSet<IItem> MapItems { get; set; }
 
@@ -88,7 +87,7 @@ namespace EOLib.Domain.Map
 
         IReadOnlyDictionary<int, ICharacter> ICurrentMapStateProvider.Characters => Characters;
 
-        IReadOnlyCollection<INPC> ICurrentMapStateProvider.NPCs => NPCs;
+        IReadOnlyCollection<NPC.NPC> ICurrentMapStateProvider.NPCs => NPCs;
 
         IReadOnlyCollection<IItem> ICurrentMapStateProvider.MapItems => MapItems;
 
@@ -110,7 +109,7 @@ namespace EOLib.Domain.Map
             JailMapID = 0;
 
             Characters = new Dictionary<int, ICharacter>();
-            NPCs = new HashSet<INPC>();
+            NPCs = new HashSet<NPC.NPC>();
             MapItems = new HashSet<IItem>();
             OpenDoors = new HashSet<IWarp>();
             PendingDoors = new HashSet<IWarp>();

@@ -77,7 +77,7 @@ namespace EOLib.PacketHandlers
             try
             {
                 var npc = _currentMapStateRepository.NPCs.Single(x => x.Index == npcIndex);
-                var newNpc = npc.WithOpponentID(fromPlayerId);
+                var newNpc = npc.WithOpponentID(Option.Some(fromPlayerId));
                 _currentMapStateRepository.NPCs.Remove(npc);
                 _currentMapStateRepository.NPCs.Add(newNpc);
                 foreach (var notifier in _npcNotifiers)

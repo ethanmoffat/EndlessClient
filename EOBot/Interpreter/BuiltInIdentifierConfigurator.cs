@@ -269,7 +269,7 @@ namespace EOBot.Interpreter
             return charObj;
         }
 
-        private IVariable GetMapStateNPC(INPC npc)
+        private IVariable GetMapStateNPC(NPC npc)
         {
             var npcFile = DependencyMaster.TypeRegistry[_botIndex].Resolve<IPubFileProvider>().ENFFile;
 

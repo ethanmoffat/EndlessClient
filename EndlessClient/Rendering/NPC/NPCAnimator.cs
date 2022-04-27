@@ -116,7 +116,7 @@ namespace EndlessClient.Rendering.NPC
             _npcStartAttackingTimes.RemoveAll(npcsDoneAttacking.Contains);
         }
 
-        private static INPC AnimateOneWalkFrame(INPC npc)
+        private static EOLib.Domain.NPC.NPC AnimateOneWalkFrame(EOLib.Domain.NPC.NPC npc)
         {
             var nextFrameNPC = npc.WithNextWalkFrame();
 

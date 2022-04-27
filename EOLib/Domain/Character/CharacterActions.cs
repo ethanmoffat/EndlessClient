@@ -133,7 +133,7 @@ namespace EOLib.Domain.Character
             }
             else
             {
-                var spellTargetType = target is INPC
+                var spellTargetType = target is NPC.NPC
                     ? SpellTargetType.NPC
                     : target is ICharacter
                         ? SpellTargetType.Player

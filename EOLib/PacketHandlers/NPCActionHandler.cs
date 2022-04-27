@@ -64,7 +64,7 @@ namespace EOLib.PacketHandlers
             }
 
             var index = packet.ReadChar();
-            INPC npc;
+            NPC npc;
             try
             {
                 npc = _currentMapStateRepository.NPCs.Single(n => n.Index == index);
@@ -75,7 +75,7 @@ namespace EOLib.PacketHandlers
                 return true;
             }
 
-            var updatedNpc = Option.None<INPC>();
+            var updatedNpc = Option.None<NPC>();
             switch (num255s)
             {
                 case NPC_WALK_ACTION: HandleNPCWalk(packet, npc); break;
@@ -93,7 +93,7 @@ namespace EOLib.PacketHandlers
             return true;
         }
 
-        private void HandleNPCWalk(IPacket packet, INPC npc)
+        private void HandleNPCWalk(IPacket packet, NPC npc)
         {
             //npc remove from view sets x/y to either 0,0 or 252,252 based on target coords
             var x = packet.ReadChar();
@@ -112,7 +112,7 @@ namespace EOLib.PacketHandlers
                 notifier.StartNPCWalkAnimation(npc.Index);
         }
 
-        private INPC HandleNPCAttack(IPacket packet, INPC npc)
+        private NPC HandleNPCAttack(IPacket packet, NPC npc)
         {
             var isDead = packet.ReadChar() == 2; //2 if target player is dead, 1 if alive
             var npcDirection = (EODirection)packet.ReadChar();
@@ -157,7 +157,7 @@ namespace EOLib.PacketHandlers
             return npc.WithDirection(npcDirection);
         }
 
-        private void HandleNPCTalk(IPacket packet, INPC npc)
+        private void HandleNPCTalk(IPacket packet, NPC npc)
         {
             var messageLength = packet.ReadChar();
             var message = packet.ReadString(messageLength);
@@ -171,7 +171,7 @@ namespace EOLib.PacketHandlers
                 notifier.ShowNPCSpeechBubble(npc.Index, message);
         }
 
-        private static INPC EnsureCorrectXAndY(INPC npc, byte destinationX, byte destinationY)
+        private static NPC EnsureCorrectXAndY(NPC npc, byte destinationX, byte destinationY)
         {
             var opposite = npc.Direction.Opposite();
             var tempNPC = npc

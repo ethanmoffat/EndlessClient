@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using EOLib.Domain.Character;
-using EOLib.Domain.NPC;
+﻿using EOLib.Domain.Character;
 using EOLib.IO.Map;
 using Optional;
+using System.Collections.Generic;
 
 namespace EOLib.Domain.Map
 {
@@ -16,7 +15,7 @@ namespace EOLib.Domain.Map
 
         public TileSpec TileSpec { get; set; }
 
-        public Option<INPC> NPC { get; set; }
+        public Option<NPC.NPC> NPC { get; set; }
 
         public Option<ICharacter> Character { get; set; }
 
@@ -31,7 +30,7 @@ namespace EOLib.Domain.Map
             Coordinate = new MapCoordinate(0, 0);
             Items = new List<IItem>();
             TileSpec = TileSpec.None;
-            NPC = Option.None<INPC>();
+            NPC = Option.None<NPC.NPC>();
             Character = Option.None<ICharacter>();
             ChestKey = Option.None<ChestKey>();
             Warp = Option.None<IWarp>();

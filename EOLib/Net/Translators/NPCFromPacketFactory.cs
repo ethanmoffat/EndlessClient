@@ -6,7 +6,7 @@ namespace EOLib.Net.Translators
     [AutoMappedType]
     public class NPCFromPacketFactory : INPCFromPacketFactory
     {
-        public INPC CreateNPC(IPacket packet)
+        public NPC CreateNPC(IPacket packet)
         {
             var index = packet.ReadChar();
             var id = packet.ReadShort();
@@ -14,14 +14,21 @@ namespace EOLib.Net.Translators
             var y = packet.ReadChar();
             var direction = (EODirection)packet.ReadChar();
 
-            INPC npc = new NPC(id, index);
-            npc = npc.WithX(x).WithY(y).WithDirection(direction).WithFrame(NPCFrame.Standing);
-            return npc;
+            var npc = new NPC.Builder()
+            {
+                ID = id,
+                Index = index,
+                X = x,
+                Y = y,
+                Direction = direction,
+                Frame = NPCFrame.Standing,
+            };
+            return npc.ToImmutable();
         }
     }
 
     public interface INPCFromPacketFactory
     {
-        INPC CreateNPC(IPacket packet);
+        NPC CreateNPC(IPacket packet);
     }
 }

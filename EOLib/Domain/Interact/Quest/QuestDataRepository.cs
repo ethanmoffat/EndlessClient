@@ -7,7 +7,7 @@ namespace EOLib.Domain.Interact.Quest
 {
     public interface IQuestDataRepository : IResettable
     {
-        INPC RequestedNPC { get; set; }
+        NPC.NPC RequestedNPC { get; set; }
 
         Option<IQuestDialogData> QuestDialogData { get; set; }
 
@@ -18,7 +18,7 @@ namespace EOLib.Domain.Interact.Quest
 
     public interface IQuestDataProvider : IResettable
     {
-        INPC RequestedNPC { get; }
+        NPC.NPC RequestedNPC { get; }
 
         Option<IQuestDialogData> QuestDialogData { get; }
 
@@ -30,7 +30,7 @@ namespace EOLib.Domain.Interact.Quest
     [AutoMappedType(IsSingleton = true)]
     public class QuestDataRepository : IQuestDataProvider, IQuestDataRepository
     {
-        public INPC RequestedNPC { get; set; }
+        public NPC.NPC RequestedNPC { get; set; }
 
         public Option<IQuestDialogData> QuestDialogData { get; set; }
 

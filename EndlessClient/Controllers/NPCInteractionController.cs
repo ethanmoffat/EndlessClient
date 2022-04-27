@@ -36,7 +36,7 @@ namespace EndlessClient.Controllers
             _userInputRepository = userInputRepository;
         }
 
-        public void ShowNPCDialog(INPC npc)
+        public void ShowNPCDialog(NPC npc)
         {
             if (_activeDialogProvider.ActiveDialogs.Any(x => x.HasValue))
                 return;
@@ -74,6 +74,6 @@ namespace EndlessClient.Controllers
 
     public interface INPCInteractionController
     {
-        void ShowNPCDialog(INPC npc);
+        void ShowNPCDialog(NPC npc);
     }
 }

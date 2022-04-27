@@ -62,7 +62,7 @@ namespace EOLib.Domain.Map
                 : character.RenderProperties.MapX == x && character.RenderProperties.MapY == y;
         }
 
-        private static bool NPCAtCoordinates(INPC npc, int x, int y)
+        private static bool NPCAtCoordinates(NPC.NPC npc, int x, int y)
         {
             return npc.IsActing(NPCActionState.Walking)
                 ? npc.GetDestinationX() == x && npc.GetDestinationY() == y

@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
-using EOLib.Domain.NPC;
 
 namespace EOLib.Domain.Login
 {
@@ -21,7 +19,7 @@ namespace EOLib.Domain.Login
 
         public IReadOnlyList<ICharacter> MapCharacters { get; private set; }
 
-        public IReadOnlyList<INPC> MapNPCs { get; private set; }
+        public IReadOnlyList<NPC.NPC> MapNPCs { get; private set; }
 
         public IReadOnlyList<IItem> MapItems { get; private set; }
 
@@ -69,7 +67,7 @@ namespace EOLib.Domain.Login
             return copy;
         }
 
-        public ILoginRequestCompletedData WithNPCs(IEnumerable<INPC> npcs)
+        public ILoginRequestCompletedData WithNPCs(IEnumerable<NPC.NPC> npcs)
         {
             var copy = MakeCopy(this);
             copy.MapNPCs = npcs.ToList();

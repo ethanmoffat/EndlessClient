@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using EOLib.Domain.Character;
-using EOLib.Domain.NPC;
+﻿using EOLib.Domain.Character;
 using EOLib.IO.Map;
 using Optional;
+using System.Collections.Generic;
 
 namespace EOLib.Domain.Map
 {
@@ -16,7 +15,7 @@ namespace EOLib.Domain.Map
 
         TileSpec TileSpec { get; }
 
-        Option<INPC> NPC { get; }
+        Option<NPC.NPC> NPC { get; }
 
         Option<ICharacter> Character { get; }
         

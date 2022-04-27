@@ -46,7 +46,7 @@ namespace EOLib.Domain.Spells
 
             var spellData = _pubFileProvider.ESFFile[spellId];
 
-            if (spellTarget is INPC)
+            if (spellTarget is NPC.NPC)
             {
                 if (spellData.TargetRestrict == SpellTargetRestrict.Friendly ||
                     spellData.Target != SpellTarget.Normal ||

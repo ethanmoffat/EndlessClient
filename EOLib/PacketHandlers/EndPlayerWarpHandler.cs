@@ -68,7 +68,7 @@ namespace EOLib.PacketHandlers
 
             _currentMapStateRepository.CurrentMapID = warpAgreePacketData.MapID;
             _currentMapStateRepository.Characters = warpAgreePacketData.Characters.ToDictionary(k => k.ID, v => v);
-            _currentMapStateRepository.NPCs = new HashSet<INPC>(warpAgreePacketData.NPCs);
+            _currentMapStateRepository.NPCs = new HashSet<NPC>(warpAgreePacketData.NPCs);
             _currentMapStateRepository.MapItems = new HashSet<IItem>(warpAgreePacketData.Items);
             _currentMapStateRepository.OpenDoors.Clear();
             _currentMapStateRepository.VisibleSpikeTraps.Clear();

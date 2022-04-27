@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using EndlessClient.Controllers;
+﻿using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Spells;
 using EndlessClient.Input;
@@ -18,6 +16,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Optional;
+using System;
+using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Rendering.NPC
@@ -63,7 +63,7 @@ namespace EndlessClient.Rendering.NPC
 
         public Rectangle MapProjectedDrawArea { get; private set; }
 
-        public INPC NPC { get; set; }
+        public EOLib.Domain.NPC.NPC NPC { get; set; }
 
         public bool IsDead { get; private set; }
 
@@ -81,7 +81,7 @@ namespace EndlessClient.Rendering.NPC
                            IMapInteractionController mapInteractionController,
                            IUserInputProvider userInputProvider,
                            ISpellSlotDataProvider spellSlotDataProvider,
-                           INPC initialNPC)
+                           EOLib.Domain.NPC.NPC initialNPC)
             : base((Game)endlessGameProvider.Game)
         {
             NPC = initialNPC;
