@@ -12,8 +12,7 @@ namespace EndlessClient.Rendering.CharacterProperties
         private readonly ISpriteSheet _skinSheet;
         private readonly SkinRenderLocationCalculator _skinRenderLocationCalculator;
 
-        public override bool CanRender => _renderProperties.IsActing(CharacterActionState.Emote) &&
-                                 _renderProperties.EmoteFrame > 0;
+        public override bool CanRender => _renderProperties.EmoteFrame > 0;
 
         protected override bool ShouldFlip => false;
 

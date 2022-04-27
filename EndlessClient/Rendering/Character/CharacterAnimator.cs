@@ -184,8 +184,8 @@ namespace EndlessClient.Rendering.Character
                 return;
             }
 
-            var startAttackingTimeAndID = new RenderFrameActionTime(characterID);
-            _otherPlayerStartAttackingTimes.Add(characterID, startAttackingTimeAndID);
+            var startAttackingTime = new RenderFrameActionTime(characterID);
+            _otherPlayerStartAttackingTimes.Add(characterID, startAttackingTime);
         }
 
         public void StartOtherCharacterSpellCast(int characterID)

@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Dialogs.Actions;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Panels;
 using EndlessClient.HUD.Spells;
@@ -21,6 +22,7 @@ namespace EndlessClient.Controllers
         private readonly ISpellSelectActions _spellSelectActions;
         private readonly ICharacterAnimationActions _characterAnimationActions;
         private readonly ISpellCastValidationActions _spellCastValidationActions;
+        private readonly IInGameDialogActions _inGameDialogActions;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly ICharacterProvider _characterProvider;
         private readonly IESFFileProvider _esfFileProvider;
@@ -31,6 +33,7 @@ namespace EndlessClient.Controllers
                                      ISpellSelectActions spellSelectActions,
                                      ICharacterAnimationActions characterAnimationActions,
                                      ISpellCastValidationActions spellCastValidationActions,
+                                     IInGameDialogActions inGameDialogActions,
                                      IStatusLabelSetter statusLabelSetter,
                                      ICharacterProvider characterProvider,
                                      IESFFileProvider esfFileProvider,
@@ -41,6 +44,7 @@ namespace EndlessClient.Controllers
             _spellSelectActions = spellSelectActions;
             _characterAnimationActions = characterAnimationActions;
             _spellCastValidationActions = spellCastValidationActions;
+            _inGameDialogActions = inGameDialogActions;
             _statusLabelSetter = statusLabelSetter;
             _characterProvider = characterProvider;
             _esfFileProvider = esfFileProvider;
@@ -56,7 +60,11 @@ namespace EndlessClient.Controllers
                 _spellSlotDataProvider.SelectedSpellInfo.MatchSome(x =>
                 {
                     var spellData = _esfFileProvider.ESFFile[x.ID];
-                    if (spellData.Target == SpellTarget.Self || spellData.Target == SpellTarget.Group)
+                    if (spellData.Type == SpellType.Bard && _spellCastValidationActions.ValidateBard())
+                    {
+                        _inGameDialogActions.ShowBardDialog();
+                    }
+                    else if (spellData.Target == SpellTarget.Self || spellData.Target == SpellTarget.Group)
                     {
                         var castResult = _spellCastValidationActions.ValidateSpellCast(x.ID);
 

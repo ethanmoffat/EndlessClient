@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using AutomaticTypeMapper;
+using EOLib;
 using EOLib.IO.Actions;
 using EOLib.IO.Map;
 using EOLib.IO.Repositories;
@@ -101,7 +103,7 @@ namespace BatchMap
             {
                 var actions = _typeRegistry.Resolve<IPubFileLoadActions>();
 
-                actions.LoadItemFileByName(Path.Combine(pubFilePath, "dat001.eif"));
+                actions.LoadItemFileByName(Path.Combine(pubFilePath, "dat001.eif"), rangedWeaponIds: Constants.RangedWeaponIDs.Concat(Constants.InstrumentIDs));
                 actions.LoadNPCFileByName(Path.Combine(pubFilePath, "dtn001.enf"));
             }
             catch

@@ -1,6 +1,4 @@
 ﻿using AutomaticTypeMapper;
-using EndlessClient.ControlSets;
-using EndlessClient.HUD.Controls;
 using EndlessClient.Rendering.Character;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
@@ -11,31 +9,25 @@ namespace EndlessClient.Controllers
     public class NumPadController : INumPadController
     {
         private readonly ICharacterActions _characterActions;
-        private readonly IHudControlProvider _hudControlProvider;
-        private readonly ICharacterRendererProvider _characterRendererProvider;
+        private readonly ICharacterAnimationActions _characterAnimationActions;
+        private readonly ICharacterProvider _characterProvider;
 
         public NumPadController(ICharacterActions characterActions,
-                                IHudControlProvider hudControlProvider,
-                                ICharacterRendererProvider characterRendererProvider)
+                                ICharacterAnimationActions characterAnimationActions,
+                                ICharacterProvider characterProvider)
         {
             _characterActions = characterActions;
-            _hudControlProvider = hudControlProvider;
-            _characterRendererProvider = characterRendererProvider;
+            _characterAnimationActions = characterAnimationActions;
+            _characterProvider = characterProvider;
         }
 
         public void Emote(Emote whichEmote)
         {
-            var mainRenderer = _characterRendererProvider.MainCharacterRenderer;
-            mainRenderer.MatchSome(renderer =>
-            {
-                if (!renderer.Character.RenderProperties.IsActing(CharacterActionState.Standing))
-                    return;
+            if (!_characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Standing))
+                return;
 
-                _characterActions.Emote(whichEmote);
-
-                var animator = _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator);
-                animator.Emote(renderer.Character.ID, whichEmote);
-            });
+            _characterActions.Emote(whichEmote);
+            _characterAnimationActions.Emote(whichEmote);
         }
     }
 

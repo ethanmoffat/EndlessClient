@@ -15,6 +15,7 @@
         Drunk = 10,
         Trade = 11,
         LevelUp = 12,
-        Playful = 13
+        Playful = 13,
+        MusicNotes = 14,
     }
 }

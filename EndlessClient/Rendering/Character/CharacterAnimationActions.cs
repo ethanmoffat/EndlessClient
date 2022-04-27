@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Controls;
@@ -9,10 +10,13 @@ using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.Domain.Spells;
+using EOLib.IO;
 using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
 using Optional;
+using Optional.Collections;
+using System.Linq;
 
 namespace EndlessClient.Rendering.Character
 {
@@ -25,8 +29,9 @@ namespace EndlessClient.Rendering.Character
         private readonly ICharacterRendererProvider _characterRendererProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly ISpikeTrapActions _spikeTrapActions;
-        private readonly IESFFileProvider _esfFileProvider;
+        private readonly IPubFileProvider _pubFileProvider;
         private readonly IStatusLabelSetter _statusLabelSetter;
+        private readonly ISfxPlayer _sfxPlayer;
 
         public CharacterAnimationActions(IHudControlProvider hudControlProvider,
                                          ICharacterRepository characterRepository,
@@ -34,8 +39,9 @@ namespace EndlessClient.Rendering.Character
                                          ICharacterRendererProvider characterRendererProvider,
                                          ICurrentMapProvider currentMapProvider,
                                          ISpikeTrapActions spikeTrapActions,
-                                         IESFFileProvider esfFileProvider,
-                                         IStatusLabelSetter statusLabelSetter)
+                                         IPubFileProvider pubFileProvider,
+                                         IStatusLabelSetter statusLabelSetter,
+                                         ISfxPlayer sfxPlayer)
         {
             _hudControlProvider = hudControlProvider;
             _characterRepository = characterRepository;
@@ -43,8 +49,9 @@ namespace EndlessClient.Rendering.Character
             _characterRendererProvider = characterRendererProvider;
             _currentMapProvider = currentMapProvider;
             _spikeTrapActions = spikeTrapActions;
-            _esfFileProvider = esfFileProvider;
+            _pubFileProvider = pubFileProvider;
             _statusLabelSetter = statusLabelSetter;
+            _sfxPlayer = sfxPlayer;
         }
 
         public void Face(EODirection direction)
@@ -66,14 +73,19 @@ namespace EndlessClient.Rendering.Character
             ShowWaterSplashiesIfNeeded(CharacterActionState.Walking, _characterRepository.MainCharacter.ID);
         }
 
-        public void StartAttacking()
+        public void StartAttacking(int noteIndex = -1)
         {
             if (!_hudControlProvider.IsInGame)
                 return;
 
             CancelSpellPrep();
+
+            if (noteIndex >= 0)
+                Animator.Emote(_characterRepository.MainCharacter.ID, EOLib.Domain.Character.Emote.MusicNotes);
             Animator.StartMainCharacterAttackAnimation();
             ShowWaterSplashiesIfNeeded(CharacterActionState.Attacking, _characterRepository.MainCharacter.ID);
+
+            PlayWeaponSound(_characterRepository.MainCharacter, noteIndex);
         }
 
         public bool PrepareMainCharacterSpell(int spellId, ISpellTargetable spellTarget)
@@ -81,9 +93,17 @@ namespace EndlessClient.Rendering.Character
             if (!_hudControlProvider.IsInGame)
                 return false;
 
-            var spellData = _esfFileProvider.ESFFile[spellId];
+            var spellData = _pubFileProvider.ESFFile[spellId];
             _characterRendererProvider.MainCharacterRenderer.MatchSome(r => r.ShoutSpellPrep(spellData.Shout));
             return Animator.MainCharacterShoutSpellPrep(spellData, spellTarget);
+        }
+
+        public void Emote(Emote whichEmote)
+        {
+            if (!_hudControlProvider.IsInGame)
+                return;
+
+            Animator.Emote(_characterRepository.MainCharacter.ID, whichEmote);
         }
 
         public void StartOtherCharacterWalkAnimation(int characterID, byte destinationX, byte destinationY, EODirection direction)
@@ -98,13 +118,19 @@ namespace EndlessClient.Rendering.Character
             _spikeTrapActions.ShowSpikeTrap(characterID);
         }
 
-        public void StartOtherCharacterAttackAnimation(int characterID)
+        public void StartOtherCharacterAttackAnimation(int characterID, int noteIndex = -1)
         {
             if (!_hudControlProvider.IsInGame)
                 return;
 
+            if (noteIndex >= 0)
+                Animator.Emote(characterID, EOLib.Domain.Character.Emote.MusicNotes);
+
             Animator.StartOtherCharacterAttackAnimation(characterID);
             ShowWaterSplashiesIfNeeded(CharacterActionState.Attacking, characterID);
+
+            if (_currentMapStateProvider.Characters.ContainsKey(characterID))
+                PlayWeaponSound(_currentMapStateProvider.Characters[characterID], noteIndex);
         }
 
         public void NotifyWarpLeaveEffect(short characterId, WarpAnimation anim)
@@ -134,13 +160,13 @@ namespace EndlessClient.Rendering.Character
 
         public void NotifyStartSpellCast(short playerId, short spellId)
         {
-            var shoutName = _esfFileProvider.ESFFile[spellId].Shout;
+            var shoutName = _pubFileProvider.ESFFile[spellId].Shout;
             _characterRendererProvider.CharacterRenderers[playerId].ShoutSpellPrep(shoutName.ToLower());
         }
 
         public void NotifySelfSpellCast(short playerId, short spellId, int spellHp, byte percentHealth)
         {
-            var spellGraphic = _esfFileProvider.ESFFile[spellId].Graphic;
+            var spellGraphic = _pubFileProvider.ESFFile[spellId].Graphic;
 
             if (playerId == _characterRepository.MainCharacter.ID)
             { 
@@ -172,7 +198,7 @@ namespace EndlessClient.Rendering.Character
                 _characterRendererProvider.CharacterRenderers[sourcePlayerID].ShoutSpellCast();
             }
 
-            var spellData = _esfFileProvider.ESFFile[spellId];
+            var spellData = _pubFileProvider.ESFFile[spellId];
 
             if (targetPlayerID == _characterRepository.MainCharacter.ID)
             {
@@ -246,6 +272,25 @@ namespace EndlessClient.Rendering.Character
             _characterRendererProvider.MainCharacterRenderer.MatchSome(r => r.StopShout());
         }
 
+        private void PlayWeaponSound(ICharacter character, int noteIndex = -1)
+        {
+            _pubFileProvider.EIFFile.SingleOrNone(x => x.Type == ItemType.Weapon && x.DollGraphic == character.RenderProperties.WeaponGraphic)
+                .MatchSome(x =>
+                {
+                    var ndx = Constants.InstrumentIDs.ToList().FindIndex(y => y == x.ID);
+
+                    if (ndx >= 0 && (noteIndex < 0 || noteIndex >= 36))
+                        return;
+
+                    switch (ndx)
+                    {
+                        case 0: _sfxPlayer.PlayHarpNote(noteIndex); break;
+                        case 1: _sfxPlayer.PlayGuitarNote(noteIndex); break;
+                        default: break; // todo: melee/bow/gun sounds
+                    }
+                });
+        }
+
         private ICharacterAnimator Animator => _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator);
     }
 
@@ -255,8 +300,10 @@ namespace EndlessClient.Rendering.Character
 
         void StartWalking();
 
-        void StartAttacking();
+        void StartAttacking(int noteIndex = -1);
 
         bool PrepareMainCharacterSpell(int spellId, ISpellTargetable spellTarget);
+
+        void Emote(Emote whichEmote);
     }
 }

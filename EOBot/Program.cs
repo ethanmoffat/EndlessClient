@@ -158,7 +158,7 @@ namespace EOBot
 
             public void NotifyStartSpellCast(short playerId, short spellId) { }
             public void NotifyTargetOtherSpellCast(short sourcePlayerID, short targetPlayerID, short spellId, int recoveredHP, byte targetPercentHealth) { }
-            public void StartOtherCharacterAttackAnimation(int characterID) { }
+            public void StartOtherCharacterAttackAnimation(int characterID, int noteIndex) { }
             public void StartOtherCharacterWalkAnimation(int characterID, byte destinationX, byte destinationY, EODirection direction) { }
         }
 
