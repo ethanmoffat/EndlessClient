@@ -20,6 +20,8 @@ namespace EndlessClient.Dialogs
         private Vector2 _highlightDrawPosition;
         private Option<Rectangle> _highlightSource;
 
+        private ulong _currentTick;
+
         public BardDialog(INativeGraphicsManager nativeGraphicsManager,
                           IBardController bardController,
                           IEODialogButtonService dialogButtonService)
@@ -43,6 +45,8 @@ namespace EndlessClient.Dialogs
 
         protected override void OnUpdateControl(GameTime gameTime)
         {
+            _currentTick++;
+
             var relativeMousePosition = CurrentMouseState.Position.ToVector2() - DrawPositionWithParentOffset;
             if (_noteRectangleArea.Contains(relativeMousePosition))
             {
@@ -53,10 +57,11 @@ namespace EndlessClient.Dialogs
                 _highlightDrawPosition = highlightDrawPosition + DrawPositionWithParentOffset + _noteRectangleArea.Location.ToVector2();
                 _highlightSource = Option.Some(new Rectangle(highlightDrawPosition.ToPoint(), new Point(20, 20)));
 
-                if (PreviousMouseState.LeftButton == ButtonState.Pressed && CurrentMouseState.LeftButton == ButtonState.Released)
+                if (PreviousMouseState.LeftButton == ButtonState.Pressed && CurrentMouseState.LeftButton == ButtonState.Released && _currentTick > 8)
                 {
                     var noteIndex = (int)Math.Floor(highlightDrawPosition.X / 20 + (12 * (highlightDrawPosition.Y / 20)));
                     _bardController.PlayInstrumentNote(noteIndex);
+                    _currentTick = 0;
                 }
             }
             else
