@@ -319,9 +319,12 @@ namespace EndlessClient.Rendering.Character
 
         private void SetScreenCoordinates(int xPosition, int yPosition)
         {
-            // size of standing still skin texture
-            DrawArea = new Rectangle(xPosition, yPosition, 18, 58);
-            _textureUpdateRequired = true;
+            if (DrawArea.X != xPosition || DrawArea.Y != yPosition)
+            {
+                // size of standing still skin texture
+                DrawArea = new Rectangle(xPosition, yPosition, 18, 58);
+                _textureUpdateRequired = true;
+            }
         }
 
         private int GetMainCharacterOffsetX()
