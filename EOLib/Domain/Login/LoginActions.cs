@@ -185,7 +185,7 @@ namespace EOLib.Domain.Login
 
             _currentMapStateRepository.Characters = data.MapCharacters.Except(new[] { mainCharacter }).ToDictionary(k => k.ID, v => v);
             _currentMapStateRepository.NPCs = new HashSet<NPC.NPC>(data.MapNPCs);
-            _currentMapStateRepository.MapItems = new HashSet<IItem>(data.MapItems);
+            _currentMapStateRepository.MapItems = new HashSet<MapItem>(data.MapItems);
 
             _playerInfoRepository.PlayerIsInGame = true;
             _characterSessionRepository.ResetState();

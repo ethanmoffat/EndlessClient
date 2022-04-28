@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
+using Optional;
 
 namespace EOLib.Net.Translators
 {
@@ -57,7 +59,7 @@ namespace EOLib.Net.Translators
             packet.ReadByte(); //consume the tail 255 byte that broke loop iteration
         }
 
-        protected IEnumerable<IItem> GetMapItems(IPacket packet)
+        protected IEnumerable<MapItem> GetMapItems(IPacket packet)
         {
             while (packet.ReadPosition < packet.Length)
             {
@@ -67,7 +69,7 @@ namespace EOLib.Net.Translators
                 var y = packet.ReadChar();
                 var amount = packet.ReadThree();
 
-                yield return new Item(uid, itemID, x, y).WithAmount(amount);
+                yield return new MapItem(uid, itemID, x, y, amount);
             }
         }
     }

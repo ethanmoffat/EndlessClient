@@ -23,7 +23,7 @@ namespace EOLib.Domain.Login
 
         public IReadOnlyList<NPC.NPC> MapNPCs { get; }
 
-        public IReadOnlyList<IItem> MapItems { get; }
+        public IReadOnlyList<MapItem> MapItems { get; }
 
         public CharacterLoginReply Error { get; }
     }

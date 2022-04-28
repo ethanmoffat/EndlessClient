@@ -34,7 +34,7 @@ namespace EOLib.Domain.Map
             _packetSendService.SendPacket(packet);
         }
 
-        public ItemPickupResult PickUpItem(IItem item)
+        public ItemPickupResult PickUpItem(MapItem item)
         {
             var pickupResult = _itemPickupValidator.ValidateItemPickup(_characterProvider.MainCharacter, item);
             if (pickupResult == ItemPickupResult.Ok)
@@ -85,7 +85,7 @@ namespace EOLib.Domain.Map
     {
         void RequestRefresh();
 
-        ItemPickupResult PickUpItem(IItem item);
+        ItemPickupResult PickUpItem(MapItem item);
 
         void OpenDoor(IWarp warp);
 

@@ -297,7 +297,7 @@ namespace EOBot
             }
         }
 
-        private async Task PickUpItem(IItem item)
+        private async Task PickUpItem(MapItem item)
         {
             await TrySend(() =>
             {
@@ -311,7 +311,7 @@ namespace EOBot
             await Task.Delay(TimeSpan.FromMilliseconds(ATTACK_BACKOFF_MS));
         }
 
-        private async Task JunkItem(IItem item)
+        private async Task JunkItem(MapItem item)
         {
             ConsoleHelper.WriteMessage(ConsoleHelper.Type.JunkItem, $"{item.Amount,7} - {_itemData.Single(x => x.ID == item.ItemID).Name}");
             await TrySend(() => _itemActions.JunkItem(item.ItemID, item.Amount));

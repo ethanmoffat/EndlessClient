@@ -9,13 +9,13 @@ namespace EOLib.Domain.Map
 
         public IReadOnlyList<NPC.NPC> NPCs { get; private set; }
 
-        public IReadOnlyList<IItem> Items { get; private set; }
+        public IReadOnlyList<MapItem> Items { get; private set; }
 
         public RefreshReplyData()
         {
             Characters = new List<Character.Character>();
             NPCs = new List<NPC.NPC>();
-            Items = new List<IItem>();
+            Items = new List<MapItem>();
         }
 
         public IRefreshReplyData WithCharacters(IEnumerable<Character.Character> characters)
@@ -32,10 +32,10 @@ namespace EOLib.Domain.Map
             return newData;
         }
 
-        public IRefreshReplyData WithItems(IEnumerable<IItem> items)
+        public IRefreshReplyData WithItems(IEnumerable<MapItem> items)
         {
             var newData = MakeCopy(this);
-            newData.Items = new List<IItem>(items);
+            newData.Items = new List<MapItem>(items);
             return newData;
         }
 
@@ -45,7 +45,7 @@ namespace EOLib.Domain.Map
             {
                 Characters = new List<Character.Character>(source.Characters),
                 NPCs = new List<NPC.NPC>(source.NPCs),
-                Items = new List<IItem>(source.Items)
+                Items = new List<MapItem>(source.Items)
             };
         }
     }
@@ -56,12 +56,12 @@ namespace EOLib.Domain.Map
 
         IReadOnlyList<NPC.NPC> NPCs { get; }
 
-        IReadOnlyList<IItem> Items { get; }
+        IReadOnlyList<MapItem> Items { get; }
 
         IRefreshReplyData WithCharacters(IEnumerable<Character.Character> characters);
 
         IRefreshReplyData WithNPCs(IEnumerable<NPC.NPC> npcs);
 
-        IRefreshReplyData WithItems(IEnumerable<IItem> items);
+        IRefreshReplyData WithItems(IEnumerable<MapItem> items);
     }
 }

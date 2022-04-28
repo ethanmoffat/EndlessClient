@@ -101,7 +101,7 @@ namespace EndlessClient.Controllers
             var optionalItem = cellState.Items.FirstOrNone();
             if (optionalItem.HasValue)
             {
-                var item = optionalItem.ValueOr(Item.None);
+                var item = optionalItem.ValueOr(MapItem.None);
                 if (!_inventorySpaceValidator.ItemFits(item))
                     _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
                 else
@@ -212,7 +212,7 @@ namespace EndlessClient.Controllers
             }
         }
 
-        private void HandlePickupResult(ItemPickupResult pickupResult, IItem item)
+        private void HandlePickupResult(ItemPickupResult pickupResult, MapItem item)
         {
             switch (pickupResult)
             {

@@ -135,11 +135,10 @@ namespace EOLib.PacketHandlers
 
         private void ShowDroppedItem(short playerID, short droppedItemUID, short droppedItemID, byte x, byte y, int droppedAmount)
         {
-            IItem mapItem = new Item(droppedItemUID, droppedItemID, x, y);
-            mapItem = mapItem.WithAmount(droppedAmount)
+            var mapItem = new MapItem(droppedItemUID, droppedItemID, x, y, droppedAmount)
                 .WithIsNPCDrop(true)
-                .WithDropTime(DateTime.Now)
-                .WithOwningPlayerID(playerID);
+                .WithDropTime(Option.Some(DateTime.Now))
+                .WithOwningPlayerID(Option.Some<int>(playerID));
 
             _currentMapStateRepository.MapItems.RemoveWhere(item => item.UniqueID == droppedItemUID);
             _currentMapStateRepository.MapItems.Add(mapItem);

@@ -282,7 +282,7 @@ namespace EOBot.Interpreter
             return npcObj;
         }
 
-        private IVariable GetMapStateItem(IItem item)
+        private IVariable GetMapStateItem(MapItem item)
         {
             var itemFile = DependencyMaster.TypeRegistry[_botIndex].Resolve<IPubFileProvider>().EIFFile;
 

@@ -11,7 +11,7 @@ namespace EOLib.Domain.Map
 
         MapCoordinate Coordinate { get;  }
 
-        IReadOnlyList<IItem> Items { get; }
+        IReadOnlyList<MapItem> Items { get; }
 
         TileSpec TileSpec { get; }
 

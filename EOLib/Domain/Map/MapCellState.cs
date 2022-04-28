@@ -11,7 +11,7 @@ namespace EOLib.Domain.Map
 
         public MapCoordinate Coordinate { get; set; }
 
-        public IReadOnlyList<IItem> Items { get; set; }
+        public IReadOnlyList<MapItem> Items { get; set; }
 
         public TileSpec TileSpec { get; set; }
 
@@ -28,7 +28,7 @@ namespace EOLib.Domain.Map
         public MapCellState()
         {
             Coordinate = new MapCoordinate(0, 0);
-            Items = new List<IItem>();
+            Items = new List<MapItem>();
             TileSpec = TileSpec.None;
             NPC = Option.None<NPC.NPC>();
             Character = Option.None<Character.Character>();
