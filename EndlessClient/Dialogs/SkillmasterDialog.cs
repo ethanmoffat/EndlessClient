@@ -31,7 +31,7 @@ namespace EndlessClient.Dialogs
         private SkillState _state;
 
         private HashSet<Skill> _cachedSkills;
-        private HashSet<IInventorySpell> _cachedSpells;
+        private HashSet<InventorySpell> _cachedSpells;
         private string _cachedTitle;
 
         private bool _showingRequirements;
@@ -66,7 +66,7 @@ namespace EndlessClient.Dialogs
             ListItemType = ListDialogItem.ListItemStyle.Large;
 
             _cachedSkills = new HashSet<Skill>();
-            _cachedSpells = new HashSet<IInventorySpell>();
+            _cachedSpells = new HashSet<InventorySpell>();
             _cachedTitle = string.Empty;
 
             BackAction += BackClicked;

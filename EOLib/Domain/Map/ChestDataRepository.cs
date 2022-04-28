@@ -8,14 +8,14 @@ namespace EOLib.Domain.Map
     {
         MapCoordinate Location { get; set; }
 
-        HashSet<IInventoryItem> Items { get; set; }
+        HashSet<ChestItem> Items { get; set; }
     }
 
     public interface IChestDataProvider : IResettable
     {
         MapCoordinate Location { get; }
 
-        IReadOnlyCollection<IInventoryItem> Items { get; }
+        IReadOnlyCollection<ChestItem> Items { get; }
     }
 
     [AutoMappedType(IsSingleton = true)]
@@ -23,9 +23,9 @@ namespace EOLib.Domain.Map
     {
         public MapCoordinate Location { get; set; }
 
-        public HashSet<IInventoryItem> Items { get; set; }
+        public HashSet<ChestItem> Items { get; set; }
 
-        IReadOnlyCollection<IInventoryItem> IChestDataProvider.Items => Items;
+        IReadOnlyCollection<ChestItem> IChestDataProvider.Items => Items;
 
         public ChestDataRepository()
         {
@@ -35,7 +35,7 @@ namespace EOLib.Domain.Map
         public void ResetState()
         {
             Location = MapCoordinate.Zero;
-            Items = new HashSet<IInventoryItem>();
+            Items = new HashSet<ChestItem>();
         }
     }
 }

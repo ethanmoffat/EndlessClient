@@ -7,7 +7,7 @@ namespace EndlessClient.HUD.Spells
 {
     public class EmptySpellPanelItem : BaseSpellPanelItem
     {
-        public override IInventorySpell InventorySpell
+        public override InventorySpell InventorySpell
         {
             get => new InventorySpell(0, 0);
             set => throw new InvalidOperationException("There is no Spell associated with this slot");

@@ -13,9 +13,9 @@ namespace EOLib.Domain.Login
 
         public byte CharacterMaxWeight { get; private set; }
 
-        public IReadOnlyList<IInventoryItem> CharacterItemInventory { get; private set; }
+        public IReadOnlyList<InventoryItem> CharacterItemInventory { get; private set; }
 
-        public IReadOnlyList<IInventorySpell> CharacterSpellInventory { get; private set; }
+        public IReadOnlyList<InventorySpell> CharacterSpellInventory { get; private set; }
 
         public IReadOnlyList<Character.Character> MapCharacters { get; private set; }
 
@@ -46,14 +46,14 @@ namespace EOLib.Domain.Login
             return copy;
         }
 
-        public ILoginRequestCompletedData WithInventory(IEnumerable<IInventoryItem> inventoryItems)
+        public ILoginRequestCompletedData WithInventory(IEnumerable<InventoryItem> inventoryItems)
         {
             var copy = MakeCopy(this);
             copy.CharacterItemInventory = inventoryItems.ToList();
             return copy;
         }
 
-        public ILoginRequestCompletedData WithSpells(IEnumerable<IInventorySpell> inventorySpells)
+        public ILoginRequestCompletedData WithSpells(IEnumerable<InventorySpell> inventorySpells)
         {
             var copy = MakeCopy(this);
             copy.CharacterSpellInventory = inventorySpells.ToList();

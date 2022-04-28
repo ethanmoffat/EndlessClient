@@ -90,8 +90,8 @@ namespace EOBot
             var charInventoryRepo = c.Resolve<ICharacterInventoryRepository>();
             var walkValidator = c.Resolve<IWalkValidationActions>();
 
-            var healItems = new List<IInventoryItem>();
-            var healSpells = new List<IInventorySpell>();
+            var healItems = new List<InventoryItem>();
+            var healSpells = new List<InventorySpell>();
 
             int attackCount = 0, cachedPlayerCount = 0;
             bool time_to_die = false;
@@ -318,7 +318,7 @@ namespace EOBot
             await Task.Delay(TimeSpan.FromMilliseconds(ATTACK_BACKOFF_MS));
         }
 
-        private async Task CastHealSpell(IEnumerable<IInventorySpell> healSpells)
+        private async Task CastHealSpell(IEnumerable<InventorySpell> healSpells)
         {
             var spellToUse = _spellData
                 .Where(x => healSpells.Any(y => y.ID == x.ID) && x.Target != SpellTarget.Group)
@@ -335,7 +335,7 @@ namespace EOBot
             await Task.Delay((int)Math.Round(spellToUse.CastTime / 2.0 * 950)); // ?
         }
 
-        private async Task UseHealItem(IEnumerable<IInventoryItem> healItems)
+        private async Task UseHealItem(IEnumerable<InventoryItem> healItems)
         {
             var itemToUse = _itemData
                 .Where(x => healItems.Any(y => y.ItemID == x.ID))

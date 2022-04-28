@@ -52,7 +52,7 @@ namespace EndlessClient.HUD.Panels
         private readonly XNAButton _levelUpButton1, _levelUpButton2;
         private readonly ScrollBar _scrollBar;
 
-        private HashSet<IInventorySpell> _cachedSpells;
+        private HashSet<InventorySpell> _cachedSpells;
         private CharacterStats _cachedStats;
         private Option<int> _cachedSelectedSpell;
 
@@ -86,7 +86,7 @@ namespace EndlessClient.HUD.Panels
             _childItems = new List<ISpellPanelItem>();
             ResetChildItems();
 
-            _cachedSpells = new HashSet<IInventorySpell>();
+            _cachedSpells = new HashSet<InventorySpell>();
 
             _functionKeyLabelSheet = NativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 58, true);
             _functionKeyRow1Source = new Rectangle(148, 51, 18, 13);
@@ -193,7 +193,7 @@ namespace EndlessClient.HUD.Panels
                         _childItems.Remove(childControl);
 
                         _childItems.Add(CreateEmptySpell(childControl.Slot));
-                        _spellSlotDataRepository.SpellSlots[childControl.Slot] = Option.None<IInventorySpell>();
+                        _spellSlotDataRepository.SpellSlots[childControl.Slot] = Option.None<InventorySpell>();
                     });
                 }
 
@@ -434,7 +434,7 @@ namespace EndlessClient.HUD.Panels
                         child.Slot = oldSlot;
                         child.DisplaySlot = oldDisplaySlot;
 
-                        _spellSlotDataRepository.SpellSlots[oldSlot] = Option.None<IInventorySpell>();
+                        _spellSlotDataRepository.SpellSlots[oldSlot] = Option.None<InventorySpell>();
                         _spellSlotDataRepository.SpellSlots[newSlot] = Option.Some(item.InventorySpell);
                         _spellSlotDataRepository.SelectedSpellSlot = Option.Some(newSlot);
                         _spellSlotDataRepository.SpellIsPrepared = false;

@@ -16,7 +16,7 @@ namespace EndlessClient.HUD.Spells
         /// <summary>
         /// Spell info for the selected spell (based on SelectedSpellSlot value)
         /// </summary>
-        Option<IInventorySpell> SelectedSpellInfo { get; }
+        Option<InventorySpell> SelectedSpellInfo { get; }
 
         /// <summary>
         /// True if the selected spell slot has been prepared by using a hotkey.
@@ -26,18 +26,18 @@ namespace EndlessClient.HUD.Spells
         /// <summary>
         /// Array of inventory spells by their slot number.
         /// </summary>
-        Option<IInventorySpell>[] SpellSlots { get; set; }
+        Option<InventorySpell>[] SpellSlots { get; set; }
     }
 
     public interface ISpellSlotDataProvider
     {
         Option<int> SelectedSpellSlot { get; }
 
-        Option<IInventorySpell> SelectedSpellInfo { get; }
+        Option<InventorySpell> SelectedSpellInfo { get; }
 
         bool SpellIsPrepared { get; }
 
-        IReadOnlyList<Option<IInventorySpell>> SpellSlots { get; }
+        IReadOnlyList<Option<InventorySpell>> SpellSlots { get; }
     }
 
     [AutoMappedType(IsSingleton = true)]
@@ -45,22 +45,22 @@ namespace EndlessClient.HUD.Spells
     {
         public Option<int> SelectedSpellSlot { get; set; }
 
-        public Option<IInventorySpell> SelectedSpellInfo =>
+        public Option<InventorySpell> SelectedSpellInfo =>
             SelectedSpellSlot.Match(
                 x => SpellSlots[x].Match(
                     y => Option.Some(y),
-                    () => Option.None<IInventorySpell>()),
-                () => Option.None<IInventorySpell>());
+                    () => Option.None<InventorySpell>()),
+                () => Option.None<InventorySpell>());
 
         public bool SpellIsPrepared { get; set; }
 
-        public Option<IInventorySpell>[] SpellSlots { get; set; }
+        public Option<InventorySpell>[] SpellSlots { get; set; }
 
-        IReadOnlyList<Option<IInventorySpell>> ISpellSlotDataProvider.SpellSlots => SpellSlots;
+        IReadOnlyList<Option<InventorySpell>> ISpellSlotDataProvider.SpellSlots => SpellSlots;
 
         public SpellSlotDataRepository()
         {
-            SpellSlots = new Option<IInventorySpell>[ActiveSpellsPanel.SpellRows * ActiveSpellsPanel.SpellRowLength];
+            SpellSlots = new Option<InventorySpell>[ActiveSpellsPanel.SpellRows * ActiveSpellsPanel.SpellRowLength];
         }
     }
 }

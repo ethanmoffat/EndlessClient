@@ -13,9 +13,9 @@ namespace EOLib.Domain.Login
 
         byte CharacterMaxWeight { get; }
 
-        IReadOnlyList<IInventoryItem> CharacterItemInventory { get; }
+        IReadOnlyList<InventoryItem> CharacterItemInventory { get; }
 
-        IReadOnlyList<IInventorySpell> CharacterSpellInventory { get; }
+        IReadOnlyList<InventorySpell> CharacterSpellInventory { get; }
 
         IReadOnlyList<Character.Character> MapCharacters { get; }
 
@@ -31,9 +31,9 @@ namespace EOLib.Domain.Login
 
         ILoginRequestCompletedData WithMaxWeight(byte maxWeight);
 
-        ILoginRequestCompletedData WithInventory(IEnumerable<IInventoryItem> inventoryItems);
+        ILoginRequestCompletedData WithInventory(IEnumerable<InventoryItem> inventoryItems);
 
-        ILoginRequestCompletedData WithSpells(IEnumerable<IInventorySpell> inventorySpells);
+        ILoginRequestCompletedData WithSpells(IEnumerable<InventorySpell> inventorySpells);
 
         ILoginRequestCompletedData WithCharacters(IEnumerable<Character.Character> characters);
 

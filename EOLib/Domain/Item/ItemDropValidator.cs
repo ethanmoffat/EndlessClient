@@ -20,13 +20,13 @@ namespace EOLib.Domain.Item
             _currentMapStateProvider = currentMapStateProvider;
         }
 
-        public ItemDropResult ValidateItemDrop(Character.Character mainCharacter, IInventoryItem item)
+        public ItemDropResult ValidateItemDrop(Character.Character mainCharacter, InventoryItem item)
         {
             var coord = new MapCoordinate(mainCharacter.RenderProperties.MapX, mainCharacter.RenderProperties.MapY);
             return ValidateItemDrop(mainCharacter, item, coord);
         }
 
-        public ItemDropResult ValidateItemDrop(Character.Character mainCharacter, IInventoryItem item, MapCoordinate dropPoint)
+        public ItemDropResult ValidateItemDrop(Character.Character mainCharacter, InventoryItem item, MapCoordinate dropPoint)
         {
             if (item.ItemID <= 0)
                 throw new ArgumentException("Item ID is invalid", nameof(item));
@@ -49,8 +49,8 @@ namespace EOLib.Domain.Item
 
     public interface IItemDropValidator
     {
-        ItemDropResult ValidateItemDrop(Character.Character mainCharacter, IInventoryItem item);
+        ItemDropResult ValidateItemDrop(Character.Character mainCharacter, InventoryItem item);
 
-        ItemDropResult ValidateItemDrop(Character.Character mainCharacter, IInventoryItem item, MapCoordinate dropPoint);
+        ItemDropResult ValidateItemDrop(Character.Character mainCharacter, InventoryItem item, MapCoordinate dropPoint);
     }
 }

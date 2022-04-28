@@ -64,7 +64,7 @@ namespace EndlessClient.HUD.Inventory
             }
         }
 
-        public IInventoryItem InventoryItem { get; set; }
+        public InventoryItem InventoryItem { get; set; }
 
         public string Text
         {
@@ -88,7 +88,7 @@ namespace EndlessClient.HUD.Inventory
                                   InventoryPanel inventoryPanel,
                                   IActiveDialogProvider activeDialogProvider,
                                   int slot,
-                                  IInventoryItem inventoryItem,
+                                  InventoryItem inventoryItem,
                                   EIFRecord data)
         {
             _inventoryPanel = inventoryPanel;

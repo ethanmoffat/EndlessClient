@@ -8,14 +8,14 @@ namespace EOLib.Domain.Map
     {
         MapCoordinate Location { get; set; }
 
-        HashSet<IInventoryItem> Items { get; set; }
+        HashSet<InventoryItem> Items { get; set; }
     }
 
     public interface ILockerDataProvider : IResettable
     {
         MapCoordinate Location { get; }
 
-        IReadOnlyCollection<IInventoryItem> Items { get; }
+        IReadOnlyCollection<InventoryItem> Items { get; }
     }
 
     [AutoMappedType(IsSingleton = true)]
@@ -23,9 +23,9 @@ namespace EOLib.Domain.Map
     {
         public MapCoordinate Location { get; set; }
 
-        public HashSet<IInventoryItem> Items { get; set; }
+        public HashSet<InventoryItem> Items { get; set; }
 
-        IReadOnlyCollection<IInventoryItem> ILockerDataProvider.Items => Items;
+        IReadOnlyCollection<InventoryItem> ILockerDataProvider.Items => Items;
 
         public LockerDataRepository()
         {
@@ -35,7 +35,7 @@ namespace EOLib.Domain.Map
         public void ResetState()
         {
             Location = MapCoordinate.Zero;
-            Items = new HashSet<IInventoryItem>();
+            Items = new HashSet<InventoryItem>();
         }
     }
 }

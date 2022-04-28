@@ -68,7 +68,7 @@ namespace EOLib.Net.Translators
                 yield return packet.ReadBreakString();
         }
 
-        private IEnumerable<IInventoryItem> GetInventoryItems(IPacket packet)
+        private IEnumerable<InventoryItem> GetInventoryItems(IPacket packet)
         {
             while (packet.PeekByte() != 255)
                 yield return new InventoryItem(packet.ReadShort(), packet.ReadInt());
@@ -76,7 +76,7 @@ namespace EOLib.Net.Translators
             packet.ReadByte();
         }
 
-        private IEnumerable<IInventorySpell> GetInventorySpells(IPacket packet)
+        private IEnumerable<InventorySpell> GetInventorySpells(IPacket packet)
         {
             while (packet.PeekByte() != 255)
                 yield return new InventorySpell(packet.ReadShort(), packet.ReadShort());

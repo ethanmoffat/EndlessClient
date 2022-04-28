@@ -56,7 +56,7 @@ namespace EndlessClient.HUD.Panels
         //private readonly ScrollBar _scrollBar;
 
         private Option<CharacterStats> _cachedStats;
-        private HashSet<IInventoryItem> _cachedInventory;
+        private HashSet<InventoryItem> _cachedInventory;
 
         public INativeGraphicsManager NativeGraphicsManager { get; }
 
@@ -115,7 +115,7 @@ namespace EndlessClient.HUD.Panels
             _junk.OnMouseEnter += MouseOverButton;
 
             _cachedStats = Option.None<CharacterStats>();
-            _cachedInventory = new HashSet<IInventoryItem>();
+            _cachedInventory = new HashSet<InventoryItem>();
 
             BackgroundImage = NativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 44);
             DrawArea = new Rectangle(102, 330, BackgroundImage.Width, BackgroundImage.Height);

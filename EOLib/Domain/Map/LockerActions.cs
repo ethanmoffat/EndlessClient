@@ -19,7 +19,7 @@ namespace EOLib.Domain.Map
             _lockerDataProvider = lockerDataProvider;
         }
 
-        public void AddItemToLocker(IInventoryItem item)
+        public void AddItemToLocker(InventoryItem item)
         {
             var packet = new PacketBuilder(PacketFamily.Locker, PacketAction.Add)
                 .AddChar((byte)_lockerDataProvider.Location.X)
@@ -52,7 +52,7 @@ namespace EOLib.Domain.Map
 
     public interface ILockerActions
     {
-        void AddItemToLocker(IInventoryItem item);
+        void AddItemToLocker(InventoryItem item);
 
         void TakeItemFromLocker(short itemId);
 
