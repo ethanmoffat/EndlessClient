@@ -32,18 +32,20 @@ namespace EOLib.PacketHandlers.Quest
             {
                 case QuestPage.Progress:
                     {
-                        var progress = new List<IQuestProgressData>(numQuests);
+                        var progress = new List<QuestProgressData>(numQuests);
 
                         for (int i = 0; packet.ReadPosition < packet.Length && i < numQuests; i++)
                         {
-                            var progressData = new QuestProgressData()
-                                .WithName(packet.ReadBreakString())
-                                .WithDescription(packet.ReadBreakString())
-                                .WithIcon((BookIcon)packet.ReadShort())
-                                .WithProgress(packet.ReadShort())
-                                .WithTarget(packet.ReadShort());
+                            var progressData = new QuestProgressData.Builder
+                            { 
+                                Name = packet.ReadBreakString(),
+                                Description = packet.ReadBreakString(),
+                                Icon = (BookIcon)packet.ReadShort(),
+                                Progress = packet.ReadShort(),
+                                Target = packet.ReadShort(),
+                            };
 
-                            progress.Add(progressData);
+                            progress.Add(progressData.ToImmutable());
 
                             if (packet.ReadByte() != 255)
                                 return false;

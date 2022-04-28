@@ -9,9 +9,9 @@ namespace EOLib.Domain.Interact.Quest
     {
         NPC.NPC RequestedNPC { get; set; }
 
-        Option<IQuestDialogData> QuestDialogData { get; set; }
+        Option<QuestDialogData> QuestDialogData { get; set; }
 
-        List<IQuestProgressData> QuestProgress { get; set; }
+        List<QuestProgressData> QuestProgress { get; set; }
 
         List<string> QuestHistory { get; set; }
     }
@@ -20,9 +20,9 @@ namespace EOLib.Domain.Interact.Quest
     {
         NPC.NPC RequestedNPC { get; }
 
-        Option<IQuestDialogData> QuestDialogData { get; }
+        Option<QuestDialogData> QuestDialogData { get; }
 
-        IReadOnlyList<IQuestProgressData> QuestProgress { get; }
+        IReadOnlyList<QuestProgressData> QuestProgress { get; }
 
         IReadOnlyList<string> QuestHistory { get; }
     }
@@ -32,13 +32,13 @@ namespace EOLib.Domain.Interact.Quest
     {
         public NPC.NPC RequestedNPC { get; set; }
 
-        public Option<IQuestDialogData> QuestDialogData { get; set; }
+        public Option<QuestDialogData> QuestDialogData { get; set; }
 
-        public List<IQuestProgressData> QuestProgress { get; set; }
+        public List<QuestProgressData> QuestProgress { get; set; }
 
         public List<string> QuestHistory { get; set; }
 
-        IReadOnlyList<IQuestProgressData> IQuestDataProvider.QuestProgress => QuestProgress;
+        IReadOnlyList<QuestProgressData> IQuestDataProvider.QuestProgress => QuestProgress;
 
         IReadOnlyList<string> IQuestDataProvider.QuestHistory => QuestHistory;
 
@@ -49,8 +49,8 @@ namespace EOLib.Domain.Interact.Quest
 
         public void ResetState()
         {
-            QuestDialogData = Option.None<IQuestDialogData>();
-            QuestProgress = new List<IQuestProgressData>();
+            QuestDialogData = Option.None<QuestDialogData>();
+            QuestProgress = new List<QuestProgressData>();
             QuestHistory = new List<string>();
         }
     }

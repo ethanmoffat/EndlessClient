@@ -15,7 +15,7 @@ namespace EndlessClient.Dialogs
         private readonly ICharacterProvider _characterProvider;
 
 
-        private IReadOnlyList<IQuestProgressData> _cachedProgress = new List<IQuestProgressData>();
+        private IReadOnlyList<QuestProgressData> _cachedProgress = new List<QuestProgressData>();
         private IReadOnlyList<string> _cachedHistory = new List<string>();
 
         private QuestPage _page;

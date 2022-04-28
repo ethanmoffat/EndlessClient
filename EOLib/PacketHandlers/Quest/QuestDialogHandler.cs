@@ -45,11 +45,13 @@ namespace EOLib.PacketHandlers.Quest
             if (packet.ReadByte() != 255)
                 return false;
 
-            var questData = new QuestDialogData()
-                .WithVendorID(vendorID)
-                .WithQuestID(questID)
-                .WithSessionID(sessionID) // not used by eoserv
-                .WithDialogID(dialogID); // not used by eoserv
+            var questData = new QuestDialogData.Builder
+            {
+                VendorID = vendorID,
+                QuestID = questID,
+                SessionID = sessionID, // not used by eoserv
+                DialogID = dialogID, // not used by eoserv
+            };
 
             var dialogTitles = new Dictionary<short, string>(numDialogs);
             for (int i = 0; i < numDialogs; i++)
@@ -68,11 +70,11 @@ namespace EOLib.PacketHandlers.Quest
                 }
             }
 
-            questData = questData.WithDialogTitles(dialogTitles)
-                .WithPageText(pages)
-                .WithActions(links);
+            questData.DialogTitles = dialogTitles;
+            questData.PageText = pages;
+            questData.Actions = links;
 
-            _questDataRepository.QuestDialogData = Option.Some(questData);
+            _questDataRepository.QuestDialogData = Option.Some(questData.ToImmutable());
 
             foreach (var notifier in _npcInteractionNotifiers)
                 notifier.NotifyInteractionFromNPC(IO.NPCType.Quest);

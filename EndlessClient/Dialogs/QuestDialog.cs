@@ -21,7 +21,7 @@ namespace EndlessClient.Dialogs
         private readonly IENFFileProvider _enfFileProvider;
         private readonly IContentProvider _contentProvider;
 
-        private Option<IQuestDialogData> _cachedData;
+        private Option<QuestDialogData> _cachedData;
 
         private int _pageIndex = 0;
 
@@ -38,7 +38,7 @@ namespace EndlessClient.Dialogs
             _enfFileProvider = enfFileProvider;
             _contentProvider = contentProvider;
 
-            _cachedData = Option.None<IQuestDialogData>();
+            _cachedData = Option.None<QuestDialogData>();
 
             ListItemType = ListDialogItem.ListItemStyle.Small;
 
@@ -57,7 +57,7 @@ namespace EndlessClient.Dialogs
             base.OnUpdateControl(gameTime);
         }
 
-        private void UpdateCachedDataIfNeeded(Option<IQuestDialogData> cachedData, IQuestDialogData repoData)
+        private void UpdateCachedDataIfNeeded(Option<QuestDialogData> cachedData, QuestDialogData repoData)
         {
             cachedData.Match(
                 some: cached =>
@@ -73,7 +73,7 @@ namespace EndlessClient.Dialogs
                 });
         }
 
-        private void UpdateDialogControls(IQuestDialogData repoData)
+        private void UpdateDialogControls(QuestDialogData repoData)
         {
             _pageIndex = 0;
 
@@ -82,7 +82,7 @@ namespace EndlessClient.Dialogs
             UpdateButtons(repoData);
         }
 
-        private void UpdateTitle(IQuestDialogData repoData)
+        private void UpdateTitle(QuestDialogData repoData)
         {
             var npcName = _enfFileProvider.ENFFile[_questDataProvider.RequestedNPC.ID].Name;
             var titleText = npcName;
@@ -95,7 +95,7 @@ namespace EndlessClient.Dialogs
             _titleText.ResizeBasedOnText();
         }
 
-        private void UpdateDialogDisplayText(IQuestDialogData repoData)
+        private void UpdateDialogDisplayText(QuestDialogData repoData)
         {
             ClearItemList();
 
@@ -143,7 +143,7 @@ namespace EndlessClient.Dialogs
             }
         }
 
-        private void UpdateButtons(IQuestDialogData repoData)
+        private void UpdateButtons(QuestDialogData repoData)
         {
             bool morePages = _pageIndex < repoData.PageText.Count - 1;
             bool firstPage = _pageIndex == 0;
