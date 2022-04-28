@@ -1,6 +1,9 @@
-﻿namespace EOLib.Domain.Online
+﻿using Amadevus.RecordGenerator;
+
+namespace EOLib.Domain.Online
 {
-    public class OnlinePlayerInfo
+    [Record]
+    public sealed partial class OnlinePlayerInfo
     {
         public string Name { get; }
 
@@ -15,15 +18,6 @@
         public OnlinePlayerInfo(string name)
             : this(name, string.Empty, string.Empty, string.Empty, OnlineIcon.Normal)
         {
-        }
-
-        public OnlinePlayerInfo(string name, string title, string guild, string @class, OnlineIcon icon)
-        {
-            Name = name;
-            Title = title;
-            Guild = guild;
-            Class = @class;
-            Icon = icon;
         }
     }
 }

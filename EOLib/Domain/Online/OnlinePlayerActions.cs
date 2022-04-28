@@ -11,10 +11,10 @@ namespace EOLib.Domain.Online
     public class OnlinePlayerActions : IOnlinePlayerActions
     {
         private readonly IPacketSendService _packetSendService;
-        private readonly IPacketTranslator<IOnlineListData> _onlineListPacketTranslator;
+        private readonly IPacketTranslator<OnlineListData> _onlineListPacketTranslator;
 
         public OnlinePlayerActions(IPacketSendService packetSendService,
-                                   IPacketTranslator<IOnlineListData> onlineListPacketTranslator)
+                                   IPacketTranslator<OnlineListData> onlineListPacketTranslator)
         {
             _packetSendService = packetSendService;
             _onlineListPacketTranslator = onlineListPacketTranslator;

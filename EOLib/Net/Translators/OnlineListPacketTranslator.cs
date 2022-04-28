@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace EOLib.Net.Translators
 {
     [AutoMappedType]
-    public class OnlineListPacketTranslator : IPacketTranslator<IOnlineListData>
+    public class OnlineListPacketTranslator : IPacketTranslator<OnlineListData>
     {
         private readonly IECFFileProvider _classFileProvider;
 
@@ -16,7 +16,7 @@ namespace EOLib.Net.Translators
             _classFileProvider = classFileProvider;
         }
 
-        public IOnlineListData TranslatePacket(IPacket packet)
+        public OnlineListData TranslatePacket(IPacket packet)
         {
             var reply = (InitReply)packet.ReadByte();
 
