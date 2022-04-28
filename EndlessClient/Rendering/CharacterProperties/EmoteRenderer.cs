@@ -28,6 +28,9 @@ namespace EndlessClient.Rendering.CharacterProperties
 
         public override void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
         {
+            if (_emoteSheet is EmptySpriteSheet)
+                return;
+
             var skinLoc = _skinRenderLocationCalculator.CalculateDrawLocationOfCharacterSkin(_skinSheet.SourceRectangle, parentCharacterDrawArea);
             var emotePos = new Vector2(skinLoc.X - 15, parentCharacterDrawArea.Y - _emoteSheet.SheetTexture.Height);
             Render(spriteBatch, _emoteSheet, emotePos, 128);
