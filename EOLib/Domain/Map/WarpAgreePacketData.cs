@@ -1,20 +1,21 @@
-﻿using EOLib.Domain.Character;
+﻿using Amadevus.RecordGenerator;
 using EOLib.Net.Translators;
 using System.Collections.Generic;
 
 namespace EOLib.Domain.Map
 {
-    public class WarpAgreePacketData : IWarpAgreePacketData
+    [Record]
+    public sealed partial class WarpAgreePacketData : ITranslatedData
     {
-        public short MapID { get; private set; }
+        public short MapID { get; }
 
-        public WarpAnimation WarpAnimation { get; private set; }
+        public WarpAnimation WarpAnimation { get; }
 
-        public IReadOnlyList<Character.Character> Characters { get; private set; }
+        public IReadOnlyList<Character.Character> Characters { get; }
 
-        public IReadOnlyList<NPC.NPC> NPCs { get; private set; }
+        public IReadOnlyList<NPC.NPC> NPCs { get; }
 
-        public IReadOnlyList<MapItem> Items { get; private set; }
+        public IReadOnlyList<MapItem> Items { get; }
 
         public WarpAgreePacketData()
         {
@@ -22,75 +23,5 @@ namespace EOLib.Domain.Map
             NPCs = new List<NPC.NPC>();
             Items = new List<MapItem>();
         }
-
-        public IWarpAgreePacketData WithMapID(short mapID)
-        {
-            var newData = MakeCopy(this);
-            newData.MapID = mapID;
-            return newData;
-        }
-
-        public IWarpAgreePacketData WithWarpAnimation(WarpAnimation warpAnimation)
-        {
-            var newData = MakeCopy(this);
-            newData.WarpAnimation = warpAnimation;
-            return newData;
-        }
-
-        public IWarpAgreePacketData WithCharacters(IEnumerable<Character.Character> characters)
-        {
-            var newData = MakeCopy(this);
-            newData.Characters = new List<Character.Character>(characters);
-            return newData;
-        }
-
-        public IWarpAgreePacketData WithNPCs(IEnumerable<NPC.NPC> npcs)
-        {
-            var newData = MakeCopy(this);
-            newData.NPCs = new List<NPC.NPC>(npcs);
-            return newData;
-        }
-
-        public IWarpAgreePacketData WithItems(IEnumerable<MapItem> items)
-        {
-            var newData = MakeCopy(this);
-            newData.Items = new List<MapItem>(items);
-            return newData;
-        }
-
-        private static WarpAgreePacketData MakeCopy(IWarpAgreePacketData source)
-        {
-            return new WarpAgreePacketData
-            {
-                MapID = source.MapID,
-                WarpAnimation = source.WarpAnimation,
-                Characters = new List<Character.Character>(source.Characters),
-                NPCs = new List<NPC.NPC>(source.NPCs),
-                Items = new List<MapItem>(source.Items)
-            };
-        }
-    }
-
-    public interface IWarpAgreePacketData : ITranslatedData
-    {
-        short MapID { get; }
-
-        WarpAnimation WarpAnimation { get; }
-
-        IReadOnlyList<Character.Character> Characters { get; }
-
-        IReadOnlyList<NPC.NPC> NPCs { get; }
-
-        IReadOnlyList<MapItem> Items { get; }
-
-        IWarpAgreePacketData WithMapID(short mapID);
-
-        IWarpAgreePacketData WithWarpAnimation(WarpAnimation warpAnimation);
-
-        IWarpAgreePacketData WithCharacters(IEnumerable<Character.Character> characters);
-
-        IWarpAgreePacketData WithNPCs(IEnumerable<NPC.NPC> npcs);
-
-        IWarpAgreePacketData WithItems(IEnumerable<MapItem> items);
     }
 }

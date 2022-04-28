@@ -18,7 +18,7 @@ namespace EOLib.PacketHandlers
     [AutoMappedType]
     public class EndPlayerWarpHandler : InGameOnlyPacketHandler
     {
-        private readonly IPacketTranslator<IWarpAgreePacketData> _warpAgreePacketTranslator;
+        private readonly IPacketTranslator<WarpAgreePacketData> _warpAgreePacketTranslator;
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly ICurrentMapProvider _currentMapProvider;
@@ -30,7 +30,7 @@ namespace EOLib.PacketHandlers
         public override PacketAction Action => PacketAction.Agree;
 
         public EndPlayerWarpHandler(IPlayerInfoProvider playerInfoProvider,
-                                    IPacketTranslator<IWarpAgreePacketData> warpAgreePacketTranslator,
+                                    IPacketTranslator<WarpAgreePacketData> warpAgreePacketTranslator,
                                     ICharacterRepository characterRepository,
                                     ICurrentMapStateRepository currentMapStateRepository,
                                     ICurrentMapProvider currentMapProvider,
@@ -62,7 +62,7 @@ namespace EOLib.PacketHandlers
                 .WithAppliedData(updatedMainCharacter, _eifFileProvider.EIFFile.IsRangedWeapon(updatedMainCharacter.RenderProperties.WeaponGraphic));
 
             var withoutMainCharacter = warpAgreePacketData.Characters.Where(x => !MainCharacterIDMatches(x));
-            warpAgreePacketData = warpAgreePacketData.WithCharacters(withoutMainCharacter);
+            warpAgreePacketData = warpAgreePacketData.WithCharacters(withoutMainCharacter.ToList());
 
             var differentMapID = _currentMapStateRepository.CurrentMapID != warpAgreePacketData.MapID;
 

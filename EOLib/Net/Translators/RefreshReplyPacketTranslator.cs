@@ -1,25 +1,27 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Map;
+using System.Linq;
 
 namespace EOLib.Net.Translators
 {
     [AutoMappedType]
-    public class RefreshReplyPacketTranslator : MapStatePacketTranslator<IRefreshReplyData>
+    public class RefreshReplyPacketTranslator : MapStatePacketTranslator<RefreshReplyData>
     {
         public RefreshReplyPacketTranslator(ICharacterFromPacketFactory characterFromPacketFactory)
             : base(characterFromPacketFactory) { }
 
-        public override IRefreshReplyData TranslatePacket(IPacket packet)
+        public override RefreshReplyData TranslatePacket(IPacket packet)
         {
             var characters = GetCharacters(packet);
             var npcs = GetNPCs(packet);
             var items = GetMapItems(packet);
 
-            IRefreshReplyData data = new RefreshReplyData();
-
-            return data.WithCharacters(characters)
-                .WithNPCs(npcs)
-                .WithItems(items);
+            return new RefreshReplyData.Builder
+            {
+                Characters = characters.ToList(),
+                NPCs = npcs.ToList(),
+                Items = items.ToList(),
+            }.ToImmutable();
         }
     }
 }
