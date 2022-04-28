@@ -5,19 +5,19 @@ namespace EOLib.Domain.Character
 {
     public interface IPaperdollRepository
     {
-        Dictionary<int, IPaperdollData> VisibleCharacterPaperdolls { get; set; }
+        Dictionary<int, PaperdollData> VisibleCharacterPaperdolls { get; set; }
     }
 
     public interface IPaperdollProvider
     {
-        IReadOnlyDictionary<int, IPaperdollData> VisibleCharacterPaperdolls { get; }
+        IReadOnlyDictionary<int, PaperdollData> VisibleCharacterPaperdolls { get; }
     }
 
     [AutoMappedType(IsSingleton = true)]
     public class PaperdollRepository : IPaperdollRepository, IPaperdollProvider
     {
-        public Dictionary<int, IPaperdollData> VisibleCharacterPaperdolls { get; set; } = new Dictionary<int, IPaperdollData>();
+        public Dictionary<int, PaperdollData> VisibleCharacterPaperdolls { get; set; } = new Dictionary<int, PaperdollData>();
 
-        IReadOnlyDictionary<int, IPaperdollData> IPaperdollProvider.VisibleCharacterPaperdolls => VisibleCharacterPaperdolls;
+        IReadOnlyDictionary<int, PaperdollData> IPaperdollProvider.VisibleCharacterPaperdolls => VisibleCharacterPaperdolls;
     }
 }

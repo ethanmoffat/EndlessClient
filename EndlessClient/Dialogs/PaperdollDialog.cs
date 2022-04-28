@@ -43,7 +43,7 @@ namespace EndlessClient.Dialogs
         private Option<Rectangle> _characterIconSourceRect;
         private readonly InventoryPanel _inventoryPanel;
 
-        private Option<IPaperdollData> _paperdollData;
+        private Option<PaperdollData> _paperdollData;
 
         private readonly List<PaperdollDialogItem> _childItems;
 
@@ -128,7 +128,7 @@ namespace EndlessClient.Dialogs
             CenterInGameView();
             DrawPosition = new Vector2(DrawPosition.X, 15);
 
-            _paperdollData = Option.None<IPaperdollData>();
+            _paperdollData = Option.None<PaperdollData>();
         }
 
         public bool NoItemsDragging() => !_childItems.Any(x => x.IsBeingDragged);
@@ -173,7 +173,7 @@ namespace EndlessClient.Dialogs
             _spriteBatch.End();
         }
 
-        private void UpdateDisplayedData(IPaperdollData paperdollData)
+        private void UpdateDisplayedData(PaperdollData paperdollData)
         {
             _name.Text = Capitalize(paperdollData.Name);
             _home.Text = Capitalize(paperdollData.Home);
