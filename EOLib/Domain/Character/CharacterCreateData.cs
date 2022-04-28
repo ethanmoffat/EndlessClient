@@ -7,10 +7,10 @@ namespace EOLib.Domain.Character
     {
         public CharacterReply Response { get; }
 
-        private readonly List<ICharacter> _characters;
-        public IReadOnlyList<ICharacter> Characters => _characters;
+        private readonly List<Character> _characters;
+        public IReadOnlyList<Character> Characters => _characters;
 
-        public CharacterCreateData(CharacterReply response, List<ICharacter> characters)
+        public CharacterCreateData(CharacterReply response, List<Character> characters)
         {
             Response = response;
             _characters = characters;
@@ -21,6 +21,6 @@ namespace EOLib.Domain.Character
     {
         CharacterReply Response { get; }
 
-        IReadOnlyList<ICharacter> Characters { get; }
+        IReadOnlyList<Character> Characters { get; }
     }
 }

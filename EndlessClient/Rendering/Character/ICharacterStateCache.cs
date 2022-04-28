@@ -1,22 +1,23 @@
-﻿using EOLib.Domain.Character;
-using Optional;
+﻿using Optional;
 using System.Collections.Generic;
+
+using DomainCharacter = EOLib.Domain.Character.Character;
 
 namespace EndlessClient.Rendering.Character
 {
     public interface ICharacterStateCache
     {
-        Option<ICharacter> MainCharacter { get; }
+        Option<DomainCharacter> MainCharacter { get; }
 
-        IReadOnlyDictionary<int, ICharacter> OtherCharacters { get; }
+        IReadOnlyDictionary<int, DomainCharacter> OtherCharacters { get; }
 
         IReadOnlyList<RenderFrameActionTime> DeathStartTimes { get; }
 
         bool HasCharacterWithID(int id);
 
-        void UpdateMainCharacterState(ICharacter updatedCharacter);
+        void UpdateMainCharacterState(DomainCharacter updatedCharacter);
 
-        void UpdateCharacterState(int id, ICharacter updatedCharacter);
+        void UpdateCharacterState(int id, DomainCharacter updatedCharacter);
 
         void RemoveCharacterState(int id);
 

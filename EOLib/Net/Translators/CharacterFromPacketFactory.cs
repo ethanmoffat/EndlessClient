@@ -16,7 +16,7 @@ namespace EOLib.Net.Translators
             _eifFileProvider = eifFileProvider;
         }
 
-        public ICharacter CreateCharacter(IPacket packet)
+        public Character CreateCharacter(IPacket packet)
         {
             var name = packet.ReadBreakString();
             name = char.ToUpper(name[0]) + name.Substring(1);
@@ -79,19 +79,21 @@ namespace EOLib.Net.Translators
                MapY = yLoc,
             };
 
-            return new Character()
-                .WithName(name)
-                .WithID(id)
-                .WithClassID(classID)
-                .WithMapID(mapID)
-                .WithGuildTag(guildTag)
-                .WithStats(stats)
-                .WithRenderProperties(renderProps.ToImmutable());
+            return new Character.Builder
+            { 
+                Name = name,
+                ID = id,
+                ClassID = classID,
+                MapID = mapID,
+                GuildTag = guildTag,
+                Stats = stats,
+                RenderProperties = renderProps.ToImmutable(),
+            }.ToImmutable();
         }
     }
 
     public interface ICharacterFromPacketFactory
     {
-        ICharacter CreateCharacter(IPacket packet);
+        Character CreateCharacter(IPacket packet);
     }
 }

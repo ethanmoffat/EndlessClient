@@ -17,7 +17,7 @@ namespace EOLib.Domain.Login
 
         public IReadOnlyList<IInventorySpell> CharacterSpellInventory { get; private set; }
 
-        public IReadOnlyList<ICharacter> MapCharacters { get; private set; }
+        public IReadOnlyList<Character.Character> MapCharacters { get; private set; }
 
         public IReadOnlyList<NPC.NPC> MapNPCs { get; private set; }
 
@@ -60,7 +60,7 @@ namespace EOLib.Domain.Login
             return copy;
         }
 
-        public ILoginRequestCompletedData WithCharacters(IEnumerable<ICharacter> characters)
+        public ILoginRequestCompletedData WithCharacters(IEnumerable<Character.Character> characters)
         {
             var copy = MakeCopy(this);
             copy.MapCharacters = characters.ToList();

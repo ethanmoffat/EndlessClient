@@ -12,7 +12,7 @@ namespace EndlessClient.UIControls
         private Vector2 _lastPosition;
 
         public CreateCharacterControl(ICharacterRendererFactory characterRendererFactory)
-            : base(new Character().WithRenderProperties(GetDefaultProperties()), characterRendererFactory)
+            : base(Character.Default.WithRenderProperties(GetDefaultProperties()), characterRendererFactory)
         {
             SetSize(99, 123);
             _lastPosition = Vector2.Zero;

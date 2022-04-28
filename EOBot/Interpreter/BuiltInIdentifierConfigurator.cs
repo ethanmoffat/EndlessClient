@@ -258,7 +258,7 @@ namespace EOBot.Interpreter
             return Readonly(mapStateObj);
         }
 
-        private IVariable GetMapStateCharacter(ICharacter c)
+        private IVariable GetMapStateCharacter(Character c)
         {
             var charObj = new ObjectVariable();
             charObj.SymbolTable[PredefinedIdentifiers.NAME] = Readonly(new StringVariable(c.Name));

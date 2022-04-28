@@ -12,7 +12,7 @@ namespace EOLib.Domain.Map
 
         short JailMapID { get; set; }
 
-        Dictionary<int, ICharacter> Characters { get; set; }
+        Dictionary<int, Character.Character> Characters { get; set; }
 
         HashSet<NPC.NPC> NPCs { get; set; }
 
@@ -39,7 +39,7 @@ namespace EOLib.Domain.Map
 
         short JailMapID { get; }
 
-        IReadOnlyDictionary<int, ICharacter> Characters { get; }
+        IReadOnlyDictionary<int, Character.Character> Characters { get; }
 
         IReadOnlyCollection<NPC.NPC> NPCs { get; }
 
@@ -67,7 +67,7 @@ namespace EOLib.Domain.Map
 
         public short JailMapID { get; set; }
 
-        public Dictionary<int, ICharacter> Characters { get; set; }
+        public Dictionary<int, Character.Character> Characters { get; set; }
 
         public HashSet<NPC.NPC> NPCs { get; set; }
 
@@ -85,7 +85,7 @@ namespace EOLib.Domain.Map
 
         public HashSet<byte> UnknownNPCIndexes { get; set; }
 
-        IReadOnlyDictionary<int, ICharacter> ICurrentMapStateProvider.Characters => Characters;
+        IReadOnlyDictionary<int, Character.Character> ICurrentMapStateProvider.Characters => Characters;
 
         IReadOnlyCollection<NPC.NPC> ICurrentMapStateProvider.NPCs => NPCs;
 
@@ -108,7 +108,7 @@ namespace EOLib.Domain.Map
             ShowMiniMap = false;
             JailMapID = 0;
 
-            Characters = new Dictionary<int, ICharacter>();
+            Characters = new Dictionary<int, Character.Character>();
             NPCs = new HashSet<NPC.NPC>();
             MapItems = new HashSet<IItem>();
             OpenDoors = new HashSet<IWarp>();

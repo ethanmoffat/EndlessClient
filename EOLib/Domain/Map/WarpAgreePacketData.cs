@@ -10,7 +10,7 @@ namespace EOLib.Domain.Map
 
         public WarpAnimation WarpAnimation { get; private set; }
 
-        public IReadOnlyList<ICharacter> Characters { get; private set; }
+        public IReadOnlyList<Character.Character> Characters { get; private set; }
 
         public IReadOnlyList<NPC.NPC> NPCs { get; private set; }
 
@@ -18,7 +18,7 @@ namespace EOLib.Domain.Map
 
         public WarpAgreePacketData()
         {
-            Characters = new List<ICharacter>();
+            Characters = new List<Character.Character>();
             NPCs = new List<NPC.NPC>();
             Items = new List<IItem>();
         }
@@ -37,10 +37,10 @@ namespace EOLib.Domain.Map
             return newData;
         }
 
-        public IWarpAgreePacketData WithCharacters(IEnumerable<ICharacter> characters)
+        public IWarpAgreePacketData WithCharacters(IEnumerable<Character.Character> characters)
         {
             var newData = MakeCopy(this);
-            newData.Characters = new List<ICharacter>(characters);
+            newData.Characters = new List<Character.Character>(characters);
             return newData;
         }
 
@@ -64,7 +64,7 @@ namespace EOLib.Domain.Map
             {
                 MapID = source.MapID,
                 WarpAnimation = source.WarpAnimation,
-                Characters = new List<ICharacter>(source.Characters),
+                Characters = new List<Character.Character>(source.Characters),
                 NPCs = new List<NPC.NPC>(source.NPCs),
                 Items = new List<IItem>(source.Items)
             };
@@ -77,7 +77,7 @@ namespace EOLib.Domain.Map
 
         WarpAnimation WarpAnimation { get; }
 
-        IReadOnlyList<ICharacter> Characters { get; }
+        IReadOnlyList<Character.Character> Characters { get; }
 
         IReadOnlyList<NPC.NPC> NPCs { get; }
 
@@ -87,7 +87,7 @@ namespace EOLib.Domain.Map
 
         IWarpAgreePacketData WithWarpAnimation(WarpAnimation warpAnimation);
 
-        IWarpAgreePacketData WithCharacters(IEnumerable<ICharacter> characters);
+        IWarpAgreePacketData WithCharacters(IEnumerable<Character.Character> characters);
 
         IWarpAgreePacketData WithNPCs(IEnumerable<NPC.NPC> npcs);
 

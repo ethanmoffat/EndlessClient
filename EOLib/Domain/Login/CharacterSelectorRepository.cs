@@ -1,29 +1,28 @@
-﻿using System.Collections.Generic;
-using AutomaticTypeMapper;
-using EOLib.Domain.Character;
+﻿using AutomaticTypeMapper;
 using Optional;
+using System.Collections.Generic;
 
 namespace EOLib.Domain.Login
 {
     public interface ICharacterSelectorRepository
     {
-        IReadOnlyList<ICharacter> Characters { get; set; }
+        IReadOnlyList<Character.Character> Characters { get; set; }
 
-        Option<ICharacter> CharacterForDelete { get; set; }
+        Option<Character.Character> CharacterForDelete { get; set; }
     }
 
     public interface ICharacterSelectorProvider
     {
-        IReadOnlyList<ICharacter> Characters { get; }
+        IReadOnlyList<Character.Character> Characters { get; }
 
-        Option<ICharacter> CharacterForDelete { get; }
+        Option<Character.Character> CharacterForDelete { get; }
     }
 
     [AutoMappedType(IsSingleton = true)]
     public class CharacterSelectorRepository : ICharacterSelectorRepository, ICharacterSelectorProvider
     {
-        public IReadOnlyList<ICharacter> Characters { get; set; }
+        public IReadOnlyList<Character.Character> Characters { get; set; }
 
-        public Option<ICharacter> CharacterForDelete { get; set; }
+        public Option<Character.Character> CharacterForDelete { get; set; }
     }
 }

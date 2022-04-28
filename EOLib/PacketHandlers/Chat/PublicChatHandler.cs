@@ -27,7 +27,7 @@ namespace EOLib.PacketHandlers.Chat
             _notifiers = notifiers;
         }
 
-        protected override void DoTalk(IPacket packet, ICharacter character)
+        protected override void DoTalk(IPacket packet, Character character)
         {
             var message = packet.ReadEndString();
 

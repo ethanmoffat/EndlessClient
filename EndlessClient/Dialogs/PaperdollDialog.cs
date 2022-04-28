@@ -55,7 +55,7 @@ namespace EndlessClient.Dialogs
             _guild,
             _rank;
 
-        public ICharacter Character { get; }
+        public Character Character { get; }
 
         public PaperdollDialog(IGameStateProvider gameStateProvider,
                                INativeGraphicsManager nativeGraphicsManager,
@@ -67,7 +67,7 @@ namespace EndlessClient.Dialogs
                                IInventorySpaceValidator inventorySpaceValidator,
                                IEOMessageBoxFactory eoMessageBoxFactory,
                                IStatusLabelSetter statusLabelSetter,
-                               ICharacter character, bool isMainCharacter)
+                               Character character, bool isMainCharacter)
             : base(gameStateProvider)
         {
             _paperdollProvider = paperdollProvider;

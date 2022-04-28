@@ -188,7 +188,7 @@ namespace EndlessClient.Controllers
             _userInputTimeRepository.LastInputTime = DateTime.Now;
         }
 
-        public void RightClick(ICharacter character)
+        public void RightClick(Character character)
         {
             if (_activeDialogProvider.ActiveDialogs.Any(x => x.HasValue))
                 return;
@@ -281,6 +281,6 @@ namespace EndlessClient.Controllers
 
         void LeftClick(ISpellTargetable spellTarget);
 
-        void RightClick(ICharacter character);
+        void RightClick(Character character);
     }
 }

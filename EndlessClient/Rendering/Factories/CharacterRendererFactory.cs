@@ -62,7 +62,7 @@ namespace EndlessClient.Rendering.Factories
             _userInputProvider = userInputProvider;
         }
 
-        public ICharacterRenderer CreateCharacterRenderer(ICharacter character)
+        public ICharacterRenderer CreateCharacterRenderer(EOLib.Domain.Character.Character character)
         {
             return new CharacterRenderer(
                 _nativeGraphicsManager,

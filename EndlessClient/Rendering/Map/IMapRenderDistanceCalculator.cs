@@ -1,10 +1,9 @@
-﻿using EOLib.Domain.Character;
-using EOLib.IO.Map;
+﻿using EOLib.IO.Map;
 
 namespace EndlessClient.Rendering.Map
 {
     public interface IMapRenderDistanceCalculator
     {
-        MapRenderBounds CalculateRenderBounds(ICharacter character, IMapFile currentMap);
+        MapRenderBounds CalculateRenderBounds(EOLib.Domain.Character.Character character, IMapFile currentMap);
     }
 }

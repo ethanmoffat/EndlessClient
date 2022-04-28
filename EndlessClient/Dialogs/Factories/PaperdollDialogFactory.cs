@@ -46,7 +46,7 @@ namespace EndlessClient.Dialogs.Factories
             _statusLabelSetter = statusLabelSetter;
         }
 
-        public PaperdollDialog Create(ICharacter character, bool isMainCharacter)
+        public PaperdollDialog Create(Character character, bool isMainCharacter)
         {
             return new PaperdollDialog(_gameStateProvider,
                 _nativeGraphicsManager,
@@ -70,7 +70,7 @@ namespace EndlessClient.Dialogs.Factories
 
     public interface IPaperdollDialogFactory
     {
-        PaperdollDialog Create(ICharacter character, bool isMainCharacter);
+        PaperdollDialog Create(Character character, bool isMainCharacter);
 
         void InjectInventoryController(IInventoryController inventoryController);
     }

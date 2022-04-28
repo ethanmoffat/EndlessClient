@@ -1,28 +1,29 @@
 ﻿using AutomaticTypeMapper;
-using EOLib.Domain.Character;
 using Optional;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using DomainCharacter = EOLib.Domain.Character.Character;
+
 namespace EndlessClient.Rendering.Character
 {
-    [MappedType(BaseType = typeof(ICharacterStateCache), IsSingleton = true)]
+    [AutoMappedType(IsSingleton = true)]
     public class CharacterStateCache : ICharacterStateCache
     {
-        public Option<ICharacter> MainCharacter { get; private set; }
+        public Option<EOLib.Domain.Character.Character> MainCharacter { get; private set; }
 
-        private readonly Dictionary<int, ICharacter> _otherCharacters;
+        private readonly Dictionary<int, DomainCharacter> _otherCharacters;
         private readonly List<RenderFrameActionTime> _deathStartTimes;
 
-        public IReadOnlyDictionary<int, ICharacter> OtherCharacters => _otherCharacters;
+        public IReadOnlyDictionary<int, DomainCharacter> OtherCharacters => _otherCharacters;
 
         public IReadOnlyList<RenderFrameActionTime> DeathStartTimes => _deathStartTimes;
 
         public CharacterStateCache()
         {
-            MainCharacter = Option.None<ICharacter>();
-            _otherCharacters = new Dictionary<int, ICharacter>();
+            MainCharacter = Option.None<DomainCharacter>();
+            _otherCharacters = new Dictionary<int, DomainCharacter>();
             _deathStartTimes = new List<RenderFrameActionTime>();
         }
 
@@ -31,12 +32,12 @@ namespace EndlessClient.Rendering.Character
             return _otherCharacters.ContainsKey(id);
         }
 
-        public void UpdateMainCharacterState(ICharacter updatedCharacter)
+        public void UpdateMainCharacterState(DomainCharacter updatedCharacter)
         {
             MainCharacter = Option.Some(updatedCharacter);
         }
 
-        public void UpdateCharacterState(int id, ICharacter updatedCharacter)
+        public void UpdateCharacterState(int id, DomainCharacter updatedCharacter)
         {
             _otherCharacters[id] = updatedCharacter;
         }
@@ -69,7 +70,7 @@ namespace EndlessClient.Rendering.Character
 
         public void Reset()
         {
-            MainCharacter = Option.None<ICharacter>();
+            MainCharacter = Option.None<DomainCharacter>();
             ClearAllOtherCharacterStates();
         }
     }

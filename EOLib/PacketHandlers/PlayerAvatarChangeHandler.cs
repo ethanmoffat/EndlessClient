@@ -34,7 +34,7 @@ namespace EOLib.PacketHandlers
         public override bool HandlePacket(IPacket packet)
         {
             var playerID = packet.ReadShort();
-            ICharacter currentCharacter;
+            Character currentCharacter;
 
             if (_characterRepository.MainCharacter.ID == playerID)
             {

@@ -1,12 +1,11 @@
-﻿using EOLib.Domain.Character;
-using EOLib.Net.Translators;
+﻿using EOLib.Net.Translators;
 using System.Collections.Generic;
 
 namespace EOLib.Domain.Map
 {
     public class RefreshReplyData : IRefreshReplyData
     {
-        public IReadOnlyList<ICharacter> Characters { get; private set; }
+        public IReadOnlyList<Character.Character> Characters { get; private set; }
 
         public IReadOnlyList<NPC.NPC> NPCs { get; private set; }
 
@@ -14,15 +13,15 @@ namespace EOLib.Domain.Map
 
         public RefreshReplyData()
         {
-            Characters = new List<ICharacter>();
+            Characters = new List<Character.Character>();
             NPCs = new List<NPC.NPC>();
             Items = new List<IItem>();
         }
 
-        public IRefreshReplyData WithCharacters(IEnumerable<ICharacter> characters)
+        public IRefreshReplyData WithCharacters(IEnumerable<Character.Character> characters)
         {
             var newData = MakeCopy(this);
-            newData.Characters = new List<ICharacter>(characters);
+            newData.Characters = new List<Character.Character>(characters);
             return newData;
         }
 
@@ -44,7 +43,7 @@ namespace EOLib.Domain.Map
         {
             return new RefreshReplyData
             {
-                Characters = new List<ICharacter>(source.Characters),
+                Characters = new List<Character.Character>(source.Characters),
                 NPCs = new List<NPC.NPC>(source.NPCs),
                 Items = new List<IItem>(source.Items)
             };
@@ -53,13 +52,13 @@ namespace EOLib.Domain.Map
 
     public interface IRefreshReplyData : ITranslatedData
     {
-        IReadOnlyList<ICharacter> Characters { get; }
+        IReadOnlyList<Character.Character> Characters { get; }
 
         IReadOnlyList<NPC.NPC> NPCs { get; }
 
         IReadOnlyList<IItem> Items { get; }
 
-        IRefreshReplyData WithCharacters(IEnumerable<ICharacter> characters);
+        IRefreshReplyData WithCharacters(IEnumerable<Character.Character> characters);
 
         IRefreshReplyData WithNPCs(IEnumerable<NPC.NPC> npcs);
 

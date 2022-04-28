@@ -135,7 +135,7 @@ namespace EOLib.Domain.Character
             {
                 var spellTargetType = target is NPC.NPC
                     ? SpellTargetType.NPC
-                    : target is ICharacter
+                    : target is Character
                         ? SpellTargetType.Player
                         : throw new InvalidOperationException("Invalid spell target specified, must be player or character");
                 builder = builder.AddChar((byte)spellTargetType);

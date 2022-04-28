@@ -17,7 +17,7 @@ namespace EOLib.Domain.Map
 
         public Option<NPC.NPC> NPC { get; set; }
 
-        public Option<ICharacter> Character { get; set; }
+        public Option<Character.Character> Character { get; set; }
 
         public Option<ChestKey> ChestKey { get; set; }
 
@@ -31,7 +31,7 @@ namespace EOLib.Domain.Map
             Items = new List<IItem>();
             TileSpec = TileSpec.None;
             NPC = Option.None<NPC.NPC>();
-            Character = Option.None<ICharacter>();
+            Character = Option.None<Character.Character>();
             ChestKey = Option.None<ChestKey>();
             Warp = Option.None<IWarp>();
             Sign = Option.None<ISign>();

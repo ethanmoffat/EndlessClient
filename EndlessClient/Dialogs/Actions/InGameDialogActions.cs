@@ -108,7 +108,7 @@ namespace EndlessClient.Dialogs.Actions
             });
         }
 
-        public void ShowPaperdollDialog(ICharacter character, bool isMainCharacter)
+        public void ShowPaperdollDialog(Character character, bool isMainCharacter)
         {
             _activeDialogRepository.PaperdollDialog.MatchNone(() =>
             {
@@ -227,7 +227,7 @@ namespace EndlessClient.Dialogs.Actions
 
         void ShowQuestStatusDialog();
 
-        void ShowPaperdollDialog(ICharacter character, bool isMainCharacter);
+        void ShowPaperdollDialog(Character character, bool isMainCharacter);
 
         void ShowShopDialog();
 

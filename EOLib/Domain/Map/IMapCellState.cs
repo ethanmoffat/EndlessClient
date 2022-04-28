@@ -17,7 +17,7 @@ namespace EOLib.Domain.Map
 
         Option<NPC.NPC> NPC { get; }
 
-        Option<ICharacter> Character { get; }
+        Option<Character.Character> Character { get; }
         
         Option<ChestKey> ChestKey { get; }
 

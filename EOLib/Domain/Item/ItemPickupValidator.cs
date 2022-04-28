@@ -21,7 +21,7 @@ namespace EOLib.Domain.Item
             _eifFileProvider = eifFileProvider;
         }
 
-        public ItemPickupResult ValidateItemPickup(ICharacter mainCharacter, IItem item)
+        public ItemPickupResult ValidateItemPickup(Character.Character mainCharacter, IItem item)
         {
             var now = DateTime.Now;
 
@@ -58,6 +58,6 @@ namespace EOLib.Domain.Item
 
     public interface IItemPickupValidator
     {
-        ItemPickupResult ValidateItemPickup(ICharacter mainCharacter, IItem item);
+        ItemPickupResult ValidateItemPickup(Character.Character mainCharacter, IItem item);
     }
 }

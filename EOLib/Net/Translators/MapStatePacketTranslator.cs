@@ -17,7 +17,7 @@ namespace EOLib.Net.Translators
 
         public abstract T TranslatePacket(IPacket packet);
 
-        protected IEnumerable<ICharacter> GetCharacters(IPacket packet)
+        protected IEnumerable<Character> GetCharacters(IPacket packet)
         {
             var numCharacters = packet.ReadChar();
 

@@ -55,7 +55,7 @@ namespace EOLib.Domain.Map
             };
         }
 
-        private static bool CharacterAtCoordinates(ICharacter character, int x, int y)
+        private static bool CharacterAtCoordinates(Character.Character character, int x, int y)
         {
             return character.RenderProperties.IsActing(CharacterActionState.Walking)
                 ? character.RenderProperties.GetDestinationX() == x && character.RenderProperties.GetDestinationY() == y

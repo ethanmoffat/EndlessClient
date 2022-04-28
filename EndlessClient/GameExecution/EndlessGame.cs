@@ -116,7 +116,7 @@ namespace EndlessClient.GameExecution
 
             // for some reason initializing these and then killing them speeds up transition from Login -> LoggedIn state
             // TODO: figure out why this happens????
-            foreach (var panel in _characterInfoPanelFactory.CreatePanels(Enumerable.Repeat(new Character(), 3)))
+            foreach (var panel in _characterInfoPanelFactory.CreatePanels(Enumerable.Repeat(Character.Default, 3)))
             {
                 panel.Initialize();
                 panel.Dispose();

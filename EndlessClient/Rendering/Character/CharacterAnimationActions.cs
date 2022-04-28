@@ -237,7 +237,7 @@ namespace EndlessClient.Rendering.Character
                 ? Option.Some(_characterRepository.MainCharacter)
                 : _currentMapStateProvider.Characters.ContainsKey(characterID)
                     ? Option.Some(_currentMapStateProvider.Characters[characterID])
-                    : Option.None<ICharacter>();
+                    : Option.None<EOLib.Domain.Character.Character>();
 
             var characterRenderer = characterID == _characterRepository.MainCharacter.ID
                 ? _characterRendererProvider.MainCharacterRenderer
@@ -272,7 +272,7 @@ namespace EndlessClient.Rendering.Character
             _characterRendererProvider.MainCharacterRenderer.MatchSome(r => r.StopShout());
         }
 
-        private void PlayWeaponSound(ICharacter character, int noteIndex = -1)
+        private void PlayWeaponSound(EOLib.Domain.Character.Character character, int noteIndex = -1)
         {
             _pubFileProvider.EIFFile.SingleOrNone(x => x.Type == ItemType.Weapon && x.DollGraphic == character.RenderProperties.WeaponGraphic)
                 .MatchSome(x =>

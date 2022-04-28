@@ -16,7 +16,7 @@ namespace EOLib.Net.Translators
         public override IAccountLoginData TranslatePacket(IPacket packet)
         {
             LoginReply reply;
-            var characters = new List<ICharacter>();
+            var characters = new List<Character>();
 
             if (packet.Family == PacketFamily.Login && packet.Action == PacketAction.Reply)
             {

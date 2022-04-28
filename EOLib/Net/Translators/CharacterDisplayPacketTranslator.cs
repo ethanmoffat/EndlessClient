@@ -18,9 +18,9 @@ namespace EOLib.Net.Translators
 
         public abstract T TranslatePacket(IPacket packet);
 
-        protected IEnumerable<ICharacter> GetCharacters(IPacket packet)
+        protected IEnumerable<Character> GetCharacters(IPacket packet)
         {
-            var characters = new List<ICharacter>();
+            var characters = new List<Character>();
 
             var numberOfCharacters = (int)packet.ReadChar();
 
@@ -38,14 +38,15 @@ namespace EOLib.Net.Translators
             return characters;
         }
 
-        private ICharacter GetNextCharacter(IPacket packet)
+        private Character GetNextCharacter(IPacket packet)
         {
-            ICharacter character = new Character()
-                .WithName(packet.ReadBreakString())
-                .WithID(packet.ReadInt());
+            var character = new Character.Builder
+            {
+                Name = packet.ReadBreakString(),
+                ID = packet.ReadInt()
+            };
 
-            var stats = new CharacterStats()
-                .WithNewStat(CharacterStat.Level, packet.ReadChar());
+            var stats = new CharacterStats().WithNewStat(CharacterStat.Level, packet.ReadChar());
 
             var gender = packet.ReadChar();
             var hairStyle = packet.ReadChar();
@@ -58,7 +59,7 @@ namespace EOLib.Net.Translators
             var shield = packet.ReadShort();
             var weapon = packet.ReadShort();
 
-            var renderProperties = new CharacterRenderProperties.Builder()
+            var renderProperties = new CharacterRenderProperties.Builder
             { 
                Gender = gender,
                HairStyle = hairStyle,
@@ -72,10 +73,11 @@ namespace EOLib.Net.Translators
                IsRangedWeapon = _eifFileProvider.EIFFile.IsRangedWeapon(weapon),
             };
 
-            return character
-                .WithAdminLevel(adminLevel)
-                .WithRenderProperties(renderProperties.ToImmutable())
-                .WithStats(stats);
+            character.Stats = stats;
+            character.AdminLevel = adminLevel;
+            character.RenderProperties = renderProperties.ToImmutable();
+
+            return character.ToImmutable();
         }
 
     }

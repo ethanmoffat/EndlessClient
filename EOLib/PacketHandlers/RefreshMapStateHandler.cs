@@ -67,7 +67,7 @@ namespace EOLib.PacketHandlers
             return true;
         }
 
-        private bool IDMatches(ICharacter x)
+        private bool IDMatches(Character x)
         {
             return x.ID == _characterRepository.MainCharacter.ID;
         }

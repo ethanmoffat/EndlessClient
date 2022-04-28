@@ -170,7 +170,7 @@ namespace EndlessClient.Rendering.Character
                 _currentMapStateRepository.Characters.Remove(id);
         }
 
-        private ICharacterRenderer InitializeRendererForCharacter(ICharacter character)
+        private ICharacterRenderer InitializeRendererForCharacter(EOLib.Domain.Character.Character character)
         {
             var renderer = _characterRendererFactory.CreateCharacterRenderer(character);
             renderer.Initialize();

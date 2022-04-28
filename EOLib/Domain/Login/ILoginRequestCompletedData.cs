@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using EOLib.Domain.Character;
+﻿using EOLib.Domain.Character;
 using EOLib.Domain.Map;
-using EOLib.Domain.NPC;
 using EOLib.Net.Translators;
+using System.Collections.Generic;
 
 namespace EOLib.Domain.Login
 {
@@ -18,7 +17,7 @@ namespace EOLib.Domain.Login
 
         IReadOnlyList<IInventorySpell> CharacterSpellInventory { get; }
 
-        IReadOnlyList<ICharacter> MapCharacters { get; }
+        IReadOnlyList<Character.Character> MapCharacters { get; }
 
         IReadOnlyList<NPC.NPC> MapNPCs { get; }
 
@@ -36,7 +35,7 @@ namespace EOLib.Domain.Login
 
         ILoginRequestCompletedData WithSpells(IEnumerable<IInventorySpell> inventorySpells);
 
-        ILoginRequestCompletedData WithCharacters(IEnumerable<ICharacter> characters);
+        ILoginRequestCompletedData WithCharacters(IEnumerable<Character.Character> characters);
 
         ILoginRequestCompletedData WithNPCs(IEnumerable<NPC.NPC> npcs);
 
