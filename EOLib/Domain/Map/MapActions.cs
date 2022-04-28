@@ -49,7 +49,7 @@ namespace EOLib.Domain.Map
             return pickupResult;
         }
 
-        public void OpenDoor(IWarp warp)
+        public void OpenDoor(Warp warp)
         {
             var packet = new PacketBuilder(PacketFamily.Door, PacketAction.Open)
                 .AddChar((byte)warp.X)
@@ -87,7 +87,7 @@ namespace EOLib.Domain.Map
 
         ItemPickupResult PickUpItem(MapItem item);
 
-        void OpenDoor(IWarp warp);
+        void OpenDoor(Warp warp);
 
         void OpenChest(byte x, byte y);
 

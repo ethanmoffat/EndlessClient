@@ -21,8 +21,8 @@ namespace EOLib.Domain.Map
         
         Option<ChestKey> ChestKey { get; }
 
-        Option<IWarp> Warp { get; }
+        Option<Warp> Warp { get; }
 
-        Option<ISign> Sign { get; }
+        Option<Sign> Sign { get; }
     }
 }

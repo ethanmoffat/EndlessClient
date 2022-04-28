@@ -21,9 +21,9 @@ namespace EOLib.Domain.Map
 
         public Option<ChestKey> ChestKey { get; set; }
 
-        public Option<IWarp> Warp { get; set; }
+        public Option<Warp> Warp { get; set; }
 
-        public Option<ISign> Sign { get; set; }
+        public Option<Sign> Sign { get; set; }
 
         public MapCellState()
         {
@@ -33,8 +33,8 @@ namespace EOLib.Domain.Map
             NPC = Option.None<NPC.NPC>();
             Character = Option.None<Character.Character>();
             ChestKey = Option.None<ChestKey>();
-            Warp = Option.None<IWarp>();
-            Sign = Option.None<ISign>();
+            Warp = Option.None<Warp>();
+            Sign = Option.None<Sign>();
         }
     }
 }

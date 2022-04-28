@@ -65,7 +65,7 @@ namespace EOLib.Domain.Character
                         none: () => mc.NoWall || IsTileSpecWalkable(cellState.TileSpec))));
         }
 
-        private bool IsWarpWalkable(IWarp warp, TileSpec tile)
+        private bool IsWarpWalkable(Warp warp, TileSpec tile)
         {
             if (warp.DoorType != DoorSpec.NoDoor)
                 return _currentMapStateProvider.OpenDoors.Any(w => w.X == warp.X && w.Y == warp.Y) &&

@@ -17,9 +17,9 @@ namespace EOLib.Domain.Map
 
         HashSet<MapItem> MapItems { get; set; }
 
-        HashSet<IWarp> OpenDoors { get; set;  }
+        HashSet<Warp> OpenDoors { get; set;  }
 
-        HashSet<IWarp> PendingDoors { get; set; }
+        HashSet<Warp> PendingDoors { get; set; }
 
         HashSet<MapCoordinate> VisibleSpikeTraps { get; set; }
 
@@ -44,9 +44,9 @@ namespace EOLib.Domain.Map
 
         IReadOnlyCollection<MapItem> MapItems { get; }
 
-        IReadOnlyCollection<IWarp> OpenDoors { get; }
+        IReadOnlyCollection<Warp> OpenDoors { get; }
 
-        IReadOnlyCollection<IWarp> PendingDoors { get; }
+        IReadOnlyCollection<Warp> PendingDoors { get; }
 
         IReadOnlyCollection<MapCoordinate> VisibleSpikeTraps { get; }
 
@@ -72,9 +72,9 @@ namespace EOLib.Domain.Map
 
         public HashSet<MapItem> MapItems { get; set; }
 
-        public HashSet<IWarp> OpenDoors { get; set; }
+        public HashSet<Warp> OpenDoors { get; set; }
 
-        public HashSet<IWarp> PendingDoors { get; set; }
+        public HashSet<Warp> PendingDoors { get; set; }
 
         public HashSet<MapCoordinate> VisibleSpikeTraps { get; set;  }
 
@@ -90,9 +90,9 @@ namespace EOLib.Domain.Map
 
         IReadOnlyCollection<MapItem> ICurrentMapStateProvider.MapItems => MapItems;
 
-        IReadOnlyCollection<IWarp> ICurrentMapStateProvider.OpenDoors => OpenDoors;
+        IReadOnlyCollection<Warp> ICurrentMapStateProvider.OpenDoors => OpenDoors;
 
-        IReadOnlyCollection<IWarp> ICurrentMapStateProvider.PendingDoors => PendingDoors;
+        IReadOnlyCollection<Warp> ICurrentMapStateProvider.PendingDoors => PendingDoors;
 
         IReadOnlyCollection<MapCoordinate> ICurrentMapStateProvider.VisibleSpikeTraps => VisibleSpikeTraps;
 
@@ -110,8 +110,8 @@ namespace EOLib.Domain.Map
             Characters = new Dictionary<int, Character.Character>();
             NPCs = new HashSet<NPC.NPC>();
             MapItems = new HashSet<MapItem>();
-            OpenDoors = new HashSet<IWarp>();
-            PendingDoors = new HashSet<IWarp>();
+            OpenDoors = new HashSet<Warp>();
+            PendingDoors = new HashSet<Warp>();
             VisibleSpikeTraps = new HashSet<MapCoordinate>();
             UnknownPlayerIDs = new HashSet<short>();
             UnknownNPCIndexes = new HashSet<byte>();

@@ -89,7 +89,7 @@ namespace EndlessClient.Input
             return UnwalkableTileAction.None;
         }
 
-        private UnwalkableTileAction HandleWalkToWarpTile(IWarp warp)
+        private UnwalkableTileAction HandleWalkToWarpTile(Warp warp)
         {
             if (warp.DoorType != DoorSpec.NoDoor)
             {

@@ -47,9 +47,9 @@ namespace EOLib.Domain.Map
                 Coordinate = new MapCoordinate(x, y),
                 Items      = items.ToList(),
                 TileSpec   = tileSpec,
-                Warp       = warp.SomeNotNull().Map<IWarp>(w => new Warp(w)),
+                Warp       = warp.SomeNotNull().Map(w => new Warp(w)),
                 ChestKey   = chest.SomeNotNull(),
-                Sign       = sign.SomeNotNull().Map<ISign>(s => new Sign(s)),
+                Sign       = sign.SomeNotNull().Map(s => new Sign(s)),
                 Character  = character,
                 NPC        = npc
             };

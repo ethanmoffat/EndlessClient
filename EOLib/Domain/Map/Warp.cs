@@ -1,9 +1,10 @@
-﻿using EOLib.IO.Map;
-using System.Collections.Generic;
+﻿using Amadevus.RecordGenerator;
+using EOLib.IO.Map;
 
 namespace EOLib.Domain.Map
 {
-    public class Warp : IWarp
+    [Record(Features.ObjectEquals)]
+    public sealed partial class Warp
     {
         private readonly WarpMapEntity _warpEntity;
 
@@ -19,35 +20,5 @@ namespace EOLib.Domain.Map
         {
             _warpEntity = warpEntity;
         }
-
-        public override bool Equals(object obj)
-        {
-            return obj is Warp warp &&
-                   X == warp.X &&
-                   Y == warp.Y &&
-                   DoorType == warp.DoorType &&
-                   LevelRequirement == warp.LevelRequirement;
-        }
-
-        public override int GetHashCode()
-        {
-            int hashCode = 514290371;
-            hashCode = hashCode * -1521134295 + X.GetHashCode();
-            hashCode = hashCode * -1521134295 + Y.GetHashCode();
-            hashCode = hashCode * -1521134295 + DoorType.GetHashCode();
-            hashCode = hashCode * -1521134295 + LevelRequirement.GetHashCode();
-            return hashCode;
-        }
-    }
-
-    public interface IWarp
-    {
-        int X { get; }
-
-        int Y { get; }
-
-        DoorSpec DoorType { get; }
-
-        int LevelRequirement { get; }
     }
 }
