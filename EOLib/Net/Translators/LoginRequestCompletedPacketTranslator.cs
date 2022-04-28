@@ -7,14 +7,14 @@ using EOLib.Domain.Login;
 namespace EOLib.Net.Translators
 {
     [AutoMappedType]
-    public class LoginRequestCompletedPacketTranslator : MapStatePacketTranslator<ILoginRequestCompletedData>
+    public class LoginRequestCompletedPacketTranslator : MapStatePacketTranslator<LoginRequestCompletedData>
     {
         private const int MAX_NEWS_LINES = 9;
 
         public LoginRequestCompletedPacketTranslator(ICharacterFromPacketFactory characterFromPacketFactory)
             : base(characterFromPacketFactory) { }
 
-        public override ILoginRequestCompletedData TranslatePacket(IPacket packet)
+        public override LoginRequestCompletedData TranslatePacket(IPacket packet)
         {
             var reply = (CharacterLoginReply)packet.ReadShort();
 
@@ -23,7 +23,7 @@ namespace EOLib.Net.Translators
                 if (packet.ReadEndString() != "NO")
                     throw new MalformedPacketException("Expected NO bytes in CharacterLoginReply login", packet);
 
-                return new LoginRequestCompletedData().WithError(reply);
+                return new LoginRequestCompletedData.Builder { Error = reply }.ToImmutable();
             }
             else if (reply != CharacterLoginReply.RequestCompleted)
             {
@@ -51,15 +51,17 @@ namespace EOLib.Net.Translators
             var npcs = GetNPCs(packet).ToList();
             var items = GetMapItems(packet).ToList();
 
-            return new LoginRequestCompletedData()
-                .WithNews(news)
-                .WithWeight(weight)
-                .WithMaxWeight(maxWeight)
-                .WithInventory(inventoryItems)
-                .WithSpells(inventorySpells)
-                .WithCharacters(characters)
-                .WithNPCs(npcs)
-                .WithItems(items);
+            return new LoginRequestCompletedData.Builder
+            { 
+                News = news,
+                CharacterWeight = weight,
+                CharacterMaxWeight = maxWeight,
+                CharacterItemInventory = inventoryItems,
+                CharacterSpellInventory = inventorySpells,
+                MapCharacters = characters,
+                MapNPCs = npcs,
+                MapItems = items,
+            }.ToImmutable();
         }
 
         private IEnumerable<string> GetNews(IPacket packet)

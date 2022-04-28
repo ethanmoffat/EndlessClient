@@ -18,8 +18,8 @@ namespace EOLib.Domain.Login
     {
         private readonly IPacketSendService _packetSendService;
         private readonly IPacketTranslator<IAccountLoginData> _loginPacketTranslator;
-        private readonly IPacketTranslator<ILoginRequestGrantedData> _loginRequestGrantedPacketTranslator;
-        private readonly IPacketTranslator<ILoginRequestCompletedData> _loginRequestCompletedPacketTranslator;
+        private readonly IPacketTranslator<LoginRequestGrantedData> _loginRequestGrantedPacketTranslator;
+        private readonly IPacketTranslator<LoginRequestCompletedData> _loginRequestCompletedPacketTranslator;
         private readonly ICharacterSelectorRepository _characterSelectorRepository;
         private readonly IPlayerInfoRepository _playerInfoRepository;
         private readonly ICharacterRepository _characterRepository;
@@ -32,8 +32,8 @@ namespace EOLib.Domain.Login
 
         public LoginActions(IPacketSendService packetSendService,
                             IPacketTranslator<IAccountLoginData> loginPacketTranslator,
-                            IPacketTranslator<ILoginRequestGrantedData> loginRequestGrantedPacketTranslator,
-                            IPacketTranslator<ILoginRequestCompletedData> loginRequestCompletedPacketTranslator,
+                            IPacketTranslator<LoginRequestGrantedData> loginRequestGrantedPacketTranslator,
+                            IPacketTranslator<LoginRequestCompletedData> loginRequestCompletedPacketTranslator,
                             ICharacterSelectorRepository characterSelectorRepository,
                             IPlayerInfoRepository playerInfoRepository,
                             ICharacterRepository characterRepository,
