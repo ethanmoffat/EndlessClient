@@ -60,7 +60,7 @@ namespace EOLib.PacketHandlers
             return true;
         }
 
-        private static ICharacterRenderProperties EnsureCorrectXAndY(ICharacterRenderProperties renderProperties, byte x, byte y)
+        private static CharacterRenderProperties EnsureCorrectXAndY(CharacterRenderProperties renderProperties, byte x, byte y)
         {
             var opposite = renderProperties.Direction.Opposite();
             var tempRenderProperties = renderProperties

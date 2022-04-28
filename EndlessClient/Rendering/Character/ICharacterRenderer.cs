@@ -1,14 +1,13 @@
-﻿using System;
-using EndlessClient.Rendering.Effects;
-using EOLib.Domain.Character;
+﻿using EndlessClient.Rendering.Effects;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 
 namespace EndlessClient.Rendering.Character
 {
     public interface ICharacterRenderer : IDrawable, IUpdateable, IGameComponent, IDisposable, IMapActor, IEffectTarget, ISpellCaster
     {
-        ICharacter Character { get; set; }
+        EOLib.Domain.Character.Character Character { get; set; }
 
         new bool Visible { get; set; }
 

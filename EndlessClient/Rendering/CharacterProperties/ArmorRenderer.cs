@@ -14,7 +14,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 
         public override bool CanRender => _armorSheet.HasTexture && _renderProperties.ArmorGraphic != 0;
 
-        public ArmorRenderer(ICharacterRenderProperties renderProperties,
+        public ArmorRenderer(CharacterRenderProperties renderProperties,
                              ISpriteSheet armorSheet)
             : base(renderProperties)
         {

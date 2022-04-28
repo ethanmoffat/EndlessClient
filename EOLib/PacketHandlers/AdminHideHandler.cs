@@ -49,7 +49,7 @@ namespace EOLib.PacketHandlers
             return true;
         }
 
-        private static ICharacter Hidden(ICharacter input)
+        private static Character Hidden(Character input)
         {
             var renderProps = input.RenderProperties.WithIsHidden(true);
             return input.WithRenderProperties(renderProps);

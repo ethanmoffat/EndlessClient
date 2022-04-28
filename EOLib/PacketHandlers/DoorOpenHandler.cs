@@ -31,7 +31,7 @@ namespace EOLib.PacketHandlers
             var x = packet.ReadChar();
             var y = packet.ReadShort();
 
-            IWarp warp;
+            Warp warp;
             try
             {
                 warp = _currentMapStateRepository.PendingDoors.Single(w => w.X == x && w.Y == y);
@@ -40,9 +40,6 @@ namespace EOLib.PacketHandlers
             {
                 // another player attempted to open a door
                 warp = new Warp(_currentMapProvider.CurrentMap.Warps[y, x]);
-
-                if (warp.X < 0 && warp.Y < 0)
-                    return false; // bad packet? this should never be hit
             }
 
             _currentMapStateRepository.PendingDoors.Remove(warp);

@@ -177,7 +177,7 @@ namespace EndlessClient.Rendering
                 UpdateCursorIndexForTileSpec(cellState.TileSpec);
 
             if (!cellState.Items.Any())
-                UpdateMapItemLabel(Option.None<IItem>());
+                UpdateMapItemLabel(Option.None<MapItem>());
 
             _startClickTime.MatchSome(st =>
                 {
@@ -211,7 +211,7 @@ namespace EndlessClient.Rendering
             return new Vector2(x*32 - y*32 + 288 - cOffX, y*16 + x*16 + 144 - cOffY);
         }
 
-        private void UpdateMapItemLabel(Option<IItem> item)
+        private void UpdateMapItemLabel(Option<MapItem> item)
         {
             item.Match(
                 some: i =>

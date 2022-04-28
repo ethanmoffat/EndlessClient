@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
-using EOLib.Domain.Character;
-using EOLib.Net.Translators;
+﻿using EOLib.Net.Translators;
+using System.Collections.Generic;
 
 namespace EOLib.Domain.Login
 {
@@ -8,10 +7,10 @@ namespace EOLib.Domain.Login
     {
         public LoginReply Response { get; }
 
-        private readonly List<ICharacter> _characters;
-        public IReadOnlyList<ICharacter> Characters => _characters;
+        private readonly List<Character.Character> _characters;
+        public IReadOnlyList<Character.Character> Characters => _characters;
 
-        public AccountLoginData(LoginReply reply, List<ICharacter> characters)
+        public AccountLoginData(LoginReply reply, List<Character.Character> characters)
         {
             Response = reply;
             _characters = characters;
@@ -22,6 +21,6 @@ namespace EOLib.Domain.Login
     {
         LoginReply Response { get; }
 
-        IReadOnlyList<ICharacter> Characters { get; }
+        IReadOnlyList<Character.Character> Characters { get; }
     }
 }

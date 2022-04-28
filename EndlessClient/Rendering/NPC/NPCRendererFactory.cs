@@ -7,7 +7,6 @@ using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
-using EOLib.Domain.NPC;
 using EOLib.Graphics;
 using EOLib.IO.Repositories;
 
@@ -56,7 +55,7 @@ namespace EndlessClient.Rendering.NPC
             _spellSlotDataProvider = spellSlotDataProvider;
         }
 
-        public INPCRenderer CreateRendererFor(INPC npc)
+        public INPCRenderer CreateRendererFor(EOLib.Domain.NPC.NPC npc)
         {
             return new NPCRenderer(_nativeGraphicsManager,
                                    _endlessGameProvider,
@@ -76,6 +75,6 @@ namespace EndlessClient.Rendering.NPC
 
     public interface INPCRendererFactory
     {
-        INPCRenderer CreateRendererFor(INPC npc);
+        INPCRenderer CreateRendererFor(EOLib.Domain.NPC.NPC npc);
     }
 }

@@ -30,7 +30,7 @@ namespace EndlessClient.Dialogs
         private readonly IEIFFileProvider _eifFileProvider;
         private readonly InventoryPanel _inventoryPanel;
 
-        private HashSet<IInventoryItem> _cachedItems;
+        private HashSet<InventoryItem> _cachedItems;
 
         public LockerDialog(INativeGraphicsManager nativeGraphicsManager,
                             ILockerActions lockerActions,
@@ -55,7 +55,7 @@ namespace EndlessClient.Dialogs
             _eifFileProvider = eifFileProvider;
             _inventoryPanel = hudControlProvider.GetComponent<InventoryPanel>(HudControlIdentifier.InventoryPanel);
 
-            _cachedItems = new HashSet<IInventoryItem>();
+            _cachedItems = new HashSet<InventoryItem>();
 
             Title = GetDialogTitle();
             Buttons = ScrollingListDialogButtons.Cancel;
@@ -98,7 +98,7 @@ namespace EndlessClient.Dialogs
             }
         }
 
-        private void TakeItem(EIFRecord itemData, IInventoryItem item)
+        private void TakeItem(EIFRecord itemData, InventoryItem item)
         {
             if (!_inventorySpaceValidator.ItemFits(item.ItemID))
             {

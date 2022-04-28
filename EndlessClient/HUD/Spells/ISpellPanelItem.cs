@@ -15,7 +15,7 @@ namespace EndlessClient.HUD.Spells
 
         bool IsBeingDragged { get; }
 
-        IInventorySpell InventorySpell { get; set;  }
+        InventorySpell InventorySpell { get; set;  }
 
         ESFRecord SpellData { get; }
 

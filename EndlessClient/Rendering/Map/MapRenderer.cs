@@ -310,7 +310,7 @@ namespace EndlessClient.Rendering.Map
                                ViewportHeightFactor - (props.MapY * 16) - (props.MapX * 16) - charOffY);
         }
 
-        private int GetAlphaForCoordinates(int objX, int objY, ICharacter character)
+        private int GetAlphaForCoordinates(int objX, int objY, EOLib.Domain.Character.Character character)
         {
             if (!_configurationProvider.ShowTransition)
             {

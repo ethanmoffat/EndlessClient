@@ -16,7 +16,7 @@ namespace EOLib.Net.Translators
             _eifFileProvider = eifFileProvider;
         }
 
-        public ICharacter CreateCharacter(IPacket packet)
+        public Character CreateCharacter(IPacket packet)
         {
             var name = packet.ReadBreakString();
             name = char.ToUpper(name[0]) + name.Substring(1);
@@ -59,35 +59,41 @@ namespace EOLib.Net.Translators
                 .WithNewStat(CharacterStat.TP, tp)
                 .WithNewStat(CharacterStat.MaxTP, maxTP);
 
-            var renderProps = new CharacterRenderProperties()
-                .WithDirection(direction)
-                .WithGender(gender)
-                .WithHairStyle(hairStyle)
-                .WithHairColor(hairColor)
-                .WithRace(race)
-                .WithBootsGraphic(boots)
-                .WithArmorGraphic(armor)
-                .WithHatGraphic(hat)
-                .WithShieldGraphic(shield)
-                .WithWeaponGraphic(weapon, _eifFileProvider.EIFFile.IsRangedWeapon(weapon))
-                .WithSitState(sitState)
-                .WithIsHidden(hidden)
-                .WithMapX(xLoc)
-                .WithMapY(yLoc);
+            var renderProps = new CharacterRenderProperties.Builder
+            { 
+               Direction = direction,
+               Gender = gender,
+               HairStyle = hairStyle,
+               HairColor = hairColor,
+               Race = race,
+               BootsGraphic = boots,
+               ArmorGraphic = armor,
+               HatGraphic = hat,
+               ShieldGraphic = shield,
+               WeaponGraphic = weapon,
+               IsRangedWeapon = _eifFileProvider.EIFFile.IsRangedWeapon(weapon),
+               SitState = sitState,
+               CurrentAction = sitState == SitState.Standing ? CharacterActionState.Standing : CharacterActionState.Sitting,
+               IsHidden = hidden,
+               MapX = xLoc,
+               MapY = yLoc,
+            };
 
-            return new Character()
-                .WithName(name)
-                .WithID(id)
-                .WithClassID(classID)
-                .WithMapID(mapID)
-                .WithGuildTag(guildTag)
-                .WithStats(stats)
-                .WithRenderProperties(renderProps);
+            return new Character.Builder
+            { 
+                Name = name,
+                ID = id,
+                ClassID = classID,
+                MapID = mapID,
+                GuildTag = guildTag,
+                Stats = stats,
+                RenderProperties = renderProps.ToImmutable(),
+            }.ToImmutable();
         }
     }
 
     public interface ICharacterFromPacketFactory
     {
-        ICharacter CreateCharacter(IPacket packet);
+        Character CreateCharacter(IPacket packet);
     }
 }

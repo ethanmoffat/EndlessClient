@@ -18,7 +18,7 @@ namespace EOLib.PacketHandlers
     [AutoMappedType]
     public class EndPlayerWarpHandler : InGameOnlyPacketHandler
     {
-        private readonly IPacketTranslator<IWarpAgreePacketData> _warpAgreePacketTranslator;
+        private readonly IPacketTranslator<WarpAgreePacketData> _warpAgreePacketTranslator;
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly ICurrentMapProvider _currentMapProvider;
@@ -30,7 +30,7 @@ namespace EOLib.PacketHandlers
         public override PacketAction Action => PacketAction.Agree;
 
         public EndPlayerWarpHandler(IPlayerInfoProvider playerInfoProvider,
-                                    IPacketTranslator<IWarpAgreePacketData> warpAgreePacketTranslator,
+                                    IPacketTranslator<WarpAgreePacketData> warpAgreePacketTranslator,
                                     ICharacterRepository characterRepository,
                                     ICurrentMapStateRepository currentMapStateRepository,
                                     ICurrentMapProvider currentMapProvider,
@@ -56,20 +56,20 @@ namespace EOLib.PacketHandlers
 
             //character.renderproperties.isdead is set True by the attack handler
             //the character needs to be brought back to life when they are taken to the home map
-            var bringBackToLife = _characterRepository.MainCharacter.RenderProperties.WithAlive();
+            var bringBackToLife = _characterRepository.MainCharacter.RenderProperties.WithIsDead(false);
             _characterRepository.MainCharacter = _characterRepository.MainCharacter
                 .WithRenderProperties(bringBackToLife)
                 .WithAppliedData(updatedMainCharacter, _eifFileProvider.EIFFile.IsRangedWeapon(updatedMainCharacter.RenderProperties.WeaponGraphic));
 
             var withoutMainCharacter = warpAgreePacketData.Characters.Where(x => !MainCharacterIDMatches(x));
-            warpAgreePacketData = warpAgreePacketData.WithCharacters(withoutMainCharacter);
+            warpAgreePacketData = warpAgreePacketData.WithCharacters(withoutMainCharacter.ToList());
 
             var differentMapID = _currentMapStateRepository.CurrentMapID != warpAgreePacketData.MapID;
 
             _currentMapStateRepository.CurrentMapID = warpAgreePacketData.MapID;
             _currentMapStateRepository.Characters = warpAgreePacketData.Characters.ToDictionary(k => k.ID, v => v);
-            _currentMapStateRepository.NPCs = new HashSet<INPC>(warpAgreePacketData.NPCs);
-            _currentMapStateRepository.MapItems = new HashSet<IItem>(warpAgreePacketData.Items);
+            _currentMapStateRepository.NPCs = new HashSet<NPC>(warpAgreePacketData.NPCs);
+            _currentMapStateRepository.MapItems = new HashSet<MapItem>(warpAgreePacketData.Items);
             _currentMapStateRepository.OpenDoors.Clear();
             _currentMapStateRepository.VisibleSpikeTraps.Clear();
             _currentMapStateRepository.ShowMiniMap = _currentMapStateRepository.ShowMiniMap &&
@@ -84,7 +84,7 @@ namespace EOLib.PacketHandlers
             return true;
         }
 
-        private bool MainCharacterIDMatches(ICharacter x)
+        private bool MainCharacterIDMatches(Character x)
         {
             return x.ID == _characterRepository.MainCharacter.ID;
         }

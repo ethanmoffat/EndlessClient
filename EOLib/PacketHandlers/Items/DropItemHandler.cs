@@ -5,6 +5,7 @@ using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.Net;
 using EOLib.Net.Handlers;
+using Optional;
 using System;
 using System.Collections.Generic;
 
@@ -57,9 +58,8 @@ namespace EOLib.PacketHandlers.Items
                 .WithNewStat(CharacterStat.MaxWeight, maxWeight);
             _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);
 
-            var mapItem = new Item(uid, id, dropX, dropY)
-                .WithAmount(amountDropped)
-                .WithDropTime(DateTime.Now.AddSeconds(-5));
+            var mapItem = new MapItem(uid, id, dropX, dropY, amountDropped)
+                .WithDropTime(Option.Some(DateTime.Now.AddSeconds(-5)));
             _currentMapStateRepository.MapItems.Add(mapItem);
 
             foreach (var notifier in _mainCharacterEventNotifiers)

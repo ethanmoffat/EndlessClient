@@ -46,7 +46,7 @@ namespace EOLib.Domain.Spells
 
             var spellData = _pubFileProvider.ESFFile[spellId];
 
-            if (spellTarget is INPC)
+            if (spellTarget is NPC.NPC)
             {
                 if (spellData.TargetRestrict == SpellTargetRestrict.Friendly ||
                     spellData.Target != SpellTarget.Normal ||
@@ -58,7 +58,7 @@ namespace EOLib.Domain.Spells
                 if (npcData.Type != NPCType.Passive && npcData.Type != NPCType.Aggressive)
                     return SpellCastValidationResult.CannotAttackNPC;
             }
-            else if (spellTarget is ICharacter)
+            else if (spellTarget is Character.Character)
             {
                 if (spellData.TargetRestrict == SpellTargetRestrict.NPCOnly ||
                     spellData.Target != SpellTarget.Normal ||

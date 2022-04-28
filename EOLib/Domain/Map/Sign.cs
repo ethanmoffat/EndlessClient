@@ -3,13 +3,13 @@ using System.Linq;
 
 namespace EOLib.Domain.Map
 {
-    public class Sign : ISign
+    public class Sign
     {
         public string Title { get; private set; }
 
         public string Message { get; private set; }
 
-        public static ISign None => new Sign();
+        public static Sign None => new Sign();
 
         private Sign()
         {
@@ -27,12 +27,5 @@ namespace EOLib.Domain.Map
         {
             return new string(input.Where(x => !char.IsControl(x)).ToArray());
         }
-    }
-
-    public interface ISign
-    {
-        string Title { get; }
-
-        string Message { get; }
     }
 }

@@ -5,24 +5,18 @@ namespace EOLib.Domain.Extensions
 {
     public static class CharacterExtensions
     {
-        public static ICharacter WithAppliedData(this ICharacter original, ICharacter updatedData, bool isRangedWeapon)
+        public static Character.Character WithAppliedData(this Character.Character original, Character.Character updatedData, bool isRangedWeapon)
         {
             var existingRenderProps = original.RenderProperties;
-            var newRenderProps = existingRenderProps
-                .WithBootsGraphic(updatedData.RenderProperties.BootsGraphic)
-                .WithArmorGraphic(updatedData.RenderProperties.ArmorGraphic)
-                .WithHatGraphic(updatedData.RenderProperties.HatGraphic)
-                .WithShieldGraphic(updatedData.RenderProperties.ShieldGraphic)
-                .WithWeaponGraphic(updatedData.RenderProperties.WeaponGraphic, isRangedWeapon)
-                .WithDirection(updatedData.RenderProperties.Direction)
-                .WithHairStyle(updatedData.RenderProperties.HairStyle)
-                .WithHairColor(updatedData.RenderProperties.HairColor)
-                .WithGender(updatedData.RenderProperties.Gender)
-                .WithRace(updatedData.RenderProperties.Race)
-                .WithSitState(updatedData.RenderProperties.SitState)
-                .WithMapX(updatedData.RenderProperties.MapX)
-                .WithMapY(updatedData.RenderProperties.MapY)
-                .ResetAnimationFrames();
+            var newRenderProps = updatedData.RenderProperties.ToBuilder();
+
+            newRenderProps.CurrentAction = updatedData.RenderProperties.SitState == SitState.Standing
+                ? CharacterActionState.Standing
+                : CharacterActionState.Sitting;
+            newRenderProps.IsDead = existingRenderProps.IsDead;
+            newRenderProps.IsRangedWeapon = isRangedWeapon;
+            newRenderProps.IsDrunk = existingRenderProps.IsDrunk;
+            newRenderProps.IsHidden = existingRenderProps.IsHidden;
 
             var existingStats = original.Stats;
             var newStats = existingStats
@@ -36,18 +30,17 @@ namespace EOLib.Domain.Extensions
                 .WithName(updatedData.Name)
                 .WithGuildTag(updatedData.GuildTag)
                 .WithMapID(updatedData.MapID)
-                .WithRenderProperties(newRenderProps)
+                .WithRenderProperties(newRenderProps.ToImmutable())
                 .WithStats(newStats);
         }
 
-        public static ICharacter WithDamage(this ICharacter original, int damageTaken, bool isDead)
+        public static Character.Character WithDamage(this Character.Character original, int damageTaken, bool isDead)
         {
             var stats = original.Stats;
             stats = stats.WithNewStat(CharacterStat.HP, (short)Math.Max(stats[CharacterStat.HP] - damageTaken, 0));
 
-            var props = original.RenderProperties;
-            if (isDead)
-                props = props.WithDead();
+            var props = original.RenderProperties
+                .WithIsDead(isDead);
 
             return original.WithStats(stats).WithRenderProperties(props);
         }

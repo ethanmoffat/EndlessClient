@@ -55,8 +55,8 @@ namespace EndlessClient.HUD.Panels
         private readonly IXNAButton _drop, _junk, _paperdoll;
         //private readonly ScrollBar _scrollBar;
 
-        private Option<ICharacterStats> _cachedStats;
-        private HashSet<IInventoryItem> _cachedInventory;
+        private Option<CharacterStats> _cachedStats;
+        private HashSet<InventoryItem> _cachedInventory;
 
         public INativeGraphicsManager NativeGraphicsManager { get; }
 
@@ -114,8 +114,8 @@ namespace EndlessClient.HUD.Panels
             _junk = new XNAButton(weirdOffsetSheet, new Vector2(431, 68), new Rectangle(0, 89, 38, 37), new Rectangle(0, 126, 38, 37));
             _junk.OnMouseEnter += MouseOverButton;
 
-            _cachedStats = Option.None<ICharacterStats>();
-            _cachedInventory = new HashSet<IInventoryItem>();
+            _cachedStats = Option.None<CharacterStats>();
+            _cachedInventory = new HashSet<InventoryItem>();
 
             BackgroundImage = NativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 44);
             DrawArea = new Rectangle(102, 330, BackgroundImage.Width, BackgroundImage.Height);

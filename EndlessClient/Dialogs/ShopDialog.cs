@@ -43,7 +43,7 @@ namespace EndlessClient.Dialogs
         private ShopState _state;
 
         private Option<int> _cachedShopId;
-        private HashSet<IInventoryItem> _cachedInventory;
+        private HashSet<InventoryItem> _cachedInventory;
         private ulong _tick;
 
         public ShopDialog(INativeGraphicsManager nativeGraphicsManager,
@@ -76,7 +76,7 @@ namespace EndlessClient.Dialogs
 
             BackAction += (_, _) => SetState(ShopState.Initial);
 
-            _cachedInventory = new HashSet<IInventoryItem>(_characterInventoryProvider.ItemInventory);
+            _cachedInventory = new HashSet<InventoryItem>(_characterInventoryProvider.ItemInventory);
         }
 
         protected override void OnUpdateControl(GameTime gameTime)
@@ -101,7 +101,7 @@ namespace EndlessClient.Dialogs
             if (++_tick % 8 == 0 && !_cachedInventory.SetEquals(_characterInventoryProvider.ItemInventory))
             {
                 _sellItems = _shopDataProvider.TradeItems.Where(x => x.Sell > 0 && _characterInventoryProvider.ItemInventory.Any(inv => inv.ItemID == x.ID && inv.Amount > 0)).ToList();
-                _cachedInventory = new HashSet<IInventoryItem>(_characterInventoryProvider.ItemInventory);
+                _cachedInventory = new HashSet<InventoryItem>(_characterInventoryProvider.ItemInventory);
 
                 if (_state == ShopState.Selling)
                     SetState(ShopState.Selling);

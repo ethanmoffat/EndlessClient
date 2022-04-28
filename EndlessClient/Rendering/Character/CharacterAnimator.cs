@@ -347,7 +347,7 @@ namespace EndlessClient.Rendering.Character
                 _otherPlayerStartWalkingTimes.Remove(key);
         }
 
-        private ICharacterRenderProperties AnimateOneWalkFrame(ICharacterRenderProperties renderProperties)
+        private CharacterRenderProperties AnimateOneWalkFrame(CharacterRenderProperties renderProperties)
         {
             var isSteppingStone = _currentMapProvider.CurrentMap.Tiles[renderProperties.MapY, renderProperties.MapX] == TileSpec.Jump
                 || _currentMapProvider.CurrentMap.Tiles[renderProperties.GetDestinationY(), renderProperties.GetDestinationX()] == TileSpec.Jump;
@@ -363,7 +363,7 @@ namespace EndlessClient.Rendering.Character
             return nextFrameRenderProperties;
         }
 
-        private ICharacterRenderProperties FaceTarget(MapCoordinate characterCoord, MapCoordinate next, ICharacterRenderProperties rp)
+        private CharacterRenderProperties FaceTarget(MapCoordinate characterCoord, MapCoordinate next, CharacterRenderProperties rp)
         {
             var diff = next - characterCoord;
 
@@ -511,16 +511,17 @@ namespace EndlessClient.Rendering.Character
 
         #endregion
 
-        private Option<ICharacter> GetCurrentCharacterFromRepository(RenderFrameActionTime pair)
+        private Option<EOLib.Domain.Character.Character> GetCurrentCharacterFromRepository(RenderFrameActionTime pair)
         {
             return pair.UniqueID == _characterRepository.MainCharacter.ID
                 ? Option.Some(_characterRepository.MainCharacter)
                 : _currentMapStateRepository.Characters.ContainsKey(pair.UniqueID)
                     ? Option.Some(_currentMapStateRepository.Characters[pair.UniqueID])
-                    : Option.None<ICharacter>();
+                    : Option.None<EOLib.Domain.Character.Character>();
         }
 
-        private void UpdateCharacterInRepository(ICharacter currentCharacter, ICharacter nextFrameCharacter)
+        private void UpdateCharacterInRepository(EOLib.Domain.Character.Character currentCharacter,
+                                                 EOLib.Domain.Character.Character nextFrameCharacter)
         {
             if (currentCharacter == _characterRepository.MainCharacter)
             {

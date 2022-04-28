@@ -185,7 +185,7 @@ namespace EndlessClient.Controllers
             _itemActions.UnequipItem(equipId, alternateLocation: locName.Contains('2'));
         }
 
-        public void DropItem(EIFRecord itemData, IInventoryItem inventoryItem)
+        public void DropItem(EIFRecord itemData, InventoryItem inventoryItem)
         {
             var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
             if (_activeDialogProvider.ActiveDialogs.Any(x => x.HasValue) && mapRenderer.MouseOver)
@@ -221,7 +221,7 @@ namespace EndlessClient.Controllers
             }
         }
 
-        public void DropItemInChest(EIFRecord itemData, IInventoryItem inventoryItem)
+        public void DropItemInChest(EIFRecord itemData, InventoryItem inventoryItem)
         {
             var validationResult = _itemDropValidator.ValidateItemDrop(_characterProvider.MainCharacter, inventoryItem);
 
@@ -236,7 +236,7 @@ namespace EndlessClient.Controllers
             }
         }
 
-        public void DropItemInLocker(EIFRecord itemData, IInventoryItem inventoryItem)
+        public void DropItemInLocker(EIFRecord itemData, InventoryItem inventoryItem)
         {
             if (inventoryItem.ItemID == 1)
             {
@@ -262,7 +262,7 @@ namespace EndlessClient.Controllers
             }
         }
 
-        public void JunkItem(EIFRecord itemData, IInventoryItem inventoryItem)
+        public void JunkItem(EIFRecord itemData, InventoryItem inventoryItem)
         {
             if (inventoryItem.Amount > 1)
             {
@@ -286,7 +286,7 @@ namespace EndlessClient.Controllers
             }
         }
 
-        private void DoItemDrop(EIFRecord itemData, IInventoryItem inventoryItem, Action<int> dropAction,
+        private void DoItemDrop(EIFRecord itemData, InventoryItem inventoryItem, Action<int> dropAction,
                                 ItemTransferDialog.TransferType transferType = ItemTransferDialog.TransferType.DropItems,
                                 EOResourceID message = EOResourceID.DIALOG_TRANSFER_DROP)
         {
@@ -336,12 +336,12 @@ namespace EndlessClient.Controllers
 
         void UnequipItem(EquipLocation equipLocation);
 
-        void DropItem(EIFRecord itemData, IInventoryItem inventoryItem);
+        void DropItem(EIFRecord itemData, InventoryItem inventoryItem);
 
-        void DropItemInChest(EIFRecord itemData, IInventoryItem inventoryItem);
+        void DropItemInChest(EIFRecord itemData, InventoryItem inventoryItem);
 
-        void DropItemInLocker(EIFRecord itemData, IInventoryItem inventoryItem);
+        void DropItemInLocker(EIFRecord itemData, InventoryItem inventoryItem);
 
-        void JunkItem(EIFRecord itemData, IInventoryItem inventoryItem);
+        void JunkItem(EIFRecord itemData, InventoryItem inventoryItem);
     }
 }

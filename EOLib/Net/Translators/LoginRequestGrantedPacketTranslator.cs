@@ -9,9 +9,9 @@ using EOLib.IO;
 namespace EOLib.Net.Translators
 {
     [AutoMappedType]
-    public class LoginRequestGrantedPacketTranslator : IPacketTranslator<ILoginRequestGrantedData>
+    public class LoginRequestGrantedPacketTranslator : IPacketTranslator<LoginRequestGrantedData>
     {
-        public ILoginRequestGrantedData TranslatePacket(IPacket packet)
+        public LoginRequestGrantedData TranslatePacket(IPacket packet)
         {
             var reply = (CharacterLoginReply)packet.ReadShort();
             if (reply != CharacterLoginReply.RequestGranted)
@@ -111,32 +111,34 @@ namespace EOLib.Net.Translators
             if (packet.ReadByte() != 255)
                 throw new MalformedPacketException("Missing terminating 255 byte", packet);
 
-            return new LoginRequestGrantedData()
-                .WithSessionID(sessionID)
-                .WithCharacterID(characterID)
-                .WithMapID(mapID)
-                .WithMapRID(mapRid)
-                .WithMapLen(mapLen)
-                .WithEifRID(eifRid)
-                .WithEifLen(eifLen)
-                .WithEnfRID(enfRid)
-                .WithEnfLen(enfLen)
-                .WithEsfRID(esfRid)
-                .WithEsfLen(esfLen)
-                .WithEcfRID(ecfRid)
-                .WithEcfLen(ecfLen)
-                .WithName(characterName)
-                .WithTitle(characterTitle)
-                .WithGuildName(guildName)
-                .WithGuildRank(guildRank)
-                .WithClassId(classID)
-                .WithGuildTag(paddedGuildTag)
-                .WithAdminLevel(adminLevel)
-                .WithCharacterStats(characterStats)
-                .WithPaperdoll(paperDoll)
-                .WithGuildRankNum(guildRankNum)
-                .WithJailMap(jailMap)
-                .WithFirstTimePlayer(firstTimePlayer);
+            return new LoginRequestGrantedData.Builder
+            {
+                SessionID = sessionID,
+                CharacterID = characterID,
+                MapID = mapID,
+                MapRID = mapRid,
+                MapLen = mapLen,
+                EifRid = eifRid,
+                EifLen = eifLen,
+                EnfRid = enfRid,
+                EnfLen = enfLen,
+                EsfRid = esfRid,
+                EsfLen = esfLen,
+                EcfRid = ecfRid,
+                EcfLen = ecfLen,
+                Name = characterName,
+                Title = characterTitle,
+                GuildName = guildName,
+                GuildRank = guildRank,
+                ClassID = classID,
+                GuildTag = paddedGuildTag,
+                AdminLevel = adminLevel,
+                CharacterStats = characterStats,
+                Paperdoll = paperDoll,
+                GuildRankNum = guildRankNum,
+                JailMap = jailMap,
+                FirstTimePlayer = firstTimePlayer,
+            }.ToImmutable();
         }
     }
 }

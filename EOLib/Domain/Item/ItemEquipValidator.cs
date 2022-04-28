@@ -21,7 +21,7 @@ namespace EOLib.Domain.Item
             _paperdollProvider = paperdollProvider;
         }
 
-        public (ItemEquipResult, string, bool) ValidateItemEquip(ICharacter c, EIFRecord itemData)
+        public (ItemEquipResult, string, bool) ValidateItemEquip(Character.Character c, EIFRecord itemData)
         {
             if (!_paperdollProvider.VisibleCharacterPaperdolls.ContainsKey(c.ID))
             {
@@ -80,6 +80,6 @@ namespace EOLib.Domain.Item
 
     public interface IItemEquipValidator
     {
-        (ItemEquipResult Result, string Detail, bool IsAlternateEquipLocation) ValidateItemEquip(ICharacter mainCharacter, EIFRecord itemData);
+        (ItemEquipResult Result, string Detail, bool IsAlternateEquipLocation) ValidateItemEquip(Character.Character mainCharacter, EIFRecord itemData);
     }
 }

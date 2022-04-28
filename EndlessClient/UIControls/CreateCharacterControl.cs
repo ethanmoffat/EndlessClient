@@ -12,7 +12,7 @@ namespace EndlessClient.UIControls
         private Vector2 _lastPosition;
 
         public CreateCharacterControl(ICharacterRendererFactory characterRendererFactory)
-            : base(new Character().WithRenderProperties(GetDefaultProperties()), characterRendererFactory)
+            : base(Character.Default.WithRenderProperties(GetDefaultProperties()), characterRendererFactory)
         {
             SetSize(99, 123);
             _lastPosition = Vector2.Zero;
@@ -63,9 +63,9 @@ namespace EndlessClient.UIControls
             RenderProperties = RenderProperties.WithHairColor((byte)((RenderProperties.HairColor + 1) % 10));
         }
 
-        private static ICharacterRenderProperties GetDefaultProperties()
+        private static CharacterRenderProperties GetDefaultProperties()
         {
-            return new CharacterRenderProperties().WithHairStyle(1);
+            return new CharacterRenderProperties.Builder { HairStyle = 1 }.ToImmutable();
         }
     }
 }

@@ -30,6 +30,6 @@ namespace EOLib.PacketHandlers.Chat
             return true;
         }
 
-        protected abstract void DoTalk(IPacket packet, ICharacter character);
+        protected abstract void DoTalk(IPacket packet, Character character);
     }
 }

@@ -47,22 +47,22 @@ namespace EOLib.Domain.Map
                 Coordinate = new MapCoordinate(x, y),
                 Items      = items.ToList(),
                 TileSpec   = tileSpec,
-                Warp       = warp.SomeNotNull().Map<IWarp>(w => new Warp(w)),
+                Warp       = warp.SomeNotNull().Map(w => new Warp(w)),
                 ChestKey   = chest.SomeNotNull(),
-                Sign       = sign.SomeNotNull().Map<ISign>(s => new Sign(s)),
+                Sign       = sign.SomeNotNull().Map(s => new Sign(s)),
                 Character  = character,
                 NPC        = npc
             };
         }
 
-        private static bool CharacterAtCoordinates(ICharacter character, int x, int y)
+        private static bool CharacterAtCoordinates(Character.Character character, int x, int y)
         {
             return character.RenderProperties.IsActing(CharacterActionState.Walking)
                 ? character.RenderProperties.GetDestinationX() == x && character.RenderProperties.GetDestinationY() == y
                 : character.RenderProperties.MapX == x && character.RenderProperties.MapY == y;
         }
 
-        private static bool NPCAtCoordinates(INPC npc, int x, int y)
+        private static bool NPCAtCoordinates(NPC.NPC npc, int x, int y)
         {
             return npc.IsActing(NPCActionState.Walking)
                 ? npc.GetDestinationX() == x && npc.GetDestinationY() == y

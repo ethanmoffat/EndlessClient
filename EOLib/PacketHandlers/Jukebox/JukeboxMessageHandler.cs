@@ -1,5 +1,4 @@
 ﻿using AutomaticTypeMapper;
-using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
@@ -12,9 +11,7 @@ namespace EOLib.PacketHandlers.Jukebox
     [AutoMappedType]
     public class JukeboxMessageHandler : InGameOnlyPacketHandler
     {
-        private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
-        private readonly IEnumerable<IMainCharacterEventNotifier> _mainCharacterEventNotifiers;
         private readonly IEnumerable<IOtherCharacterAnimationNotifier> _otherCharacterAnimationNotifiers;
 
         public override PacketFamily Family => PacketFamily.JukeBox;

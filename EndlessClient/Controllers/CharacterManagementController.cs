@@ -66,9 +66,9 @@ namespace EndlessClient.Controllers
             });
         }
 
-        public async Task DeleteCharacter(ICharacter characterToDelete)
+        public async Task DeleteCharacter(Character characterToDelete)
         {
-            void ShowCharacterDeleteWarning(ICharacter c)
+            void ShowCharacterDeleteWarning(Character c)
             {
                 _characterDialogActions.ShowCharacterDeleteWarning(c.Name);
                 _characterSelectorRepository.CharacterForDelete = Option.Some(c);
@@ -110,7 +110,7 @@ namespace EndlessClient.Controllers
 
             var response = deleteOp.Result;
 
-            _characterSelectorRepository.CharacterForDelete = Option.None<ICharacter>();
+            _characterSelectorRepository.CharacterForDelete = Option.None<Character>();
             if (response != CharacterReply.Deleted)
             {
                 SetInitialStateAndShowError();
@@ -150,6 +150,6 @@ namespace EndlessClient.Controllers
     {
         Task CreateCharacter();
 
-        Task DeleteCharacter(ICharacter characterToDelete);
+        Task DeleteCharacter(Character characterToDelete);
     }
 }

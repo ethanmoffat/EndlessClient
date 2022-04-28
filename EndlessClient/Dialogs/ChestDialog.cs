@@ -33,7 +33,7 @@ namespace EndlessClient.Dialogs
         private readonly ICharacterProvider _characterProvider;
         private readonly InventoryPanel _inventoryPanel;
 
-        private HashSet<IInventoryItem> _cachedItems;
+        private HashSet<ChestItem> _cachedItems;
 
         public ChestDialog(INativeGraphicsManager nativeGraphicsManager,
                            IChestActions chestActions,
@@ -64,7 +64,7 @@ namespace EndlessClient.Dialogs
             Buttons = ScrollingListDialogButtons.Cancel;
 
             _inventoryPanel = _hudControlProvider.GetComponent<InventoryPanel>(HudControlIdentifier.InventoryPanel);
-            _cachedItems = new HashSet<IInventoryItem>();
+            _cachedItems = new HashSet<ChestItem>();
 
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION,
                 EOResourceID.STATUS_LABEL_CHEST_YOU_OPENED,
@@ -107,7 +107,7 @@ namespace EndlessClient.Dialogs
             }
         }
 
-        private void TakeItem(IInventoryItem item, EIFRecord itemData)
+        private void TakeItem(ChestItem item, EIFRecord itemData)
         {
             if (!_inventorySpaceValidator.ItemFits(item.ItemID))
             {

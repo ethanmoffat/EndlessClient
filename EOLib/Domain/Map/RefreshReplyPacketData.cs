@@ -1,69 +1,23 @@
-﻿using System.Collections.Generic;
-using EOLib.Domain.Character;
-using EOLib.Domain.NPC;
+﻿using Amadevus.RecordGenerator;
 using EOLib.Net.Translators;
+using System.Collections.Generic;
 
 namespace EOLib.Domain.Map
 {
-    public class RefreshReplyData : IRefreshReplyData
+    [Record]
+    public sealed partial class RefreshReplyData : ITranslatedData
     {
-        public IReadOnlyList<ICharacter> Characters { get; private set; }
+        public IReadOnlyList<Character.Character> Characters { get; }
 
-        public IReadOnlyList<INPC> NPCs { get; private set; }
+        public IReadOnlyList<NPC.NPC> NPCs { get; }
 
-        public IReadOnlyList<IItem> Items { get; private set; }
+        public IReadOnlyList<MapItem> Items { get; }
 
         public RefreshReplyData()
         {
-            Characters = new List<ICharacter>();
-            NPCs = new List<INPC>();
-            Items = new List<IItem>();
+            Characters = new List<Character.Character>();
+            NPCs = new List<NPC.NPC>();
+            Items = new List<MapItem>();
         }
-
-        public IRefreshReplyData WithCharacters(IEnumerable<ICharacter> characters)
-        {
-            var newData = MakeCopy(this);
-            newData.Characters = new List<ICharacter>(characters);
-            return newData;
-        }
-
-        public IRefreshReplyData WithNPCs(IEnumerable<INPC> npcs)
-        {
-            var newData = MakeCopy(this);
-            newData.NPCs = new List<INPC>(npcs);
-            return newData;
-        }
-
-        public IRefreshReplyData WithItems(IEnumerable<IItem> items)
-        {
-            var newData = MakeCopy(this);
-            newData.Items = new List<IItem>(items);
-            return newData;
-        }
-
-        private static RefreshReplyData MakeCopy(IRefreshReplyData source)
-        {
-            return new RefreshReplyData
-            {
-                Characters = new List<ICharacter>(source.Characters),
-                NPCs = new List<INPC>(source.NPCs),
-                Items = new List<IItem>(source.Items)
-            };
-        }
-    }
-
-    public interface IRefreshReplyData : ITranslatedData
-    {
-        IReadOnlyList<ICharacter> Characters { get; }
-
-        IReadOnlyList<INPC> NPCs { get; }
-
-        IReadOnlyList<IItem> Items { get; }
-
-        IRefreshReplyData WithCharacters(IEnumerable<ICharacter> characters);
-
-        IRefreshReplyData WithNPCs(IEnumerable<INPC> npcs);
-
-        IRefreshReplyData WithItems(IEnumerable<IItem> items);
     }
 }

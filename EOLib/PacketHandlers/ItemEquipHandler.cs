@@ -70,7 +70,7 @@ namespace EOLib.PacketHandlers
                 ? Option.Some(_characterRepository.MainCharacter)
                 : _currentMapStateRepository.Characters.ContainsKey(playerId)
                     ? Option.Some(_currentMapStateRepository.Characters[playerId])
-                    : Option.None<ICharacter>();
+                    : Option.None<Character>();
 
             update.MatchSome(c =>
             {

@@ -18,7 +18,7 @@ namespace EOLib.Domain.Map
             _chestDataProvider = chestDataProvider;
         }
 
-        public void AddItemToChest(IInventoryItem item)
+        public void AddItemToChest(InventoryItem item)
         {
             var packet = new PacketBuilder(PacketFamily.Chest, PacketAction.Add)
                 .AddChar((byte)_chestDataProvider.Location.X)
@@ -45,7 +45,7 @@ namespace EOLib.Domain.Map
     public interface IChestActions
     {
 
-        void AddItemToChest(IInventoryItem item);
+        void AddItemToChest(InventoryItem item);
 
         void TakeItemFromChest(short itemId);
     }

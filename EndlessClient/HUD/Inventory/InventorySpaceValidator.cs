@@ -28,7 +28,7 @@ namespace EndlessClient.HUD.Inventory
             _inventoryService = inventoryService;
         }
 
-        public bool ItemFits(IItem item)
+        public bool ItemFits(MapItem item)
         {
             return _characterInventoryProvider.ItemInventory.Any(x => x.ItemID == item.ItemID) || ItemFits(item.ItemID);
         }
@@ -48,7 +48,7 @@ namespace EndlessClient.HUD.Inventory
 
     public interface IInventorySpaceValidator
     {
-        bool ItemFits(IItem item);
+        bool ItemFits(MapItem item);
 
         bool ItemFits(int itemId);
 

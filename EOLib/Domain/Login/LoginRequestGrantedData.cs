@@ -1,256 +1,44 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using Amadevus.RecordGenerator;
 using EOLib.Domain.Character;
 using EOLib.IO;
+using EOLib.Net.Translators;
+using System.Collections.Generic;
 
 namespace EOLib.Domain.Login
 {
-    public class LoginRequestGrantedData : ILoginRequestGrantedData
+    [Record]
+    public sealed partial class LoginRequestGrantedData : ITranslatedData
     {
-        public short SessionID { get; private set; }
-        public int CharacterID { get; private set; }
+        public short SessionID { get; }
+        public int CharacterID { get; }
 
-        public short MapID { get; private set; }
-        public IReadOnlyList<byte> MapRID { get; private set; }
-        public int MapLen { get; private set; }
+        public short MapID { get; }
+        public IReadOnlyList<byte> MapRID { get; }
+        public int MapLen { get; }
 
-        public int EifRid { get; private set; }
-        public short EifLen { get; private set; }
-        public int EnfRid { get; private set; }
-        public short EnfLen { get; private set; }
-        public int EsfRid { get; private set; }
-        public short EsfLen { get; private set; }
-        public int EcfRid { get; private set; }
-        public short EcfLen { get; private set; }
+        public int EifRid { get; }
+        public short EifLen { get; }
+        public int EnfRid { get; }
+        public short EnfLen { get; }
+        public int EsfRid { get; }
+        public short EsfLen { get; }
+        public int EcfRid { get; }
+        public short EcfLen { get; }
 
-        public string Name { get; private set; }
-        public string Title { get; private set; }
-        public string GuildName { get; private set; }
-        public string GuildRank { get; private set; }
-        public byte ClassID { get; private set; }
-        public string GuildTag { get; private set; }
-        public AdminLevel AdminLevel { get; private set; }
+        public string Name { get; }
+        public string Title { get; }
+        public string GuildName { get; }
+        public string GuildRank { get; }
+        public byte ClassID { get; }
+        public string GuildTag { get; }
+        public AdminLevel AdminLevel { get; }
 
-        public ICharacterStats CharacterStats { get; private set; }
+        public CharacterStats CharacterStats { get; }
 
-        private IReadOnlyDictionary<EquipLocation, short> _paperdoll = new Dictionary<EquipLocation, short>();
-        public IReadOnlyDictionary<EquipLocation, short> Paperdoll => _paperdoll;
+        public IReadOnlyDictionary<EquipLocation, short> Paperdoll { get; }
 
-        public byte GuildRankNum { get; private set; }
-        public short JailMap { get; private set; }
-        public bool FirstTimePlayer { get; private set; }
-
-        public ILoginRequestGrantedData WithSessionID(short sessionID)
-        {
-            var copy = MakeCopy(this);
-            copy.SessionID = sessionID;
-            return copy;
-        }
-
-        public ILoginRequestGrantedData WithCharacterID(int characterID)
-        {
-            var copy = MakeCopy(this);
-            copy.CharacterID = characterID;
-            return copy;
-        }
-
-        public ILoginRequestGrantedData WithMapID(short mapID)
-        {
-            var copy = MakeCopy(this);
-            copy.MapID = mapID;
-            return copy;
-        }
-
-        public ILoginRequestGrantedData WithMapRID(IEnumerable<byte> mapRID)
-        {
-            var copy = MakeCopy(this);
-            copy.MapRID = mapRID.ToList();
-            return copy;
-        }
-
-        public ILoginRequestGrantedData WithMapLen(int mapLen)
-        {
-            var copy = MakeCopy(this);
-            copy.MapLen = mapLen;
-            return copy;
-        }
-
-        public ILoginRequestGrantedData WithEifRID(int eifRid)
-        {
-            var copy = MakeCopy(this);
-            copy.EifRid = eifRid;
-            return copy;
-        }
-
-        public ILoginRequestGrantedData WithEifLen(short eifLen)
-        {
-            var copy = MakeCopy(this);
-            copy.EifLen = eifLen;
-            return copy;
-        }
-
-        public ILoginRequestGrantedData WithEnfRID(int enfRid)
-        {
-            var copy = MakeCopy(this);
-            copy.EnfRid = enfRid;
-            return copy;
-        }
-
-        public ILoginRequestGrantedData WithEnfLen(short enfLen)
-        {
-            var copy = MakeCopy(this);
-            copy.EnfLen = enfLen;
-            return copy;
-        }
-
-        public ILoginRequestGrantedData WithEsfRID(int esfRid)
-        {
-            var copy = MakeCopy(this);
-            copy.EsfRid = esfRid;
-            return copy;
-        }
-
-        public ILoginRequestGrantedData WithEsfLen(short esfLen)
-        {
-            var copy = MakeCopy(this);
-            copy.EsfLen = esfLen;
-            return copy;
-        }
-
-        public ILoginRequestGrantedData WithEcfRID(int ecfRid)
-        {
-            var copy = MakeCopy(this);
-            copy.EcfRid = ecfRid;
-            return copy;
-        }
-
-        public ILoginRequestGrantedData WithEcfLen(short ecfLen)
-        {
-            var copy = MakeCopy(this);
-            copy.EcfLen = ecfLen;
-            return copy;
-        }
-
-        public ILoginRequestGrantedData WithName(string name)
-        {
-            var copy = MakeCopy(this);
-            copy.Name = name;
-            return copy;
-        }
-
-        public ILoginRequestGrantedData WithTitle(string title)
-        {
-            var copy = MakeCopy(this);
-            copy.Title = title;
-            return copy;
-        }
-
-        public ILoginRequestGrantedData WithGuildName(string guildName)
-        {
-            var copy = MakeCopy(this);
-            copy.GuildName = guildName;
-            return copy;
-        }
-
-        public ILoginRequestGrantedData WithGuildRank(string guildRank)
-        {
-            var copy = MakeCopy(this);
-            copy.GuildRank = guildRank;
-            return copy;
-        }
-
-        public ILoginRequestGrantedData WithClassId(byte classID)
-        {
-            var copy = MakeCopy(this);
-            copy.ClassID = classID;
-            return copy;
-        }
-
-        public ILoginRequestGrantedData WithGuildTag(string guildTag)
-        {
-            var copy = MakeCopy(this);
-            copy.GuildTag = guildTag;
-            return copy;
-        }
-
-        public ILoginRequestGrantedData WithAdminLevel(AdminLevel adminLevel)
-        {
-            var copy = MakeCopy(this);
-            copy.AdminLevel = adminLevel;
-            return copy;
-        }
-
-        public ILoginRequestGrantedData WithCharacterStats(ICharacterStats stats)
-        {
-            var copy = MakeCopy(this);
-            copy.CharacterStats = stats;
-            return copy;
-        }
-
-        public ILoginRequestGrantedData WithPaperdoll(IReadOnlyDictionary<EquipLocation, short> paperdoll)
-        {
-            var copy = MakeCopy(this);
-            copy._paperdoll = paperdoll;
-            return copy;
-        }
-
-        public ILoginRequestGrantedData WithGuildRankNum(byte rankNum)
-        {
-            var copy = MakeCopy(this);
-            copy.GuildRankNum = rankNum;
-            return copy;
-        }
-
-        public ILoginRequestGrantedData WithJailMap(short jailMapID)
-        {
-            var copy = MakeCopy(this);
-            copy.JailMap = jailMapID;
-            return copy;
-        }
-
-        public ILoginRequestGrantedData WithFirstTimePlayer(bool isFirstTimePlayer)
-        {
-            var copy = MakeCopy(this);
-            copy.FirstTimePlayer = isFirstTimePlayer;
-            return copy;
-        }
-
-        private static LoginRequestGrantedData MakeCopy(LoginRequestGrantedData source)
-        {
-            return new LoginRequestGrantedData
-            {
-                SessionID = source.SessionID,
-                CharacterID = source.CharacterID,
-
-                MapID = source.MapID,
-                MapRID = source.MapRID,
-                MapLen = source.MapLen,
-
-                EifLen = source.EifLen,
-                EifRid = source.EifRid,
-                EnfLen = source.EnfLen,
-                EnfRid = source.EnfRid,
-                EsfLen = source.EsfLen,
-                EsfRid = source.EsfRid,
-                EcfLen = source.EcfLen,
-                EcfRid = source.EcfRid,
-
-                Name = source.Name,
-                Title = source.Title,
-                GuildName = source.GuildName,
-                GuildRank = source.GuildRank,
-                ClassID = source.ClassID,
-                GuildTag = source.GuildTag,
-                AdminLevel = source.AdminLevel,
-
-                CharacterStats = source.CharacterStats,
-
-                _paperdoll = source._paperdoll,
-
-                JailMap = source.JailMap,
-                GuildRankNum = source.GuildRankNum,
-                FirstTimePlayer = source.FirstTimePlayer
-            };
-        }
+        public byte GuildRankNum { get; }
+        public short JailMap { get; }
+        public bool FirstTimePlayer { get; }
     }
 }

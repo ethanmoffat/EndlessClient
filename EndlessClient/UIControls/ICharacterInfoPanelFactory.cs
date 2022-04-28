@@ -6,7 +6,7 @@ namespace EndlessClient.UIControls
 {
     public interface ICharacterInfoPanelFactory
     {
-        IEnumerable<CharacterInfoPanel> CreatePanels(IEnumerable<ICharacter> characters);
+        IEnumerable<CharacterInfoPanel> CreatePanels(IEnumerable<Character> characters);
         void InjectLoginController(ILoginController loginController);
         void InjectCharacterManagementController(ICharacterManagementController characterManagementController);
     }

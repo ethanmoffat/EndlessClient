@@ -15,7 +15,7 @@ namespace EOLib.Net.Translators
         {
             var reply = (CharacterReply) packet.ReadShort();
 
-            var characters = new List<ICharacter>();
+            var characters = new List<Character>();
             if (reply == CharacterReply.Ok || reply == CharacterReply.Deleted)
                 characters.AddRange(GetCharacters(packet));
 

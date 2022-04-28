@@ -53,7 +53,7 @@ namespace EOLib.PacketHandlers
                 var y = packet.ReadChar();
                 var amount = packet.ReadThree();
 
-                var newItem = new Item(uid, itemID, x, y).WithAmount(amount);
+                var newItem = new MapItem(uid, itemID, x, y, amount);
                 _currentMapStateRepository.MapItems.Add(newItem);
             }
 

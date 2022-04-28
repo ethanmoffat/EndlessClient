@@ -33,8 +33,8 @@ namespace EndlessClient.HUD.Panels
                           GOLD = 4, EXP = 5, TNL = 6, KARMA = 7;
         private readonly IXNALabel[] _otherInfo;
 
-        private ICharacterStats _lastCharacterStats;
-        private IInventoryItem _lastCharacterGold;
+        private CharacterStats _lastCharacterStats;
+        private InventoryItem _lastCharacterGold;
         private bool _confirmedTraining;
 
         public StatsPanel(INativeGraphicsManager nativeGraphicsManager,
@@ -222,7 +222,7 @@ namespace EndlessClient.HUD.Panels
             }
         }
 
-        private IInventoryItem CurrentCharacterGold
+        private InventoryItem CurrentCharacterGold
             => _characterInventoryProvider.ItemInventory.Single(x => x.ItemID == 1);
 
         private int ExperienceToNextLevel =>

@@ -9,7 +9,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 {
     public abstract class BaseCharacterPropertyRenderer : ICharacterPropertyRenderer
     {
-        protected readonly ICharacterRenderProperties _renderProperties;
+        protected readonly CharacterRenderProperties _renderProperties;
 
         public abstract bool CanRender { get; }
 
@@ -17,7 +17,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 
         protected virtual bool ShouldFlip => _renderProperties.IsFacing(EODirection.Up, EODirection.Right);
 
-        protected BaseCharacterPropertyRenderer(ICharacterRenderProperties renderProperties)
+        protected BaseCharacterPropertyRenderer(CharacterRenderProperties renderProperties)
         {
             _renderProperties = renderProperties;
             LayerDepth = 1.0f;

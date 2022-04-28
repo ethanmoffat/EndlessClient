@@ -20,7 +20,7 @@ namespace EndlessClient.UIControls
     public class CharacterInfoPanel : XNAControl
     {
         private readonly INativeGraphicsManager _gfxManager;
-        private readonly ICharacter _character;
+        private readonly Character _character;
         private readonly ILoginController _loginController;
         private readonly ICharacterManagementController _characterManagementController;
         private readonly IRendererRepositoryResetter _rendererRepositoryResetter;
@@ -63,7 +63,7 @@ namespace EndlessClient.UIControls
         }
 
         public CharacterInfoPanel(int characterIndex,
-                                  ICharacter character,
+                                  Character character,
                                   INativeGraphicsManager gfxManager,
                                   IEODialogButtonService dialogButtonService,
                                   ILoginController loginController,

@@ -2,6 +2,7 @@
 {
     public enum Emote
     {
+        None = 0,
         Happy = 1,
         Depressed = 2,
         Sad = 3,

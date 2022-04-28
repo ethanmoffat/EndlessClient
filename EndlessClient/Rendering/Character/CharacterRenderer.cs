@@ -1,8 +1,5 @@
-﻿using System;
-using System.Linq;
-using EndlessClient.Controllers;
+﻿using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
-using EndlessClient.HUD.Spells;
 using EndlessClient.Input;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Chat;
@@ -20,6 +17,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Optional;
+using System;
+using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Rendering.Character
@@ -40,7 +39,7 @@ namespace EndlessClient.Rendering.Character
         private readonly IUserInputProvider _userInputProvider;
         private readonly IEffectRenderer _effectRenderer;
 
-        private ICharacter _character;
+        private EOLib.Domain.Character.Character _character;
         private bool _textureUpdateRequired, _positionIsRelative = true;
 
         private SpriteBatch _sb;
@@ -54,7 +53,7 @@ namespace EndlessClient.Rendering.Character
         private IHealthBarRenderer _healthBarRenderer;
         private Lazy<IChatBubble> _chatBubble;
 
-        public ICharacter Character
+        public EOLib.Domain.Character.Character Character
         {
             get { return _character; }
             set
@@ -90,7 +89,7 @@ namespace EndlessClient.Rendering.Character
                                  ICharacterPropertyRendererBuilder characterPropertyRendererBuilder,
                                  ICharacterTextures characterTextures,
                                  ICharacterSpriteCalculator characterSpriteCalculator,
-                                 ICharacter character,
+                                 EOLib.Domain.Character.Character character,
                                  IGameStateProvider gameStateProvider,
                                  ICurrentMapProvider currentMapProvider,
                                  IUserInputProvider userInputProvider)
@@ -254,7 +253,7 @@ namespace EndlessClient.Rendering.Character
 
         #region Texture Loading Helpers
 
-        private static int FigureOutTopPixel(ICharacterSpriteCalculator spriteCalculator, ICharacterRenderProperties renderProperties)
+        private static int FigureOutTopPixel(ICharacterSpriteCalculator spriteCalculator, CharacterRenderProperties renderProperties)
         {
             var spriteForSkin = spriteCalculator.GetSkinTexture(renderProperties);
             var skinData = spriteForSkin.GetSourceTextureData<Color>();
@@ -377,7 +376,7 @@ namespace EndlessClient.Rendering.Character
                                TopPixelWithOffset - 8 - _nameLabel.ActualHeight);
         }
 
-        private bool GetIsSteppingStone(ICharacterRenderProperties renderProps)
+        private bool GetIsSteppingStone(CharacterRenderProperties renderProps)
         {
             if (_gameStateProvider.CurrentState != GameStates.PlayingTheGame)
                 return false;
@@ -386,7 +385,7 @@ namespace EndlessClient.Rendering.Character
                 || (renderProps.IsActing(CharacterActionState.Walking) && _currentMapProvider.CurrentMap.Tiles[renderProps.GetDestinationY(), renderProps.GetDestinationX()] == TileSpec.Jump);
         }
 
-        private int GetSteppingStoneOffset(ICharacterRenderProperties renderProps)
+        private int GetSteppingStoneOffset(CharacterRenderProperties renderProps)
         {
             var isSteppingStone = GetIsSteppingStone(renderProps);
 

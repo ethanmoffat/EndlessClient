@@ -1,7 +1,5 @@
-using System.Collections.Generic;
 using AutomaticTypeMapper;
-using EOLib.Domain.Character;
-using EOLib.Domain.NPC;
+using System.Collections.Generic;
 
 namespace EOLib.Domain.Map
 {
@@ -13,15 +11,15 @@ namespace EOLib.Domain.Map
 
         short JailMapID { get; set; }
 
-        Dictionary<int, ICharacter> Characters { get; set; }
+        Dictionary<int, Character.Character> Characters { get; set; }
 
-        HashSet<INPC> NPCs { get; set; }
+        HashSet<NPC.NPC> NPCs { get; set; }
 
-        HashSet<IItem> MapItems { get; set; }
+        HashSet<MapItem> MapItems { get; set; }
 
-        HashSet<IWarp> OpenDoors { get; set;  }
+        HashSet<Warp> OpenDoors { get; set;  }
 
-        HashSet<IWarp> PendingDoors { get; set; }
+        HashSet<Warp> PendingDoors { get; set; }
 
         HashSet<MapCoordinate> VisibleSpikeTraps { get; set; }
 
@@ -40,15 +38,15 @@ namespace EOLib.Domain.Map
 
         short JailMapID { get; }
 
-        IReadOnlyDictionary<int, ICharacter> Characters { get; }
+        IReadOnlyDictionary<int, Character.Character> Characters { get; }
 
-        IReadOnlyCollection<INPC> NPCs { get; }
+        IReadOnlyCollection<NPC.NPC> NPCs { get; }
 
-        IReadOnlyCollection<IItem> MapItems { get; }
+        IReadOnlyCollection<MapItem> MapItems { get; }
 
-        IReadOnlyCollection<IWarp> OpenDoors { get; }
+        IReadOnlyCollection<Warp> OpenDoors { get; }
 
-        IReadOnlyCollection<IWarp> PendingDoors { get; }
+        IReadOnlyCollection<Warp> PendingDoors { get; }
 
         IReadOnlyCollection<MapCoordinate> VisibleSpikeTraps { get; }
 
@@ -68,15 +66,15 @@ namespace EOLib.Domain.Map
 
         public short JailMapID { get; set; }
 
-        public Dictionary<int, ICharacter> Characters { get; set; }
+        public Dictionary<int, Character.Character> Characters { get; set; }
 
-        public HashSet<INPC> NPCs { get; set; }
+        public HashSet<NPC.NPC> NPCs { get; set; }
 
-        public HashSet<IItem> MapItems { get; set; }
+        public HashSet<MapItem> MapItems { get; set; }
 
-        public HashSet<IWarp> OpenDoors { get; set; }
+        public HashSet<Warp> OpenDoors { get; set; }
 
-        public HashSet<IWarp> PendingDoors { get; set; }
+        public HashSet<Warp> PendingDoors { get; set; }
 
         public HashSet<MapCoordinate> VisibleSpikeTraps { get; set;  }
 
@@ -86,15 +84,15 @@ namespace EOLib.Domain.Map
 
         public HashSet<byte> UnknownNPCIndexes { get; set; }
 
-        IReadOnlyDictionary<int, ICharacter> ICurrentMapStateProvider.Characters => Characters;
+        IReadOnlyDictionary<int, Character.Character> ICurrentMapStateProvider.Characters => Characters;
 
-        IReadOnlyCollection<INPC> ICurrentMapStateProvider.NPCs => NPCs;
+        IReadOnlyCollection<NPC.NPC> ICurrentMapStateProvider.NPCs => NPCs;
 
-        IReadOnlyCollection<IItem> ICurrentMapStateProvider.MapItems => MapItems;
+        IReadOnlyCollection<MapItem> ICurrentMapStateProvider.MapItems => MapItems;
 
-        IReadOnlyCollection<IWarp> ICurrentMapStateProvider.OpenDoors => OpenDoors;
+        IReadOnlyCollection<Warp> ICurrentMapStateProvider.OpenDoors => OpenDoors;
 
-        IReadOnlyCollection<IWarp> ICurrentMapStateProvider.PendingDoors => PendingDoors;
+        IReadOnlyCollection<Warp> ICurrentMapStateProvider.PendingDoors => PendingDoors;
 
         IReadOnlyCollection<MapCoordinate> ICurrentMapStateProvider.VisibleSpikeTraps => VisibleSpikeTraps;
 
@@ -109,11 +107,11 @@ namespace EOLib.Domain.Map
             ShowMiniMap = false;
             JailMapID = 0;
 
-            Characters = new Dictionary<int, ICharacter>();
-            NPCs = new HashSet<INPC>();
-            MapItems = new HashSet<IItem>();
-            OpenDoors = new HashSet<IWarp>();
-            PendingDoors = new HashSet<IWarp>();
+            Characters = new Dictionary<int, Character.Character>();
+            NPCs = new HashSet<NPC.NPC>();
+            MapItems = new HashSet<MapItem>();
+            OpenDoors = new HashSet<Warp>();
+            PendingDoors = new HashSet<Warp>();
             VisibleSpikeTraps = new HashSet<MapCoordinate>();
             UnknownPlayerIDs = new HashSet<short>();
             UnknownNPCIndexes = new HashSet<byte>();

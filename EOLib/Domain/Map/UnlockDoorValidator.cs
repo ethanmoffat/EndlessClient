@@ -21,7 +21,7 @@ namespace EOLib.Domain.Map
             _eifFileProvider = eifFileProvider;
         }
 
-        public bool CanMainCharacterOpenDoor(IWarp warp)
+        public bool CanMainCharacterOpenDoor(Warp warp)
         {
             return GetRequiredKey(warp).Match(
                 some: keyName => _characterInventoryProvider
@@ -32,7 +32,7 @@ namespace EOLib.Domain.Map
                 none: () => true);
         }
 
-        public Option<string> GetRequiredKey(IWarp warp)
+        public Option<string> GetRequiredKey(Warp warp)
         {
             switch (warp.DoorType)
             {
@@ -46,8 +46,8 @@ namespace EOLib.Domain.Map
 
     public interface IUnlockDoorValidator
     {
-        bool CanMainCharacterOpenDoor(IWarp warp);
+        bool CanMainCharacterOpenDoor(Warp warp);
 
-        Option<string> GetRequiredKey(IWarp warp);
+        Option<string> GetRequiredKey(Warp warp);
     }
 }

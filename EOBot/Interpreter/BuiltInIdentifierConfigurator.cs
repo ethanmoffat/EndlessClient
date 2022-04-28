@@ -258,7 +258,7 @@ namespace EOBot.Interpreter
             return Readonly(mapStateObj);
         }
 
-        private IVariable GetMapStateCharacter(ICharacter c)
+        private IVariable GetMapStateCharacter(Character c)
         {
             var charObj = new ObjectVariable();
             charObj.SymbolTable[PredefinedIdentifiers.NAME] = Readonly(new StringVariable(c.Name));
@@ -269,7 +269,7 @@ namespace EOBot.Interpreter
             return charObj;
         }
 
-        private IVariable GetMapStateNPC(INPC npc)
+        private IVariable GetMapStateNPC(NPC npc)
         {
             var npcFile = DependencyMaster.TypeRegistry[_botIndex].Resolve<IPubFileProvider>().ENFFile;
 
@@ -282,7 +282,7 @@ namespace EOBot.Interpreter
             return npcObj;
         }
 
-        private IVariable GetMapStateItem(IItem item)
+        private IVariable GetMapStateItem(MapItem item)
         {
             var itemFile = DependencyMaster.TypeRegistry[_botIndex].Resolve<IPubFileProvider>().EIFFile;
 

@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
+using Optional;
 
 namespace EOLib.Net.Translators
 {
@@ -17,7 +19,7 @@ namespace EOLib.Net.Translators
 
         public abstract T TranslatePacket(IPacket packet);
 
-        protected IEnumerable<ICharacter> GetCharacters(IPacket packet)
+        protected IEnumerable<Character> GetCharacters(IPacket packet)
         {
             var numCharacters = packet.ReadChar();
 
@@ -34,7 +36,7 @@ namespace EOLib.Net.Translators
                 throw new MalformedPacketException("Missing final 255 byte after characters loop", packet);
         }
 
-        protected IEnumerable<INPC> GetNPCs(IPacket packet)
+        protected IEnumerable<NPC> GetNPCs(IPacket packet)
         {
             while (packet.PeekByte() != 255)
             {
@@ -44,16 +46,20 @@ namespace EOLib.Net.Translators
                 var y = packet.ReadChar();
                 var direction = (EODirection) packet.ReadChar();
 
-                yield return new NPC(id, index)
-                    .WithX(x)
-                    .WithY(y)
-                    .WithDirection(direction);
+                yield return new NPC.Builder()
+                {
+                    ID = id,
+                    Index = index,
+                    X = x,
+                    Y = y,
+                    Direction = direction,
+                }.ToImmutable();
             }
 
             packet.ReadByte(); //consume the tail 255 byte that broke loop iteration
         }
 
-        protected IEnumerable<IItem> GetMapItems(IPacket packet)
+        protected IEnumerable<MapItem> GetMapItems(IPacket packet)
         {
             while (packet.ReadPosition < packet.Length)
             {
@@ -63,7 +69,7 @@ namespace EOLib.Net.Translators
                 var y = packet.ReadChar();
                 var amount = packet.ReadThree();
 
-                yield return new Item(uid, itemID, x, y).WithAmount(amount);
+                yield return new MapItem(uid, itemID, x, y, amount);
             }
         }
     }

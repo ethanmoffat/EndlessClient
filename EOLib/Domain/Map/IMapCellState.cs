@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using EOLib.Domain.Character;
-using EOLib.Domain.NPC;
+﻿using EOLib.Domain.Character;
 using EOLib.IO.Map;
 using Optional;
+using System.Collections.Generic;
 
 namespace EOLib.Domain.Map
 {
@@ -12,18 +11,18 @@ namespace EOLib.Domain.Map
 
         MapCoordinate Coordinate { get;  }
 
-        IReadOnlyList<IItem> Items { get; }
+        IReadOnlyList<MapItem> Items { get; }
 
         TileSpec TileSpec { get; }
 
-        Option<INPC> NPC { get; }
+        Option<NPC.NPC> NPC { get; }
 
-        Option<ICharacter> Character { get; }
+        Option<Character.Character> Character { get; }
         
         Option<ChestKey> ChestKey { get; }
 
-        Option<IWarp> Warp { get; }
+        Option<Warp> Warp { get; }
 
-        Option<ISign> Sign { get; }
+        Option<Sign> Sign { get; }
     }
 }

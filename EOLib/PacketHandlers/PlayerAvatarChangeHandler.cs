@@ -34,7 +34,7 @@ namespace EOLib.PacketHandlers
         public override bool HandlePacket(IPacket packet)
         {
             var playerID = packet.ReadShort();
-            ICharacter currentCharacter;
+            Character currentCharacter;
 
             if (_characterRepository.MainCharacter.ID == playerID)
             {
@@ -66,7 +66,8 @@ namespace EOLib.PacketHandlers
 
                     var weaponGraphic = packet.ReadShort();
                     currentRenderProps = currentRenderProps
-                        .WithWeaponGraphic(weaponGraphic, _eifFileProvider.EIFFile.IsRangedWeapon(weaponGraphic))
+                        .WithWeaponGraphic(weaponGraphic)
+                        .WithIsRangedWeapon(_eifFileProvider.EIFFile.IsRangedWeapon(weaponGraphic))
                         .WithShieldGraphic(packet.ReadShort());
 
                     break;

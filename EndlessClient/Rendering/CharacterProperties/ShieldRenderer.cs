@@ -21,7 +21,7 @@ namespace EndlessClient.Rendering.CharacterProperties
         //? _isShieldOnBack && _renderProperties.IsFacing(EODirection.Left, EODirection.Right)
         //: base.ShouldFlip;
 
-        public ShieldRenderer(ICharacterRenderProperties renderProperties,
+        public ShieldRenderer(CharacterRenderProperties renderProperties,
                               ISpriteSheet shieldSheet,
                               bool isShieldOnBack)
             : base(renderProperties)

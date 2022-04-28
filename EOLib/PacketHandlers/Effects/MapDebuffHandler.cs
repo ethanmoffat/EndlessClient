@@ -61,8 +61,7 @@ namespace EOLib.PacketHandlers.Effects
                         character = character.WithStats(originalStats.WithNewStat(CharacterStat.HP, hp)
                                                                      .WithNewStat(CharacterStat.MaxHP, maxHp));
 
-                        if (hp <= 0)
-                            character = character.WithRenderProperties(character.RenderProperties.WithDead());
+                        character = character.WithRenderProperties(character.RenderProperties.WithIsDead(hp <= 0));
 
                         _characterRepository.MainCharacter = character;
 

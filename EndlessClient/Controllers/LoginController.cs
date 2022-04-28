@@ -96,7 +96,7 @@ namespace EndlessClient.Controllers
             }
         }
 
-        public async Task LoginToCharacter(ICharacter character)
+        public async Task LoginToCharacter(Character character)
         {
             var requestCharacterLoginOperation = _networkOperationFactory.CreateSafeBlockingOperation(
                 async () => await _loginActions.RequestCharacterLogin(character),
@@ -261,6 +261,6 @@ namespace EndlessClient.Controllers
     {
         Task LoginToAccount(ILoginParameters loginParameters);
 
-        Task LoginToCharacter(ICharacter character);
+        Task LoginToCharacter(Character character);
     }
 }

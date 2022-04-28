@@ -3,6 +3,7 @@ using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Net;
 using EOLib.Net.Handlers;
+using Optional;
 using System;
 
 namespace EOLib.PacketHandlers.Items
@@ -32,9 +33,8 @@ namespace EOLib.PacketHandlers.Items
             var dropX = packet.ReadChar();
             var dropY = packet.ReadChar();
 
-            var mapItem = new Item(uid, id, dropX, dropY)
-                .WithAmount(amountDropped)
-                .WithDropTime(DateTime.Now);
+            var mapItem = new MapItem(uid, id, dropX, dropY, amountDropped)
+                .WithDropTime(Option.Some(DateTime.Now));
             _currentMapStateRepository.MapItems.Add(mapItem);
 
             return true;

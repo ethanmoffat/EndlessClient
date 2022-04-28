@@ -18,7 +18,7 @@ namespace EndlessClient.HUD.StatusBars
         protected readonly XNALabel _label;
         protected readonly Texture2D _texture;
 
-        protected ICharacterStats Stats => _characterProvider.MainCharacter.Stats;
+        protected CharacterStats Stats => _characterProvider.MainCharacter.Stats;
         protected Rectangle _sourceRectangleArea;
 
         private Option<DateTime> _labelShowTime;

@@ -15,7 +15,7 @@ namespace EOLib.PacketHandlers
     [AutoMappedType]
     public class RefreshMapStateHandler : InGameOnlyPacketHandler
     {
-        private readonly IPacketTranslator<IRefreshReplyData> _refreshReplyTranslator;
+        private readonly IPacketTranslator<RefreshReplyData> _refreshReplyTranslator;
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IEnumerable<IMapChangedNotifier> _mapChangedNotifiers;
@@ -25,7 +25,7 @@ namespace EOLib.PacketHandlers
         public override PacketAction Action => PacketAction.Reply;
 
         public RefreshMapStateHandler(IPlayerInfoProvider playerInfoProvider,
-                                      IPacketTranslator<IRefreshReplyData> refreshReplyTranslator,
+                                      IPacketTranslator<RefreshReplyData> refreshReplyTranslator,
                                       ICharacterRepository characterRepository,
                                       ICurrentMapStateRepository currentMapStateRepository,
                                       IEnumerable<IMapChangedNotifier> mapChangedNotifiers)
@@ -48,14 +48,14 @@ namespace EOLib.PacketHandlers
                 .WithMapY(updatedMainCharacter.RenderProperties.MapY);
 
             var withoutMainCharacter = data.Characters.Where(x => !IDMatches(x));
-            data = data.WithCharacters(withoutMainCharacter);
+            data = data.WithCharacters(withoutMainCharacter.ToList());
 
             _characterRepository.MainCharacter = _characterRepository.MainCharacter
                 .WithRenderProperties(updatedRenderProperties);
 
             _currentMapStateRepository.Characters = data.Characters.ToDictionary(k => k.ID, v => v);
-            _currentMapStateRepository.NPCs = new HashSet<INPC>(data.NPCs);
-            _currentMapStateRepository.MapItems = new HashSet<IItem>(data.Items);
+            _currentMapStateRepository.NPCs = new HashSet<NPC>(data.NPCs);
+            _currentMapStateRepository.MapItems = new HashSet<MapItem>(data.Items);
 
             _currentMapStateRepository.OpenDoors.Clear();
             _currentMapStateRepository.PendingDoors.Clear();
@@ -67,7 +67,7 @@ namespace EOLib.PacketHandlers
             return true;
         }
 
-        private bool IDMatches(ICharacter x)
+        private bool IDMatches(Character x)
         {
             return x.ID == _characterRepository.MainCharacter.ID;
         }

@@ -18,8 +18,8 @@ namespace EOLib.Domain.Login
     {
         private readonly IPacketSendService _packetSendService;
         private readonly IPacketTranslator<IAccountLoginData> _loginPacketTranslator;
-        private readonly IPacketTranslator<ILoginRequestGrantedData> _loginRequestGrantedPacketTranslator;
-        private readonly IPacketTranslator<ILoginRequestCompletedData> _loginRequestCompletedPacketTranslator;
+        private readonly IPacketTranslator<LoginRequestGrantedData> _loginRequestGrantedPacketTranslator;
+        private readonly IPacketTranslator<LoginRequestCompletedData> _loginRequestCompletedPacketTranslator;
         private readonly ICharacterSelectorRepository _characterSelectorRepository;
         private readonly IPlayerInfoRepository _playerInfoRepository;
         private readonly ICharacterRepository _characterRepository;
@@ -32,8 +32,8 @@ namespace EOLib.Domain.Login
 
         public LoginActions(IPacketSendService packetSendService,
                             IPacketTranslator<IAccountLoginData> loginPacketTranslator,
-                            IPacketTranslator<ILoginRequestGrantedData> loginRequestGrantedPacketTranslator,
-                            IPacketTranslator<ILoginRequestCompletedData> loginRequestCompletedPacketTranslator,
+                            IPacketTranslator<LoginRequestGrantedData> loginRequestGrantedPacketTranslator,
+                            IPacketTranslator<LoginRequestCompletedData> loginRequestCompletedPacketTranslator,
                             ICharacterSelectorRepository characterSelectorRepository,
                             IPlayerInfoRepository playerInfoRepository,
                             ICharacterRepository characterRepository,
@@ -88,7 +88,7 @@ namespace EOLib.Domain.Login
             return data.Response;
         }
 
-        public async Task<short> RequestCharacterLogin(ICharacter character)
+        public async Task<short> RequestCharacterLogin(Character.Character character)
         {
             var packet = new PacketBuilder(PacketFamily.Welcome, PacketAction.Request)
                 .AddInt(character.ID)
@@ -180,12 +180,12 @@ namespace EOLib.Domain.Login
                 .WithStats(stats)
                 .WithRenderProperties(mainCharacter.RenderProperties);
 
-            _characterInventoryRepository.ItemInventory = new HashSet<IInventoryItem>(data.CharacterItemInventory);
-            _characterInventoryRepository.SpellInventory = new HashSet<IInventorySpell>(data.CharacterSpellInventory);
+            _characterInventoryRepository.ItemInventory = new HashSet<InventoryItem>(data.CharacterItemInventory);
+            _characterInventoryRepository.SpellInventory = new HashSet<InventorySpell>(data.CharacterSpellInventory);
 
             _currentMapStateRepository.Characters = data.MapCharacters.Except(new[] { mainCharacter }).ToDictionary(k => k.ID, v => v);
-            _currentMapStateRepository.NPCs = new HashSet<INPC>(data.MapNPCs);
-            _currentMapStateRepository.MapItems = new HashSet<IItem>(data.MapItems);
+            _currentMapStateRepository.NPCs = new HashSet<NPC.NPC>(data.MapNPCs);
+            _currentMapStateRepository.MapItems = new HashSet<MapItem>(data.MapItems);
 
             _playerInfoRepository.PlayerIsInGame = true;
             _characterSessionRepository.ResetState();
@@ -211,7 +211,7 @@ namespace EOLib.Domain.Login
 
         Task<LoginReply> LoginToServer(ILoginParameters parameters);
 
-        Task<short> RequestCharacterLogin(ICharacter character);
+        Task<short> RequestCharacterLogin(Character.Character character);
 
         Task<CharacterLoginReply> CompleteCharacterLogin(short sessionID);
     }

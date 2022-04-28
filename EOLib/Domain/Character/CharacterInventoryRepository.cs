@@ -5,31 +5,31 @@ namespace EOLib.Domain.Character
 {
     public interface ICharacterInventoryRepository
     {
-        HashSet<IInventoryItem> ItemInventory { get; set; }
+        HashSet<InventoryItem> ItemInventory { get; set; }
 
-        HashSet<IInventorySpell> SpellInventory { get; set; }
+        HashSet<InventorySpell> SpellInventory { get; set; }
     }
 
     public interface ICharacterInventoryProvider
     {
-        IReadOnlyCollection<IInventoryItem> ItemInventory { get; }
+        IReadOnlyCollection<InventoryItem> ItemInventory { get; }
 
-        IReadOnlyCollection<IInventorySpell> SpellInventory { get; }
+        IReadOnlyCollection<InventorySpell> SpellInventory { get; }
     }
 
     [AutoMappedType(IsSingleton = true)]
     public class CharacterInventoryRepository : ICharacterInventoryRepository, ICharacterInventoryProvider
     {
-        public HashSet<IInventoryItem> ItemInventory { get; set; }
-        public HashSet<IInventorySpell> SpellInventory { get; set; }
+        public HashSet<InventoryItem> ItemInventory { get; set; }
+        public HashSet<InventorySpell> SpellInventory { get; set; }
 
-        IReadOnlyCollection<IInventoryItem> ICharacterInventoryProvider.ItemInventory => ItemInventory;
-        IReadOnlyCollection<IInventorySpell> ICharacterInventoryProvider.SpellInventory => SpellInventory;
+        IReadOnlyCollection<InventoryItem> ICharacterInventoryProvider.ItemInventory => ItemInventory;
+        IReadOnlyCollection<InventorySpell> ICharacterInventoryProvider.SpellInventory => SpellInventory;
 
         public CharacterInventoryRepository()
         {
-            ItemInventory = new HashSet<IInventoryItem>();
-            SpellInventory = new HashSet<IInventorySpell>();
+            ItemInventory = new HashSet<InventoryItem>();
+            SpellInventory = new HashSet<InventorySpell>();
         }
     }
 }

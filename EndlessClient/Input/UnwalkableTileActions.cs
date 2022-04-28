@@ -75,7 +75,7 @@ namespace EndlessClient.Input
                     none: () => HandleWalkToTileSpec(cellState)));
         }
 
-        private UnwalkableTileAction HandleWalkThroughOtherCharacter(ICharacter c)
+        private UnwalkableTileAction HandleWalkThroughOtherCharacter(Character c)
         {
             //        EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION,
             //            EOResourceID.STATUS_LABEL_KEEP_MOVING_THROUGH_PLAYER);
@@ -89,7 +89,7 @@ namespace EndlessClient.Input
             return UnwalkableTileAction.None;
         }
 
-        private UnwalkableTileAction HandleWalkToWarpTile(IWarp warp)
+        private UnwalkableTileAction HandleWalkToWarpTile(Warp warp)
         {
             if (warp.DoorType != DoorSpec.NoDoor)
             {
@@ -171,7 +171,7 @@ namespace EndlessClient.Input
             return UnwalkableTileAction.None;
         }
 
-        private ICharacter MainCharacter => _characterProvider.MainCharacter;
+        private Character MainCharacter => _characterProvider.MainCharacter;
     }
 
     public interface IUnwalkableTileActions

@@ -1,19 +1,18 @@
-﻿using System.Collections.Generic;
-using AutomaticTypeMapper;
-using EOLib.Domain.NPC;
+﻿using AutomaticTypeMapper;
+using System.Collections.Generic;
 
 namespace EndlessClient.Rendering.NPC
 {
     [MappedType(BaseType = typeof(INPCStateCache), IsSingleton = true)]
     public class NPCStateCache : INPCStateCache
     {
-        private readonly Dictionary<int, INPC> _npcStates;
+        private readonly Dictionary<int, EOLib.Domain.NPC.NPC> _npcStates;
 
-        public IReadOnlyDictionary<int, INPC> NPCStates => _npcStates;
+        public IReadOnlyDictionary<int, EOLib.Domain.NPC.NPC> NPCStates => _npcStates;
 
         public NPCStateCache()
         {
-            _npcStates = new Dictionary<int, INPC>();
+            _npcStates = new Dictionary<int, EOLib.Domain.NPC.NPC>();
         }
 
         public bool HasNPCStateWithIndex(int index)
@@ -21,7 +20,7 @@ namespace EndlessClient.Rendering.NPC
             return _npcStates.ContainsKey(index) && _npcStates[index] != null;
         }
 
-        public void UpdateNPCState(int index, INPC npc)
+        public void UpdateNPCState(int index, EOLib.Domain.NPC.NPC npc)
         {
             if (!_npcStates.ContainsKey(index))
                 _npcStates.Add(index, npc);
@@ -43,11 +42,11 @@ namespace EndlessClient.Rendering.NPC
 
     public interface INPCStateCache
     {
-        IReadOnlyDictionary<int, INPC> NPCStates { get; }
+        IReadOnlyDictionary<int, EOLib.Domain.NPC.NPC> NPCStates { get; }
 
         bool HasNPCStateWithIndex(int index);
 
-        void UpdateNPCState(int index, INPC npc);
+        void UpdateNPCState(int index, EOLib.Domain.NPC.NPC npc);
 
         void RemoveStateByIndex(int index);
 

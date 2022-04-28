@@ -20,7 +20,7 @@ namespace EndlessClient.Rendering.Map
 
         private class DoorTimePair
         {
-            public IWarp Door { get; set; }
+            public Warp Door { get; set; }
             public DateTime OpenTime { get; set; }
         }
 
@@ -114,7 +114,7 @@ namespace EndlessClient.Rendering.Map
                         {
                             var cellState = new MapCellState
                             {
-                                Sign = Option.Some<ISign>(new Sign(sign)),
+                                Sign = Option.Some(new Sign(sign)),
                                 Coordinate = new MapCoordinate(sign.X, sign.Y)
                             };
                             _mapInteractionController.LeftClick(cellState, Option.None<IMouseCursorRenderer>());

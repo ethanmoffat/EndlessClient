@@ -1,16 +1,15 @@
-﻿using System;
-using AutomaticTypeMapper;
-using EOLib.Domain.Character;
+﻿using AutomaticTypeMapper;
 using EOLib.IO.Map;
+using System;
 
 namespace EndlessClient.Rendering.Map
 {
-    [MappedType(BaseType = typeof(IMapRenderDistanceCalculator))]
+    [AutoMappedType]
     public class MapRenderDistanceCalculator : IMapRenderDistanceCalculator
     {
         private const int DEFAULT_BOUNDS_DISTANCE = 22;
 
-        public MapRenderBounds CalculateRenderBounds(ICharacter character, IMapFile currentMap)
+        public MapRenderBounds CalculateRenderBounds(EOLib.Domain.Character.Character character, IMapFile currentMap)
         {
             var firstRow = Math.Max(character.RenderProperties.MapY - DEFAULT_BOUNDS_DISTANCE, 0);
             var lastRow = Math.Min(character.RenderProperties.MapY + DEFAULT_BOUNDS_DISTANCE, currentMap.Properties.Height);

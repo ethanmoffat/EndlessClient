@@ -19,7 +19,7 @@ namespace EndlessClient.Rendering.CharacterProperties
                                           _renderProperties.Emote != Emote.LevelUp &&
                                           _renderProperties.Emote != Emote.MusicNotes;
 
-        public FaceRenderer(ICharacterRenderProperties renderProperties,
+        public FaceRenderer(CharacterRenderProperties renderProperties,
                             ISpriteSheet faceSheet,
                             ISpriteSheet skinSheet)
             : base(renderProperties)

@@ -23,7 +23,7 @@ namespace EOLib.Domain.Interact
             _questDataRepository = questDataRepository;
         }
 
-        public void RequestShop(INPC npc)
+        public void RequestShop(NPC.NPC npc)
         {
             var packet = new PacketBuilder(PacketFamily.Shop, PacketAction.Open)
                 .AddShort((short)npc.Index)
@@ -32,7 +32,7 @@ namespace EOLib.Domain.Interact
             _packetSendService.SendPacket(packet);
         }
 
-        public void RequestQuest(INPC npc)
+        public void RequestQuest(NPC.NPC npc)
         {
             _questDataRepository.RequestedNPC = npc;
 
@@ -46,7 +46,7 @@ namespace EOLib.Domain.Interact
             _packetSendService.SendPacket(packet);
         }
 
-        public void RequestBank(INPC npc)
+        public void RequestBank(NPC.NPC npc)
         {
             var packet = new PacketBuilder(PacketFamily.Bank, PacketAction.Open)
                 .AddShort((short)npc.Index)
@@ -55,7 +55,7 @@ namespace EOLib.Domain.Interact
             _packetSendService.SendPacket(packet);
         }
 
-        public void RequestSkillmaster(INPC npc)
+        public void RequestSkillmaster(NPC.NPC npc)
         {
             var packet = new PacketBuilder(PacketFamily.StatSkill, PacketAction.Open)
                 .AddShort((short)npc.Index)
@@ -67,12 +67,12 @@ namespace EOLib.Domain.Interact
 
     public interface IMapNPCActions
     {
-        void RequestShop(INPC npc);
+        void RequestShop(NPC.NPC npc);
 
-        void RequestQuest(INPC npc);
+        void RequestQuest(NPC.NPC npc);
 
-        void RequestBank(INPC npc);
+        void RequestBank(NPC.NPC npc);
 
-        void RequestSkillmaster(INPC npc);
+        void RequestSkillmaster(NPC.NPC npc);
     }
 }

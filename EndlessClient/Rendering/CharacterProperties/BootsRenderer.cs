@@ -14,7 +14,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 
         public override bool CanRender => _bootsSheet.HasTexture && _renderProperties.BootsGraphic != 0;
 
-        public BootsRenderer(ICharacterRenderProperties renderProperties,
+        public BootsRenderer(CharacterRenderProperties renderProperties,
                              ISpriteSheet bootsSheet)
             : base(renderProperties)
         {

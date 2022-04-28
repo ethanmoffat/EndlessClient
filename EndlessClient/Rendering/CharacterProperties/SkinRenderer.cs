@@ -14,7 +14,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 
         public override bool CanRender => true;
 
-        public SkinRenderer(ICharacterRenderProperties renderProperties,
+        public SkinRenderer(CharacterRenderProperties renderProperties,
                             ISpriteSheet skinSheet)
             : base(renderProperties)
         {

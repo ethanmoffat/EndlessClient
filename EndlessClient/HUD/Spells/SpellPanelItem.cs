@@ -24,9 +24,9 @@ namespace EndlessClient.HUD.Spells
         private Rectangle _levelDestinationRectangle;
 
         private int _lastSlot;
-        private IInventorySpell _lastInventorySpell;
+        private InventorySpell _lastInventorySpell;
 
-        public override IInventorySpell InventorySpell { get; set; }
+        public override InventorySpell InventorySpell { get; set; }
 
         public override bool IsBeingDragged => _dragging;
 
@@ -34,7 +34,7 @@ namespace EndlessClient.HUD.Spells
 
         public override event EventHandler<SpellDragCompletedEventArgs> DoneDragging;
 
-        public SpellPanelItem(ActiveSpellsPanel parent, int slot, IInventorySpell spell, ESFRecord spellData)
+        public SpellPanelItem(ActiveSpellsPanel parent, int slot, InventorySpell spell, ESFRecord spellData)
             : base(parent, slot)
         {
             InventorySpell = spell;
