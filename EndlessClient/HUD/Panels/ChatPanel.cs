@@ -19,6 +19,7 @@ namespace EndlessClient.HUD.Panels
     public class ChatPanel : XNAPanel, IHudPanel
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
+        private readonly IChatActions _chatActions;
         private readonly IChatRenderableGenerator _chatRenderableGenerator;
         private readonly IChatProvider _chatProvider;
         private readonly IHudControlProvider _hudControlProvider;
@@ -40,12 +41,14 @@ namespace EndlessClient.HUD.Panels
         public ChatTab CurrentTab { get; private set; }
 
         public ChatPanel(INativeGraphicsManager nativeGraphicsManager,
+                         IChatActions chatActions,
                          IChatRenderableGenerator chatRenderableGenerator,
                          IChatProvider chatProvider,
                          IHudControlProvider hudControlProvider,
                          SpriteFont chatFont)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
+            _chatActions = chatActions;
             _chatRenderableGenerator = chatRenderableGenerator;
             _chatProvider = chatProvider;
             _hudControlProvider = hudControlProvider;
@@ -350,6 +353,15 @@ namespace EndlessClient.HUD.Panels
 
         private void SelectTab(ChatTab clickedTab)
         {
+            if (CurrentTab == ChatTab.Global && clickedTab != ChatTab.Global)
+            {
+                _chatActions.SetGlobalActive(false);
+            }
+            else if (CurrentTab != ChatTab.Global && clickedTab == ChatTab.Global)
+            {
+                _chatActions.SetGlobalActive(true);
+            }
+
             _tabLabels[CurrentTab].ForeColor = Color.Black;
             _tabLabels[clickedTab].ForeColor = Color.White;
             CurrentTab = clickedTab;

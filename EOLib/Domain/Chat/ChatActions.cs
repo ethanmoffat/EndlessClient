@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutomaticTypeMapper;
 using EOLib.Domain.Character;
+using EOLib.Net;
 using EOLib.Net.Builders;
 using EOLib.Net.Communication;
 
@@ -70,6 +71,23 @@ namespace EOLib.Domain.Chat
             return chat;
         }
 
+        public void SetHearWhispers(bool whispersEnabled)
+        {
+            // GLOBAL_REMOVE with 'n' enables whispers...? 
+            var packet = new PacketBuilder(PacketFamily.Global, whispersEnabled ? PacketAction.Remove : PacketAction.Player)
+                .AddChar((byte)(whispersEnabled ? 'n' : 'y'))
+                .Build();
+            _packetSendService.SendPacket(packet);
+        }
+
+        public void SetGlobalActive(bool active)
+        {
+            var packet = new PacketBuilder(PacketFamily.Global, active ? PacketAction.Open : PacketAction.Close)
+                .AddChar((byte)(active ? 'y' : 'n'))
+                .Build();
+            _packetSendService.SendPacket(packet);
+        }
+
         /// <summary>
         /// Returns true if the text is a command (#) and can be handled as such, false if it should be sent to the server as a public chat string
         /// </summary>
@@ -132,5 +150,9 @@ namespace EOLib.Domain.Chat
     public interface IChatActions
     {
         string SendChatToServer(string chat, string targetCharacter);
+
+        void SetHearWhispers(bool whispersEnabled);
+
+        void SetGlobalActive(bool active);
     }
 }

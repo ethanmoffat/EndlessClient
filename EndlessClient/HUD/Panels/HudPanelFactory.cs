@@ -27,6 +27,7 @@ namespace EndlessClient.HUD.Panels
 
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IInventoryController _inventoryController;
+        private readonly IChatActions _chatActions;
         private readonly IContentProvider _contentProvider;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly INewsProvider _newsProvider;
@@ -51,6 +52,7 @@ namespace EndlessClient.HUD.Panels
 
         public HudPanelFactory(INativeGraphicsManager nativeGraphicsManager,
                                IInventoryController inventoryController,
+                               IChatActions chatActions,
                                IContentProvider contentProvider,
                                IHudControlProvider hudControlProvider,
                                INewsProvider newsProvider,
@@ -75,6 +77,7 @@ namespace EndlessClient.HUD.Panels
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _inventoryController = inventoryController;
+            _chatActions = chatActions;
             _contentProvider = contentProvider;
             _hudControlProvider = hudControlProvider;
             _newsProvider = newsProvider;
@@ -148,6 +151,7 @@ namespace EndlessClient.HUD.Panels
             var chatFont = _contentProvider.Fonts[Constants.FontSize08];
 
             return new ChatPanel(_nativeGraphicsManager,
+                                 _chatActions,
                                  new ChatRenderableGenerator(_friendIgnoreListService, chatFont),
                                  _chatProvider,
                                  _hudControlProvider,
@@ -178,6 +182,7 @@ namespace EndlessClient.HUD.Panels
         public SettingsPanel CreateSettingsPanel()
         {
             return new SettingsPanel(_nativeGraphicsManager,
+                _chatActions,
                 _statusLabelSetter,
                 _localizedStringFinder,
                 _messageBoxFactory,

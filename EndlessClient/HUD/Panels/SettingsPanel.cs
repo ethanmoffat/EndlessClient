@@ -2,6 +2,7 @@
 using EndlessClient.Dialogs.Factories;
 using EOLib;
 using EOLib.Config;
+using EOLib.Domain.Chat;
 using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
@@ -37,6 +38,7 @@ namespace EndlessClient.HUD.Panels
         }
 
         private readonly INativeGraphicsManager _nativeGraphicsManager;
+        private readonly IChatActions _chatActions;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
@@ -49,12 +51,14 @@ namespace EndlessClient.HUD.Panels
         private KeyboardLayout _keyboardLayout;
 
         public SettingsPanel(INativeGraphicsManager nativeGraphicsManager,
+                             IChatActions chatActions,
                              IStatusLabelSetter statusLabelSetter,
                              ILocalizedStringFinder localizedStringFinder,
                              IEOMessageBoxFactory messageBoxFactory,
                              IConfigurationRepository configurationRepository)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
+            _chatActions = chatActions;
             _statusLabelSetter = statusLabelSetter;
             _localizedStringFinder = localizedStringFinder;
             _messageBoxFactory = messageBoxFactory;
@@ -106,6 +110,9 @@ namespace EndlessClient.HUD.Panels
                 button.SetParentControl(this);
                 button.Initialize();
             }
+
+            if (!_configurationRepository.HearWhispers)
+                _chatActions.SetHearWhispers(_configurationRepository.HearWhispers);
 
             base.Initialize();
         }
@@ -186,10 +193,7 @@ namespace EndlessClient.HUD.Panels
                 case WhichSetting.HearWhispers:
                     {
                         _configurationRepository.HearWhispers = !_configurationRepository.HearWhispers;
-                        // todo: 
-                        //OldPacket pkt = new OldPacket(PacketFamily.Global, w.HearWhispers ? PacketAction.Remove : PacketAction.Player);
-                        //pkt.AddChar(w.HearWhispers ? (byte)'n' : (byte)'y');
-                        //w.Client.SendPacket(pkt);
+                        _chatActions.SetHearWhispers(_configurationRepository.HearWhispers);
                     }
                     break;
                 case WhichSetting.ShowBalloons:
