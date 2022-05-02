@@ -195,7 +195,7 @@ namespace EndlessClient.Rendering.Character
                     }
                 }
 
-                _healthBarRenderer.Update(gameTime);
+                _healthBarRenderer?.Update(gameTime);
             }
 
             base.Update(gameTime);
@@ -338,7 +338,9 @@ namespace EndlessClient.Rendering.Character
 
         private void UpdateNameLabel(GameTime gameTime)
         {
-            if (_gameStateProvider.CurrentState != GameStates.PlayingTheGame)
+            if (_gameStateProvider.CurrentState != GameStates.PlayingTheGame ||
+                _healthBarRenderer == null ||
+                _nameLabel == null)
                 return;
 
             if (_healthBarRenderer.Visible)

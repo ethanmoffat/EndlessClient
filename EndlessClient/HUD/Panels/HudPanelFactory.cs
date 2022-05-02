@@ -9,12 +9,14 @@ using EndlessClient.HUD.Spells;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Services;
 using EOLib;
+using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Item;
 using EOLib.Domain.Login;
 using EOLib.Graphics;
 using EOLib.IO.Repositories;
+using EOLib.Localization;
 
 namespace EndlessClient.HUD.Panels
 {
@@ -44,6 +46,8 @@ namespace EndlessClient.HUD.Panels
         private readonly IInventoryService _inventoryService;
         private readonly IActiveDialogProvider _activeDialogProvider;
         private readonly ISpellSlotDataRepository _spellSlotDataRepository;
+        private readonly IConfigurationRepository _configurationRepository;
+        private readonly ILocalizedStringFinder _localizedStringFinder;
 
         public HudPanelFactory(INativeGraphicsManager nativeGraphicsManager,
                                IInventoryController inventoryController,
@@ -65,7 +69,9 @@ namespace EndlessClient.HUD.Panels
                                IItemNameColorService itemNameColorService,
                                IInventoryService inventoryService,
                                IActiveDialogProvider activeDialogProvider,
-                               ISpellSlotDataRepository spellSlotDataRepository)
+                               ISpellSlotDataRepository spellSlotDataRepository,
+                               IConfigurationRepository configurationRepository,
+                               ILocalizedStringFinder localizedStringFinder)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _inventoryController = inventoryController;
@@ -88,6 +94,8 @@ namespace EndlessClient.HUD.Panels
             _inventoryService = inventoryService;
             _activeDialogProvider = activeDialogProvider;
             _spellSlotDataRepository = spellSlotDataRepository;
+            _configurationRepository = configurationRepository;
+            _localizedStringFinder = localizedStringFinder;
         }
 
         public NewsPanel CreateNewsPanel()
@@ -169,7 +177,11 @@ namespace EndlessClient.HUD.Panels
 
         public SettingsPanel CreateSettingsPanel()
         {
-            return new SettingsPanel(_nativeGraphicsManager) { DrawOrder = HUD_CONTROL_LAYER };
+            return new SettingsPanel(_nativeGraphicsManager,
+                _statusLabelSetter,
+                _localizedStringFinder,
+                _messageBoxFactory,
+                _configurationRepository) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public HelpPanel CreateHelpPanel()
