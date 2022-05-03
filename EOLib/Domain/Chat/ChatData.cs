@@ -1,6 +1,10 @@
+using Amadevus.RecordGenerator;
+using System;
+
 namespace EOLib.Domain.Chat
 {
-    public class ChatData
+    [Record(Features.ObjectEquals | Features.ToString)]
+    public sealed partial class ChatData
     {
         public ChatIcon Icon { get; }
 
@@ -9,6 +13,8 @@ namespace EOLib.Domain.Chat
         public string Message { get; }
 
         public ChatColor ChatColor { get; }
+
+        public DateTime ChatTime { get; }
 
         public ChatData(string who,
             string message,
@@ -27,26 +33,8 @@ namespace EOLib.Domain.Chat
             Who = who;
             Message = message;
             ChatColor = color;
-        }
 
-        public override bool Equals(object obj)
-        {
-            if (!(obj is ChatData)) return false;
-            var other = (ChatData) obj;
-
-            return other.Icon.Equals(Icon)
-                   && other.Who.Equals(Who)
-                   && other.Message.Equals(Message)
-                   && other.ChatColor.Equals(ChatColor);
-        }
-
-        public override int GetHashCode()
-        {
-            var hash = 397 ^ Icon.GetHashCode();
-            hash = (hash*397) ^ Who.GetHashCode();
-            hash = (hash*397) ^ Message.GetHashCode();
-            hash = (hash*397) ^ ChatColor.GetHashCode();
-            return hash;
+            ChatTime = DateTime.Now;
         }
     }
 }

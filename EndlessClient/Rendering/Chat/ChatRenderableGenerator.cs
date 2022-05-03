@@ -44,7 +44,7 @@ namespace EndlessClient.Rendering.Chat
             return splitStrings.Select(CreateNewsRenderableFromChatPair).ToList();
         }
 
-        public IReadOnlyList<IChatRenderable> GenerateChatRenderables(IReadOnlyList<ChatData> chatData)
+        public IReadOnlyList<IChatRenderable> GenerateChatRenderables(IEnumerable<ChatData> chatData)
         {
             var ignoreList = _friendIgnoreListService.LoadList(Constants.IgnoreListFile);
 

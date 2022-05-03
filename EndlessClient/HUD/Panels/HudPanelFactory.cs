@@ -155,6 +155,7 @@ namespace EndlessClient.HUD.Panels
                                  new ChatRenderableGenerator(_friendIgnoreListService, chatFont),
                                  _chatProvider,
                                  _hudControlProvider,
+                                 (IConfigurationProvider)_configurationRepository,
                                  chatFont) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
