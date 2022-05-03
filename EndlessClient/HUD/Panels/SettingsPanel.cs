@@ -197,7 +197,6 @@ namespace EndlessClient.HUD.Panels
                     }
                     break;
                 case WhichSetting.ShowBalloons:
-                    // todo: make this setting do something
                     _configurationRepository.ShowChatBubbles = !_configurationRepository.ShowChatBubbles;
                     break;
                 case WhichSetting.ShowShadows:
