@@ -51,7 +51,7 @@ namespace EOLib.IO.Pub
         ItemCha,
 
         [RecordData(26, 1)]
-        ItemLight,
+        ItemLight, // elements for items are potentially mislabeled
         [RecordData(27, 1)]
         ItemDark,
         [RecordData(28, 1)]
@@ -157,9 +157,9 @@ namespace EOLib.IO.Pub
         [RecordData(26, 1)]
         NPCUnkByte26,
         [RecordData(27, 2)]
-        NPCUnkShort27,
+        NPCUnkShort27, // potentially NPCElementStrong
         [RecordData(29, 2)]
-        NPCUnkShort29,
+        NPCUnkShort29, // potentially NPCElementStrongPower
 
         [RecordData(31, 2)]
         NPCElementWeak,
@@ -192,12 +192,12 @@ namespace EOLib.IO.Pub
         SpellUnkByte10,
 
         [RecordData(11, 3)]
-        SpellType,
+        SpellType, // eoserv reads this as a single byte
 
         [RecordData(14, 1)]
-        SpellUnkByte14,
+        SpellUnkByte14, // potentially element
         [RecordData(15, 2)]
-        SpellUnkShort15,
+        SpellUnkShort15, // potentially element power
 
         [RecordData(17, 1)]
         SpellTargetRestrict,
@@ -229,9 +229,9 @@ namespace EOLib.IO.Pub
         SpellHP,
 
         [RecordData(36, 2)]
-        SpellUnkShort36,
+        SpellUnkShort36, // potentially TP heal
         [RecordData(38, 1)]
-        SpellUnkByte38,
+        SpellUnkByte38, // potentially SP heal
         [RecordData(39, 2)]
         SpellUnkShort39,
         [RecordData(41, 2)]
