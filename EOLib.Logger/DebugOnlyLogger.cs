@@ -16,6 +16,8 @@ namespace EOLib.Logger
         private StreamWriter _fileStream;
         private int _writesSinceLastFlush;
 
+        public DebugOnlyLogger() { }
+
         internal DebugOnlyLogger(IConfigurationProvider configurationProvider)
         {
             if (!configurationProvider.EnableLog)
