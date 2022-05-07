@@ -1,7 +1,10 @@
-﻿using EOLib.Domain.Character;
+﻿using AutomaticTypeMapper;
+using EOLib.Domain.Character;
 using EOLib.Net;
 using EOLib.Net.Builders;
 using EOLib.Net.Communication;
+using System;
+using System.Linq;
 
 namespace EOLib.Domain.Chat
 {
