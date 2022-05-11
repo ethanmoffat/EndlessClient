@@ -6,6 +6,8 @@ namespace EOLib.Domain.Chat
     [Record(Features.ObjectEquals | Features.ToString)]
     public sealed partial class ChatData
     {
+        public ChatTab Tab { get; }
+
         public ChatIcon Icon { get; }
 
         public string Who { get; }
@@ -16,10 +18,13 @@ namespace EOLib.Domain.Chat
 
         public DateTime ChatTime { get; }
 
-        public ChatData(string who,
+        public bool Log { get; }
+
+        public ChatData(ChatTab tab, string who,
             string message,
             ChatIcon icon = ChatIcon.None,
-            ChatColor color = ChatColor.Default)
+            ChatColor color = ChatColor.Default,
+            bool log = true)
         {
             if (who == null)
                 who = "";
@@ -29,10 +34,12 @@ namespace EOLib.Domain.Chat
             if (message == null)
                 message = "";
 
+            Tab = tab;
             Icon = icon;
             Who = who;
             Message = message;
             ChatColor = color;
+            Log = log;
 
             ChatTime = DateTime.Now;
         }

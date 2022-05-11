@@ -107,13 +107,14 @@ namespace EndlessClient.Rendering.Chat
         private static NewsChatRenderable CreateNewsRenderableFromChatPair(ChatPair pair, int i)
         {
             var shouldShowNoteIcon = pair.IsFirstLineOfMultilineMessage && !string.IsNullOrWhiteSpace(pair.Text);
-            var chatData = new ChatData("", pair.Text, shouldShowNoteIcon ? ChatIcon.Note : ChatIcon.None);
+            var chatData = new ChatData(ChatTab.Local, "", pair.Text, shouldShowNoteIcon ? ChatIcon.Note : ChatIcon.None, log: false);
             return new NewsChatRenderable(i, chatData, pair.Text);
         }
 
         private static ChatRenderable CreateChatRenderableFromChatPair(ChatPair pair, int displayIndex, ChatData data)
         {
             var modifiedData = new ChatData(
+                data.Tab,
                 pair.IsFirstLineOfMultilineMessage ? data.Who : string.Empty,
                 data.Message,
                 pair.IsFirstLineOfMultilineMessage ? data.Icon : ChatIcon.None,

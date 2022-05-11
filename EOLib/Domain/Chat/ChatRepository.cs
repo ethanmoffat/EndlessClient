@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using AutomaticTypeMapper;
+using EOLib.Config;
 
 namespace EOLib.Domain.Chat
 {
     public interface IChatRepository
     {
-        Dictionary<ChatTab, List<ChatData>> AllChat { get; set; }
+        IReadOnlyDictionary<ChatTab, IList<ChatData>> AllChat { get; }
 
         string PMTarget1 { get; set; }
 
@@ -26,7 +27,10 @@ namespace EOLib.Domain.Chat
     [AutoMappedType(IsSingleton = true)]
     public class ChatRepository : IChatRepository, IChatProvider, IResettable
     {
-        public Dictionary<ChatTab, List<ChatData>> AllChat { get; set; }
+        private readonly IConfigurationProvider _configurationProvider;
+        private readonly IChatLoggerProvider _chatLoggerProvider;
+
+        public IReadOnlyDictionary<ChatTab, IList<ChatData>> AllChat { get; private set; }
 
         IReadOnlyDictionary<ChatTab, IReadOnlyList<ChatData>> IChatProvider.AllChat
         {
@@ -42,16 +46,21 @@ namespace EOLib.Domain.Chat
 
         public string PMTarget2 { get; set; }
 
-        public ChatRepository()
+        public ChatRepository(IConfigurationProvider configurationProvider,
+                              IChatLoggerProvider chatLoggerProvider)
         {
+            _configurationProvider = configurationProvider;
+            _chatLoggerProvider = chatLoggerProvider;
             ResetState();
         }
 
         public void ResetState()
         {
-            AllChat = new Dictionary<ChatTab, List<ChatData>>();
+            var chat = new Dictionary<ChatTab, IList<ChatData>>();
             foreach (var tab in (ChatTab[]) Enum.GetValues(typeof(ChatTab)))
-                AllChat.Add(tab, new List<ChatData>());
+                chat.Add(tab, new LoggingList(_configurationProvider, _chatLoggerProvider));
+
+            AllChat = chat;
         }
     }
 }

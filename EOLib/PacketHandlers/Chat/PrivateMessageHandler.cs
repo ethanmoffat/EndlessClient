@@ -22,11 +22,9 @@ namespace EOLib.PacketHandlers.Chat
 
         protected override void PostChat(string name, string message)
         {
-            var localData = new ChatData(name, message, ChatIcon.Note, ChatColor.PM);
-            var pmData = new ChatData(name, message, ChatIcon.Note);
+            var localData = new ChatData(ChatTab.Local, name, message, ChatIcon.Note, ChatColor.PM, log: false);
 
             ChatTab whichPmTab;
-
             if (_chatRepository.PMTarget1 == null && _chatRepository.PMTarget2 == null)
                 whichPmTab = ChatTab.Local;
             else
@@ -35,6 +33,8 @@ namespace EOLib.PacketHandlers.Chat
                     : _chatRepository.PMTarget2.Equals(name, StringComparison.InvariantCultureIgnoreCase)
                         ? ChatTab.Private2
                         : ChatTab.Local;
+
+            var pmData = new ChatData(whichPmTab, name, message, ChatIcon.Note);
 
             _chatRepository.AllChat[ChatTab.Local].Add(localData);
             if (whichPmTab != ChatTab.Local)

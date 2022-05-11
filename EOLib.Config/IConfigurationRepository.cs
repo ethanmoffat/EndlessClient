@@ -66,8 +66,7 @@ namespace EOLib.Config
         bool EnableLog { get; }
     }
 
-    [MappedType(BaseType = typeof(IConfigurationRepository), IsSingleton = true)]
-    [MappedType(BaseType = typeof(IConfigurationProvider), IsSingleton = true)]
+    [AutoMappedType(IsSingleton = true)]
     public class ConfigurationRepository : IConfigurationRepository, IConfigurationProvider
     {
         public string Host { get; set; }

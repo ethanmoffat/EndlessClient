@@ -21,7 +21,7 @@ namespace EOLib.PacketHandlers.Chat
 
         protected override void PostChat(string name, string message)
         {
-            var data = new ChatData(name, message, ChatIcon.GlobalAnnounce);
+            var data = new ChatData(ChatTab.Global, name, message, ChatIcon.GlobalAnnounce);
             _chatRepository.AllChat[ChatTab.Global].Add(data);
         }
     }

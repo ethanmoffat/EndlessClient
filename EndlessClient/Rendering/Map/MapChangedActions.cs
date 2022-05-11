@@ -104,7 +104,7 @@ namespace EndlessClient.Rendering.Map
             var message = _localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_YOU_ENTERED);
             message = string.Format(message + " {0}", _currentMapProvider.CurrentMap.Properties.Name);
 
-            var chatData = new ChatData(string.Empty, message, ChatIcon.NoteLeftArrow);
+            var chatData = new ChatData(ChatTab.System, string.Empty, message, ChatIcon.NoteLeftArrow);
             _chatRepository.AllChat[ChatTab.System].Add(chatData);
         }
 

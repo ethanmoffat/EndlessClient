@@ -39,7 +39,7 @@ namespace EndlessClient.Subscribers
             var youGained = _localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_YOU_GAINED_EXP);
             var message = $"{youGained} {expDifference} EXP";
 
-            var chatData = new ChatData(string.Empty, message, ChatIcon.Star);
+            var chatData = new ChatData(ChatTab.System, string.Empty, message, ChatIcon.Star);
             _chatRepository.AllChat[ChatTab.System].Add(chatData);
         }
 
@@ -53,7 +53,7 @@ namespace EndlessClient.Subscribers
             var rec = _pubFileProvider.EIFFile[id];
 
             var chatMessage = $"{_localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_ITEM_PICKUP_YOU_PICKED_UP)} {amountTaken} {rec.Name}";
-            _chatRepository.AllChat[ChatTab.System].Add(new ChatData(string.Empty, chatMessage, ChatIcon.UpArrow));
+            _chatRepository.AllChat[ChatTab.System].Add(new ChatData(ChatTab.System, string.Empty, chatMessage, ChatIcon.UpArrow));
 
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_PICKUP_YOU_PICKED_UP,
                 $" {amountTaken} {rec.Name}");
@@ -64,7 +64,7 @@ namespace EndlessClient.Subscribers
             var rec = _pubFileProvider.EIFFile[id];
 
             var chatMessage = $"{_localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_ITEM_DROP_YOU_DROPPED)} {amountDropped} {rec.Name}";
-            _chatRepository.AllChat[ChatTab.System].Add(new ChatData(string.Empty, chatMessage, ChatIcon.DownArrow));
+            _chatRepository.AllChat[ChatTab.System].Add(new ChatData(ChatTab.System, string.Empty, chatMessage, ChatIcon.DownArrow));
 
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_DROP_YOU_DROPPED,
                 $" {amountDropped} {rec.Name}");
@@ -75,7 +75,7 @@ namespace EndlessClient.Subscribers
             var rec = _pubFileProvider.EIFFile[id];
             
             var chatMessage = $"{_localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED)} {amountRemoved} {rec.Name}";
-            _chatRepository.AllChat[ChatTab.System].Add(new ChatData(string.Empty, chatMessage, ChatIcon.DownArrow));
+            _chatRepository.AllChat[ChatTab.System].Add(new ChatData(ChatTab.System, string.Empty, chatMessage, ChatIcon.DownArrow));
 
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED,
                 $" {amountRemoved} {rec.Name}");

@@ -31,7 +31,7 @@ namespace EOLib.PacketHandlers.Chat
         {
             var message = packet.ReadBreakString();
 
-            var chatData = new ChatData(character.Name, message, ChatIcon.PlayerPartyDark);
+            var chatData = new ChatData(ChatTab.Group, character.Name, message, ChatIcon.PlayerPartyDark);
             _chatRepository.AllChat[ChatTab.Group].Add(chatData);
 
             foreach (var notifier in _notifiers)

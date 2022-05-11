@@ -10,7 +10,7 @@ namespace EOLib.Logger
 
         public FileLogger() { }
 
-        internal FileLogger(string fileName)
+        public FileLogger(string fileName)
         {
             _enabled = true;
             _fileStream = new StreamWriter(fileName, append: true);
@@ -26,6 +26,7 @@ namespace EOLib.Logger
         {
             if (_enabled)
             {
+                _fileStream.Close();
                 _fileStream.Dispose();
             }
         }

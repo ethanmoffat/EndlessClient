@@ -44,7 +44,7 @@ namespace EOLib.PacketHandlers.Chat
             var sysMessage = _localizedStringFinder.GetString(EOResourceID.SYS_CHAT_PM_PLAYER_COULD_NOT_BE_FOUND);
             var message = $"{@from} {sysMessage}";
 
-            var chatData = new ChatData(string.Empty, message, ChatIcon.Error, ChatColor.Error);
+            var chatData = new ChatData(ChatTab.System, string.Empty, message, ChatIcon.Error, ChatColor.Error);
             _chatRepository.AllChat[ChatTab.System].Add(chatData);
 
             foreach (var notifier in _chatEventNotifiers)

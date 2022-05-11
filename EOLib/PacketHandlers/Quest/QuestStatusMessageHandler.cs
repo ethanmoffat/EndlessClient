@@ -34,7 +34,7 @@ namespace EOLib.PacketHandlers.Quest
             foreach (var notifier in _statusLabelNotifiers)
                 notifier.ShowWarning(message);
 
-            var chatData = new ChatData(string.Empty, message, ChatIcon.QuestMessage, ChatColor.Server);
+            var chatData = new ChatData(ChatTab.System, string.Empty, message, ChatIcon.QuestMessage, ChatColor.Server);
             _chatRepository.AllChat[ChatTab.System].Add(chatData);
 
             return true;

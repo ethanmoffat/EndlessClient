@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Net;
 using EOLib.Net.Builders;
@@ -108,37 +109,35 @@ namespace EOLib.Domain.Chat
             switch (chatType)
             {
                 case ChatType.Admin:
-                    _chatRepository.AllChat[ChatTab.Group].Add(new ChatData(who, chat, ChatIcon.HGM, ChatColor.Admin));
+                    _chatRepository.AllChat[ChatTab.Group].Add(new ChatData(ChatTab.Group, who, chat, ChatIcon.HGM, ChatColor.Admin));
                     break;
                 case ChatType.PM:
-                    var chatData = new ChatData(who, chat, ChatIcon.Note, ChatColor.PM);
-
                     if(targetCharacter == _chatRepository.PMTarget1)
-                        _chatRepository.AllChat[ChatTab.Private1].Add(chatData);
+                        _chatRepository.AllChat[ChatTab.Private1].Add(new ChatData(ChatTab.Private1, who, chat, ChatIcon.Note, ChatColor.PM));
                     else if (targetCharacter == _chatRepository.PMTarget2)
-                        _chatRepository.AllChat[ChatTab.Private2].Add(chatData);
+                        _chatRepository.AllChat[ChatTab.Private2].Add(new ChatData(ChatTab.Private2, who, chat, ChatIcon.Note, ChatColor.PM));
                     else
                         throw new ArgumentException("Unexpected target character!", nameof(targetCharacter));
 
                     break;
                 case ChatType.Local:
-                    _chatRepository.AllChat[ChatTab.Local].Add(new ChatData(who, chat));
+                    _chatRepository.AllChat[ChatTab.Local].Add(new ChatData(ChatTab.Local, who, chat));
                     break;
                 case ChatType.Global:
-                    _chatRepository.AllChat[ChatTab.Global].Add(new ChatData(who, chat));
+                    _chatRepository.AllChat[ChatTab.Global].Add(new ChatData(ChatTab.Global, who, chat));
                     break;
                 case ChatType.Guild:
                     //todo: there are special cases here for guild chat that aren't handled
-                    _chatRepository.AllChat[ChatTab.Group].Add(new ChatData(who, chat));
+                    _chatRepository.AllChat[ChatTab.Group].Add(new ChatData(ChatTab.Group, who, chat));
                     break;
                 case ChatType.Party:
-                    _chatRepository.AllChat[ChatTab.Local].Add(new ChatData(who, chat, ChatIcon.PlayerPartyDark, ChatColor.PM));
-                    _chatRepository.AllChat[ChatTab.Group].Add(new ChatData(who, chat, ChatIcon.PlayerPartyDark));
+                    _chatRepository.AllChat[ChatTab.Local].Add(new ChatData(ChatTab.Local, who, chat, ChatIcon.PlayerPartyDark, ChatColor.PM, log: false));
+                    _chatRepository.AllChat[ChatTab.Group].Add(new ChatData(ChatTab.Group, who, chat, ChatIcon.PlayerPartyDark));
                     break;
                 case ChatType.Announce:
-                    _chatRepository.AllChat[ChatTab.Local].Add(new ChatData(who, chat, ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal));
-                    _chatRepository.AllChat[ChatTab.Global].Add(new ChatData(who, chat, ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal));
-                    _chatRepository.AllChat[ChatTab.Group].Add(new ChatData(who, chat, ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal));
+                    _chatRepository.AllChat[ChatTab.Local].Add(new ChatData(ChatTab.Local, who, chat, ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal, log: false));
+                    _chatRepository.AllChat[ChatTab.Global].Add(new ChatData(ChatTab.Global, who, chat, ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal));
+                    _chatRepository.AllChat[ChatTab.Group].Add(new ChatData(ChatTab.Group, who, chat, ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal, log: false));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(chatType), chatType, "Unexpected ChatType encountered");

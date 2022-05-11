@@ -31,7 +31,7 @@ namespace EOLib.PacketHandlers.Chat
         {
             var message = packet.ReadEndString();
 
-            var chatData = new ChatData(character.Name, message, ChatIcon.SpeechBubble);
+            var chatData = new ChatData(ChatTab.Local, character.Name, message, ChatIcon.SpeechBubble);
             _chatRepository.AllChat[ChatTab.Local].Add(chatData);
 
             foreach (var notifier in _notifiers)

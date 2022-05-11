@@ -21,7 +21,7 @@ namespace EOLib.PacketHandlers.Chat
 
         protected override void PostChat(string name, string message)
         {
-            var data = new ChatData(name, message);
+            var data = new ChatData(ChatTab.Group, name, message);
             _chatRepository.AllChat[ChatTab.Group].Add(data);
         }
     }
