@@ -223,6 +223,7 @@ namespace EndlessClient.HUD.Panels
                     _configurationRepository.LogChatToFile = !_configurationRepository.LogChatToFile;
                     break;
                 case WhichSetting.Interaction:
+                    // todo: block party/trade requests when this is true
                     _configurationRepository.Interaction = !_configurationRepository.Interaction;
                     break;
             }
