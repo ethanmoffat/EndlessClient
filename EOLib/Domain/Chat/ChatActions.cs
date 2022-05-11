@@ -1,10 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
+using EOLib.Config;
 using EOLib.Domain.Character;
+using EOLib.Net;
 using EOLib.Net.Builders;
 using EOLib.Net.Communication;
+using System;
+using System.Linq;
 
 namespace EOLib.Domain.Chat
 {
@@ -18,6 +19,7 @@ namespace EOLib.Domain.Chat
         private readonly IPacketSendService _packetSendService;
         private readonly ILocalCommandHandler _localCommandHandler;
         private readonly IChatProcessor _chatProcessor;
+        private readonly IConfigurationProvider _configurationProvider;
 
         public ChatActions(IChatRepository chatRepository,
                            ICharacterProvider characterProvider,
@@ -25,7 +27,8 @@ namespace EOLib.Domain.Chat
                            IChatPacketBuilder chatPacketBuilder,
                            IPacketSendService packetSendService,
                            ILocalCommandHandler localCommandHandler,
-                           IChatProcessor chatProcessor)
+                           IChatProcessor chatProcessor,
+                           IConfigurationProvider configurationProvider)
         {
             _chatRepository = chatRepository;
             _characterProvider = characterProvider;
@@ -34,16 +37,17 @@ namespace EOLib.Domain.Chat
             _packetSendService = packetSendService;
             _localCommandHandler = localCommandHandler;
             _chatProcessor = chatProcessor;
+            _configurationProvider = configurationProvider;
         }
 
-        public string SendChatToServer(string chat, string targetCharacter)
+        public (bool, string) SendChatToServer(string chat, string targetCharacter)
         {
             var chatType = _chatTypeCalculator.CalculateChatType(chat);
 
             if (chatType == ChatType.Command)
             {
                 if (HandleCommand(chat))
-                    return chat;
+                    return (true, chat);
 
                 //treat unhandled command as local chat
                 chatType = ChatType.Local;
@@ -58,6 +62,13 @@ namespace EOLib.Domain.Chat
             }
 
             chat = _chatProcessor.RemoveFirstCharacterIfNeeded(chat, chatType, targetCharacter);
+            var (ok, filtered) = _chatProcessor.FilterCurses(chat);
+            if (!ok)
+            {
+                return (ok, filtered);
+            }
+
+            chat = filtered;
 
             if (_characterProvider.MainCharacter.RenderProperties.IsDrunk)
                 chat = _chatProcessor.MakeDrunk(chat);
@@ -67,7 +78,24 @@ namespace EOLib.Domain.Chat
 
             AddChatForLocalDisplay(chatType, chat, targetCharacter);
 
-            return chat;
+            return (ok, chat);
+        }
+
+        public void SetHearWhispers(bool whispersEnabled)
+        {
+            // GLOBAL_REMOVE with 'n' enables whispers...? 
+            var packet = new PacketBuilder(PacketFamily.Global, whispersEnabled ? PacketAction.Remove : PacketAction.Player)
+                .AddChar((byte)(whispersEnabled ? 'n' : 'y'))
+                .Build();
+            _packetSendService.SendPacket(packet);
+        }
+
+        public void SetGlobalActive(bool active)
+        {
+            var packet = new PacketBuilder(PacketFamily.Global, active ? PacketAction.Open : PacketAction.Close)
+                .AddChar((byte)(active ? 'y' : 'n'))
+                .Build();
+            _packetSendService.SendPacket(packet);
         }
 
         /// <summary>
@@ -91,37 +119,35 @@ namespace EOLib.Domain.Chat
             switch (chatType)
             {
                 case ChatType.Admin:
-                    _chatRepository.AllChat[ChatTab.Group].Add(new ChatData(who, chat, ChatIcon.HGM, ChatColor.Admin));
+                    _chatRepository.AllChat[ChatTab.Group].Add(new ChatData(ChatTab.Group, who, chat, ChatIcon.HGM, ChatColor.Admin));
                     break;
                 case ChatType.PM:
-                    var chatData = new ChatData(who, chat, ChatIcon.Note, ChatColor.PM);
-
                     if(targetCharacter == _chatRepository.PMTarget1)
-                        _chatRepository.AllChat[ChatTab.Private1].Add(chatData);
+                        _chatRepository.AllChat[ChatTab.Private1].Add(new ChatData(ChatTab.Private1, who, chat, ChatIcon.Note, ChatColor.PM));
                     else if (targetCharacter == _chatRepository.PMTarget2)
-                        _chatRepository.AllChat[ChatTab.Private2].Add(chatData);
+                        _chatRepository.AllChat[ChatTab.Private2].Add(new ChatData(ChatTab.Private2, who, chat, ChatIcon.Note, ChatColor.PM));
                     else
                         throw new ArgumentException("Unexpected target character!", nameof(targetCharacter));
 
                     break;
                 case ChatType.Local:
-                    _chatRepository.AllChat[ChatTab.Local].Add(new ChatData(who, chat));
+                    _chatRepository.AllChat[ChatTab.Local].Add(new ChatData(ChatTab.Local, who, chat));
                     break;
                 case ChatType.Global:
-                    _chatRepository.AllChat[ChatTab.Global].Add(new ChatData(who, chat));
+                    _chatRepository.AllChat[ChatTab.Global].Add(new ChatData(ChatTab.Global, who, chat));
                     break;
                 case ChatType.Guild:
                     //todo: there are special cases here for guild chat that aren't handled
-                    _chatRepository.AllChat[ChatTab.Group].Add(new ChatData(who, chat));
+                    _chatRepository.AllChat[ChatTab.Group].Add(new ChatData(ChatTab.Group, who, chat));
                     break;
                 case ChatType.Party:
-                    _chatRepository.AllChat[ChatTab.Local].Add(new ChatData(who, chat, ChatIcon.PlayerPartyDark, ChatColor.PM));
-                    _chatRepository.AllChat[ChatTab.Group].Add(new ChatData(who, chat, ChatIcon.PlayerPartyDark));
+                    _chatRepository.AllChat[ChatTab.Local].Add(new ChatData(ChatTab.Local, who, chat, ChatIcon.PlayerPartyDark, ChatColor.PM, log: false));
+                    _chatRepository.AllChat[ChatTab.Group].Add(new ChatData(ChatTab.Group, who, chat, ChatIcon.PlayerPartyDark));
                     break;
                 case ChatType.Announce:
-                    _chatRepository.AllChat[ChatTab.Local].Add(new ChatData(who, chat, ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal));
-                    _chatRepository.AllChat[ChatTab.Global].Add(new ChatData(who, chat, ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal));
-                    _chatRepository.AllChat[ChatTab.Group].Add(new ChatData(who, chat, ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal));
+                    _chatRepository.AllChat[ChatTab.Local].Add(new ChatData(ChatTab.Local, who, chat, ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal, log: false));
+                    _chatRepository.AllChat[ChatTab.Global].Add(new ChatData(ChatTab.Global, who, chat, ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal));
+                    _chatRepository.AllChat[ChatTab.Group].Add(new ChatData(ChatTab.Group, who, chat, ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal, log: false));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(chatType), chatType, "Unexpected ChatType encountered");
@@ -131,6 +157,10 @@ namespace EOLib.Domain.Chat
 
     public interface IChatActions
     {
-        string SendChatToServer(string chat, string targetCharacter);
+        (bool Ok, string Processed) SendChatToServer(string chat, string targetCharacter);
+
+        void SetHearWhispers(bool whispersEnabled);
+
+        void SetGlobalActive(bool active);
     }
 }

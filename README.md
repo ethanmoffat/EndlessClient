@@ -5,9 +5,6 @@ EndlessClient
 
 An open source client for Endless Online written in C#
 
-#### Want more features?
-This project has been on GitHub since the end of July, 2014. It is currently suffering through a rewrite of the code. If you're looking for the more feature-complete version of the code base, see the old_code branch (now protected).
-
 #### License Update
 
 As of 2020-05-09, this project is relicensed under the MIT license. Older versions of the code are still licensed under the GNU GPLv2 license. The tag `gplv2` has been added to the final commit for which this project is licensed under the GPLv2.
@@ -15,7 +12,6 @@ As of 2020-05-09, this project is relicensed under the MIT license. Older versio
 #### Jump to:
  - [Contributing](contributing.md)
  - [Getting started](#GettingStarted)
- - [Current feature list](#SoFar)
  - [Todo list](#ToDo)
  - [New features (also todo)](#NewFeatures)
  - [Changes from the Original Client](#Changes)
@@ -29,7 +25,7 @@ As of 2020-05-09, this project is relicensed under the MIT license. Older versio
 
 Source builds require Visual Studio, the .Net 6.0 SDK, and the .Net 3.1 runtime (for building content with the MonoGame content builder pipeline tool). Other dependencies are installed via Nuget. MonoGame no longer needs to be installed ahead of time!
 
-.Net 6.0 runtime is required to run the pre-build binary.
+.Net 6.0 runtime is required to run the pre-built binary.
 
 On Linux, the `ttf-mscorefonts-installer` package is required. Consult your distribution's package manager documentation for instructions on how to install this.
 
@@ -41,66 +37,10 @@ See [releases](https://github.com/ethanmoffat/EndlessClient/releases) on GitHub 
 
 After installing, clone (or fork+clone) this repository locally and open the solution in your IDE of choice for your platform.
 
-<a name="SoFar" />Current feature list
----------------------
-
-- Pre-game menus and dialogs
-    - Debug mode for character offset calculation (press F5 from the initial game screen in a debug build)
-- Map
-    - Earthquakes
-    - Spikes
-    - Map effects
-    - Water/jump tiles
-    - Map item interaction
-    - Map signs
-    - Mouse cursor
-    - Click to walk (A* search)
-    - Animated walls and ground tiles
-    - Refresh via F12
-- Characters
-    - All animations and equipment supported and 99.5% accurate to the original client
-    - Sitting
-    - Paperdoll display and unequipping items
-    - Health bars
-    - Context menu / paperdoll via right-click
-- NPCs
-    - All animation frames
-    - Attacking/health bars
-- HUD status bars (HP, TP, SP, TNL)
-- Chat
-    - All chat types properly handled
-    - Chat bubbles
-- Character stats and training
-- "Who is online" list
-- Friend/ignore lists
-
 <a name="Todo" />Todo list
 ---------------------
 
-- Map interactions
-    - Board interaction
-    - NPC interaction
-        - Quests
-        - Shops
-        - Skills
-        - Inns
-        - Law/marriage
-        - Guilds
-        - Barber
-    - Jukebox
-    - Minimap rendering
-- Spell casting
-- Item use, equip, drop, junk
-- HUD panels
-    - Skills
-    - Inventory
-    - Party
-    - Settings
-- Quest progress/daily exp
-- Trade
-- Sounds/music
-    - Music depends on a cross-platform MIDI player implementation in C#
-- Handling large (900+ entry), multi-part pub files via official EO protocol
+See the Github issues for planned features. Anything marked with the 'in progress' label is actively being worked on.
 
 <a name="NewFeatures" />New features (also todo)
 ------------------
@@ -109,9 +49,10 @@ Here's a working list of things I want to add that would be additional features 
  - Use built-in patching system prior to log-in to transfer files
  - More than 3 characters per account
  - Trading items between characters on the same account
- - Better display scaling
+ - Better display scaling, resizable display
  - Timed map weather systems
  - Passive skills
+ - Better inventory
 
 <a name="Changes" />Changes From Original Client
 -------------------------------------

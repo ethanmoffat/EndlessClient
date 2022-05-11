@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Text;
 using AutomaticTypeMapper;
+using EOLib.Config;
+using EOLib.Localization;
 
 namespace EOLib.Domain.Chat
 {
@@ -9,6 +11,16 @@ namespace EOLib.Domain.Chat
     public class ChatProcessor : IChatProcessor
     {
         private readonly Random _random = new Random();
+
+        private readonly IDataFileProvider _dataFileProvider;
+        private readonly IConfigurationProvider _configurationProvider;
+
+        public ChatProcessor(IDataFileProvider dataFileProvider,
+                             IConfigurationProvider configurationProvider)
+        {
+            _dataFileProvider = dataFileProvider;
+            _configurationProvider = configurationProvider;
+        }
 
         public string RemoveFirstCharacterIfNeeded(string chat, ChatType chatType, string targetCharacter)
         {
@@ -42,6 +54,8 @@ namespace EOLib.Domain.Chat
         {
             // implementation from Phorophor::notepad (thanks Blo)
             // https://discord.com/channels/723989119503696013/785190349026492437/791376941822246953
+
+            // todo: make this use the authentic algorithm here: https://discord.com/channels/723989119503696013/787685796055482368/945700924536553544
             var ret = new StringBuilder();
 
             foreach (var c in input)
@@ -61,6 +75,31 @@ namespace EOLib.Domain.Chat
 
             return ret.ToString();
         }
+
+        public (bool, string) FilterCurses(string input)
+        {
+            if (_configurationProvider.CurseFilterEnabled || _configurationProvider.StrictFilterEnabled)
+            {
+                foreach (var curse in _dataFileProvider.DataFiles[DataFiles.CurseFilter].Data.Values)
+                {
+                    var index = input.IndexOf(curse, StringComparison.OrdinalIgnoreCase);
+                    if (index >= 0)
+                    {
+                        if (_configurationProvider.CurseFilterEnabled)
+                        {
+                            input = input.Remove(index, curse.Length);
+                            input = input.Insert(index, "****");
+                        }
+                        else if (_configurationProvider.StrictFilterEnabled)
+                        {
+                            return (false, string.Empty);
+                        }
+                    }
+                }
+            }
+
+            return (true, input);
+        }
     }
 
     public interface IChatProcessor
@@ -68,5 +107,7 @@ namespace EOLib.Domain.Chat
         string RemoveFirstCharacterIfNeeded(string input, ChatType chatType, string targetCharacter);
 
         string MakeDrunk(string input);
+
+        (bool ShowChat, string FilteredMessage) FilterCurses(string input);
     }
 }

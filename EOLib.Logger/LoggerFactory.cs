@@ -1,5 +1,7 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Config;
+using System;
+using System.Linq;
 
 namespace EOLib.Logger
 {
@@ -13,14 +15,25 @@ namespace EOLib.Logger
             _configurationProvider = configurationProvider;
         }
 
-        public ILogger CreateLogger()
+        public ILogger CreateLogger<TLogger>(string fileName = "")
+            where TLogger : class, ILogger, new()
         {
-            return new DebugOnlyLogger(_configurationProvider);
+            var constructors = typeof(TLogger).GetConstructors()
+                .Where(x => x.GetParameters().Length == 1 && !x.IsPrivate)
+                .Select(x => x.GetParameters()[0].ParameterType);
+
+            if (constructors.Any(x => x == typeof(IConfigurationProvider)))
+                return (TLogger)Activator.CreateInstance(typeof(TLogger), _configurationProvider);
+            else if (constructors.Any(x => x == typeof(string)))
+                return (TLogger)Activator.CreateInstance(typeof(TLogger), fileName);
+
+            return new TLogger();
         }
     }
 
     public interface ILoggerFactory
     {
-        ILogger CreateLogger();
+        ILogger CreateLogger<TLogger>(string fileName = "")
+            where TLogger : class, ILogger, new();
     }
 }

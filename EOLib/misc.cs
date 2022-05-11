@@ -50,6 +50,7 @@ namespace EOLib
 
         public const string InventoryFile = "config/inventory.ini";
         public const string SpellsFile = "config/spells.ini";
+        public const string ChatLogFile = "chatlog.txt";
 
         //Should be easily customizable between different clients (based on graphics)
         //not a config option because this shouldn't be exposed at the user level
@@ -59,7 +60,6 @@ namespace EOLib
         public static readonly int[] InstrumentIDs = { 349, 350 };
         // Item IDs of ranged weapons (overrides pub value)
         public static readonly int[] RangedWeaponIDs = { 365 };
-
         public const string FontSize07 = @"Fonts/InGame_Main_07";
         public const string FontSize08 = @"Fonts/InGame_Main_08";
         public const string FontSize08pt5 = @"Fonts/InGame_Main_08pt5";

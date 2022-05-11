@@ -41,7 +41,7 @@ namespace EOLib.PacketHandlers.Commands
             _pingTimeRepository.PingRequests.Remove(requestID);
 
             var message = $"[x] Current ping to the server is: {timeInMS} ms.";
-            var chatData = new ChatData("System", message, ChatIcon.LookingDude);
+            var chatData = new ChatData(ChatTab.Local, "System", message, ChatIcon.LookingDude);
             _chatRepository.AllChat[ChatTab.Local].Add(chatData);
 
             return true;

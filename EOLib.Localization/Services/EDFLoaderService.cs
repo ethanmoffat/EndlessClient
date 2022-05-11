@@ -1,5 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.IO.Services;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -68,7 +69,7 @@ namespace EOLib.Localization
             foreach (string encoded in lines)
             {
                 string decoded = DecodeDatString(encoded, DataFiles.CurseFilter);
-                string[] curses = decoded.Split(':');
+                string[] curses = decoded.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string curse in curses)
                     data.Add(i++, curse);
             }

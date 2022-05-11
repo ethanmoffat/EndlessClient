@@ -7,6 +7,6 @@ namespace EndlessClient.Rendering.Chat
     {
         IReadOnlyList<IChatRenderable> GenerateNewsRenderables(IReadOnlyList<string> newsText);
 
-        IReadOnlyList<IChatRenderable> GenerateChatRenderables(IReadOnlyList<ChatData> chatData);
+        IReadOnlyList<IChatRenderable> GenerateChatRenderables(IEnumerable<ChatData> chatData);
     }
 }

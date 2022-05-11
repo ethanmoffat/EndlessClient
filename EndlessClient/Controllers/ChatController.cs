@@ -3,10 +3,12 @@ using AutomaticTypeMapper;
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.GameExecution;
+using EndlessClient.HUD;
 using EndlessClient.HUD.Chat;
 using EndlessClient.HUD.Controls;
 using EndlessClient.UIControls;
 using EOLib.Domain.Chat;
+using EOLib.Localization;
 using EOLib.Net;
 using EOLib.Net.Communication;
 
@@ -19,18 +21,21 @@ namespace EndlessClient.Controllers
         private readonly IChatActions _chatActions;
         private readonly IPrivateMessageActions _privateMessageActions;
         private readonly IChatBubbleActions _chatBubbleActions;
+        private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IHudControlProvider _hudControlProvider;
 
         public ChatController(IChatTextBoxActions chatTextBoxActions,
                               IChatActions chatActions,
                               IPrivateMessageActions privateMessageActions,
                               IChatBubbleActions chatBubbleActions,
+                              IStatusLabelSetter statusLabelSetter,
                               IHudControlProvider hudControlProvider)
         {
             _chatTextBoxActions = chatTextBoxActions;
             _chatActions = chatActions;
             _privateMessageActions = privateMessageActions;
             _chatBubbleActions = chatBubbleActions;
+            _statusLabelSetter = statusLabelSetter;
             _hudControlProvider = hudControlProvider;
         }
 
@@ -39,11 +44,18 @@ namespace EndlessClient.Controllers
             var localTypedText = ChatTextBox.Text;
             var targetCharacter = _privateMessageActions.GetTargetCharacter(localTypedText);
 
-            var updatedChat = _chatActions.SendChatToServer(localTypedText, targetCharacter);
+            var (ok, updatedChat) = _chatActions.SendChatToServer(localTypedText, targetCharacter);
 
             _chatTextBoxActions.ClearChatText();
 
-            _chatBubbleActions.ShowChatBubbleForMainCharacter(updatedChat);
+            if (ok)
+            {
+                _chatBubbleActions.ShowChatBubbleForMainCharacter(updatedChat);
+            }
+            else
+            {
+                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.YOUR_MIND_PREVENTS_YOU_TO_SAY);
+            }
         }
 
         public void SelectChatTextBox()

@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using EndlessClient.Dialogs;
-using EndlessClient.HUD.Panels.Old;
-using EndlessClient.Input;
+﻿using EndlessClient.HUD.Panels.Old;
 using EndlessClient.Old;
 using EndlessClient.UIControls;
-using EOLib.Domain.Character;
-using EOLib.Domain.Chat;
-using EOLib.Graphics;
-using EOLib.IO.Pub;
 using EOLib.Localization;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
-using XNAControls.Old;
+using System;
+using System.Collections.Generic;
 
 namespace EndlessClient.HUD.Controls
 {
@@ -25,7 +18,6 @@ namespace EndlessClient.HUD.Controls
 
         private const int HUD_CONTROL_DRAW_ORDER = 101;
 
-        private readonly OldChatRenderer chatRenderer;
         private readonly OldEOPartyPanel m_party;
 
         private ChatTextBox chatTextBox;
@@ -39,8 +31,6 @@ namespace EndlessClient.HUD.Controls
             m_packetAPI = api;
 
             DrawOrder = 100;
-
-            chatRenderer = new OldChatRenderer();
 
             CreateChatTextbox();
 
@@ -90,11 +80,6 @@ namespace EndlessClient.HUD.Controls
 
         #region Public Interface for classes outside HUD
 
-        public void AddChat(ChatTab whichTab, string who, string message, ChatIcon chatIcon = ChatIcon.None, ChatColor chatColor = ChatColor.Default)
-        {
-            chatRenderer.AddTextToTab(whichTab, who, message, chatIcon, chatColor);
-        }
-
         public void SetChatText(string text)
         {
             chatTextBox.Text = text;
@@ -128,8 +113,6 @@ namespace EndlessClient.HUD.Controls
             if (disposing)
             {
                 m_packetAPI.Dispose();
-
-                chatRenderer.Dispose();
             }
 
             base.Dispose(disposing);

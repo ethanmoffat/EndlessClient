@@ -1,6 +1,7 @@
 ﻿using System;
 using EndlessClient.GameExecution;
 using EOLib;
+using EOLib.Config;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Optional;
@@ -13,6 +14,7 @@ namespace EndlessClient.Rendering.Chat
     {
         private readonly IMapActor _parent;
         private readonly IChatBubbleTextureProvider _chatBubbleTextureProvider;
+        private readonly IConfigurationProvider _configurationProvider;
         private readonly SpriteBatch _spriteBatch;
 
         private readonly XNALabel _textLabel;
@@ -23,11 +25,13 @@ namespace EndlessClient.Rendering.Chat
 
         public ChatBubble(IMapActor referenceRenderer,
                           IChatBubbleTextureProvider chatBubbleTextureProvider,
-                          IEndlessGameProvider gameProvider)
+                          IEndlessGameProvider gameProvider,
+                          IConfigurationProvider configurationProvider)
             : base((Game)gameProvider.Game)
         {
             _parent = referenceRenderer;
             _chatBubbleTextureProvider = chatBubbleTextureProvider;
+            _configurationProvider = configurationProvider;
             _spriteBatch = new SpriteBatch(((Game)gameProvider.Game).GraphicsDevice);
 
             _textLabel = new XNALabel(Constants.FontSize08pt5)
@@ -60,6 +64,9 @@ namespace EndlessClient.Rendering.Chat
 
         public void SetMessage(string message, bool isGroupChat)
         {
+            if (!_configurationProvider.ShowChatBubbles)
+                return;
+
             _isGroupChat = isGroupChat;
             _textLabel.Text = message;
             Visible = true;

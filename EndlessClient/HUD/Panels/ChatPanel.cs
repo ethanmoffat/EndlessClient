@@ -7,6 +7,7 @@ using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Sprites;
 using EndlessClient.UIControls;
 using EOLib;
+using EOLib.Config;
 using EOLib.Domain.Chat;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
@@ -19,36 +20,46 @@ namespace EndlessClient.HUD.Panels
     public class ChatPanel : XNAPanel, IHudPanel
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
+        private readonly IChatActions _chatActions;
         private readonly IChatRenderableGenerator _chatRenderableGenerator;
         private readonly IChatProvider _chatProvider;
         private readonly IHudControlProvider _hudControlProvider;
+        private readonly IConfigurationProvider _configurationProvider;
         private readonly SpriteFont _chatFont;
 
         private readonly ScrollBar _scrollBar;
         private readonly List<IChatRenderable> _chatRenderables;
 
-        private readonly ChatPanelStateCache _state;
-
         private readonly ISpriteSheet _smallSelected, _smallUnselected;
         private readonly ISpriteSheet _largeSelected, _largeUnselected;
 
+        // todo: refactor chat to have a ChatTab sub-control that encapsulates some of this stuff
         private readonly Dictionary<ChatTab, IXNALabel> _tabLabels;
+        private readonly Dictionary<ChatTab, int> _cachedScrollOffsets;
+        private readonly Dictionary<ChatTab, int> _cachedTabLineCounts;
         private readonly IReadOnlyDictionary<ChatTab, Rectangle> _tabLabelClickableAreas;
 
         private readonly Rectangle _closeButtonAreaForTab1, _closeButtonAreaForTab2;
 
+        private bool _privateChat1Shown, _privateChat2Shown;
+        private HashSet<ChatData> _cachedChat;
+
         public ChatTab CurrentTab { get; private set; }
 
         public ChatPanel(INativeGraphicsManager nativeGraphicsManager,
+                         IChatActions chatActions,
                          IChatRenderableGenerator chatRenderableGenerator,
                          IChatProvider chatProvider,
                          IHudControlProvider hudControlProvider,
+                         IConfigurationProvider configurationProvider,
                          SpriteFont chatFont)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
+            _chatActions = chatActions;
             _chatRenderableGenerator = chatRenderableGenerator;
             _chatProvider = chatProvider;
             _hudControlProvider = hudControlProvider;
+            _configurationProvider = configurationProvider;
             _chatFont = chatFont;
 
             //abs coordiantes: 568 309
@@ -59,7 +70,9 @@ namespace EndlessClient.HUD.Panels
             };
 
             _chatRenderables = new List<IChatRenderable>();
-            _state = new ChatPanelStateCache();
+            _cachedChat = new HashSet<ChatData>();
+            _cachedScrollOffsets = Enum.GetValues<ChatTab>().ToDictionary(k => k, v => 0);
+            _cachedTabLineCounts = Enum.GetValues<ChatTab>().ToDictionary(k => k, v => 0);
             CurrentTab = ChatTab.Local;
 
             var tabTexture = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 35);
@@ -118,19 +131,19 @@ namespace EndlessClient.HUD.Panels
 
         public void TryStartNewPrivateChat(string targetCharacter)
         {
-            if (_state.PrivateChat1Shown && _state.PrivateChat2Shown)
+            if (_privateChat1Shown && _privateChat2Shown)
                 return;
 
-            if (_state.PrivateChat1Shown) //private chat 1 is in use
+            if (_privateChat1Shown) //private chat 1 is in use
             {
-                _state.PrivateChat2Shown = true;
+                _privateChat2Shown = true;
                 SelectTab(ChatTab.Private2);
                 _tabLabels[ChatTab.Private2].Text = char.ToUpper(targetCharacter[0]) + targetCharacter.Substring(1);
                 ((XNALabel)_tabLabels[ChatTab.Private2]).Visible = true;
             }
             else //no private chats are in use
             {
-                _state.PrivateChat1Shown = true;
+                _privateChat1Shown = true;
                 SelectTab(ChatTab.Private1);
                 _tabLabels[ChatTab.Private1].Text = char.ToUpper(targetCharacter[0]) + targetCharacter.Substring(1);
                 ((XNALabel)_tabLabels[ChatTab.Private1]).Visible = true;
@@ -140,13 +153,13 @@ namespace EndlessClient.HUD.Panels
         public void ClosePMTab(ChatTab whichTab)
         {
             if (whichTab == ChatTab.Private1)
-                _state.PrivateChat1Shown = false;
+                _privateChat1Shown = false;
             else if (whichTab == ChatTab.Private2)
-                _state.PrivateChat2Shown = false;
+                _privateChat2Shown = false;
             else
                 throw new ArgumentOutOfRangeException(nameof(whichTab), whichTab, "whichTab should be Private1 or Private2");
 
-            _state.CachedScrollOffsets[whichTab] = 0;
+            _cachedScrollOffsets[whichTab] = 0;
             _tabLabels[whichTab].Text = "";
             SelectTab(ChatTab.Local);
         }
@@ -169,17 +182,17 @@ namespace EndlessClient.HUD.Panels
             HandleTextAddedToOtherTabs();
 
             var chatChanged = false;
-            if (!_state.CachedChatDataCurrentTab.SequenceEqual(_chatProvider.AllChat[CurrentTab]))
+            if (!_cachedChat.SetEquals(_chatProvider.AllChat[CurrentTab]))
             {
-                UpdateCachedChatData();
+                _cachedChat = _chatProvider.AllChat[CurrentTab].ToHashSet();
                 chatChanged = true;
             }
 
-            if (chatChanged || _state.CachedScrollOffsets[CurrentTab] != _scrollBar.ScrollOffset)
+            if (chatChanged || _cachedScrollOffsets[CurrentTab] != _scrollBar.ScrollOffset)
             {
-                var renderables = _chatRenderableGenerator.GenerateChatRenderables(_state.CachedChatDataCurrentTab);
+                var renderables = _chatRenderableGenerator.GenerateChatRenderables(_cachedChat);
 
-                _state.CachedScrollOffsets[CurrentTab] = _scrollBar.ScrollOffset;
+                _cachedScrollOffsets[CurrentTab] = _scrollBar.ScrollOffset;
                 SetupRenderablesFromCachedValues(renderables, chatChanged);
             }
 
@@ -214,18 +227,12 @@ namespace EndlessClient.HUD.Panels
                     continue;
 
                 var lineCountForTab = _chatProvider.AllChat[tab].Count;
-                if (_state.cachedChatTabLineCounts[tab] != lineCountForTab)
+                if (_cachedTabLineCounts[tab] != lineCountForTab)
                 {
-                    _state.cachedChatTabLineCounts[tab] = lineCountForTab;
+                    _cachedTabLineCounts[tab] = lineCountForTab;
                     _tabLabels[tab].ForeColor = Color.White;
                 }
             }
-        }
-
-        private void UpdateCachedChatData()
-        {
-            _state.CachedChatDataCurrentTab.Clear();
-            _state.CachedChatDataCurrentTab.AddRange(_chatProvider.AllChat[CurrentTab]);
         }
 
         private void SetupRenderablesFromCachedValues(IReadOnlyList<IChatRenderable> renderables, bool newText)
@@ -250,8 +257,8 @@ namespace EndlessClient.HUD.Panels
             var clickedTab = _tabLabelClickableAreas.Single(x => x.Value.Contains(mouseState.Position)).Key;
 
             //prevent clicking invisible tabs (boolean logic reduced using de morgan's laws)
-            if ((clickedTab != ChatTab.Private1 || _state.PrivateChat1Shown) &&
-                (clickedTab != ChatTab.Private2 || _state.PrivateChat2Shown))
+            if ((clickedTab != ChatTab.Private1 || _privateChat1Shown) &&
+                (clickedTab != ChatTab.Private2 || _privateChat2Shown))
             {
                 if (_closeButtonAreaForTab1.ContainsPoint(mouseState.X, mouseState.Y))
                 {
@@ -327,8 +334,8 @@ namespace EndlessClient.HUD.Panels
 
         private ISpriteSheet GetSpriteSheetForTab(ChatTab tab)
         {
-            if ((tab == ChatTab.Private1 && !_state.PrivateChat1Shown) ||
-                (tab == ChatTab.Private2 && !_state.PrivateChat2Shown))
+            if ((tab == ChatTab.Private1 && !_privateChat1Shown) ||
+                (tab == ChatTab.Private2 && !_privateChat2Shown))
                 return new EmptySpriteSheet();
 
             switch (tab)
@@ -350,11 +357,20 @@ namespace EndlessClient.HUD.Panels
 
         private void SelectTab(ChatTab clickedTab)
         {
+            if (CurrentTab == ChatTab.Global && clickedTab != ChatTab.Global)
+            {
+                _chatActions.SetGlobalActive(false);
+            }
+            else if (CurrentTab != ChatTab.Global && clickedTab == ChatTab.Global)
+            {
+                _chatActions.SetGlobalActive(true);
+            }
+
             _tabLabels[CurrentTab].ForeColor = Color.Black;
             _tabLabels[clickedTab].ForeColor = Color.White;
             CurrentTab = clickedTab;
 
-            _scrollBar.SetScrollOffset(_state.CachedScrollOffsets[CurrentTab]);
+            _scrollBar.SetScrollOffset(_cachedScrollOffsets[CurrentTab]);
         }
 
         protected override void Dispose(bool disposing)
@@ -366,33 +382,6 @@ namespace EndlessClient.HUD.Panels
                 _tabLabels.Clear();
             }
             base.Dispose(disposing);
-        }
-
-        private class ChatPanelStateCache
-        {
-            private readonly List<ChatData> _cachedChatDataCurrentTab;
-            private readonly Dictionary<ChatTab, int> _cachedChatTabLineCounts;
-            private readonly Dictionary<ChatTab, int> _cachedScrollOffsets;
-
-            public List<ChatData> CachedChatDataCurrentTab => _cachedChatDataCurrentTab;
-            public Dictionary<ChatTab, int> cachedChatTabLineCounts => _cachedChatTabLineCounts;
-
-            public Dictionary<ChatTab, int> CachedScrollOffsets => _cachedScrollOffsets;
-
-            public bool PrivateChat1Shown { get; set; }
-            public bool PrivateChat2Shown { get; set; }
-
-            internal ChatPanelStateCache()
-            {
-                var chatTabs = (ChatTab[])Enum.GetValues(typeof(ChatTab));
-
-                _cachedChatDataCurrentTab = new List<ChatData>();
-                _cachedChatTabLineCounts = chatTabs.ToDictionary(k => k, v => 0);
-                _cachedChatTabLineCounts[ChatTab.Local] = 1; //1 line of default news text
-                _cachedChatTabLineCounts[ChatTab.Global] = 2; //2 lines default text
-
-                _cachedScrollOffsets = chatTabs.ToDictionary(k => k, v => 0);
-            }
         }
     }
 }

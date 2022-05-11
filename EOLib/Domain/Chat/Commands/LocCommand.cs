@@ -30,7 +30,7 @@ namespace EOLib.Domain.Chat.Commands
                 _characterProvider.MainCharacter.RenderProperties.MapX,
                 _characterProvider.MainCharacter.RenderProperties.MapY);
 
-            var chatData = new ChatData("System", message, ChatIcon.LookingDude);
+            var chatData = new ChatData(ChatTab.Local, "System", message, ChatIcon.LookingDude);
             _chatRepository.AllChat[ChatTab.Local].Add(chatData);
 
             return true;

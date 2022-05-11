@@ -16,9 +16,9 @@ namespace EOLib.Logger
         private static ILogger CreateLogger(ILoggerFactory loggerFactory)
         {
 #if DEBUG
-            return loggerFactory.CreateLogger();
+            return loggerFactory.CreateLogger<DebugOnlyLogger>();
 #else
-            return new NullLogger();
+            return loggerFactory.CreateLogger<NullLogger>();
 #endif
         }
 

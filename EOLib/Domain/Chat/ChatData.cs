@@ -1,19 +1,31 @@
+using Amadevus.RecordGenerator;
+using System;
+
 namespace EOLib.Domain.Chat
 {
-    public class ChatData
+    [Record(Features.ObjectEquals | Features.ToString)]
+    public sealed partial class ChatData
     {
-        public ChatIcon Icon { get; }
+        public ChatTab Tab { get; private set; }
 
-        public string Who { get; }
+        public ChatIcon Icon { get; private set; }
 
-        public string Message { get; }
+        public string Who { get; private set; }
 
-        public ChatColor ChatColor { get; }
+        public string Message { get; } // making this get-only makes it the only property that generates a .With method
 
-        public ChatData(string who,
-            string message,
-            ChatIcon icon = ChatIcon.None,
-            ChatColor color = ChatColor.Default)
+        public ChatColor ChatColor { get; private set; }
+
+        public DateTime ChatTime { get; private set; }
+
+        public bool Log { get; private set; }
+
+        public ChatData(ChatTab tab,
+                        string who,
+                        string message,
+                        ChatIcon icon = ChatIcon.None,
+                        ChatColor chatColor = ChatColor.Default,
+                        bool log = true)
         {
             if (who == null)
                 who = "";
@@ -23,30 +35,19 @@ namespace EOLib.Domain.Chat
             if (message == null)
                 message = "";
 
+            Tab = tab;
             Icon = icon;
             Who = who;
             Message = message;
-            ChatColor = color;
+            ChatColor = chatColor;
+            Log = log;
+
+            ChatTime = DateTime.Now;
         }
 
-        public override bool Equals(object obj)
+        public ChatData WithMessage(string message)
         {
-            if (!(obj is ChatData)) return false;
-            var other = (ChatData) obj;
-
-            return other.Icon.Equals(Icon)
-                   && other.Who.Equals(Who)
-                   && other.Message.Equals(Message)
-                   && other.ChatColor.Equals(ChatColor);
-        }
-
-        public override int GetHashCode()
-        {
-            var hash = 397 ^ Icon.GetHashCode();
-            hash = (hash*397) ^ Who.GetHashCode();
-            hash = (hash*397) ^ Message.GetHashCode();
-            hash = (hash*397) ^ ChatColor.GetHashCode();
-            return hash;
+            return new ChatData(Tab, Who, message, Icon, ChatColor, Log);
         }
     }
 }

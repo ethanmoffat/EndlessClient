@@ -30,7 +30,7 @@ namespace EOLib.PacketHandlers.Commands
             var message =
                 $"{char.ToUpper(playerName[0]) + playerName.Substring(1)} {_localizedStringFinder.GetString(ResourceIDForResponse)}";
 
-            var chatData = new ChatData("System", message, ChatIcon.LookingDude);
+            var chatData = new ChatData(ChatTab.Local, "System", message, ChatIcon.LookingDude);
             _chatRespository.AllChat[ChatTab.Local].Add(chatData);
 
             return true;

@@ -249,11 +249,11 @@ namespace EndlessClient.Controllers
             var serverMessage2 = _localizedStringFinder.GetString(EOResourceID.GLOBAL_CHAT_SERVER_MESSAGE_2);
 
             _chatRepository.AllChat[ChatTab.Local].Add(
-                new ChatData(server, _newsProvider.NewsHeader, ChatIcon.Note, ChatColor.Server));
+                new ChatData(ChatTab.Local, server, _newsProvider.NewsHeader, ChatIcon.Note, ChatColor.Server, log: false));
             _chatRepository.AllChat[ChatTab.Global].Add(
-                new ChatData(server, serverMessage1, ChatIcon.Note, ChatColor.Server));
+                new ChatData(ChatTab.Global, server, serverMessage1, ChatIcon.Note, ChatColor.Server, log: false));
             _chatRepository.AllChat[ChatTab.Global].Add(
-                new ChatData(server, serverMessage2, ChatIcon.Note, ChatColor.Server));
+                new ChatData(ChatTab.Global, server, serverMessage2, ChatIcon.Note, ChatColor.Server, log: false));
         }
     }
 
