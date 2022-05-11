@@ -22,10 +22,7 @@ namespace EndlessClient.Rendering.Chat
 
         public IChatBubble CreateChatBubble(IMapActor owner)
         {
-            if (!_configurationProvider.ShowChatBubbles)
-                return new HiddenChatBubble();
-
-            var chatBubble = new ChatBubble(owner, _chatBubbleTextureProvider, _endlessGameProvider);
+            var chatBubble = new ChatBubble(owner, _chatBubbleTextureProvider, _endlessGameProvider, _configurationProvider);
 
             if (!_endlessGameProvider.Game.Components.Contains(chatBubble))
                 _endlessGameProvider.Game.Components.Add(chatBubble);
