@@ -19,6 +19,7 @@ namespace EOLib.Domain.Chat
         private readonly IPacketSendService _packetSendService;
         private readonly ILocalCommandHandler _localCommandHandler;
         private readonly IChatProcessor _chatProcessor;
+        private readonly IConfigurationProvider _configurationProvider;
 
         public ChatActions(IChatRepository chatRepository,
                            ICharacterProvider characterProvider,
@@ -26,7 +27,8 @@ namespace EOLib.Domain.Chat
                            IChatPacketBuilder chatPacketBuilder,
                            IPacketSendService packetSendService,
                            ILocalCommandHandler localCommandHandler,
-                           IChatProcessor chatProcessor)
+                           IChatProcessor chatProcessor,
+                           IConfigurationProvider configurationProvider)
         {
             _chatRepository = chatRepository;
             _characterProvider = characterProvider;
@@ -35,16 +37,17 @@ namespace EOLib.Domain.Chat
             _packetSendService = packetSendService;
             _localCommandHandler = localCommandHandler;
             _chatProcessor = chatProcessor;
+            _configurationProvider = configurationProvider;
         }
 
-        public string SendChatToServer(string chat, string targetCharacter)
+        public (bool, string) SendChatToServer(string chat, string targetCharacter)
         {
             var chatType = _chatTypeCalculator.CalculateChatType(chat);
 
             if (chatType == ChatType.Command)
             {
                 if (HandleCommand(chat))
-                    return chat;
+                    return (true, chat);
 
                 //treat unhandled command as local chat
                 chatType = ChatType.Local;
@@ -59,6 +62,13 @@ namespace EOLib.Domain.Chat
             }
 
             chat = _chatProcessor.RemoveFirstCharacterIfNeeded(chat, chatType, targetCharacter);
+            var (ok, filtered) = _chatProcessor.FilterCurses(chat);
+            if (!ok)
+            {
+                return (ok, filtered);
+            }
+
+            chat = filtered;
 
             if (_characterProvider.MainCharacter.RenderProperties.IsDrunk)
                 chat = _chatProcessor.MakeDrunk(chat);
@@ -68,7 +78,7 @@ namespace EOLib.Domain.Chat
 
             AddChatForLocalDisplay(chatType, chat, targetCharacter);
 
-            return chat;
+            return (ok, chat);
         }
 
         public void SetHearWhispers(bool whispersEnabled)
@@ -147,7 +157,7 @@ namespace EOLib.Domain.Chat
 
     public interface IChatActions
     {
-        string SendChatToServer(string chat, string targetCharacter);
+        (bool Ok, string Processed) SendChatToServer(string chat, string targetCharacter);
 
         void SetHearWhispers(bool whispersEnabled);
 

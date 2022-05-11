@@ -29,6 +29,7 @@ namespace EOLib.Domain.Chat
     {
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IChatLoggerProvider _chatLoggerProvider;
+        private readonly IChatProcessor _chatProcessor;
 
         public IReadOnlyDictionary<ChatTab, IList<ChatData>> AllChat { get; private set; }
 
@@ -47,10 +48,13 @@ namespace EOLib.Domain.Chat
         public string PMTarget2 { get; set; }
 
         public ChatRepository(IConfigurationProvider configurationProvider,
-                              IChatLoggerProvider chatLoggerProvider)
+                              IChatLoggerProvider chatLoggerProvider,
+                              IChatProcessor chatProcessor)
         {
             _configurationProvider = configurationProvider;
             _chatLoggerProvider = chatLoggerProvider;
+            _chatProcessor = chatProcessor;
+
             ResetState();
         }
 
@@ -58,7 +62,7 @@ namespace EOLib.Domain.Chat
         {
             var chat = new Dictionary<ChatTab, IList<ChatData>>();
             foreach (var tab in (ChatTab[]) Enum.GetValues(typeof(ChatTab)))
-                chat.Add(tab, new LoggingList(_configurationProvider, _chatLoggerProvider));
+                chat.Add(tab, new LoggingList(_configurationProvider, _chatLoggerProvider, _chatProcessor));
 
             AllChat = chat;
         }

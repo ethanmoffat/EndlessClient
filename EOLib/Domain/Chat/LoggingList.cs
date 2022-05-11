@@ -1,4 +1,5 @@
 ﻿using EOLib.Config;
+using EOLib.Localization;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,28 +10,41 @@ namespace EOLib.Domain.Chat
     {
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IChatLoggerProvider _chatLoggerProvider;
+        private readonly IChatProcessor _chatProcessor;
 
         private readonly List<ChatData> _l;
 
         public LoggingList(IConfigurationProvider configurationProvider,
-                           IChatLoggerProvider chatLoggerProvider)
+                           IChatLoggerProvider chatLoggerProvider,
+                           IChatProcessor chatProcessor)
         {
             _configurationProvider = configurationProvider;
             _chatLoggerProvider = chatLoggerProvider;
+            _chatProcessor = chatProcessor;
 
             _l = new List<ChatData>();
         }
 
         public LoggingList(IConfigurationProvider configurationProvider,
                            IChatLoggerProvider chatLoggerProvider,
+                           IChatProcessor chatProcessor,
                            IList<ChatData> source)
-            : this(configurationProvider, chatLoggerProvider)
+            : this(configurationProvider, chatLoggerProvider, chatProcessor)
         {
             _l = new List<ChatData>(source);
         }
 
         public void Add(ChatData item)
         {
+            if (_configurationProvider.CurseFilterEnabled || _configurationProvider.StrictFilterEnabled)
+            {
+                var (ok, filtered) = _chatProcessor.FilterCurses(item.Message);
+                if (!ok)
+                    return;
+
+                item = item.WithMessage(filtered);
+            }
+
             ((ICollection<ChatData>)_l).Add(item);
 
             if (_configurationProvider.LogChatToFile && item.Log)
