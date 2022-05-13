@@ -1,4 +1,5 @@
-﻿using EndlessClient.Controllers;
+﻿using EndlessClient.Audio;
+using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
 using EndlessClient.Rendering.CharacterProperties;
@@ -37,6 +38,7 @@ namespace EndlessClient.Rendering.Character
         private readonly IGameStateProvider _gameStateProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IUserInputProvider _userInputProvider;
+        private readonly ISfxPlayer _sfxPlayer;
         private readonly IEffectRenderer _effectRenderer;
 
         private EOLib.Domain.Character.Character _character;
@@ -92,7 +94,8 @@ namespace EndlessClient.Rendering.Character
                                  EOLib.Domain.Character.Character character,
                                  IGameStateProvider gameStateProvider,
                                  ICurrentMapProvider currentMapProvider,
-                                 IUserInputProvider userInputProvider)
+                                 IUserInputProvider userInputProvider,
+                                 ISfxPlayer sfxPlayer)
             : base(game)
         {
             _mapInteractionController = mapInteractionController;
@@ -108,7 +111,9 @@ namespace EndlessClient.Rendering.Character
             _gameStateProvider = gameStateProvider;
             _currentMapProvider = currentMapProvider;
             _userInputProvider = userInputProvider;
-            _effectRenderer = new EffectRenderer(nativeGraphicsmanager, this);
+            _sfxPlayer = sfxPlayer;
+
+            _effectRenderer = new EffectRenderer(nativeGraphicsmanager, _sfxPlayer, this);
             _chatBubble = new Lazy<IChatBubble>(() => _chatBubbleFactory.CreateChatBubble(this));
         }
 

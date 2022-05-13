@@ -1,4 +1,5 @@
-﻿using EndlessClient.Controllers;
+﻿using EndlessClient.Audio;
+using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Spells;
 using EndlessClient.Input;
@@ -38,6 +39,7 @@ namespace EndlessClient.Rendering.NPC
         private readonly IMapInteractionController _mapInteractionController;
         private readonly IUserInputProvider _userInputProvider;
         private readonly ISpellSlotDataProvider _spellSlotDataProvider;
+        private readonly ISfxPlayer _sfxPlayer;
         private readonly Rectangle _baseTextureFrameRectangle;
         private readonly int _readonlyTopPixel, _readonlyBottomPixel;
         private readonly bool _hasStandingAnimation;
@@ -81,6 +83,7 @@ namespace EndlessClient.Rendering.NPC
                            IMapInteractionController mapInteractionController,
                            IUserInputProvider userInputProvider,
                            ISpellSlotDataProvider spellSlotDataProvider,
+                           ISfxPlayer sfxPlayer,
                            EOLib.Domain.NPC.NPC initialNPC)
             : base((Game)endlessGameProvider.Game)
         {
@@ -96,6 +99,8 @@ namespace EndlessClient.Rendering.NPC
             _mapInteractionController = mapInteractionController;
             _userInputProvider = userInputProvider;
             _spellSlotDataProvider = spellSlotDataProvider;
+            _sfxPlayer = sfxPlayer;
+
             _baseTextureFrameRectangle = GetStandingFrameRectangle();
             _readonlyTopPixel = GetTopPixel();
             _readonlyBottomPixel = GetBottomPixel();
@@ -104,7 +109,7 @@ namespace EndlessClient.Rendering.NPC
             _lastStandingAnimation = DateTime.Now;
             _fadeAwayAlpha = 255;
 
-            _effectRenderer = new EffectRenderer(nativeGraphicsManager, this);
+            _effectRenderer = new EffectRenderer(nativeGraphicsManager, _sfxPlayer, this);
             _healthBarRenderer = _healthBarRendererFactory.CreateHealthBarRenderer(this);
         }
 

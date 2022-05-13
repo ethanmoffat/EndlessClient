@@ -49,7 +49,7 @@ namespace EndlessClient.Audio
 
             var noise = _currentMapProvider.CurrentMap.Properties.AmbientNoise;
             if (noise > 0)
-                _sfxPlayer.PlayLoopingSfx((SoundEffectID)noise);
+                _sfxPlayer.PlayLoopingSfx((SoundEffectID)noise - 1);
             else
                 _sfxPlayer.StopLoopingSfx();
         }

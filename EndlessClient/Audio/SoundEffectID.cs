@@ -1,7 +1,9 @@
 ﻿namespace EndlessClient.Audio
 {
 
-    //sfx001 will be ID int 0
+    // These are 0 based indexes even though the files start at sfx001
+    // sfx001 will be id 0
+    // sfx060 will be id 59
     public enum SoundEffectID
     {
         LayeredTechIntro,
@@ -59,17 +61,31 @@
         Gun = 52,
         UltimaBlastSpell,
         ShieldSpell,
-        UnknownAggressiveShieldSound,
+        RingOfFireSpell,
         IceBlastSpell1 = 56,
         EnergyBallSpell,
         WhirlSpell,
         BouldersSpell,
-        HeavenSpell = 60,
-        //there's another ice blast spell in here
-        MapEffectHPDrain = 69,
-        MapEffectTPDrain = 70,
-        Spikes = 71,
-        //not sure what the remaining sounds are but I think map ambient noises start eventually
-        //map noises seem to fade out as you change maps or get farther away from them
+        AuraSpell = 60,
+        HeavenSpell,
+        IceBlastSpell2,
+        MapAmbientNoiseWater,
+        MapAmbientNoiseDrone1 = 64,
+        UnknownMapAmbientNoise1,
+        UnknownMapAmbientNoise2,
+        UnknownMapAmbientNoise3,
+        UnknownMapAmbientNoise4 = 68,
+        MapEffectHPDrain,
+        MapEffectTPDrain,
+        Spikes,
+        UnknownClick = 72,
+        UnknownBoing,
+        UnknownMapAmbientNoise5,
+        DarkHandSpell,
+        TentaclesSpell = 76,
+        MagicWhirlSpell,
+        PowerWindSpell,
+        FireBlastSpell,
+        UnknownBubblesNoise = 80,
     }
 }
