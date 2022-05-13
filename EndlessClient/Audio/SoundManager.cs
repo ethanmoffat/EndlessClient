@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading;
-#if !LINUX
-using System.Windows.Media;
-using System.Windows.Threading;
-#endif
 using Microsoft.Xna.Framework.Audio;
 
 namespace EndlessClient.Audio
@@ -17,7 +12,6 @@ namespace EndlessClient.Audio
     public class SoundManager : IDisposable
     {
         private const string SFX_DIR = "sfx";
-        private const string MFX_DIR = "mfx";
 
         //singleton pattern -- any newly constructed instance is copied from the 'instance'
         private static readonly object _construction_locker_ = new object();
@@ -26,12 +20,6 @@ namespace EndlessClient.Audio
         private List<SoundInfo> _soundEffects;
         private List<SoundInfo> _guitarSounds;
         private List<SoundInfo> _harpSounds;
-
-#if !LINUX //todo: find MediaPlayer implementation that is cross-platform
-        private readonly MediaPlayer _musicPlayer;
-        private List<Uri> _musicFiles;
-        private Dispatcher _dispatcher;
-#endif
 
         public SoundManager()
         {
@@ -50,12 +38,6 @@ namespace EndlessClient.Audio
                 _guitarSounds = new List<SoundInfo>(36);
                 _harpSounds = new List<SoundInfo>(36);
 
-#if !LINUX
-                var musicFiles = Directory.GetFiles(MFX_DIR, "*.mid");
-                Array.Sort(musicFiles);
-                _musicFiles = new List<Uri>(musicFiles.Length);
-#endif
-
                 foreach (var sfx in soundFiles)
                 {
                     using (var sfxStream = WAVFileValidator.GetStreamWithCorrectLengthHeader(sfx))
@@ -73,15 +55,6 @@ namespace EndlessClient.Audio
                     }
                 }
 
-#if !LINUX
-                _musicPlayer = new MediaPlayer();
-                _musicPlayer.MediaEnded += (o, e) => _musicPlayer.Position = new TimeSpan(0);
-
-                foreach (string mfx in musicFiles)
-                    _musicFiles.Add(new Uri(mfx, UriKind.Relative));
-
-                _dispatcher = Dispatcher.CurrentDispatcher;
-#endif
                 _singletonInstance = this;
             }
         }
@@ -92,10 +65,6 @@ namespace EndlessClient.Audio
             _soundEffects = _singletonInstance._soundEffects;
             _guitarSounds = _singletonInstance._guitarSounds;
             _harpSounds = _singletonInstance._harpSounds;
-#if !LINUX
-            _musicFiles = _singletonInstance._musicFiles;
-            _dispatcher = _singletonInstance._dispatcher;
-#endif
         }
 
         public SoundEffectInstance GetGuitarSoundRef(Note which)
@@ -129,39 +98,6 @@ namespace EndlessClient.Audio
             _soundEffects[sfxID - 1].StopLoopingInstance();
         }
 
-        public void PlayBackgroundMusic(int mfxID)
-        {
-#if !LINUX
-            if(mfxID < 1 || mfxID >= _musicFiles.Count)
-                throw new ArgumentOutOfRangeException(nameof(mfxID), "The MFX id is out of range. Use the 1-based index that matches the number in the file name.");
-
-            InvokeIfNeeded(() =>
-                {
-                    _musicPlayer.Stop();
-                    _musicPlayer.Close();
-                    _musicPlayer.Open(_musicFiles[mfxID - 1]);
-                    _musicPlayer.Play();
-                });
-#endif
-        }
-
-        public void StopBackgroundMusic()
-        {
-#if !LINUX
-            InvokeIfNeeded(() => _musicPlayer.Stop());
-#endif
-        }
-
-#if !LINUX
-        private void InvokeIfNeeded(Action action)
-        {
-            if (_dispatcher.Thread != Thread.CurrentThread)
-                _dispatcher.BeginInvoke(action);
-            else
-                action();
-        }
-#endif
-
         ~SoundManager()
         {
             //ensure that primary instance is disposed of if the reference to it is not explicitly disposed
@@ -180,14 +116,6 @@ namespace EndlessClient.Audio
         {
             if (disposing)
             {
-#if !LINUX
-                if (_musicPlayer.HasAudio)
-                {
-                    _musicPlayer.Stop();
-                    _musicPlayer.Close();
-                }
-#endif
-
                 foreach (var sfx in _soundEffects)
                     sfx.Dispose();
 

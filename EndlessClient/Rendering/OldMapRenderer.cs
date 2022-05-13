@@ -105,30 +105,9 @@ namespace EndlessClient.Rendering
             lock (_spikeTrapsLock)
                 _visibleSpikeTraps.Clear();
 
-            PlayOrStopBackgroundMusic();
             PlayOrStopAmbientNoise();
 
             _drawingEvent.Set();
-        }
-
-        public void PlayOrStopBackgroundMusic()
-        {
-            if (!OldWorld.Instance.MusicEnabled)
-            {
-                EOGame.Instance.SoundManager.StopBackgroundMusic();
-                return;
-            }
-
-            //not sure what MusicExtra field is supposed to be for
-            if (MapRef.Properties.Music > 0)
-            {
-                //sound manager accounts for zero-based indices when playing music
-                EOGame.Instance.SoundManager.PlayBackgroundMusic(MapRef.Properties.Music);
-            }
-            else
-            {
-                EOGame.Instance.SoundManager.StopBackgroundMusic();
-            }
         }
 
         public void PlayOrStopAmbientNoise()

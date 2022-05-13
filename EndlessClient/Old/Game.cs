@@ -223,8 +223,6 @@ namespace EndlessClient.Old
                 return false;
             }
 
-            if (OldWorld.Instance.MusicEnabled)
-                SoundManager.PlayBackgroundMusic(1); //mfx001 == main menu theme
             return true;
         }
 
