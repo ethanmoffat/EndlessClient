@@ -5,6 +5,7 @@ using EndlessClient.HUD;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Rendering.Map;
 using EOLib;
+using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
@@ -16,6 +17,7 @@ using EOLib.IO.Repositories;
 using EOLib.Localization;
 using Optional;
 using Optional.Collections;
+using System;
 using System.Linq;
 
 namespace EndlessClient.Rendering.Character
@@ -32,6 +34,9 @@ namespace EndlessClient.Rendering.Character
         private readonly IPubFileProvider _pubFileProvider;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly ISfxPlayer _sfxPlayer;
+        private readonly IConfigurationProvider _configurationProvider;
+        
+        private readonly Random _random;
 
         public CharacterAnimationActions(IHudControlProvider hudControlProvider,
                                          ICharacterRepository characterRepository,
@@ -41,7 +46,8 @@ namespace EndlessClient.Rendering.Character
                                          ISpikeTrapActions spikeTrapActions,
                                          IPubFileProvider pubFileProvider,
                                          IStatusLabelSetter statusLabelSetter,
-                                         ISfxPlayer sfxPlayer)
+                                         ISfxPlayer sfxPlayer,
+                                         IConfigurationProvider configurationProvider)
         {
             _hudControlProvider = hudControlProvider;
             _characterRepository = characterRepository;
@@ -52,6 +58,9 @@ namespace EndlessClient.Rendering.Character
             _pubFileProvider = pubFileProvider;
             _statusLabelSetter = statusLabelSetter;
             _sfxPlayer = sfxPlayer;
+            _configurationProvider = configurationProvider;
+
+            _random = new Random();
         }
 
         public void Face(EODirection direction)
@@ -80,7 +89,7 @@ namespace EndlessClient.Rendering.Character
 
             CancelSpellPrep();
 
-            if (noteIndex >= 0)
+            if (noteIndex >= 0 || IsInstrumentWeapon(_characterRepository.MainCharacter.RenderProperties.WeaponGraphic))
                 Animator.Emote(_characterRepository.MainCharacter.ID, EOLib.Domain.Character.Emote.MusicNotes);
             Animator.StartMainCharacterAttackAnimation();
             ShowWaterSplashiesIfNeeded(CharacterActionState.Attacking, _characterRepository.MainCharacter.ID);
@@ -120,17 +129,16 @@ namespace EndlessClient.Rendering.Character
 
         public void StartOtherCharacterAttackAnimation(int characterID, int noteIndex = -1)
         {
-            if (!_hudControlProvider.IsInGame)
+            if (!_hudControlProvider.IsInGame || !_currentMapStateProvider.Characters.ContainsKey(characterID))
                 return;
 
-            if (noteIndex >= 0)
+            if (noteIndex >= 0 || IsInstrumentWeapon(_currentMapStateProvider.Characters[characterID].RenderProperties.WeaponGraphic))
                 Animator.Emote(characterID, EOLib.Domain.Character.Emote.MusicNotes);
 
             Animator.StartOtherCharacterAttackAnimation(characterID);
             ShowWaterSplashiesIfNeeded(CharacterActionState.Attacking, characterID);
 
-            if (_currentMapStateProvider.Characters.ContainsKey(characterID))
-                PlayWeaponSound(_currentMapStateProvider.Characters[characterID], noteIndex);
+            PlayWeaponSound(_currentMapStateProvider.Characters[characterID], noteIndex);
         }
 
         public void NotifyWarpLeaveEffect(short characterId, WarpAnimation anim)
@@ -274,21 +282,60 @@ namespace EndlessClient.Rendering.Character
 
         private void PlayWeaponSound(EOLib.Domain.Character.Character character, int noteIndex = -1)
         {
+            if (!_configurationProvider.SoundEnabled)
+                return;
+
+            if (character.RenderProperties.WeaponGraphic == 0)
+            {
+                _sfxPlayer.PlaySfx(SoundEffectID.PunchAttack);
+                return;
+            }
+
             _pubFileProvider.EIFFile.SingleOrNone(x => x.Type == ItemType.Weapon && x.DollGraphic == character.RenderProperties.WeaponGraphic)
                 .MatchSome(x =>
                 {
-                    var ndx = Constants.InstrumentIDs.ToList().FindIndex(y => y == x.ID);
-
-                    if (ndx >= 0 && (noteIndex < 0 || noteIndex >= 36))
-                        return;
-
-                    switch (ndx)
+                    var instrumentIndex = Constants.InstrumentIDs.ToList().FindIndex(y => y == x.ID);
+                    switch (instrumentIndex)
                     {
-                        case 0: _sfxPlayer.PlayHarpNote(noteIndex); break;
-                        case 1: _sfxPlayer.PlayGuitarNote(noteIndex); break;
-                        default: break; // todo: melee/bow/gun sounds
+                        case 0:
+                            {
+                                if (noteIndex < 0 || noteIndex >= 36)
+                                    _sfxPlayer.PlaySfx(SoundEffectID.Harp1 + _random.Next(0, 3));
+                                else
+                                    _sfxPlayer.PlayHarpNote(noteIndex);
+                            }
+                            break;
+                        case 1:
+                            {
+                                if (noteIndex < 0 || noteIndex >= 36)
+                                    _sfxPlayer.PlaySfx(SoundEffectID.Guitar1 + _random.Next(0, 3));
+                                else
+                                    _sfxPlayer.PlayGuitarNote(noteIndex);
+                            }
+                            break;
+                        default:
+                            switch (x.SubType)
+                            {
+                                case ItemSubType.Ranged:
+                                    if (x.ID == 365 && string.Equals(x.Name, "gun", System.StringComparison.OrdinalIgnoreCase))
+                                        _sfxPlayer.PlaySfx(SoundEffectID.Gun);
+                                    else
+                                        _sfxPlayer.PlaySfx(SoundEffectID.AttackBow);
+                                    break;
+                                default:
+                                    _sfxPlayer.PlaySfx(SoundEffectID.MeleeWeaponAttack);
+                                    break;
+                            }
+                            break;
                     }
                 });
+        }
+
+        private bool IsInstrumentWeapon(int weaponGraphic)
+        {
+            return _pubFileProvider.EIFFile
+                .SingleOrNone(x => x.Type == ItemType.Weapon && x.DollGraphic == weaponGraphic)
+                .Match(some: x => Constants.InstrumentIDs.ToList().FindIndex(y => y == x.ID) >= 0, none: () => false);
         }
 
         private ICharacterAnimator Animator => _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator);
