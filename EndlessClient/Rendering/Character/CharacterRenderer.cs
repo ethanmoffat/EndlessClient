@@ -9,6 +9,7 @@ using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
 using EndlessClient.UIControls;
 using EOLib;
+using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
@@ -38,7 +39,9 @@ namespace EndlessClient.Rendering.Character
         private readonly IGameStateProvider _gameStateProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IUserInputProvider _userInputProvider;
+        private readonly IConfigurationProvider _configurationProvider;
         private readonly ISfxPlayer _sfxPlayer;
+
         private readonly IEffectRenderer _effectRenderer;
 
         private EOLib.Domain.Character.Character _character;
@@ -95,6 +98,7 @@ namespace EndlessClient.Rendering.Character
                                  IGameStateProvider gameStateProvider,
                                  ICurrentMapProvider currentMapProvider,
                                  IUserInputProvider userInputProvider,
+                                 IConfigurationProvider configurationProvider,
                                  ISfxPlayer sfxPlayer)
             : base(game)
         {
@@ -111,6 +115,7 @@ namespace EndlessClient.Rendering.Character
             _gameStateProvider = gameStateProvider;
             _currentMapProvider = currentMapProvider;
             _userInputProvider = userInputProvider;
+            _configurationProvider = configurationProvider;
             _sfxPlayer = sfxPlayer;
 
             _effectRenderer = new EffectRenderer(nativeGraphicsmanager, _sfxPlayer, this);
@@ -183,7 +188,8 @@ namespace EndlessClient.Rendering.Character
 
             if (_gameStateProvider.CurrentState == GameStates.PlayingTheGame)
             {
-                UpdateNameLabel(gameTime);
+                UpdateNameLabel();
+                UpdateAmbientNoiseVolume();
 
                 if (DrawArea.Contains(_userInputProvider.CurrentMouseState.Position))
                 {
@@ -341,7 +347,7 @@ namespace EndlessClient.Rendering.Character
             return _renderOffsetCalculator.CalculateOffsetY(_characterProvider.MainCharacter.RenderProperties);
         }
 
-        private void UpdateNameLabel(GameTime gameTime)
+        private void UpdateNameLabel()
         {
             if (_gameStateProvider.CurrentState != GameStates.PlayingTheGame ||
                 _healthBarRenderer == null ||
@@ -381,6 +387,20 @@ namespace EndlessClient.Rendering.Character
         {
             return new Vector2(DrawArea.X - Math.Abs(DrawArea.Width - _nameLabel.ActualWidth) / 2,
                                TopPixelWithOffset - 8 - _nameLabel.ActualHeight);
+        }
+
+        // todo: find a better place to put this
+        private void UpdateAmbientNoiseVolume()
+        {
+            if (_currentMapProvider.CurrentMap.Properties.AmbientNoise <= 0 || !_configurationProvider.SoundEnabled || Character != _characterProvider.MainCharacter)
+                return;
+
+            // the algorithm in EO main seems to scale volume with distance to the closest ambient source
+            // distance is the sum of the components of the vector from character position to closest ambient source
+            // this is scaled from 0-25, with 0 being on top of the tile and 25 being too far away to hear the ambient sound from it
+            var props = _characterProvider.MainCharacter.RenderProperties;
+            var distance = _currentMapProvider.CurrentMap.GetDistanceToClosestTileSpec(TileSpec.AmbientSource, new MapCoordinate(props.MapX, props.MapY));
+            _sfxPlayer.SetLoopingSfxVolume(Math.Max((25 - distance) / 25f, 0));
         }
 
         private bool GetIsSteppingStone(CharacterRenderProperties renderProps)
