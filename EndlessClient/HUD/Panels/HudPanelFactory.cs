@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
@@ -49,6 +50,7 @@ namespace EndlessClient.HUD.Panels
         private readonly ISpellSlotDataRepository _spellSlotDataRepository;
         private readonly IConfigurationRepository _configurationRepository;
         private readonly ILocalizedStringFinder _localizedStringFinder;
+        private readonly IAudioActions _audioActions;
 
         public HudPanelFactory(INativeGraphicsManager nativeGraphicsManager,
                                IInventoryController inventoryController,
@@ -73,7 +75,8 @@ namespace EndlessClient.HUD.Panels
                                IActiveDialogProvider activeDialogProvider,
                                ISpellSlotDataRepository spellSlotDataRepository,
                                IConfigurationRepository configurationRepository,
-                               ILocalizedStringFinder localizedStringFinder)
+                               ILocalizedStringFinder localizedStringFinder,
+                               IAudioActions audioActions)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _inventoryController = inventoryController;
@@ -99,6 +102,7 @@ namespace EndlessClient.HUD.Panels
             _spellSlotDataRepository = spellSlotDataRepository;
             _configurationRepository = configurationRepository;
             _localizedStringFinder = localizedStringFinder;
+            _audioActions = audioActions;
         }
 
         public NewsPanel CreateNewsPanel()
@@ -184,6 +188,7 @@ namespace EndlessClient.HUD.Panels
         {
             return new SettingsPanel(_nativeGraphicsManager,
                 _chatActions,
+                _audioActions,
                 _statusLabelSetter,
                 _localizedStringFinder,
                 _messageBoxFactory,
