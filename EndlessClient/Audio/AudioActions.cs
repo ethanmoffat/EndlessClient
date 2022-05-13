@@ -10,14 +10,17 @@ namespace EndlessClient.Audio
         private readonly IConfigurationProvider _configurationProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IMfxPlayer _mfxPlayer;
+        private readonly ISfxPlayer _sfxPlayer;
 
         public AudioActions(IConfigurationProvider configurationProvider,
                             ICurrentMapProvider currentMapProvider,
-                            IMfxPlayer mfxPlayer)
+                            IMfxPlayer mfxPlayer,
+                            ISfxPlayer sfxPlayer)
         {
             _configurationProvider = configurationProvider;
             _currentMapProvider = currentMapProvider;
             _mfxPlayer = mfxPlayer;
+            _sfxPlayer = sfxPlayer;
         }
 
         public void ToggleBackgroundMusic()
@@ -35,10 +38,27 @@ namespace EndlessClient.Audio
             else
                 _mfxPlayer.StopBackgroundMusic();
         }
+
+        public void ToggleSound()
+        {
+            if (!_configurationProvider.SoundEnabled)
+            {
+                _sfxPlayer.StopLoopingSfx();
+                return;
+            }
+
+            var noise = _currentMapProvider.CurrentMap.Properties.AmbientNoise;
+            if (noise > 0)
+                _sfxPlayer.PlayLoopingSfx((SoundEffectID)noise);
+            else
+                _sfxPlayer.StopLoopingSfx();
+        }
     }
 
     public interface IAudioActions
     {
         void ToggleBackgroundMusic();
+
+        void ToggleSound();
     }
 }

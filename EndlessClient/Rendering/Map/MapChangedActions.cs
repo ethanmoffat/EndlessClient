@@ -2,7 +2,6 @@
 using EndlessClient.Audio;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
-using EndlessClient.Input;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.NPC;
 using EOLib.Config;
@@ -29,6 +28,7 @@ namespace EndlessClient.Rendering.Map
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IMfxPlayer _mfxPlayer;
+        private readonly ISfxPlayer _sfxPlayer;
 
         public MapChangedActions(ICharacterStateCache characterStateCache,
                                  INPCStateCache npcStateCache,
@@ -40,7 +40,8 @@ namespace EndlessClient.Rendering.Map
                                  ICurrentMapProvider currentMapProvider,
                                  ICurrentMapStateRepository currentMapStateRepository,
                                  IConfigurationProvider configurationProvider,
-                                 IMfxPlayer mfxPlayer)
+                                 IMfxPlayer mfxPlayer,
+                                 ISfxPlayer sfxPlayer)
         {
             _characterStateCache = characterStateCache;
             _npcStateCache = npcStateCache;
@@ -53,6 +54,7 @@ namespace EndlessClient.Rendering.Map
             _currentMapStateRepository = currentMapStateRepository;
             _configurationProvider = configurationProvider;
             _mfxPlayer = mfxPlayer;
+            _sfxPlayer = sfxPlayer;
         }
 
         public void ActiveCharacterEnterMapForLogin()
@@ -60,6 +62,7 @@ namespace EndlessClient.Rendering.Map
             ShowMapNameIfAvailable(true);
             ShowMapTransition(true);
             PlayBackgroundMusic(differentMapID: true);
+            PlayAmbientNoise(differentMapID: true);
             //todo: show message if map is a PK map
         }
 
@@ -74,6 +77,7 @@ namespace EndlessClient.Rendering.Map
             AddSpikeTraps();
             ShowWarpBubbles(warpAnimation);
             PlayBackgroundMusic(differentMapID);
+            PlayAmbientNoise(differentMapID);
 
             if (!differentMapID)
                 RedrawGroundLayer();
@@ -162,6 +166,18 @@ namespace EndlessClient.Rendering.Map
                 _mfxPlayer.PlayBackgroundMusic(_currentMapProvider.CurrentMap.Properties.Music, musicControl);
             else
                 _mfxPlayer.StopBackgroundMusic();
+        }
+
+        private void PlayAmbientNoise(bool differentMapID)
+        {
+            if (!_configurationProvider.SoundEnabled || !differentMapID)
+                return;
+
+            var noise = _currentMapProvider.CurrentMap.Properties.AmbientNoise;
+            if (noise > 0)
+                _sfxPlayer.PlayLoopingSfx((SoundEffectID)noise);
+            else
+                _sfxPlayer.StopLoopingSfx();
         }
     }
 

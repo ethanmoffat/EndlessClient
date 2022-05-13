@@ -138,8 +138,7 @@ namespace EndlessClient.HUD.Panels
 
                                 _soundChanged = true;
                                 _configurationRepository.SoundEnabled = !_configurationRepository.SoundEnabled;
-                                // todo: 
-                                // OldWorld.Instance.ActiveMapRenderer.PlayOrStopAmbientNoise();
+                                _audioActions.ToggleSound();
                             };
                             dlg.ShowDialog();
                         }
@@ -147,8 +146,7 @@ namespace EndlessClient.HUD.Panels
                         {
                             _soundChanged = true;
                             _configurationRepository.SoundEnabled = !_configurationRepository.SoundEnabled;
-                            // todo: 
-                            // OldWorld.Instance.ActiveMapRenderer.PlayOrStopAmbientNoise();
+                            _audioActions.ToggleSound();
                         }
                     }
                     break;
