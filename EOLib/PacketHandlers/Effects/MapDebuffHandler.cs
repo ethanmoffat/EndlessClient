@@ -2,6 +2,7 @@
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
+using EOLib.IO.Map;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 using System;
@@ -17,6 +18,7 @@ namespace EOLib.PacketHandlers.Effects
 
         private readonly ICharacterRepository _characterRepository;
         private readonly IEnumerable<IMainCharacterEventNotifier> _mainCharacterEventNotifiers;
+        private readonly IEnumerable<IEffectNotifier> _effectNotifiers;
 
         public override PacketFamily Family => PacketFamily.Effect;
 
@@ -24,11 +26,13 @@ namespace EOLib.PacketHandlers.Effects
 
         public MapDebuffHandler(IPlayerInfoProvider playerInfoProvider,
                                 ICharacterRepository characterRepository,
-                                IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers)
+                                IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers,
+                                IEnumerable<IEffectNotifier> effectNotifiers)
             : base(playerInfoProvider)
         {
             _characterRepository = characterRepository;
             _mainCharacterEventNotifiers = mainCharacterEventNotifiers;
+            _effectNotifiers = effectNotifiers;
         }
 
         public override bool HandlePacket(IPacket packet)
@@ -50,6 +54,9 @@ namespace EOLib.PacketHandlers.Effects
                         _characterRepository.MainCharacter = character.WithStats(
                             originalStats.WithNewStat(CharacterStat.TP, tp)
                                 .WithNewStat(CharacterStat.MaxTP, maxTp));
+
+                        foreach (var notifier in _effectNotifiers)
+                            notifier.NotifyMapEffect(MapEffect.TPDrain);
                     }
                     break;
                 case EFFECT_DAMAGE_SPIKE:

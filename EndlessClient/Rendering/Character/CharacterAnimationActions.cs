@@ -80,6 +80,11 @@ namespace EndlessClient.Rendering.Character
             CancelSpellPrep();
             Animator.StartMainCharacterWalkAnimation(Option.None<MapCoordinate>());
             ShowWaterSplashiesIfNeeded(CharacterActionState.Walking, _characterRepository.MainCharacter.ID);
+
+            if (_characterRepository.MainCharacter.NoWall)
+                _sfxPlayer.PlaySfx(SoundEffectID.NoWallWalk);
+            else if (IsSteppingStone(_characterRepository.MainCharacter.RenderProperties))
+                _sfxPlayer.PlaySfx(SoundEffectID.JumpStone);
         }
 
         public void StartAttacking(int noteIndex = -1)
@@ -117,7 +122,7 @@ namespace EndlessClient.Rendering.Character
 
         public void StartOtherCharacterWalkAnimation(int characterID, byte destinationX, byte destinationY, EODirection direction)
         {
-            if (!_hudControlProvider.IsInGame)
+            if (!_hudControlProvider.IsInGame || !_currentMapStateProvider.Characters.ContainsKey(characterID))
                 return;
 
             Animator.StartOtherCharacterWalkAnimation(characterID, destinationX, destinationY, direction);
@@ -125,6 +130,9 @@ namespace EndlessClient.Rendering.Character
             ShowWaterSplashiesIfNeeded(CharacterActionState.Walking, characterID);
             _spikeTrapActions.HideSpikeTrap(characterID);
             _spikeTrapActions.ShowSpikeTrap(characterID);
+
+            if (IsSteppingStone(_currentMapStateProvider.Characters[characterID].RenderProperties))
+                _sfxPlayer.PlaySfx(SoundEffectID.JumpStone);
         }
 
         public void StartOtherCharacterAttackAnimation(int characterID, int noteIndex = -1)
@@ -223,10 +231,28 @@ namespace EndlessClient.Rendering.Character
             }
         }
 
-        public void NotifyEarthquake(byte strength)
+        public void NotifyMapEffect(MapEffect effect, byte strength = 0)
         {
-            var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
-            mapRenderer.StartEarthquake(strength);
+            switch (effect)
+            {
+                case MapEffect.Quake1:
+                case MapEffect.Quake2:
+                case MapEffect.Quake3:
+                case MapEffect.Quake4:
+                    var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
+                    mapRenderer.StartEarthquake(strength);
+                    _sfxPlayer.PlaySfx(SoundEffectID.Earthquake);
+                    break;
+                case MapEffect.HPDrain:
+                    _sfxPlayer.PlaySfx(SoundEffectID.MapEffectHPDrain);
+                    break;
+                case MapEffect.TPDrain:
+                    _sfxPlayer.PlaySfx(SoundEffectID.MapEffectTPDrain);
+                    break;
+                case MapEffect.Spikes:
+                    _sfxPlayer.PlaySfx(SoundEffectID.Spikes);
+                    break;
+            }
         }
 
         public void NotifyEmote(short playerId, Emote emote)
@@ -336,6 +362,12 @@ namespace EndlessClient.Rendering.Character
             return _pubFileProvider.EIFFile
                 .SingleOrNone(x => x.Type == ItemType.Weapon && x.DollGraphic == weaponGraphic)
                 .Match(some: x => Constants.InstrumentIDs.ToList().FindIndex(y => y == x.ID) >= 0, none: () => false);
+        }
+
+        private bool IsSteppingStone(CharacterRenderProperties renderProps)
+        {
+            return _currentMapProvider.CurrentMap.Tiles[renderProps.MapY, renderProps.MapX] == TileSpec.Jump
+                || _currentMapProvider.CurrentMap.Tiles[renderProps.GetDestinationY(), renderProps.GetDestinationX()] == TileSpec.Jump;
         }
 
         private ICharacterAnimator Animator => _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator);

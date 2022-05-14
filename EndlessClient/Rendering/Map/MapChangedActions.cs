@@ -71,6 +71,7 @@ namespace EndlessClient.Rendering.Map
             StopAllAnimations();
             ClearCharacterRenderersAndCache();
             ClearNPCRenderersAndCache();
+            ClearOpenDoors();
             ShowMapNameIfAvailable(differentMapID);
             //todo: show message if map is a PK map
             ShowMapTransition(differentMapID);
@@ -108,6 +109,11 @@ namespace EndlessClient.Rendering.Map
                 npcRenderer.Value.Dispose();
             _npcRendererRepository.NPCRenderers.Clear();
             _npcStateCache.Reset();
+        }
+
+        private void ClearOpenDoors()
+        {
+            _currentMapStateRepository.OpenDoors.Clear();
         }
 
         private void ShowMapNameIfAvailable(bool differentMapID)

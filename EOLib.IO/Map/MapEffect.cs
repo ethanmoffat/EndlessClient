@@ -8,6 +8,9 @@ namespace EOLib.IO.Map
         Quake1 = 3,
         Quake2 = 4,
         Quake3 = 5,
-        Quake4 = 6
+        Quake4 = 6,
+
+        // not a recognized value for IO; used internally
+        Spikes = 0x7f
     }
 }

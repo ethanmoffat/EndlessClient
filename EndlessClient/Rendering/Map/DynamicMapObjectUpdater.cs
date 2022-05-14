@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.Controllers;
 using EndlessClient.Input;
 using EOLib.Domain.Character;
@@ -30,6 +31,7 @@ namespace EndlessClient.Rendering.Map
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IMapObjectBoundsCalculator _mapObjectBoundsCalculator;
         private readonly IMapInteractionController _mapInteractionController;
+        private readonly ISfxPlayer _sfxPlayer;
         private readonly List<DoorTimePair> _cachedDoorState;
 
         public DynamicMapObjectUpdater(ICharacterProvider characterProvider,
@@ -37,7 +39,8 @@ namespace EndlessClient.Rendering.Map
                                        IUserInputRepository userInputRepository,
                                        ICurrentMapProvider currentMapProvider,
                                        IMapObjectBoundsCalculator mapObjectBoundsCalculator,
-                                       IMapInteractionController mapInteractionController)
+                                       IMapInteractionController mapInteractionController,
+                                       ISfxPlayer sfxPlayer)
         {
             _characterProvider = characterProvider;
             _currentMapStateRepository = currentMapStateRepository;
@@ -45,6 +48,7 @@ namespace EndlessClient.Rendering.Map
             _currentMapProvider = currentMapProvider;
             _mapObjectBoundsCalculator = mapObjectBoundsCalculator;
             _mapInteractionController = mapInteractionController;
+            _sfxPlayer = sfxPlayer;
             _cachedDoorState = new List<DoorTimePair>();
         }
 
@@ -63,7 +67,10 @@ namespace EndlessClient.Rendering.Map
         {
             var newDoors = _currentMapStateRepository.OpenDoors.Where(x => _cachedDoorState.All(d => d.Door != x));
             foreach (var door in newDoors)
+            {
                 _cachedDoorState.Add(new DoorTimePair { Door = door, OpenTime = now });
+                _sfxPlayer.PlaySfx(SoundEffectID.DoorOpen);
+            }
         }
 
         private void CloseExpiredDoors(DateTime now)
@@ -72,7 +79,11 @@ namespace EndlessClient.Rendering.Map
             foreach (var door in expiredDoors)
             {
                 _cachedDoorState.Remove(door);
-                _currentMapStateRepository.OpenDoors.Remove(door.Door);
+                if (_currentMapStateRepository.OpenDoors.Contains(door.Door))
+                {
+                    _currentMapStateRepository.OpenDoors.Remove(door.Door);
+                    _sfxPlayer.PlaySfx(SoundEffectID.DoorClose);
+                }
             }
         }
 

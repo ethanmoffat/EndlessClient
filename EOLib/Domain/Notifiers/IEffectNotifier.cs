@@ -1,5 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Map;
+using EOLib.IO.Map;
 
 namespace EOLib.Domain.Notifiers
 {
@@ -8,7 +9,7 @@ namespace EOLib.Domain.Notifiers
         void NotifyWarpLeaveEffect(short characterId, WarpAnimation anim);
         void NotifyWarpEnterEffect(short characterId, WarpAnimation anim);
         void NotifyPotionEffect(short playerId, int effectId);
-        void NotifyEarthquake(byte strength);
+        void NotifyMapEffect(MapEffect effect, byte strength = 0);
     }
 
     [AutoMappedType]
@@ -17,6 +18,6 @@ namespace EOLib.Domain.Notifiers
         public void NotifyWarpLeaveEffect(short characterId, WarpAnimation anim) { }
         public void NotifyWarpEnterEffect(short characterId, WarpAnimation anim) { }
         public void NotifyPotionEffect(short playerId, int effectId) { }
-        public void NotifyEarthquake(byte strength) { }
+        public void NotifyMapEffect(MapEffect effect, byte strength = 0) { }
     }
 }
