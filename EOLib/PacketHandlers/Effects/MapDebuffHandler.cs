@@ -73,7 +73,7 @@ namespace EOLib.PacketHandlers.Effects
                         _characterRepository.MainCharacter = character;
 
                         foreach (var notifier in _mainCharacterEventNotifiers)
-                            notifier.NotifyTakeDamage(damage, (int)Math.Round((double)hp / maxHp) * 100, isHeal: false);
+                            notifier.NotifyTakeDamage(damage, (int)Math.Round((double)hp / maxHp * 100), isHeal: false);
                     }
                     break;
                 default:
