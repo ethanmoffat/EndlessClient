@@ -58,6 +58,8 @@ namespace EndlessClient.Rendering.Character
         private IHealthBarRenderer _healthBarRenderer;
         private Lazy<IChatBubble> _chatBubble;
 
+        private bool _lastIsDead;
+
         public EOLib.Domain.Character.Character Character
         {
             get { return _character; }
@@ -206,6 +208,8 @@ namespace EndlessClient.Rendering.Character
                 }
 
                 _healthBarRenderer?.Update(gameTime);
+
+                CheckForDead();
             }
 
             base.Update(gameTime);
@@ -413,6 +417,18 @@ namespace EndlessClient.Rendering.Character
             }
 
             return 0;
+        }
+
+        private void CheckForDead()
+        {
+            if (_character == _characterProvider.MainCharacter && _lastIsDead != _character.RenderProperties.IsDead)
+            {
+                _lastIsDead = _character.RenderProperties.IsDead;
+                if (_lastIsDead && _configurationProvider.SoundEnabled)
+                {
+                    _sfxPlayer.PlaySfx(SoundEffectID.Dead);
+                }
+            }
         }
 
         #endregion
