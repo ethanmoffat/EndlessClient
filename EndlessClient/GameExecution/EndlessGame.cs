@@ -40,6 +40,7 @@ namespace EndlessClient.GameExecution
         private readonly ICharacterInfoPanelFactory _characterInfoPanelFactory;
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IMfxPlayer _mfxPlayer;
+        private readonly IXnaControlSoundMapper _soundMapper;
         private GraphicsDeviceManager _graphicsDeviceManager;
 
         private KeyboardState _previousKeyState;
@@ -56,7 +57,8 @@ namespace EndlessClient.GameExecution
                            IShaderRepository shaderRepository,
                            ICharacterInfoPanelFactory characterInfoPanelFactory,
                            IConfigurationProvider configurationProvider,
-                           IMfxPlayer mfxPlayer)
+                           IMfxPlayer mfxPlayer,
+                           IXnaControlSoundMapper soundMapper)
         {
             _windowSizeProvider = windowSizeProvider;
             _contentProvider = contentProvider;
@@ -71,6 +73,7 @@ namespace EndlessClient.GameExecution
             _characterInfoPanelFactory = characterInfoPanelFactory;
             _configurationProvider = configurationProvider;
             _mfxPlayer = mfxPlayer;
+            _soundMapper = soundMapper;
             _graphicsDeviceManager = new GraphicsDeviceManager(this);
 
             Content.RootDirectory = "Content";
@@ -78,6 +81,11 @@ namespace EndlessClient.GameExecution
 
         protected override void Initialize()
         {
+            Components.ComponentAdded += (o, e) =>
+            {
+                _soundMapper.BindSoundToControl(e.GameComponent);
+            };
+
             Components.ComponentRemoved += (o, e) =>
             {
                 if (e.GameComponent is PacketHandlerGameComponent)

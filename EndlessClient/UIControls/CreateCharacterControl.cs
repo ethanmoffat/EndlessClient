@@ -3,6 +3,7 @@ using EOLib;
 using EOLib.Domain.Character;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using System;
 using XNAControls;
 
 namespace EndlessClient.UIControls
@@ -10,6 +11,8 @@ namespace EndlessClient.UIControls
     public class CreateCharacterControl : CharacterControl
     {
         private Vector2 _lastPosition;
+
+        public event EventHandler Clicked;
 
         public CreateCharacterControl(ICharacterRendererFactory characterRendererFactory)
             : base(Character.Default.WithRenderProperties(GetDefaultProperties()), characterRendererFactory)
@@ -36,6 +39,8 @@ namespace EndlessClient.UIControls
                 var nextDirectionInt = (int)RenderProperties.Direction + 1;
                 var nextDirection = (EODirection)(nextDirectionInt % 4);
                 RenderProperties = RenderProperties.WithDirection(nextDirection);
+
+                Clicked?.Invoke(this, EventArgs.Empty);
             }
 
             base.OnUpdateControl(gameTime);

@@ -11,6 +11,7 @@ using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Optional;
 using XNAControls;
 
 namespace EndlessClient.Dialogs
@@ -18,7 +19,7 @@ namespace EndlessClient.Dialogs
     public class CreateCharacterDialog : BaseEODialog
     {
         private readonly IEOMessageBoxFactory _messageBoxFactory;
-
+        private readonly IXnaControlSoundMapper _xnaControlSoundMapper;
         private readonly IXNATextBox _inputBox;
         private readonly IXNAButton[] _arrowButtons = new IXNAButton[4];
 
@@ -44,10 +45,12 @@ namespace EndlessClient.Dialogs
             IContentProvider contentProvider,
             KeyboardDispatcher dispatcher,
             IEOMessageBoxFactory messageBoxFactory,
-            IEODialogButtonService eoDialogButtonService)
+            IEODialogButtonService eoDialogButtonService,
+            IXnaControlSoundMapper xnaControlSoundMapper)
             : base(gameStateProvider)
         {
             _messageBoxFactory = messageBoxFactory;
+            _xnaControlSoundMapper = xnaControlSoundMapper;
             BackgroundTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 20);
 
             _charCreateSheet = nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 22);
@@ -108,13 +111,22 @@ namespace EndlessClient.Dialogs
         public override void Initialize()
         {
             _characterControl.Initialize();
+            _xnaControlSoundMapper.BindSoundToControl(_characterControl);
 
             _inputBox.Initialize();
+            _xnaControlSoundMapper.BindSoundToControl(_inputBox);
+
             foreach (var button in _arrowButtons)
+            {
                 button.Initialize();
+                _xnaControlSoundMapper.BindSoundToControl(button, Option.Some(Audio.SoundEffectID.TextBoxFocus));
+            }
 
             _ok.Initialize();
+            _xnaControlSoundMapper.BindSoundToControl(_ok, Option.Some(Audio.SoundEffectID.DialogButtonClick));
+
             _cancel.Initialize();
+            _xnaControlSoundMapper.BindSoundToControl(_cancel, Option.Some(Audio.SoundEffectID.DialogButtonClick));
 
             base.Initialize();
         }

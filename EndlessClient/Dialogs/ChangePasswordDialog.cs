@@ -5,13 +5,14 @@ using EndlessClient.Dialogs.Factories;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
+using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Account;
 using EOLib.Domain.Login;
 using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using Optional;
 using XNAControls;
 
 namespace EndlessClient.Dialogs
@@ -20,6 +21,7 @@ namespace EndlessClient.Dialogs
     {
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
         private readonly IPlayerInfoProvider _playerInfoProvider;
+        private readonly IXnaControlSoundMapper _xnaControlSoundMapper;
         private readonly IXNATextBox[] _inputBoxes;
         private readonly IXNAButton _ok, _cancel;
 
@@ -39,11 +41,14 @@ namespace EndlessClient.Dialogs
                                     IEOMessageBoxFactory eoMessageBoxFactory,
                                     IKeyboardDispatcherProvider keyboardDispatcherProvider,
                                     IPlayerInfoProvider playerInfoProvider,
-                                    IEODialogButtonService dialogButtonService)
+                                    IEODialogButtonService dialogButtonService,
+                                    IXnaControlSoundMapper xnaControlSoundMapper)
             : base(gameStateProvider)
         {
             _eoMessageBoxFactory = eoMessageBoxFactory;
             _playerInfoProvider = playerInfoProvider;
+            _xnaControlSoundMapper = xnaControlSoundMapper;
+
             var dispatcher = keyboardDispatcherProvider.Dispatcher;
 
             BackgroundTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 21);
@@ -92,11 +97,16 @@ namespace EndlessClient.Dialogs
             {
                 tb.Initialize();
                 tb.SetParentControl(this);
+                _xnaControlSoundMapper.BindSoundToControl(tb);
             }
+
             _ok.Initialize();
             _ok.SetParentControl(this);
+            _xnaControlSoundMapper.BindSoundToControl(_ok, Option.Some(Audio.SoundEffectID.DialogButtonClick));
+
             _cancel.Initialize();
             _cancel.SetParentControl(this);
+            _xnaControlSoundMapper.BindSoundToControl(_cancel, Option.Some(Audio.SoundEffectID.DialogButtonClick));
 
             base.Initialize();
         }
