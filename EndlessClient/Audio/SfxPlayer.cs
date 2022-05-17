@@ -1,5 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Content;
+using EOLib.Config;
 using Microsoft.Xna.Framework.Audio;
 using System;
 
@@ -9,21 +10,28 @@ namespace EndlessClient.Audio
     public sealed class SfxPlayer : ISfxPlayer
     {
         private readonly IContentProvider _contentProvider;
+        private readonly IConfigurationProvider _configurationProvider;
+
         private SoundEffectInstance _loopingSfx;
 
-        public SfxPlayer(IContentProvider contentProvider)
+        public SfxPlayer(IContentProvider contentProvider,
+                         IConfigurationProvider configurationProvider)
         {
             _contentProvider = contentProvider;
+            _configurationProvider = configurationProvider;
         }
 
         public void PlaySfx(SoundEffectID id)
         {
+            if (!_configurationProvider.SoundEnabled)
+                return;
+
             _contentProvider.SFX[id].Play();
         }
 
         public void PlayHarpNote(int index)
         {
-            if (index < 0 || index >= _contentProvider.HarpNotes.Count)
+            if (!_configurationProvider.SoundEnabled || index < 0 || index >= _contentProvider.HarpNotes.Count)
                 return;
 
             _contentProvider.HarpNotes[index].Play();
@@ -31,7 +39,7 @@ namespace EndlessClient.Audio
 
         public void PlayGuitarNote(int index)
         {
-            if (index < 0 || index >= _contentProvider.GuitarNotes.Count)
+            if (!_configurationProvider.SoundEnabled || index < 0 || index >= _contentProvider.GuitarNotes.Count)
                 return;
 
             _contentProvider.GuitarNotes[index].Play();
@@ -39,7 +47,7 @@ namespace EndlessClient.Audio
 
         public void PlayLoopingSfx(SoundEffectID id)
         {
-            if (_loopingSfx != null && _loopingSfx.State != SoundState.Stopped)
+            if (!_configurationProvider.SoundEnabled || (_loopingSfx != null && _loopingSfx.State != SoundState.Stopped))
                 return;
 
             StopLoopingSfx();
