@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.GameExecution;
 using EOLib.Domain.Character;
@@ -23,6 +24,7 @@ namespace EndlessClient.Controllers
         private readonly INetworkConnectionActions _networkConnectionActions;
         private readonly IGameStateActions _gameStateActions;
         private readonly ICharacterSelectorRepository _characterSelectorRepository;
+        private readonly ISfxPlayer _sfxPlayer;
 
         public CharacterManagementController(ISafeNetworkOperationFactory safeNetworkOperationFactory,
                                              ICharacterManagementActions characterManagementActions,
@@ -31,7 +33,8 @@ namespace EndlessClient.Controllers
                                              IBackgroundReceiveActions backgroundReceiveActions,
                                              INetworkConnectionActions networkConnectionActions,
                                              IGameStateActions gameStateActions,
-                                             ICharacterSelectorRepository characterSelectorRepository)
+                                             ICharacterSelectorRepository characterSelectorRepository,
+                                             ISfxPlayer sfxPlayer)
         {
             _safeNetworkOperationFactory = safeNetworkOperationFactory;
             _characterManagementActions = characterManagementActions;
@@ -41,6 +44,7 @@ namespace EndlessClient.Controllers
             _networkConnectionActions = networkConnectionActions;
             _gameStateActions = gameStateActions;
             _characterSelectorRepository = characterSelectorRepository;
+            _sfxPlayer = sfxPlayer;
         }
 
         public async Task CreateCharacter()
@@ -60,8 +64,7 @@ namespace EndlessClient.Controllers
                 if (!await createOp.Invoke())
                     return;
 
-                if (createOp.Result == CharacterReply.Ok)
-                    _gameStateActions.RefreshCurrentState();
+                _gameStateActions.RefreshCurrentState();
                 _characterDialogActions.ShowCharacterReplyDialog(createOp.Result);
             });
         }
@@ -108,16 +111,15 @@ namespace EndlessClient.Controllers
             if (!await deleteOp.Invoke())
                 return;
 
-            var response = deleteOp.Result;
-
             _characterSelectorRepository.CharacterForDelete = Option.None<Character>();
-            if (response != CharacterReply.Deleted)
+            if (deleteOp.Result != CharacterReply.Deleted)
             {
                 SetInitialStateAndShowError();
                 DisconnectAndStopReceiving();
                 return;
             }
-            
+
+            _sfxPlayer.PlaySfx(SoundEffectID.DeleteCharacter);
             _gameStateActions.RefreshCurrentState();
         }
 

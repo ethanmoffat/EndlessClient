@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.ControlSets;
 using EndlessClient.Network;
+using EOLib.Domain.Character;
 using Microsoft.Xna.Framework;
 
 namespace EndlessClient.GameExecution
@@ -15,16 +17,19 @@ namespace EndlessClient.GameExecution
         private readonly IControlSetRepository _controlSetRepository;
         private readonly IControlSetFactory _controlSetFactory;
         private readonly IEndlessGameProvider _endlessGameProvider;
+        private readonly ISfxPlayer _sfxPlayer;
 
         public GameStateActions(IGameStateRepository gameStateRepository,
                                 IControlSetRepository controlSetRepository,
                                 IControlSetFactory controlSetFactory,
-                                IEndlessGameProvider endlessGameProvider)
+                                IEndlessGameProvider endlessGameProvider,
+                                ISfxPlayer sfxPlayer)
         {
             _gameStateRepository = gameStateRepository;
             _controlSetRepository = controlSetRepository;
             _controlSetFactory = controlSetFactory;
             _endlessGameProvider = endlessGameProvider;
+            _sfxPlayer = sfxPlayer;
         }
 
         public void ChangeToState(GameStates newState)
@@ -40,6 +45,13 @@ namespace EndlessClient.GameExecution
 
             _gameStateRepository.CurrentState = newState;
             _controlSetRepository.CurrentControlSet = nextSet;
+
+            switch (_gameStateRepository.CurrentState)
+            {
+                case GameStates.None:
+                case GameStates.Initial: _sfxPlayer.StopLoopingSfx(); break;
+                case GameStates.LoggedIn: _sfxPlayer.PlaySfx(SoundEffectID.Login); break;
+            }
         }
 
         public void RefreshCurrentState()
