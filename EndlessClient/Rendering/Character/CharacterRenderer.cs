@@ -39,7 +39,6 @@ namespace EndlessClient.Rendering.Character
         private readonly IGameStateProvider _gameStateProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IUserInputProvider _userInputProvider;
-        private readonly IConfigurationProvider _configurationProvider;
         private readonly ISfxPlayer _sfxPlayer;
 
         private readonly IEffectRenderer _effectRenderer;
@@ -100,7 +99,6 @@ namespace EndlessClient.Rendering.Character
                                  IGameStateProvider gameStateProvider,
                                  ICurrentMapProvider currentMapProvider,
                                  IUserInputProvider userInputProvider,
-                                 IConfigurationProvider configurationProvider,
                                  ISfxPlayer sfxPlayer)
             : base(game)
         {
@@ -117,7 +115,6 @@ namespace EndlessClient.Rendering.Character
             _gameStateProvider = gameStateProvider;
             _currentMapProvider = currentMapProvider;
             _userInputProvider = userInputProvider;
-            _configurationProvider = configurationProvider;
             _sfxPlayer = sfxPlayer;
 
             _effectRenderer = new EffectRenderer(nativeGraphicsmanager, _sfxPlayer, this);
@@ -424,7 +421,7 @@ namespace EndlessClient.Rendering.Character
             if (_character == _characterProvider.MainCharacter && _lastIsDead != _character.RenderProperties.IsDead)
             {
                 _lastIsDead = _character.RenderProperties.IsDead;
-                if (_lastIsDead && _configurationProvider.SoundEnabled)
+                if (_lastIsDead)
                 {
                     _sfxPlayer.PlaySfx(SoundEffectID.Dead);
                 }

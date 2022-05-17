@@ -34,7 +34,6 @@ namespace EndlessClient.Rendering.Character
         private readonly IPubFileProvider _pubFileProvider;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly ISfxPlayer _sfxPlayer;
-        private readonly IConfigurationProvider _configurationProvider;
         
         private readonly Random _random;
 
@@ -46,8 +45,7 @@ namespace EndlessClient.Rendering.Character
                                          ISpikeTrapActions spikeTrapActions,
                                          IPubFileProvider pubFileProvider,
                                          IStatusLabelSetter statusLabelSetter,
-                                         ISfxPlayer sfxPlayer,
-                                         IConfigurationProvider configurationProvider)
+                                         ISfxPlayer sfxPlayer)
         {
             _hudControlProvider = hudControlProvider;
             _characterRepository = characterRepository;
@@ -58,7 +56,6 @@ namespace EndlessClient.Rendering.Character
             _pubFileProvider = pubFileProvider;
             _statusLabelSetter = statusLabelSetter;
             _sfxPlayer = sfxPlayer;
-            _configurationProvider = configurationProvider;
 
             _random = new Random();
         }
@@ -308,9 +305,6 @@ namespace EndlessClient.Rendering.Character
 
         private void PlayWeaponSound(EOLib.Domain.Character.Character character, int noteIndex = -1)
         {
-            if (!_configurationProvider.SoundEnabled)
-                return;
-
             if (character.RenderProperties.WeaponGraphic == 0)
             {
                 _sfxPlayer.PlaySfx(SoundEffectID.PunchAttack);

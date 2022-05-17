@@ -32,7 +32,6 @@ namespace EndlessClient.Rendering.Factories
         private readonly IGameStateProvider _gameStateProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IUserInputProvider _userInputProvider;
-        private readonly IConfigurationProvider _configurationProvider;
         private readonly ISfxPlayer _sfxPlayer;
 
         public CharacterRendererFactory(INativeGraphicsManager nativeGraphicsManager,
@@ -49,7 +48,6 @@ namespace EndlessClient.Rendering.Factories
                                         IGameStateProvider gameStateProvider,
                                         ICurrentMapProvider currentMapProvider,
                                         IUserInputProvider userInputProvider,
-                                        IConfigurationProvider configurationProvider,
                                         ISfxPlayer sfxPlayer)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
@@ -66,7 +64,6 @@ namespace EndlessClient.Rendering.Factories
             _gameStateProvider = gameStateProvider;
             _currentMapProvider = currentMapProvider;
             _userInputProvider = userInputProvider;
-            _configurationProvider = configurationProvider;
             _sfxPlayer = sfxPlayer;
         }
 
@@ -88,7 +85,6 @@ namespace EndlessClient.Rendering.Factories
                 _gameStateProvider,
                 _currentMapProvider,
                 _userInputProvider,
-                _configurationProvider,
                 _sfxPlayer);
         }
     }
