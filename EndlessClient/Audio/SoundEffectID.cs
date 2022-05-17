@@ -1,6 +1,5 @@
 ﻿namespace EndlessClient.Audio
 {
-
     // These are 0 based indexes even though the files start at sfx001
     // sfx001 will be id 0
     // sfx060 will be id 59
@@ -11,22 +10,22 @@
         DialogButtonClick,
         TextBoxFocus, //also the sound when opening chest?
         Login = 4, //also the sound from a server message?
-        UnknownShimmerSound,
+        DeleteCharacter,
         UnknownStaticSound,
         ScreenCapture,
         PMReceived = 8,
         PunchAttack,
         UnknownWarpSound,
         UnknownPingSound,
-        UnknownClickSound = 12,
-        UnknownHarpSound,
+        HudStatusBarClick = 12,
+        AdminAnnounceReceived,
         MeleeWeaponAttack,
         UnknownClickSound2,
-        TradeAccepted = 16,
-        UnknownNotificationSound,
+        TradeAccepted = 16, // also join party
+        GroupChatReceived,
         UnknownWhooshSound,
-        ItemInventoryPickup,
-        ItemInventoryPlace = 20,
+        InventoryPickup,
+        InventoryPlace = 20,
         Earthquake,
         DoorClose,
         DoorOpen,
@@ -34,7 +33,7 @@
         BuySell,
         Craft,
         UnknownBuzzSound,
-        UnknownBloopSound = 28,
+        AdminChatReceived = 28,
         UnknownAttackLikeSound,
         PotionOfFlamesEffect,
         AdminWarp,
