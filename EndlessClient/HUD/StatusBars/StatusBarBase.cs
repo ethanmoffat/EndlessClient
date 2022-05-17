@@ -13,8 +13,10 @@ namespace EndlessClient.HUD.StatusBars
 {
     public abstract class StatusBarBase : XNAControl
     {
+        private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly ICharacterProvider _characterProvider;
         private readonly IUserInputRepository _userInputRepository;
+
         protected readonly XNALabel _label;
         protected readonly Texture2D _texture;
 
@@ -23,12 +25,17 @@ namespace EndlessClient.HUD.StatusBars
 
         private Option<DateTime> _labelShowTime;
 
+        public event Action StatusBarClicked;
+        public event Action StatusBarClosed;
+
         protected StatusBarBase(INativeGraphicsManager nativeGraphicsManager,
                                 ICharacterProvider characterProvider,
                                 IUserInputRepository userInputRepository)
         {
+            _nativeGraphicsManager = nativeGraphicsManager;
             _characterProvider = characterProvider;
             _userInputRepository = userInputRepository;
+
             _texture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 58, true);
 
             _label = new XNALabel(Constants.FontSize08)
@@ -56,12 +63,6 @@ namespace EndlessClient.HUD.StatusBars
         protected override void OnUpdateControl(GameTime gameTime)
         {
             if (MouseOver &&
-                CurrentMouseState.LeftButton == ButtonState.Pressed &&
-                PreviousMouseState.LeftButton == ButtonState.Released)
-            {
-            }
-
-            if (MouseOver &&
                 CurrentMouseState.LeftButton == ButtonState.Released &&
                 PreviousMouseState.LeftButton == ButtonState.Pressed)
             {
@@ -69,7 +70,9 @@ namespace EndlessClient.HUD.StatusBars
                 _userInputRepository.PreviousMouseState = _userInputRepository.CurrentMouseState;
 
                 _label.Visible = !_label.Visible;
-                _labelShowTime = _label.Visible.SomeWhen(x => x).Map(x => DateTime.Now);
+                _labelShowTime = _label.SomeWhen(x => x.Visible).Map(_ => DateTime.Now);
+
+                StatusBarClicked?.Invoke();
             }
 
             _labelShowTime.MatchSome(x =>
@@ -80,6 +83,8 @@ namespace EndlessClient.HUD.StatusBars
                 {
                     _label.Visible = false;
                     _labelShowTime = Option.None<DateTime>();
+
+                    StatusBarClosed?.Invoke();
                 }
             });
 
