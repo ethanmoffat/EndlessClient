@@ -86,8 +86,8 @@ namespace EndlessClient.Rendering
             _drawingEvent.Wait();
             _drawingEvent.Reset();
 
-            if (MapRef != null && MapRef.Properties.AmbientNoise != 0)
-                EOGame.Instance.SoundManager.StopLoopingSoundEffect(MapRef.Properties.AmbientNoise);
+            //if (MapRef != null && MapRef.Properties.AmbientNoise != 0)
+            //    EOGame.Instance.SoundManager.StopLoopingSoundEffect(MapRef.Properties.AmbientNoise);
 
             MapRef = newActiveMap;
 
@@ -105,22 +105,7 @@ namespace EndlessClient.Rendering
             lock (_spikeTrapsLock)
                 _visibleSpikeTraps.Clear();
 
-            PlayOrStopAmbientNoise();
-
             _drawingEvent.Set();
-        }
-
-        public void PlayOrStopAmbientNoise()
-        {
-            if (!OldWorld.Instance.SoundEnabled)
-            {
-                if (MapRef.Properties.AmbientNoise > 0)
-                    EOGame.Instance.SoundManager.StopLoopingSoundEffect(MapRef.Properties.AmbientNoise);
-                return;
-            }
-
-            if (MapRef.Properties.AmbientNoise > 0)
-                EOGame.Instance.SoundManager.PlayLoopingSoundEffect(MapRef.Properties.AmbientNoise);
         }
 
         #endregion

@@ -172,12 +172,12 @@ namespace EndlessClient.Old
 
         private void _playSoundEffect(int effectID)
         {
-            try
-            {
-                if (OldWorld.Instance.SoundEnabled)
-                    m_game.SoundManager.GetSoundEffectRef((SoundEffectID) effectID).Play();
-            }
-            catch { /* Ignore errors when the sound effect ID from the server is invalid */ }
+            //try
+            //{
+            //    if (OldWorld.Instance.SoundEnabled)
+            //        m_game.SoundManager.GetSoundEffectRef((SoundEffectID) effectID).Play();
+            //}
+            //catch { /* Ignore errors when the sound effect ID from the server is invalid */ }
         }
 
         private void _playerCastGroupSpell(short spellID, short fromPlayerID, short fromPlayerTP, short spellHPgain, List<GroupSpellTarget> spellTargets)

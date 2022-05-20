@@ -173,9 +173,6 @@ namespace EndlessClient.Old
         {
             IsMouseVisible = true;
 
-            if (!InitializeSoundManager())
-                return;
-
             base.Initialize();
         }
 
@@ -204,26 +201,6 @@ namespace EndlessClient.Old
             }
 #endif
             base.Draw(gameTime);
-        }
-
-        private bool InitializeSoundManager()
-        {
-            try
-            {
-                SoundManager = new SoundManager();
-            }
-            catch (Exception ex)
-            {
-#if !LINUX
-                MessageBox.Show(
-                    string.Format("There was an error (type: {2}) initializing the sound manager: {0}\n\nCall Stack:\n {1}", ex.Message,
-                        ex.StackTrace, ex.GetType()), "Sound Manager Error");
-#endif
-                Exit();
-                return false;
-            }
-
-            return true;
         }
 
         //-------------------
