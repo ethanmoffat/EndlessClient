@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.Dialogs.Factories;
 using EOLib.Domain.Interact;
 using EOLib.Domain.Interact.Skill;
@@ -14,14 +15,17 @@ namespace EndlessClient.Dialogs.Actions
         private readonly IInGameDialogActions _inGameDialogActions;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly IECFFileProvider _ecfFileProvider;
+        private readonly ISfxPlayer _sfxPlayer;
 
         public NPCInteractionActions(IInGameDialogActions inGameDialogActions,
                                      IEOMessageBoxFactory messageBoxFactory,
-                                     IECFFileProvider ecfFileProvider)
+                                     IECFFileProvider ecfFileProvider,
+                                     ISfxPlayer sfxPlayer)
         {
             _inGameDialogActions = inGameDialogActions;
             _messageBoxFactory = messageBoxFactory;
             _ecfFileProvider = ecfFileProvider;
+            _sfxPlayer = sfxPlayer;
         }
 
         public void NotifyInteractionFromNPC(NPCType npcType)
@@ -36,6 +40,11 @@ namespace EndlessClient.Dialogs.Actions
                 case NPCType.Quest: _inGameDialogActions.ShowQuestDialog(); break;
                 case NPCType.Skills: _inGameDialogActions.ShowSkillmasterDialog(); break;
             }
+        }
+
+        public void NotifySkillLearnSuccess(short spellId, int characterGold)
+        {
+            _sfxPlayer.PlaySfx(SoundEffectID.LearnNewSpell);
         }
 
         public void NotifySkillLearnFail(SkillmasterReply skillmasterReply, short classId)
@@ -68,6 +77,8 @@ namespace EndlessClient.Dialogs.Actions
         {
             var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.SKILL_RESET_CHARACTER_COMPLETE);
             dlg.ShowDialog();
+
+            _sfxPlayer.PlaySfx(SoundEffectID.LearnNewSpell);
         }
     }
 }

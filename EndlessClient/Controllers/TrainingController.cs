@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EOLib.Domain.Character;
 
 namespace EndlessClient.Controllers
@@ -7,10 +8,13 @@ namespace EndlessClient.Controllers
     public class TrainingController : ITrainingController
     {
         private readonly ITrainingActions _trainingActions;
+        private readonly ISfxPlayer _sfxPlayer;
 
-        public TrainingController(ITrainingActions trainingActions)
+        public TrainingController(ITrainingActions trainingActions,
+                                  ISfxPlayer sfxPlayer)
         {
             _trainingActions = trainingActions;
+            _sfxPlayer = sfxPlayer;
         }
 
         public void AddStatPoint(CharacterStat whichStat)
@@ -19,11 +23,13 @@ namespace EndlessClient.Controllers
                 return;
 
             _trainingActions.LevelUpStat(whichStat);
+            _sfxPlayer.PlaySfx(SoundEffectID.InventoryPickup);
         }
 
         public void AddSkillPoint(int spellId)
         {
             _trainingActions.LevelUpSkill(spellId);
+            _sfxPlayer.PlaySfx(SoundEffectID.InventoryPickup);
         }
 
         private static bool InvalidStat(CharacterStat whichStat)

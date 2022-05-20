@@ -51,6 +51,7 @@ namespace EndlessClient.HUD.Panels
         private readonly IConfigurationRepository _configurationRepository;
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly IAudioActions _audioActions;
+        private readonly ISfxPlayer _sfxPlayer;
 
         public HudPanelFactory(INativeGraphicsManager nativeGraphicsManager,
                                IInventoryController inventoryController,
@@ -76,7 +77,8 @@ namespace EndlessClient.HUD.Panels
                                ISpellSlotDataRepository spellSlotDataRepository,
                                IConfigurationRepository configurationRepository,
                                ILocalizedStringFinder localizedStringFinder,
-                               IAudioActions audioActions)
+                               IAudioActions audioActions,
+                               ISfxPlayer sfxPlayer)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _inventoryController = inventoryController;
@@ -103,6 +105,7 @@ namespace EndlessClient.HUD.Panels
             _configurationRepository = configurationRepository;
             _localizedStringFinder = localizedStringFinder;
             _audioActions = audioActions;
+            _sfxPlayer = sfxPlayer;
         }
 
         public NewsPanel CreateNewsPanel()
@@ -129,7 +132,8 @@ namespace EndlessClient.HUD.Panels
                 _characterInventoryProvider,
                 _pubFileProvider,
                 _hudControlProvider,
-                _activeDialogProvider) { DrawOrder = HUD_CONTROL_LAYER };
+                _activeDialogProvider,
+                _sfxPlayer) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public ActiveSpellsPanel CreateActiveSpellsPanel()
@@ -142,7 +146,8 @@ namespace EndlessClient.HUD.Panels
                 _characterProvider,
                 _characterInventoryProvider,
                 _pubFileProvider,
-                _spellSlotDataRepository) { DrawOrder = HUD_CONTROL_LAYER };
+                _spellSlotDataRepository,
+                _sfxPlayer) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public PassiveSpellsPanel CreatePassiveSpellsPanel()
@@ -176,7 +181,7 @@ namespace EndlessClient.HUD.Panels
         public OnlineListPanel CreateOnlineListPanel()
         {
             var chatFont = _contentProvider.Fonts[Constants.FontSize08];
-            return new OnlineListPanel(_nativeGraphicsManager, _hudControlProvider, _friendIgnoreListService, chatFont) { DrawOrder = HUD_CONTROL_LAYER };
+            return new OnlineListPanel(_nativeGraphicsManager, _hudControlProvider, _friendIgnoreListService, _sfxPlayer, chatFont) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public PartyPanel CreatePartyPanel()
@@ -192,7 +197,8 @@ namespace EndlessClient.HUD.Panels
                 _statusLabelSetter,
                 _localizedStringFinder,
                 _messageBoxFactory,
-                _configurationRepository) { DrawOrder = HUD_CONTROL_LAYER };
+                _configurationRepository,
+                _sfxPlayer) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public HelpPanel CreateHelpPanel()

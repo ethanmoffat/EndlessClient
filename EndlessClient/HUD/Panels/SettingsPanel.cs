@@ -40,11 +40,12 @@ namespace EndlessClient.HUD.Panels
 
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IChatActions _chatActions;
+        private readonly IAudioActions _audioActions;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly IConfigurationRepository _configurationRepository;
-        private readonly IAudioActions _audioActions;
+        private readonly ISfxPlayer _sfxPlayer;
 
         private readonly Dictionary<WhichSetting, IXNALabel> _labels;
         private readonly Dictionary<WhichSetting, IXNAButton> _buttons;
@@ -58,7 +59,8 @@ namespace EndlessClient.HUD.Panels
                              IStatusLabelSetter statusLabelSetter,
                              ILocalizedStringFinder localizedStringFinder,
                              IEOMessageBoxFactory messageBoxFactory,
-                             IConfigurationRepository configurationRepository)
+                             IConfigurationRepository configurationRepository,
+                             ISfxPlayer sfxPlayer)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _chatActions = chatActions;
@@ -67,6 +69,7 @@ namespace EndlessClient.HUD.Panels
             _localizedStringFinder = localizedStringFinder;
             _messageBoxFactory = messageBoxFactory;
             _configurationRepository = configurationRepository;
+            _sfxPlayer = sfxPlayer;
 
             BackgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 47);
             DrawArea = new Rectangle(102, 330, BackgroundImage.Width, BackgroundImage.Height);
@@ -123,6 +126,8 @@ namespace EndlessClient.HUD.Panels
 
         private void SettingChange(WhichSetting setting)
         {
+            _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
+
             switch (setting)
             {
                 case WhichSetting.Sfx:

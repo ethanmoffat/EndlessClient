@@ -83,7 +83,16 @@ namespace EndlessClient.GameExecution
         {
             Components.ComponentAdded += (o, e) =>
             {
-                _soundMapper.BindSoundToControl(e.GameComponent);
+                // this is bad hack
+                // all pre-game controls have a specific sound that should be mapped to them.
+                // in-game controls get their sounds mapped individually.
+                //
+                // Checking for GameStates.LoggedIn because the in-game controls are
+                //     added to the components in the LoggedIn state
+                if (_controlSetRepository.CurrentControlSet.GameState != GameStates.LoggedIn)
+                {
+                    _soundMapper.BindSoundToControl(e.GameComponent);
+                }
             };
 
             Components.ComponentRemoved += (o, e) =>

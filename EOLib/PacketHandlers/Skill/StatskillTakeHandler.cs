@@ -1,8 +1,10 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
+using EOLib.Domain.Interact;
 using EOLib.Domain.Login;
 using EOLib.Net;
 using EOLib.Net.Handlers;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace EOLib.PacketHandlers.Skill
@@ -14,16 +16,19 @@ namespace EOLib.PacketHandlers.Skill
     public class StatskillTakeHandler : InGameOnlyPacketHandler
     {
         private readonly ICharacterInventoryRepository _characterInventoryRepository;
+        private readonly IEnumerable<INPCInteractionNotifier> _npcInteractionNotifiers;
 
         public override PacketFamily Family => PacketFamily.StatSkill;
 
         public override PacketAction Action => PacketAction.Take;
 
         public StatskillTakeHandler(IPlayerInfoProvider playerInfoProvider,
-                                    ICharacterInventoryRepository characterInventoryRepository)
+                                    ICharacterInventoryRepository characterInventoryRepository,
+                                    IEnumerable<INPCInteractionNotifier> npcInteractionNotifiers)
             : base(playerInfoProvider)
         {
             _characterInventoryRepository = characterInventoryRepository;
+            _npcInteractionNotifiers = npcInteractionNotifiers;
         }
 
         public override bool HandlePacket(IPacket packet)
@@ -38,6 +43,9 @@ namespace EOLib.PacketHandlers.Skill
 
             _characterInventoryRepository.ItemInventory.RemoveWhere(x => x.ItemID == 1);
             _characterInventoryRepository.ItemInventory.Add(new InventoryItem(1, characterGold));
+
+            foreach (var notifier in _npcInteractionNotifiers)
+                notifier.NotifySkillLearnSuccess(spellId, characterGold);
 
             return true;
         }

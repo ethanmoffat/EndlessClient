@@ -1,4 +1,5 @@
 ﻿using System;
+using EndlessClient.Audio;
 using EndlessClient.HUD.Panels;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
@@ -17,7 +18,7 @@ namespace EndlessClient.HUD.Spells
         }
 
         private readonly Texture2D _spellGraphic, _spellLevelColor;
-
+        private readonly ISfxPlayer _sfxPlayer;
         private Rectangle _spellGraphicSourceRect;
         private DateTime _clickTime;
         private bool _dragging, _followMouse;
@@ -34,9 +35,11 @@ namespace EndlessClient.HUD.Spells
 
         public override event EventHandler<SpellDragCompletedEventArgs> DoneDragging;
 
-        public SpellPanelItem(ActiveSpellsPanel parent, int slot, InventorySpell spell, ESFRecord spellData)
+        public SpellPanelItem(ActiveSpellsPanel parent, ISfxPlayer sfxPlayer, int slot, InventorySpell spell, ESFRecord spellData)
             : base(parent, slot)
         {
+            _sfxPlayer = sfxPlayer;
+
             InventorySpell = spell;
             SpellData = spellData;
 
@@ -109,6 +112,7 @@ namespace EndlessClient.HUD.Spells
                     if (clickDelta < 75)
                     {
                         _dragging = true;
+                        _sfxPlayer.PlaySfx(SoundEffectID.InventoryPickup);
                     }
                 }
                 else
@@ -118,7 +122,10 @@ namespace EndlessClient.HUD.Spells
             }
 
             if (!_dragging && _followMouse && (DateTime.Now - _clickTime).TotalMilliseconds >= 75)
+            {
                 _dragging = true;
+                _sfxPlayer.PlaySfx(SoundEffectID.InventoryPickup);
+            }
         }
 
         private bool LeftButtonDown =>
@@ -142,6 +149,10 @@ namespace EndlessClient.HUD.Spells
             {
                 _dragging = true;
                 _followMouse = true;
+            }
+            else
+            {
+                _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);
             }
         }
 

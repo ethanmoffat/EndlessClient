@@ -1,4 +1,5 @@
-﻿using EndlessClient.Controllers;
+﻿using EndlessClient.Audio;
+using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD.Controls;
@@ -47,6 +48,7 @@ namespace EndlessClient.HUD.Panels
         private readonly IPubFileProvider _pubFileProvider; // todo: this can probably become EIFFileProvider
         private readonly IHudControlProvider _hudControlProvider;
         private readonly IActiveDialogProvider _activeDialogProvider;
+        private readonly ISfxPlayer _sfxPlayer;
 
         private readonly Dictionary<int, int> _itemSlotMap;
         private readonly List<InventoryPanelItem> _childItems = new List<InventoryPanelItem>();
@@ -72,7 +74,8 @@ namespace EndlessClient.HUD.Panels
                               ICharacterInventoryProvider characterInventoryProvider,
                               IPubFileProvider pubFileProvider,
                               IHudControlProvider hudControlProvider,
-                              IActiveDialogProvider activeDialogProvider)
+                              IActiveDialogProvider activeDialogProvider,
+                              ISfxPlayer sfxPlayer)
         {
             NativeGraphicsManager = nativeGraphicsManager;
             _inventoryController = inventoryController;
@@ -87,6 +90,8 @@ namespace EndlessClient.HUD.Panels
             _pubFileProvider = pubFileProvider;
             _hudControlProvider = hudControlProvider;
             _activeDialogProvider = activeDialogProvider;
+            _sfxPlayer = sfxPlayer;
+
             _weightLabel = new XNALabel(Constants.FontSize08pt5)
             {
                 DrawArea = new Rectangle(385, 37, 88, 18),
@@ -104,15 +109,17 @@ namespace EndlessClient.HUD.Panels
             _paperdoll.OnMouseEnter += MouseOverButton;
             _paperdoll.OnClick += (_, _) =>
             {
-                if (NoItemsDragging())
-                    _inventoryController.ShowPaperdollDialog();
+                _inventoryController.ShowPaperdollDialog();
+                _sfxPlayer.PlaySfx(SoundEffectID.ButtonClick);
             };
 
             _drop = new XNAButton(weirdOffsetSheet, new Vector2(389, 68), new Rectangle(0, 15, 38, 37), new Rectangle(0, 52, 38, 37));
             _drop.OnMouseEnter += MouseOverButton;
+            _drop.OnClick += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);
 
             _junk = new XNAButton(weirdOffsetSheet, new Vector2(431, 68), new Rectangle(0, 89, 38, 37), new Rectangle(0, 126, 38, 37));
             _junk.OnMouseEnter += MouseOverButton;
+            _junk.OnClick += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);
 
             _cachedStats = Option.None<CharacterStats>();
             _cachedInventory = new HashSet<InventoryItem>();
@@ -206,7 +213,7 @@ namespace EndlessClient.HUD.Panels
                     {
                         _inventoryService.SetSlots(_inventorySlotRepository.FilledSlots, slot, itemData.Size);
 
-                        var newItem = new InventoryPanelItem(_itemNameColorService, this, _activeDialogProvider, slot, item, itemData);
+                        var newItem = new InventoryPanelItem(_itemNameColorService, this, _activeDialogProvider, _sfxPlayer, slot, item, itemData);
                         newItem.Initialize();
                         newItem.SetParentControl(this);
                         newItem.Text = _itemStringService.GetStringForInventoryDisplay(itemData, item.Amount);
@@ -345,6 +352,8 @@ namespace EndlessClient.HUD.Panels
             {
                 _inventoryController.UseItem(itemData);
             }
+
+            _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);
         }
 
         private void HandleItemDoneDragging(object sender, InventoryPanelItem.ItemDragCompletedEventArgs e)
@@ -363,6 +372,7 @@ namespace EndlessClient.HUD.Panels
                 {
                     e.RestoreOriginalSlot = true;
                     _inventoryController.DropItem(item.Data, item.InventoryItem);
+                    _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);
                     return;
                 }
             }
@@ -410,6 +420,7 @@ namespace EndlessClient.HUD.Panels
             if (dialogDrop)
             {
                 e.RestoreOriginalSlot = true;
+                _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);
                 return;
             }
 
@@ -430,6 +441,8 @@ namespace EndlessClient.HUD.Panels
 
                 if (!fitsInOldSlot)
                     e.ContinueDrag = true;
+                else
+                    _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);
             }
             else if (overlapped.Count == 1)
             {
@@ -447,13 +460,21 @@ namespace EndlessClient.HUD.Panels
                     if (!fitsInOldSlot)
                         e.ContinueDrag = true;
                     else
+                    {
                         e.RestoreOriginalSlot = true;
+                        _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);
+                    }
                 }
                 else
                 {
                     _inventoryService.ClearSlots(_inventorySlotRepository.FilledSlots, oldSlot, e.Data.Size);
                     _inventoryService.SetSlots(_inventorySlotRepository.FilledSlots, newSlot, e.Data.Size);
+                    _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);
                 }
+            }
+            else
+            {
+                _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);
             }
 
             #region Unimplemented drag action

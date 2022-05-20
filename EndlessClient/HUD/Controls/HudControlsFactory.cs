@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
@@ -58,6 +59,7 @@ namespace EndlessClient.HUD.Controls
         private readonly IPacketSendService _packetSendService;
         private readonly IUserInputTimeProvider _userInputTimeProvider;
         private readonly ISpellSlotDataRepository _spellSlotDataRepository;
+        private readonly ISfxPlayer _sfxPlayer;
         private IChatController _chatController;
 
         public HudControlsFactory(IHudButtonController hudButtonController,
@@ -83,7 +85,8 @@ namespace EndlessClient.HUD.Controls
                                   IWalkValidationActions walkValidationActions,
                                   IPacketSendService packetSendService,
                                   IUserInputTimeProvider userInputTimeProvider,
-                                  ISpellSlotDataRepository spellSlotDataRepository)
+                                  ISpellSlotDataRepository spellSlotDataRepository,
+                                  ISfxPlayer sfxPlayer)
         {
             _hudButtonController = hudButtonController;
             _hudPanelFactory = hudPanelFactory;
@@ -109,6 +112,7 @@ namespace EndlessClient.HUD.Controls
             _packetSendService = packetSendService;
             _userInputTimeProvider = userInputTimeProvider;
             _spellSlotDataRepository = spellSlotDataRepository;
+            _sfxPlayer = sfxPlayer;
         }
 
         public void InjectChatController(IChatController chatController)
@@ -228,6 +232,7 @@ namespace EndlessClient.HUD.Controls
                 DrawOrder = HUD_CONTROL_LAYER
             };
             button.OnClick += async (o, e) => await _hudButtonController.ClickFriendList();
+            button.OnClick += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.ButtonClick);
             button.OnMouseOver += (o, e) => _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_BUTTON, EOResourceID.STATUS_LABEL_FRIEND_LIST);
 
             return button;
@@ -244,6 +249,7 @@ namespace EndlessClient.HUD.Controls
                 DrawOrder = HUD_CONTROL_LAYER
             };
             button.OnClick += async (o, e) => await _hudButtonController.ClickIgnoreList();
+            button.OnClick += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.ButtonClick);
             button.OnMouseOver += (o, e) => _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_BUTTON, EOResourceID.STATUS_LABEL_IGNORE_LIST);
 
             return button;
@@ -278,6 +284,8 @@ namespace EndlessClient.HUD.Controls
                     break;
                 default: throw new ArgumentOutOfRangeException(nameof(whichState), whichState, null);
             }
+
+            _sfxPlayer.PlaySfx(SoundEffectID.ButtonClick);
         }
 
         private IGameComponent CreateStatePanel(InGameStates whichState)
@@ -317,6 +325,7 @@ namespace EndlessClient.HUD.Controls
                 DrawOrder = HUD_CONTROL_LAYER
             };
             btn.OnClick += (_, _) => _hudButtonController.ClickSessionExp();
+            btn.OnClick += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
             return btn;
 
         }
@@ -332,39 +341,36 @@ namespace EndlessClient.HUD.Controls
                 DrawOrder = HUD_CONTROL_LAYER
             };
             btn.OnClick += (_, _) => _hudButtonController.ClickQuestStatus();
+            btn.OnClick += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
             return btn;
         }
 
         private IGameComponent CreateHPStatusBar()
         {
-            return new HPStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, _userInputRepository)
-            {
-                DrawOrder = HUD_CONTROL_LAYER
-            };
+            var statusBar = new HPStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, _userInputRepository) { DrawOrder = HUD_CONTROL_LAYER };
+            statusBar.StatusBarClicked += () => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
+            return statusBar;
         }
 
         private IGameComponent CreateTPStatusBar()
         {
-            return new TPStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, _userInputRepository)
-            {
-                DrawOrder = HUD_CONTROL_LAYER
-            };
+            var statusBar = new TPStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, _userInputRepository) { DrawOrder = HUD_CONTROL_LAYER };
+            statusBar.StatusBarClicked += () => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
+            return statusBar;
         }
 
         private IGameComponent CreateSPStatusBar()
         {
-            return new SPStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, _userInputRepository)
-            {
-                DrawOrder = HUD_CONTROL_LAYER
-            };
+            var statusBar = new SPStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, _userInputRepository) { DrawOrder = HUD_CONTROL_LAYER };
+            statusBar.StatusBarClicked += () => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
+            return statusBar;
         }
 
         private IGameComponent CreateTNLStatusBar()
         {
-            return new TNLStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, _userInputRepository, _experienceTableProvider)
-            {
-                DrawOrder = HUD_CONTROL_LAYER
-            };
+            var statusBar = new TNLStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, _userInputRepository, _experienceTableProvider) { DrawOrder = HUD_CONTROL_LAYER };
+            statusBar.StatusBarClicked += () => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
+            return statusBar;
         }
 
         private ChatModePictureBox CreateChatModePictureBox()
