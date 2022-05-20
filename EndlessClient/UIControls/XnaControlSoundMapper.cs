@@ -20,6 +20,22 @@ namespace EndlessClient.UIControls
             _sfxPlayer = sfxPlayer;
         }
 
+        // other audio todos:
+        //  - chat messages - nowall (spell activation sound), command (login sound)
+        //  - chat messages received (group, admin, announce, server notification, PM)
+        //  - buy/sell/craft item
+        //  - chest/locker interaction
+        //    - walk into or click chest/locker: spell activation sound
+        //  - quest npc interaction?
+        //    - links: button click
+        //    - ok/cancel: button click
+        //    - next/back: dialog button click
+        //    - quest reward: trade accepted sound
+        //  - bank interaction?
+        //    - SoundEffectID.BuySell noise for all actions
+        //  - paperdoll
+        //    - item drag/drop
+
         public void BindSoundToControl(IGameComponent component, Option<SoundEffectID> soundEffectOverride = default)
         {
             soundEffectOverride.MatchSome(x => SetupSpecificSound((dynamic)component, x));

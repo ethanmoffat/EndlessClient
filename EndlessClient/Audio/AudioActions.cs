@@ -1,11 +1,12 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Config;
 using EOLib.Domain.Map;
+using EOLib.Domain.Notifiers;
 
 namespace EndlessClient.Audio
 {
     [AutoMappedType]
-    public class AudioActions : IAudioActions
+    public class AudioActions : IAudioActions, ISoundNotifier
     {
         private readonly IConfigurationProvider _configurationProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
@@ -52,6 +53,11 @@ namespace EndlessClient.Audio
                 _sfxPlayer.PlayLoopingSfx((SoundEffectID)noise - 1);
             else
                 _sfxPlayer.StopLoopingSfx();
+        }
+
+        public void NotifySoundEffect(byte soundEffectId)
+        {
+            _sfxPlayer.PlaySfx((SoundEffectID)soundEffectId);
         }
     }
 
