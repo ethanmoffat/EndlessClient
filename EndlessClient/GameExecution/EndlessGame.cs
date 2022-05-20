@@ -172,7 +172,13 @@ namespace EndlessClient.GameExecution
 
             _previousKeyState = currentKeyState;
 
-            base.Update(gameTime);
+            try
+            {
+                base.Update(gameTime);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+            }
         }
 
 #endif

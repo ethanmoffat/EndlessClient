@@ -257,7 +257,7 @@ namespace EndlessClient.Rendering.Character
             _effectRenderer.DrawInFrontOfTarget(spriteBatch);
 
             if (_gameStateProvider.CurrentState == GameStates.PlayingTheGame)
-                _healthBarRenderer.DrawToSpriteBatch(spriteBatch);
+                _healthBarRenderer?.DrawToSpriteBatch(spriteBatch);
         }
 
         #endregion
