@@ -1,4 +1,5 @@
-﻿using EndlessClient.Controllers;
+﻿using EndlessClient.Audio;
+using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Extensions;
 using EndlessClient.Dialogs.Factories;
@@ -38,6 +39,7 @@ namespace EndlessClient.Dialogs
         private readonly IInventorySpaceValidator _inventorySpaceValidator;
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
         private readonly IStatusLabelSetter _statusLabelSetter;
+        private readonly ISfxPlayer _sfxPlayer;
         private readonly bool _isMainCharacter;
         private readonly Texture2D _characterIconSheet;
         private Option<Rectangle> _characterIconSourceRect;
@@ -67,6 +69,7 @@ namespace EndlessClient.Dialogs
                                IInventorySpaceValidator inventorySpaceValidator,
                                IEOMessageBoxFactory eoMessageBoxFactory,
                                IStatusLabelSetter statusLabelSetter,
+                               ISfxPlayer sfxPlayer,
                                Character character, bool isMainCharacter)
             : base(gameStateProvider)
         {
@@ -75,6 +78,7 @@ namespace EndlessClient.Dialogs
             _inventorySpaceValidator = inventorySpaceValidator;
             _eoMessageBoxFactory = eoMessageBoxFactory;
             _statusLabelSetter = statusLabelSetter;
+            _sfxPlayer = sfxPlayer;
             _nativeGraphicsManager = nativeGraphicsManager;
             _inventoryController = inventoryController;
             Character = character;
@@ -199,7 +203,7 @@ namespace EndlessClient.Dialogs
 
                 var id = paperdollData.Paperdoll[equipLocation];
                 var eifRecord = id.SomeWhen(i => i > 0).Map(i => _pubFileProvider.EIFFile[i]);
-                var paperdollItem = new PaperdollDialogItem(_nativeGraphicsManager, _inventoryPanel, this, _isMainCharacter, equipLocation, eifRecord)
+                var paperdollItem = new PaperdollDialogItem(_nativeGraphicsManager, _sfxPlayer, _inventoryPanel, this, _isMainCharacter, equipLocation, eifRecord)
                 {
                     DrawArea = equipLocation.GetEquipLocationRectangle()
                 };

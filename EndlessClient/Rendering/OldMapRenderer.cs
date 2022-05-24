@@ -86,8 +86,8 @@ namespace EndlessClient.Rendering
             _drawingEvent.Wait();
             _drawingEvent.Reset();
 
-            if (MapRef != null && MapRef.Properties.AmbientNoise != 0)
-                EOGame.Instance.SoundManager.StopLoopingSoundEffect(MapRef.Properties.AmbientNoise);
+            //if (MapRef != null && MapRef.Properties.AmbientNoise != 0)
+            //    EOGame.Instance.SoundManager.StopLoopingSoundEffect(MapRef.Properties.AmbientNoise);
 
             MapRef = newActiveMap;
 
@@ -105,43 +105,7 @@ namespace EndlessClient.Rendering
             lock (_spikeTrapsLock)
                 _visibleSpikeTraps.Clear();
 
-            PlayOrStopBackgroundMusic();
-            PlayOrStopAmbientNoise();
-
             _drawingEvent.Set();
-        }
-
-        public void PlayOrStopBackgroundMusic()
-        {
-            if (!OldWorld.Instance.MusicEnabled)
-            {
-                EOGame.Instance.SoundManager.StopBackgroundMusic();
-                return;
-            }
-
-            //not sure what MusicExtra field is supposed to be for
-            if (MapRef.Properties.Music > 0)
-            {
-                //sound manager accounts for zero-based indices when playing music
-                EOGame.Instance.SoundManager.PlayBackgroundMusic(MapRef.Properties.Music);
-            }
-            else
-            {
-                EOGame.Instance.SoundManager.StopBackgroundMusic();
-            }
-        }
-
-        public void PlayOrStopAmbientNoise()
-        {
-            if (!OldWorld.Instance.SoundEnabled)
-            {
-                if (MapRef.Properties.AmbientNoise > 0)
-                    EOGame.Instance.SoundManager.StopLoopingSoundEffect(MapRef.Properties.AmbientNoise);
-                return;
-            }
-
-            if (MapRef.Properties.AmbientNoise > 0)
-                EOGame.Instance.SoundManager.PlayLoopingSoundEffect(MapRef.Properties.AmbientNoise);
         }
 
         #endregion

@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.Content;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.Input;
@@ -15,23 +16,26 @@ namespace EndlessClient.Dialogs.Factories
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly IContentProvider _contentProvider;
         private readonly IKeyboardDispatcherRepository _keyboardDispatcherRepository;
+        private readonly ISfxPlayer _sfxPlayer;
 
         public ItemTransferDialogFactory(INativeGraphicsManager nativeGraphicsManager,
                                          IEODialogButtonService eoDialogButtonService,
                                          ILocalizedStringFinder localizedStringFinder,
                                          IContentProvider contentProvider,
-                                         IKeyboardDispatcherRepository keyboardDispatcherRepository)
+                                         IKeyboardDispatcherRepository keyboardDispatcherRepository,
+                                         ISfxPlayer sfxPlayer)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _eoDialogButtonService = eoDialogButtonService;
             _localizedStringFinder = localizedStringFinder;
             _contentProvider = contentProvider;
             _keyboardDispatcherRepository = keyboardDispatcherRepository;
+            _sfxPlayer = sfxPlayer;
         }
 
         public ItemTransferDialog CreateItemTransferDialog(string itemName, ItemTransferDialog.TransferType transferType, int totalAmount, EOResourceID message)
         {
-            return new ItemTransferDialog(_nativeGraphicsManager,
+            var dlg = new ItemTransferDialog(_nativeGraphicsManager,
                 _eoDialogButtonService,
                 _localizedStringFinder,
                 _contentProvider,
@@ -40,6 +44,8 @@ namespace EndlessClient.Dialogs.Factories
                 transferType,
                 totalAmount,
                 message);
+            dlg.DialogClosing += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
+            return dlg;
         }
     }
 

@@ -1,7 +1,8 @@
 ﻿namespace EndlessClient.Audio
 {
-
-    //sfx001 will be ID int 0
+    // These are 0 based indexes even though the files start at sfx001
+    // sfx001 will be id 0
+    // sfx060 will be id 59
     public enum SoundEffectID
     {
         LayeredTechIntro,
@@ -9,22 +10,22 @@
         DialogButtonClick,
         TextBoxFocus, //also the sound when opening chest?
         Login = 4, //also the sound from a server message?
-        UnknownShimmerSound,
+        DeleteCharacter,
         UnknownStaticSound,
         ScreenCapture,
         PMReceived = 8,
         PunchAttack,
         UnknownWarpSound,
         UnknownPingSound,
-        UnknownClickSound = 12,
-        UnknownHarpSound,
+        HudStatusBarClick = 12,
+        AdminAnnounceReceived,
         MeleeWeaponAttack,
         UnknownClickSound2,
-        TradeAccepted = 16,
-        UnknownNotificationSound,
+        TradeAccepted = 16, // also join party
+        GroupChatReceived,
         UnknownWhooshSound,
-        ItemInventoryPickup,
-        ItemInventoryPlace = 20,
+        InventoryPickup,
+        InventoryPlace = 20,
         Earthquake,
         DoorClose,
         DoorOpen,
@@ -32,7 +33,7 @@
         BuySell,
         Craft,
         UnknownBuzzSound,
-        UnknownBloopSound = 28,
+        AdminChatReceived = 28,
         UnknownAttackLikeSound,
         PotionOfFlamesEffect,
         AdminWarp,
@@ -54,22 +55,36 @@
         Guitar2,
         Guitar3 = 48,
         Thunder,
-        UnknownTimerSound,
+        MapEvacTimer,
         UnknownFanfareSound,
         Gun = 52,
         UltimaBlastSpell,
         ShieldSpell,
-        UnknownAggressiveShieldSound,
+        RingOfFireSpell,
         IceBlastSpell1 = 56,
         EnergyBallSpell,
         WhirlSpell,
         BouldersSpell,
-        HeavenSpell = 60,
-        //there's another ice blast spell in here
-        MapEffectHPDrain = 69,
-        MapEffectTPDrain = 70,
-        Spikes = 71,
-        //not sure what the remaining sounds are but I think map ambient noises start eventually
-        //map noises seem to fade out as you change maps or get farther away from them
+        AuraSpell = 60,
+        HeavenSpell,
+        IceBlastSpell2,
+        MapAmbientNoiseWater,
+        MapAmbientNoiseDrone1 = 64,
+        UnknownMapAmbientNoise1,
+        UnknownMapAmbientNoise2,
+        UnknownMapAmbientNoise3,
+        UnknownMapAmbientNoise4 = 68,
+        MapEffectHPDrain,
+        MapEffectTPDrain,
+        Spikes,
+        UnknownClick = 72,
+        UnknownBoing,
+        UnknownMapAmbientNoise5,
+        DarkHandSpell,
+        TentaclesSpell = 76,
+        MagicWhirlSpell,
+        PowerWindSpell,
+        FireBlastSpell,
+        UnknownBubblesNoise = 80,
     }
 }

@@ -1,4 +1,5 @@
-﻿using EndlessClient.Controllers;
+﻿using EndlessClient.Audio;
+using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
 using EndlessClient.Rendering.CharacterProperties;
@@ -8,6 +9,7 @@ using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
 using EndlessClient.UIControls;
 using EOLib;
+using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
@@ -37,6 +39,8 @@ namespace EndlessClient.Rendering.Character
         private readonly IGameStateProvider _gameStateProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IUserInputProvider _userInputProvider;
+        private readonly ISfxPlayer _sfxPlayer;
+
         private readonly IEffectRenderer _effectRenderer;
 
         private EOLib.Domain.Character.Character _character;
@@ -52,6 +56,8 @@ namespace EndlessClient.Rendering.Character
 
         private IHealthBarRenderer _healthBarRenderer;
         private Lazy<IChatBubble> _chatBubble;
+
+        private bool _lastIsDead;
 
         public EOLib.Domain.Character.Character Character
         {
@@ -92,7 +98,8 @@ namespace EndlessClient.Rendering.Character
                                  EOLib.Domain.Character.Character character,
                                  IGameStateProvider gameStateProvider,
                                  ICurrentMapProvider currentMapProvider,
-                                 IUserInputProvider userInputProvider)
+                                 IUserInputProvider userInputProvider,
+                                 ISfxPlayer sfxPlayer)
             : base(game)
         {
             _mapInteractionController = mapInteractionController;
@@ -108,7 +115,9 @@ namespace EndlessClient.Rendering.Character
             _gameStateProvider = gameStateProvider;
             _currentMapProvider = currentMapProvider;
             _userInputProvider = userInputProvider;
-            _effectRenderer = new EffectRenderer(nativeGraphicsmanager, this);
+            _sfxPlayer = sfxPlayer;
+
+            _effectRenderer = new EffectRenderer(nativeGraphicsmanager, _sfxPlayer, this);
             _chatBubble = new Lazy<IChatBubble>(() => _chatBubbleFactory.CreateChatBubble(this));
         }
 
@@ -178,7 +187,7 @@ namespace EndlessClient.Rendering.Character
 
             if (_gameStateProvider.CurrentState == GameStates.PlayingTheGame)
             {
-                UpdateNameLabel(gameTime);
+                UpdateNameLabel();
 
                 if (DrawArea.Contains(_userInputProvider.CurrentMouseState.Position))
                 {
@@ -196,6 +205,8 @@ namespace EndlessClient.Rendering.Character
                 }
 
                 _healthBarRenderer?.Update(gameTime);
+
+                CheckForDead();
             }
 
             base.Update(gameTime);
@@ -246,7 +257,7 @@ namespace EndlessClient.Rendering.Character
             _effectRenderer.DrawInFrontOfTarget(spriteBatch);
 
             if (_gameStateProvider.CurrentState == GameStates.PlayingTheGame)
-                _healthBarRenderer.DrawToSpriteBatch(spriteBatch);
+                _healthBarRenderer?.DrawToSpriteBatch(spriteBatch);
         }
 
         #endregion
@@ -336,7 +347,7 @@ namespace EndlessClient.Rendering.Character
             return _renderOffsetCalculator.CalculateOffsetY(_characterProvider.MainCharacter.RenderProperties);
         }
 
-        private void UpdateNameLabel(GameTime gameTime)
+        private void UpdateNameLabel()
         {
             if (_gameStateProvider.CurrentState != GameStates.PlayingTheGame ||
                 _healthBarRenderer == null ||
@@ -403,6 +414,18 @@ namespace EndlessClient.Rendering.Character
             }
 
             return 0;
+        }
+
+        private void CheckForDead()
+        {
+            if (_character == _characterProvider.MainCharacter && _lastIsDead != _character.RenderProperties.IsDead)
+            {
+                _lastIsDead = _character.RenderProperties.IsDead;
+                if (_lastIsDead)
+                {
+                    _sfxPlayer.PlaySfx(SoundEffectID.Dead);
+                }
+            }
         }
 
         #endregion

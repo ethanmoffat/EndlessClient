@@ -1,6 +1,7 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
+using EOLib.IO.Map;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 using System.Collections.Generic;
@@ -32,7 +33,7 @@ namespace EOLib.PacketHandlers.Effects
             var strength = packet.ReadChar();
 
             foreach (var notifier in _effectNotifiers)
-                notifier.NotifyEarthquake(strength);
+                notifier.NotifyMapEffect(MapEffect.Quake1, strength);
 
             return true;
         }

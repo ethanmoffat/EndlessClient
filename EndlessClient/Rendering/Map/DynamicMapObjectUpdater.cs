@@ -1,7 +1,10 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.Controllers;
 using EndlessClient.Input;
+using EOLib.Config;
 using EOLib.Domain.Character;
+using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
@@ -30,14 +33,21 @@ namespace EndlessClient.Rendering.Map
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IMapObjectBoundsCalculator _mapObjectBoundsCalculator;
         private readonly IMapInteractionController _mapInteractionController;
+        private readonly IConfigurationProvider _configurationProvider;
+        private readonly ISfxPlayer _sfxPlayer;
+
         private readonly List<DoorTimePair> _cachedDoorState;
+        private IMapFile _cachedMap;
+        private List<MapCoordinate> _ambientSounds;
 
         public DynamicMapObjectUpdater(ICharacterProvider characterProvider,
                                        ICurrentMapStateRepository currentMapStateRepository,
                                        IUserInputRepository userInputRepository,
                                        ICurrentMapProvider currentMapProvider,
                                        IMapObjectBoundsCalculator mapObjectBoundsCalculator,
-                                       IMapInteractionController mapInteractionController)
+                                       IMapInteractionController mapInteractionController,
+                                       IConfigurationProvider configurationProvider,
+                                       ISfxPlayer sfxPlayer)
         {
             _characterProvider = characterProvider;
             _currentMapStateRepository = currentMapStateRepository;
@@ -45,16 +55,27 @@ namespace EndlessClient.Rendering.Map
             _currentMapProvider = currentMapProvider;
             _mapObjectBoundsCalculator = mapObjectBoundsCalculator;
             _mapInteractionController = mapInteractionController;
+            _configurationProvider = configurationProvider;
+            _sfxPlayer = sfxPlayer;
+
             _cachedDoorState = new List<DoorTimePair>();
+            _ambientSounds = new List<MapCoordinate>();
         }
 
         public void UpdateMapObjects(GameTime gameTime)
         {
+            if (_cachedMap != _currentMapProvider.CurrentMap)
+            {
+                _ambientSounds = new List<MapCoordinate>(_currentMapProvider.CurrentMap.GetTileSpecs(TileSpec.AmbientSource));
+                _cachedMap = _currentMapProvider.CurrentMap;
+            }
+
             var now = DateTime.Now;
             OpenNewDoors(now);
             CloseExpiredDoors(now);
 
             RemoveStaleSpikeTraps();
+            UpdateAmbientNoiseVolume();
 
             CheckForObjectClicks();
         }
@@ -63,7 +84,10 @@ namespace EndlessClient.Rendering.Map
         {
             var newDoors = _currentMapStateRepository.OpenDoors.Where(x => _cachedDoorState.All(d => d.Door != x));
             foreach (var door in newDoors)
+            {
                 _cachedDoorState.Add(new DoorTimePair { Door = door, OpenTime = now });
+                _sfxPlayer.PlaySfx(SoundEffectID.DoorOpen);
+            }
         }
 
         private void CloseExpiredDoors(DateTime now)
@@ -72,7 +96,11 @@ namespace EndlessClient.Rendering.Map
             foreach (var door in expiredDoors)
             {
                 _cachedDoorState.Remove(door);
-                _currentMapStateRepository.OpenDoors.Remove(door.Door);
+                if (_currentMapStateRepository.OpenDoors.Contains(door.Door))
+                {
+                    _currentMapStateRepository.OpenDoors.Remove(door.Door);
+                    _sfxPlayer.PlaySfx(SoundEffectID.DoorClose);
+                }
             }
         }
 
@@ -94,6 +122,28 @@ namespace EndlessClient.Rendering.Map
             _currentMapStateRepository.VisibleSpikeTraps.RemoveWhere(staleTraps.Contains);
         }
 
+        private void UpdateAmbientNoiseVolume()
+        {
+            if (_cachedMap.Properties.AmbientNoise <= 0 || !_configurationProvider.SoundEnabled)
+                return;
+
+            // the algorithm in EO main seems to scale volume with distance to the closest ambient source
+            // distance is the sum of the components of the vector from character position to closest ambient source
+            // this is scaled from 0-25, with 0 being on top of the tile and 25 being too far away to hear the ambient sound from it
+            var props = _characterProvider.MainCharacter.RenderProperties;
+            var charCoord = props.CurrentAction == CharacterActionState.Walking
+                ? new MapCoordinate(props.GetDestinationX(), props.GetDestinationY())
+                : new MapCoordinate(props.MapX, props.MapY);
+            var shortestDistance = int.MaxValue;
+            foreach (var coordinate in _ambientSounds)
+            {
+                var distance = Math.Abs(charCoord.X - coordinate.X) + Math.Abs(charCoord.Y - coordinate.Y);
+                if (distance < shortestDistance)
+                    shortestDistance = distance;
+            }
+            _sfxPlayer.SetLoopingSfxVolume(Math.Max((25 - shortestDistance) / 25f, 0));
+        }
+
         private void CheckForObjectClicks()
         {
             if (_userInputRepository.ClickHandled)
@@ -104,9 +154,9 @@ namespace EndlessClient.Rendering.Map
 
             if (mouseClicked)
             {
-                foreach (var sign in _currentMapProvider.CurrentMap.Signs)
+                foreach (var sign in _cachedMap.Signs)
                 {
-                    var gfx = _currentMapProvider.CurrentMap.GFX[MapLayer.Objects][sign.Y, sign.X];
+                    var gfx = _cachedMap.GFX[MapLayer.Objects][sign.Y, sign.X];
                     if (gfx > 0)
                     {
                         var bounds = _mapObjectBoundsCalculator.GetMapObjectBounds(sign.X, sign.Y, gfx);

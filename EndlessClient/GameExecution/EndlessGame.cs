@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.Content;
 using EndlessClient.ControlSets;
 using EndlessClient.Network;
@@ -11,6 +12,7 @@ using EndlessClient.Rendering.Chat;
 using EndlessClient.Test;
 using EndlessClient.UIControls;
 using EOLib;
+using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.IO;
@@ -36,6 +38,9 @@ namespace EndlessClient.GameExecution
         private readonly IChatBubbleTextureProvider _chatBubbleTextureProvider;
         private readonly IShaderRepository _shaderRepository;
         private readonly ICharacterInfoPanelFactory _characterInfoPanelFactory;
+        private readonly IConfigurationProvider _configurationProvider;
+        private readonly IMfxPlayer _mfxPlayer;
+        private readonly IXnaControlSoundMapper _soundMapper;
         private GraphicsDeviceManager _graphicsDeviceManager;
 
         private KeyboardState _previousKeyState;
@@ -50,7 +55,10 @@ namespace EndlessClient.GameExecution
                            ILoggerProvider loggerProvider,
                            IChatBubbleTextureProvider chatBubbleTextureProvider,
                            IShaderRepository shaderRepository,
-                           ICharacterInfoPanelFactory characterInfoPanelFactory)
+                           ICharacterInfoPanelFactory characterInfoPanelFactory,
+                           IConfigurationProvider configurationProvider,
+                           IMfxPlayer mfxPlayer,
+                           IXnaControlSoundMapper soundMapper)
         {
             _windowSizeProvider = windowSizeProvider;
             _contentProvider = contentProvider;
@@ -63,7 +71,9 @@ namespace EndlessClient.GameExecution
             _chatBubbleTextureProvider = chatBubbleTextureProvider;
             _shaderRepository = shaderRepository;
             _characterInfoPanelFactory = characterInfoPanelFactory;
-
+            _configurationProvider = configurationProvider;
+            _mfxPlayer = mfxPlayer;
+            _soundMapper = soundMapper;
             _graphicsDeviceManager = new GraphicsDeviceManager(this);
 
             Content.RootDirectory = "Content";
@@ -71,6 +81,20 @@ namespace EndlessClient.GameExecution
 
         protected override void Initialize()
         {
+            Components.ComponentAdded += (o, e) =>
+            {
+                // this is bad hack
+                // all pre-game controls have a specific sound that should be mapped to them.
+                // in-game controls get their sounds mapped individually.
+                //
+                // Checking for GameStates.LoggedIn because the in-game controls are
+                //     added to the components in the LoggedIn state
+                if (_controlSetRepository.CurrentControlSet.GameState != GameStates.LoggedIn)
+                {
+                    _soundMapper.BindSoundToControl(e.GameComponent);
+                }
+            };
+
             Components.ComponentRemoved += (o, e) =>
             {
                 if (e.GameComponent is PacketHandlerGameComponent)
@@ -90,6 +114,8 @@ namespace EndlessClient.GameExecution
             _graphicsDeviceManager.PreferredBackBufferWidth = _windowSizeProvider.Width;
             _graphicsDeviceManager.PreferredBackBufferHeight = _windowSizeProvider.Height;
             _graphicsDeviceManager.ApplyChanges();
+
+            Exiting += (_, _) => _mfxPlayer.StopBackgroundMusic();
         }
 
         protected override void LoadContent()
@@ -124,6 +150,11 @@ namespace EndlessClient.GameExecution
 
             SetUpInitialControlSet();
 
+            if (_configurationProvider.MusicEnabled)
+            {
+                _mfxPlayer.PlayBackgroundMusic(1, EOLib.IO.Map.MusicControl.InterruptPlayRepeat);
+            }
+
             base.LoadContent();
         }
 
@@ -141,7 +172,17 @@ namespace EndlessClient.GameExecution
 
             _previousKeyState = currentKeyState;
 
-            base.Update(gameTime);
+            try
+            {
+                base.Update(gameTime);
+            }
+            catch (InvalidOperationException ioe) when (ioe.InnerException is NullReferenceException)
+            {
+                // hide "failed to compare two elements in the array" error from Monogame
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+            }
         }
 
 #endif

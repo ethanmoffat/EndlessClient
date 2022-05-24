@@ -45,8 +45,6 @@ namespace EndlessClient.Old
             m_packetAPI.OnTradeOfferUpdate += _tradeOfferUpdate;
             m_packetAPI.OnTradeCompleted += _tradeCompleted;
 
-            m_packetAPI.OnPlaySoundEffect += _playSoundEffect;
-
             //spell casting
             m_packetAPI.OnCastSpellTargetGroup += _playerCastGroupSpell;
         }
@@ -168,16 +166,6 @@ namespace EndlessClient.Old
         {
             if (TradeDialog.Instance == null) return;
             TradeDialog.Instance.CompleteTrade(id1, items1, id2, items2);
-        }
-
-        private void _playSoundEffect(int effectID)
-        {
-            try
-            {
-                if (OldWorld.Instance.SoundEnabled)
-                    m_game.SoundManager.GetSoundEffectRef((SoundEffectID) effectID).Play();
-            }
-            catch { /* Ignore errors when the sound effect ID from the server is invalid */ }
         }
 
         private void _playerCastGroupSpell(short spellID, short fromPlayerID, short fromPlayerTP, short spellHPgain, List<GroupSpellTarget> spellTargets)

@@ -403,13 +403,13 @@ namespace EndlessClient.Rendering
 
             Data.SetUpdate(true);
 
-            if (OldWorld.Instance.SoundEnabled)
-            {
-                if (NoWall)
-                    EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.NoWallWalk).Play();
-                if (isSpikeTrap)
-                    EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.Spikes).Play();
-            }
+            //if (OldWorld.Instance.SoundEnabled)
+            //{
+            //    if (NoWall)
+            //        EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.NoWallWalk).Play();
+            //    if (isSpikeTrap)
+            //        EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.Spikes).Play();
+            //}
 
             if (isWaterTile)
                 ShowWaterSplashieAnimation();
@@ -423,31 +423,31 @@ namespace EndlessClient.Rendering
             const int attackTimer = 285;
             Data.SetUpdate(true);
 
-            if (OldWorld.Instance.SoundEnabled)
-            {
-                if (weaponInfo != null)
-                {
-                    if (weaponInfo.SubType == ItemSubType.Ranged)
-                    {
-                        if (weaponInfo.Name.ToLower().Contains("gun"))
-                            EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.Gun).Play();
-                        else
-                            EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.AttackBow).Play();
-                    }
-                    else if (weaponInfo.Name.ToLower().Contains("harp"))
-                    {
-                        EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.Harp1 + (new Random()).Next(0, 3)).Play();
-                    }
-                    else if (weaponInfo.Name.ToLower().Contains("guitar"))
-                    {
-                        EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.Guitar1 + (new Random()).Next(0, 3)).Play();
-                    }
-                    else
-                        EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.MeleeWeaponAttack).Play();
-                }
-                else
-                    EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.PunchAttack).Play();
-            }
+            //if (OldWorld.Instance.SoundEnabled)
+            //{
+            //    if (weaponInfo != null)
+            //    {
+            //        if (weaponInfo.SubType == ItemSubType.Ranged)
+            //        {
+            //            if (weaponInfo.Name.ToLower().Contains("gun"))
+            //                EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.Gun).Play();
+            //            else
+            //                EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.AttackBow).Play();
+            //        }
+            //        else if (weaponInfo.Name.ToLower().Contains("harp"))
+            //        {
+            //            EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.Harp1 + (new Random()).Next(0, 3)).Play();
+            //        }
+            //        else if (weaponInfo.Name.ToLower().Contains("guitar"))
+            //        {
+            //            EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.Guitar1 + (new Random()).Next(0, 3)).Play();
+            //        }
+            //        else
+            //            EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.MeleeWeaponAttack).Play();
+            //    }
+            //    else
+            //        EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.PunchAttack).Play();
+            //}
 
             if (isWaterTile)
                 ShowWaterSplashieAnimation();
@@ -465,8 +465,8 @@ namespace EndlessClient.Rendering
             //if (!string.IsNullOrEmpty(_shoutName))
             //    _cancelSpell(false);
 
-            if(OldWorld.Instance.SoundEnabled)
-                EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.Dead).Play();
+            //if(OldWorld.Instance.SoundEnabled)
+            //    EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.Dead).Play();
             Character.RenderData.SetDead(true);
             m_deadTime = DateTime.Now;
         }

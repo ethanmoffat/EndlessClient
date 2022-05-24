@@ -1,4 +1,5 @@
 using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
@@ -6,6 +7,7 @@ using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Sprites;
+using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
@@ -30,6 +32,7 @@ namespace EndlessClient.Rendering.Factories
         private readonly IGameStateProvider _gameStateProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IUserInputProvider _userInputProvider;
+        private readonly ISfxPlayer _sfxPlayer;
 
         public CharacterRendererFactory(INativeGraphicsManager nativeGraphicsManager,
                                         IEndlessGameProvider gameProvider,
@@ -44,7 +47,8 @@ namespace EndlessClient.Rendering.Factories
                                         ICharacterSpriteCalculator characterSpriteCalculator,
                                         IGameStateProvider gameStateProvider,
                                         ICurrentMapProvider currentMapProvider,
-                                        IUserInputProvider userInputProvider)
+                                        IUserInputProvider userInputProvider,
+                                        ISfxPlayer sfxPlayer)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _gameProvider = gameProvider;
@@ -60,6 +64,7 @@ namespace EndlessClient.Rendering.Factories
             _gameStateProvider = gameStateProvider;
             _currentMapProvider = currentMapProvider;
             _userInputProvider = userInputProvider;
+            _sfxPlayer = sfxPlayer;
         }
 
         public ICharacterRenderer CreateCharacterRenderer(EOLib.Domain.Character.Character character)
@@ -79,7 +84,8 @@ namespace EndlessClient.Rendering.Factories
                 character,
                 _gameStateProvider,
                 _currentMapProvider,
-                _userInputProvider);
+                _userInputProvider,
+                _sfxPlayer);
         }
     }
 }

@@ -1,10 +1,12 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.Dialogs.Factories;
 using EOLib.Domain.Character;
 using EOLib.Domain.Interact.Quest;
 using EOLib.Domain.Interact.Shop;
 using EOLib.Domain.Interact.Skill;
 using Optional;
+using System;
 
 namespace EndlessClient.Dialogs.Actions
 {
@@ -24,6 +26,7 @@ namespace EndlessClient.Dialogs.Actions
         private readonly IBankAccountDialogFactory _bankAccountDialogFactory;
         private readonly ISkillmasterDialogFactory _skillmasterDialogFactory;
         private readonly IBardDialogFactory _bardDialogFactory;
+        private readonly ISfxPlayer _sfxPlayer;
         private readonly IShopDialogFactory _shopDialogFactory;
         private readonly IQuestDialogFactory _questDialogFactory;
 
@@ -41,7 +44,8 @@ namespace EndlessClient.Dialogs.Actions
                                    ILockerDialogFactory lockerDialogFactory,
                                    IBankAccountDialogFactory bankAccountDialogFactory,
                                    ISkillmasterDialogFactory skillmasterDialogFactory,
-                                   IBardDialogFactory bardDialogFactory)
+                                   IBardDialogFactory bardDialogFactory,
+                                   ISfxPlayer sfxPlayer)
         {
             _friendIgnoreListDialogFactory = friendIgnoreListDialogFactory;
             _paperdollDialogFactory = paperdollDialogFactory;
@@ -56,6 +60,7 @@ namespace EndlessClient.Dialogs.Actions
             _bankAccountDialogFactory = bankAccountDialogFactory;
             _skillmasterDialogFactory = skillmasterDialogFactory;
             _bardDialogFactory = bardDialogFactory;
+            _sfxPlayer = sfxPlayer;
             _shopDialogFactory = shopDialogFactory;
             _questDialogFactory = questDialogFactory;
         }
@@ -67,6 +72,8 @@ namespace EndlessClient.Dialogs.Actions
                 var dlg = _friendIgnoreListDialogFactory.Create(isFriendList: true);
                 dlg.DialogClosed += (_, _) => _activeDialogRepository.FriendIgnoreDialog = Option.None<ScrollingListDialog>();
                 _activeDialogRepository.FriendIgnoreDialog = Option.Some(dlg);
+
+                UseDefaultDialogSounds(dlg);
 
                 dlg.Show();
             });
@@ -80,6 +87,8 @@ namespace EndlessClient.Dialogs.Actions
                 dlg.DialogClosed += (_, _) => _activeDialogRepository.FriendIgnoreDialog = Option.None<ScrollingListDialog>();
                 _activeDialogRepository.FriendIgnoreDialog = Option.Some(dlg);
 
+                UseDefaultDialogSounds(dlg);
+
                 dlg.Show();
             });
         }
@@ -91,6 +100,8 @@ namespace EndlessClient.Dialogs.Actions
                 var dlg = _sessionExpDialogFactory.Create();
                 dlg.DialogClosed += (_, _) => _activeDialogRepository.SessionExpDialog = Option.None<SessionExpDialog>();
                 _activeDialogRepository.SessionExpDialog = Option.Some(dlg);
+
+                UseDefaultDialogSounds(dlg);
 
                 dlg.Show();
             });
@@ -104,6 +115,8 @@ namespace EndlessClient.Dialogs.Actions
                 dlg.DialogClosed += (_, _) => _activeDialogRepository.QuestStatusDialog = Option.None<QuestStatusDialog>();
                 _activeDialogRepository.QuestStatusDialog = Option.Some(dlg);
 
+                UseDefaultDialogSounds(dlg);
+
                 dlg.Show();
             });
         }
@@ -115,6 +128,8 @@ namespace EndlessClient.Dialogs.Actions
                 var dlg = _paperdollDialogFactory.Create(character, isMainCharacter);
                 dlg.DialogClosed += (_, _) => _activeDialogRepository.PaperdollDialog = Option.None<PaperdollDialog>();
                 _activeDialogRepository.PaperdollDialog = Option.Some(dlg);
+
+                UseDefaultDialogSounds(dlg);
 
                 dlg.Show();
             });
@@ -132,6 +147,8 @@ namespace EndlessClient.Dialogs.Actions
                 };
                 _activeDialogRepository.ShopDialog = Option.Some(dlg);
 
+                UseDefaultDialogSounds(dlg);
+
                 dlg.Show();
             });
         }
@@ -148,6 +165,8 @@ namespace EndlessClient.Dialogs.Actions
                 };
                 _activeDialogRepository.QuestDialog = Option.Some(dlg);
 
+                UseQuestDialogSounds(dlg);
+
                 dlg.Show();
             });
         }
@@ -159,6 +178,9 @@ namespace EndlessClient.Dialogs.Actions
                 var dlg = _chestDialogFactory.Create();
                 dlg.DialogClosed += (_, _) => _activeDialogRepository.ChestDialog = Option.None<ChestDialog>();
                 _activeDialogRepository.ChestDialog = Option.Some(dlg);
+
+                UseDefaultDialogSounds(dlg);
+                _sfxPlayer.PlaySfx(SoundEffectID.TextBoxFocus);
 
                 dlg.Show();
             });
@@ -172,6 +194,9 @@ namespace EndlessClient.Dialogs.Actions
                 dlg.DialogClosed += (_, _) => _activeDialogRepository.LockerDialog = Option.None<LockerDialog>();
                 _activeDialogRepository.LockerDialog = Option.Some(dlg);
 
+                UseDefaultDialogSounds(dlg);
+                _sfxPlayer.PlaySfx(SoundEffectID.TextBoxFocus);
+
                 dlg.Show();
             });
         }
@@ -183,6 +208,8 @@ namespace EndlessClient.Dialogs.Actions
                 var dlg = _bankAccountDialogFactory.Create();
                 dlg.DialogClosed += (_, _) => _activeDialogRepository.BankAccountDialog = Option.None<BankAccountDialog>();
                 _activeDialogRepository.BankAccountDialog = Option.Some(dlg);
+
+                UseDefaultDialogSounds(dlg);
 
                 dlg.Show();
             });
@@ -198,6 +225,8 @@ namespace EndlessClient.Dialogs.Actions
             };
             _activeDialogRepository.SkillmasterDialog = Option.Some(dlg);
 
+            UseDefaultDialogSounds(dlg);
+
             dlg.Show();
         }
 
@@ -212,8 +241,35 @@ namespace EndlessClient.Dialogs.Actions
                 };
                 _activeDialogRepository.BardDialog = Option.Some(dlg);
 
+                UseDefaultDialogSounds(dlg);
+
                 dlg.Show();
             });
+        }
+
+        private void UseDefaultDialogSounds(ScrollingListDialog dialog)
+        {
+            UseDefaultDialogSounds((BaseEODialog)dialog);
+
+            EventHandler handler = (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
+            dialog.AddAction += handler;
+            dialog.BackAction += handler;
+            dialog.NextAction += handler;
+            dialog.HistoryAction += handler;
+            dialog.ProgressAction += handler;
+        }
+
+        private void UseDefaultDialogSounds(BaseEODialog dialog)
+        {
+            dialog.DialogClosing += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
+        }
+
+        private void UseQuestDialogSounds(QuestDialog dialog)
+        {
+            dialog.DialogClosing += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
+            dialog.BackAction += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.TextBoxFocus);
+            dialog.NextAction += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.TextBoxFocus);
+            dialog.LinkClickAction += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.ButtonClick);
         }
     }
 

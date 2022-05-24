@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.IO.Map;
@@ -10,20 +11,28 @@ namespace EndlessClient.Rendering.Map
     {
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly ICurrentMapProvider _currentMapProvider;
+        private readonly ISfxPlayer _sfxPlayer;
 
         public SpikeTrapActions(ICurrentMapStateRepository currentMapStateRepository,
-                                ICurrentMapProvider currentMapProvider)
+                                ICurrentMapProvider currentMapProvider,
+                                ISfxPlayer sfxPlayer)
         {
             _currentMapStateRepository = currentMapStateRepository;
             _currentMapProvider = currentMapProvider;
+            _sfxPlayer = sfxPlayer;
         }
 
-        public void ShowSpikeTrap(MapCoordinate coordinate)
+        public void ShowSpikeTrap(MapCoordinate coordinate, bool isMainCharacter = false)
         {
             if (!_currentMapStateRepository.VisibleSpikeTraps.Contains(coordinate) &&
                 _currentMapProvider.CurrentMap.Tiles[coordinate.Y, coordinate.X] == TileSpec.SpikesTrap)
             {
                 _currentMapStateRepository.VisibleSpikeTraps.Add(coordinate);
+
+                if (isMainCharacter)
+                {
+                    _sfxPlayer.PlaySfx(SoundEffectID.Spikes);
+                }
             }
         }
 
@@ -57,7 +66,7 @@ namespace EndlessClient.Rendering.Map
 
     public interface ISpikeTrapActions
     {
-        void ShowSpikeTrap(MapCoordinate coordinate);
+        void ShowSpikeTrap(MapCoordinate coordinate, bool isMainCharacter = false);
 
         void ShowSpikeTrap(int characterId);
 

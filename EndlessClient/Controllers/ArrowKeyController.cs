@@ -136,7 +136,7 @@ namespace EndlessClient.Controllers
                 coordinate = new MapCoordinate(
                     _characterProvider.MainCharacter.RenderProperties.GetDestinationX(),
                     _characterProvider.MainCharacter.RenderProperties.GetDestinationY());
-                _spikeTrapActions.ShowSpikeTrap(coordinate);
+                _spikeTrapActions.ShowSpikeTrap(coordinate, isMainCharacter: true);
             }
         }
     }

@@ -1,4 +1,5 @@
-﻿using EndlessClient.Dialogs;
+﻿using EndlessClient.Audio;
+using EndlessClient.Dialogs;
 using EndlessClient.HUD.Panels;
 using EOLib;
 using EOLib.Domain.Character;
@@ -32,6 +33,7 @@ namespace EndlessClient.HUD.Inventory
 
         private readonly InventoryPanel _inventoryPanel;
         private readonly IActiveDialogProvider _activeDialogProvider;
+        private readonly ISfxPlayer _sfxPlayer;
         private readonly Texture2D _itemGraphic;
         private readonly Texture2D _highlightBackground;
         private readonly XNALabel _nameLabel;
@@ -87,12 +89,15 @@ namespace EndlessClient.HUD.Inventory
         public InventoryPanelItem(IItemNameColorService itemNameColorService,
                                   InventoryPanel inventoryPanel,
                                   IActiveDialogProvider activeDialogProvider,
+                                  ISfxPlayer sfxPlayer,
                                   int slot,
                                   InventoryItem inventoryItem,
                                   EIFRecord data)
         {
             _inventoryPanel = inventoryPanel;
             _activeDialogProvider = activeDialogProvider;
+            _sfxPlayer = sfxPlayer;
+
             Slot = slot;
             InventoryItem = inventoryItem;
             Data = data;
@@ -134,6 +139,8 @@ namespace EndlessClient.HUD.Inventory
             _nameLabel.Visible = false;
 
             _oldOffset = DrawPositionWithParentOffset - DrawPosition;
+
+            _sfxPlayer.PlaySfx(SoundEffectID.InventoryPickup);
 
             // todo: drag without unparenting this control
             SetControlUnparented();

@@ -57,6 +57,7 @@
   <PropertyGroup />
   <ItemGroup>
     <PackageReference Include="EndlessClient.Binaries" Version="1.2.0.2" />
+    <PackageReference Include="managed-midi" Version="1.9.14" />
     <PackageReference Include="Monogame.Content.Builder.Task" Version="3.8.0.1641" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.0" />

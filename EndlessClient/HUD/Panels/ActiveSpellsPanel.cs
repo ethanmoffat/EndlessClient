@@ -1,4 +1,5 @@
-﻿using EndlessClient.Controllers;
+﻿using EndlessClient.Audio;
+using EndlessClient.Controllers;
 using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD.Spells;
@@ -41,6 +42,7 @@ namespace EndlessClient.HUD.Panels
         private readonly ICharacterInventoryProvider _characterInventoryProvider;
         private readonly IESFFileProvider _esfFileProvider;
         private readonly ISpellSlotDataRepository _spellSlotDataRepository;
+        private readonly ISfxPlayer _sfxPlayer;
 
         private readonly Dictionary<int, int> _spellSlotMap;
         private readonly List<ISpellPanelItem> _childItems;
@@ -70,7 +72,8 @@ namespace EndlessClient.HUD.Panels
                                  ICharacterProvider characterProvider,
                                  ICharacterInventoryProvider characterInventoryProvider,
                                  IESFFileProvider esfFileProvider,
-                                 ISpellSlotDataRepository spellSlotDataRepository)
+                                 ISpellSlotDataRepository spellSlotDataRepository,
+                                 ISfxPlayer sfxPlayer)
         {
             NativeGraphicsManager = nativeGraphicsManager;
             _trainingController = trainingController;
@@ -81,6 +84,7 @@ namespace EndlessClient.HUD.Panels
             _characterInventoryProvider = characterInventoryProvider;
             _esfFileProvider = esfFileProvider;
             _spellSlotDataRepository = spellSlotDataRepository;
+            _sfxPlayer = sfxPlayer;
 
             _spellSlotMap = GetSpellSlotMap(_playerInfoProvider.LoggedInAccountName, _characterProvider.MainCharacter.Name);
             _childItems = new List<ISpellPanelItem>();
@@ -235,7 +239,7 @@ namespace EndlessClient.HUD.Panels
                                 _childItems.Remove(ci);
                             });
 
-                        var newChild = new SpellPanelItem(this, slot, spell, spellData);
+                        var newChild = new SpellPanelItem(this, _sfxPlayer, slot, spell, spellData);
                         newChild.Initialize();
 
                         newChild.Clicked += (sender, _) => _spellSlotDataRepository.SelectedSpellSlot = Option.Some(((SpellPanelItem)sender).Slot);

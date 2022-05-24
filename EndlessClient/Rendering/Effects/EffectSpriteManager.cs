@@ -7,18 +7,8 @@ using Microsoft.Xna.Framework.Graphics;
 namespace EndlessClient.Rendering.Effects
 {
     //todo: it would be cool to load this from a config file instead of having it hard-coded
-    public class EffectSpriteManager
+    public partial class EffectSpriteManager
     {
-        private enum HardCodedPotionEffect
-        {
-            FLAMES    = 0,
-            LOVE      = 1,
-            CELEBRATE = 4,
-            SPARKLES  = 5,
-            EVIL      = 6,
-            TERROR    = 7
-        }
-
         private enum HardCodedSpellGraphic
         {
             FIRE = 1,

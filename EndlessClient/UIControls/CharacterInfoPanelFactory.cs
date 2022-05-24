@@ -19,7 +19,7 @@ namespace EndlessClient.UIControls
         private readonly IRendererRepositoryResetter _rendererRepositoryResetter;
         private readonly IEODialogButtonService _eoDialogButtonService;
         private readonly IUserInputProvider _userInputProvider;
-
+        private readonly IXnaControlSoundMapper _xnaControlSoundMapper;
         private ILoginController _loginController;
         private ICharacterManagementController _characterManagementController;
 
@@ -27,13 +27,15 @@ namespace EndlessClient.UIControls
                                          ICharacterRendererFactory characterRendererFactory,
                                          IRendererRepositoryResetter rendererRepositoryResetter,
                                          IEODialogButtonService eoDialogButtonService,
-                                         IUserInputProvider userInputProvider)
+                                         IUserInputProvider userInputProvider,
+                                         IXnaControlSoundMapper xnaControlSoundMapper)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _characterRendererFactory = characterRendererFactory;
             _rendererRepositoryResetter = rendererRepositoryResetter;
             _eoDialogButtonService = eoDialogButtonService;
             _userInputProvider = userInputProvider;
+            _xnaControlSoundMapper = xnaControlSoundMapper;
         }
 
         public void InjectLoginController(ILoginController loginController)
@@ -62,7 +64,8 @@ namespace EndlessClient.UIControls
                                                     _characterManagementController,
                                                     _characterRendererFactory,
                                                     _rendererRepositoryResetter,
-                                                    _userInputProvider);
+                                                    _userInputProvider,
+                                                    _xnaControlSoundMapper);
             }
 
             for (; i < 3; ++i)

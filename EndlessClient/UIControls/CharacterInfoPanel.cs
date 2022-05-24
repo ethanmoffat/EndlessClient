@@ -27,7 +27,7 @@ namespace EndlessClient.UIControls
         private readonly CharacterControl _characterControl;
         private readonly ISpriteSheet _adminGraphic;
         private readonly IUserInputProvider _userInputProvider;
-
+        private readonly IXnaControlSoundMapper _xnaControlSoundMapper;
         private readonly Texture2D _backgroundImage;
 
         private readonly IXNAButton _loginButton, _deleteButton;
@@ -70,7 +70,8 @@ namespace EndlessClient.UIControls
                                   ICharacterManagementController characterManagementController,
                                   ICharacterRendererFactory rendererFactory,
                                   IRendererRepositoryResetter rendererRepositoryResetter,
-                                  IUserInputProvider userInputProvider)
+                                  IUserInputProvider userInputProvider,
+                                  IXnaControlSoundMapper xnaControlSoundMapper)
             : this(characterIndex, gfxManager, dialogButtonService)
         {
             _character = character;
@@ -78,6 +79,7 @@ namespace EndlessClient.UIControls
             _characterManagementController = characterManagementController;
             _rendererRepositoryResetter = rendererRepositoryResetter;
             _userInputProvider = userInputProvider;
+            _xnaControlSoundMapper = xnaControlSoundMapper;
 
             _characterControl = new CharacterControl(character, rendererFactory)
             {
@@ -111,7 +113,11 @@ namespace EndlessClient.UIControls
             _characterControl.Initialize();
 
             _loginButton.Initialize();
+            _xnaControlSoundMapper.BindSoundToControl(_loginButton);
+
             _deleteButton.Initialize();
+            _xnaControlSoundMapper.BindSoundToControl(_deleteButton);
+
             _nameLabel.Initialize();
             _levelLabel.Initialize();
 

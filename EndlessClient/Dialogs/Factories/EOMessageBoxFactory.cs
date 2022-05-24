@@ -1,4 +1,5 @@
 using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
 using EOLib.Graphics;
@@ -14,16 +15,19 @@ namespace EndlessClient.Dialogs.Factories
         private readonly IGameStateProvider _gameStateProvider;
         private readonly IEODialogButtonService _eoDialogButtonService;
         private readonly ILocalizedStringFinder _localizedStringFinder;
+        private readonly ISfxPlayer _sfxPlayer;
 
         public EOMessageBoxFactory(INativeGraphicsManager nativeGraphicsManager,
                                    IGameStateProvider gameStateProvider,
                                    IEODialogButtonService eoDialogButtonService,
-                                   ILocalizedStringFinder localizedStringFinder)
+                                   ILocalizedStringFinder localizedStringFinder,
+                                   ISfxPlayer sfxPlayer)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _gameStateProvider = gameStateProvider;
             _eoDialogButtonService = eoDialogButtonService;
             _localizedStringFinder = localizedStringFinder;
+            _sfxPlayer = sfxPlayer;
         }
 
         public IXNADialog CreateMessageBox(string message,
@@ -38,6 +42,7 @@ namespace EndlessClient.Dialogs.Factories
                                               caption,
                                               style,
                                               whichButtons);
+            messageBox.DialogClosing += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
 
             return messageBox;
         }

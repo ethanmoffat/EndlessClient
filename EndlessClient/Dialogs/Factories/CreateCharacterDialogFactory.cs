@@ -4,6 +4,7 @@ using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
 using EndlessClient.Rendering.Factories;
+using EndlessClient.UIControls;
 using EOLib.Graphics;
 
 namespace EndlessClient.Dialogs.Factories
@@ -18,6 +19,7 @@ namespace EndlessClient.Dialogs.Factories
         private readonly IKeyboardDispatcherProvider _keyboardDispatcherProvider;
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
         private readonly IEODialogButtonService _dialogButtonService;
+        private readonly IXnaControlSoundMapper _xnaControlSoundMapper;
 
         public CreateCharacterDialogFactory(INativeGraphicsManager nativeGraphicsManager,
                                             IGameStateProvider gameStateProvider,
@@ -25,7 +27,8 @@ namespace EndlessClient.Dialogs.Factories
                                             IContentProvider contentProvider,
                                             IKeyboardDispatcherProvider keyboardDispatcherProvider,
                                             IEOMessageBoxFactory eoMessageBoxFactory,
-                                            IEODialogButtonService dialogButtonService)
+                                            IEODialogButtonService dialogButtonService,
+                                            IXnaControlSoundMapper xnaControlSoundMapper)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _gameStateProvider = gameStateProvider;
@@ -34,17 +37,19 @@ namespace EndlessClient.Dialogs.Factories
             _keyboardDispatcherProvider = keyboardDispatcherProvider;
             _eoMessageBoxFactory = eoMessageBoxFactory;
             _dialogButtonService = dialogButtonService;
+            _xnaControlSoundMapper = xnaControlSoundMapper;
         }
 
         public CreateCharacterDialog BuildCreateCharacterDialog()
         {
             return new CreateCharacterDialog(_nativeGraphicsManager,
-                _gameStateProvider,
-                _characterRendererFactory,
-                _contentProvider,
-                _keyboardDispatcherProvider.Dispatcher,
-                _eoMessageBoxFactory,
-                _dialogButtonService);
+                                             _gameStateProvider,
+                                             _characterRendererFactory,
+                                             _contentProvider,
+                                             _keyboardDispatcherProvider.Dispatcher,
+                                             _eoMessageBoxFactory,
+                                             _dialogButtonService,
+                                             _xnaControlSoundMapper);
         }
     }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using EndlessClient.Audio;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -24,10 +25,10 @@ namespace EndlessClient.Rendering.Effects
 
     public sealed class EffectRenderer : IEffectRenderer
     {
+        private readonly ISfxPlayer _sfxPlayer;
         private readonly IEffectTarget _target;
         private readonly EffectSpriteManager _effectSpriteManager;
-        // todo: effect sounds
-        //private readonly EffectSoundManager _effectSoundManager;
+        private readonly EffectSoundMapper _effectSoundMapper;
 
         private IList<IEffectSpriteInfo> _effectInfo;
         private DateTime _lastFrameChange;
@@ -38,16 +39,18 @@ namespace EndlessClient.Rendering.Effects
 
         public EffectState State { get; private set; }
 
-        public EffectRenderer(INativeGraphicsManager nativeGraphicsManager, IEffectTarget target)
+        public EffectRenderer(INativeGraphicsManager nativeGraphicsManager,
+                              ISfxPlayer sfxPlayer,
+                              IEffectTarget target)
         {
+            _sfxPlayer = sfxPlayer;
             _target = target;
+
             _effectSpriteManager = new EffectSpriteManager(nativeGraphicsManager);
+            _effectSoundMapper = new EffectSoundMapper();
 
             _lastFrameChange = DateTime.Now;
             _effectInfo = new List<IEffectSpriteInfo>();
-
-            // todo: effect sounds
-            //_effectSoundManager = new EffectSoundManager()
         }
 
         public void PlayEffect(EffectType effectType, int effectID)
@@ -59,9 +62,7 @@ namespace EndlessClient.Rendering.Effects
             _effectInfo = _effectSpriteManager.GetEffectInfo(EffectType, _effectID);
 
             State = EffectState.Playing;
-
-            // todo: effect sounds
-            //PlaySoundsFromBeginning();
+            PlaySoundsFromBeginning();
         }
 
         public void Restart()
@@ -70,9 +71,7 @@ namespace EndlessClient.Rendering.Effects
                 effect.Restart();
 
             State = EffectState.Playing;
-
-            // todo: effect sounds
-            //PlaySoundsFromBeginning();
+            PlaySoundsFromBeginning();
         }
 
         public void Update()
@@ -122,13 +121,12 @@ namespace EndlessClient.Rendering.Effects
                 sb.End();
         }
 
-        // todo: effect sounds
-        //private void PlaySoundsFromBeginning()
-        //{
-        //    var soundInfo = _effectSoundManager.GetSoundEffectsForEffect(_effectType, _effectID);
-        //    foreach (var sound in soundInfo)
-        //        sound.Play();
-        //}
+        private void PlaySoundsFromBeginning()
+        {
+            var soundInfo = _effectSoundMapper.GetSoundEffectsForEffect(EffectType, _effectID);
+            foreach (var sound in soundInfo)
+                _sfxPlayer.PlaySfx(sound);
+        }
     }
 
     public interface IEffectRenderer

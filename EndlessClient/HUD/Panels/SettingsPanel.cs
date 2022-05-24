@@ -1,4 +1,5 @@
-﻿using EndlessClient.Dialogs;
+﻿using EndlessClient.Audio;
+using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Factories;
 using EOLib;
 using EOLib.Config;
@@ -39,10 +40,12 @@ namespace EndlessClient.HUD.Panels
 
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IChatActions _chatActions;
+        private readonly IAudioActions _audioActions;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly IConfigurationRepository _configurationRepository;
+        private readonly ISfxPlayer _sfxPlayer;
 
         private readonly Dictionary<WhichSetting, IXNALabel> _labels;
         private readonly Dictionary<WhichSetting, IXNAButton> _buttons;
@@ -52,18 +55,22 @@ namespace EndlessClient.HUD.Panels
 
         public SettingsPanel(INativeGraphicsManager nativeGraphicsManager,
                              IChatActions chatActions,
+                             IAudioActions audioActions,
                              IStatusLabelSetter statusLabelSetter,
                              ILocalizedStringFinder localizedStringFinder,
                              IEOMessageBoxFactory messageBoxFactory,
-                             IConfigurationRepository configurationRepository)
+                             IConfigurationRepository configurationRepository,
+                             ISfxPlayer sfxPlayer)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _chatActions = chatActions;
+            _audioActions = audioActions;
             _statusLabelSetter = statusLabelSetter;
             _localizedStringFinder = localizedStringFinder;
             _messageBoxFactory = messageBoxFactory;
             _configurationRepository = configurationRepository;
-            
+            _sfxPlayer = sfxPlayer;
+
             BackgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 47);
             DrawArea = new Rectangle(102, 330, BackgroundImage.Width, BackgroundImage.Height);
 
@@ -119,6 +126,8 @@ namespace EndlessClient.HUD.Panels
 
         private void SettingChange(WhichSetting setting)
         {
+            _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
+
             switch (setting)
             {
                 case WhichSetting.Sfx:
@@ -134,8 +143,7 @@ namespace EndlessClient.HUD.Panels
 
                                 _soundChanged = true;
                                 _configurationRepository.SoundEnabled = !_configurationRepository.SoundEnabled;
-                                // todo: 
-                                // OldWorld.Instance.ActiveMapRenderer.PlayOrStopAmbientNoise();
+                                _audioActions.ToggleSound();
                             };
                             dlg.ShowDialog();
                         }
@@ -143,8 +151,7 @@ namespace EndlessClient.HUD.Panels
                         {
                             _soundChanged = true;
                             _configurationRepository.SoundEnabled = !_configurationRepository.SoundEnabled;
-                            // todo: 
-                            // OldWorld.Instance.ActiveMapRenderer.PlayOrStopAmbientNoise();
+                            _audioActions.ToggleSound();
                         }
                     }
                     break;
@@ -161,8 +168,7 @@ namespace EndlessClient.HUD.Panels
 
                                 _musicChanged = true;
                                 _configurationRepository.MusicEnabled = !_configurationRepository.MusicEnabled;
-                                // todo: 
-                                // OldWorld.Instance.ActiveMapRenderer.PlayOrStopBackgroundMusic();
+                                _audioActions.ToggleBackgroundMusic();
                             };
                             dlg.ShowDialog();
                         }
@@ -170,8 +176,7 @@ namespace EndlessClient.HUD.Panels
                         {
                             _musicChanged = true;
                             _configurationRepository.MusicEnabled = !_configurationRepository.MusicEnabled;
-                            // todo: 
-                            // OldWorld.Instance.ActiveMapRenderer.PlayOrStopBackgroundMusic();
+                            _audioActions.ToggleBackgroundMusic();
                         }
                     }
                     break;

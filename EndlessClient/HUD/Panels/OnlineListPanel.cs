@@ -1,4 +1,5 @@
-﻿using EndlessClient.ControlSets;
+﻿using EndlessClient.Audio;
+using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Services;
 using EndlessClient.UIControls;
@@ -34,6 +35,8 @@ namespace EndlessClient.HUD.Panels
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly IFriendIgnoreListService _friendIgnoreListService;
+        private readonly ISfxPlayer _sfxPlayer;
+
         private readonly SpriteFont _chatFont;
 
         private readonly List<OnlinePlayerInfo> _onlineList;
@@ -51,11 +54,13 @@ namespace EndlessClient.HUD.Panels
         public OnlineListPanel(INativeGraphicsManager nativeGraphicsManager,
                                IHudControlProvider hudControlProvider,
                                IFriendIgnoreListService friendIgnoreListService,
+                               ISfxPlayer sfxPlayer,
                                SpriteFont chatFont)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _hudControlProvider = hudControlProvider;
             _friendIgnoreListService = friendIgnoreListService;
+            _sfxPlayer = sfxPlayer;
             _chatFont = chatFont;
             _onlineList = new List<OnlinePlayerInfo>();
 
@@ -121,6 +126,8 @@ namespace EndlessClient.HUD.Panels
                 CurrentMouseState.LeftButton == ButtonState.Released &&
                 PreviousMouseState.LeftButton == ButtonState.Pressed)
             {
+                _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
+
                 _filter = (Filter)(((int)_filter + 1) % (int)Filter.Max);
                 if (_filter == Filter.Party) // todo: show this when guild/party is supported
                     _filter = (Filter)(((int)_filter + 1) % (int)Filter.Max);

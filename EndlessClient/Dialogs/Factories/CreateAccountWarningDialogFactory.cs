@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.Content;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
@@ -14,29 +15,31 @@ namespace EndlessClient.Dialogs.Factories
         private readonly IContentProvider _contentProvider;
         private readonly IGameStateProvider _gameStateProvider;
         private readonly IEODialogButtonService _eoDialogButtonService;
+        private readonly ISfxPlayer _sfxPlayer;
 
         public CreateAccountWarningDialogFactory(
             INativeGraphicsManager nativeGraphicsManager,
             IContentProvider contentProvider,
             IGameStateProvider gameStateProvider,
-            IEODialogButtonService eoDialogButtonService)
+            IEODialogButtonService eoDialogButtonService,
+            ISfxPlayer sfxPlayer)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _contentProvider = contentProvider;
             _gameStateProvider = gameStateProvider;
             _eoDialogButtonService = eoDialogButtonService;
+            _sfxPlayer = sfxPlayer;
         }
 
         public IXNADialog ShowCreateAccountWarningDialog(string warningMessage)
         {
-            return new ScrollingMessageDialog(
-                _nativeGraphicsManager,
-                _contentProvider,
-                _gameStateProvider,
-                _eoDialogButtonService)
+            var dialog = new ScrollingMessageDialog(_nativeGraphicsManager, _contentProvider, _gameStateProvider, _eoDialogButtonService)
             {
                 MessageText = warningMessage
             };
+            dialog.DialogClosing += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
+
+            return dialog;
         }
     }
 
