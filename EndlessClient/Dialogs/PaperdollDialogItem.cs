@@ -1,4 +1,5 @@
-﻿using EndlessClient.Dialogs.Extensions;
+﻿using EndlessClient.Audio;
+using EndlessClient.Dialogs.Extensions;
 using EndlessClient.HUD.Panels;
 using EOLib.Graphics;
 using EOLib.IO;
@@ -13,6 +14,7 @@ namespace EndlessClient.Dialogs
 {
     public class PaperdollDialogItem : XNAPictureBox
     {
+        private readonly ISfxPlayer _sfxPlayer;
         private readonly InventoryPanel _inventoryPanel;
         private readonly PaperdollDialog _paperdollDialog;
         private readonly bool _isMainCharacter;
@@ -35,12 +37,14 @@ namespace EndlessClient.Dialogs
         private bool LeftButtonHeld => CurrentMouseState.LeftButton == ButtonState.Pressed && PreviousMouseState.LeftButton == ButtonState.Pressed;
 
         public PaperdollDialogItem(INativeGraphicsManager nativeGraphicsManager,
+                                   ISfxPlayer sfxPlayer,
                                    InventoryPanel inventoryPanel,
                                    PaperdollDialog paperdollDialog,
                                    bool isMainCharacter,
                                    EquipLocation location,
                                    Option<EIFRecord> itemInfo)
         {
+            _sfxPlayer = sfxPlayer;
             _inventoryPanel = inventoryPanel;
             _paperdollDialog = paperdollDialog;
             _isMainCharacter = isMainCharacter;
@@ -56,6 +60,8 @@ namespace EndlessClient.Dialogs
             _beingDragged = true;
             SetControlUnparented();
             Game.Components.Add(this);
+
+            _sfxPlayer.PlaySfx(SoundEffectID.InventoryPickup);
 
             DrawOrder = 1000;
         }
@@ -105,6 +111,8 @@ namespace EndlessClient.Dialogs
             _beingDragged = false;
             SetParentControl(_paperdollDialog);
             DrawArea = EquipLocation.GetEquipLocationRectangle();
+
+            _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);
         }
     }
 }

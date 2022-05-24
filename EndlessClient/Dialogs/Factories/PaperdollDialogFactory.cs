@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Services;
@@ -19,6 +20,7 @@ namespace EndlessClient.Dialogs.Factories
         private readonly IInventorySpaceValidator _inventorySpaceValidator;
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
         private readonly IStatusLabelSetter _statusLabelSetter;
+        private readonly ISfxPlayer _sfxPlayer;
         private readonly IPaperdollProvider _paperdollProvider;
         private readonly IPubFileProvider _pubFileProvider;
         private readonly IHudControlProvider _hudControlProvider;
@@ -33,7 +35,8 @@ namespace EndlessClient.Dialogs.Factories
             IEODialogButtonService eoDialogButtonService,
             IInventorySpaceValidator inventorySpaceValidator,
             IEOMessageBoxFactory eoMessageBoxFactory,
-            IStatusLabelSetter statusLabelSetter)
+            IStatusLabelSetter statusLabelSetter,
+            ISfxPlayer sfxPlayer)
         {
             _paperdollProvider = paperdollProvider;
             _pubFileProvider = pubFileProvider;
@@ -44,6 +47,7 @@ namespace EndlessClient.Dialogs.Factories
             _inventorySpaceValidator = inventorySpaceValidator;
             _eoMessageBoxFactory = eoMessageBoxFactory;
             _statusLabelSetter = statusLabelSetter;
+            _sfxPlayer = sfxPlayer;
         }
 
         public PaperdollDialog Create(Character character, bool isMainCharacter)
@@ -58,6 +62,7 @@ namespace EndlessClient.Dialogs.Factories
                 _inventorySpaceValidator,
                 _eoMessageBoxFactory,
                 _statusLabelSetter,
+                _sfxPlayer,
                 character,
                 isMainCharacter);
         }
