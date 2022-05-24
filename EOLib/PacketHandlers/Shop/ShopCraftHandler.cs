@@ -1,17 +1,22 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
+using EOLib.Domain.Notifiers;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 using Optional.Collections;
+using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Shop
 {
     [AutoMappedType]
     public class ShopCraftHandler : InGameOnlyPacketHandler
     {
+        private const int ShopCraftSfxId = 27;
+
         private readonly ICharacterRepository _characterRepository;
         private readonly ICharacterInventoryRepository _characterInventoryRepository;
+        private readonly IEnumerable<ISoundNotifier> _soundNotifiers;
 
         public override PacketFamily Family => PacketFamily.Shop;
 
@@ -19,11 +24,13 @@ namespace EOLib.PacketHandlers.Shop
 
         public ShopCraftHandler(IPlayerInfoProvider playerInfoProvider,
                                 ICharacterRepository characterRepository,
-                                ICharacterInventoryRepository characterInventoryRepository)
+                                ICharacterInventoryRepository characterInventoryRepository,
+                                IEnumerable<ISoundNotifier> soundNotifiers)
             : base(playerInfoProvider)
         {
             _characterRepository = characterRepository;
             _characterInventoryRepository = characterInventoryRepository;
+            _soundNotifiers = soundNotifiers;
         }
 
         public override bool HandlePacket(IPacket packet)
@@ -53,6 +60,9 @@ namespace EOLib.PacketHandlers.Shop
                                 _characterInventoryRepository.ItemInventory.Add(new InventoryItem(nextItemId, nextItemAmount));
                         });
             }
+
+            foreach (var notifier in _soundNotifiers)
+                notifier.NotifySoundEffect(ShopCraftSfxId);
 
             _characterInventoryRepository.ItemInventory.SingleOrNone(x => x.ItemID == itemId)
                 .Match(

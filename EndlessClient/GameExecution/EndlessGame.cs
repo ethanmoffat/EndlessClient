@@ -176,6 +176,10 @@ namespace EndlessClient.GameExecution
             {
                 base.Update(gameTime);
             }
+            catch (InvalidOperationException ioe) when (ioe.InnerException is NullReferenceException)
+            {
+                // hide "failed to compare two elements in the array" error from Monogame
+            }
             catch (ArgumentOutOfRangeException)
             {
             }

@@ -25,6 +25,8 @@ namespace EndlessClient.Dialogs
 
         private int _pageIndex = 0;
 
+        public event EventHandler LinkClickAction;
+
         public QuestDialog(INativeGraphicsManager nativeGraphicsManager,
                            IQuestActions questActions,
                            IEODialogButtonService dialogButtonService,
@@ -136,6 +138,7 @@ namespace EndlessClient.Dialogs
                 actionItem.SetPrimaryClickAction((_, _) =>
                 {
                     _questActions.RespondToQuestDialog(DialogReply.Link, linkIndex);
+                    LinkClickAction?.Invoke(this, EventArgs.Empty);
                     Close(XNADialogResult.Cancel);
                 });
 

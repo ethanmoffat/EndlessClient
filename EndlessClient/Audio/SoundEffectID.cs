@@ -55,7 +55,7 @@
         Guitar2,
         Guitar3 = 48,
         Thunder,
-        UnknownTimerSound,
+        MapEvacTimer,
         UnknownFanfareSound,
         Gun = 52,
         UltimaBlastSpell,

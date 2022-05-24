@@ -57,7 +57,8 @@ namespace EndlessClient.Audio
 
         public void NotifySoundEffect(byte soundEffectId)
         {
-            _sfxPlayer.PlaySfx((SoundEffectID)soundEffectId);
+            var zeroBasedSfxId = (SoundEffectID)soundEffectId - 1;
+            _sfxPlayer.PlaySfx(zeroBasedSfxId);
         }
     }
 

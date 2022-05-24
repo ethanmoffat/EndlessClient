@@ -1,26 +1,33 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
+using EOLib.Domain.Notifiers;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 using Optional.Collections;
+using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Shop
 {
     public abstract class ShopTradeHandler : InGameOnlyPacketHandler
     {
+        private const byte BuySellSfxId = 26;
+
         private readonly ICharacterRepository _characterRepository;
         private readonly ICharacterInventoryRepository _characterInventoryRepository;
+        private readonly IEnumerable<ISoundNotifier> _soundNotifiers;
 
         public override PacketFamily Family => PacketFamily.Shop;
 
         protected ShopTradeHandler(IPlayerInfoProvider playerInfoProvider,
                                    ICharacterRepository characterRepository,
-                                   ICharacterInventoryRepository characterInventoryRepository)
+                                   ICharacterInventoryRepository characterInventoryRepository,
+                                   IEnumerable<ISoundNotifier> soundNotifiers)
             : base(playerInfoProvider)
         {
             _characterRepository = characterRepository;
             _characterInventoryRepository = characterInventoryRepository;
+            _soundNotifiers = soundNotifiers;
         }
 
         public override bool HandlePacket(IPacket packet)
@@ -63,6 +70,9 @@ namespace EOLib.PacketHandlers.Shop
                 return false;
             }
 
+            foreach (var notifier in _soundNotifiers)
+                notifier.NotifySoundEffect(BuySellSfxId);
+
             var stats = _characterRepository.MainCharacter.Stats;
             stats = stats.WithNewStat(CharacterStat.Weight, weight)
                 .WithNewStat(CharacterStat.MaxWeight, maxWeight);
@@ -79,8 +89,9 @@ namespace EOLib.PacketHandlers.Shop
 
         public ShopBuyHandler(IPlayerInfoProvider playerInfoProvider,
                               ICharacterRepository characterRepository,
-                              ICharacterInventoryRepository characterInventoryRepository)
-            : base(playerInfoProvider, characterRepository, characterInventoryRepository)
+                              ICharacterInventoryRepository characterInventoryRepository,
+                              IEnumerable<ISoundNotifier> soundNotifiers)
+            : base(playerInfoProvider, characterRepository, characterInventoryRepository, soundNotifiers)
         {
         }
     }
@@ -92,8 +103,9 @@ namespace EOLib.PacketHandlers.Shop
 
         public ShopSellHandler(IPlayerInfoProvider playerInfoProvider,
                                ICharacterRepository characterRepository,
-                               ICharacterInventoryRepository characterInventoryRepository)
-            : base(playerInfoProvider, characterRepository, characterInventoryRepository)
+                               ICharacterInventoryRepository characterInventoryRepository,
+                              IEnumerable<ISoundNotifier> soundNotifiers)
+            : base(playerInfoProvider, characterRepository, characterInventoryRepository, soundNotifiers)
         {
         }
     }
