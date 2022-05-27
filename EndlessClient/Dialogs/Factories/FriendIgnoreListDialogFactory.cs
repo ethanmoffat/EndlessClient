@@ -7,6 +7,7 @@ using EndlessClient.Services;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Character;
+using EOLib.Domain.Online;
 using EOLib.Graphics;
 using EOLib.Localization;
 using System;
@@ -18,42 +19,42 @@ namespace EndlessClient.Dialogs.Factories
     [AutoMappedType]
     public class FriendIgnoreListDialogFactory : IFriendIgnoreListDialogFactory
     {
-        private readonly IGameStateProvider _gameStateProvider;
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IEODialogButtonService _dialogButtonService;
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly ICharacterProvider _characterProvider;
         private readonly IHudControlProvider _hudControlProvider;
+        private readonly IOnlinePlayerProvider _onlinePlayerProvider;
         private readonly ITextInputDialogFactory _textInputDialogFactory;
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
         private readonly IFriendIgnoreListService _friendIgnoreListService;
 
-        public FriendIgnoreListDialogFactory(IGameStateProvider gameStateProvider,
-                                             INativeGraphicsManager nativeGraphicsManager,
+        public FriendIgnoreListDialogFactory(INativeGraphicsManager nativeGraphicsManager,
                                              IEODialogButtonService dialogButtonService,
                                              ILocalizedStringFinder localizedStringFinder,
                                              ICharacterProvider characterProvider,
                                              IHudControlProvider hudControlProvider,
+                                             IOnlinePlayerProvider onlinePlayerProvider,
                                              ITextInputDialogFactory textInputDialogFactory,
                                              IEOMessageBoxFactory eoMessageBoxFactory,
                                              IFriendIgnoreListService friendIgnoreListService)
         {
-            _gameStateProvider = gameStateProvider;
             _nativeGraphicsManager = nativeGraphicsManager;
             _dialogButtonService = dialogButtonService;
             _localizedStringFinder = localizedStringFinder;
             _characterProvider = characterProvider;
             _hudControlProvider = hudControlProvider;
+            _onlinePlayerProvider = onlinePlayerProvider;
             _textInputDialogFactory = textInputDialogFactory;
             _eoMessageBoxFactory = eoMessageBoxFactory;
             _friendIgnoreListService = friendIgnoreListService;
         }
 
-        public ScrollingListDialog Create(bool isFriendList)
+        public FriendIgnoreListDialog Create(bool isFriendList)
         {
             var textFileLines = _friendIgnoreListService.LoadList(isFriendList ? Constants.FriendListFile : Constants.IgnoreListFile);
 
-            var dialog = new ScrollingListDialog(_nativeGraphicsManager, _dialogButtonService)
+            var dialog = new FriendIgnoreListDialog(_nativeGraphicsManager, _dialogButtonService, _onlinePlayerProvider)
             {
                 Buttons = ScrollingListDialogButtons.AddCancel,
                 ListItemType = ListDialogItem.ListItemStyle.Small,
@@ -134,6 +135,6 @@ namespace EndlessClient.Dialogs.Factories
 
     public interface IFriendIgnoreListDialogFactory
     {
-        ScrollingListDialog Create(bool isFriendList);
+        FriendIgnoreListDialog Create(bool isFriendList);
     }
 }

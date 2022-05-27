@@ -206,6 +206,12 @@ namespace EndlessClient.Dialogs
             _primaryText.ForeColor = Color.FromNonPremultiplied(0xf0, 0xf0, 0xf0, 0xff);
         }
 
+        public void ClearHighlight()
+        {
+            int colorFactor = Style == ListItemStyle.Large ? 0xc8 : 0xb4;
+            _primaryText.ForeColor = Color.FromNonPremultiplied(colorFactor, colorFactor, colorFactor, 0xff);
+        }
+
         protected override void OnUpdateControl(GameTime gameTime)
         {
             base.OnUpdateControl(gameTime);

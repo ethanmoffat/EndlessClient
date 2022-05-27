@@ -214,8 +214,8 @@ namespace EndlessClient.HUD.Controls
             {
                 DrawOrder = HUD_CONTROL_LAYER
             };
-            retButton.OnClick += async (o, e) => await DoHudStateChangeClick(whichState);
-            retButton.OnMouseEnter += (o, e) => _statusLabelSetter.SetStatusLabel(
+            retButton.OnClick += (_, _) => DoHudStateChangeClick(whichState);
+            retButton.OnMouseEnter += (_, _) => _statusLabelSetter.SetStatusLabel(
                 EOResourceID.STATUS_LABEL_TYPE_BUTTON,
                 EOResourceID.STATUS_LABEL_HUD_BUTTON_HOVER_FIRST + buttonIndex);
             return retButton;
@@ -231,7 +231,7 @@ namespace EndlessClient.HUD.Controls
             {
                 DrawOrder = HUD_CONTROL_LAYER
             };
-            button.OnClick += async (o, e) => await _hudButtonController.ClickFriendList();
+            button.OnClick += (_, _) => _hudButtonController.ClickFriendList();
             button.OnClick += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.ButtonClick);
             button.OnMouseOver += (o, e) => _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_BUTTON, EOResourceID.STATUS_LABEL_FRIEND_LIST);
 
@@ -248,14 +248,14 @@ namespace EndlessClient.HUD.Controls
             {
                 DrawOrder = HUD_CONTROL_LAYER
             };
-            button.OnClick += async (o, e) => await _hudButtonController.ClickIgnoreList();
+            button.OnClick += (_, _) => _hudButtonController.ClickIgnoreList();
             button.OnClick += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.ButtonClick);
             button.OnMouseOver += (o, e) => _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_BUTTON, EOResourceID.STATUS_LABEL_IGNORE_LIST);
 
             return button;
         }
 
-        private async Task DoHudStateChangeClick(InGameStates whichState)
+        private void DoHudStateChangeClick(InGameStates whichState)
         {
             switch (whichState)
             {
@@ -272,7 +272,7 @@ namespace EndlessClient.HUD.Controls
                     _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_STATS_PANEL_NOW_VIEWED);
                     break;
                 case InGameStates.OnlineList:
-                    await _hudButtonController.ClickOnlineList();
+                    _hudButtonController.ClickOnlineList();
                     _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_ONLINE_PLAYERS_NOW_VIEWED);
                     break;
                 case InGameStates.Party: _hudButtonController.ClickParty(); break;

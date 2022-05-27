@@ -34,6 +34,7 @@ namespace EndlessClient.HUD.Panels
 
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IHudControlProvider _hudControlProvider;
+        private readonly IOnlinePlayerProvider _onlinePlayerProvider;
         private readonly IFriendIgnoreListService _friendIgnoreListService;
         private readonly ISfxPlayer _sfxPlayer;
 
@@ -47,18 +48,22 @@ namespace EndlessClient.HUD.Panels
         private readonly Texture2D _weirdOffsetTextureSheet, _chatIconsTexture;
         private readonly Rectangle[] _filterTextureSources;
 
+        private HashSet<OnlinePlayerInfo> _cachedList;
+
         private Filter _filter;
         private List<OnlinePlayerInfo> _filteredList;
         private IReadOnlyList<string> _friendList;
 
         public OnlineListPanel(INativeGraphicsManager nativeGraphicsManager,
                                IHudControlProvider hudControlProvider,
+                               IOnlinePlayerProvider onlinePlayerProvider,
                                IFriendIgnoreListService friendIgnoreListService,
                                ISfxPlayer sfxPlayer,
                                SpriteFont chatFont)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _hudControlProvider = hudControlProvider;
+            _onlinePlayerProvider = onlinePlayerProvider;
             _friendIgnoreListService = friendIgnoreListService;
             _sfxPlayer = sfxPlayer;
             _chatFont = chatFont;
@@ -93,6 +98,7 @@ namespace EndlessClient.HUD.Panels
             for (int i = 0; i < _filterTextureSources.Length; ++i)
                 _filterTextureSources[i] = new Rectangle(i % 2 == 0 ? 0 : 12, i >= 2 ? 246 : 233, 12, 13);
 
+            _cachedList = new HashSet<OnlinePlayerInfo>();
             _filter = Filter.All;
             _filteredList = new List<OnlinePlayerInfo>();
         }
@@ -107,21 +113,34 @@ namespace EndlessClient.HUD.Panels
 
         public void UpdateOnlinePlayers(IReadOnlyList<OnlinePlayerInfo> onlinePlayers)
         {
-            _onlineList.Clear();
-            _onlineList.AddRange(onlinePlayers);
-
-            _onlineList.Sort((a, b) => a.Name.CompareTo(b.Name));
-            _filteredList = new List<OnlinePlayerInfo>(_onlineList);
-
-            _totalNumberOfPlayers.Text = $"{_onlineList.Count}";
-            _scrollBar.UpdateDimensions(_onlineList.Count);
-            _scrollBar.ScrollToTop();
-
-            _friendList = _friendIgnoreListService.LoadList(Constants.FriendListFile);
         }
 
         protected override void OnUpdateControl(GameTime gameTime)
         {
+            if (!_cachedList.SetEquals(_onlinePlayerProvider.OnlinePlayers))
+            {
+                _cachedList = _onlinePlayerProvider.OnlinePlayers.ToHashSet();
+                
+                // keep the friends list data from overriding the displayed data in this panel
+                // it will be friends list data if all titles (or any field other than name) are empty
+                if (!_cachedList.All(x => x.Title == string.Empty))
+                {
+                    _onlineList.Clear();
+                    _onlineList.AddRange(_cachedList);
+
+                    _onlineList.Sort((a, b) => a.Name.CompareTo(b.Name));
+                    _filteredList = new List<OnlinePlayerInfo>(_onlineList);
+
+                    _totalNumberOfPlayers.Text = $"{_onlineList.Count}";
+                    _scrollBar.UpdateDimensions(_onlineList.Count);
+                    _scrollBar.ScrollToTop();
+
+                    _friendList = _friendIgnoreListService.LoadList(Constants.FriendListFile);
+
+                    ApplyFilter();
+                }
+            }
+
             if (_filterClickArea.ContainsPoint(CurrentMouseState.X, CurrentMouseState.Y) &&
                 CurrentMouseState.LeftButton == ButtonState.Released &&
                 PreviousMouseState.LeftButton == ButtonState.Pressed)
@@ -134,17 +153,7 @@ namespace EndlessClient.HUD.Panels
 
                 _scrollBar.ScrollToTop();
 
-                switch (_filter)
-                {
-                    case Filter.Friends: _filteredList = _onlineList.Where(x => _friendList.Contains(x.Name, StringComparer.InvariantCultureIgnoreCase)).ToList(); break;
-                    case Filter.Admins: _filteredList = _onlineList.Where(IsAdminIcon).ToList(); break;
-                    // todo: implement for party/guild
-                    case Filter.Party: _filteredList.Clear(); break;
-                    case Filter.All:
-                    default: _filteredList = new List<OnlinePlayerInfo>(_onlineList); break;
-                }
-
-                _scrollBar.UpdateDimensions(_filteredList.Count);
+                ApplyFilter();
             }
             else if (CurrentMouseState.RightButton == ButtonState.Released &&
                 PreviousMouseState.RightButton == ButtonState.Pressed)
@@ -191,6 +200,21 @@ namespace EndlessClient.HUD.Panels
             }
 
             _spriteBatch.End();
+        }
+
+        private void ApplyFilter()
+        {
+            switch (_filter)
+            {
+                case Filter.Friends: _filteredList = _onlineList.Where(x => _friendList.Contains(x.Name, StringComparer.InvariantCultureIgnoreCase)).ToList(); break;
+                case Filter.Admins: _filteredList = _onlineList.Where(IsAdminIcon).ToList(); break;
+                // todo: implement for party/guild
+                case Filter.Party: _filteredList.Clear(); break;
+                case Filter.All:
+                default: _filteredList = new List<OnlinePlayerInfo>(_onlineList); break;
+            }
+
+            _scrollBar.UpdateDimensions(_filteredList.Count);
         }
 
         private static bool IsAdminIcon(OnlinePlayerInfo onlineInfo)

@@ -338,6 +338,12 @@ namespace EndlessClient.Dialogs
             }
         }
 
+        public void ClearHighlightedText()
+        {
+            foreach (var item in _listItems)
+                item.ClearHighlight();
+        }
+
         public void ClearItemList()
         {
             foreach (var item in _listItems)

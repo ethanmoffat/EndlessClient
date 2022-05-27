@@ -70,7 +70,7 @@ namespace EndlessClient.Dialogs.Actions
             _activeDialogRepository.FriendIgnoreDialog.MatchNone(() =>
             {
                 var dlg = _friendIgnoreListDialogFactory.Create(isFriendList: true);
-                dlg.DialogClosed += (_, _) => _activeDialogRepository.FriendIgnoreDialog = Option.None<ScrollingListDialog>();
+                dlg.DialogClosed += (_, _) => _activeDialogRepository.FriendIgnoreDialog = Option.None<FriendIgnoreListDialog>();
                 _activeDialogRepository.FriendIgnoreDialog = Option.Some(dlg);
 
                 UseDefaultDialogSounds(dlg);
@@ -84,7 +84,7 @@ namespace EndlessClient.Dialogs.Actions
             _activeDialogRepository.FriendIgnoreDialog.MatchNone(() =>
             {
                 var dlg = _friendIgnoreListDialogFactory.Create(isFriendList: false);
-                dlg.DialogClosed += (_, _) => _activeDialogRepository.FriendIgnoreDialog = Option.None<ScrollingListDialog>();
+                dlg.DialogClosed += (_, _) => _activeDialogRepository.FriendIgnoreDialog = Option.None<FriendIgnoreListDialog>();
                 _activeDialogRepository.FriendIgnoreDialog = Option.Some(dlg);
 
                 UseDefaultDialogSounds(dlg);
