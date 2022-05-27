@@ -4,6 +4,7 @@ using System.Linq;
 using EndlessClient.Services;
 using EOLib;
 using EOLib.Domain.Chat;
+using EOLib.Graphics;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 
@@ -19,11 +20,15 @@ namespace EndlessClient.Rendering.Chat
             public bool IsFirstLineOfMultilineMessage { get; set; }
         }
 
+        private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IFriendIgnoreListService _friendIgnoreListService;
         private readonly SpriteFont _chatFont;
 
-        public ChatRenderableGenerator(IFriendIgnoreListService friendIgnoreListService, SpriteFont chatFont)
+        public ChatRenderableGenerator(INativeGraphicsManager nativeGraphicsManager,
+                                       IFriendIgnoreListService friendIgnoreListService,
+                                       SpriteFont chatFont)
         {
+            _nativeGraphicsManager = nativeGraphicsManager;
             _friendIgnoreListService = friendIgnoreListService;
             _chatFont = chatFont;
         }
@@ -104,14 +109,14 @@ namespace EndlessClient.Rendering.Chat
             return retStrings;
         }
 
-        private static NewsChatRenderable CreateNewsRenderableFromChatPair(ChatPair pair, int i)
+        private NewsChatRenderable CreateNewsRenderableFromChatPair(ChatPair pair, int i)
         {
             var shouldShowNoteIcon = pair.IsFirstLineOfMultilineMessage && !string.IsNullOrWhiteSpace(pair.Text);
             var chatData = new ChatData(ChatTab.Local, "", pair.Text, shouldShowNoteIcon ? ChatIcon.Note : ChatIcon.None, log: false);
-            return new NewsChatRenderable(i, chatData, pair.Text);
+            return new NewsChatRenderable(_nativeGraphicsManager, i, chatData, pair.Text);
         }
 
-        private static ChatRenderable CreateChatRenderableFromChatPair(ChatPair pair, int displayIndex, ChatData data)
+        private ChatRenderable CreateChatRenderableFromChatPair(ChatPair pair, int displayIndex, ChatData data)
         {
             var modifiedData = new ChatData(
                 data.Tab,
@@ -120,7 +125,7 @@ namespace EndlessClient.Rendering.Chat
                 pair.IsFirstLineOfMultilineMessage ? data.Icon : ChatIcon.None,
                 data.ChatColor);
 
-            return new ChatRenderable(displayIndex, modifiedData, pair.Text);
+            return new ChatRenderable(_nativeGraphicsManager, displayIndex, modifiedData, pair.Text);
         }
     }
 }

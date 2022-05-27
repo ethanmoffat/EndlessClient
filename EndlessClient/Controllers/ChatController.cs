@@ -1,20 +1,18 @@
-﻿using System.Threading.Tasks;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.ControlSets;
-using EndlessClient.Dialogs.Actions;
-using EndlessClient.GameExecution;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Chat;
 using EndlessClient.HUD.Controls;
 using EndlessClient.UIControls;
 using EOLib.Domain.Chat;
+using EOLib.Domain.Chat.Commands;
 using EOLib.Localization;
-using EOLib.Net;
-using EOLib.Net.Communication;
+using System;
 
 namespace EndlessClient.Controllers
 {
-    [MappedType(BaseType = typeof(IChatController))]
+    [AutoMappedType]
     public class ChatController : IChatController
     {
         private readonly IChatTextBoxActions _chatTextBoxActions;
@@ -23,13 +21,15 @@ namespace EndlessClient.Controllers
         private readonly IChatBubbleActions _chatBubbleActions;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IHudControlProvider _hudControlProvider;
+        private readonly ISfxPlayer _sfxPlayer;
 
         public ChatController(IChatTextBoxActions chatTextBoxActions,
                               IChatActions chatActions,
                               IPrivateMessageActions privateMessageActions,
                               IChatBubbleActions chatBubbleActions,
                               IStatusLabelSetter statusLabelSetter,
-                              IHudControlProvider hudControlProvider)
+                              IHudControlProvider hudControlProvider,
+                              ISfxPlayer sfxPlayer)
         {
             _chatTextBoxActions = chatTextBoxActions;
             _chatActions = chatActions;
@@ -37,25 +37,42 @@ namespace EndlessClient.Controllers
             _chatBubbleActions = chatBubbleActions;
             _statusLabelSetter = statusLabelSetter;
             _hudControlProvider = hudControlProvider;
+            _sfxPlayer = sfxPlayer;
         }
 
         public void SendChatAndClearTextBox()
         {
             var localTypedText = ChatTextBox.Text;
-            var targetCharacter = _privateMessageActions.GetTargetCharacter(localTypedText);
+            var (pmCheckOk, targetCharacter) = _privateMessageActions.GetTargetCharacter(localTypedText);
 
-            var (ok, updatedChat) = _chatActions.SendChatToServer(localTypedText, targetCharacter);
+            if (pmCheckOk)
+            {
+                if (!string.IsNullOrEmpty(targetCharacter))
+                {
+                    _sfxPlayer.PlaySfx(SoundEffectID.PrivateMessageSent);
+                }
+
+                var (result, updatedChat) = _chatActions.SendChatToServer(localTypedText, targetCharacter);
+                switch (result)
+                {
+                    case ChatResult.Ok: _chatBubbleActions.ShowChatBubbleForMainCharacter(updatedChat); break;
+                    case ChatResult.YourMindPrevents: _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.YOUR_MIND_PREVENTS_YOU_TO_SAY); break;
+                    case ChatResult.Command:
+                        {
+                            var commandText = updatedChat[1..].Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)[0];
+                            _sfxPlayer.PlaySfx(commandText switch
+                            {
+                                NoWallCommand.Text or PingCommand.Text => SoundEffectID.ServerCommand,
+                                _ => SoundEffectID.ServerMessage,
+                            });
+                        }
+                        break;
+                    case ChatResult.AdminAnnounce: _sfxPlayer.PlaySfx(SoundEffectID.AdminAnnounceReceived); break;
+                    case ChatResult.HideSpeechBubble: break; // no-op
+                }
+            }
 
             _chatTextBoxActions.ClearChatText();
-
-            if (ok)
-            {
-                _chatBubbleActions.ShowChatBubbleForMainCharacter(updatedChat);
-            }
-            else
-            {
-                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.YOUR_MIND_PREVENTS_YOU_TO_SAY);
-            }
         }
 
         public void SelectChatTextBox()

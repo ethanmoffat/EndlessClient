@@ -13,25 +13,26 @@ namespace EndlessClient.Rendering.Chat
         private const int CHAT_MESSAGE_X_OFF = 20;
         private static readonly Vector2 TOP_LEFT = new Vector2(102, 330);
 
-        private readonly ChatData _data;
+        private readonly INativeGraphicsManager _nativeGraphicsManager;
+
         private readonly string _partialMessage;
 
         protected virtual int HeaderYOffset => 3;
 
-        public int DisplayIndex { get; private set; }
+        public int DisplayIndex { get; set; }
 
-        public ChatRenderable(int displayIndex,
+        public ChatData Data { get; private set; }
+
+        public ChatRenderable(INativeGraphicsManager nativeGraphicsManager,
+                              int displayIndex,
                               ChatData data,
                               string partialMessage = null)
         {
-            DisplayIndex = displayIndex;
-            _data = data;
-            _partialMessage = partialMessage;
-        }
+            _nativeGraphicsManager = nativeGraphicsManager;
 
-        public void SetDisplayIndex(int newIndex)
-        {
-            DisplayIndex = newIndex;
+            DisplayIndex = displayIndex;
+            Data = data;
+            _partialMessage = partialMessage;
         }
 
         public override bool Equals(object obj)
@@ -39,38 +40,38 @@ namespace EndlessClient.Rendering.Chat
             if (!(obj is ChatRenderable)) return false;
             var other = (ChatRenderable) obj;
 
-            return other._data.Equals(_data)
+            return other.Data.Equals(Data)
                 && other._partialMessage.Equals(_partialMessage);
         }
 
         public override int GetHashCode()
         {
-            var hash = 397 ^ _data.GetHashCode();
+            var hash = 397 ^ Data.GetHashCode();
             hash = (hash*397) ^ DisplayIndex.GetHashCode();
             hash = (hash*397) ^ _partialMessage.GetHashCode();
             return hash;
         }
 
-        public void Render(SpriteBatch spriteBatch, SpriteFont chatFont, INativeGraphicsManager nativeGraphicsManager)
+        public void Render(SpriteBatch spriteBatch, SpriteFont chatFont)
         {
             spriteBatch.Begin();
 
             var pos = TOP_LEFT + new Vector2(0, DisplayIndex*13);
-            spriteBatch.Draw(nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 32, true),
+            spriteBatch.Draw(_nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 32, true),
                              new Vector2(pos.X + ICON_GRAPHIC_X_OFF, pos.Y + HeaderYOffset),
-                             GetChatIconRectangle(_data.Icon),
+                             GetChatIconRectangle(Data.Icon),
                              Color.White);
 
             string strToDraw;
-            if (string.IsNullOrEmpty(_data.Who))
+            if (string.IsNullOrEmpty(Data.Who))
                 strToDraw = _partialMessage;
             else
-                strToDraw = _data.Who + "  " + _partialMessage;
+                strToDraw = Data.Who + "  " + _partialMessage;
 
             spriteBatch.DrawString(chatFont,
                                    strToDraw,
                                    new Vector2(pos.X + CHAT_MESSAGE_X_OFF, pos.Y + HeaderYOffset),
-                                   _data.ChatColor.ToColor());
+                                   Data.ChatColor.ToColor());
 
             spriteBatch.End();
         }
@@ -86,8 +87,8 @@ namespace EndlessClient.Rendering.Chat
     {
         protected override int HeaderYOffset => 23;
 
-        public NewsChatRenderable(int displayIndex, ChatData data, string partialMessage)
-            : base(displayIndex, data, partialMessage)
+        public NewsChatRenderable(INativeGraphicsManager nativeGraphicsManager, int displayIndex, ChatData data, string partialMessage)
+            : base(nativeGraphicsManager, displayIndex, data, partialMessage)
         {
         }
     }

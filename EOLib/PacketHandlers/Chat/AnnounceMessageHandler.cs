@@ -11,17 +11,20 @@ namespace EOLib.PacketHandlers.Chat
     public class AnnounceMessageHandler : PlayerChatByNameBase
     {
         private readonly IChatRepository _chatRepository;
-        private readonly IEnumerable<IOtherCharacterEventNotifier> _notifiers;
+        private readonly IEnumerable<IOtherCharacterEventNotifier> _otherCharacterEventNotifiers;
+        private readonly IEnumerable<IChatEventNotifier> _chatEventNotifiers;
 
         public override PacketAction Action => PacketAction.Announce;
 
         public AnnounceMessageHandler(IPlayerInfoProvider playerInfoProvider,
                                       IChatRepository chatRepository,
-                                      IEnumerable<IOtherCharacterEventNotifier> notifiers)
+                                      IEnumerable<IOtherCharacterEventNotifier> otherCharacterEventNotifiers,
+                                      IEnumerable<IChatEventNotifier> chatEventNotifiers)
             : base(playerInfoProvider)
         {
             _chatRepository = chatRepository;
-            _notifiers = notifiers;
+            _otherCharacterEventNotifiers = otherCharacterEventNotifiers;
+            _chatEventNotifiers = chatEventNotifiers;
         }
 
         protected override void PostChat(string name, string message)
@@ -31,8 +34,11 @@ namespace EOLib.PacketHandlers.Chat
             _chatRepository.AllChat[ChatTab.Global].Add(data);
             _chatRepository.AllChat[ChatTab.Group].Add(data);
 
-            foreach (var notifier in _notifiers)
+            foreach (var notifier in _otherCharacterEventNotifiers)
                 notifier.AdminAnnounce(message);
+
+            foreach (var notifier in _chatEventNotifiers)
+                notifier.NotifyChatReceived(ChatEventType.AdminAnnounce);
         }
     }
 }

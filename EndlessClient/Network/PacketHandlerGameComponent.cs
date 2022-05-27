@@ -28,6 +28,8 @@ namespace EndlessClient.Network
             _gameStateProvider = gameStateProvider;
             _errorDialogDisplayAction = errorDialogDisplayAction;
             _mainButtonController = mainButtonController;
+
+            UpdateOrder = int.MinValue;
         }
 
         public override void Update(GameTime gameTime)

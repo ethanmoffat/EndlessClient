@@ -6,19 +6,19 @@ namespace EOLib.Domain.Chat
     [Record(Features.ObjectEquals | Features.ToString)]
     public sealed partial class ChatData
     {
-        public ChatTab Tab { get; private set; }
+        public ChatTab Tab { get; }
 
-        public ChatIcon Icon { get; private set; }
+        public ChatIcon Icon { get; }
 
-        public string Who { get; private set; }
+        public string Who { get; }
 
-        public string Message { get; } // making this get-only makes it the only property that generates a .With method
+        public string Message { get; }
 
-        public ChatColor ChatColor { get; private set; }
+        public ChatColor ChatColor { get; }
 
-        public DateTime ChatTime { get; private set; }
+        public DateTime ChatTime { get; }
 
-        public bool Log { get; private set; }
+        public bool Log { get; }
 
         public ChatData(ChatTab tab,
                         string who,
