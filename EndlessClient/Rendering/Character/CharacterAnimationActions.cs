@@ -254,7 +254,14 @@ namespace EndlessClient.Rendering.Character
 
         public void NotifyEmote(short playerId, Emote emote)
         {
-            Animator.Emote(playerId, emote);
+            try
+            {
+                Animator.Emote(playerId, emote);
+            }
+            catch (InvalidOperationException)
+            {
+                // if still transitioning to in-game state, the game will crash because the in-game control set is not completely set up yet
+            }
         }
 
         public void MakeMainPlayerDrunk()
