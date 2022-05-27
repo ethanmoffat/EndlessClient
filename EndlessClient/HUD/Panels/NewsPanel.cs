@@ -96,7 +96,7 @@ namespace EndlessClient.HUD.Panels
                 return;
 
             foreach (var renderable in _chatRenderables)
-                renderable.Render(_spriteBatch, _chatFont, _nativeGraphicsManager);
+                renderable.Render(_spriteBatch, _chatFont);
         }
 
         private void UpdateCachedNewsStrings()
@@ -118,7 +118,7 @@ namespace EndlessClient.HUD.Panels
             //only render based on what the scroll bar's position is
             _chatRenderables.AddRange(renderables.Skip(_cachedScrollOffset).Take(_cachedLinesToRender));
             for (int i = 0; i < _chatRenderables.Count; ++i)
-                _chatRenderables[i].SetDisplayIndex(i);
+                _chatRenderables[i].DisplayIndex = i;
 
             //update scrollbar with total number of renderables
             _scrollBar.UpdateDimensions(renderables.Count);
