@@ -156,7 +156,7 @@ namespace EndlessClient.HUD.Chat
                 }
             }
 
-            if (MouseOver &&
+            if (Active && MouseOver &&
                 CurrentMouseState.RightButton == ButtonState.Released &&
                 PreviousMouseState.RightButton == ButtonState.Pressed)
             {
