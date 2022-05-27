@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using AutomaticTypeMapper;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Login;
+using EOLib.Domain.Notifiers;
 using EOLib.Net;
 
 namespace EOLib.PacketHandlers.Chat
@@ -10,14 +12,17 @@ namespace EOLib.PacketHandlers.Chat
     public class PrivateMessageHandler : PlayerChatByNameBase
     {
         private readonly IChatRepository _chatRepository;
+        private readonly IEnumerable<IChatEventNotifier> _chatEventNotifiers;
 
         public override PacketAction Action => PacketAction.Tell;
 
         public PrivateMessageHandler(IPlayerInfoProvider playerInfoProvider,
-                                     IChatRepository chatRepository)
+                                     IChatRepository chatRepository,
+                                     IEnumerable<IChatEventNotifier> chatEventNotifiers)
             : base(playerInfoProvider)
         {
             _chatRepository = chatRepository;
+            _chatEventNotifiers = chatEventNotifiers;
         }
 
         protected override void PostChat(string name, string message)
@@ -39,6 +44,9 @@ namespace EOLib.PacketHandlers.Chat
             _chatRepository.AllChat[ChatTab.Local].Add(localData);
             if (whichPmTab != ChatTab.Local)
                 _chatRepository.AllChat[whichPmTab].Add(pmData);
+
+            foreach (var notifier in _chatEventNotifiers)
+                notifier.NotifyChatReceived(ChatEventType.PrivateMessage);
         }
     }
 }

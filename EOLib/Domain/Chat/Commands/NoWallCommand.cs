@@ -8,7 +8,9 @@ namespace EOLib.Domain.Chat.Commands
     {
         private readonly ICharacterRepository _characterRepository;
 
-        public string CommandText => "nowall";
+        public const string Text = "nowall";
+
+        public string CommandText => Text;
 
         public NoWallCommand(ICharacterRepository characterRepository)
         {

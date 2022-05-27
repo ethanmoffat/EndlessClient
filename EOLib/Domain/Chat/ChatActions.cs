@@ -1,5 +1,4 @@
 ﻿using AutomaticTypeMapper;
-using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Net;
 using EOLib.Net.Builders;
@@ -14,6 +13,8 @@ namespace EOLib.Domain.Chat
         Ok,
         YourMindPrevents,
         HideSpeechBubble,
+        Command,
+        AdminAnnounce,
     }
 
     [AutoMappedType]
@@ -26,7 +27,6 @@ namespace EOLib.Domain.Chat
         private readonly IPacketSendService _packetSendService;
         private readonly ILocalCommandHandler _localCommandHandler;
         private readonly IChatProcessor _chatProcessor;
-        private readonly IConfigurationProvider _configurationProvider;
 
         public ChatActions(IChatRepository chatRepository,
                            ICharacterProvider characterProvider,
@@ -34,8 +34,7 @@ namespace EOLib.Domain.Chat
                            IChatPacketBuilder chatPacketBuilder,
                            IPacketSendService packetSendService,
                            ILocalCommandHandler localCommandHandler,
-                           IChatProcessor chatProcessor,
-                           IConfigurationProvider configurationProvider)
+                           IChatProcessor chatProcessor)
         {
             _chatRepository = chatRepository;
             _characterProvider = characterProvider;
@@ -44,23 +43,23 @@ namespace EOLib.Domain.Chat
             _packetSendService = packetSendService;
             _localCommandHandler = localCommandHandler;
             _chatProcessor = chatProcessor;
-            _configurationProvider = configurationProvider;
         }
 
         public (ChatResult, string) SendChatToServer(string chat, string targetCharacter)
         {
+            // todo: if not in a group, don't do group chat
+
             var chatType = _chatTypeCalculator.CalculateChatType(chat);
 
             if (chatType == ChatType.Command)
             {
                 if (HandleCommand(chat))
-                    return (ChatResult.HideSpeechBubble, chat);
+                    return (ChatResult.Command, chat);
 
                 //treat unhandled command as local chat
                 chatType = ChatType.Local;
             }
-
-            if (chatType == ChatType.PM)
+            else if (chatType == ChatType.PM)
             {
                 if (string.IsNullOrEmpty(_chatRepository.PMTarget1))
                     _chatRepository.PMTarget1 = targetCharacter;
@@ -85,7 +84,12 @@ namespace EOLib.Domain.Chat
 
             AddChatForLocalDisplay(chatType, chat, targetCharacter);
 
-            return (chatType == ChatType.PM ? ChatResult.HideSpeechBubble : ChatResult.Ok, chat);
+            return (chatType switch
+            {
+                ChatType.PM => ChatResult.HideSpeechBubble,
+                ChatType.Announce => ChatResult.AdminAnnounce,
+                _ => ChatResult.Ok,
+            }, chat);
         }
 
         public void SetHearWhispers(bool whispersEnabled)

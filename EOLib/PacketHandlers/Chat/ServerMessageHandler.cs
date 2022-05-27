@@ -1,9 +1,11 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Login;
+using EOLib.Domain.Notifiers;
 using EOLib.Localization;
 using EOLib.Net;
 using EOLib.Net.Handlers;
+using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Chat
 {
@@ -12,6 +14,7 @@ namespace EOLib.PacketHandlers.Chat
     {
         private readonly IChatRepository _chatRepository;
         private readonly ILocalizedStringFinder _localizedStringFinder;
+        private readonly IEnumerable<IChatEventNotifier> _chatEventNotifiers;
 
         public override PacketFamily Family => PacketFamily.Talk;
 
@@ -19,11 +22,13 @@ namespace EOLib.PacketHandlers.Chat
 
         public ServerMessageHandler(IPlayerInfoProvider playerInfoProvider,
                                     IChatRepository chatRepository,
-                                    ILocalizedStringFinder localizedStringFinder)
+                                    ILocalizedStringFinder localizedStringFinder,
+                                    IEnumerable<IChatEventNotifier> chatEventNotifiers)
             : base(playerInfoProvider)
         {
             _chatRepository = chatRepository;
             _localizedStringFinder = localizedStringFinder;
+            _chatEventNotifiers = chatEventNotifiers;
         }
 
         public override bool HandlePacket(IPacket packet)
@@ -38,6 +43,9 @@ namespace EOLib.PacketHandlers.Chat
             _chatRepository.AllChat[ChatTab.Local].Add(localData);
             _chatRepository.AllChat[ChatTab.Global].Add(globalData);
             _chatRepository.AllChat[ChatTab.System].Add(systemData);
+
+            foreach (var notifier in _chatEventNotifiers)
+                notifier.NotifyChatReceived(ChatEventType.Server);
 
             return true;
         }

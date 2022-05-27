@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Panels;
@@ -13,23 +14,39 @@ using Optional;
 
 namespace EndlessClient.HUD.Chat
 {
-    [MappedType(BaseType = typeof(IChatEventNotifier))]
+    [AutoMappedType]
     public class ChatNotificationActions : IChatEventNotifier
     {
         private readonly IChatRepository _chatRepository;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly IStatusLabelSetter _statusLabelSetter;
+        private readonly ISfxPlayer _sfxPlayer;
 
         public ChatNotificationActions(IChatRepository chatRepository,
                                        IHudControlProvider hudControlProvider,
                                        ILocalizedStringFinder localizedStringFinder,
-                                       IStatusLabelSetter statusLabelSetter)
+                                       IStatusLabelSetter statusLabelSetter,
+                                       ISfxPlayer sfxPlayer)
         {
             _chatRepository = chatRepository;
             _hudControlProvider = hudControlProvider;
             _localizedStringFinder = localizedStringFinder;
             _statusLabelSetter = statusLabelSetter;
+            _sfxPlayer = sfxPlayer;
+        }
+
+        public void NotifyChatReceived(ChatEventType eventType)
+        {
+            _sfxPlayer.PlaySfx(eventType switch
+            {
+                ChatEventType.PrivateMessage => SoundEffectID.PrivateMessageReceived,
+                ChatEventType.AdminChat => SoundEffectID.AdminChatReceived,
+                ChatEventType.AdminAnnounce => SoundEffectID.AdminAnnounceReceived,
+                ChatEventType.Group => SoundEffectID.GroupChatReceived,
+                ChatEventType.Server => SoundEffectID.Login,
+                _ => SoundEffectID.LayeredTechIntro, // this will be funny if it ever gets hit
+            });
         }
 
         public void NotifyPrivateMessageRecipientNotFound(string recipientName)

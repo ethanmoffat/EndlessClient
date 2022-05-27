@@ -13,7 +13,9 @@ namespace EOLib.Domain.Chat.Commands
         private readonly IPingTimeRepository _pingTimeRepository;
         private readonly Random _random;
 
-        public string CommandText => "ping";
+        public const string Text = "ping";
+
+        public string CommandText => Text;
 
         public PingCommand(IPacketSendService packetSendService,
                            IPingTimeRepository pingTimeRepository)
