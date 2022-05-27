@@ -9,6 +9,13 @@ using System.Linq;
 
 namespace EOLib.Domain.Chat
 {
+    public enum ChatResult
+    {
+        Ok,
+        YourMindPrevents,
+        HideSpeechBubble,
+    }
+
     [AutoMappedType]
     public class ChatActions : IChatActions
     {
@@ -40,14 +47,14 @@ namespace EOLib.Domain.Chat
             _configurationProvider = configurationProvider;
         }
 
-        public (bool, string) SendChatToServer(string chat, string targetCharacter)
+        public (ChatResult, string) SendChatToServer(string chat, string targetCharacter)
         {
             var chatType = _chatTypeCalculator.CalculateChatType(chat);
 
             if (chatType == ChatType.Command)
             {
                 if (HandleCommand(chat))
-                    return (true, chat);
+                    return (ChatResult.HideSpeechBubble, chat);
 
                 //treat unhandled command as local chat
                 chatType = ChatType.Local;
@@ -65,7 +72,7 @@ namespace EOLib.Domain.Chat
             var (ok, filtered) = _chatProcessor.FilterCurses(chat);
             if (!ok)
             {
-                return (ok, filtered);
+                return (ChatResult.YourMindPrevents, filtered);
             }
 
             chat = filtered;
@@ -78,7 +85,7 @@ namespace EOLib.Domain.Chat
 
             AddChatForLocalDisplay(chatType, chat, targetCharacter);
 
-            return (ok, chat);
+            return (chatType == ChatType.PM ? ChatResult.HideSpeechBubble : ChatResult.Ok, chat);
         }
 
         public void SetHearWhispers(bool whispersEnabled)
@@ -96,6 +103,19 @@ namespace EOLib.Domain.Chat
                 .AddChar((byte)(active ? 'y' : 'n'))
                 .Build();
             _packetSendService.SendPacket(packet);
+        }
+
+        public void ClosePMTab(ChatTab whichTab)
+        {
+            if (whichTab != ChatTab.Private1 && whichTab != ChatTab.Private2)
+                throw new ArgumentException("Tab must be a PM tab", nameof(whichTab));
+
+            _chatRepository.AllChat[whichTab].Clear();
+
+            if (whichTab == ChatTab.Private1)
+                _chatRepository.PMTarget1 = null;
+            else if (whichTab == ChatTab.Private2)
+                _chatRepository.PMTarget2 = null;
         }
 
         /// <summary>
@@ -126,8 +146,6 @@ namespace EOLib.Domain.Chat
                         _chatRepository.AllChat[ChatTab.Private1].Add(new ChatData(ChatTab.Private1, who, chat, ChatIcon.Note, ChatColor.PM));
                     else if (targetCharacter == _chatRepository.PMTarget2)
                         _chatRepository.AllChat[ChatTab.Private2].Add(new ChatData(ChatTab.Private2, who, chat, ChatIcon.Note, ChatColor.PM));
-                    else
-                        throw new ArgumentException("Unexpected target character!", nameof(targetCharacter));
 
                     break;
                 case ChatType.Local:
@@ -157,10 +175,12 @@ namespace EOLib.Domain.Chat
 
     public interface IChatActions
     {
-        (bool Ok, string Processed) SendChatToServer(string chat, string targetCharacter);
+        (ChatResult Ok, string Processed) SendChatToServer(string chat, string targetCharacter);
 
         void SetHearWhispers(bool whispersEnabled);
 
         void SetGlobalActive(bool active);
+
+        void ClosePMTab(ChatTab tab);
     }
 }

@@ -43,9 +43,9 @@ namespace EndlessClient.HUD.Chat
             whichTab.MatchSome(tab =>
             {
                 if (tab == ChatTab.Private1)
-                    _chatRepository.PMTarget1 = string.Empty;
+                    _chatRepository.PMTarget1 = null;
                 else if (tab == ChatTab.Private2)
-                    _chatRepository.PMTarget2 = string.Empty;
+                    _chatRepository.PMTarget2 = null;
 
                 _chatRepository.AllChat[tab].Clear();
 

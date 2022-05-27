@@ -1,20 +1,15 @@
-﻿using System.Threading.Tasks;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EndlessClient.ControlSets;
-using EndlessClient.Dialogs.Actions;
-using EndlessClient.GameExecution;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Chat;
 using EndlessClient.HUD.Controls;
 using EndlessClient.UIControls;
 using EOLib.Domain.Chat;
 using EOLib.Localization;
-using EOLib.Net;
-using EOLib.Net.Communication;
 
 namespace EndlessClient.Controllers
 {
-    [MappedType(BaseType = typeof(IChatController))]
+    [AutoMappedType]
     public class ChatController : IChatController
     {
         private readonly IChatTextBoxActions _chatTextBoxActions;
@@ -42,20 +37,20 @@ namespace EndlessClient.Controllers
         public void SendChatAndClearTextBox()
         {
             var localTypedText = ChatTextBox.Text;
-            var targetCharacter = _privateMessageActions.GetTargetCharacter(localTypedText);
+            var (pmCheckOk, targetCharacter) = _privateMessageActions.GetTargetCharacter(localTypedText);
 
-            var (ok, updatedChat) = _chatActions.SendChatToServer(localTypedText, targetCharacter);
+            if (pmCheckOk)
+            {
+                var (result, updatedChat) = _chatActions.SendChatToServer(localTypedText, targetCharacter);
+                switch (result)
+                {
+                    case ChatResult.Ok: _chatBubbleActions.ShowChatBubbleForMainCharacter(updatedChat); break;
+                    case ChatResult.YourMindPrevents: _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.YOUR_MIND_PREVENTS_YOU_TO_SAY); break;
+                    case ChatResult.HideSpeechBubble: break; // no-op
+                }
+            }
 
             _chatTextBoxActions.ClearChatText();
-
-            if (ok)
-            {
-                _chatBubbleActions.ShowChatBubbleForMainCharacter(updatedChat);
-            }
-            else
-            {
-                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.YOUR_MIND_PREVENTS_YOU_TO_SAY);
-            }
         }
 
         public void SelectChatTextBox()
