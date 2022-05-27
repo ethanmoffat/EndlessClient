@@ -180,7 +180,7 @@ namespace EndlessClient.Dialogs.Actions
                 _activeDialogRepository.ChestDialog = Option.Some(dlg);
 
                 UseDefaultDialogSounds(dlg);
-                _sfxPlayer.PlaySfx(SoundEffectID.TextBoxFocus);
+                _sfxPlayer.PlaySfx(SoundEffectID.ChestOpen);
 
                 dlg.Show();
             });
@@ -195,7 +195,7 @@ namespace EndlessClient.Dialogs.Actions
                 _activeDialogRepository.LockerDialog = Option.Some(dlg);
 
                 UseDefaultDialogSounds(dlg);
-                _sfxPlayer.PlaySfx(SoundEffectID.TextBoxFocus);
+                _sfxPlayer.PlaySfx(SoundEffectID.ChestOpen);
 
                 dlg.Show();
             });
