@@ -22,9 +22,6 @@ namespace EndlessClient.Old
 
         public void AssignCallbacks()
         {
-            //npc related
-            m_packetAPI.OnRemoveChildNPCs += _removeChildNPCs;
-
             //party
             m_packetAPI.OnPartyClose += _partyClose;
             m_packetAPI.OnPartyDataRefresh += _partyDataRefresh;
@@ -43,11 +40,6 @@ namespace EndlessClient.Old
 
             //spell casting
             m_packetAPI.OnCastSpellTargetGroup += _playerCastGroupSpell;
-        }
-
-        private void _removeChildNPCs(short childNPCID)
-        {
-            OldWorld.Instance.ActiveMapRenderer.RemoveNPCsWhere(x => x.NPC.Data.ID == childNPCID);
         }
 
         private void _partyClose()

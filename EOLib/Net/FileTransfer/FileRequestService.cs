@@ -37,14 +37,14 @@ namespace EOLib.Net.FileTransfer
             return await GetMapFile(request, mapID);
         }
 
-        public async Task<IMapFile> RequestMapFileForWarp(short mapID, short sessionID)
+        public void RequestMapFileForWarp(short mapID, short sessionID)
         {
             var request = new PacketBuilder(PacketFamily.Warp, PacketAction.Take)
                 .AddShort(mapID)
                 .AddShort(sessionID)
                 .Build();
 
-            return await GetMapFile(request, mapID);
+            _packetSendService.SendPacket(request);
         }
 
         public async Task<IPubFile<TRecord>> RequestFile<TRecord>(InitFileType fileType, short sessionID)
@@ -112,7 +112,7 @@ namespace EOLib.Net.FileTransfer
     {
         Task<IMapFile> RequestMapFile(short mapID, short sessionID);
 
-        Task<IMapFile> RequestMapFileForWarp(short mapID, short sessionID);
+        void RequestMapFileForWarp(short mapID, short sessionID);
 
         Task<IPubFile<TRecord>> RequestFile<TRecord>(InitFileType fileType, short sessionID)
             where TRecord : class, IPubRecord, new();
