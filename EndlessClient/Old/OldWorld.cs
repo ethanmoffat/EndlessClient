@@ -143,9 +143,6 @@ namespace EndlessClient.Old
 
         public short JailMap { get; private set; }
 
-        //this is an int for the map id since there are multiple maps
-        public int NeedMap { get; private set; }
-
         public IPubFile<EIFRecord> EIF { get; private set; }
 
         public IPubFile<ENFRecord> ENF { get; private set; }
@@ -222,13 +219,6 @@ namespace EndlessClient.Old
         public ClientBase Client => m_client;
 
         /*** Functions for loading/checking the different pub/map files ***/
-
-        //tries to load the map that MainPlayer.ActiveCharacter is hanging out on
-        private bool _tryLoadMap(int mapID, bool forceReload)
-        {
-            return true;
-        }
-
         public void ResetGameElements()
         {
             if (m_mapRender != null)
@@ -266,36 +256,9 @@ namespace EndlessClient.Old
             }
         }
 
-        public void Remap()
-        {
-            MapCache.Remove(MainPlayer.ActiveCharacter.CurrentMap);
-            if (!_tryLoadMap(-1, true))
-            {
-                EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-                return;
-            }
-
-            //EOGame.Instance.Hud.AddChat(ChatTab.Local, GetString(EOResourceID.STRING_SERVER), GetString(EOResourceID.SERVER_MESSAGE_MAP_MUTATION), ChatIcon.Exclamation, ChatColor.Server);
-            //EOGame.Instance.Hud.AddChat(ChatTab.System, GetString(EOResourceID.STRING_SERVER), GetString(EOResourceID.SERVER_MESSAGE_MAP_MUTATION), ChatIcon.Exclamation, ChatColor.Server);
-
-            ActiveMapRenderer.SetActiveMap(MapCache[MainPlayer.ActiveCharacter.CurrentMap]);
-        }
-
         public static void IgnoreDialogs(XNAControl control)
         {
             control.IgnoreDialog(typeof(TradeDialog));
-        }
-
-        public static Texture2D GetSpellIcon(short icon, bool hover)
-        {
-            Texture2D fullTexture = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.SpellIcons, icon);
-            Texture2D ret = new Texture2D(fullTexture.GraphicsDevice, fullTexture.Width / 2, fullTexture.Height);
-
-            Color[] data = new Color[ret.Width * ret.Height];
-            fullTexture.GetData(0, new Rectangle(hover ? ret.Width : 0, 0, ret.Width, ret.Height), data, 0, data.Length);
-            ret.SetData(data);
-
-            return ret;
         }
     }
 }

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using EndlessClient.Audio;
 using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Old;
 using EOLib.Domain.Character;
@@ -24,8 +22,6 @@ namespace EndlessClient.Old
 
         public void AssignCallbacks()
         {
-            m_packetAPI.OnMapMutation += _mapMutate;
-
             //npc related
             m_packetAPI.OnRemoveChildNPCs += _removeChildNPCs;
 
@@ -47,20 +43,6 @@ namespace EndlessClient.Old
 
             //spell casting
             m_packetAPI.OnCastSpellTargetGroup += _playerCastGroupSpell;
-        }
-
-        private void _mapMutate()
-        {
-            if (File.Exists("maps\\00000.emf"))
-            {
-                string fmt = $"maps\\{OldWorld.Instance.MainPlayer.ActiveCharacter.CurrentMap,5:D5}.emf";
-                if (File.Exists(fmt))
-                    File.Delete(fmt);
-                File.Move("maps\\00000.emf", fmt);
-                OldWorld.Instance.Remap();
-            }
-            else
-                throw new FileNotFoundException("Unable to remap the file, something broke");
         }
 
         private void _removeChildNPCs(short childNPCID)

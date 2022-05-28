@@ -20,7 +20,6 @@ namespace EOLib.Net.API
             m_client = client;
 
             //each of these sets up members of the partial PacketAPI class relevant to a particular packet family
-            _createInitMembers();
             _createPartyMembers();
             _createNPCMembers();
             _createSpellMembers();
@@ -29,13 +28,6 @@ namespace EOLib.Net.API
 
         public void Dispose()
         {
-            Dispose(true);
-        }
-
-        private void Dispose(bool disposing)
-        {
-            if (disposing)
-                _disposeInitMembers();
         }
     }
 }
