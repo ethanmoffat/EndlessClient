@@ -21,7 +21,6 @@ namespace EOLib.Net.API
 
             //each of these sets up members of the partial PacketAPI class relevant to a particular packet family
             _createPartyMembers();
-            _createNPCMembers();
             _createSpellMembers();
             _createTradeMembers();
         }
