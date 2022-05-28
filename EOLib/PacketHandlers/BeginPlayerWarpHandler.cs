@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.IO.Actions;
@@ -10,6 +7,9 @@ using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.FileTransfer;
 using EOLib.Net.Handlers;
+using System;
+using System.IO;
+using System.Linq;
 
 namespace EOLib.PacketHandlers
 {
@@ -47,34 +47,43 @@ namespace EOLib.PacketHandlers
         {
             if (_mapStateRepository.MapWarpState != WarpState.None)
                 throw new InvalidOperationException("Attempted to warp while another warp was in progress");
+
             _mapStateRepository.MapWarpState = WarpState.WarpStarted;
 
             var warpType = packet.ReadChar();
             var mapID = packet.ReadShort();
-            short sessionID;
+
             switch (warpType)
             {
                 case WARP_SAME_MAP:
-                    sessionID = packet.ReadShort();
-                    SendWarpAcceptToServer(mapID, sessionID);
+                    {
+                        var sessionID = packet.ReadShort();
+                        SendWarpAcceptToServer(mapID, sessionID);
+                    }
                     break;
                 case WARP_NEW_MAP:
-                    var mapRid = packet.ReadBytes(4).ToArray();
-                    var fileSize = packet.ReadThree();
-                    sessionID = packet.ReadShort();
-
-                    var mapIsDownloaded = true;
-                    try
                     {
-                        if (!_mapFileProvider.MapFiles.ContainsKey(mapID))
-                            _mapFileLoadActions.LoadMapFileByID(mapID);
+                        var mapRid = packet.ReadBytes(4).ToArray();
+                        var fileSize = packet.ReadThree();
+                        var sessionID = packet.ReadShort();
+
+                        var mapIsDownloaded = true;
+                        try
+                        {
+                            if (!_mapFileProvider.MapFiles.ContainsKey(mapID))
+                                _mapFileLoadActions.LoadMapFileByID(mapID);
+                        }
+                        catch (IOException) { mapIsDownloaded = false; }
+
+                        if (!mapIsDownloaded || _fileRequestActions.NeedsMapForWarp(mapID, mapRid, fileSize))
+                        {
+                            _fileRequestActions.RequestMapForWarp(mapID, sessionID);
+                        }
+                        else
+                        {
+                            SendWarpAcceptToServer(mapID, sessionID);
+                        }
                     }
-                    catch (IOException) { mapIsDownloaded = false; }
-
-                    if (!mapIsDownloaded || _fileRequestActions.NeedsMapForWarp(mapID, mapRid, fileSize))
-                        _fileRequestActions.GetMapForWarp(mapID, sessionID).Wait(5000);
-
-                    SendWarpAcceptToServer(mapID, sessionID);
                     break;
                 default:
                     _mapStateRepository.MapWarpState = WarpState.None;

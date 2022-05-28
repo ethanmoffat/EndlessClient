@@ -1,4 +1,5 @@
 using AutomaticTypeMapper;
+using Optional;
 using System.Collections.Generic;
 
 namespace EOLib.Domain.Map
@@ -24,6 +25,10 @@ namespace EOLib.Domain.Map
         HashSet<MapCoordinate> VisibleSpikeTraps { get; set; }
 
         WarpState MapWarpState { get; set; }
+
+        Option<short> MapWarpSession { get; set; }
+
+        Option<short> MapWarpID { get; set; }
 
         HashSet<short> UnknownPlayerIDs { get; set; }
 
@@ -52,6 +57,10 @@ namespace EOLib.Domain.Map
 
         WarpState MapWarpState { get; }
 
+        Option<short> MapWarpSession { get; }
+
+        Option<short> MapWarpID { get; }
+
         HashSet<short> UnknownPlayerIDs { get; }
 
         HashSet<byte> UnknownNPCIndexes { get; }
@@ -79,6 +88,10 @@ namespace EOLib.Domain.Map
         public HashSet<MapCoordinate> VisibleSpikeTraps { get; set;  }
 
         public WarpState MapWarpState { get; set; }
+
+        public Option<short> MapWarpSession { get; set; }
+
+        public Option<short> MapWarpID { get; set; }
 
         public HashSet<short> UnknownPlayerIDs { get; set; }
 
@@ -117,6 +130,8 @@ namespace EOLib.Domain.Map
             UnknownNPCIndexes = new HashSet<byte>();
 
             MapWarpState = WarpState.None;
+            MapWarpSession = Option.None<short>();
+            MapWarpID = Option.None<short>();
         }
     }
 }

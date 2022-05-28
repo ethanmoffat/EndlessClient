@@ -1,13 +1,14 @@
-using System;
-using System.Threading.Tasks;
 using AutomaticTypeMapper;
 using EOLib.Domain.Login;
+using EOLib.Domain.Map;
 using EOLib.Domain.Protocol;
 using EOLib.IO;
-using EOLib.IO.Map;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
+using Optional;
+using System;
+using System.Threading.Tasks;
 
 namespace EOLib.Net.FileTransfer
 {
@@ -21,6 +22,7 @@ namespace EOLib.Net.FileTransfer
         private readonly ILoginFileChecksumProvider _loginFileChecksumProvider;
         private readonly IPubFileRepository _pubFileRepository;
         private readonly IMapFileRepository _mapFileRepository;
+        private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IPlayerInfoProvider _playerInfoProvider;
 
         public FileRequestActions(INumberEncoderService numberEncoderService,
@@ -30,6 +32,7 @@ namespace EOLib.Net.FileTransfer
                                   ILoginFileChecksumProvider loginFileChecksumProvider,
                                   IPubFileRepository pubFileRepository,
                                   IMapFileRepository mapFileRepository,
+                                  ICurrentMapStateRepository currentMapStateRepository,
                                   IPlayerInfoProvider playerInfoProvider)
         {
             _numberEncoderService = numberEncoderService;
@@ -39,6 +42,7 @@ namespace EOLib.Net.FileTransfer
             _loginFileChecksumProvider = loginFileChecksumProvider;
             _pubFileRepository = pubFileRepository;
             _mapFileRepository = mapFileRepository;
+            _currentMapStateRepository = currentMapStateRepository;
             _playerInfoProvider = playerInfoProvider;
         }
 
@@ -58,16 +62,22 @@ namespace EOLib.Net.FileTransfer
             return NeedMap(mapID, expectedChecksum, fileSize);
         }
 
-        public async Task GetMapForWarp(short mapID, short sessionID)
+        public void RequestMapForWarp(short mapID, short sessionID)
         {
-            var mapFile = await _fileRequestService.RequestMapFileForWarp(mapID, sessionID);
-            SaveAndCacheMapFile(mapID, mapFile);
+            _fileRequestService.RequestMapFileForWarp(mapID, sessionID);
+            _currentMapStateRepository.MapWarpSession = Option.Some(sessionID);
+            _currentMapStateRepository.MapWarpID = Option.Some(mapID);
         }
 
         public async Task GetMapFromServer(short mapID, short sessionID)
         {
             var mapFile = await _fileRequestService.RequestMapFile(mapID, sessionID);
-            SaveAndCacheMapFile(mapID, mapFile);
+            _mapFileSaveService.SaveFileToDefaultDirectory(mapFile, rewriteChecksum: false);
+
+            if (_mapFileRepository.MapFiles.ContainsKey(mapID))
+                _mapFileRepository.MapFiles[mapID] = mapFile;
+            else
+                _mapFileRepository.MapFiles.Add(mapID, mapFile);
         }
 
         public async Task GetItemFileFromServer(short sessionID)
@@ -133,16 +143,6 @@ namespace EOLib.Net.FileTransfer
                     throw new ArgumentOutOfRangeException(nameof(fileType), fileType, null);
             }
         }
-
-        private void SaveAndCacheMapFile(short mapID, IMapFile mapFile)
-        {
-            _mapFileSaveService.SaveFileToDefaultDirectory(mapFile, rewriteChecksum: false);
-
-            if (_mapFileRepository.MapFiles.ContainsKey(mapID))
-                _mapFileRepository.MapFiles[mapID] = mapFile;
-            else
-                _mapFileRepository.MapFiles.Add(mapID, mapFile);
-        }
     }
 
     public interface IFileRequestActions
@@ -151,7 +151,7 @@ namespace EOLib.Net.FileTransfer
 
         bool NeedsMapForWarp(short mapID, byte[] mapRid, int fileSize);
 
-        Task GetMapForWarp(short mapID, short sessionID);
+        void RequestMapForWarp(short mapID, short sessionID);
 
         Task GetMapFromServer(short mapID, short sessionID);
 
