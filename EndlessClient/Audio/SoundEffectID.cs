@@ -15,6 +15,7 @@
         Login = 4,
         ServerMessage = Login,
         DeleteCharacter,
+        MapMutation = DeleteCharacter,
         UnknownStaticSound,
         ScreenCapture,
         PrivateMessageReceived = 8,

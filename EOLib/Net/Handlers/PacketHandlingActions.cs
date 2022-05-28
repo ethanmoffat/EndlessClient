@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EOLib.Domain.Login;
 using EOLib.Net.Communication;
 
 namespace EOLib.Net.Handlers
@@ -8,27 +9,38 @@ namespace EOLib.Net.Handlers
     {
         private readonly IPacketQueueProvider _packetQueueProvider;
         private readonly IPacketHandlingTypeFinder _packetHandlingTypeFinder;
+        private readonly IPlayerInfoProvider _playerInfoProvider;
 
         public PacketHandlingActions(IPacketQueueProvider packetQueueProvider,
-                                     IPacketHandlingTypeFinder packetHandlingTypeFinder)
+                                     IPacketHandlingTypeFinder packetHandlingTypeFinder,
+                                     IPlayerInfoProvider playerInfoProvider)
         {
             _packetQueueProvider = packetQueueProvider;
             _packetHandlingTypeFinder = packetHandlingTypeFinder;
+            _playerInfoProvider = playerInfoProvider;
         }
 
         public void EnqueuePacketForHandling(IPacket packet)
         {
-            var handleType = _packetHandlingTypeFinder.FindHandlingType(packet.Family, packet.Action);
-
-            switch (handleType)
+            if (_playerInfoProvider.PlayerIsInGame)
             {
-                case PacketHandlingType.InBand:
-                    _packetQueueProvider.HandleInBandPacketQueue.EnqueuePacketAndSignalConsumer(packet);
-                    break;
-                case PacketHandlingType.OutOfBand:
-                    _packetQueueProvider.HandleOutOfBandPacketQueue.EnqueuePacketForHandling(packet);
-                    break;
-                /*default: don't handle the received packet*/
+                // all in-game packets should be handled in-band
+                _packetQueueProvider.HandleOutOfBandPacketQueue.EnqueuePacketForHandling(packet);
+            }
+            else
+            {
+                var handleType = _packetHandlingTypeFinder.FindHandlingType(packet.Family, packet.Action);
+
+                switch (handleType)
+                {
+                    case PacketHandlingType.InBand:
+                        _packetQueueProvider.HandleInBandPacketQueue.EnqueuePacketAndSignalConsumer(packet);
+                        break;
+                    case PacketHandlingType.OutOfBand:
+                        _packetQueueProvider.HandleOutOfBandPacketQueue.EnqueuePacketForHandling(packet);
+                        break;
+                        /*default: don't handle the received packet*/
+                }
             }
         }
     }

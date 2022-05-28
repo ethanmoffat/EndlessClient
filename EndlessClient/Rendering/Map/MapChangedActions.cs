@@ -84,6 +84,24 @@ namespace EndlessClient.Rendering.Map
                 RedrawGroundLayer();
         }
 
+        public void NotifyMapMutation()
+        {
+            ClearOpenDoors();
+            ClearSpikeTraps();
+
+            ShowMapTransition(showMapTransition: true);
+
+            AddSpikeTraps();
+            RedrawGroundLayer();
+
+            var localChatData = new ChatData(ChatTab.Local, _localizedStringFinder.GetString(EOResourceID.STRING_SERVER), _localizedStringFinder.GetString(EOResourceID.SERVER_MESSAGE_MAP_MUTATION), ChatIcon.Exclamation, ChatColor.Server);
+            var systemChatData = new ChatData(ChatTab.System, _localizedStringFinder.GetString(EOResourceID.STRING_SERVER), _localizedStringFinder.GetString(EOResourceID.SERVER_MESSAGE_MAP_MUTATION), ChatIcon.Exclamation, ChatColor.Server);
+            _chatRepository.AllChat[ChatTab.Local].Add(localChatData);
+            _chatRepository.AllChat[ChatTab.System].Add(systemChatData);
+
+            _sfxPlayer.PlaySfx(SoundEffectID.MapMutation);
+        }
+
         private void StopAllAnimations()
         {
             var characterAnimator = _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator);
@@ -114,6 +132,11 @@ namespace EndlessClient.Rendering.Map
         private void ClearOpenDoors()
         {
             _currentMapStateRepository.OpenDoors.Clear();
+        }
+
+        private void ClearSpikeTraps()
+        {
+            _currentMapStateRepository.VisibleSpikeTraps.Clear();
         }
 
         private void ShowMapNameIfAvailable(bool differentMapID)

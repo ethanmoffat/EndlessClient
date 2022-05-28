@@ -9,7 +9,7 @@ namespace EndlessClient.Dialogs
 {
     public interface IActiveDialogProvider : IDisposable
     {
-        Option<ScrollingListDialog> FriendIgnoreDialog { get; }
+        Option<FriendIgnoreListDialog> FriendIgnoreDialog { get; }
 
         Option<SessionExpDialog> SessionExpDialog { get; }
 
@@ -36,7 +36,7 @@ namespace EndlessClient.Dialogs
 
     public interface IActiveDialogRepository : IDisposable
     {
-        Option<ScrollingListDialog> FriendIgnoreDialog { get; set; }
+        Option<FriendIgnoreListDialog> FriendIgnoreDialog { get; set; }
 
         Option<SessionExpDialog> SessionExpDialog { get; set;  }
 
@@ -64,7 +64,7 @@ namespace EndlessClient.Dialogs
     [AutoMappedType(IsSingleton = true)]
     public class ActiveDialogRepository : IActiveDialogRepository, IActiveDialogProvider
     {
-        public Option<ScrollingListDialog> FriendIgnoreDialog { get; set; }
+        public Option<FriendIgnoreListDialog> FriendIgnoreDialog { get; set; }
 
         public Option<SessionExpDialog> SessionExpDialog { get; set; }
 
@@ -116,7 +116,7 @@ namespace EndlessClient.Dialogs
             foreach (var dlg in ActiveDialogs)
                 dlg.MatchSome(d => d.Dispose());
 
-            FriendIgnoreDialog = Option.None<ScrollingListDialog>();
+            FriendIgnoreDialog = Option.None<FriendIgnoreListDialog>();
             SessionExpDialog = Option.None<SessionExpDialog>();
             QuestStatusDialog = Option.None<QuestStatusDialog>();
             PaperdollDialog = Option.None<PaperdollDialog>();

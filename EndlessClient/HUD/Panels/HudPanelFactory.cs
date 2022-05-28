@@ -15,6 +15,7 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Item;
 using EOLib.Domain.Login;
+using EOLib.Domain.Online;
 using EOLib.Graphics;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
@@ -49,6 +50,7 @@ namespace EndlessClient.HUD.Panels
         private readonly IActiveDialogProvider _activeDialogProvider;
         private readonly ISpellSlotDataRepository _spellSlotDataRepository;
         private readonly IConfigurationRepository _configurationRepository;
+        private readonly IOnlinePlayerProvider _onlinePlayerProvider;
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly IAudioActions _audioActions;
         private readonly ISfxPlayer _sfxPlayer;
@@ -76,6 +78,7 @@ namespace EndlessClient.HUD.Panels
                                IActiveDialogProvider activeDialogProvider,
                                ISpellSlotDataRepository spellSlotDataRepository,
                                IConfigurationRepository configurationRepository,
+                               IOnlinePlayerProvider onlinePlayerProvider,
                                ILocalizedStringFinder localizedStringFinder,
                                IAudioActions audioActions,
                                ISfxPlayer sfxPlayer)
@@ -103,6 +106,7 @@ namespace EndlessClient.HUD.Panels
             _activeDialogProvider = activeDialogProvider;
             _spellSlotDataRepository = spellSlotDataRepository;
             _configurationRepository = configurationRepository;
+            _onlinePlayerProvider = onlinePlayerProvider;
             _localizedStringFinder = localizedStringFinder;
             _audioActions = audioActions;
             _sfxPlayer = sfxPlayer;
@@ -180,7 +184,7 @@ namespace EndlessClient.HUD.Panels
         public OnlineListPanel CreateOnlineListPanel()
         {
             var chatFont = _contentProvider.Fonts[Constants.FontSize08];
-            return new OnlineListPanel(_nativeGraphicsManager, _hudControlProvider, _friendIgnoreListService, _sfxPlayer, chatFont) { DrawOrder = HUD_CONTROL_LAYER };
+            return new OnlineListPanel(_nativeGraphicsManager, _hudControlProvider, _onlinePlayerProvider, _friendIgnoreListService, _sfxPlayer, chatFont) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public PartyPanel CreatePartyPanel()
