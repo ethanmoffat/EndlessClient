@@ -21,7 +21,6 @@ namespace EndlessClient.Controllers
         private readonly IGameStateActions _gameStateActions;
         private readonly IAccountDialogDisplayActions _accountDialogDisplayActions;
         private readonly IResetStateAction _resetStateAction;
-        private readonly IConnectionStateProvider _connectionStateProvider;
         private readonly ISafeNetworkOperationFactory _networkOperationFactory;
 
         private int _numberOfConnectionRequests;
@@ -33,7 +32,6 @@ namespace EndlessClient.Controllers
                                     IGameStateActions gameStateActions,
                                     IAccountDialogDisplayActions accountDialogDisplayActions,
                                     IResetStateAction resetStateAction,
-                                    IConnectionStateProvider connectionStateProvider,
                                     ISafeNetworkOperationFactory networkOperationFactory)
         {
             _networkConnectionActions = networkConnectionActions;
@@ -43,7 +41,6 @@ namespace EndlessClient.Controllers
             _gameStateActions = gameStateActions;
             _accountDialogDisplayActions = accountDialogDisplayActions;
             _resetStateAction = resetStateAction;
-            _connectionStateProvider = connectionStateProvider;
             _networkOperationFactory = networkOperationFactory;
         }
 
@@ -97,12 +94,10 @@ namespace EndlessClient.Controllers
 
             try
             {
-                var connectResult = await (_connectionStateProvider.NeedsReconnect ? 
-                    _networkConnectionActions.ReconnectToServer() :
-                    _networkConnectionActions.ConnectToServer());
-
+                var connectResult = await _networkConnectionActions.ConnectToServer();
                 if (connectResult == ConnectResult.AlreadyConnected)
                     return true;
+
                 if (connectResult != ConnectResult.Success)
                 {
                     _errorDialogDisplayAction.ShowError(connectResult);
@@ -115,8 +110,13 @@ namespace EndlessClient.Controllers
                     _networkConnectionActions.BeginHandshake,
                     ex => _errorDialogDisplayAction.ShowException(ex),
                     ex => _errorDialogDisplayAction.ShowException(ex));
+
                 if (!await beginHandshakeOperation.Invoke())
+                {
+                    StopReceivingAndDisconnect();
                     return false;
+                }
+
                 var initData = beginHandshakeOperation.Result;
 
                 if (initData.Response != InitReply.Success)

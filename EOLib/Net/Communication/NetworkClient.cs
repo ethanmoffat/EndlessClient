@@ -20,8 +20,6 @@ namespace EOLib.Net.Communication
         private readonly ILoggerProvider _loggerProvider;
 
         private readonly IAsyncSocket _socket;
-
-        private readonly CancellationTokenSource _backgroundReceiveCTS;
         
         public bool Connected => _socket.Connected;
 
@@ -42,7 +40,6 @@ namespace EOLib.Net.Communication
             ReceiveTimeout = receiveTimeout;
 
             _socket = new AsyncSocket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            _backgroundReceiveCTS = new CancellationTokenSource();
         }
 
         public async Task<ConnectResult> ConnectToServer(string host, int port)
@@ -82,12 +79,12 @@ namespace EOLib.Net.Communication
             Started = false;
         }
 
-        public async Task RunReceiveLoopAsync()
+        public async Task RunReceiveLoopAsync(CancellationToken cancellationToken)
         {
-            while (!_backgroundReceiveCTS.IsCancellationRequested)
+            while (!cancellationToken.IsCancellationRequested)
             {
-                var lengthData = await _socket.ReceiveAsync(2, _backgroundReceiveCTS.Token);
-                if (_backgroundReceiveCTS.IsCancellationRequested)
+                var lengthData = await _socket.ReceiveAsync(2, cancellationToken);
+                if (cancellationToken.IsCancellationRequested)
                 {
                     _loggerProvider.Logger.Log("RECV thread: Cancellation was requested when receiving length");
                     break;
@@ -101,8 +98,8 @@ namespace EOLib.Net.Communication
 
                 var length = _numberEncoderService.DecodeNumber(lengthData);
 
-                var packetData = await _socket.ReceiveAsync(length, _backgroundReceiveCTS.Token);
-                if (_backgroundReceiveCTS.IsCancellationRequested)
+                var packetData = await _socket.ReceiveAsync(length, cancellationToken);
+                if (cancellationToken.IsCancellationRequested)
                 {
                     _loggerProvider.Logger.Log("RECV thread: Cancellation was requested when receiving data");
                     break;
@@ -119,11 +116,6 @@ namespace EOLib.Net.Communication
 
                 _packetHandlingActions.EnqueuePacketForHandling(packet);
             }
-        }
-
-        public void CancelBackgroundReceiveLoop()
-        {
-            _backgroundReceiveCTS.Cancel();
         }
 
         public int Send(IPacket packet)
@@ -186,11 +178,9 @@ namespace EOLib.Net.Communication
             {
                 if (Connected)
                 {
-                    CancelBackgroundReceiveLoop();
                     Disconnect();
                 }
 
-                _backgroundReceiveCTS.Dispose();
                 _socket.Dispose();
             }
         }
