@@ -22,12 +22,13 @@ namespace EndlessClient.Dialogs.Actions
             _createCharacterDialogFactory = createCharacterDialogFactory;
         }
 
-        public async Task<Option<ICharacterCreateParameters>> ShowCreateCharacterDialog()
+        public Task<Option<ICharacterCreateParameters>> ShowCreateCharacterDialog()
         {
             var dialog = _createCharacterDialogFactory.BuildCreateCharacterDialog();
-            var result = await dialog.ShowDialogAsync();
-            return result.SomeWhen(x => x == XNADialogResult.OK)
-                .Map<ICharacterCreateParameters>(x => new CharacterCreateParameters(dialog.Name, dialog.Gender, dialog.HairStyle, dialog.HairColor, dialog.Race));
+            return dialog.ShowDialogAsync()
+                .ContinueWith(dialogTask =>
+                    dialogTask.Result.SomeWhen(x => x == XNADialogResult.OK)
+                        .Map<ICharacterCreateParameters>(x => new CharacterCreateParameters(dialog.Name, dialog.Gender, dialog.HairStyle, dialog.HairColor, dialog.Race)));
         }
 
         public void ShowCharacterReplyDialog(CharacterReply response)
@@ -56,7 +57,7 @@ namespace EndlessClient.Dialogs.Actions
             messageBox.ShowDialog();
         }
 
-        public async Task<XNADialogResult> ShowConfirmDeleteWarning(string characterName)
+        public Task<XNADialogResult> ShowConfirmDeleteWarning(string characterName)
         {
             var messageBox = _messageBoxFactory.CreateMessageBox(
                 $"Character \'{characterName}\' ",
@@ -64,7 +65,7 @@ namespace EndlessClient.Dialogs.Actions
                 EODialogButtons.OkCancel,
                 EOMessageBoxStyle.SmallDialogLargeHeader);
 
-            return await messageBox.ShowDialogAsync();
+            return messageBox.ShowDialogAsync();
         }
 
         public void ShowCharacterDeleteError()

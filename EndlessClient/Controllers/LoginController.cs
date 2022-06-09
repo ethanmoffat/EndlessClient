@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
@@ -19,6 +16,9 @@ using EOLib.Localization;
 using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.FileTransfer;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace EndlessClient.Controllers
 {
@@ -80,10 +80,10 @@ namespace EndlessClient.Controllers
                 return;
 
             var loginToServerOperation = _networkOperationFactory.CreateSafeBlockingOperation(
-                async () => await _loginActions.LoginToServer(loginParameters),
+                () => _loginActions.LoginToServer(loginParameters),
                 SetInitialStateAndShowError, SetInitialStateAndShowError);
 
-            if (!await loginToServerOperation.Invoke())
+            if (!await loginToServerOperation.Invoke().ConfigureAwait(false))
                 return;
             var reply = loginToServerOperation.Result;
 
@@ -99,9 +99,9 @@ namespace EndlessClient.Controllers
         public async Task LoginToCharacter(Character character)
         {
             var requestCharacterLoginOperation = _networkOperationFactory.CreateSafeBlockingOperation(
-                async () => await _loginActions.RequestCharacterLogin(character),
+                () => _loginActions.RequestCharacterLogin(character),
                 SetInitialStateAndShowError, SetInitialStateAndShowError);
-            if (!await requestCharacterLoginOperation.Invoke())
+            if (!await requestCharacterLoginOperation.Invoke().ConfigureAwait(false))
                 return;
 
             var sessionID = requestCharacterLoginOperation.Result;
@@ -124,55 +124,55 @@ namespace EndlessClient.Controllers
                 gameLoadingDialog = _gameLoadingDialogFactory.CreateGameLoadingDialog();
                 gameLoadingDialog.ShowDialog();
 
-                await InitialDelayInReleaseMode();
+                await InitialDelayInReleaseMode().ConfigureAwait(false);
 
                 if (unableToLoadMap || _fileRequestActions.NeedsFileForLogin(InitFileType.Map, _currentMapStateProvider.CurrentMapID))
                 {
                     gameLoadingDialog.SetState(GameLoadingDialogState.Map);
-                    if (!await SafeGetFile(() => _fileRequestActions.GetMapFromServer(_currentMapStateProvider.CurrentMapID, sessionID)))
+                    if (!await SafeGetFile(() => _fileRequestActions.GetMapFromServer(_currentMapStateProvider.CurrentMapID, sessionID)).ConfigureAwait(false))
                         return;
-                    await Task.Delay(1000);
+                    await Task.Delay(1000).ConfigureAwait(false);
                 }
 
                 if (_fileRequestActions.NeedsFileForLogin(InitFileType.Item))
                 {
                     gameLoadingDialog.SetState(GameLoadingDialogState.Item);
-                    if (!await SafeGetFile(() => _fileRequestActions.GetItemFileFromServer(sessionID)))
+                    if (!await SafeGetFile(() => _fileRequestActions.GetItemFileFromServer(sessionID)).ConfigureAwait(false))
                         return;
-                    await Task.Delay(1000);
+                    await Task.Delay(1000).ConfigureAwait(false);
                 }
 
                 if (_fileRequestActions.NeedsFileForLogin(InitFileType.Npc))
                 {
                     gameLoadingDialog.SetState(GameLoadingDialogState.NPC);
-                    if (!await SafeGetFile(() => _fileRequestActions.GetNPCFileFromServer(sessionID)))
+                    if (!await SafeGetFile(() => _fileRequestActions.GetNPCFileFromServer(sessionID)).ConfigureAwait(false))
                         return;
-                    await Task.Delay(1000);
+                    await Task.Delay(1000).ConfigureAwait(false);
                 }
 
                 if (_fileRequestActions.NeedsFileForLogin(InitFileType.Spell))
                 {
                     gameLoadingDialog.SetState(GameLoadingDialogState.Spell);
-                    if (!await SafeGetFile(() => _fileRequestActions.GetSpellFileFromServer(sessionID)))
+                    if (!await SafeGetFile(() => _fileRequestActions.GetSpellFileFromServer(sessionID)).ConfigureAwait(false))
                         return;
-                    await Task.Delay(1000);
+                    await Task.Delay(1000).ConfigureAwait(false);
                 }
 
                 if (_fileRequestActions.NeedsFileForLogin(InitFileType.Class))
                 {
                     gameLoadingDialog.SetState(GameLoadingDialogState.Class);
-                    if (!await SafeGetFile(() => _fileRequestActions.GetClassFileFromServer(sessionID)))
+                    if (!await SafeGetFile(() => _fileRequestActions.GetClassFileFromServer(sessionID)).ConfigureAwait(false))
                         return;
-                    await Task.Delay(1000);
+                    await Task.Delay(1000).ConfigureAwait(false);
                 }
 
                 gameLoadingDialog.SetState(GameLoadingDialogState.LoadingGame);
 
                 var completeCharacterLoginOperation = _networkOperationFactory.CreateSafeBlockingOperation(
-                    (async () => await _loginActions.CompleteCharacterLogin(sessionID)),
+                    () => _loginActions.CompleteCharacterLogin(sessionID),
                     SetInitialStateAndShowError,
                     SetInitialStateAndShowError);
-                if (!await completeCharacterLoginOperation.Invoke())
+                if (!await completeCharacterLoginOperation.Invoke().ConfigureAwait(false))
                     return;
 
                 if (completeCharacterLoginOperation.Result == CharacterLoginReply.RequestDenied)
@@ -189,7 +189,7 @@ namespace EndlessClient.Controllers
                 ClearChat();
                 AddDefaultTextToChat();
 
-                await Task.Delay(1000); //always wait 1 second
+                await Task.Delay(1000).ConfigureAwait(false); //always wait 1 second
             }
             finally
             {
@@ -216,10 +216,10 @@ namespace EndlessClient.Controllers
             _errorDisplayAction.ShowException(ex);
         }
 
-        private Task InitialDelayInReleaseMode()
+        private static Task InitialDelayInReleaseMode()
         {
 #if DEBUG
-            return Task.Delay(2000);
+            return Task.Delay(1000);
 #else
             return Task.Delay(5000);
 #endif
@@ -231,7 +231,7 @@ namespace EndlessClient.Controllers
                         operation,
                         SetInitialStateAndShowError,
                         SetInitialStateAndShowError);
-            return await op.Invoke();
+            return await op.Invoke().ConfigureAwait(false);
         }
 
         private void ClearChat()

@@ -1,11 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EndlessClient.Dialogs.Factories;
-using EOLib;
 using EOLib.Domain.Account;
 using EOLib.Localization;
 using Optional;
+using System;
+using System.Threading.Tasks;
 using XNAControls;
 
 namespace EndlessClient.Dialogs.Actions
@@ -41,19 +40,17 @@ namespace EndlessClient.Dialogs.Actions
             dialog.ShowDialog();
         }
 
-        public async Task<XNADialogResult> ShowCreatePendingDialog()
+        public Task<XNADialogResult> ShowCreatePendingDialog()
         {
             var progress = _createAccountProgressDialogFactory.BuildCreateAccountProgressDialog();
-            return await progress.ShowDialogAsync();
+            return progress.ShowDialogAsync();
         }
 
-        public async Task<Option<IChangePasswordParameters>> ShowChangePasswordDialog()
+        public Task<Option<IChangePasswordParameters>> ShowChangePasswordDialog()
         {
-            using (var changePassword = _changePasswordDialogFactory.BuildChangePasswordDialog())
-            {
-                var result = await changePassword.ShowDialogAsync();
-                return result.SomeWhen(x => x == XNADialogResult.OK).Map(x => changePassword.Result);
-            }
+            var changePassword = _changePasswordDialogFactory.BuildChangePasswordDialog();
+            return changePassword.ShowDialogAsync()
+                .ContinueWith(showDialogTask => showDialogTask.Result.SomeWhen(x => x == XNADialogResult.OK).Map(x => changePassword.Result));
         }
 
         public void ShowCreateParameterValidationError(CreateAccountParameterResult validationResult)

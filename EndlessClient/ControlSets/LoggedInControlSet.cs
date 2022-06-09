@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using EndlessClient.Controllers;
+﻿using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
 using EndlessClient.UIControls;
 using EOLib.Domain.Login;
 using Microsoft.Xna.Framework;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using XNAControls;
 
 namespace EndlessClient.ControlSets
@@ -23,7 +23,7 @@ namespace EndlessClient.ControlSets
 
         private IXNAButton _changePasswordButton;
 
-        private int _createRequests, _changePasswordRequests;
+        private Task _loggedInActionTask;
 
         public override GameStates GameState => GameStates.LoggedIn;
 
@@ -77,14 +77,14 @@ namespace EndlessClient.ControlSets
                 new Vector2(454, 417),
                 new Rectangle(0, 120, 120, 40),
                 new Rectangle(120, 120, 120, 40));
-            button.OnClick += DoChangePassword;
+            button.OnClick += (o, e) => AsyncButtonAction(_accountController.ChangePassword);
             return button;
         }
 
         protected override IXNAButton GetCreateButton()
         {
             var button = base.GetCreateButton();
-            button.OnClick += DoCreateCharacter;
+            button.OnClick += (o, e) => AsyncButtonAction(_characterManagementController.CreateCharacter);
             return button;
         }
 
@@ -93,33 +93,12 @@ namespace EndlessClient.ControlSets
             _mainButtonController.GoToInitialStateAndDisconnect();
         }
 
-        private async void DoCreateCharacter(object sender, EventArgs e)
+        private void AsyncButtonAction(Func<Task> clickHandler)
         {
-            if (Interlocked.Increment(ref _createRequests) != 1)
-                return;
-
-            try
+            if (_loggedInActionTask == null)
             {
-                await _characterManagementController.CreateCharacter();
-            }
-            finally
-            {
-                Interlocked.Exchange(ref _createRequests, 0);
-            }
-        }
-
-        private async void DoChangePassword(object sender, EventArgs e)
-        {
-            if (Interlocked.Increment(ref _changePasswordRequests) != 1)
-                return;
-
-            try
-            {
-                await _accountController.ChangePassword();
-            }
-            finally
-            {
-                Interlocked.Exchange(ref _changePasswordRequests, 0);
+                _loggedInActionTask = clickHandler();
+                _loggedInActionTask.ContinueWith(_ => _loggedInActionTask = null);
             }
         }
     }

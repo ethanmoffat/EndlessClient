@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using EndlessClient.Controllers;
+﻿using EndlessClient.Controllers;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.Input;
 using EndlessClient.Rendering;
@@ -13,6 +10,8 @@ using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
+using System.Threading.Tasks;
 using XNAControls;
 
 namespace EndlessClient.UIControls
@@ -33,8 +32,9 @@ namespace EndlessClient.UIControls
         private readonly IXNAButton _loginButton, _deleteButton;
         private readonly IXNALabel _nameLabel, _levelLabel;
 
-        private int _clickRequests;
         private readonly int _characterIndex;
+
+        private Task _activeTask;
 
         //top left - 334, 36 + ndx*124
         protected CharacterInfoPanel(int characterIndex,
@@ -49,14 +49,14 @@ namespace EndlessClient.UIControls
                 new Vector2(161, 57),
                 dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Login),
                 dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Login));
-            _loginButton.OnClick += async (o, e) => await LoginButtonClick();
+            _loginButton.OnClick += (o, e) => AsyncButtonClick(() => _loginController.LoginToCharacter(_character));
             _loginButton.SetParentControl(this);
 
             _deleteButton = new XNAButton(dialogButtonService.SmallButtonSheet,
                 new Vector2(161, 85),
                 dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Delete),
                 dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Delete));
-            _deleteButton.OnClick += async (o, e) => await DeleteButtonClick();
+            _deleteButton.OnClick += (o, e) => AsyncButtonClick(() => _characterManagementController.DeleteCharacter(_character));
             _deleteButton.SetParentControl(this);
 
             _backgroundImage = _gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 11);
@@ -146,35 +146,12 @@ namespace EndlessClient.UIControls
             base.OnDrawControl(gameTime);
         }
 
-        protected virtual async Task LoginButtonClick()
+        protected virtual void AsyncButtonClick(Func<Task> clickHandler)
         {
-            if (Interlocked.Increment(ref _clickRequests) != 1)
-                return;
-
-            try
+            if (_activeTask == null)
             {
-                _rendererRepositoryResetter.ResetRenderers();
-
-                await _loginController.LoginToCharacter(_character);
-            }
-            finally
-            {
-                Interlocked.Exchange(ref _clickRequests, 0);
-            }
-        }
-
-        protected virtual async Task DeleteButtonClick()
-        {
-            if (Interlocked.Increment(ref _clickRequests) != 1)
-                return;
-
-            try
-            {
-                await _characterManagementController.DeleteCharacter(_character);
-            }
-            finally
-            {
-                Interlocked.Exchange(ref _clickRequests, 0);
+                _activeTask = clickHandler();
+                _activeTask.ContinueWith(_ => _activeTask = null);
             }
         }
 
@@ -186,7 +163,7 @@ namespace EndlessClient.UIControls
             var currentKeyState = _userInputProvider.CurrentKeyState;
             if (currentKeyState.IsKeyPressedOnce(previousKeyState, Keys.D1 + _characterIndex))
             {
-                Task.Run(async () => await LoginButtonClick());
+                AsyncButtonClick(() => _loginController.LoginToCharacter(_character));
             }
         }
 
@@ -266,14 +243,8 @@ namespace EndlessClient.UIControls
         {
         }
 
-        protected override Task LoginButtonClick()
+        protected override void AsyncButtonClick(Func<Task> clickHandler)
         {
-            return Task.FromResult(false);
-        }
-
-        protected override Task DeleteButtonClick()
-        {
-            return Task.FromResult(false);
         }
     }
 }

@@ -201,7 +201,7 @@ namespace EndlessClient.HUD.Panels
             base.OnUpdateControl(gameTime);
         }
 
-        private async void HandleArrowButtonClick(object sender, EventArgs e)
+        private void HandleArrowButtonClick(object sender, EventArgs e)
         {
             if (!_confirmedTraining)
             {
@@ -209,9 +209,14 @@ namespace EndlessClient.HUD.Panels
                     "Character training",
                     EODialogButtons.OkCancel);
 
-                var result = await dialog.ShowDialogAsync();
-                if (result == XNADialogResult.OK)
-                    _confirmedTraining = true;
+                dialog.DialogClosing += (_, e) =>
+                {
+
+                    if (e.Result == XNADialogResult.OK)
+                        _confirmedTraining = true;
+                };
+
+                dialog.ShowDialog();
             }
             else
             {

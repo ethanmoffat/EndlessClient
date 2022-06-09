@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using EndlessClient.Content;
+﻿using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
@@ -9,6 +7,9 @@ using EOLib.Domain.Account;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using XNAControls;
 
 namespace EndlessClient.ControlSets
@@ -30,6 +31,8 @@ namespace EndlessClient.ControlSets
 
         private TextBoxClickEventHandler _clickHandler;
         private TextBoxTabEventHandler _tabHandler;
+
+        private Task _createAccountTask;
 
         public override GameStates GameState => GameStates.CreateAccount;
 
@@ -201,13 +204,17 @@ namespace EndlessClient.ControlSets
 
         private void DoCreateAccount(object sender, EventArgs e)
         {
-            _accountController.CreateAccount(new CreateAccountParameters(
-                _tbAccountName.Text,
-                _tbPassword.Text,
-                _tbConfirm.Text,
-                _tbRealName.Text,
-                _tbLocation.Text,
-                _tbEmail.Text));
+            if (_createAccountTask == null)
+            {
+                _createAccountTask = _accountController.CreateAccount(
+                    new CreateAccountParameters(_tbAccountName.Text,
+                                                _tbPassword.Text,
+                                                _tbConfirm.Text,
+                                                _tbRealName.Text,
+                                                _tbLocation.Text,
+                                                _tbEmail.Text));
+                _createAccountTask.ContinueWith(_ => _createAccountTask = null);
+            }
         }
 
         protected override void Dispose(bool disposing)

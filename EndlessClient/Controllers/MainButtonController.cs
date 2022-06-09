@@ -1,6 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.GameExecution;
 using EOLib.Domain;
@@ -8,6 +6,8 @@ using EOLib.Domain.Protocol;
 using EOLib.Net.Communication;
 using EOLib.Net.Connection;
 using EOLib.Net.PacketProcessing;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EndlessClient.Controllers
 {
@@ -59,7 +59,7 @@ namespace EndlessClient.Controllers
 
         public async Task ClickCreateAccount()
         {
-            var result = await StartNetworkConnection();
+            var result = await StartNetworkConnection().ConfigureAwait(false);
 
             if (result)
             {
@@ -70,7 +70,7 @@ namespace EndlessClient.Controllers
 
         public async Task ClickLogin()
         {
-            var result = await StartNetworkConnection();
+            var result = await StartNetworkConnection().ConfigureAwait(false);
 
             if (result)
                 _gameStateActions.ChangeToState(GameStates.Login);
@@ -94,7 +94,7 @@ namespace EndlessClient.Controllers
 
             try
             {
-                var connectResult = await _networkConnectionActions.ConnectToServer();
+                var connectResult = await _networkConnectionActions.ConnectToServer().ConfigureAwait(false);
                 if (connectResult == ConnectResult.AlreadyConnected)
                     return true;
 
@@ -111,7 +111,7 @@ namespace EndlessClient.Controllers
                     ex => _errorDialogDisplayAction.ShowException(ex),
                     ex => _errorDialogDisplayAction.ShowException(ex));
 
-                if (!await beginHandshakeOperation.Invoke())
+                if (!await beginHandshakeOperation.Invoke().ConfigureAwait(false))
                 {
                     StopReceivingAndDisconnect();
                     return false;
