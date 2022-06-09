@@ -129,6 +129,7 @@ namespace EndlessClient.HUD.Controls
                 {HudControlIdentifier.CurrentUserInputTracker, CreateCurrentUserInputTracker()},
 
                 {HudControlIdentifier.MapRenderer, _mapRendererFactory.CreateMapRenderer()},
+                {HudControlIdentifier.StatusIcons, CreatePlayerStatusIconRenderer()},
 
                 {HudControlIdentifier.HudBackground, CreateHudBackground()},
 
@@ -183,6 +184,11 @@ namespace EndlessClient.HUD.Controls
             };
 
             return controls;
+        }
+
+        private PlayerStatusIconRenderer CreatePlayerStatusIconRenderer()
+        {
+            return new PlayerStatusIconRenderer(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, (ISpellSlotDataProvider)_spellSlotDataRepository, _currentMapProvider);
         }
 
         private HudBackgroundFrame CreateHudBackground()

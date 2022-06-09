@@ -102,10 +102,10 @@ namespace EndlessClient.GameExecution
 
             Components.ComponentRemoved += (o, e) =>
             {
-                if (e.GameComponent is PacketHandlerGameComponent)
-                {
-                    throw new InvalidOperationException("Packet handler game component should never be removed from Game components");
-                }
+                //if (e.GameComponent is PacketHandlerGameComponent)
+                //{
+                //    throw new InvalidOperationException("Packet handler game component should never be removed from Game components");
+                //}
             };
 
             base.Initialize();
@@ -184,9 +184,6 @@ namespace EndlessClient.GameExecution
             catch (InvalidOperationException ioe) when (ioe.InnerException is NullReferenceException)
             {
                 // hide "failed to compare two elements in the array" error from Monogame
-            }
-            catch (ArgumentOutOfRangeException)
-            {
             }
         }
 

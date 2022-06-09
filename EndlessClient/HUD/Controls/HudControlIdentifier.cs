@@ -7,6 +7,7 @@ namespace EndlessClient.HUD.Controls
         CurrentUserInputTracker = int.MinValue, //this should always be first!
 
         MapRenderer = 0,
+        StatusIcons,
 
         HudBackground,
 
