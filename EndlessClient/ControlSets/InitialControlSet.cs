@@ -1,13 +1,13 @@
-﻿using System;
-using EndlessClient.Content;
+﻿using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EOLib;
 using EOLib.Config;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using System;
+using System.Threading.Tasks;
 using XNAControls;
 
 namespace EndlessClient.ControlSets
@@ -27,6 +27,8 @@ namespace EndlessClient.ControlSets
 
         private readonly Texture2D[] _personSet1;
         private readonly Random _randomGen;
+
+        private Task _mainButtonClickTask;
 
         public override GameStates GameState => GameStates.Initial;
 
@@ -81,14 +83,14 @@ namespace EndlessClient.ControlSets
         private IXNAButton GetMainCreateAccountButton()
         {
             var button = MainButtonCreationHelper(GameControlIdentifier.InitialCreateAccount);
-            button.OnClick += async (o, e) => await _mainButtonController.ClickCreateAccount();
+            button.OnClick += (o, e) => AsyncMainButtonClick(_mainButtonController.ClickCreateAccount);
             return button;
         }
 
         private IXNAButton GetMainLoginButton()
         {
             var button = MainButtonCreationHelper(GameControlIdentifier.InitialLogin);
-            button.OnClick += async (o, e) => await _mainButtonController.ClickLogin();
+            button.OnClick += (o, e) => AsyncMainButtonClick(_mainButtonController.ClickLogin);
             return button;
         }
 
@@ -104,6 +106,15 @@ namespace EndlessClient.ControlSets
             var button = MainButtonCreationHelper(GameControlIdentifier.InitialExitGame);
             button.OnClick += (o, e) => _mainButtonController.ClickExit();
             return button;
+        }
+
+        private void AsyncMainButtonClick(Func<Task> clickHandler)
+        {
+            if (_mainButtonClickTask == null)
+            {
+                _mainButtonClickTask = clickHandler();
+                _mainButtonClickTask.ContinueWith(_ => _mainButtonClickTask = null);
+            }
         }
 
         private IXNAButton MainButtonCreationHelper(GameControlIdentifier whichControl)

@@ -14,7 +14,6 @@ namespace EOLib.Net.Connection
     public class NetworkConnectionActions : INetworkConnectionActions
     {
         private readonly INetworkClientRepository _networkClientRepository;
-        private readonly IConnectionStateRepository _connectionStateRepository;
         private readonly ISequenceRepository _sequenceRepository;
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IHashService _hashService;
@@ -26,7 +25,6 @@ namespace EOLib.Net.Connection
 
 
         public NetworkConnectionActions(INetworkClientRepository networkClientRepository,
-                                        IConnectionStateRepository connectionStateRepository,
                                         ISequenceRepository sequenceRepository,
                                         IConfigurationProvider configurationProvider,
                                         IHashService hashService,
@@ -37,7 +35,6 @@ namespace EOLib.Net.Connection
                                         IPlayerInfoRepository playerInfoRepository)
         {
             _networkClientRepository = networkClientRepository;
-            _connectionStateRepository = connectionStateRepository;
             _sequenceRepository = sequenceRepository;
             _configurationProvider = configurationProvider;
             _hashService = hashService;
@@ -50,39 +47,29 @@ namespace EOLib.Net.Connection
 
         public async Task<ConnectResult> ConnectToServer()
         {
-            if (Client.Connected)
+            if (Client != null && Client.Connected)
                 return ConnectResult.AlreadyConnected;
+
+            _networkClientRepository.NetworkClient?.Dispose();
+            _networkClientRepository.NetworkClient = _networkClientFactory.CreateNetworkClient();
 
             var host = _configurationProvider.Host;
             var port = _configurationProvider.Port;
 
-            var result = await Client.ConnectToServer(host, port);
-            if (result != ConnectResult.AlreadyConnected && result != ConnectResult.Success)
-                _connectionStateRepository.NeedsReconnect = true;
-
-            return result;
-        }
-
-        public async Task<ConnectResult> ReconnectToServer()
-        {
-            if (Client.Connected)
-            {
-                Client.CancelBackgroundReceiveLoop();
-                Client.Disconnect();
-            }
-            Client.Dispose();
-
-            _networkClientRepository.NetworkClient = _networkClientFactory.CreateNetworkClient();
-            return await ConnectToServer();
+            return await Client.ConnectToServer(host, port);
         }
 
         public void DisconnectFromServer()
         {
-            Client.Disconnect();
+            if (Client != null)
+            {
+                Client.Disconnect();
+                Client.Dispose();
+                _networkClientRepository.NetworkClient = null;
+            }
 
             _sequenceRepository.SequenceIncrement = 0;
             _sequenceRepository.SequenceStart = 0;
-            _connectionStateRepository.NeedsReconnect = true;
         }
 
         public async Task<IInitializationData> BeginHandshake()

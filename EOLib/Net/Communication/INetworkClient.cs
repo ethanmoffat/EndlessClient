@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace EOLib.Net.Communication
@@ -15,9 +16,7 @@ namespace EOLib.Net.Communication
 
         void Disconnect();
 
-        Task RunReceiveLoopAsync();
-
-        void CancelBackgroundReceiveLoop();
+        Task RunReceiveLoopAsync(CancellationToken cancellationToken);
 
         int Send(IPacket packet);
 

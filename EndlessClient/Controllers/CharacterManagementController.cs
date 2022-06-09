@@ -50,22 +50,26 @@ namespace EndlessClient.Controllers
         public async Task CreateCharacter()
         {
             var requestCreateOp = _safeNetworkOperationFactory.CreateSafeBlockingOperation(_characterManagementActions.RequestCharacterCreation, SendError, RecvError);
-            if (!await requestCreateOp.Invoke())
+            if (!await requestCreateOp.Invoke().ConfigureAwait(false))
                 return;
 
             var createID = requestCreateOp.Result;
 
             //todo: make not approved character names cancel the dialog close
-            var showResult = await _characterDialogActions.ShowCreateCharacterDialog();
-            showResult.MatchSome(async parameters =>
+            var showResult = await _characterDialogActions.ShowCreateCharacterDialog().ConfigureAwait(false);
+            showResult.MatchSome(parameters =>
             {
                 var createOp = _safeNetworkOperationFactory.CreateSafeBlockingOperation(
                     () => _characterManagementActions.CreateCharacter(parameters, createID), SendError, RecvError);
-                if (!await createOp.Invoke())
-                    return;
-
-                _gameStateActions.RefreshCurrentState();
-                _characterDialogActions.ShowCharacterReplyDialog(createOp.Result);
+                var opTask = createOp.Invoke();
+                opTask.ContinueWith(t =>
+                {
+                    if (t.Result)
+                    {
+                        _gameStateActions.RefreshCurrentState();
+                        _characterDialogActions.ShowCharacterReplyDialog(createOp.Result);
+                    }
+                });
             });
         }
 
@@ -98,17 +102,17 @@ namespace EndlessClient.Controllers
                 return;
 
             var requestDeleteOp = _safeNetworkOperationFactory.CreateSafeBlockingOperation(_characterManagementActions.RequestCharacterDelete, SendError, RecvError);
-            if (!await requestDeleteOp.Invoke())
+            if (!await requestDeleteOp.Invoke().ConfigureAwait(false))
                 return;
 
             var takeID = requestDeleteOp.Result;
 
-            var dialogResult = await _characterDialogActions.ShowConfirmDeleteWarning(characterToDelete.Name);
+            var dialogResult = await _characterDialogActions.ShowConfirmDeleteWarning(characterToDelete.Name).ConfigureAwait(false);
             if (dialogResult != XNADialogResult.OK)
                 return;
 
             var deleteOp = _safeNetworkOperationFactory.CreateSafeBlockingOperation(() => _characterManagementActions.DeleteCharacter(takeID), SendError, RecvError);
-            if (!await deleteOp.Invoke())
+            if (!await deleteOp.Invoke().ConfigureAwait(false))
                 return;
 
             _characterSelectorRepository.CharacterForDelete = Option.None<Character>();

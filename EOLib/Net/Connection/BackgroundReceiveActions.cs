@@ -1,7 +1,7 @@
-using System;
-using System.Threading;
 using AutomaticTypeMapper;
 using EOLib.Net.Communication;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EOLib.Net.Connection
 {
@@ -9,43 +9,36 @@ namespace EOLib.Net.Connection
     public class BackgroundReceiveActions : IBackgroundReceiveActions
     {
         private readonly INetworkClientProvider _clientProvider;
-        private readonly IBackgroundReceiveThreadRepository _backgroundReceiveThreadRepository;
+        private readonly IBackgroundReceiveTaskRepository _backgroundReceiveTaskRepository;
 
         public BackgroundReceiveActions(INetworkClientProvider clientProvider,
-                                        IBackgroundReceiveThreadRepository backgroundReceiveThreadRepository)
+                                        IBackgroundReceiveTaskRepository backgroundReceiveThreadRepository)
         {
             _clientProvider = clientProvider;
-            _backgroundReceiveThreadRepository = backgroundReceiveThreadRepository;
-            _backgroundReceiveThreadRepository.BackgroundThreadObject = new Thread(BackgroundLoop);
+            _backgroundReceiveTaskRepository = backgroundReceiveThreadRepository;
         }
 
         public void RunBackgroundReceiveLoop()
         {
-            if (_backgroundReceiveThreadRepository.BackgroundThreadRunning)
+            if (_backgroundReceiveTaskRepository.Task != null)
                 return;
 
-            _backgroundReceiveThreadRepository.BackgroundThreadObject.Start();
-            _backgroundReceiveThreadRepository.BackgroundThreadRunning = true;
+            _backgroundReceiveTaskRepository.BackgroundCancellationTokenSource = new CancellationTokenSource();
+            _backgroundReceiveTaskRepository.Task = Task.Run(RunLoop, _backgroundReceiveTaskRepository.BackgroundCancellationTokenSource.Token);
         }
 
         public void CancelBackgroundReceiveLoop()
         {
-            if (!_backgroundReceiveThreadRepository.BackgroundThreadRunning)
-                return;
+            _backgroundReceiveTaskRepository.BackgroundCancellationTokenSource?.Cancel();
+            _backgroundReceiveTaskRepository.BackgroundCancellationTokenSource?.Dispose();
+            _backgroundReceiveTaskRepository.BackgroundCancellationTokenSource = null;
 
-            Client.CancelBackgroundReceiveLoop();
-
-            if (_backgroundReceiveThreadRepository.BackgroundThreadObject.ThreadState == ThreadState.Running)
-                _backgroundReceiveThreadRepository.BackgroundThreadObject.Join();
-            _backgroundReceiveThreadRepository.BackgroundThreadObject = new Thread(BackgroundLoop);
-            _backgroundReceiveThreadRepository.BackgroundThreadRunning = false;
+            _backgroundReceiveTaskRepository.Task = null;
         }
 
-        private async void BackgroundLoop()
+        private Task RunLoop()
         {
-            await Client.RunReceiveLoopAsync().ConfigureAwait(false);
+            return _clientProvider.NetworkClient.RunReceiveLoopAsync(_backgroundReceiveTaskRepository.BackgroundCancellationTokenSource.Token);
         }
-
-        private INetworkClient Client => _clientProvider.NetworkClient;
     }
 }

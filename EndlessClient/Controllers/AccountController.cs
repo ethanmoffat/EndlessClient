@@ -1,12 +1,11 @@
-﻿using System.Threading.Tasks;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.GameExecution;
 using EOLib.Domain.Account;
 using EOLib.Net;
 using EOLib.Net.Communication;
+using System.Threading.Tasks;
 using XNAControls;
-using Optional;
 
 namespace EndlessClient.Controllers
 {
@@ -42,10 +41,10 @@ namespace EndlessClient.Controllers
             }
 
             var checkNameOperation = _networkOperationFactory.CreateSafeBlockingOperation(
-                async () => await _accountActions.CheckAccountNameWithServer(createAccountParameters.AccountName),
+                () => _accountActions.CheckAccountNameWithServer(createAccountParameters.AccountName),
                 SetInitialStateAndShowError,
                 SetInitialStateAndShowError);
-            if (!await checkNameOperation.Invoke())
+            if (!await checkNameOperation.Invoke().ConfigureAwait(false))
                 return;
 
             var nameResult = checkNameOperation.Result;
@@ -55,19 +54,19 @@ namespace EndlessClient.Controllers
                 return;
             }
 
-            var result = await _accountDialogDisplayActions.ShowCreatePendingDialog();
+            var result = await _accountDialogDisplayActions.ShowCreatePendingDialog().ConfigureAwait(false);
             if (result == XNADialogResult.Cancel)
                 return;
 
             var createAccountOperation = _networkOperationFactory.CreateSafeBlockingOperation(
-                async () =>
+                () =>
                 {
                     short sessionID = (short)nameResult;
-                    return await _accountActions.CreateAccount(createAccountParameters, sessionID);
+                    return _accountActions.CreateAccount(createAccountParameters, sessionID);
                 },
                 SetInitialStateAndShowError,
                 SetInitialStateAndShowError);
-            if (!await createAccountOperation.Invoke())
+            if (!await createAccountOperation.Invoke().ConfigureAwait(false))
                 return;
 
             var accountResult = createAccountOperation.Result;
@@ -83,18 +82,23 @@ namespace EndlessClient.Controllers
 
         public async Task ChangePassword()
         {
-            var changePasswordResult = await _accountDialogDisplayActions.ShowChangePasswordDialog();
-            changePasswordResult.MatchSome(async changePasswordParameters =>
+            var changePasswordResult = await _accountDialogDisplayActions.ShowChangePasswordDialog().ConfigureAwait(false);
+            changePasswordResult.MatchSome(changePasswordParameters =>
                 {
                     var changePasswordOperation = _networkOperationFactory.CreateSafeBlockingOperation(
-                        async () => await _accountActions.ChangePassword(changePasswordParameters),
+                        () => _accountActions.ChangePassword(changePasswordParameters),
                         SetInitialStateAndShowError,
                         SetInitialStateAndShowError);
-                    if (!await changePasswordOperation.Invoke())
-                        return;
 
-                    var result = changePasswordOperation.Result;
-                    _accountDialogDisplayActions.ShowCreateAccountServerError(result);
+                    var opTask = changePasswordOperation.Invoke();
+                    opTask.ContinueWith(t =>
+                    {
+                        if (t.Result)
+                        {
+                            var result = changePasswordOperation.Result;
+                            _accountDialogDisplayActions.ShowCreateAccountServerError(result);
+                        }
+                    });
                 });
         }
 

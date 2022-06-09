@@ -34,7 +34,9 @@ namespace EndlessClient.Network
 
         public override void Update(GameTime gameTime)
         {
-            if (_networkClientProvider.NetworkClient.Started && !_networkClientProvider.NetworkClient.Connected)
+            if (_networkClientProvider.NetworkClient != null &&
+                _networkClientProvider.NetworkClient.Started &&
+                !_networkClientProvider.NetworkClient.Connected)
             {
                 var isInGame = _gameStateProvider.CurrentState == GameStates.PlayingTheGame;
                 _mainButtonController.GoToInitialStateAndDisconnect();

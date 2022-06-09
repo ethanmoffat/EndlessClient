@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using EndlessClient.Content;
+﻿using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
@@ -10,8 +7,10 @@ using EOLib.Config;
 using EOLib.Domain.Login;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using XNAControls;
 
 namespace EndlessClient.ControlSets
@@ -30,7 +29,7 @@ namespace EndlessClient.ControlSets
         private TextBoxTabEventHandler _tabHandler;
         private Texture2D _loginBackgroundTexture;
 
-        private int _loginRequests;
+        private Task _loginTask;
 
         public override GameStates GameState => GameStates.Login;
 
@@ -153,19 +152,13 @@ namespace EndlessClient.ControlSets
             return button;
         }
 
-        private async void DoLogin(object sender, EventArgs e)
+        private void DoLogin(object sender, EventArgs e)
         {
-            if (Interlocked.Increment(ref _loginRequests) != 1)
-                return;
-            
-            var loginParameters = new LoginParameters(_tbUsername.Text, _tbPassword.Text);
-            try
+            if (_loginTask == null)
             {
-                await _loginController.LoginToAccount(loginParameters);
-            }
-            finally
-            {
-                Interlocked.Exchange(ref _loginRequests, 0);
+                var loginParameters = new LoginParameters(_tbUsername.Text, _tbPassword.Text);
+                _loginTask = _loginController.LoginToAccount(loginParameters);
+                _loginTask.ContinueWith(_ => _loginTask = null);
             }
         }
 

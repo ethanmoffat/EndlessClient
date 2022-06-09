@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -37,13 +38,19 @@ namespace EndlessClient.GameExecution
         private readonly ILoggerProvider _loggerProvider;
         private readonly IChatBubbleTextureProvider _chatBubbleTextureProvider;
         private readonly IShaderRepository _shaderRepository;
-        private readonly ICharacterInfoPanelFactory _characterInfoPanelFactory;
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IMfxPlayer _mfxPlayer;
         private readonly IXnaControlSoundMapper _soundMapper;
         private GraphicsDeviceManager _graphicsDeviceManager;
 
         private KeyboardState _previousKeyState;
+
+#if DEBUG
+        private SpriteBatch _spriteBatch;
+        private Stopwatch _lastFrameRenderTime = Stopwatch.StartNew();
+        private int _frames, _displayFrames;
+        private Texture2D _black;
+#endif
 
         public EndlessGame(IClientWindowSizeProvider windowSizeProvider,
                            IContentProvider contentProvider,
@@ -55,7 +62,6 @@ namespace EndlessClient.GameExecution
                            ILoggerProvider loggerProvider,
                            IChatBubbleTextureProvider chatBubbleTextureProvider,
                            IShaderRepository shaderRepository,
-                           ICharacterInfoPanelFactory characterInfoPanelFactory,
                            IConfigurationProvider configurationProvider,
                            IMfxPlayer mfxPlayer,
                            IXnaControlSoundMapper soundMapper)
@@ -70,7 +76,6 @@ namespace EndlessClient.GameExecution
             _loggerProvider = loggerProvider;
             _chatBubbleTextureProvider = chatBubbleTextureProvider;
             _shaderRepository = shaderRepository;
-            _characterInfoPanelFactory = characterInfoPanelFactory;
             _configurationProvider = configurationProvider;
             _mfxPlayer = mfxPlayer;
             _soundMapper = soundMapper;
@@ -108,8 +113,10 @@ namespace EndlessClient.GameExecution
             AttemptToLoadPubFiles();
 
             IsMouseVisible = true;
+            IsFixedTimeStep = false;
             _previousKeyState = Keyboard.GetState();
 
+            _graphicsDeviceManager.SynchronizeWithVerticalRetrace = false;
             _graphicsDeviceManager.IsFullScreen = false;
             _graphicsDeviceManager.PreferredBackBufferWidth = _windowSizeProvider.Width;
             _graphicsDeviceManager.PreferredBackBufferHeight = _windowSizeProvider.Height;
@@ -120,6 +127,12 @@ namespace EndlessClient.GameExecution
 
         protected override void LoadContent()
         {
+#if DEBUG
+            _spriteBatch = new SpriteBatch(GraphicsDevice);
+            _black = new Texture2D(GraphicsDevice, 1, 1);
+            _black.SetData(new[] { Color.Black });
+#endif
+
             _contentProvider.Load();
 
             //todo: all the things that should load stuff as part of game's load/initialize should be broken into a pattern
@@ -138,14 +151,6 @@ namespace EndlessClient.GameExecution
 
                 var shaderBytes = File.ReadAllBytes(ShaderRepository.HairClipFile);
                 _shaderRepository.Shaders[ShaderRepository.HairClip] = new Effect(GraphicsDevice, shaderBytes);
-            }
-
-            // for some reason initializing these and then killing them speeds up transition from Login -> LoggedIn state
-            // TODO: figure out why this happens????
-            foreach (var panel in _characterInfoPanelFactory.CreatePanels(Enumerable.Repeat(Character.Default, 3)))
-            {
-                panel.Initialize();
-                panel.Dispose();
             }
 
             SetUpInitialControlSet();
@@ -193,6 +198,24 @@ namespace EndlessClient.GameExecution
             GraphicsDevice.Clear(isTestMode ? Color.White : Color.Black);
 
             base.Draw(gameTime);
+#if DEBUG
+            _frames++;
+
+            var fpsString = $"FPS: {_displayFrames}{(gameTime.IsRunningSlowly ? " (SLOW)" : string.Empty)}";
+            var dim = _contentProvider.Fonts[Constants.FontSize09].MeasureString(fpsString).ToPoint();
+
+            _spriteBatch.Begin();
+            _spriteBatch.Draw(_black, new Rectangle(18, 18, dim.X + 4, dim.Y + 4), Color.White);
+            _spriteBatch.DrawString(_contentProvider.Fonts[Constants.FontSize09], fpsString, new Vector2(20, 20), Color.White);
+            _spriteBatch.End();
+
+            if (_lastFrameRenderTime.ElapsedMilliseconds > 1000)
+            {
+                _displayFrames = _frames;
+                _frames = 0;
+                _lastFrameRenderTime = Stopwatch.StartNew();
+            }
+#endif
         }
 
         private void AttemptToLoadPubFiles()
