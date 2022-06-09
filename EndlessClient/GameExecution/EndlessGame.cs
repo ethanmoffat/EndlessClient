@@ -38,7 +38,6 @@ namespace EndlessClient.GameExecution
         private readonly ILoggerProvider _loggerProvider;
         private readonly IChatBubbleTextureProvider _chatBubbleTextureProvider;
         private readonly IShaderRepository _shaderRepository;
-        private readonly ICharacterInfoPanelFactory _characterInfoPanelFactory;
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IMfxPlayer _mfxPlayer;
         private readonly IXnaControlSoundMapper _soundMapper;
@@ -63,7 +62,6 @@ namespace EndlessClient.GameExecution
                            ILoggerProvider loggerProvider,
                            IChatBubbleTextureProvider chatBubbleTextureProvider,
                            IShaderRepository shaderRepository,
-                           ICharacterInfoPanelFactory characterInfoPanelFactory,
                            IConfigurationProvider configurationProvider,
                            IMfxPlayer mfxPlayer,
                            IXnaControlSoundMapper soundMapper)
@@ -78,7 +76,6 @@ namespace EndlessClient.GameExecution
             _loggerProvider = loggerProvider;
             _chatBubbleTextureProvider = chatBubbleTextureProvider;
             _shaderRepository = shaderRepository;
-            _characterInfoPanelFactory = characterInfoPanelFactory;
             _configurationProvider = configurationProvider;
             _mfxPlayer = mfxPlayer;
             _soundMapper = soundMapper;
@@ -116,8 +113,10 @@ namespace EndlessClient.GameExecution
             AttemptToLoadPubFiles();
 
             IsMouseVisible = true;
+            IsFixedTimeStep = false;
             _previousKeyState = Keyboard.GetState();
 
+            _graphicsDeviceManager.SynchronizeWithVerticalRetrace = false;
             _graphicsDeviceManager.IsFullScreen = false;
             _graphicsDeviceManager.PreferredBackBufferWidth = _windowSizeProvider.Width;
             _graphicsDeviceManager.PreferredBackBufferHeight = _windowSizeProvider.Height;
@@ -152,14 +151,6 @@ namespace EndlessClient.GameExecution
 
                 var shaderBytes = File.ReadAllBytes(ShaderRepository.HairClipFile);
                 _shaderRepository.Shaders[ShaderRepository.HairClip] = new Effect(GraphicsDevice, shaderBytes);
-            }
-
-            // for some reason initializing these and then killing them speeds up transition from Login -> LoggedIn state
-            // TODO: figure out why this happens????
-            foreach (var panel in _characterInfoPanelFactory.CreatePanels(Enumerable.Repeat(Character.Default, 3)))
-            {
-                panel.Initialize();
-                panel.Dispose();
             }
 
             SetUpInitialControlSet();
