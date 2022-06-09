@@ -96,11 +96,11 @@ namespace EndlessClient.Rendering
             else
                 _miniMapRenderer.Map = MapRef;
 
-            if (!Game.Components.OfType<PlayerStatusIconRenderer>().Any())
-            {
-                var iconRenderer = new PlayerStatusIconRenderer((EOGame)Game);
-                Game.Components.Add(iconRenderer);
-            }
+            //if (!Game.Components.OfType<PlayerStatusIconRenderer>().Any())
+            //{
+            //    var iconRenderer = new PlayerStatusIconRenderer((EOGame)Game);
+            //    Game.Components.Add(iconRenderer);
+            //}
 
             lock (_spikeTrapsLock)
                 _visibleSpikeTraps.Clear();
