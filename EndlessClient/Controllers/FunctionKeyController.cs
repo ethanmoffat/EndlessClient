@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Panels;
@@ -27,6 +28,7 @@ namespace EndlessClient.Controllers
         private readonly ICharacterProvider _characterProvider;
         private readonly IESFFileProvider _esfFileProvider;
         private readonly ISpellSlotDataProvider _spellSlotDataProvider;
+        private readonly ISfxPlayer _sfxPlayer;
 
         public FunctionKeyController(IMapActions mapActions,
                                      ICharacterActions characterActions,
@@ -37,7 +39,8 @@ namespace EndlessClient.Controllers
                                      IStatusLabelSetter statusLabelSetter,
                                      ICharacterProvider characterProvider,
                                      IESFFileProvider esfFileProvider,
-                                     ISpellSlotDataProvider spellSlotDataProvider)
+                                     ISpellSlotDataProvider spellSlotDataProvider,
+                                     ISfxPlayer sfxPlayer)
         {
             _mapActions = mapActions;
             _characterActions = characterActions;
@@ -49,6 +52,7 @@ namespace EndlessClient.Controllers
             _characterProvider = characterProvider;
             _esfFileProvider = esfFileProvider;
             _spellSlotDataProvider = spellSlotDataProvider;
+            _sfxPlayer = sfxPlayer;
         }
 
         public bool SelectSpell(int index, bool isAlternate)
@@ -74,6 +78,10 @@ namespace EndlessClient.Controllers
                             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.ATTACK_YOU_ARE_EXHAUSTED_SP);
                         else if (_characterAnimationActions.PrepareMainCharacterSpell(x.ID, _characterProvider.MainCharacter))
                             _characterActions.PrepareCastSpell(x.ID);
+                    }
+                    else
+                    {
+                        _sfxPlayer.PlaySfx(SoundEffectID.SpellActivate);
                     }
                 });
 
