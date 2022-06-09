@@ -18,18 +18,21 @@ namespace EndlessClient.GameExecution
         private readonly IControlSetFactory _controlSetFactory;
         private readonly IEndlessGameProvider _endlessGameProvider;
         private readonly ISfxPlayer _sfxPlayer;
+        private readonly IMfxPlayer _mfxPlayer;
 
         public GameStateActions(IGameStateRepository gameStateRepository,
                                 IControlSetRepository controlSetRepository,
                                 IControlSetFactory controlSetFactory,
                                 IEndlessGameProvider endlessGameProvider,
-                                ISfxPlayer sfxPlayer)
+                                ISfxPlayer sfxPlayer,
+                                IMfxPlayer mfxPlayer)
         {
             _gameStateRepository = gameStateRepository;
             _controlSetRepository = controlSetRepository;
             _controlSetFactory = controlSetFactory;
             _endlessGameProvider = endlessGameProvider;
             _sfxPlayer = sfxPlayer;
+            _mfxPlayer = mfxPlayer;
         }
 
         public void ChangeToState(GameStates newState)
@@ -49,7 +52,14 @@ namespace EndlessClient.GameExecution
             switch (_gameStateRepository.CurrentState)
             {
                 case GameStates.None:
-                case GameStates.Initial: _sfxPlayer.StopLoopingSfx(); break;
+                case GameStates.Initial:
+                    {
+                        _sfxPlayer.StopLoopingSfx();
+
+                        // this replicates behavior of the vanilla client where returning to the main menu stops playing the background music
+                        _mfxPlayer.StopBackgroundMusic();
+                    }
+                    break;
                 case GameStates.LoggedIn: _sfxPlayer.PlaySfx(SoundEffectID.Login); break;
             }
         }

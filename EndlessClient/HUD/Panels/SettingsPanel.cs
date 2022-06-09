@@ -144,6 +144,8 @@ namespace EndlessClient.HUD.Panels
                                 _soundChanged = true;
                                 _configurationRepository.SoundEnabled = !_configurationRepository.SoundEnabled;
                                 _audioActions.ToggleSound();
+
+                                UpdateDisplayText();
                             };
                             dlg.ShowDialog();
                         }
@@ -169,6 +171,8 @@ namespace EndlessClient.HUD.Panels
                                 _musicChanged = true;
                                 _configurationRepository.MusicEnabled = !_configurationRepository.MusicEnabled;
                                 _audioActions.ToggleBackgroundMusic();
+
+                                UpdateDisplayText();
                             };
                             dlg.ShowDialog();
                         }
