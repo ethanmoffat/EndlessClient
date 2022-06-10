@@ -31,8 +31,11 @@ namespace EOLib.PacketHandlers
             var spellId = packet.ReadShort();
             var spellLevel = packet.ReadShort();
 
-            _characterInventoryRepository.SpellInventory.RemoveWhere(x => x.ID == spellId);
-            _characterInventoryRepository.SpellInventory.Add(new InventorySpell(spellId, spellLevel));
+            if (spellId > 0)
+            {
+                _characterInventoryRepository.SpellInventory.RemoveWhere(x => x.ID == spellId);
+                _characterInventoryRepository.SpellInventory.Add(new InventorySpell(spellId, spellLevel));
+            }
 
             var stats = _characterRepository.MainCharacter.Stats.WithNewStat(CharacterStat.SkillPoints, skillPoints);
             _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);
