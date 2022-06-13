@@ -39,7 +39,7 @@ namespace EOLib.PacketHandlers.Init
             else
                 title = char.ToUpper(title[0]) + title.Substring(1);
 
-            var className = _classFileProvider.ECFFile.Length >= clsId
+            var className = _classFileProvider.ECFFile.Length >= clsId && clsId != 0
                 ? _classFileProvider.ECFFile[clsId].Name
                 : "-";
 

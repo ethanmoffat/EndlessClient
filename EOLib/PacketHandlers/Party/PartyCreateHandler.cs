@@ -16,7 +16,7 @@ namespace EOLib.PacketHandlers.Party
 
         public override PacketFamily Family => PacketFamily.Party;
 
-        public override PacketAction Action => PacketAction.Agree;
+        public override PacketAction Action => PacketAction.Create;
 
         public PartyCreateHandler(IPlayerInfoProvider playerInfoProvider,
                                   IPartyDataRepository partyDataRepository)

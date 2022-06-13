@@ -55,6 +55,11 @@ namespace EndlessClient.Content
         public const string ChatRR = @"ChatBubble\RR";
         public const string ChatNUB = @"ChatBubble\NUB";
 
+        public const string HPOutline = @"Party\hp-outline";
+        public const string HPRed = @"Party\hp-red";
+        public const string HPYellow = @"Party\hp-yellow";
+        public const string HPGreen = @"Party\hp-green";
+
         public IReadOnlyDictionary<string, Texture2D> Textures => _textures;
 
         public IReadOnlyDictionary<string, SpriteFont> Fonts => _fonts;
@@ -109,6 +114,11 @@ namespace EndlessClient.Content
             _textures[ChatRM] = _content.Load<Texture2D>(ChatRM);
             _textures[ChatRR] = _content.Load<Texture2D>(ChatRR);
             _textures[ChatNUB] = _content.Load<Texture2D>(ChatNUB);
+
+            _textures[HPOutline] = _content.Load<Texture2D>(HPOutline);
+            _textures[HPRed] = _content.Load<Texture2D>(HPRed);
+            _textures[HPYellow] = _content.Load<Texture2D>(HPYellow);
+            _textures[HPGreen] = _content.Load<Texture2D>(HPGreen);
         }
 
         private void RefreshFonts()
