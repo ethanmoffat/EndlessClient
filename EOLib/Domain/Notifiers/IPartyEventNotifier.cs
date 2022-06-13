@@ -7,6 +7,8 @@ namespace EOLib.Domain.Notifiers
     {
         void NotifyPartyRequest(PartyRequestType type, short playerId, string name);
 
+        void NotifyPartyJoined();
+
         void NotifyPartyMemberAdd(string name);
 
         void NotifyPartyMemberRemove(string name);
@@ -16,6 +18,8 @@ namespace EOLib.Domain.Notifiers
     public class NoOpPartyEventNotifier : IPartyEventNotifier
     {
         public void NotifyPartyRequest(PartyRequestType type, short playerId, string name) { }
+
+        public void NotifyPartyJoined() { }
 
         public void NotifyPartyMemberAdd(string name) { }
 

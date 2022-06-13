@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Actions;
@@ -11,6 +10,7 @@ using EndlessClient.Rendering.Character;
 using EndlessClient.Services;
 using EndlessClient.UIControls;
 using EOLib;
+using EOLib.Domain.Chat;
 using EOLib.Domain.Interact;
 using EOLib.Domain.Party;
 using EOLib.Graphics;
@@ -248,13 +248,13 @@ namespace EndlessClient.Rendering
         {
             if (_partyDataProvider.Members.Any(x => x.CharacterID == _characterRenderer.Character.ID))
             {
-                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, _characterRenderer.Character.Name, EOResourceID.STATUS_LABEL_PARTY_IS_ALREADY_MEMBER);
+                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, _characterRenderer.Character.Name + " ", EOResourceID.STATUS_LABEL_PARTY_IS_ALREADY_MEMBER, showChatError: true);
                 return;
             }
 
             if (_lastPartyRequestTime != null && (DateTime.Now - _lastPartyRequestTime.Value).TotalSeconds < Constants.PartyRequestTimeoutSeconds)
             {
-                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_PARTY_RECENTLY_REQUESTED);
+                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_PARTY_RECENTLY_REQUESTED, showChatError: true);
                 return;
             }
 
@@ -267,13 +267,13 @@ namespace EndlessClient.Rendering
         {
             if (_partyDataProvider.Members.Any(x => x.CharacterID == _characterRenderer.Character.ID))
             {
-                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, _characterRenderer.Character.Name, EOResourceID.STATUS_LABEL_PARTY_IS_ALREADY_MEMBER);
+                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, _characterRenderer.Character.Name + " ", EOResourceID.STATUS_LABEL_PARTY_IS_ALREADY_MEMBER, showChatError: true);
                 return;
             }
 
             if (_lastPartyRequestTime != null && (DateTime.Now - _lastPartyRequestTime.Value).TotalSeconds < Constants.PartyRequestTimeoutSeconds)
             {
-                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_PARTY_RECENTLY_REQUESTED);
+                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_PARTY_RECENTLY_REQUESTED, showChatError: true);
                 return;
             }
 
