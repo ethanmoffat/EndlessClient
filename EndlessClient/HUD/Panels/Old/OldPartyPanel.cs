@@ -18,7 +18,7 @@ namespace EndlessClient.HUD.Panels.Old
     {
         private readonly OldScrollBar m_scrollBar;
         private readonly XNALabel m_numMembers;
-        private List<PartyMember> m_members;
+        //private List<PartyMember> m_members;
         private readonly List<XNAButton> m_buttons; 
         private bool m_mainIsLeader;
         private readonly Texture2D m_removeTexture;
@@ -66,111 +66,111 @@ namespace EndlessClient.HUD.Panels.Old
             OldWorld.IgnoreDialogs(m_scrollBar);
         }
 
-        public void SetData(List<PartyMember> memberList)
-        {
-            if (memberList.TrueForAll(_member => _member.IsFullData))
-            {
-                if(m_members == null || m_members.Count == 0)
-                {
-                    ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_PARTY_YOU_JOINED);
-                    //((EOGame)Game).Hud.AddChat(ChatTab.System, "", OldWorld.GetString(EOResourceID.STATUS_LABEL_PARTY_YOU_JOINED), ChatIcon.PlayerParty, ChatColor.PM);
-                }
+//        public void SetData(List<PartyMember> memberList)
+//        {
+//            if (memberList.TrueForAll(_member => _member.IsFullData))
+//            {
+//                if(m_members == null || m_members.Count == 0)
+//                {
+//                    ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_PARTY_YOU_JOINED);
+//                    ((EOGame)Game).Hud.AddChat(ChatTab.System, "", OldWorld.GetString(EOResourceID.STATUS_LABEL_PARTY_YOU_JOINED), ChatIcon.PlayerParty, ChatColor.PM);
+//                }
 
-                Visible = true;
-                m_numMembers.Text = $"{memberList.Count}";
-                m_members = memberList;
+//                Visible = true;
+//                m_numMembers.Text = $"{memberList.Count}";
+//                m_members = memberList;
 
-                m_mainIsLeader = m_members.FindIndex(_member => _member.IsLeader && _member.ID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID) >= 0;
-                m_scrollBar.UpdateDimensions(memberList.Count);
+//                m_mainIsLeader = m_members.FindIndex(_member => _member.IsLeader && _member.ID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID) >= 0;
+//                m_scrollBar.UpdateDimensions(memberList.Count);
 
-                m_buttons.Clear();
+//                m_buttons.Clear();
 
-                foreach (PartyMember member in m_members)
-                {
-                    _addRemoveButtonForMember(member);
-                }
-            }
-            else
-            {
-                //update HP only
-// ReSharper disable once ForCanBeConvertedToForeach
-                for (int i = 0; i < memberList.Count; ++i)
-                {
-                    int ndx = m_members.FindIndex(_member => _member.ID == memberList[i].ID);
-                    PartyMember member = m_members[ndx];
-                    member.SetPercentHealth(memberList[i].PercentHealth);
-                    m_members[ndx] = member;
-                }
-            }
-        }
+//                foreach (PartyMember member in m_members)
+//                {
+//                    _addRemoveButtonForMember(member);
+//                }
+//            }
+//            else
+//            {
+//                //update HP only
+//// ReSharper disable once ForCanBeConvertedToForeach
+//                for (int i = 0; i < memberList.Count; ++i)
+//                {
+//                    int ndx = m_members.FindIndex(_member => _member.ID == memberList[i].ID);
+//                    PartyMember member = m_members[ndx];
+//                    member.SetPercentHealth(memberList[i].PercentHealth);
+//                    m_members[ndx] = member;
+//                }
+//            }
+//        }
 
-        private void _addRemoveButtonForMember(PartyMember member)
-        {
-            int delta = m_removeTexture.Height / 3;
-            bool enabled = m_mainIsLeader || member.ID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID;
-            XNAButton nextButton = new XNAButton(m_removeTexture,
-                new Vector2(DrawAreaWithOffset.X + DRAW_REMOVE_X, DRAW_OFFSET_Y),
-                enabled ? new Rectangle(0, 0, m_removeTexture.Width, delta) : new Rectangle(0, delta, m_removeTexture.Width, delta),
-                enabled ? new Rectangle(0, delta * 2, m_removeTexture.Width, delta) : new Rectangle(0, delta, m_removeTexture.Width, delta));
-            if (enabled)
-            {
-                PartyMember localMember = member;
-                nextButton.OnClick += (sender, args) => RemoveMember(localMember.ID);
-            }
-            nextButton.SetParent(this);
-            m_buttons.Add(nextButton);
-        }
+        //private void _addRemoveButtonForMember(PartyMember member)
+        //{
+        //    int delta = m_removeTexture.Height / 3;
+        //    bool enabled = m_mainIsLeader || member.ID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID;
+        //    XNAButton nextButton = new XNAButton(m_removeTexture,
+        //        new Vector2(DrawAreaWithOffset.X + DRAW_REMOVE_X, DRAW_OFFSET_Y),
+        //        enabled ? new Rectangle(0, 0, m_removeTexture.Width, delta) : new Rectangle(0, delta, m_removeTexture.Width, delta),
+        //        enabled ? new Rectangle(0, delta * 2, m_removeTexture.Width, delta) : new Rectangle(0, delta, m_removeTexture.Width, delta));
+        //    if (enabled)
+        //    {
+        //        PartyMember localMember = member;
+        //        nextButton.OnClick += (sender, args) => RemoveMember(localMember.ID);
+        //    }
+        //    nextButton.SetParent(this);
+        //    m_buttons.Add(nextButton);
+        //}
 
-        public void AddMember(PartyMember member)
-        {
-            m_members.Add(member);
+        //public void AddMember(PartyMember member)
+        //{
+        //    m_members.Add(member);
 
-            m_numMembers.Text = $"{m_members.Count}";
-            m_scrollBar.UpdateDimensions(m_members.Count);
+        //    m_numMembers.Text = $"{m_members.Count}";
+        //    m_scrollBar.UpdateDimensions(m_members.Count);
 
-            _addRemoveButtonForMember(member);
+        //    _addRemoveButtonForMember(member);
 
-            ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, member.Name, EOResourceID.STATUS_LABEL_PARTY_JOINED_YOUR);
-            //((EOGame)Game).Hud.AddChat(ChatTab.System, "", member.Name + " " + OldWorld.GetString(EOResourceID.STATUS_LABEL_PARTY_JOINED_YOUR), ChatIcon.PlayerParty, ChatColor.PM);
-        }
+        //    ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, member.Name, EOResourceID.STATUS_LABEL_PARTY_JOINED_YOUR);
+        //    ((EOGame)Game).Hud.AddChat(ChatTab.System, "", member.Name + " " + OldWorld.GetString(EOResourceID.STATUS_LABEL_PARTY_JOINED_YOUR), ChatIcon.PlayerParty, ChatColor.PM);
+        //}
 
-        public void RemoveMember(short memberID)
-        {
-            int memberIndex = m_members.FindIndex(_member => _member.ID == memberID);
-            if (memberIndex < 0 || memberIndex >= m_members.Count)
-                return;
+        //public void RemoveMember(short memberID)
+        //{
+        //    int memberIndex = m_members.FindIndex(_member => _member.ID == memberID);
+        //    if (memberIndex < 0 || memberIndex >= m_members.Count)
+        //        return;
 
-            if (!((EOGame) Game).API.PartyRemovePlayer(m_members[memberIndex].ID))
-                ((EOGame) Game).DoShowLostConnectionDialogAndReturnToMainMenu();
+        //    //if (!((EOGame) Game).API.PartyRemovePlayer(m_members[memberIndex].ID))
+        //        ((EOGame) Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 
-            string name = m_members[memberIndex].Name;
+        //    string name = m_members[memberIndex].Name;
 
-            m_members.RemoveAt(memberIndex);
-            m_buttons[memberIndex].SetParent(null);
-            m_buttons[memberIndex].Close();
-            m_buttons.RemoveAt(memberIndex);
+        //    m_members.RemoveAt(memberIndex);
+        //    m_buttons[memberIndex].SetParent(null);
+        //    m_buttons[memberIndex].Close();
+        //    m_buttons.RemoveAt(memberIndex);
 
-            m_numMembers.Text = "" + m_members.Count;
-            m_scrollBar.UpdateDimensions(m_members.Count);
-            if (m_members.Count <= m_scrollBar.LinesToRender)
-                m_scrollBar.ScrollToTop();
+        //    m_numMembers.Text = "" + m_members.Count;
+        //    m_scrollBar.UpdateDimensions(m_members.Count);
+        //    if (m_members.Count <= m_scrollBar.LinesToRender)
+        //        m_scrollBar.ScrollToTop();
 
-            ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, name, EOResourceID.STATUS_LABEL_PARTY_LEFT_YOUR);
-            //((EOGame)Game).Hud.AddChat(ChatTab.System, "", name + " " + OldWorld.GetString(EOResourceID.STATUS_LABEL_PARTY_LEFT_YOUR), ChatIcon.PlayerPartyDark, ChatColor.PM);
-        }
+        //    ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, name, EOResourceID.STATUS_LABEL_PARTY_LEFT_YOUR);
+        //    //((EOGame)Game).Hud.AddChat(ChatTab.System, "", name + " " + OldWorld.GetString(EOResourceID.STATUS_LABEL_PARTY_LEFT_YOUR), ChatIcon.PlayerPartyDark, ChatColor.PM);
+        //}
 
-        public void CloseParty()
-        {
-            m_members.Clear();
-            Visible = false;
-            m_numMembers.Text = "0";
-            m_scrollBar.UpdateDimensions(0);
-        }
+        //public void CloseParty()
+        //{
+        //    m_members.Clear();
+        //    Visible = false;
+        //    m_numMembers.Text = "0";
+        //    m_scrollBar.UpdateDimensions(0);
+        //}
 
-        public bool PlayerIsMember(short ID)
-        {
-            return m_members != null && m_members.FindIndex(_member => _member.ID == ID) >= 0;
-        }
+        //public bool PlayerIsMember(short ID)
+        //{
+        //    return m_members != null && m_members.FindIndex(_member => _member.ID == ID) >= 0;
+        //}
 
         public override void Update(GameTime gameTime)
         {
@@ -198,22 +198,22 @@ namespace EndlessClient.HUD.Panels.Old
                 return;
             }
 
-            if(m_members != null)
-            {
-                SpriteBatch.Begin();
-                for (int i = m_scrollBar.ScrollOffset; i < m_scrollBar.LinesToRender + m_scrollBar.ScrollOffset && i < m_members.Count; ++i)
-                {
-                    PartyMember member = m_members[i];
-                    int yCoord = DRAW_OFFSET_Y + DrawAreaWithOffset.Y + (i - m_scrollBar.ScrollOffset) * 13;
-                    m_buttons[i].DrawLocation = new Vector2(DRAW_REMOVE_X, yCoord - DrawAreaWithOffset.Y + 1);
+            //if(m_members != null)
+            //{
+            //    SpriteBatch.Begin();
+            //    for (int i = m_scrollBar.ScrollOffset; i < m_scrollBar.LinesToRender + m_scrollBar.ScrollOffset && i < m_members.Count; ++i)
+            //    {
+                    //PartyMember member = m_members[i];
+                    //int yCoord = DRAW_OFFSET_Y + DrawAreaWithOffset.Y + (i - m_scrollBar.ScrollOffset) * 13;
+                    //m_buttons[i].DrawLocation = new Vector2(DRAW_REMOVE_X, yCoord - DrawAreaWithOffset.Y + 1);
                     //SpriteBatch.Draw(OldChatTab.GetChatIcon(member.IsLeader ? ChatIcon.Star : ChatIcon.Player), new Vector2(DrawAreaWithOffset.X + DRAW_ICON_X, yCoord), Color.White);
-                    SpriteBatch.DrawString(((EOGame) Game).DBGFont, member.Name, new Vector2(DrawAreaWithOffset.X + DRAW_NAME_X, yCoord), Color.Black);
-                    SpriteBatch.DrawString(((EOGame) Game).DBGFont, "" + member.Level, new Vector2(DrawAreaWithOffset.X + DRAW_LEVEL_X, yCoord), Color.Black);
-                    SpriteBatch.DrawString(((EOGame) Game).DBGFont, "HP", new Vector2(DrawAreaWithOffset.X + DRAW_HP_X, yCoord), Color.Black);
-                    _drawHealthBar(member.PercentHealth, yCoord);
-                }
-                SpriteBatch.End();
-            }
+                    //SpriteBatch.DrawString(((EOGame) Game).DBGFont, member.Name, new Vector2(DrawAreaWithOffset.X + DRAW_NAME_X, yCoord), Color.Black);
+                    //SpriteBatch.DrawString(((EOGame) Game).DBGFont, "" + member.Level, new Vector2(DrawAreaWithOffset.X + DRAW_LEVEL_X, yCoord), Color.Black);
+                    //SpriteBatch.DrawString(((EOGame) Game).DBGFont, "HP", new Vector2(DrawAreaWithOffset.X + DRAW_HP_X, yCoord), Color.Black);
+                    //_drawHealthBar(member.PercentHealth, yCoord);
+            //    }
+            //    SpriteBatch.End();
+            //}
 
             base.Draw(gameTime);
         }
@@ -230,7 +230,7 @@ namespace EndlessClient.HUD.Panels.Old
 
         protected override void OnVisibleChanged(object sender, EventArgs args)
         {
-            if (Visible && m_members.Count > 0 && !((EOGame) Game).API.PartyListMembers())
+            //if (Visible && m_members.Count > 0 && !((EOGame) Game).API.PartyListMembers())
                 ((EOGame) Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 
             base.OnVisibleChanged(sender, args);
