@@ -126,7 +126,6 @@ namespace EOLib.Domain.Character
 
             if (data.Target == IO.SpellTarget.Group)
             {
-                // todo: implement packet handling for group target spells
                 builder = builder
                     .AddShort((short)spellId)
                     .AddThree(DateTime.Now.ToEOTimeStamp());

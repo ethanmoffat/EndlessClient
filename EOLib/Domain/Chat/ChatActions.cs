@@ -1,5 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
+using EOLib.Domain.Party;
 using EOLib.Net;
 using EOLib.Net.Builders;
 using EOLib.Net.Communication;
@@ -15,6 +16,7 @@ namespace EOLib.Domain.Chat
         HideSpeechBubble,
         Command,
         AdminAnnounce,
+        HideAll,
     }
 
     [AutoMappedType]
@@ -22,6 +24,7 @@ namespace EOLib.Domain.Chat
     {
         private readonly IChatRepository _chatRepository;
         private readonly ICharacterProvider _characterProvider;
+        private readonly IPartyDataProvider _partyDataProvider;
         private readonly IChatTypeCalculator _chatTypeCalculator;
         private readonly IChatPacketBuilder _chatPacketBuilder;
         private readonly IPacketSendService _packetSendService;
@@ -30,6 +33,7 @@ namespace EOLib.Domain.Chat
 
         public ChatActions(IChatRepository chatRepository,
                            ICharacterProvider characterProvider,
+                           IPartyDataProvider partyDataProvider,
                            IChatTypeCalculator chatTypeCalculator,
                            IChatPacketBuilder chatPacketBuilder,
                            IPacketSendService packetSendService,
@@ -38,6 +42,7 @@ namespace EOLib.Domain.Chat
         {
             _chatRepository = chatRepository;
             _characterProvider = characterProvider;
+            _partyDataProvider = partyDataProvider;
             _chatTypeCalculator = chatTypeCalculator;
             _chatPacketBuilder = chatPacketBuilder;
             _packetSendService = packetSendService;
@@ -47,8 +52,6 @@ namespace EOLib.Domain.Chat
 
         public (ChatResult, string) SendChatToServer(string chat, string targetCharacter)
         {
-            // todo: if not in a group, don't do group chat
-
             var chatType = _chatTypeCalculator.CalculateChatType(chat);
 
             if (chatType == ChatType.Command)
@@ -65,6 +68,10 @@ namespace EOLib.Domain.Chat
                     _chatRepository.PMTarget1 = targetCharacter;
                 else if (string.IsNullOrEmpty(_chatRepository.PMTarget2))
                     _chatRepository.PMTarget2 = targetCharacter;
+            }
+            else if (chatType == ChatType.Party && !_partyDataProvider.Members.Any())
+            {
+                return (ChatResult.HideAll, String.Empty);
             }
 
             chat = _chatProcessor.RemoveFirstCharacterIfNeeded(chat, chatType, targetCharacter);
