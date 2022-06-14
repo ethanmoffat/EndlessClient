@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using XNAControls;
 
-namespace EndlessClient.Rendering
+namespace EndlessClient.Rendering.Map
 {
     public class MiniMapRenderer : XNAControl
     {
@@ -154,7 +154,7 @@ namespace EndlessClient.Rendering
             // holy magic numbers batman
             // TODO - make this not gross
             var (cx, cy) = GetCharacterPos();
-            return new Vector2((x * 13) - (y * 13) + 288 - (cx * 13 - cy * 13), (y * 7) + (x * 7) + 144 - (cx * 7 + cy * 7));
+            return new Vector2(x * 13 - y * 13 + 288 - (cx * 13 - cy * 13), y * 7 + x * 7 + 144 - (cx * 7 + cy * 7));
         }
 
         private Rectangle GetSourceRect(MiniMapGfx gfx)
