@@ -31,6 +31,8 @@
         public const string SETENV_FUNC = "setenv";
         public const string GETENV_FUNC = "getenv";
         public const string ERROR_FUNC = "error";
+        public const string LOWER_FUNC = "lower";
+        public const string UPPER_FUNC = "upper";
 
         // game functions
         public const string CONNECT_FUNC = "Connect";
@@ -42,5 +44,7 @@
         public const string CREATE_CHARACTER_FUNC = "CreateCharacter";
         public const string LOGIN_CHARACTER_FUNC = "LoginCharacter";
         public const string DELETE_CHARACTER_FUNC = "DeleteCharacter";
+
+        public const string JOIN_PARTY = "JoinParty";
     }
 }

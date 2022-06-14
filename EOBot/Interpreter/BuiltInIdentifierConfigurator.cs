@@ -6,6 +6,7 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
+using EOLib.Domain.Party;
 using EOLib.Domain.Protocol;
 using EOLib.IO.Repositories;
 using EOLib.Net.Communication;
@@ -45,6 +46,8 @@ namespace EOBot.Interpreter
             _state.SymbolTable[PredefinedIdentifiers.SETENV_FUNC] = Readonly(new VoidFunction<string, string>(PredefinedIdentifiers.SETENV_FUNC, (varName, varValue) => Environment.SetEnvironmentVariable(varName, varValue, EnvironmentVariableTarget.User)));
             _state.SymbolTable[PredefinedIdentifiers.GETENV_FUNC] = Readonly(new Function<string, string>(PredefinedIdentifiers.GETENV_FUNC, varName => Environment.GetEnvironmentVariable(varName, EnvironmentVariableTarget.User)));
             _state.SymbolTable[PredefinedIdentifiers.ERROR_FUNC] = Readonly(new VoidFunction<string>(PredefinedIdentifiers.ERROR_FUNC, message => throw new BotScriptErrorException(message)));
+            _state.SymbolTable[PredefinedIdentifiers.LOWER_FUNC] = Readonly(new Function<string, string>(PredefinedIdentifiers.LOWER_FUNC, s => s.ToLower()));
+            _state.SymbolTable[PredefinedIdentifiers.UPPER_FUNC] = Readonly(new Function<string, string>(PredefinedIdentifiers.UPPER_FUNC, s => s.ToUpper()));
 
             BotDependencySetup();
             _state.SymbolTable[PredefinedIdentifiers.CONNECT_FUNC] = Readonly(new AsyncVoidFunction<string, int>(PredefinedIdentifiers.CONNECT_FUNC, ConnectAsync));
@@ -56,7 +59,9 @@ namespace EOBot.Interpreter
             _state.SymbolTable[PredefinedIdentifiers.CREATE_CHARACTER_FUNC] = Readonly(new AsyncFunction<string, int>(PredefinedIdentifiers.CREATE_CHARACTER_FUNC, CreateCharacterAsync));
             _state.SymbolTable[PredefinedIdentifiers.DELETE_CHARACTER_FUNC] = Readonly(new AsyncFunction<string, bool, int>(PredefinedIdentifiers.DELETE_CHARACTER_FUNC, DeleteCharacterAsync));
             _state.SymbolTable[PredefinedIdentifiers.LOGIN_CHARACTER_FUNC] = Readonly(new AsyncVoidFunction<string>(PredefinedIdentifiers.LOGIN_CHARACTER_FUNC, LoginToCharacterAsync));
+            _state.SymbolTable[PredefinedIdentifiers.JOIN_PARTY] = Readonly(new VoidFunction<int>(PredefinedIdentifiers.JOIN_PARTY, JoinParty));
         }
+
         public void SetupBuiltInVariables()
         {
             _state.SymbolTable[PredefinedIdentifiers.HOST] = Readonly(new StringVariable(_parsedArgs.Host));
@@ -175,6 +180,12 @@ namespace EOBot.Interpreter
             return _botHelper.LoginToCharacterAsync(charName);
         }
 
+        private void JoinParty(int characterId)
+        {
+            var c = DependencyMaster.TypeRegistry[_botIndex];
+            c.Resolve<IPartyActions>().RequestParty(PartyRequestType.Join, (short)characterId);
+        }
+
         private (bool, IIdentifiable) SetupAccountObject()
         {
             var playerInfoProv = DependencyMaster.TypeRegistry[_botIndex].Resolve<IPlayerInfoProvider>();
@@ -201,6 +212,7 @@ namespace EOBot.Interpreter
             var pubProvider = DependencyMaster.TypeRegistry[_botIndex].Resolve<IPubFileProvider>();
 
             var charObj = new RuntimeEvaluatedMemberObjectVariable();
+            charObj.SymbolTable["id"] = (true, () => new IntVariable(cp.MainCharacter.ID));
             charObj.SymbolTable[PredefinedIdentifiers.NAME] = (true, () => new StringVariable(cp.MainCharacter.Name));
             charObj.SymbolTable["map"] = (true, () => new IntVariable(cp.MainCharacter.MapID));
             charObj.SymbolTable["x"] = (true, () => new IntVariable(cp.MainCharacter.RenderProperties.MapX));
@@ -261,6 +273,7 @@ namespace EOBot.Interpreter
         private IVariable GetMapStateCharacter(Character c)
         {
             var charObj = new ObjectVariable();
+            charObj.SymbolTable["id"] = Readonly(new IntVariable(c.ID));
             charObj.SymbolTable[PredefinedIdentifiers.NAME] = Readonly(new StringVariable(c.Name));
             charObj.SymbolTable["map"] = Readonly(new IntVariable(c.MapID));
             charObj.SymbolTable["x"] = Readonly(new IntVariable(c.RenderProperties.MapX));
