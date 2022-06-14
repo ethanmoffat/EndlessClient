@@ -91,10 +91,10 @@ namespace EndlessClient.Rendering
 
             MapRef = newActiveMap;
 
-            if (_miniMapRenderer == null)
-                _miniMapRenderer = new MiniMapRenderer(this);
-            else
-                _miniMapRenderer.Map = MapRef;
+            //if (_miniMapRenderer == null)
+            //    _miniMapRenderer = new MiniMapRenderer(this);
+            //else
+            //    _miniMapRenderer.Map = MapRef;
 
             //if (!Game.Components.OfType<PlayerStatusIconRenderer>().Any())
             //{
@@ -374,8 +374,8 @@ namespace EndlessClient.Rendering
 #endif
                 _sb.End();
 
-                if (_miniMapRenderer.Visible)
-                    _miniMapRenderer.Draw();
+                //if (_miniMapRenderer.Visible)
+                //    _miniMapRenderer.Draw();
 
                 _drawingEvent.Set();
             }
