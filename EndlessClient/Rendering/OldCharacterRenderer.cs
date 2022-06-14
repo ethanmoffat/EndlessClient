@@ -381,13 +381,13 @@ namespace EndlessClient.Rendering
                 if (OldWorld.Instance.MainPlayer.ActiveCharacter.NeedsSpellTarget)
                 {
                     var data = OldWorld.Instance.ESF[OldWorld.Instance.MainPlayer.ActiveCharacter.SelectedSpell];
-                    if (data.TargetRestrict == SpellTargetRestrict.NPCOnly || 
-                        data.TargetRestrict == SpellTargetRestrict.Opponent && !OldWorld.Instance.ActiveMapRenderer.MapRef.Properties.PKAvailable)
-                    {
-                        //todo: status label message "(something something cannot attack player)"
-                        OldWorld.Instance.MainPlayer.ActiveCharacter.SelectSpell(-1);
-                    }
-                    else
+                    //if (data.TargetRestrict == SpellTargetRestrict.NPCOnly || 
+                    //    data.TargetRestrict == SpellTargetRestrict.Opponent && !OldWorld.Instance.ActiveMapRenderer.MapRef.Properties.PKAvailable)
+                    //{
+                    //    //todo: status label message "(something something cannot attack player)"
+                    //    OldWorld.Instance.MainPlayer.ActiveCharacter.SelectSpell(-1);
+                    //}
+                    //else
                     {
                         OldWorld.Instance.ActiveCharacterRenderer.SetSpellTarget(this);
                         OldWorld.Instance.ActiveCharacterRenderer._prepareSpell();
