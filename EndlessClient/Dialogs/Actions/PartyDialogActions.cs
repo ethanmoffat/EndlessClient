@@ -2,6 +2,7 @@
 using EndlessClient.Audio;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD;
+using EOLib.Config;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Notifiers;
 using EOLib.Domain.Party;
@@ -19,13 +20,15 @@ namespace EndlessClient.Dialogs.Actions
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly IChatRepository _chatRepository;
+        private readonly IConfigurationProvider _configurationProvider;
 
         public PartyDialogActions(IPartyActions partyActions,
                                   ISfxPlayer sfxPlayer,
                                   IEOMessageBoxFactory messageBoxFactory,
                                   IStatusLabelSetter statusLabelSetter,
                                   ILocalizedStringFinder localizedStringFinder,
-                                  IChatRepository chatRepository)
+                                  IChatRepository chatRepository,
+                                  IConfigurationProvider configurationProvider)
         {
             _partyActions = partyActions;
             _sfxPlayer = sfxPlayer;
@@ -33,10 +36,14 @@ namespace EndlessClient.Dialogs.Actions
             _statusLabelSetter = statusLabelSetter;
             _localizedStringFinder = localizedStringFinder;
             _chatRepository = chatRepository;
+            _configurationProvider = configurationProvider;
         }
 
         public void NotifyPartyRequest(PartyRequestType type, short playerId, string name)
         {
+            if (!_configurationProvider.Interaction)
+                return;
+
             var dlg = _messageBoxFactory.CreateMessageBox(
                 char.ToUpper(name[0]) + name[1..],
                 type == PartyRequestType.Join
