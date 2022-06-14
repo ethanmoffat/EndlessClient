@@ -8,6 +8,7 @@ namespace EndlessClient.HUD.Controls
 
         MapRenderer = 0,
         StatusIcons,
+        MiniMapRenderer,
 
         HudBackground,
 

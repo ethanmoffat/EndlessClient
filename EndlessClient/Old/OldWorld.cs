@@ -158,22 +158,6 @@ namespace EndlessClient.Old
 
         public Dictionary<DataFiles, EDFFile> DataFiles { get; private set; }
 
-        private OldMapRenderer m_mapRender;
-        /// <summary>
-        /// Returns a map rendering object encapsulating the map the MainPlayer is on
-        /// </summary>
-        public OldMapRenderer ActiveMapRenderer
-        {
-            get
-            {
-                //make sure it's in the game's componenets
-                if(m_mapRender != null && EOGame.Instance.State == GameStates.PlayingTheGame && !EOGame.Instance.Components.Contains(m_mapRender))
-                    EOGame.Instance.Components.Add(m_mapRender);
-
-                return m_mapRender;
-            }
-        }
-
         private OldCharacterRenderer m_charRender;
 
         /// <summary>
@@ -221,12 +205,6 @@ namespace EndlessClient.Old
         /*** Functions for loading/checking the different pub/map files ***/
         public void ResetGameElements()
         {
-            if (m_mapRender != null)
-            {
-                m_mapRender.Dispose();
-                m_mapRender = null;
-            }
-
             if (m_charRender != null)
             {
                 m_charRender.Dispose();
@@ -245,9 +223,6 @@ namespace EndlessClient.Old
         {
             if (disposing)
             {
-                if (m_mapRender != null)
-                    m_mapRender.Dispose();
-
                 if (m_charRender != null)
                     m_charRender.Dispose();
 

@@ -16,6 +16,7 @@ using EndlessClient.Network;
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
+using EndlessClient.Rendering.Map;
 using EndlessClient.Rendering.NPC;
 using EndlessClient.UIControls;
 using EOLib.Domain.Character;
@@ -60,6 +61,8 @@ namespace EndlessClient.HUD.Controls
         private readonly IUserInputTimeProvider _userInputTimeProvider;
         private readonly ISpellSlotDataRepository _spellSlotDataRepository;
         private readonly ISfxPlayer _sfxPlayer;
+        private readonly IMiniMapRendererFactory _miniMapRendererFactory;
+
         private IChatController _chatController;
 
         public HudControlsFactory(IHudButtonController hudButtonController,
@@ -86,7 +89,8 @@ namespace EndlessClient.HUD.Controls
                                   IPacketSendService packetSendService,
                                   IUserInputTimeProvider userInputTimeProvider,
                                   ISpellSlotDataRepository spellSlotDataRepository,
-                                  ISfxPlayer sfxPlayer)
+                                  ISfxPlayer sfxPlayer,
+                                  IMiniMapRendererFactory miniMapRendererFactory)
         {
             _hudButtonController = hudButtonController;
             _hudPanelFactory = hudPanelFactory;
@@ -113,6 +117,7 @@ namespace EndlessClient.HUD.Controls
             _userInputTimeProvider = userInputTimeProvider;
             _spellSlotDataRepository = spellSlotDataRepository;
             _sfxPlayer = sfxPlayer;
+            _miniMapRendererFactory = miniMapRendererFactory;
         }
 
         public void InjectChatController(IChatController chatController)
@@ -130,6 +135,7 @@ namespace EndlessClient.HUD.Controls
 
                 {HudControlIdentifier.MapRenderer, _mapRendererFactory.CreateMapRenderer()},
                 {HudControlIdentifier.StatusIcons, CreatePlayerStatusIconRenderer()},
+                {HudControlIdentifier.MiniMapRenderer, _miniMapRendererFactory.Create()},
 
                 {HudControlIdentifier.HudBackground, CreateHudBackground()},
 
