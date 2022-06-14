@@ -5,6 +5,7 @@ using EndlessClient.Services;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Online;
+using EOLib.Domain.Party;
 using EOLib.Extensions;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
@@ -35,6 +36,7 @@ namespace EndlessClient.HUD.Panels
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly IOnlinePlayerProvider _onlinePlayerProvider;
+        private readonly IPartyDataProvider _partyDataProvider;
         private readonly IFriendIgnoreListService _friendIgnoreListService;
         private readonly ISfxPlayer _sfxPlayer;
 
@@ -57,6 +59,7 @@ namespace EndlessClient.HUD.Panels
         public OnlineListPanel(INativeGraphicsManager nativeGraphicsManager,
                                IHudControlProvider hudControlProvider,
                                IOnlinePlayerProvider onlinePlayerProvider,
+                               IPartyDataProvider partyDataProvider,
                                IFriendIgnoreListService friendIgnoreListService,
                                ISfxPlayer sfxPlayer,
                                SpriteFont chatFont)
@@ -64,6 +67,7 @@ namespace EndlessClient.HUD.Panels
             _nativeGraphicsManager = nativeGraphicsManager;
             _hudControlProvider = hudControlProvider;
             _onlinePlayerProvider = onlinePlayerProvider;
+            _partyDataProvider = partyDataProvider;
             _friendIgnoreListService = friendIgnoreListService;
             _sfxPlayer = sfxPlayer;
             _chatFont = chatFont;
@@ -146,11 +150,7 @@ namespace EndlessClient.HUD.Panels
                 PreviousMouseState.LeftButton == ButtonState.Pressed)
             {
                 _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
-
                 _filter = (Filter)(((int)_filter + 1) % (int)Filter.Max);
-                if (_filter == Filter.Party) // todo: show this when guild/party is supported
-                    _filter = (Filter)(((int)_filter + 1) % (int)Filter.Max);
-
                 _scrollBar.ScrollToTop();
 
                 ApplyFilter();
@@ -208,8 +208,7 @@ namespace EndlessClient.HUD.Panels
             {
                 case Filter.Friends: _filteredList = _onlineList.Where(x => _friendList.Contains(x.Name, StringComparer.InvariantCultureIgnoreCase)).ToList(); break;
                 case Filter.Admins: _filteredList = _onlineList.Where(IsAdminIcon).ToList(); break;
-                // todo: implement for party/guild
-                case Filter.Party: _filteredList.Clear(); break;
+                case Filter.Party: _filteredList = _onlineList.Where(x => _partyDataProvider.Members.Any(y => string.Equals(y.Name, x.Name, StringComparison.InvariantCultureIgnoreCase))).ToList();  break;
                 case Filter.All:
                 default: _filteredList = new List<OnlinePlayerInfo>(_onlineList); break;
             }
