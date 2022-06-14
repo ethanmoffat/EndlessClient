@@ -30,9 +30,6 @@ namespace EndlessClient.Old
             m_packetAPI.OnTradeYouAgree += _tradeSetLocalPlayerAgree;
             m_packetAPI.OnTradeOfferUpdate += _tradeOfferUpdate;
             m_packetAPI.OnTradeCompleted += _tradeCompleted;
-
-            //spell casting
-            m_packetAPI.OnCastSpellTargetGroup += _playerCastGroupSpell;
         }
 
         private void _tradeRequested(short playerID, string name)
@@ -95,17 +92,6 @@ namespace EndlessClient.Old
         {
             if (TradeDialog.Instance == null) return;
             TradeDialog.Instance.CompleteTrade(id1, items1, id2, items2);
-        }
-
-        private void _playerCastGroupSpell(short spellID, short fromPlayerID, short fromPlayerTP, short spellHPgain, List<GroupSpellTarget> spellTargets)
-        {
-            OldWorld.Instance.ActiveMapRenderer.PlayerCastSpellGroup(fromPlayerID, spellID, spellHPgain, spellTargets);
-
-            if (fromPlayerID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID)
-            {
-                OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.TP = fromPlayerTP;
-                //m_game.Hud.RefreshStats();
-            }
         }
     }
 }

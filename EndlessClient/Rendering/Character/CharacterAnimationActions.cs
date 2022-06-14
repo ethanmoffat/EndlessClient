@@ -18,6 +18,7 @@ using EOLib.Localization;
 using Optional;
 using Optional.Collections;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace EndlessClient.Rendering.Character
@@ -225,6 +226,42 @@ namespace EndlessClient.Rendering.Character
             {
                 _characterRendererProvider.CharacterRenderers[targetPlayerID].ShowSpellAnimation(spellData.Graphic);
                 _characterRendererProvider.CharacterRenderers[targetPlayerID].ShowDamageCounter(recoveredHP, targetPercentHealth, isHeal: spellData.Type == EOLib.IO.SpellType.Heal);
+            }
+        }
+
+        public void NotifyGroupSpellCast(short playerId, short spellId, short spellHp, List<GroupSpellTarget> spellTargets)
+        {
+            if (playerId == _characterRepository.MainCharacter.ID)
+            {
+                _characterRendererProvider.MainCharacterRenderer.MatchSome(cr => cr.ShoutSpellCast());
+            }
+            else if (_characterRendererProvider.CharacterRenderers.ContainsKey(playerId))
+            {
+                Animator.StartOtherCharacterSpellCast(playerId);
+                _characterRendererProvider.CharacterRenderers[playerId].ShoutSpellCast();
+            }
+            else
+            {
+                _currentMapStateProvider.UnknownPlayerIDs.Add(playerId);
+            }
+
+            var spellData = _pubFileProvider.ESFFile[spellId];
+
+            foreach (var target in spellTargets)
+            {
+                if (target.TargetId == _characterRepository.MainCharacter.ID)
+                {
+                    _characterRendererProvider.MainCharacterRenderer.MatchSome(cr =>
+                    {
+                        cr.ShowSpellAnimation(spellData.Graphic);
+                        cr.ShowDamageCounter(spellHp, target.PercentHealth, isHeal: true);
+                    });
+                }
+                else if (_characterRendererProvider.CharacterRenderers.ContainsKey(target.TargetId))
+                {
+                    _characterRendererProvider.CharacterRenderers[target.TargetId].ShowSpellAnimation(spellData.Graphic);
+                    _characterRendererProvider.CharacterRenderers[target.TargetId].ShowDamageCounter(spellHp, target.PercentHealth, isHeal: true);
+                }
             }
         }
 

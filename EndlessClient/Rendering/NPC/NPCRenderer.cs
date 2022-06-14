@@ -216,9 +216,9 @@ namespace EndlessClient.Rendering.NPC
 
         public void ShowPotionAnimation(int potionId) { }
 
-        public void ShowSpellAnimation(int spellId)
+        public void ShowSpellAnimation(int spellGraphic)
         {
-            _effectRenderer.PlayEffect(EffectType.Spell, spellId);
+            _effectRenderer.PlayEffect(EffectType.Spell, spellGraphic);
         }
 
         #endregion
