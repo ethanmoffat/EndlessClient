@@ -16,6 +16,6 @@ namespace EndlessClient.Rendering.Effects
 
         void ShowPotionAnimation(int potionId);
 
-        void ShowSpellAnimation(int spellId);
+        void ShowSpellAnimation(int spellGraphic);
     }
 }

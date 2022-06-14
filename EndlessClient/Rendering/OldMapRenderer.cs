@@ -136,44 +136,44 @@ namespace EndlessClient.Rendering
             }
         }
 
-        public void PlayerCastSpellGroup(short fromPlayerID, short spellID, short spellHPgain, List<GroupSpellTarget> spellTargets)
-        {
-            lock (_characterListLock)
-            {
-                bool fromIsMain = false;
-                var fromRenderer = _characterRenderers.Find(x => x.Character.ID == fromPlayerID);
-                if (fromRenderer == null && fromPlayerID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID)
-                {
-                    fromIsMain = true;
-                    fromRenderer = OldWorld.Instance.ActiveCharacterRenderer;
-                }
+        //public void PlayerCastSpellGroup(short fromPlayerID, short spellID, short spellHPgain, List<GroupSpellTarget> spellTargets)
+        //{
+        //    lock (_characterListLock)
+        //    {
+        //        bool fromIsMain = false;
+        //        var fromRenderer = _characterRenderers.Find(x => x.Character.ID == fromPlayerID);
+        //        if (fromRenderer == null && fromPlayerID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID)
+        //        {
+        //            fromIsMain = true;
+        //            fromRenderer = OldWorld.Instance.ActiveCharacterRenderer;
+        //        }
 
-                if (fromRenderer != null && !fromIsMain)
-                {
-                    fromRenderer.StopShouting(false);
-                    fromRenderer.StartCastingSpell();
-                }
+        //        if (fromRenderer != null && !fromIsMain)
+        //        {
+        //            fromRenderer.StopShouting(false);
+        //            fromRenderer.StartCastingSpell();
+        //        }
 
-                foreach (var target in spellTargets)
-                {
-                    bool targetIsMain = false;
-                    var targetRenderer = _characterRenderers.Find(x => x.Character.ID == target.MemberID);
-                    if (targetRenderer == null && target.MemberID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID)
-                    {
-                        targetIsMain = true;
-                        targetRenderer = OldWorld.Instance.ActiveCharacterRenderer;
-                    }
+        //        foreach (var target in spellTargets)
+        //        {
+        //            bool targetIsMain = false;
+        //            var targetRenderer = _characterRenderers.Find(x => x.Character.ID == target.MemberID);
+        //            if (targetRenderer == null && target.MemberID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID)
+        //            {
+        //                targetIsMain = true;
+        //                targetRenderer = OldWorld.Instance.ActiveCharacterRenderer;
+        //            }
 
-                    if (targetRenderer == null) continue;
+        //            if (targetRenderer == null) continue;
 
-                    if (targetIsMain)
-                        targetRenderer.Character.Stats.HP = target.MemberHP;
-                    targetRenderer.SetDamageCounterValue(spellHPgain, target.MemberPercentHealth, true);
+        //            if (targetIsMain)
+        //                targetRenderer.Character.Stats.HP = target.MemberHP;
+        //            targetRenderer.SetDamageCounterValue(spellHPgain, target.MemberPercentHealth, true);
 
-                    _renderSpellOnPlayer(spellID, targetRenderer);
-                }
-            }
-        }
+        //            _renderSpellOnPlayer(spellID, targetRenderer);
+        //        }
+        //    }
+        //}
 
         public void UpdateOtherPlayers()
         {

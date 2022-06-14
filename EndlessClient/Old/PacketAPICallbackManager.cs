@@ -22,13 +22,6 @@ namespace EndlessClient.Old
 
         public void AssignCallbacks()
         {
-            //party
-            m_packetAPI.OnPartyClose += _partyClose;
-            m_packetAPI.OnPartyDataRefresh += _partyDataRefresh;
-            m_packetAPI.OnPartyRequest += _partyRequest;
-            m_packetAPI.OnPartyMemberJoin += _partyMemberJoin;
-            m_packetAPI.OnPartyMemberLeave += _partyMemberLeave;
-
             //trade
             m_packetAPI.OnTradeRequested += _tradeRequested;
             m_packetAPI.OnTradeOpen += _tradeOpen;
@@ -37,47 +30,6 @@ namespace EndlessClient.Old
             m_packetAPI.OnTradeYouAgree += _tradeSetLocalPlayerAgree;
             m_packetAPI.OnTradeOfferUpdate += _tradeOfferUpdate;
             m_packetAPI.OnTradeCompleted += _tradeCompleted;
-
-            //spell casting
-            m_packetAPI.OnCastSpellTargetGroup += _playerCastGroupSpell;
-        }
-
-        private void _partyClose()
-        {
-            m_game.Hud.CloseParty();
-        }
-
-        private void _partyDataRefresh(List<PartyMember> list)
-        {
-            m_game.Hud.SetPartyData(list);
-        }
-
-        private void _partyRequest(PartyRequestType type, short id, string name)
-        {
-            if (!OldWorld.Instance.Interaction)
-                return;
-
-            EOMessageBox.Show(name + " ",
-                   type == PartyRequestType.Join ? DialogResourceID.PARTY_GROUP_REQUEST_TO_JOIN : DialogResourceID.PARTY_GROUP_SEND_INVITATION,
-                   EODialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
-                   (o, e) =>
-                   {
-                       if (e.Result == XNADialogResult.OK)
-                       {
-                           if (!m_packetAPI.PartyAcceptRequest(type, id))
-                               m_game.DoShowLostConnectionDialogAndReturnToMainMenu();
-                       }
-                   });
-        }
-
-        private void _partyMemberJoin(PartyMember member)
-        {
-            m_game.Hud.AddPartyMember(member);
-        }
-
-        private void _partyMemberLeave(short id)
-        {
-            m_game.Hud.RemovePartyMember(id);
         }
 
         private void _tradeRequested(short playerID, string name)
@@ -106,15 +58,15 @@ namespace EndlessClient.Old
             else
                 throw new ArgumentException("Invalid player ID for this trade session!", nameof(p1));
 
-            m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_TRADE_YOU_ARE_TRADING_WITH,
-                    otherName + " " + OldWorld.GetString(EOResourceID.STATUS_LABEL_DRAG_AND_DROP_ITEMS));
+            //m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_TRADE_YOU_ARE_TRADING_WITH,
+            //        otherName + " " + OldWorld.GetString(EOResourceID.STATUS_LABEL_DRAG_AND_DROP_ITEMS));
         }
 
         private void _tradeCancel(short otherPlayerID)
         {
             if (TradeDialog.Instance == null) return;
             TradeDialog.Instance.Close(XNADialogResult.NO_BUTTON_PRESSED);
-            m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_TRADE_ABORTED);
+            //m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_TRADE_ABORTED);
         }
 
         private void _tradeRemotePlayerAgree(short otherPlayerID, bool agree)
@@ -140,17 +92,6 @@ namespace EndlessClient.Old
         {
             if (TradeDialog.Instance == null) return;
             TradeDialog.Instance.CompleteTrade(id1, items1, id2, items2);
-        }
-
-        private void _playerCastGroupSpell(short spellID, short fromPlayerID, short fromPlayerTP, short spellHPgain, List<GroupSpellTarget> spellTargets)
-        {
-            OldWorld.Instance.ActiveMapRenderer.PlayerCastSpellGroup(fromPlayerID, spellID, spellHPgain, spellTargets);
-
-            if (fromPlayerID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID)
-            {
-                OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.TP = fromPlayerTP;
-                //m_game.Hud.RefreshStats();
-            }
         }
     }
 }

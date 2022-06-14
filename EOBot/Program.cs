@@ -6,9 +6,11 @@ using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.Domain.NPC;
+using EOLib.Domain.Spells;
 using EOLib.IO.Repositories;
 using Optional;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -160,6 +162,7 @@ namespace EOBot
             public void NotifyTargetOtherSpellCast(short sourcePlayerID, short targetPlayerID, short spellId, int recoveredHP, byte targetPercentHealth) { }
             public void StartOtherCharacterAttackAnimation(int characterID, int noteIndex) { }
             public void StartOtherCharacterWalkAnimation(int characterID, byte destinationX, byte destinationY, EODirection direction) { }
+            public void NotifyGroupSpellCast(short playerId, short spellId, short spellHp, List<GroupSpellTarget> spellTargets) { }
         }
 
         static async Task<int> Main(string[] args)

@@ -25,7 +25,7 @@
         HudStatusBarClick = 12,
         AdminAnnounceReceived,
         MeleeWeaponAttack,
-        UnknownClickSound2,
+        MemberLeftParty,
         TradeAccepted = 16,
         JoinParty = TradeAccepted,
         GroupChatReceived,

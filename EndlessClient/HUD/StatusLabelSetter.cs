@@ -1,5 +1,6 @@
 using System;
 using AutomaticTypeMapper;
+using EOLib.Domain.Chat;
 using EOLib.Localization;
 
 namespace EndlessClient.HUD
@@ -8,30 +9,35 @@ namespace EndlessClient.HUD
     public class StatusLabelSetter : IStatusLabelSetter
     {
         private readonly IStatusLabelTextRepository _statusLabelTextRepository;
+        private readonly IChatRepository _chatRepository;
         private readonly ILocalizedStringFinder _localizedStringFinder;
 
         public StatusLabelSetter(IStatusLabelTextRepository statusLabelTextRepository,
-            ILocalizedStringFinder localizedStringFinder)
+                                 IChatRepository chatRepository,
+                                 ILocalizedStringFinder localizedStringFinder)
         {
             _statusLabelTextRepository = statusLabelTextRepository;
+            _chatRepository = chatRepository;
             _localizedStringFinder = localizedStringFinder;
         }
 
-        public void SetStatusLabel(EOResourceID type, EOResourceID text, string appended = "")
+        public void SetStatusLabel(EOResourceID type, EOResourceID text, string appended = "", bool showChatError = false)
         {
             CheckStatusLabelType(type);
 
             SetStatusLabelText(_localizedStringFinder.GetString(type),
                                _localizedStringFinder.GetString(text),
-                               appended);
+                               appended,
+                               showChatError);
         }
 
-        public void SetStatusLabel(EOResourceID type, string prepended, EOResourceID text)
+        public void SetStatusLabel(EOResourceID type, string prepended, EOResourceID text, bool showChatError = false)
         {
             CheckStatusLabelType(type);
             SetStatusLabelText(_localizedStringFinder.GetString(type),
                                prepended,
-                               _localizedStringFinder.GetString(text));
+                               _localizedStringFinder.GetString(text),
+                               showChatError);
         }
 
         public void SetStatusLabel(EOResourceID type, string text)
@@ -51,10 +57,16 @@ namespace EndlessClient.HUD
             SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, message);
         }
 
-        private void SetStatusLabelText(string type, string text, string extra = "")
+        private void SetStatusLabelText(string type, string text, string extra = "", bool showChatError = false)
         {
             _statusLabelTextRepository.StatusText = $"[ {type} ] {text}{extra}";
             _statusLabelTextRepository.SetTime = DateTime.Now;
+
+            if (showChatError)
+            {
+                var chatData = new ChatData(ChatTab.System, string.Empty, $"{text}{extra}", ChatIcon.Error, ChatColor.Error);
+                _chatRepository.AllChat[ChatTab.System].Add(chatData);
+            }
         }
 
         private void CheckStatusLabelType(EOResourceID type)

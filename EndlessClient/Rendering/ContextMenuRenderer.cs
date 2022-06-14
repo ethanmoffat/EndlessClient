@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.HUD;
@@ -9,7 +10,9 @@ using EndlessClient.Rendering.Character;
 using EndlessClient.Services;
 using EndlessClient.UIControls;
 using EOLib;
+using EOLib.Domain.Chat;
 using EOLib.Domain.Interact;
+using EOLib.Domain.Party;
 using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
@@ -39,35 +42,43 @@ namespace EndlessClient.Rendering
         private readonly Rectangle _outSource, _overSource;
         private readonly Dictionary<Rectangle, Action> _menuActions;
         private Option<Rectangle> _overRect;
+
         private readonly IInGameDialogActions _inGameDialogActions;
         private readonly IPaperdollActions _paperdollActions;
+        private readonly IPartyActions _partyActions;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IFriendIgnoreListService _friendIgnoreListService;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly IContextMenuRepository _contextMenuRepository;
         private readonly IUserInputRepository _userInputRepository;
+        private readonly IPartyDataProvider _partyDataProvider;
         private readonly ICharacterRenderer _characterRenderer;
 
-        //private DateTime? m_lastPartyRequestedTime, m_lastTradeRequestedTime;
+        //private DateTime? m_lastTradeRequestedTime;
+        private static DateTime? _lastPartyRequestTime;
 
         public ContextMenuRenderer(INativeGraphicsManager nativeGraphicsManager,
                                    IInGameDialogActions inGameDialogActions,
                                    IPaperdollActions paperdollActions,
+                                   IPartyActions partyActions,
                                    IStatusLabelSetter statusLabelSetter,
                                    IFriendIgnoreListService friendIgnoreListService,
                                    IHudControlProvider hudControlProvider,
                                    IContextMenuRepository contextMenuRepository,
                                    IUserInputRepository userInputRepository,
+                                   IPartyDataProvider partyDataProvider,
                                    ICharacterRenderer characterRenderer)
         {
             _menuActions = new Dictionary<Rectangle, Action>();
             _inGameDialogActions = inGameDialogActions;
             _paperdollActions = paperdollActions;
+            _partyActions = partyActions;
             _statusLabelSetter = statusLabelSetter;
             _friendIgnoreListService = friendIgnoreListService;
             _hudControlProvider = hudControlProvider;
             _contextMenuRepository = contextMenuRepository;
             _userInputRepository = userInputRepository;
+            _partyDataProvider = partyDataProvider;
             _characterRenderer = characterRenderer;
 
             //first, load up the images. split in half: the right half is the 'over' text
@@ -212,8 +223,8 @@ namespace EndlessClient.Rendering
             {
                 case MenuAction.Paperdoll: return ShowPaperdollAction;
                 case MenuAction.Book: return () => { };//return _eventShowBook;
-                case MenuAction.Join: return () => { };//return _eventJoinParty;
-                case MenuAction.Invite: return () => { }; //return _eventInviteToParty;
+                case MenuAction.Join: return JoinParty;
+                case MenuAction.Invite: return InviteToParty;
                 case MenuAction.Trade: return () => { }; //return _eventTrade;
                 case MenuAction.Whisper: return PrivateMessage;
                 case MenuAction.Friend: return AddFriend;
@@ -233,45 +244,43 @@ namespace EndlessClient.Rendering
         //    EOMessageBox.Show("TODO: Show quest info", "TODO ITEM", EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
         //}
 
-        //private void _eventJoinParty(object arg1, EventArgs arg2)
-        //{
-        //    if (((EOGame) Game).Hud.PlayerIsPartyMember((short)m_rend.Character.ID))
-        //    {
-        //        ((EOGame) Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, m_rend.Character.Name, EOResourceID.STATUS_LABEL_PARTY_IS_ALREADY_MEMBER);
-        //        return;
-        //    }
+        private void JoinParty()
+        {
+            if (_partyDataProvider.Members.Any(x => x.CharacterID == _characterRenderer.Character.ID))
+            {
+                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, _characterRenderer.Character.Name + " ", EOResourceID.STATUS_LABEL_PARTY_IS_ALREADY_MEMBER, showChatError: true);
+                return;
+            }
 
-        //    if (m_lastPartyRequestedTime != null && (DateTime.Now - m_lastPartyRequestedTime.Value).TotalSeconds < Constants.PartyRequestTimeoutSeconds)
-        //    {
-        //        ((EOGame) Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_PARTY_RECENTLY_REQUESTED);
-        //        return;
-        //    }
+            if (_lastPartyRequestTime != null && (DateTime.Now - _lastPartyRequestTime.Value).TotalSeconds < Constants.PartyRequestTimeoutSeconds)
+            {
+                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_PARTY_RECENTLY_REQUESTED, showChatError: true);
+                return;
+            }
 
-        //    if (!m_api.PartyRequest(PartyRequestType.Join, (short) m_rend.Character.ID))
-        //        EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-        //    m_lastPartyRequestedTime = DateTime.Now;
-        //    ((EOGame) Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_PARTY_REQUESTED_TO_JOIN);
-        //}
+            _lastPartyRequestTime = DateTime.Now;
+            _partyActions.RequestParty(PartyRequestType.Join, (short)_characterRenderer.Character.ID);
+            _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_PARTY_REQUESTED_TO_JOIN);
+        }
 
-        //private void _eventInviteToParty(object arg1, EventArgs arg2)
-        //{
-        //    if (((EOGame)Game).Hud.PlayerIsPartyMember((short)m_rend.Character.ID))
-        //    {
-        //        ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, m_rend.Character.Name, EOResourceID.STATUS_LABEL_PARTY_IS_ALREADY_MEMBER);
-        //        return;
-        //    }
+        private void InviteToParty()
+        {
+            if (_partyDataProvider.Members.Any(x => x.CharacterID == _characterRenderer.Character.ID))
+            {
+                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, _characterRenderer.Character.Name + " ", EOResourceID.STATUS_LABEL_PARTY_IS_ALREADY_MEMBER, showChatError: true);
+                return;
+            }
 
-        //    if (m_lastPartyRequestedTime != null && (DateTime.Now - m_lastPartyRequestedTime.Value).TotalSeconds < Constants.PartyRequestTimeoutSeconds)
-        //    {
-        //        ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_PARTY_RECENTLY_REQUESTED);
-        //        return;
-        //    }
+            if (_lastPartyRequestTime != null && (DateTime.Now - _lastPartyRequestTime.Value).TotalSeconds < Constants.PartyRequestTimeoutSeconds)
+            {
+                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_PARTY_RECENTLY_REQUESTED, showChatError: true);
+                return;
+            }
 
-        //    if (!m_api.PartyRequest(PartyRequestType.Invite, (short)m_rend.Character.ID))
-        //        EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-        //    m_lastPartyRequestedTime = DateTime.Now;
-        //    ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, m_rend.Character.Name, EOResourceID.STATUS_LABEL_PARTY_IS_INVITED);
-        //}
+            _lastPartyRequestTime = DateTime.Now;
+            _partyActions.RequestParty(PartyRequestType.Invite, (short)_characterRenderer.Character.ID);
+            _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, _characterRenderer.Character.Name, EOResourceID.STATUS_LABEL_PARTY_IS_INVITED);
+        }
 
         //private void _eventTrade(object arg1, EventArgs arg2)
         //{

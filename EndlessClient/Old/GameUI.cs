@@ -24,8 +24,6 @@ namespace EndlessClient.Old
         private XNAButton _backButton;
         private bool _backButtonPressed; //workaround so the lost connection dialog doesn't show from the client disconnect event
 
-        public HUD.Controls.HUD Hud { get; private set; }
-
         private void InitializeControls(bool reinit = false)
         {
             Texture2D back = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 24, true);

@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EOLib.Config;
 using EOLib.Logger;
 using System;
 
@@ -14,9 +15,12 @@ namespace EOLib.Domain.Chat
     {
         public ILogger ChatLogger { get; }
 
-        public ChatLoggerProvider(ILoggerFactory loggerFactory)
+        public ChatLoggerProvider(IConfigurationProvider configurationProvider, ILoggerFactory loggerFactory)
         {
-            ChatLogger = loggerFactory.CreateLogger<FileLogger>(Constants.ChatLogFile);
+            if (configurationProvider.LogChatToFile)
+                ChatLogger = loggerFactory.CreateLogger<FileLogger>(Constants.ChatLogFile);
+            else
+                ChatLogger = loggerFactory.CreateLogger<NullLogger>();
         }
 
         public void Dispose()

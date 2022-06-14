@@ -1,4 +1,6 @@
 ﻿using AutomaticTypeMapper;
+using EOLib.Domain.Spells;
+using System.Collections.Generic;
 
 namespace EOLib.Domain.Notifiers
 {
@@ -13,6 +15,8 @@ namespace EOLib.Domain.Notifiers
         void NotifySelfSpellCast(short playerId, short spellId, int spellHp, byte percentHealth);
 
         void NotifyTargetOtherSpellCast(short sourcePlayerID, short targetPlayerID, short spellId, int recoveredHP, byte targetPercentHealth);
+
+        void NotifyGroupSpellCast(short playerId, short spellId, short spellHp, List<GroupSpellTarget> spellTargets);
     }
 
     [AutoMappedType]
@@ -27,5 +31,7 @@ namespace EOLib.Domain.Notifiers
         public void NotifySelfSpellCast(short playerId, short spellId, int spellHp, byte percentHealth) { }
 
         public void NotifyTargetOtherSpellCast(short sourcePlayerID, short targetPlayerID, short spellId, int recoveredHP, byte targetPercentHealth) { }
+
+        public void NotifyGroupSpellCast(short playerId, short spellId, short spellHp, List<GroupSpellTarget> spellTargets) { }
     }
 }

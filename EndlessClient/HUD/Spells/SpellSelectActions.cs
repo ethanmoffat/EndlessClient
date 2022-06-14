@@ -1,7 +1,9 @@
 ﻿using AutomaticTypeMapper;
+using EOLib.Domain.Party;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
 using Optional;
+using System.Linq;
 
 namespace EndlessClient.HUD.Spells
 {
@@ -10,14 +12,17 @@ namespace EndlessClient.HUD.Spells
     {
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly ISpellSlotDataRepository _spellSlotDataRepository;
+        private readonly IPartyDataProvider _partyDataProvider;
         private readonly IESFFileProvider _esfFileProvider;
 
         public SpellSelectActions(IStatusLabelSetter statusLabelSetter,
                                   ISpellSlotDataRepository spellSlotDataRepository,
+                                  IPartyDataProvider partyDataProvider,
                                   IESFFileProvider esfFileProvider)
         {
             _statusLabelSetter = statusLabelSetter;
             _spellSlotDataRepository = spellSlotDataRepository;
+            _partyDataProvider = partyDataProvider;
             _esfFileProvider = esfFileProvider;
         }
 
@@ -28,7 +33,7 @@ namespace EndlessClient.HUD.Spells
                 {
                     var spellData = _esfFileProvider.ESFFile[si.ID];
 
-                    if (spellData.Target == EOLib.IO.SpellTarget.Group /*&& not in party*/) // todo: parties
+                    if (spellData.Target == EOLib.IO.SpellTarget.Group && !_partyDataProvider.Members.Any())
                     {
                         _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.SPELL_ONLY_WORKS_ON_GROUP);
                     }

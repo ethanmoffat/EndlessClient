@@ -34,6 +34,9 @@ namespace EOLib.PacketHandlers.Chat
         {
             var message = packet.ReadBreakString();
 
+            var localChatData = new ChatData(ChatTab.Local, character.Name, message, ChatIcon.PlayerPartyDark, ChatColor.PM);
+            _chatRepository.AllChat[ChatTab.Local].Add(localChatData);
+
             var chatData = new ChatData(ChatTab.Group, character.Name, message, ChatIcon.PlayerPartyDark);
             _chatRepository.AllChat[ChatTab.Group].Add(chatData);
 

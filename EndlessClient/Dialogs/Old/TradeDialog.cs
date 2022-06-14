@@ -116,7 +116,7 @@ namespace EndlessClient.Dialogs.Old
                 {
                     if (!m_api.TradeClose())
                         ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
-                    ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_TRADE_ABORTED);
+                    //((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_TRADE_ABORTED);
                 }
 
                 localTimer.Dispose();
@@ -161,7 +161,7 @@ namespace EndlessClient.Dialogs.Old
                     m_rightAgrees = false;
                     m_rightPlayerStatus.Text = OldWorld.GetString(EOResourceID.DIALOG_TRADE_WORD_TRADING);
                     EOMessageBox.Show(DialogResourceID.TRADE_ABORTED_OFFER_CHANGED, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                    ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_TRADE_OTHER_PLAYER_CHANGED_OFFER);
+                    //((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_TRADE_OTHER_PLAYER_CHANGED_OFFER);
                 }
             }
             else if (playerID == m_rightPlayerID)
@@ -184,7 +184,7 @@ namespace EndlessClient.Dialogs.Old
                     m_leftAgrees = false;
                     m_leftPlayerStatus.Text = OldWorld.GetString(EOResourceID.DIALOG_TRADE_WORD_TRADING);
                     EOMessageBox.Show(DialogResourceID.TRADE_ABORTED_OFFER_CHANGED, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                    ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_TRADE_OTHER_PLAYER_CHANGED_OFFER);
+                    //((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_TRADE_OTHER_PLAYER_CHANGED_OFFER);
                 }
             }
             else
@@ -237,12 +237,12 @@ namespace EndlessClient.Dialogs.Old
             short playerID = isMain ? (short)m_main.ID : (m_leftPlayerID == m_main.ID ? m_rightPlayerID : m_leftPlayerID);
             if (playerID == m_leftPlayerID)
             {
-                if (agrees && !m_leftAgrees)
-                    ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION,
-                        isMain ? EOResourceID.STATUS_LABEL_TRADE_YOU_ACCEPT : EOResourceID.STATUS_LABEL_TRADE_OTHER_ACCEPT);
-                else if (!agrees && m_leftAgrees)
-                    ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION,
-                        isMain ? EOResourceID.STATUS_LABEL_TRADE_YOU_CANCEL : EOResourceID.STATUS_LABEL_TRADE_OTHER_CANCEL);
+                //if (agrees && !m_leftAgrees)
+                //    ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION,
+                //        isMain ? EOResourceID.STATUS_LABEL_TRADE_YOU_ACCEPT : EOResourceID.STATUS_LABEL_TRADE_OTHER_ACCEPT);
+                //else if (!agrees && m_leftAgrees)
+                //    ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION,
+                //        isMain ? EOResourceID.STATUS_LABEL_TRADE_YOU_CANCEL : EOResourceID.STATUS_LABEL_TRADE_OTHER_CANCEL);
 
                 m_leftAgrees = agrees;
                 m_leftPlayerStatus.Text =
@@ -250,12 +250,12 @@ namespace EndlessClient.Dialogs.Old
             }
             else if (playerID == m_rightPlayerID)
             {
-                if (agrees && !m_rightAgrees)
-                    ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION,
-                        isMain ? EOResourceID.STATUS_LABEL_TRADE_YOU_ACCEPT : EOResourceID.STATUS_LABEL_TRADE_OTHER_ACCEPT);
-                else if (!agrees && m_rightAgrees)
-                    ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION,
-                        isMain ? EOResourceID.STATUS_LABEL_TRADE_YOU_CANCEL : EOResourceID.STATUS_LABEL_TRADE_OTHER_CANCEL);
+                //if (agrees && !m_rightAgrees)
+                //    ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION,
+                //        isMain ? EOResourceID.STATUS_LABEL_TRADE_YOU_ACCEPT : EOResourceID.STATUS_LABEL_TRADE_OTHER_ACCEPT);
+                //else if (!agrees && m_rightAgrees)
+                //    ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION,
+                //        isMain ? EOResourceID.STATUS_LABEL_TRADE_YOU_CANCEL : EOResourceID.STATUS_LABEL_TRADE_OTHER_CANCEL);
 
                 m_rightAgrees = agrees;
                 m_rightPlayerStatus.Text =
@@ -317,7 +317,7 @@ namespace EndlessClient.Dialogs.Old
                 EOMessageBox.Show(OldWorld.GetString(EOResourceID.DIALOG_TRADE_BOTH_PLAYERS_OFFER_ONE_ITEM),
                     OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING), EODialogButtons.Ok,
                     EOMessageBoxStyle.SmallDialogSmallHeader);
-                ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.DIALOG_TRADE_BOTH_PLAYERS_OFFER_ONE_ITEM);
+                //((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.DIALOG_TRADE_BOTH_PLAYERS_OFFER_ONE_ITEM);
                 return;
             }
 
