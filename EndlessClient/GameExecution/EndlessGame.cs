@@ -44,6 +44,7 @@ namespace EndlessClient.GameExecution
         private GraphicsDeviceManager _graphicsDeviceManager;
 
         private KeyboardState _previousKeyState;
+        private TimeSpan _lastFrameUpdate;
 
 #if DEBUG
         private SpriteBatch _spriteBatch;
@@ -167,23 +168,31 @@ namespace EndlessClient.GameExecution
 
         protected override void Update(GameTime gameTime)
         {
-            //todo: this is a debug-only mode launched with the F5 key.
-            //todo: move this to be handled by some sort of key listener once function keys are handled in-game
-            var currentKeyState = Keyboard.GetState();
-            if (_previousKeyState.IsKeyDown(Keys.F5) && currentKeyState.IsKeyUp(Keys.F5))
+            // Force update at 60FPS
+            // Some game components rely on ~60FPS update times. See: https://github.com/ethanmoffat/EndlessClient/issues/199
+            // Using IsFixedTimeStep = true with TargetUpdateTime set to 60FPS also limits the draw rate, which is not desired
+            if ((gameTime.TotalGameTime - _lastFrameUpdate).TotalMilliseconds > 1000.0 / 60)
             {
-                _testModeLauncher.LaunchTestMode();
-            }
+                //todo: this is a debug-only mode launched with the F5 key.
+                //todo: move this to be handled by some sort of key listener once function keys are handled in-game
+                var currentKeyState = Keyboard.GetState();
+                if (_previousKeyState.IsKeyDown(Keys.F5) && currentKeyState.IsKeyUp(Keys.F5))
+                {
+                    _testModeLauncher.LaunchTestMode();
+                }
 
-            _previousKeyState = currentKeyState;
+                _previousKeyState = currentKeyState;
 
-            try
-            {
-                base.Update(gameTime);
-            }
-            catch (InvalidOperationException ioe) when (ioe.InnerException is NullReferenceException)
-            {
-                // hide "failed to compare two elements in the array" error from Monogame
+                try
+                {
+                    base.Update(gameTime);
+                }
+                catch (InvalidOperationException ioe) when (ioe.InnerException is NullReferenceException)
+                {
+                    // hide "failed to compare two elements in the array" error from Monogame
+                }
+
+                _lastFrameUpdate = gameTime.TotalGameTime;
             }
         }
 
