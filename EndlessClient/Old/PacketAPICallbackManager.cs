@@ -40,8 +40,8 @@ namespace EndlessClient.Old
             EOMessageBox.Show(char.ToUpper(name[0]) + name.Substring(1) + " ", DialogResourceID.TRADE_REQUEST, EODialogButtons.OkCancel,
                     EOMessageBoxStyle.SmallDialogSmallHeader, (o, e) =>
                     {
-                        if (e.Result == XNADialogResult.OK && !m_packetAPI.TradeAcceptRequest(playerID))
-                            m_game.DoShowLostConnectionDialogAndReturnToMainMenu();
+                        //if (e.Result == XNADialogResult.OK && !m_packetAPI.TradeAcceptRequest(playerID))
+                        //    m_game.DoShowLostConnectionDialogAndReturnToMainMenu();
                     });
         }
 

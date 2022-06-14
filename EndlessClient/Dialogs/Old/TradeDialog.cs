@@ -114,8 +114,8 @@ namespace EndlessClient.Dialogs.Old
             {
                 if (e.Result == XNADialogResult.Cancel)
                 {
-                    if (!m_api.TradeClose())
-                        ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
+                    //if (!m_api.TradeClose())
+                    //    ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
                     //((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_TRADE_ABORTED);
                 }
 
@@ -347,11 +347,11 @@ namespace EndlessClient.Dialogs.Old
             EOMessageBox.Show(DialogResourceID.TRADE_DO_YOU_AGREE, EODialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
                 (o, dlgArgs) =>
                 {
-                    if (dlgArgs.Result == XNADialogResult.OK && !m_api.TradeAgree(true))
-                    {
-                        Close(null, XNADialogResult.NO_BUTTON_PRESSED);
-                        ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
-                    }
+                    //if (dlgArgs.Result == XNADialogResult.OK && !m_api.TradeAgree(true))
+                    //{
+                    //    Close(null, XNADialogResult.NO_BUTTON_PRESSED);
+                    //    ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
+                    //}
                 });
         }
 
@@ -361,15 +361,15 @@ namespace EndlessClient.Dialogs.Old
             {
                 if (!m_leftAgrees) //just quit
                     Close(dlgButtons[1], XNADialogResult.Cancel);
-                else if (!m_api.TradeAgree(false)) //cancel agreement
-                    ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
+                //else if (!m_api.TradeAgree(false)) //cancel agreement
+                //    ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
             }
             else if (m_main.ID == m_rightPlayerID)
             {
                 if (!m_rightAgrees) //just quit
                     Close(dlgButtons[1], XNADialogResult.Cancel);
-                else if (!m_api.TradeAgree(false))
-                    ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
+                //else if (!m_api.TradeAgree(false))
+                //    ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
             }
             else
                 throw new InvalidOperationException("Invalid player ID for trade session!");
@@ -378,11 +378,11 @@ namespace EndlessClient.Dialogs.Old
         //item right-click event handler
         private void _removeItem(int id)
         {
-            if (!m_api.TradeRemoveItem((short)id))
-            {
-                Close(null, XNADialogResult.NO_BUTTON_PRESSED);
-                ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
-            }
+            //if (!m_api.TradeRemoveItem((short)id))
+            //{
+            //    Close(null, XNADialogResult.NO_BUTTON_PRESSED);
+            //    ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
+            //}
         }
 
         public override void Update(GameTime gt)
