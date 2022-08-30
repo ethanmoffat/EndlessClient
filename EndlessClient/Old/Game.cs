@@ -33,8 +33,6 @@ namespace EndlessClient.Old
 
         public GameStates State { get; private set; }
 
-        public PacketAPI API => null;
-
         public INativeGraphicsManager GFXManager { get; private set; }
 
 #if DEBUG //don't do FPS render on release builds

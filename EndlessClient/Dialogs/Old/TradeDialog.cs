@@ -42,8 +42,8 @@ namespace EndlessClient.Dialogs.Old
         public bool MainPlayerAgrees => (m_main.ID == m_leftPlayerID && m_leftAgrees) ||
                                         (m_main.ID == m_rightPlayerID && m_rightAgrees);
 
-        public TradeDialog(PacketAPI apiHandle)
-            : base(apiHandle)
+        public TradeDialog(/*PacketAPI apiHandle*/)
+            : base(null)
         {
             bgTexture = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 50);
             _setSize(bgTexture.Width, bgTexture.Height);

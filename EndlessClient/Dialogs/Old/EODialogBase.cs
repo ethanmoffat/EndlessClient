@@ -1,9 +1,7 @@
-﻿using System;
-using EndlessClient.Dialogs.Services;
+﻿using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
 using EndlessClient.Old;
 using EOLib.Graphics;
-using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls.Old;
@@ -13,18 +11,6 @@ namespace EndlessClient.Dialogs.Old
     public abstract class EODialogBase : XNADialog
     {
         protected readonly Texture2D smallButtonSheet;
-        protected readonly PacketAPI m_api;
-
-        protected EODialogBase(PacketAPI apiHandle)
-        {
-            if (apiHandle != null)
-            {
-                if (!apiHandle.Initialized)
-                    throw new ArgumentException("The API is not initialzied. Data transfer will not work.");
-                m_api = apiHandle;
-            }
-            smallButtonSheet = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 15, true);
-        }
 
         protected EODialogBase(INativeGraphicsManager nativeGraphicsManager)
         {

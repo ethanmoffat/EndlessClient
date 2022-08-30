@@ -1,0 +1,43 @@
+﻿using AutomaticTypeMapper;
+using EOLib.Domain.Login;
+using EOLib.Domain.Notifiers;
+using EOLib.Domain.Trade;
+using EOLib.Net;
+using EOLib.Net.Handlers;
+using System.Collections.Generic;
+
+namespace EOLib.PacketHandlers.Trade
+{
+    /// <summary>
+    /// Other party agrees to a trade
+    /// </summary>
+    [AutoMappedType]
+    public class TradeCloseHandler : InGameOnlyPacketHandler
+    {
+        private readonly ITradeRepository _tradeRepository;
+        private readonly IEnumerable<ITradeEventNotifier> _tradeEventNotifiers;
+
+        public override PacketFamily Family => PacketFamily.Trade;
+
+        public override PacketAction Action => PacketAction.Close;
+
+        public TradeCloseHandler(IPlayerInfoProvider playerInfoProvider,
+                                 ITradeRepository tradeRepository,
+                                 IEnumerable<ITradeEventNotifier> tradeEventNotifiers)
+            : base(playerInfoProvider)
+        {
+            _tradeRepository = tradeRepository;
+            _tradeEventNotifiers = tradeEventNotifiers;
+        }
+
+        public override bool HandlePacket(IPacket packet)
+        {
+            foreach (var notifier in _tradeEventNotifiers)
+                notifier.NotifyTradeClose(cancel: true);
+
+            _tradeRepository.ResetState();
+
+            return true;
+        }
+    }
+}
