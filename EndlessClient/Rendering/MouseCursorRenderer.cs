@@ -281,7 +281,8 @@ namespace EndlessClient.Rendering
                     _cursorIndex = CursorIndex.Standard;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(tileSpec), tileSpec, null);
+                    _cursorIndex = CursorIndex.HoverNormal;
+                    break;
             }
         }
 
