@@ -306,6 +306,15 @@ namespace EndlessClient.Rendering.Character
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_ITEM_USE_DRUNK);
         }
 
+        public void NotifyEffectAtLocation(byte x, byte y, short effectId)
+        {
+            if (_hudControlProvider.IsInGame)
+            {
+                _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer)
+                    .RenderEffect(x, y, effectId);
+            }
+        }
+
         private void ShowWaterSplashiesIfNeeded(CharacterActionState action, int characterID)
         {
             var character = characterID == _characterRepository.MainCharacter.ID

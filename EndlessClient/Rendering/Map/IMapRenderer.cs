@@ -14,5 +14,9 @@ namespace EndlessClient.Rendering.Map
         void StartEarthquake(byte strength);
 
         void RedrawGroundLayer();
+
+        void RenderEffect(byte x, byte y, short effectId);
+
+        void ClearTransientRenderables();
     }
 }

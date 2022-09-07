@@ -80,8 +80,17 @@ namespace EndlessClient.Rendering.Effects
                 return new List<IEffectSpriteInfo>(retList);
             }
 
-            //not implemented spell graphics will just not render anything
-            return new IEffectSpriteInfo[] { };
+            // not implemented spell graphics have a default rendering set
+            // spell effects seem to start at GFX 128 and go in sets of 3, indexed on (spellGraphic - 10)
+            // first gfx is behind character, other 2 are in front
+            // 255 alpha assumed until proven otherwise
+            // 4 frames assumed until proven otherwise
+            return new List<IEffectSpriteInfo>
+            {
+                new CustomEffectSpriteInfo(4, 1, false, 255, GetGraphic(((int)effect - 9)*3 + 128)),
+                new CustomEffectSpriteInfo(4, 1, true, 255, GetGraphic(((int)effect - 9)*3 + 129)),
+                new CustomEffectSpriteInfo(4, 1, true, 255, GetGraphic(((int)effect - 9)*3 + 130))
+            };
         }
 
         private IList<IEffectSpriteInfo> GetWarpEffect(EffectType warpEffect)
