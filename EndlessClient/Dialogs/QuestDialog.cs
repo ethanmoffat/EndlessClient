@@ -86,15 +86,22 @@ namespace EndlessClient.Dialogs
 
         private void UpdateTitle(QuestDialogData repoData)
         {
-            var npcName = _enfFileProvider.ENFFile[_questDataProvider.RequestedNPC.ID].Name;
-            var titleText = npcName;
-            if (!repoData.DialogTitles.ContainsKey(repoData.VendorID) && repoData.DialogTitles.Count == 1)
-                titleText += $" - {repoData.DialogTitles.Single().Value}";
-            else if (repoData.DialogTitles.ContainsKey(repoData.VendorID))
-                titleText += $" - {repoData.DialogTitles[repoData.VendorID]}";
+            if (_questDataProvider.RequestedNPC != null)
+            {
+                var npcName = _enfFileProvider.ENFFile[_questDataProvider.RequestedNPC.ID].Name;
+                var titleText = npcName;
+                if (!repoData.DialogTitles.ContainsKey(repoData.VendorID) && repoData.DialogTitles.Count == 1)
+                    titleText += $" - {repoData.DialogTitles.Single().Value}";
+                else if (repoData.DialogTitles.ContainsKey(repoData.VendorID))
+                    titleText += $" - {repoData.DialogTitles[repoData.VendorID]}";
 
-            _titleText.Text = titleText;
-            _titleText.ResizeBasedOnText();
+                _titleText.Text = titleText;
+                _titleText.ResizeBasedOnText();
+            }
+            else
+            {
+                _titleText.Text = string.Empty;
+            }
         }
 
         private void UpdateDialogDisplayText(QuestDialogData repoData)
