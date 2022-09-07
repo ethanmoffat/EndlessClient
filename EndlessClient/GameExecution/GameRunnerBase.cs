@@ -5,6 +5,7 @@ using EndlessClient.Initialization;
 using EOLib.Config;
 using EOLib.Graphics;
 using EOLib.Localization;
+using System;
 
 #if !LINUX
 using System.Windows.Forms;
@@ -93,6 +94,21 @@ namespace EndlessClient.GameExecution
                             .VersionBuild = version;
                     }
                     
+                    i++;
+                }
+                else if (string.Equals(arg, "--account_delay_ms") && i < _args.Length - 1)
+                {
+                    var accountCreateTimeStr = _args[i + 1];
+                    if (!int.TryParse(accountCreateTimeStr, out var accountCreateTime) || accountCreateTime < 2000)
+                    {
+                        Debug.WriteLine($"Account create timeout must be greater than or equal to 2000ms.");
+                    }
+                    else
+                    {
+                        _registry.Resolve<IConfigurationRepository>()
+                            .AccountCreateTimeout = TimeSpan.FromMilliseconds(accountCreateTime);
+                    }
+
                     i++;
                 }
                 else

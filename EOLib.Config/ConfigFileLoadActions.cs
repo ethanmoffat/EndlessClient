@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using System;
 
 namespace EOLib.Config
 {
@@ -61,6 +62,10 @@ namespace EOLib.Config
             _configRepository.LogChatToFile = configFile.GetValue(ConfigStrings.Chat, ConfigStrings.LogChat, out tempBool) && tempBool;
 
             _configRepository.MainCloneCompat = configFile.GetValue(ConfigStrings.Custom, ConfigStrings.MainCloneCompat, out tempBool) && tempBool;
+            _configRepository.AccountCreateTimeout = TimeSpan.FromMilliseconds(
+                configFile.GetValue(ConfigStrings.Custom, ConfigStrings.AccountCreateTimeout, out tempInt)
+                    ? tempInt
+                    : ConfigDefaults.AccountCreateTimeout);
 
             string host;
             _configRepository.Host = configFile.GetValue(ConfigStrings.Connection, ConfigStrings.Host, out host) ? host : ConfigDefaults.Host;

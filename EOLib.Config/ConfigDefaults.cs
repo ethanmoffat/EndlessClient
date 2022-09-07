@@ -11,5 +11,7 @@
 
         public const int NPCDropProtectionSeconds = 30;
         public const int PlayerDropProtectionSeconds = 5;
+
+        public const int AccountCreateTimeout = 2000;
     }
 }
