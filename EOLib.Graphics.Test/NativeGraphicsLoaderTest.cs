@@ -17,7 +17,6 @@ namespace EOLib.Graphics.Test
         private INativeGraphicsLoader _nativeGraphicsLoader;
 
         private const int ExpectedCulture = 0;
-        private const BitmapVersion ExpectedBitmapVersion = BitmapVersion.BitmapInfoHeader;
 
         [SetUp]
         public void SetUp()
@@ -34,7 +33,7 @@ namespace EOLib.Graphics.Test
             using (var bmp = _nativeGraphicsLoader.LoadGFX(GFXTypes.PreLoginUI, 1))
                 bmp.Dispose(); //hide warning for empty using statement
 
-            peFileMock.Verify(x => x.GetEmbeddedBitmapResourceByID(It.IsAny<int>(), ExpectedBitmapVersion, ExpectedCulture), Times.Once());
+            peFileMock.Verify(x => x.GetEmbeddedBitmapResourceByID(It.IsAny<int>(), ExpectedCulture), Times.Once());
         }
 
         [Test]
@@ -48,7 +47,7 @@ namespace EOLib.Graphics.Test
             using (var bmp = _nativeGraphicsLoader.LoadGFX(GFXTypes.PreLoginUI, requestedResourceID))
                 bmp.Dispose(); //hide warning for empty using statement
 
-            peFileMock.Verify(x => x.GetEmbeddedBitmapResourceByID(expectedResourceID, ExpectedBitmapVersion, ExpectedCulture));
+            peFileMock.Verify(x => x.GetEmbeddedBitmapResourceByID(expectedResourceID, ExpectedCulture));
         }
 
         [Test]
@@ -81,7 +80,7 @@ namespace EOLib.Graphics.Test
             var peFile = new Mock<IPEFile>();
             collectionMock.Setup(x => x[type]).Returns(peFile.Object);
 
-            peFile.Setup(x => x.GetEmbeddedBitmapResourceByID(It.IsAny<int>(), ExpectedBitmapVersion, ExpectedCulture))
+            peFile.Setup(x => x.GetEmbeddedBitmapResourceByID(It.IsAny<int>(), ExpectedCulture))
                   .Returns(array);
 
             return peFile;

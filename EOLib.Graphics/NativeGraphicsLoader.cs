@@ -22,9 +22,8 @@ namespace EOLib.Graphics
 
         public IImage LoadGFX(GFXTypes file, int resourceValue)
         {
-            var version = _configurationProvider.MainCloneCompat ? BitmapVersion.BitmapV3InfoHeader : BitmapVersion.BitmapInfoHeader;
             var culture = _configurationProvider.MainCloneCompat ? CULTURE_EN_US : 0;
-            var fileBytes = _modules[file].GetEmbeddedBitmapResourceByID(resourceValue + 100, version, culture);
+            var fileBytes = _modules[file].GetEmbeddedBitmapResourceByID(resourceValue + 100, culture);
 
             if (fileBytes.Length == 0)
                 throw new GFXLoadException(resourceValue, file);
