@@ -1,4 +1,5 @@
-﻿using EOLib.Domain.Character;
+﻿using AutomaticTypeMapper;
+using EOLib.Domain.Character;
 using System.Collections.Generic;
 
 namespace EOLib.Domain.Trade
@@ -21,6 +22,7 @@ namespace EOLib.Domain.Trade
         TradeOffer PlayerTwoOffer { get; }
     }
 
+    [AutoMappedType(IsSingleton = true)]
     public class TradeRepository : ITradeRepository, ITradeProvider
     {
         public byte TradeSessionID { get; set; }

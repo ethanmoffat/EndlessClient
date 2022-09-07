@@ -55,9 +55,14 @@ namespace EndlessClient.Dialogs.Actions
         {
             // todo: close trade dialog
 
-
-            // todo: status label
-            //m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_TRADE_ABORTED);
+            if (cancel)
+            {
+                //m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_TRADE_ABORTED);
+            }
+            else
+            {
+                //EOMessageBox.Show(DialogResourceID.TRADE_SUCCESS, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+            }
         }
     }
 }

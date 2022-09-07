@@ -230,10 +230,5 @@ namespace EndlessClient.Old
                     m_client.Dispose();
             }
         }
-
-        public static void IgnoreDialogs(XNAControl control)
-        {
-            control.IgnoreDialog(typeof(TradeDialog));
-        }
     }
 }
