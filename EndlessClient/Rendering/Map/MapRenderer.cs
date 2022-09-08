@@ -176,8 +176,7 @@ namespace EndlessClient.Rendering.Map
         public void ClearTransientRenderables()
         {
             _mapGridEffectTargets.Clear();
-            // todo: clear NPC speech bubbles
-            // todo: hide map item/character/npc name
+            _mouseCursorRenderer.ClearTransientRenderables();
         }
 
         private void UpdateQuakeState()

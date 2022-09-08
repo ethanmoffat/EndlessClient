@@ -346,6 +346,12 @@ namespace EndlessClient.Rendering
             _clickCoordinate = Option.Some(new MapCoordinate(_gridX, _gridY));
         }
 
+        public void ClearTransientRenderables()
+        {
+            _mapItemText.Visible = false;
+            _startClickTime = Option.None<DateTime>();
+        }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -363,5 +369,7 @@ namespace EndlessClient.Rendering
         void Draw(SpriteBatch spriteBatch, Vector2 additionalOffset);
 
         void AnimateClick();
+
+        void ClearTransientRenderables();
     }
 }
