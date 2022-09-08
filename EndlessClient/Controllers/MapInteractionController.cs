@@ -125,29 +125,32 @@ namespace EndlessClient.Controllers
             }
             else if (InteractableTileSpec(cellState.TileSpec) && CharacterIsCloseEnough(cellState.Coordinate))
             {
-                var unwalkableAction = _unwalkableTileActions.HandleUnwalkableTile(cellState);
+                var unwalkableActions = _unwalkableTileActions.HandleUnwalkableTile(cellState);
 
-                switch (cellState.TileSpec)
+                foreach (var unwalkableAction in unwalkableActions)
                 {
-                    // todo: implement for other clickable tile specs (board, jukebox, etc)
-                    case TileSpec.Chest:
-                        if (unwalkableAction == UnwalkableTileAction.Chest)
-                        {
-                            _mapActions.OpenChest((byte)cellState.Coordinate.X, (byte)cellState.Coordinate.Y);
-                            _inGameDialogActions.ShowChestDialog();
+                    switch (cellState.TileSpec)
+                    {
+                        // todo: implement for other clickable tile specs (board, jukebox, etc)
+                        case TileSpec.Chest:
+                            if (unwalkableAction == UnwalkableTileAction.Chest)
+                            {
+                                _mapActions.OpenChest((byte)cellState.Coordinate.X, (byte)cellState.Coordinate.Y);
+                                _inGameDialogActions.ShowChestDialog();
 
-                            _userInputRepository.ClickHandled = true;
-                        }
-                        break;
-                    case TileSpec.BankVault:
-                        if (unwalkableAction == UnwalkableTileAction.Locker)
-                        {
-                            _mapActions.OpenLocker((byte)cellState.Coordinate.X, (byte)cellState.Coordinate.Y);
-                            _inGameDialogActions.ShowLockerDialog();
+                                _userInputRepository.ClickHandled = true;
+                            }
+                            break;
+                        case TileSpec.BankVault:
+                            if (unwalkableAction == UnwalkableTileAction.Locker)
+                            {
+                                _mapActions.OpenLocker((byte)cellState.Coordinate.X, (byte)cellState.Coordinate.Y);
+                                _inGameDialogActions.ShowLockerDialog();
 
-                            _userInputRepository.ClickHandled = true;
-                        }
-                        break;
+                                _userInputRepository.ClickHandled = true;
+                            }
+                            break;
+                    }
                 }
             }
             else if (cellState.InBounds && !cellState.Character.HasValue && !cellState.NPC.HasValue)
