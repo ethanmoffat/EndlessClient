@@ -76,11 +76,6 @@ namespace EndlessClient.GameExecution
 
                     i++;
                 }
-                else if(string.Equals(arg, "--clonecompat"))
-                {
-                    _registry.Resolve<IConfigurationRepository>()
-                        .MainCloneCompat = true;
-                }
                 else if (string.Equals(arg, "--version") && i < _args.Length - 1)
                 {
                     var versionStr = _args[i + 1];

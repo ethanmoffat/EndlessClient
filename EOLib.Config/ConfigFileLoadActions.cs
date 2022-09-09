@@ -61,7 +61,6 @@ namespace EOLib.Config
             _configRepository.Interaction = !configFile.GetValue(ConfigStrings.Chat, ConfigStrings.Interaction, out tempBool) || tempBool;
             _configRepository.LogChatToFile = configFile.GetValue(ConfigStrings.Chat, ConfigStrings.LogChat, out tempBool) && tempBool;
 
-            _configRepository.MainCloneCompat = configFile.GetValue(ConfigStrings.Custom, ConfigStrings.MainCloneCompat, out tempBool) && tempBool;
             _configRepository.AccountCreateTimeout = TimeSpan.FromMilliseconds(
                 configFile.GetValue(ConfigStrings.Custom, ConfigStrings.AccountCreateTimeout, out tempInt)
                     ? tempInt

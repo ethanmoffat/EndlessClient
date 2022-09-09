@@ -30,8 +30,6 @@ namespace EOLib.Config
         bool Interaction { get; set; }
         bool LogChatToFile { get; set; }
 
-        bool MainCloneCompat { get; set; }
-
         TimeSpan AccountCreateTimeout { get; set; }
 
         bool EnableLog { get; set; }
@@ -63,8 +61,6 @@ namespace EOLib.Config
         bool HearWhispers { get; }
         bool Interaction { get; }
         bool LogChatToFile { get; }
-
-        bool MainCloneCompat { get; }
 
         TimeSpan AccountCreateTimeout { get; }
 
@@ -98,8 +94,6 @@ namespace EOLib.Config
         public bool HearWhispers { get; set; }
         public bool Interaction { get; set; }
         public bool LogChatToFile { get; set; }
-
-        public bool MainCloneCompat { get; set; }
 
         public TimeSpan AccountCreateTimeout { get; set; }
 

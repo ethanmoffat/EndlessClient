@@ -1,12 +1,11 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.IO;
+﻿using Moq;
 using NUnit.Framework;
-using Moq;
 using PELoaderLib;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Formats.Bmp;
-using EOLib.Config;
+using SixLabors.ImageSharp.PixelFormats;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
 
 namespace EOLib.Graphics.Test
 {
@@ -22,7 +21,7 @@ namespace EOLib.Graphics.Test
         public void SetUp()
         {
             _modules = Mock.Of<IPEFileCollection>();
-            _nativeGraphicsLoader = new NativeGraphicsLoader(_modules, Mock.Of<IConfigurationProvider>(x => x.MainCloneCompat == false));
+            _nativeGraphicsLoader = new NativeGraphicsLoader(_modules);
         }
 
         [Test]

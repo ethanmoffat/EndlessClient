@@ -8,22 +8,16 @@ namespace EOLib.Graphics
     [MappedType(BaseType = typeof(INativeGraphicsLoader), IsSingleton = true)]
     public class NativeGraphicsLoader : INativeGraphicsLoader
     {
-        private const int CULTURE_EN_US = 1033;
-
         private readonly IPEFileCollection _modules;
-        private readonly IConfigurationProvider _configurationProvider;
 
-        public NativeGraphicsLoader(IPEFileCollection modules,
-                                    IConfigurationProvider configurationProvider)
+        public NativeGraphicsLoader(IPEFileCollection modules)
         {
             _modules = modules;
-            _configurationProvider = configurationProvider;
         }
 
         public IImage LoadGFX(GFXTypes file, int resourceValue)
         {
-            var culture = _configurationProvider.MainCloneCompat ? CULTURE_EN_US : 0;
-            var fileBytes = _modules[file].GetEmbeddedBitmapResourceByID(resourceValue + 100, culture);
+            var fileBytes = _modules[file].GetEmbeddedBitmapResourceByID(resourceValue + 100);
 
             if (fileBytes.Length == 0)
                 throw new GFXLoadException(resourceValue, file);
