@@ -149,7 +149,7 @@ namespace EndlessClient.ControlSets
                                      _configProvider.Host,
                                      _configProvider.Port),
                 ForeColor = Color.Black,
-                DrawArea = new Rectangle(25, 453, 1, 1)
+                DrawArea = new Rectangle(20, 459, 1, 1)
             };
         }
 
