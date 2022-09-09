@@ -12,6 +12,7 @@ using Microsoft.Xna.Framework.Input;
 using Optional;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace EndlessClient.Rendering.Map
 {
@@ -239,49 +240,74 @@ namespace EndlessClient.Rendering.Map
             GraphicsDevice.SetRenderTarget(_mapObjectTarget);
             GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
 
-            var gfxToRenderLast = new SortedList<MapCoordinate, List<IMapEntityRenderer>>();
+            var gfxToRenderLast = new SortedList<MapRenderLayer, List<(MapCoordinate Coord, IMapEntityRenderer Renderer)>>();
 
             _sb.Begin();
 
             var renderBounds = _mapRenderDistanceCalculator.CalculateRenderBounds(immutableCharacter, _currentMapProvider.CurrentMap);
-            for (var row = renderBounds.FirstRow; row <= renderBounds.LastRow; row++)
+
+            // render the grid diagonally. hack that fixes some layering issues due to not using a depth buffer for layers
+            // a better solution would be to use a depth buffer like eomap-js
+            for (var rowStart = renderBounds.FirstRow; rowStart <= renderBounds.LastRow; rowStart++)
             {
-                for (var col = renderBounds.FirstCol; col <= renderBounds.LastCol; col++)
+                var row = rowStart;
+                var col = renderBounds.FirstCol;
+
+                while (row >= 0)
                 {
-                    var alpha = GetAlphaForCoordinates(col, row, immutableCharacter);
+                    RenderGridSpace(row, col);
 
-                    foreach (var renderer in _mapEntityRendererProvider.MapEntityRenderers)
-                    {
-                        if (!renderer.CanRender(row, col))
-                            continue;
+                    row--;
+                    col++;
+                }
+            }
 
-                        if (renderer.ShouldRenderLast)
-                        {
-                            var renderLaterKey = new MapCoordinate(col, row);
-                            if (gfxToRenderLast.ContainsKey(renderLaterKey))
-                                gfxToRenderLast[renderLaterKey].Add(renderer);
-                            else
-                                gfxToRenderLast.Add(renderLaterKey, new List<IMapEntityRenderer> { renderer });
-                        }
-                        else
-                            renderer.RenderElementAt(_sb, row, col, alpha);
-                    }
+            for (var colStart = 1; colStart <= renderBounds.LastCol; colStart++)
+            {
+                var row = renderBounds.LastRow;
+                var col = colStart;
+
+                while (col <= renderBounds.LastCol)
+                {
+                    RenderGridSpace(row, col);
+                    row--;
+                    col++;
                 }
             }
 
             foreach (var kvp in gfxToRenderLast)
             {
-                var pointKey = kvp.Key;
-                var alpha = GetAlphaForCoordinates(pointKey.X, pointKey.Y, immutableCharacter);
-
-                foreach (var renderer in kvp.Value)
+                foreach (var (pointKey, renderer) in kvp.Value)
                 {
+                    var alpha = GetAlphaForCoordinates(pointKey.X, pointKey.Y, immutableCharacter);
                     renderer.RenderElementAt(_sb, pointKey.Y, pointKey.X, alpha);
                 }
             }
 
             _sb.End();
             GraphicsDevice.SetRenderTarget(null);
+
+            void RenderGridSpace(int row, int col)
+            {
+                var alpha = GetAlphaForCoordinates(col, row, immutableCharacter);
+
+                foreach (var renderer in _mapEntityRendererProvider.MapEntityRenderers)
+                {
+                    if (!renderer.CanRender(row, col))
+                        continue;
+
+                    if (renderer.ShouldRenderLast)
+                    {
+                        var renderLaterKey = new MapCoordinate(col, row);
+                        if (gfxToRenderLast.ContainsKey(renderer.RenderLayer))
+                            gfxToRenderLast[renderer.RenderLayer].Add((renderLaterKey, renderer));
+                        else
+                            gfxToRenderLast.Add(renderer.RenderLayer, new List<(MapCoordinate, IMapEntityRenderer)> { (renderLaterKey, renderer) });
+                    }
+                    else
+                        renderer.RenderElementAt(_sb, row, col, alpha);
+                }
+            }
         }
 
         private void DrawToSpriteBatch(SpriteBatch spriteBatch, GameTime gameTime)
