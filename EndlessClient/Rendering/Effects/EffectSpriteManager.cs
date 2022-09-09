@@ -87,9 +87,9 @@ namespace EndlessClient.Rendering.Effects
             // 4 frames assumed until proven otherwise
             return new List<IEffectSpriteInfo>
             {
-                new CustomEffectSpriteInfo(4, 1, false, 255, GetGraphic(((int)effect - 9)*3 + 128)),
-                new CustomEffectSpriteInfo(4, 1, true, 255, GetGraphic(((int)effect - 9)*3 + 129)),
-                new CustomEffectSpriteInfo(4, 1, true, 255, GetGraphic(((int)effect - 9)*3 + 130))
+                new CustomEffectSpriteInfo(4, 2, false, 255, GetGraphic(((int)effect - 9)*3 + 128)),
+                new CustomEffectSpriteInfo(4, 2, true, 255, GetGraphic(((int)effect - 9)*3 + 129)),
+                new CustomEffectSpriteInfo(4, 2, true, 255, GetGraphic(((int)effect - 9)*3 + 130))
             };
         }
 

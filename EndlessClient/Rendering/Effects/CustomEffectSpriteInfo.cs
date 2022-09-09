@@ -13,7 +13,7 @@ namespace EndlessClient.Rendering.Effects
         protected override Vector2 GetDrawLocation(Rectangle textureSourceRectangle, Rectangle targetActorRectangle)
         {
             var targetX = targetActorRectangle.X + (targetActorRectangle.Width - textureSourceRectangle.Width) / 2 - targetActorRectangle.Width / 2;
-            var targetY = targetActorRectangle.Y - textureSourceRectangle.Height;
+            var targetY = (int)System.Math.Floor(targetActorRectangle.Y - textureSourceRectangle.Height*(11.0/13));
 
             return new Vector2(targetX, targetY);
         }
