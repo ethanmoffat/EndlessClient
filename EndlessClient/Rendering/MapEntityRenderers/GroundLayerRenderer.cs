@@ -10,7 +10,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 {
     public class GroundLayerRenderer : BaseMapEntityRenderer
     {
-        protected const int TILE_FRAME_WIDTH = 64;
+        protected const int ANIMATED_TILE_MIN_WIDTH = 128;
 
         protected readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly ICurrentMapProvider _currentMapProvider;
@@ -66,7 +66,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
                 return;
             }
 
-            var src = tileTexture.Width > TILE_FRAME_WIDTH
+            var src = tileTexture.Width >= ANIMATED_TILE_MIN_WIDTH
                 ? new Rectangle?(new Rectangle((tileTexture.Width / 4) * _frameIndex, 0, tileTexture.Width / 4, tileTexture.Height))
                 : null;
             spriteBatch.Draw(tileTexture, pos + additionalOffset, src, Color.FromNonPremultiplied(255, 255, 255, alpha));
@@ -94,7 +94,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             var tileExists = ((tileId = CurrentMap.Properties.FillTile) > 0 && CurrentMap.GFX[MapLayer.GroundTile][row, col] < 0) ||
                 (tileId = CurrentMap.GFX[MapLayer.GroundTile][row, col]) > 0;
 
-            return tileExists && _nativeGraphicsManager.TextureFromResource(GFXTypes.MapTiles, tileId, true).Width > TILE_FRAME_WIDTH;
+            return tileExists && _nativeGraphicsManager.TextureFromResource(GFXTypes.MapTiles, tileId, true).Width >= ANIMATED_TILE_MIN_WIDTH;
         }
 
         public override Vector2 GetDrawCoordinatesFromGridUnits(int gridX, int gridY)
