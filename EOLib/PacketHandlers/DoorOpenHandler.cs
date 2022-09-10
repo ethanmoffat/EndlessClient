@@ -31,6 +31,10 @@ namespace EOLib.PacketHandlers
             var x = packet.ReadChar();
             var y = packet.ReadShort();
 
+
+            if (_currentMapStateRepository.OpenDoors.Any(d => d.X == x && d.Y == y))
+                return true;
+
             Warp warp;
             try
             {
