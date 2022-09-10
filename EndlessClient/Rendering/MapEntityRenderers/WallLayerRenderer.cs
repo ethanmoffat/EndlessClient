@@ -13,7 +13,6 @@ namespace EndlessClient.Rendering.MapEntityRenderers
     public abstract class WallLayerRendererBase : BaseMapEntityRenderer
     {
         private const int WALL_FRAME_WIDTH = 68;
-        private const int STANDARD_WALL_WIDTH = 32;
 
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly ICurrentMapProvider _currentMapProvider;
@@ -45,14 +44,8 @@ namespace EndlessClient.Rendering.MapEntityRenderers
                 ? new Rectangle?(new Rectangle(gfxWidthDelta * _frameIndex, 0, gfxWidthDelta, gfx.Height))
                 : null;
 
-            var wallAnimationAdjust = gfx.Width > WALL_FRAME_WIDTH
-                ? -gfxWidthDelta
-                : gfx.Width > STANDARD_WALL_WIDTH
-                    ? 0
-                    : gfx.Width / 2;
-
             var pos = GetDrawCoordinatesFromGridUnits(col, row);
-            pos -= new Vector2((gfx.Width / 2) + wallAnimationAdjust, gfx.Height - 32);
+            pos -= new Vector2(32, gfx.Height - 32);
 
             spriteBatch.Draw(gfx, pos + additionalOffset, src, Color.FromNonPremultiplied(255, 255, 255, alpha));
         }
