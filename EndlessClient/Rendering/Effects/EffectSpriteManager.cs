@@ -64,10 +64,15 @@ namespace EndlessClient.Rendering.Effects
 
         private IList<IEffectSpriteInfo> ResolvePotionEffect(HardCodedPotionEffect effect)
         {
-            var retList = _potionEffects[effect];
-            foreach(var item in retList)
-                item.Restart();
-            return new List<IEffectSpriteInfo>(retList);
+            if (_potionEffects.ContainsKey(effect))
+            {
+                var retList = _potionEffects[effect];
+                foreach (var item in retList)
+                    item.Restart();
+            }
+
+            // potion graphics that aren't in the hard-coded list here use the same formula as spell graphics
+            return ResolveSpellEffect((HardCodedSpellGraphic)effect+1);
         }
 
         private IList<IEffectSpriteInfo> ResolveSpellEffect(HardCodedSpellGraphic effect)
