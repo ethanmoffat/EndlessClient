@@ -364,7 +364,7 @@ namespace EndlessClient.Rendering.Character
                 return;
             }
 
-            _pubFileProvider.EIFFile.SingleOrNone(x => x.Type == ItemType.Weapon && x.DollGraphic == character.RenderProperties.WeaponGraphic)
+            _pubFileProvider.EIFFile.FirstOrNone(x => x.Type == ItemType.Weapon && x.DollGraphic == character.RenderProperties.WeaponGraphic)
                 .MatchSome(x =>
                 {
                     var instrumentIndex = Constants.InstrumentIDs.ToList().FindIndex(y => y == x.ID);
