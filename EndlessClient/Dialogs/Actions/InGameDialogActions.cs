@@ -7,6 +7,8 @@ using EOLib.Domain.Interact.Shop;
 using EOLib.Domain.Interact.Skill;
 using Optional;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace EndlessClient.Dialogs.Actions
 {
@@ -26,6 +28,7 @@ namespace EndlessClient.Dialogs.Actions
         private readonly IBankAccountDialogFactory _bankAccountDialogFactory;
         private readonly ISkillmasterDialogFactory _skillmasterDialogFactory;
         private readonly IBardDialogFactory _bardDialogFactory;
+        private readonly IScrollingListDialogFactory _scrollingListDialogFactory;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IShopDialogFactory _shopDialogFactory;
         private readonly IQuestDialogFactory _questDialogFactory;
@@ -45,6 +48,7 @@ namespace EndlessClient.Dialogs.Actions
                                    IBankAccountDialogFactory bankAccountDialogFactory,
                                    ISkillmasterDialogFactory skillmasterDialogFactory,
                                    IBardDialogFactory bardDialogFactory,
+                                   IScrollingListDialogFactory scrollingListDialogFactory,
                                    ISfxPlayer sfxPlayer)
         {
             _friendIgnoreListDialogFactory = friendIgnoreListDialogFactory;
@@ -60,6 +64,7 @@ namespace EndlessClient.Dialogs.Actions
             _bankAccountDialogFactory = bankAccountDialogFactory;
             _skillmasterDialogFactory = skillmasterDialogFactory;
             _bardDialogFactory = bardDialogFactory;
+            _scrollingListDialogFactory = scrollingListDialogFactory;
             _sfxPlayer = sfxPlayer;
             _shopDialogFactory = shopDialogFactory;
             _questDialogFactory = questDialogFactory;
@@ -247,6 +252,35 @@ namespace EndlessClient.Dialogs.Actions
             });
         }
 
+        public void ShowMessageDialog(string title, IReadOnlyList<string> messages)
+        {
+            _activeDialogRepository.MessageDialog.MatchNone(() =>
+            {
+                var dlg = _scrollingListDialogFactory.Create(ScrollingListDialogSize.Large);
+                dlg.DialogClosed += (_, _) => _activeDialogRepository.MessageDialog = Option.None<ScrollingListDialog>();
+
+                dlg.ListItemType = ListDialogItem.ListItemStyle.Small;
+                dlg.Buttons = ScrollingListDialogButtons.Cancel;
+                dlg.Title = title;
+
+                var _75spaces = new string(Enumerable.Repeat(' ', 75).ToArray());
+                var items = messages
+                    // BU hack - assume that 75 spaces or more indicates an extra line break
+                    .Select(x => x.Replace(_75spaces, "   \n"))
+                    // BU hack - assume that 3 spaces or more indicates extra padding and should split the message into multiple lines
+                    .SelectMany(x => x.Split("   ", StringSplitOptions.RemoveEmptyEntries))
+                    .Select(x => new ListDialogItem(dlg, ListDialogItem.ListItemStyle.Small) { PrimaryText = x == "\n" ? string.Empty : x.Trim() }).ToList();
+
+                dlg.SetItemList(items);
+
+                _activeDialogRepository.MessageDialog = Option.Some(dlg);
+
+                UseDefaultDialogSounds(dlg);
+
+                dlg.Show();
+            });
+        }
+
         private void UseDefaultDialogSounds(ScrollingListDialog dialog)
         {
             UseDefaultDialogSounds((BaseEODialog)dialog);
@@ -298,5 +332,7 @@ namespace EndlessClient.Dialogs.Actions
         void ShowSkillmasterDialog();
 
         void ShowBardDialog();
+
+        void ShowMessageDialog(string title, IReadOnlyList<string> messages);
     }
 }
