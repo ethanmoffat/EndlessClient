@@ -53,6 +53,7 @@ namespace EndlessClient.Rendering.Character
         private BlinkingLabel _nameLabel;
         private string _shoutName = string.Empty;
         private DateTime? _spellCastTime;
+        private bool _showName = true;
 
         private IHealthBarRenderer _healthBarRenderer;
         private Lazy<IChatBubble> _chatBubble;
@@ -260,6 +261,10 @@ namespace EndlessClient.Rendering.Character
                 _healthBarRenderer?.DrawToSpriteBatch(spriteBatch);
         }
 
+        public void ShowName() => _showName = true;
+
+        public void HideName() => _showName = false;
+
         #endregion
 
         #region Texture Loading Helpers
@@ -358,7 +363,7 @@ namespace EndlessClient.Rendering.Character
             {
                 _nameLabel.Visible = false;
             }
-            else if (DrawArea.Contains(_userInputProvider.CurrentMouseState.Position))
+            else if (DrawArea.Contains(_userInputProvider.CurrentMouseState.Position) && _showName)
             {
                 _nameLabel.Visible = true;
                 _nameLabel.BlinkRate = null;

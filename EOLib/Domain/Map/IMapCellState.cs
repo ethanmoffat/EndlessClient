@@ -18,6 +18,8 @@ namespace EOLib.Domain.Map
         Option<NPC.NPC> NPC { get; }
 
         Option<Character.Character> Character { get; }
+
+        IReadOnlyList<Character.Character> Characters { get; }
         
         Option<ChestKey> ChestKey { get; }
 

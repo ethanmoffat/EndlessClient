@@ -3,6 +3,7 @@ using EndlessClient.Controllers;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD;
 using EndlessClient.Input;
+using EndlessClient.Rendering.Character;
 using EOLib.Domain.Character;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
@@ -16,6 +17,7 @@ namespace EndlessClient.Rendering.Factories
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly ICharacterProvider _characterProvider;
+        private readonly ICharacterRendererProvider _characterRendererProvider;
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
         private readonly IMapCellStateProvider _mapCellStateProvider;
         private readonly IItemStringService _itemStringService;
@@ -29,6 +31,7 @@ namespace EndlessClient.Rendering.Factories
 
         public MouseCursorRendererFactory(INativeGraphicsManager nativeGraphicsManager,
                                           ICharacterProvider characterProvider,
+                                          ICharacterRendererProvider characterRendererProvider,
                                           IRenderOffsetCalculator renderOffsetCalculator,
                                           IMapCellStateProvider mapCellStateProvider,
                                           IItemStringService itemStringService,
@@ -42,6 +45,7 @@ namespace EndlessClient.Rendering.Factories
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _characterProvider = characterProvider;
+            _characterRendererProvider = characterRendererProvider;
             _renderOffsetCalculator = renderOffsetCalculator;
             _mapCellStateProvider = mapCellStateProvider;
             _itemStringService = itemStringService;
@@ -58,6 +62,7 @@ namespace EndlessClient.Rendering.Factories
         {
             return new MouseCursorRenderer(_nativeGraphicsManager,
                                            _characterProvider,
+                                           _characterRendererProvider,
                                            _renderOffsetCalculator,
                                            _mapCellStateProvider,
                                            _itemStringService,
