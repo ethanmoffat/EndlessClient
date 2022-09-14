@@ -152,6 +152,7 @@ namespace EndlessClient.HUD.Chat
                 }
                 else
                 {
+                    _cachedScrollOffset = Math.Max(0, _renderables.Count - 7);
                     _label.ForeColor = Color.White;
                 }
             }
