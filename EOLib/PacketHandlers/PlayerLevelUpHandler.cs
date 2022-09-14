@@ -23,9 +23,10 @@ namespace EOLib.PacketHandlers
                                     ICharacterSessionRepository characterSessionRepository,
                                     IEnumerable<INPCActionNotifier> npcAnimationNotifiers,
                                     IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers,
+                                    IEnumerable<IOtherCharacterAnimationNotifier> otherCharacterAnimationNotifiers,
                                     IEnumerable<IEmoteNotifier> emoteNotifiers)
             : base(playerInfoProvider, currentMapStateRepository, characterRepository, characterSessionRepository,
-                   npcAnimationNotifiers, mainCharacterEventNotifiers)
+                   npcAnimationNotifiers, mainCharacterEventNotifiers, otherCharacterAnimationNotifiers)
         {
             _emoteNotifiers = emoteNotifiers;
         }
@@ -71,8 +72,9 @@ namespace EOLib.PacketHandlers
                                                  ICharacterSessionRepository characterSessionRepository,
                                                  IEnumerable<INPCActionNotifier> npcAnimationNotifiers,
                                                  IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers,
+                                                 IEnumerable<IOtherCharacterAnimationNotifier> otherCharacterAnimationNotifiers,
                                                  IEnumerable<IEmoteNotifier> emoteNotifiers)
             : base(playerInfoProvider, currentMapStateRepository, characterRepository, characterSessionRepository,
-                   npcAnimationNotifiers, mainCharacterEventNotifiers, emoteNotifiers) { }
+                   npcAnimationNotifiers, mainCharacterEventNotifiers, otherCharacterAnimationNotifiers, emoteNotifiers) { }
     }
 }

@@ -178,6 +178,17 @@ namespace EndlessClient.Rendering.Character
             _characterRendererProvider.CharacterRenderers[playerId].ShoutSpellPrep(shoutName.ToLower());
         }
 
+        public void NotifyTargetNpcSpellCast(short playerId)
+        {
+            // Main player starts its spell cast animation immediately when targeting NPC
+            // Other players need to wait for packet to be received and do it here
+            // this is some spaghetti...
+            if (_characterRendererProvider.CharacterRenderers.ContainsKey(playerId))
+            {
+                Animator.StartOtherCharacterSpellCast(playerId);
+            }
+        }
+
         public void NotifySelfSpellCast(short playerId, short spellId, int spellHp, byte percentHealth)
         {
             var spellGraphic = _pubFileProvider.ESFFile[spellId].Graphic;
