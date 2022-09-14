@@ -113,6 +113,8 @@ namespace EndlessClient.Rendering.Map
 
             if (Visible)
             {
+                DrawGroundLayerToRenderTarget();
+
                 _characterRendererUpdater.UpdateCharacters(gameTime);
                 _npcRendererUpdater.UpdateNPCs(gameTime);
                 _dynamicMapObjectUpdater.UpdateMapObjects(gameTime);
@@ -136,7 +138,6 @@ namespace EndlessClient.Rendering.Map
             if (!Visible)
                 return;
 
-            DrawGroundLayerToRenderTarget();
             DrawMapToRenderTarget();
             DrawToSpriteBatch(_sb, gameTime);
 
