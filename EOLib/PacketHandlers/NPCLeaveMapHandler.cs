@@ -17,7 +17,7 @@ namespace EOLib.PacketHandlers
         protected readonly ICurrentMapStateRepository _currentMapStateRepository;
         protected readonly ICharacterRepository _characterRepository;
         private readonly ICharacterSessionRepository _characterSessionRepository;
-        private readonly IEnumerable<INPCActionNotifier> _npcAnimationNotifiers;
+        private readonly IEnumerable<INPCActionNotifier> _npcActionNotifiers;
         private readonly IEnumerable<IMainCharacterEventNotifier> _mainCharacterEventNotifiers;
 
         public override PacketFamily Family => PacketFamily.NPC;
@@ -28,14 +28,14 @@ namespace EOLib.PacketHandlers
                                   ICurrentMapStateRepository currentMapStateRepository,
                                   ICharacterRepository characterRepository,
                                   ICharacterSessionRepository characterSessionRepository,
-                                  IEnumerable<INPCActionNotifier> npcAnimationNotifiers,
+                                  IEnumerable<INPCActionNotifier> npcActionNotifiers,
                                   IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers)
             : base(playerInfoProvider)
         {
             _currentMapStateRepository = currentMapStateRepository;
             _characterRepository = characterRepository;
             _characterSessionRepository = characterSessionRepository;
-            _npcAnimationNotifiers = npcAnimationNotifiers;
+            _npcActionNotifiers = npcActionNotifiers;
             _mainCharacterEventNotifiers = mainCharacterEventNotifiers;
         }
 
@@ -97,7 +97,7 @@ namespace EOLib.PacketHandlers
 
         private void RemoveNPCFromView(short deadNPCIndex, int playerId, Option<short> spellId, Option<int> damage, bool showDeathAnimation)
         {
-            foreach (var notifier in _npcAnimationNotifiers)
+            foreach (var notifier in _npcActionNotifiers)
                 notifier.RemoveNPCFromView(deadNPCIndex, playerId, spellId, damage, showDeathAnimation);
 
             _currentMapStateRepository.NPCs.RemoveWhere(npc => npc.Index == deadNPCIndex);
@@ -142,6 +142,9 @@ namespace EOLib.PacketHandlers
 
             _currentMapStateRepository.MapItems.RemoveWhere(item => item.UniqueID == droppedItemUID);
             _currentMapStateRepository.MapItems.Add(mapItem);
+
+            foreach (var notifier in _npcActionNotifiers)
+                notifier.NPCDropItem(mapItem);
         }
     }
 

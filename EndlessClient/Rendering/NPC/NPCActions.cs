@@ -4,15 +4,16 @@ using EndlessClient.ControlSets;
 using EndlessClient.HUD.Chat;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Rendering.Character;
-using EndlessClient.Rendering.Chat;
-using EOLib;
+using EOLib.Domain.Chat;
+using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.IO.Repositories;
+using EOLib.Localization;
 using Optional;
 
 namespace EndlessClient.Rendering.NPC
 {
-    [MappedType(BaseType = typeof(INPCActionNotifier))]
+    [AutoMappedType]
     public class NPCActions : INPCActionNotifier
     {
         private readonly IHudControlProvider _hudControlProvider;
@@ -20,6 +21,9 @@ namespace EndlessClient.Rendering.NPC
         private readonly INPCRendererRepository _npcRendererRepository;
         private readonly ICharacterRendererRepository _characterRendererRepository;
         private readonly IChatBubbleActions _chatBubbleActions;
+        private readonly IChatRepository _chatRepository;
+        private readonly ILocalizedStringFinder _localizedStringFinder;
+        private readonly IEIFFileProvider _eifFileProvider;
         private readonly IESFFileProvider _esfFileProvider;
         private readonly ISfxPlayer _sfxPlayer;
 
@@ -28,6 +32,9 @@ namespace EndlessClient.Rendering.NPC
                           INPCRendererRepository npcRendererRepository,
                           ICharacterRendererRepository characterRendererRepository,
                           IChatBubbleActions chatBubbleActions,
+                          IChatRepository chatRepository,
+                          ILocalizedStringFinder localizedStringFinder,
+                          IEIFFileProvider eifFileProvider,
                           IESFFileProvider esfFileProvider,
                           ISfxPlayer sfxPlayer)
         {
@@ -36,6 +43,9 @@ namespace EndlessClient.Rendering.NPC
             _npcRendererRepository = npcRendererRepository;
             _characterRendererRepository = characterRendererRepository;
             _chatBubbleActions = chatBubbleActions;
+            _chatRepository = chatRepository;
+            _localizedStringFinder = localizedStringFinder;
+            _eifFileProvider = eifFileProvider;
             _esfFileProvider = esfFileProvider;
             _sfxPlayer = sfxPlayer;
         }
@@ -103,6 +113,18 @@ namespace EndlessClient.Rendering.NPC
                 renderer.ShowSpellAnimation(graphic);
                 ShoutSpellCast(fromPlayerId);
             });
+        }
+
+        public void NPCDropItem(MapItem item)
+        {
+            // todo: not sure if it is better to do this here in a notifier or modify the chat repository in the packet handler
+            //         however, I don't want to introduce a dependency on localized text in the packet handler
+            var itemName = _eifFileProvider.EIFFile[item.ItemID].Name;
+            var chatData = new ChatData(ChatTab.System,
+                string.Empty,
+                $"{_localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_THE_NPC_DROPPED)} {item.Amount} {itemName}",
+                ChatIcon.DownArrow);
+            _chatRepository.AllChat[ChatTab.System].Add(chatData);
         }
 
         private void ShoutSpellCast(int playerId)
