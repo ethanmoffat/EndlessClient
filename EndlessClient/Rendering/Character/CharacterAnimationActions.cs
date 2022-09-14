@@ -302,6 +302,16 @@ namespace EndlessClient.Rendering.Character
 
         public void NotifyEmote(short playerId, Emote emote)
         {
+            switch (emote)
+            {
+                case EOLib.Domain.Character.Emote.Trade:
+                    _sfxPlayer.PlaySfx(SoundEffectID.TradeAccepted);
+                    break;
+                case EOLib.Domain.Character.Emote.LevelUp:
+                    _sfxPlayer.PlaySfx(SoundEffectID.LevelUp);
+                    break;
+            }
+
             try
             {
                 Animator.Emote(playerId, emote);
