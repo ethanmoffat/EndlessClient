@@ -416,6 +416,9 @@ namespace EndlessClient.Rendering.Map
                 _mapObjectTarget.Dispose();
                 _sb.Dispose();
                 _mouseCursorRenderer.Dispose();
+
+                _npcRendererUpdater.Dispose();
+                _characterRendererUpdater.Dispose();
             }
 
             base.Dispose(disposing);

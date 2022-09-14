@@ -516,7 +516,13 @@ namespace EndlessClient.Rendering.Character
             if (disposing)
             {
                 _outline?.Dispose();
+
+                if (Game != null && Game.Components != null && Game.Components.Contains(_nameLabel))
+                    Game.Components.Remove(_nameLabel);
                 _nameLabel?.Dispose();
+
+                if (_chatBubble.IsValueCreated)
+                    _chatBubble.Value?.Dispose();
 
                 _sb?.Dispose();
                 _charRenderTarget?.Dispose();
