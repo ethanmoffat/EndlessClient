@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Chat;
 using EndlessClient.HUD.Controls;
@@ -19,24 +20,24 @@ namespace EndlessClient.Rendering.NPC
         private readonly INPCRendererRepository _npcRendererRepository;
         private readonly ICharacterRendererRepository _characterRendererRepository;
         private readonly IChatBubbleActions _chatBubbleActions;
-        private readonly IChatBubbleTextureProvider _chatBubbleTextureProvider;
         private readonly IESFFileProvider _esfFileProvider;
+        private readonly ISfxPlayer _sfxPlayer;
 
         public NPCActions(IHudControlProvider hudControlProvider,
                           INPCStateCache npcStateCache,
                           INPCRendererRepository npcRendererRepository,
                           ICharacterRendererRepository characterRendererRepository,
                           IChatBubbleActions chatBubbleActions,
-                          IChatBubbleTextureProvider chatBubbleTextureProvider,
-                          IESFFileProvider esfFileProvider)
+                          IESFFileProvider esfFileProvider,
+                          ISfxPlayer sfxPlayer)
         {
             _hudControlProvider = hudControlProvider;
             _npcStateCache = npcStateCache;
             _npcRendererRepository = npcRendererRepository;
             _characterRendererRepository = characterRendererRepository;
             _chatBubbleActions = chatBubbleActions;
-            _chatBubbleTextureProvider = chatBubbleTextureProvider;
             _esfFileProvider = esfFileProvider;
+            _sfxPlayer = sfxPlayer;
         }
 
         public void StartNPCWalkAnimation(int npcIndex)
@@ -53,6 +54,8 @@ namespace EndlessClient.Rendering.NPC
                 return;
 
             Animator.StartAttackAnimation(npcIndex);
+
+            _sfxPlayer.PlaySfx(SoundEffectID.PunchAttack);
         }
 
         public void RemoveNPCFromView(int npcIndex, int playerId, Option<short> spellId, Option<int> damage, bool showDeathAnimation)
