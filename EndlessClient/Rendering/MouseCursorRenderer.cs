@@ -171,13 +171,20 @@ namespace EndlessClient.Rendering
             else if (cellState.Items.Any())
             {
                 _cursorIndex = CursorIndex.HoverItem;
-                UpdateMapItemLabel(Option.Some(cellState.Items.Last()));
+                UpdateMapItemLabel(Option.Some(cellState.Items.First()));
             }
             else if (cellState.TileSpec != TileSpec.None)
                 UpdateCursorIndexForTileSpec(cellState.TileSpec);
 
             if (!cellState.Items.Any())
                 UpdateMapItemLabel(Option.None<MapItem>());
+
+            if (_mapItemText.Visible)
+            {
+                //relative to cursor DrawPosition, since this control is a parent of MapItemText
+                _mapItemText.DrawPosition = new Vector2(DrawArea.X + 32 - _mapItemText.ActualWidth / 2f,
+                                                        DrawArea.Y + -_mapItemText.ActualHeight - 4);
+            }
 
             _startClickTime.MatchSome(st =>
                 {
@@ -225,10 +232,6 @@ namespace EndlessClient.Rendering
                         _mapItemText.Text = text;
                         _mapItemText.ResizeBasedOnText();
                         _mapItemText.ForeColor = _itemNameColorService.GetColorForMapDisplay(data);
-
-                        //relative to cursor DrawPosition, since this control is a parent of MapItemText
-                        _mapItemText.DrawPosition = new Vector2(DrawArea.X + 32 - _mapItemText.ActualWidth / 2f,
-                                                                DrawArea.Y + -_mapItemText.ActualHeight - 4);
                     }
                 },
                 none: () =>

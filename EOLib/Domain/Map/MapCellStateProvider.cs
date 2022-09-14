@@ -39,7 +39,7 @@ namespace EOLib.Domain.Map
             var character = _mapStateProvider.Characters.Values.Concat(new[] { _characterProvider.MainCharacter })
                 .FirstOrNone(c => CharacterAtCoordinates(c, x, y));
             var npc = _mapStateProvider.NPCs.FirstOrNone(n => NPCAtCoordinates(n, x, y));
-            var items = _mapStateProvider.MapItems.Where(i => i.X == x && i.Y == y);
+            var items = _mapStateProvider.MapItems.Where(i => i.X == x && i.Y == y).OrderByDescending(i => i.UniqueID);
 
             return new MapCellState
             {
