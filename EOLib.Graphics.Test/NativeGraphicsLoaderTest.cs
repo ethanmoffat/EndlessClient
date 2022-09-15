@@ -15,7 +15,7 @@ namespace EOLib.Graphics.Test
         private IPEFileCollection _modules;
         private INativeGraphicsLoader _nativeGraphicsLoader;
 
-        private const int ExpectedCulture = 0;
+        private const int ExpectedCulture = -1;
 
         [SetUp]
         public void SetUp()
