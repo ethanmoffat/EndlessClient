@@ -416,6 +416,14 @@ namespace EndlessClient.HUD.Panels
                     _inventoryController.DropItemInLocker(item.Data, item.InventoryItem);
                 }
             });
+            _activeDialogProvider.BankAccountDialog.MatchSome(x =>
+            {
+                if (x.MouseOver && x.MouseOverPreviously && item.Data.ID == 1)
+                {
+                    dialogDrop = true;
+                    _inventoryController.DropItemInBank(item.Data, item.InventoryItem);
+                }
+            });
 
             if (dialogDrop)
             {
@@ -479,32 +487,7 @@ namespace EndlessClient.HUD.Panels
 
             #region Unimplemented drag action
             /*
-            if (BankAccountDialog.Instance != null && BankAccountDialog.Instance.MouseOver && BankAccountDialog.Instance.MouseOverPreviously && m_inventory.ItemID == 1)
-            {
-                if (m_inventory.Amount == 0)
-                {
-                    EOMessageBox.Show(DialogResourceID.BANK_ACCOUNT_UNABLE_TO_DEPOSIT, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                }
-                else if (m_inventory.Amount > 1)
-                {
-                    ItemTransferDialog dlg = new ItemTransferDialog(m_itemData.Name, ItemTransferDialog.TransferType.BankTransfer,
-                        m_inventory.Amount, EOResourceID.DIALOG_TRANSFER_DEPOSIT);
-                    dlg.DialogClosing += (o, e) =>
-                    {
-                        if (e.Result == XNADialogResult.Cancel)
-                            return;
-
-                        if (!m_api.BankDeposit(dlg.SelectedAmount))
-                            EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-                    };
-                }
-                else
-                {
-                    if (!m_api.BankDeposit(1))
-                        EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-                }
-            }
-            else if (TradeDialog.Instance != null && TradeDialog.Instance.MouseOver && TradeDialog.Instance.MouseOverPreviously
+            if (TradeDialog.Instance != null && TradeDialog.Instance.MouseOver && TradeDialog.Instance.MouseOverPreviously
                 && !TradeDialog.Instance.MainPlayerAgrees)
             {
                 if (m_itemData.Special == ItemSpecial.Lore)

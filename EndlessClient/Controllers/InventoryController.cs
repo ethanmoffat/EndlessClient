@@ -10,6 +10,7 @@ using EndlessClient.Rendering.Map;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Interact;
+using EOLib.Domain.Interact.Bank;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
 using EOLib.IO;
@@ -30,6 +31,7 @@ namespace EndlessClient.Controllers
         private readonly IPaperdollActions _paperdollActions;
         private readonly IChestActions _chestActions;
         private readonly ILockerActions _lockerActions;
+        private readonly IBankActions _bankActions;
         private readonly IItemEquipValidator _itemEquipValidator;
         private readonly IItemDropValidator _itemDropValidator;
         private readonly ICharacterProvider _characterProvider;
@@ -47,6 +49,7 @@ namespace EndlessClient.Controllers
                                    IPaperdollActions paperdollActions,
                                    IChestActions chestActions,
                                    ILockerActions lockerActions,
+                                   IBankActions bankActions,
                                    IItemEquipValidator itemEquipValidator,
                                    IItemDropValidator itemDropValidator,
                                    ICharacterProvider characterProvider,
@@ -64,6 +67,7 @@ namespace EndlessClient.Controllers
             _paperdollActions = paperdollActions;
             _chestActions = chestActions;
             _lockerActions = lockerActions;
+            _bankActions = bankActions;
             _itemEquipValidator = itemEquipValidator;
             _itemDropValidator = itemDropValidator;
             _characterProvider = characterProvider;
@@ -262,6 +266,23 @@ namespace EndlessClient.Controllers
             }
         }
 
+        public void DropItemInBank(EIFRecord itemData, InventoryItem inventoryItem)
+        {
+            if (inventoryItem.Amount == 0)
+            {
+                var dlg = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.BANK_ACCOUNT_UNABLE_TO_DEPOSIT);
+                dlg.ShowDialog();
+            }
+            else
+            {
+                DoItemDrop(itemData,
+                    inventoryItem,
+                    a => _bankActions.Deposit(a),
+                    ItemTransferDialog.TransferType.BankTransfer,
+                    EOResourceID.DIALOG_TRANSFER_DEPOSIT);
+            }
+        }
+
         public void JunkItem(EIFRecord itemData, InventoryItem inventoryItem)
         {
             if (inventoryItem.Amount > 1)
@@ -301,7 +322,7 @@ namespace EndlessClient.Controllers
                 {
                     if (e.Result == XNADialogResult.OK)
                     {
-                        if (inventoryItem.ItemID == 1 && transferDialog.SelectedAmount > 10000)
+                        if (inventoryItem.ItemID == 1 && transferDialog.SelectedAmount > 10000 && transferType == ItemTransferDialog.TransferType.DropItems)
                         {
                             var warningMsg = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.DROP_MANY_GOLD_ON_GROUND, EODialogButtons.OkCancel);
                             warningMsg.DialogClosing += (_, warningArgs) =>
@@ -341,6 +362,8 @@ namespace EndlessClient.Controllers
         void DropItemInChest(EIFRecord itemData, InventoryItem inventoryItem);
 
         void DropItemInLocker(EIFRecord itemData, InventoryItem inventoryItem);
+
+        void DropItemInBank(EIFRecord itemData, InventoryItem inventoryItem);
 
         void JunkItem(EIFRecord itemData, InventoryItem inventoryItem);
     }
