@@ -95,6 +95,8 @@ namespace EndlessClient.Dialogs
 
         public bool ShowIconBackGround { get; set; }
 
+        public object Data { get; set; }
+
         public event EventHandler RightClick;
         public event EventHandler LeftClick;
 

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using EndlessClient.Dialogs;
-using EndlessClient.Dialogs.Old;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering;
 using EOLib.Config;

@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.Map
 {
-    [MappedType(BaseType = typeof(IMapItemGraphicProvider), IsSingleton = true)]
+    [AutoMappedType]
     public class MapItemGraphicProvider : IMapItemGraphicProvider
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;

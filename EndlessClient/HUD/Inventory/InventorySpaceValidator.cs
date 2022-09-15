@@ -5,7 +5,9 @@ using EOLib.IO;
 using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 using Optional;
+using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Documents;
 
 namespace EndlessClient.HUD.Inventory
 {
@@ -38,6 +40,11 @@ namespace EndlessClient.HUD.Inventory
             return _characterInventoryProvider.ItemInventory.Any(x => x.ItemID == itemId) || ItemFits(_eifFileProvider.EIFFile[itemId].Size);
         }
 
+        public bool ItemsFit(IReadOnlyList<InventoryItem> outItems, IReadOnlyList<InventoryItem> inItems)
+        {
+            return true;
+        }
+
         private bool ItemFits(ItemSize itemSize)
         {
             return _inventoryService
@@ -52,6 +59,6 @@ namespace EndlessClient.HUD.Inventory
 
         bool ItemFits(int itemId);
 
-        // todo: need "ItemsFit" method for trading
+        bool ItemsFit(IReadOnlyList<InventoryItem> outItems, IReadOnlyList<InventoryItem> inItems);
     }
 }
