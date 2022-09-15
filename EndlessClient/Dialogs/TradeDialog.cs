@@ -17,7 +17,6 @@ namespace EndlessClient.Dialogs
 {
     public class TradeDialog : BaseEODialog
     {
-        private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly ITradeProvider _tradeProvider;
         private readonly ICharacterProvider _characterProvider;
@@ -44,14 +43,13 @@ namespace EndlessClient.Dialogs
                            IEODialogButtonService dialogButtonService,
                            ITradeProvider tradeProvider,
                            ICharacterProvider characterProvider)
-            : base(isInGame: true)
+            : base(nativeGraphicsManager, isInGame: true)
         {
-            _nativeGraphicsManager = nativeGraphicsManager;
             _localizedStringFinder = localizedStringFinder;
             _tradeProvider = tradeProvider;
             _characterProvider = characterProvider;
 
-            BackgroundTexture = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 50);
+            BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 50);
 
             _leftPlayerName = new XNALabel(Constants.FontSize08pt5)
             {
@@ -91,9 +89,9 @@ namespace EndlessClient.Dialogs
             };
             _rightPlayerStatus.SetParentControl(this);
 
-            _leftScroll = new ScrollBar(new Vector2(252, 44), new Vector2(16, 199), ScrollBarColors.LightOnMed, _nativeGraphicsManager) { LinesToRender = 5 };
+            _leftScroll = new ScrollBar(new Vector2(252, 44), new Vector2(16, 199), ScrollBarColors.LightOnMed, GraphicsManager) { LinesToRender = 5 };
             _leftScroll.SetParentControl(this);
-            _rightScroll = new ScrollBar(new Vector2(518, 44), new Vector2(16, 199), ScrollBarColors.LightOnMed, _nativeGraphicsManager) { LinesToRender = 5 };
+            _rightScroll = new ScrollBar(new Vector2(518, 44), new Vector2(16, 199), ScrollBarColors.LightOnMed, GraphicsManager) { LinesToRender = 5 };
             _rightScroll.SetParentControl(this);
 
             _ok = new XNAButton(dialogButtonService.SmallButtonSheet, new Vector2(356, 252),
@@ -200,7 +198,7 @@ namespace EndlessClient.Dialogs
 
                 foreach (var addedItem in added)
                 {
-
+                    //var newListItem = new ListDialogItem(this, )
                 }
 
                 foreach (var removedItem in removed)

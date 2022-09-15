@@ -1,4 +1,5 @@
 ﻿using EndlessClient.GameExecution;
+using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using System;
 using XNAControls;
@@ -9,13 +10,20 @@ namespace EndlessClient.Dialogs
     {
         private readonly Func<bool> _isInGame;
 
-        protected BaseEODialog(IGameStateProvider gameStateProvider)
+        public bool ChildControlClickHandled { get; set; }
+
+        public INativeGraphicsManager GraphicsManager { get; }
+
+        protected BaseEODialog(INativeGraphicsManager graphicsManager,
+                               IGameStateProvider gameStateProvider)
         {
+            GraphicsManager = graphicsManager;
             _isInGame = () => gameStateProvider.CurrentState == GameStates.PlayingTheGame;
         }
 
-        protected BaseEODialog(bool isInGame)
+        protected BaseEODialog(INativeGraphicsManager graphicsManager, bool isInGame)
         {
+            GraphicsManager = graphicsManager;
             _isInGame = () => isInGame;
         }
 

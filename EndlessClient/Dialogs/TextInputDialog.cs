@@ -23,11 +23,11 @@ namespace EndlessClient.Dialogs
                                IContentProvider contentProvider,
                                string prompt,
                                int maxInputChars = 12)
-            : base(isInGame: true)
+            : base(nativeGraphicsManager, isInGame: true)
         {
             _keyboardDispatcherRepository = keyboardDispatcherRepository;
 
-            BackgroundTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 54);
+            BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 54);
             SetSize(BackgroundTexture.Width, BackgroundTexture.Height);
 
             var lblPrompt = new XNALabel(Constants.FontSize10)

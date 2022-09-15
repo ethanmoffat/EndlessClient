@@ -23,10 +23,10 @@ namespace EndlessClient.Dialogs
                                  IGameStateProvider gameStateProvider,
                                  IClientWindowSizeProvider clientWindowSizeProvider,
                                  ILocalizedStringFinder localizedStringFinder)
-            : base(gameStateProvider)
+            : base(nativeGraphicsManager, gameStateProvider)
         {
             _localizedStringFinder = localizedStringFinder;
-            _backgroundSprite = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 33);
+            _backgroundSprite = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 33);
 
             DrawPosition = new Vector2(clientWindowSizeProvider.Width - _backgroundSprite.Width / 4 - 10,
                                        clientWindowSizeProvider.Height - _backgroundSprite.Height - 10);

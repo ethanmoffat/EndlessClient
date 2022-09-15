@@ -12,7 +12,6 @@ namespace EndlessClient.Dialogs
 {
     public class BardDialog : BaseEODialog
     {
-        private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IBardController _bardController;
         private readonly Texture2D _noteHighlight;
         private readonly Rectangle _noteRectangleArea;
@@ -25,12 +24,11 @@ namespace EndlessClient.Dialogs
         public BardDialog(INativeGraphicsManager nativeGraphicsManager,
                           IBardController bardController,
                           IEODialogButtonService dialogButtonService)
-            : base(isInGame: true)
+            : base(nativeGraphicsManager, isInGame: true)
         {
-            _nativeGraphicsManager = nativeGraphicsManager;
             _bardController = bardController;
-            BackgroundTexture = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 65);
-            _noteHighlight = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 66);
+            BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 65);
+            _noteHighlight = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 66);
             _noteRectangleArea = new Rectangle(15, 15, 240, 60);
 
             var cancel = new XNAButton(dialogButtonService.SmallButtonSheet, new Vector2(92, 83),

@@ -146,8 +146,6 @@ namespace EndlessClient.Dialogs
             }
         }
 
-        public INativeGraphicsManager GraphicsManager { get; }
-
         public ScrollingListDialogSize DialogSize { get; }
 
         public event EventHandler AddAction;
@@ -160,18 +158,15 @@ namespace EndlessClient.Dialogs
 
         public event EventHandler ProgressAction;
 
-        public bool ChildControlClickHandled { get; set; }
-
         public ScrollingListDialog(INativeGraphicsManager nativeGraphicsManager,
                                    IEODialogButtonService dialogButtonService,
                                    ScrollingListDialogSize dialogSize = ScrollingListDialogSize.Large)
-            : base(isInGame: true)
+            : base(nativeGraphicsManager, isInGame: true)
         {
             // todo: implement boards
             if (dialogSize == ScrollingListDialogSize.MediumWithHeader)
                 throw new NotImplementedException();
 
-            GraphicsManager = nativeGraphicsManager;
             DialogSize = dialogSize;
 
             _listItems = new List<ListDialogItem>();

@@ -56,12 +56,12 @@ namespace EndlessClient.Dialogs
                                       IContentProvider contentProvider,
                                       IGameStateProvider gameStateProvider,
                                       IEODialogButtonService eoDialogButtonService)
-            : base(gameStateProvider)
+            : base(nativeGraphicsManager, gameStateProvider)
         {
             _font = contentProvider.Fonts[Constants.FontSize08];
             _textSplitter = new TextSplitter("", _font) { LineLength = 275 };
 
-            BackgroundTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 40);
+            BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 40);
 
             var smallButtonSheet = eoDialogButtonService.SmallButtonSheet;
 
@@ -73,7 +73,7 @@ namespace EndlessClient.Dialogs
             _ok.SetParentControl(this);
 
             _scrollBar = new ScrollBar(new Vector2(320, 66), new Vector2(16, 119),
-                ScrollBarColors.LightOnMed, nativeGraphicsManager);
+                ScrollBarColors.LightOnMed, GraphicsManager);
             _scrollBar.SetParentControl(this);
 
             MessageText = "";

@@ -28,7 +28,7 @@ namespace EndlessClient.Dialogs
                             string caption = "",
                             EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader,
                             EODialogButtons whichButtons = EODialogButtons.Ok)
-            : base(gameStateProvider)
+            : base(graphicsManager, gameStateProvider)
         {
             var useSmallHeader = style != EOMessageBoxStyle.SmallDialogLargeHeader;
 
@@ -41,7 +41,7 @@ namespace EndlessClient.Dialogs
                 default: throw new ArgumentOutOfRangeException(nameof(style), "Unrecognized dialog style!");
             }
 
-            BackgroundTexture = graphicsManager.TextureFromResource(GFXTypes.PreLoginUI, graphic);
+            BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, graphic);
 
             _messageLabel = new XNALabel(Constants.FontSize10)
             {
