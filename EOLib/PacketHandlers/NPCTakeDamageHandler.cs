@@ -17,18 +17,21 @@ namespace EOLib.PacketHandlers
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IEnumerable<INPCActionNotifier> _npcNotifiers;
+        private readonly IEnumerable<IOtherCharacterAnimationNotifier> _otherCharacterAnimationNotifiers;
 
         public override PacketAction Action => PacketAction.Reply;
 
         public NPCTakeDamageHandler(IPlayerInfoProvider playerInfoProvider,
                                     ICharacterRepository characterRepository,
                                     ICurrentMapStateRepository currentMapStateRepository,
-                                    IEnumerable<INPCActionNotifier> npcNotifiers)
+                                    IEnumerable<INPCActionNotifier> npcNotifiers,
+                                    IEnumerable<IOtherCharacterAnimationNotifier> otherCharacterAnimationNotifiers)
             : base(playerInfoProvider)
         {
             _characterRepository = characterRepository;
             _currentMapStateRepository = currentMapStateRepository;
             _npcNotifiers = npcNotifiers;
+            _otherCharacterAnimationNotifiers = otherCharacterAnimationNotifiers;
         }
 
         public override bool HandlePacket(IPacket packet)
@@ -89,6 +92,12 @@ namespace EOLib.PacketHandlers
                 return true;
             }
 
+            spellId.MatchSome(_ =>
+            {
+                foreach (var notifier in _otherCharacterAnimationNotifiers)
+                    notifier.NotifyTargetNpcSpellCast(fromPlayerId);
+            });
+
             return true;
         }
     }
@@ -101,8 +110,9 @@ namespace EOLib.PacketHandlers
         public NPCTakeWeaponDamageHandler(IPlayerInfoProvider playerInfoProvider,
                                           ICharacterRepository characterRepository,
                                           ICurrentMapStateRepository currentMapStateRepository,
-                                          IEnumerable<INPCActionNotifier> npcNotifiers)
-            : base(playerInfoProvider, characterRepository, currentMapStateRepository, npcNotifiers) { }
+                                          IEnumerable<INPCActionNotifier> npcNotifiers,
+                                          IEnumerable<IOtherCharacterAnimationNotifier> otherCharacterAnimationNotifiers)
+            : base(playerInfoProvider, characterRepository, currentMapStateRepository, npcNotifiers, otherCharacterAnimationNotifiers) { }
     }
 
     [AutoMappedType]
@@ -113,7 +123,8 @@ namespace EOLib.PacketHandlers
         public NPCTakeSpellDamageHandler(IPlayerInfoProvider playerInfoProvider,
                                          ICharacterRepository characterRepository,
                                          ICurrentMapStateRepository currentMapStateRepository,
-                                         IEnumerable<INPCActionNotifier> npcNotifiers)
-            : base(playerInfoProvider, characterRepository, currentMapStateRepository, npcNotifiers) { }
+                                         IEnumerable<INPCActionNotifier> npcNotifiers,
+                                         IEnumerable<IOtherCharacterAnimationNotifier> otherCharacterAnimationNotifiers)
+            : base(playerInfoProvider, characterRepository, currentMapStateRepository, npcNotifiers, otherCharacterAnimationNotifiers) { }
     }
 }

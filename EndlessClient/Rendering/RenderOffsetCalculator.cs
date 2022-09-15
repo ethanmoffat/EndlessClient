@@ -2,6 +2,7 @@
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
+using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
 
 namespace EndlessClient.Rendering
@@ -55,6 +56,16 @@ namespace EndlessClient.Rendering
             //walkAdjust * multiplier is the old ViewAdjustY
             return npc.X*HeightFactor + npc.Y*HeightFactor + walkAdjust*multiplier;
         }
+
+        public int CalculateOffsetX(MapCoordinate coordinate)
+        {
+            return coordinate.X * WidthFactor - coordinate.Y * WidthFactor;
+        }
+
+        public int CalculateOffsetY(MapCoordinate coordinate)
+        {
+            return coordinate.X * HeightFactor + coordinate.Y * HeightFactor;
+        }
     }
 
     public interface IRenderOffsetCalculator
@@ -68,5 +79,9 @@ namespace EndlessClient.Rendering
         int CalculateOffsetX(EOLib.Domain.NPC.NPC npc);
 
         int CalculateOffsetY(EOLib.Domain.NPC.NPC npc);
+
+        int CalculateOffsetX(MapCoordinate coordinate);
+
+        int CalculateOffsetY(MapCoordinate coordinate);
     }
 }

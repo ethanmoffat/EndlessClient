@@ -34,7 +34,10 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
         {
-            var items = _currentMapStateProvider.MapItems.Where(item => item.X == col && item.Y == row);
+            var items = _currentMapStateProvider
+                .MapItems
+                .Where(item => item.X == col && item.Y == row)
+                .OrderBy(item => item.UniqueID);
 
             foreach (var item in items)
             {

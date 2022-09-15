@@ -17,8 +17,9 @@ namespace EOLib.PacketHandlers
         protected readonly ICurrentMapStateRepository _currentMapStateRepository;
         protected readonly ICharacterRepository _characterRepository;
         private readonly ICharacterSessionRepository _characterSessionRepository;
-        private readonly IEnumerable<INPCActionNotifier> _npcAnimationNotifiers;
+        private readonly IEnumerable<INPCActionNotifier> _npcActionNotifiers;
         private readonly IEnumerable<IMainCharacterEventNotifier> _mainCharacterEventNotifiers;
+        private readonly IEnumerable<IOtherCharacterAnimationNotifier> _otherCharacterAnimationNotifiers;
 
         public override PacketFamily Family => PacketFamily.NPC;
 
@@ -28,34 +29,36 @@ namespace EOLib.PacketHandlers
                                   ICurrentMapStateRepository currentMapStateRepository,
                                   ICharacterRepository characterRepository,
                                   ICharacterSessionRepository characterSessionRepository,
-                                  IEnumerable<INPCActionNotifier> npcAnimationNotifiers,
-                                  IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers)
+                                  IEnumerable<INPCActionNotifier> npcActionNotifiers,
+                                  IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers,
+                                  IEnumerable<IOtherCharacterAnimationNotifier> otherCharacterAnimationNotifiers)
             : base(playerInfoProvider)
         {
             _currentMapStateRepository = currentMapStateRepository;
             _characterRepository = characterRepository;
             _characterSessionRepository = characterSessionRepository;
-            _npcAnimationNotifiers = npcAnimationNotifiers;
+            _npcActionNotifiers = npcActionNotifiers;
             _mainCharacterEventNotifiers = mainCharacterEventNotifiers;
+            _otherCharacterAnimationNotifiers = otherCharacterAnimationNotifiers;
         }
 
         public override bool HandlePacket(IPacket packet)
         {
-            var spellID = packet.Family
+            var spellId = packet.Family
                 .SomeWhen(f => f == PacketFamily.Cast)
                 .Map(f => packet.ReadShort());
 
-            var playerID = packet.ReadShort(); //player that is protecting the item
+            var fromPlayerId = packet.ReadShort(); //player that is protecting the item
             var playerDirection = (EODirection)packet.ReadChar();
-            if (playerID > 0)
-                UpdatePlayerDirection(playerID, playerDirection);
+            if (fromPlayerId > 0)
+                UpdatePlayerDirection(fromPlayerId, playerDirection);
 
             var deadNPCIndex = packet.ReadShort();
 
             //packet is removing the NPC from view due to out of range of character
             if (packet.ReadPosition == packet.Length)
             {
-                RemoveNPCFromView(deadNPCIndex, playerID, spellID, damage: Option.None<int>(), showDeathAnimation: false);
+                RemoveNPCFromView(deadNPCIndex, fromPlayerId, spellId, damage: Option.None<int>(), showDeathAnimation: false);
                 return true;
             }
 
@@ -66,7 +69,7 @@ namespace EOLib.PacketHandlers
             var droppedAmount = packet.ReadInt();
 
             var damageDoneToNPC = packet.ReadThree();
-            RemoveNPCFromView(deadNPCIndex, playerID, spellID, Option.Some(damageDoneToNPC), showDeathAnimation: true);
+            RemoveNPCFromView(deadNPCIndex, fromPlayerId, spellId, Option.Some(damageDoneToNPC), showDeathAnimation: true);
 
             if (packet.Family == PacketFamily.Cast)
             {
@@ -90,14 +93,20 @@ namespace EOLib.PacketHandlers
             }
 
             if (droppedItemID > 0)
-                ShowDroppedItem(playerID, droppedItemUID, droppedItemID, x, y, droppedAmount);
+                ShowDroppedItem(fromPlayerId, droppedItemUID, droppedItemID, x, y, droppedAmount);
+
+            spellId.MatchSome(_ =>
+            {
+                foreach (var notifier in _otherCharacterAnimationNotifiers)
+                    notifier.NotifyTargetNpcSpellCast(fromPlayerId);
+            });
 
             return true;
         }
 
         private void RemoveNPCFromView(short deadNPCIndex, int playerId, Option<short> spellId, Option<int> damage, bool showDeathAnimation)
         {
-            foreach (var notifier in _npcAnimationNotifiers)
+            foreach (var notifier in _npcActionNotifiers)
                 notifier.RemoveNPCFromView(deadNPCIndex, playerId, spellId, damage, showDeathAnimation);
 
             _currentMapStateRepository.NPCs.RemoveWhere(npc => npc.Index == deadNPCIndex);
@@ -142,6 +151,9 @@ namespace EOLib.PacketHandlers
 
             _currentMapStateRepository.MapItems.RemoveWhere(item => item.UniqueID == droppedItemUID);
             _currentMapStateRepository.MapItems.Add(mapItem);
+
+            foreach (var notifier in _npcActionNotifiers)
+                notifier.NPCDropItem(mapItem);
         }
     }
 
@@ -161,8 +173,9 @@ namespace EOLib.PacketHandlers
                                           ICharacterRepository characterRepository,
                                           ICharacterSessionRepository characterSessionRepository,
                                           IEnumerable<INPCActionNotifier> npcAnimationNotifiers,
-                                          IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers)
+                                          IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers,
+                                          IEnumerable<IOtherCharacterAnimationNotifier> otherCharacterAnimationNotifiers)
             : base(playerInfoProvider, currentMapStateRepository, characterRepository, characterSessionRepository,
-                   npcAnimationNotifiers, mainCharacterEventNotifiers) { }
+                   npcAnimationNotifiers, mainCharacterEventNotifiers, otherCharacterAnimationNotifiers) { }
     }
 }

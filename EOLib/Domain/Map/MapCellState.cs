@@ -1,5 +1,4 @@
-﻿using EOLib.Domain.Character;
-using EOLib.IO.Map;
+﻿using EOLib.IO.Map;
 using Optional;
 using System.Collections.Generic;
 
@@ -19,6 +18,8 @@ namespace EOLib.Domain.Map
 
         public Option<Character.Character> Character { get; set; }
 
+        public IReadOnlyList<Character.Character> Characters { get; set; }
+
         public Option<ChestKey> ChestKey { get; set; }
 
         public Option<Warp> Warp { get; set; }
@@ -32,6 +33,7 @@ namespace EOLib.Domain.Map
             TileSpec = TileSpec.None;
             NPC = Option.None<NPC.NPC>();
             Character = Option.None<Character.Character>();
+            Characters = new List<Character.Character>();
             ChestKey = Option.None<ChestKey>();
             Warp = Option.None<Warp>();
             Sign = Option.None<Sign>();

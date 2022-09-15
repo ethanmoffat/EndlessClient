@@ -3,6 +3,7 @@ using System.Threading;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
 using EOLib;
+using EOLib.Config;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -12,6 +13,8 @@ namespace EndlessClient.Dialogs
 {
     public class ProgressDialog : BaseEODialog
     {
+        private readonly IConfigurationProvider _configurationProvider;
+
         private readonly IXNALabel _messageLabel, _captionLabel;
         private readonly IXNAButton _cancelButton;
 
@@ -21,11 +24,14 @@ namespace EndlessClient.Dialogs
 
         public ProgressDialog(INativeGraphicsManager nativeGraphicsManager,
                               IGameStateProvider gameStateProvider,
+                              IConfigurationProvider configurationProvider,
                               IEODialogButtonService eoDialogButtonService,
                               string messageText,
                               string captionText)
             : base(gameStateProvider)
         {
+            _configurationProvider = configurationProvider;
+
             BackgroundTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 18);
 
             _messageLabel = new XNALabel(Constants.FontSize10)
@@ -79,8 +85,7 @@ namespace EndlessClient.Dialogs
             if (timeOpened == null)
                 timeOpened = gt.TotalGameTime;
 
-            const double SECONDS_FOR_CREATE = 2.0;
-            var pbPercent = (int)((gt.TotalGameTime.TotalSeconds - timeOpened.Value.TotalSeconds) / SECONDS_FOR_CREATE * 100);
+            var pbPercent = (int)((gt.TotalGameTime.TotalSeconds - timeOpened.Value.TotalSeconds) / _configurationProvider.AccountCreateTimeout.TotalSeconds * 100);
             _pbWidth = (int)Math.Round(pbPercent / 100.0f * _pbBackgroundTexture.Width);
 
             if (pbPercent >= 100)

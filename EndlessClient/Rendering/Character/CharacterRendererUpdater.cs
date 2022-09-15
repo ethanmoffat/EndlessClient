@@ -6,6 +6,7 @@ using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
 using Optional;
 using Optional.Collections;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -176,9 +177,14 @@ namespace EndlessClient.Rendering.Character
             renderer.Initialize();
             return renderer;
         }
+
+        public void Dispose()
+        {
+            _characterRendererRepository.Dispose();
+        }
     }
 
-    public interface ICharacterRendererUpdater
+    public interface ICharacterRendererUpdater : IDisposable
     {
         void UpdateCharacters(GameTime gameTime);
     }

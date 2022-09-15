@@ -153,9 +153,11 @@ namespace EndlessClient.Rendering.Map
 
         private void ShowMapTransition(bool showMapTransition)
         {
+            var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
+            mapRenderer.ClearTransientRenderables();
+
             if (showMapTransition)
             {
-                var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
                 mapRenderer.StartMapTransition();
             }
         }

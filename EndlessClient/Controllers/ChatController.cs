@@ -67,7 +67,7 @@ namespace EndlessClient.Controllers
                             });
                         }
                         break;
-                    case ChatResult.AdminAnnounce: _sfxPlayer.PlaySfx(SoundEffectID.AdminAnnounceReceived); break;
+                    case ChatResult.AdminAnnounce: _sfxPlayer.PlaySfx(SoundEffectID.AdminAnnounceReceived); goto case ChatResult.Ok;
                     case ChatResult.HideSpeechBubble: break; // no-op
                     case ChatResult.HideAll: break; // no-op
                 }

@@ -6,6 +6,7 @@ using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.IO.Map;
 using EOLib.Localization;
+using System.Collections.Generic;
 
 namespace EndlessClient.Input
 {
@@ -49,30 +50,30 @@ namespace EndlessClient.Input
             _messageBoxFactory = messageBoxFactory;
         }
 
-        public (UnwalkableTileAction, IMapCellState) HandleUnwalkableTile()
+        public (IReadOnlyList<UnwalkableTileAction>, IMapCellState) HandleUnwalkableTile()
         {
             var destX = MainCharacter.RenderProperties.GetDestinationX();
             var destY = MainCharacter.RenderProperties.GetDestinationY();
             return HandleUnwalkableTile(destX, destY);
         }
 
-        public (UnwalkableTileAction, IMapCellState) HandleUnwalkableTile(int x, int y)
+        public (IReadOnlyList<UnwalkableTileAction>, IMapCellState) HandleUnwalkableTile(int x, int y)
         {
             var cellState = _mapCellStateProvider.GetCellStateAt(x, y);
             var action = HandleUnwalkableTile(cellState);
             return (action, cellState);
         }
 
-        public UnwalkableTileAction HandleUnwalkableTile(IMapCellState cellState)
+        public IReadOnlyList<UnwalkableTileAction> HandleUnwalkableTile(IMapCellState cellState)
         {
             if (MainCharacter.RenderProperties.SitState != SitState.Standing)
-                return UnwalkableTileAction.None;
+                return new[] { UnwalkableTileAction.None };
 
             return cellState.Character.Match(
-                some: c => HandleWalkThroughOtherCharacter(c), //todo: walk through players after certain elapsed time (3-5sec?)
+                some: c => new[] { HandleWalkThroughOtherCharacter(c) }, //todo: walk through players after certain elapsed time (3-5sec?)
                 none: () => cellState.Warp.Match(
-                    some: w => HandleWalkToWarpTile(w),
-                    none: () => HandleWalkToTileSpec(cellState)));
+                    some: w => new[] { HandleWalkToWarpTile(w), HandleWalkToTileSpec(cellState) },
+                    none: () => new[] { HandleWalkToTileSpec(cellState) }));
         }
 
         private UnwalkableTileAction HandleWalkThroughOtherCharacter(Character c)
@@ -176,10 +177,10 @@ namespace EndlessClient.Input
 
     public interface IUnwalkableTileActions
     {
-        (UnwalkableTileAction, IMapCellState) HandleUnwalkableTile();
+        (IReadOnlyList<UnwalkableTileAction>, IMapCellState) HandleUnwalkableTile();
 
-        (UnwalkableTileAction, IMapCellState) HandleUnwalkableTile(int x, int y);
+        (IReadOnlyList<UnwalkableTileAction>, IMapCellState) HandleUnwalkableTile(int x, int y);
 
-        UnwalkableTileAction HandleUnwalkableTile(IMapCellState mapCellState);
+        IReadOnlyList<UnwalkableTileAction> HandleUnwalkableTile(IMapCellState mapCellState);
     }
 }
