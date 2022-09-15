@@ -28,6 +28,7 @@ namespace EOLib.Config
         public const string NPCDropProtectTime = "NPCDropProtectTime";
         public const string PlayerDropProtectTime = "PlayerDropProtectTime";
         public const string MainCloneCompat = nameof(MainCloneCompat);
+        public const string AccountCreateTimeout = nameof(AccountCreateTimeout);
 
         public const string LANGUAGE = "LANGUAGE";
         public const string Language = "Language";

@@ -163,6 +163,9 @@ namespace EndlessClient.Rendering.Chat
         {
             if (disposing)
             {
+                if (Game.Components != null && Game.Components.Contains(this))
+                    Game.Components.Remove(this);
+
                 _textLabel.Dispose();
             }
         }

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using AutomaticTypeMapper;
 using EOLib;
 using EOLib.Domain.Map;
@@ -95,9 +96,14 @@ namespace EndlessClient.Rendering.NPC
             foreach (var renderer in _npcRendererRepository.NPCRenderers.Values)
                 renderer.Update(gameTime);
         }
+
+        public void Dispose()
+        {
+            _npcRendererRepository.Dispose();
+        }
     }
 
-    public interface INPCRendererUpdater
+    public interface INPCRendererUpdater : IDisposable
     {
         void UpdateNPCs(GameTime gameTime);
     }

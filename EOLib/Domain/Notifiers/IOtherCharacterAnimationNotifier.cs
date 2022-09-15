@@ -12,6 +12,8 @@ namespace EOLib.Domain.Notifiers
 
         void NotifyStartSpellCast(short playerId, short spellId);
 
+        void NotifyTargetNpcSpellCast(short playerId);
+
         void NotifySelfSpellCast(short playerId, short spellId, int spellHp, byte percentHealth);
 
         void NotifyTargetOtherSpellCast(short sourcePlayerID, short targetPlayerID, short spellId, int recoveredHP, byte targetPercentHealth);
@@ -27,6 +29,8 @@ namespace EOLib.Domain.Notifiers
         public void StartOtherCharacterAttackAnimation(int characterID, int noteIndex = -1) { }
 
         public void NotifyStartSpellCast(short playerId, short spellId) { }
+
+        public void NotifyTargetNpcSpellCast(short playerId) { }
 
         public void NotifySelfSpellCast(short playerId, short spellId, int spellHp, byte percentHealth) { }
 

@@ -11,7 +11,7 @@ namespace EndlessClient.Rendering.NPC
 {
     public class NPCAnimator : GameComponent, INPCAnimator
     {
-        private const int ACTION_FRAME_TIME_MS = 100;
+        private const int ACTION_FRAME_TIME_MS = 90;
 
         private readonly List<RenderFrameActionTime> _npcStartWalkingTimes;
         private readonly List<RenderFrameActionTime> _npcStartAttackingTimes;

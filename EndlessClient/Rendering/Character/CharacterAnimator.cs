@@ -206,9 +206,9 @@ namespace EndlessClient.Rendering.Character
 
         public bool Emote(int characterID, Emote whichEmote)
         {
-            if (_otherPlayerStartWalkingTimes.ContainsKey(characterID) ||
+            if (((_otherPlayerStartWalkingTimes.ContainsKey(characterID) ||
                 _otherPlayerStartAttackingTimes.ContainsKey(characterID) ||
-                _otherPlayerStartSpellCastTimes.ContainsKey(characterID) ||
+                _otherPlayerStartSpellCastTimes.ContainsKey(characterID)) && whichEmote != EOLib.Domain.Character.Emote.LevelUp) ||
                 _startEmoteTimes.ContainsKey(characterID))
                 return false;
 

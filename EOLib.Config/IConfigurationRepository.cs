@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using System;
 
 namespace EOLib.Config
 {
@@ -29,7 +30,7 @@ namespace EOLib.Config
         bool Interaction { get; set; }
         bool LogChatToFile { get; set; }
 
-        bool MainCloneCompat { get; set; }
+        TimeSpan AccountCreateTimeout { get; set; }
 
         bool EnableLog { get; set; }
     }
@@ -61,7 +62,7 @@ namespace EOLib.Config
         bool Interaction { get; }
         bool LogChatToFile { get; }
 
-        bool MainCloneCompat { get; }
+        TimeSpan AccountCreateTimeout { get; }
 
         bool EnableLog { get; }
     }
@@ -94,7 +95,7 @@ namespace EOLib.Config
         public bool Interaction { get; set; }
         public bool LogChatToFile { get; set; }
 
-        public bool MainCloneCompat { get; set; }
+        public TimeSpan AccountCreateTimeout { get; set; }
 
         public bool EnableLog { get; set; }
     }

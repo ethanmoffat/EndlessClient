@@ -94,6 +94,8 @@ namespace EOLib.Domain.Chat
             return (chatType switch
             {
                 ChatType.PM => ChatResult.HideSpeechBubble,
+                ChatType.Global => ChatResult.HideSpeechBubble,
+                ChatType.Admin => ChatResult.HideSpeechBubble,
                 ChatType.Announce => ChatResult.AdminAnnounce,
                 _ => ChatResult.Ok,
             }, chat);

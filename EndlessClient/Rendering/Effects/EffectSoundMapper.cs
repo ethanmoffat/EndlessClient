@@ -29,6 +29,12 @@ namespace EndlessClient.Rendering.Effects
                 case HardCodedPotionEffect.SPARKLES: yield return SoundEffectID.PotionOfSparklesEffect; break;
                 case HardCodedPotionEffect.EVIL:
                 case HardCodedPotionEffect.TERROR: yield return SoundEffectID.PotionOfEvilTerrorEffect; break;
+                default:
+                    {
+                        foreach (var effect in GetSpellSoundEffect(id + 1))
+                            yield return effect;
+                    }
+                    break;
             }
         }
 

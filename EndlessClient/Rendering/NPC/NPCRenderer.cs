@@ -336,6 +336,7 @@ namespace EndlessClient.Rendering.NPC
             if (disposing)
             {
                 _nameLabel.Dispose();
+                _chatBubble?.Dispose();
             }
 
             base.Dispose(disposing);

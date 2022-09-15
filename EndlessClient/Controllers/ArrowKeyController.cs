@@ -109,19 +109,23 @@ namespace EndlessClient.Controllers
         {
             if (!_walkValidationActions.CanMoveToDestinationCoordinates())
             {
-                var (unwalkableAction, cellState) = _unwalkableTileActions.HandleUnwalkableTile();
-                switch (unwalkableAction)
+                var (unwalkableActions, cellState) = _unwalkableTileActions.HandleUnwalkableTile();
+
+                foreach (var action in unwalkableActions)
                 {
-                    case UnwalkableTileAction.Chest:
-                        _mapActions.OpenChest((byte)cellState.Coordinate.X, (byte)cellState.Coordinate.Y);
-                        _inGameDialogActions.ShowChestDialog();
-                        break;
-                    case UnwalkableTileAction.Locker:
-                        _mapActions.OpenLocker((byte)cellState.Coordinate.X, (byte)cellState.Coordinate.Y);
-                        _inGameDialogActions.ShowLockerDialog();
-                        break;
-                    case UnwalkableTileAction.Chair: _characterActions.SitInChair(); break;
-                    case UnwalkableTileAction.Door: cellState.Warp.MatchSome(w => _mapActions.OpenDoor(w)); break;
+                    switch (action)
+                    {
+                        case UnwalkableTileAction.Chest:
+                            _mapActions.OpenChest((byte)cellState.Coordinate.X, (byte)cellState.Coordinate.Y);
+                            _inGameDialogActions.ShowChestDialog();
+                            break;
+                        case UnwalkableTileAction.Locker:
+                            _mapActions.OpenLocker((byte)cellState.Coordinate.X, (byte)cellState.Coordinate.Y);
+                            _inGameDialogActions.ShowLockerDialog();
+                            break;
+                        case UnwalkableTileAction.Chair: _characterActions.SitInChair(); break;
+                        case UnwalkableTileAction.Door: cellState.Warp.MatchSome(w => _mapActions.OpenDoor(w)); break;
+                    }
                 }
             }
             else

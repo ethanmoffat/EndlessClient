@@ -178,6 +178,17 @@ namespace EndlessClient.Rendering.Character
             _characterRendererProvider.CharacterRenderers[playerId].ShoutSpellPrep(shoutName.ToLower());
         }
 
+        public void NotifyTargetNpcSpellCast(short playerId)
+        {
+            // Main player starts its spell cast animation immediately when targeting NPC
+            // Other players need to wait for packet to be received and do it here
+            // this is some spaghetti...
+            if (_characterRendererProvider.CharacterRenderers.ContainsKey(playerId))
+            {
+                Animator.StartOtherCharacterSpellCast(playerId);
+            }
+        }
+
         public void NotifySelfSpellCast(short playerId, short spellId, int spellHp, byte percentHealth)
         {
             var spellGraphic = _pubFileProvider.ESFFile[spellId].Graphic;
@@ -291,6 +302,16 @@ namespace EndlessClient.Rendering.Character
 
         public void NotifyEmote(short playerId, Emote emote)
         {
+            switch (emote)
+            {
+                case EOLib.Domain.Character.Emote.Trade:
+                    _sfxPlayer.PlaySfx(SoundEffectID.TradeAccepted);
+                    break;
+                case EOLib.Domain.Character.Emote.LevelUp:
+                    _sfxPlayer.PlaySfx(SoundEffectID.LevelUp);
+                    break;
+            }
+
             try
             {
                 Animator.Emote(playerId, emote);
@@ -304,6 +325,15 @@ namespace EndlessClient.Rendering.Character
         public void MakeMainPlayerDrunk()
         {
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_ITEM_USE_DRUNK);
+        }
+
+        public void NotifyEffectAtLocation(byte x, byte y, short effectId)
+        {
+            if (_hudControlProvider.IsInGame)
+            {
+                _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer)
+                    .RenderEffect(x, y, effectId);
+            }
         }
 
         private void ShowWaterSplashiesIfNeeded(CharacterActionState action, int characterID)
@@ -355,7 +385,7 @@ namespace EndlessClient.Rendering.Character
                 return;
             }
 
-            _pubFileProvider.EIFFile.SingleOrNone(x => x.Type == ItemType.Weapon && x.DollGraphic == character.RenderProperties.WeaponGraphic)
+            _pubFileProvider.EIFFile.FirstOrNone(x => x.Type == ItemType.Weapon && x.DollGraphic == character.RenderProperties.WeaponGraphic)
                 .MatchSome(x =>
                 {
                     var instrumentIndex = Constants.InstrumentIDs.ToList().FindIndex(y => y == x.ID);

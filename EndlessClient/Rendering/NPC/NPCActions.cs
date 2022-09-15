@@ -1,17 +1,19 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Chat;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Rendering.Character;
-using EndlessClient.Rendering.Chat;
-using EOLib;
+using EOLib.Domain.Chat;
+using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.IO.Repositories;
+using EOLib.Localization;
 using Optional;
 
 namespace EndlessClient.Rendering.NPC
 {
-    [MappedType(BaseType = typeof(INPCActionNotifier))]
+    [AutoMappedType]
     public class NPCActions : INPCActionNotifier
     {
         private readonly IHudControlProvider _hudControlProvider;
@@ -19,24 +21,33 @@ namespace EndlessClient.Rendering.NPC
         private readonly INPCRendererRepository _npcRendererRepository;
         private readonly ICharacterRendererRepository _characterRendererRepository;
         private readonly IChatBubbleActions _chatBubbleActions;
-        private readonly IChatBubbleTextureProvider _chatBubbleTextureProvider;
+        private readonly IChatRepository _chatRepository;
+        private readonly ILocalizedStringFinder _localizedStringFinder;
+        private readonly IEIFFileProvider _eifFileProvider;
         private readonly IESFFileProvider _esfFileProvider;
+        private readonly ISfxPlayer _sfxPlayer;
 
         public NPCActions(IHudControlProvider hudControlProvider,
                           INPCStateCache npcStateCache,
                           INPCRendererRepository npcRendererRepository,
                           ICharacterRendererRepository characterRendererRepository,
                           IChatBubbleActions chatBubbleActions,
-                          IChatBubbleTextureProvider chatBubbleTextureProvider,
-                          IESFFileProvider esfFileProvider)
+                          IChatRepository chatRepository,
+                          ILocalizedStringFinder localizedStringFinder,
+                          IEIFFileProvider eifFileProvider,
+                          IESFFileProvider esfFileProvider,
+                          ISfxPlayer sfxPlayer)
         {
             _hudControlProvider = hudControlProvider;
             _npcStateCache = npcStateCache;
             _npcRendererRepository = npcRendererRepository;
             _characterRendererRepository = characterRendererRepository;
             _chatBubbleActions = chatBubbleActions;
-            _chatBubbleTextureProvider = chatBubbleTextureProvider;
+            _chatRepository = chatRepository;
+            _localizedStringFinder = localizedStringFinder;
+            _eifFileProvider = eifFileProvider;
             _esfFileProvider = esfFileProvider;
+            _sfxPlayer = sfxPlayer;
         }
 
         public void StartNPCWalkAnimation(int npcIndex)
@@ -53,6 +64,8 @@ namespace EndlessClient.Rendering.NPC
                 return;
 
             Animator.StartAttackAnimation(npcIndex);
+
+            _sfxPlayer.PlaySfx(SoundEffectID.PunchAttack);
         }
 
         public void RemoveNPCFromView(int npcIndex, int playerId, Option<short> spellId, Option<int> damage, bool showDeathAnimation)
@@ -102,6 +115,18 @@ namespace EndlessClient.Rendering.NPC
             });
         }
 
+        public void NPCDropItem(MapItem item)
+        {
+            // todo: not sure if it is better to do this here in a notifier or modify the chat repository in the packet handler
+            //         however, I don't want to introduce a dependency on localized text in the packet handler
+            var itemName = _eifFileProvider.EIFFile[item.ItemID].Name;
+            var chatData = new ChatData(ChatTab.System,
+                string.Empty,
+                $"{_localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_THE_NPC_DROPPED)} {item.Amount} {itemName}",
+                ChatIcon.DownArrow);
+            _chatRepository.AllChat[ChatTab.System].Add(chatData);
+        }
+
         private void ShoutSpellCast(int playerId)
         {
             _characterRendererRepository.MainCharacterRenderer.Match(
@@ -109,6 +134,8 @@ namespace EndlessClient.Rendering.NPC
                 {
                     if (r.Character.ID == playerId)
                         r.ShoutSpellCast();
+                    else if (_characterRendererRepository.CharacterRenderers.ContainsKey(playerId))
+                        _characterRendererRepository.CharacterRenderers[playerId].ShoutSpellCast();
                 },
                 none: () =>
                 {

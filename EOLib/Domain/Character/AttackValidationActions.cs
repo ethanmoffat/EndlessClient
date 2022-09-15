@@ -2,7 +2,6 @@
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.IO.Repositories;
-using Optional.Collections;
 using System.Linq;
 
 namespace EOLib.Domain.Character
@@ -13,14 +12,17 @@ namespace EOLib.Domain.Character
         private readonly ICharacterProvider _characterProvider;
         private readonly IMapCellStateProvider _mapCellStateProvider;
         private readonly IEIFFileProvider _eifFileProvider;
+        private readonly IENFFileProvider _enfFileProvider;
 
         public AttackValidationActions(ICharacterProvider characterProvider,
                                        IMapCellStateProvider mapCellStateProvider,
-                                       IEIFFileProvider eifFileProvider)
+                                       IEIFFileProvider eifFileProvider,
+                                       IENFFileProvider enfFileProvider)
         {
             _characterProvider = characterProvider;
             _mapCellStateProvider = mapCellStateProvider;
             _eifFileProvider = eifFileProvider;
+            _enfFileProvider = enfFileProvider;
         }
 
         public AttackValidationError ValidateCharacterStateBeforeAttacking()
@@ -40,7 +42,14 @@ namespace EOLib.Domain.Character
                 .GetCellStateAt(rp.GetDestinationX(), rp.GetDestinationY())
                 .NPC.Match(
                     some: npc => npc.OpponentID.Match(
-                        some: id => id != _characterProvider.MainCharacter.ID ? AttackValidationError.NotYourBattle : AttackValidationError.OK,
+                        some: id =>
+                        {
+                            var notYourBattle = id != _characterProvider.MainCharacter.ID;
+                            var isBossNpc = _enfFileProvider.ENFFile[npc.ID].Boss > 0;
+                            return notYourBattle && !isBossNpc
+                                ? AttackValidationError.NotYourBattle
+                                : AttackValidationError.OK;
+                        },
                         none: () => AttackValidationError.OK),
                     none: () => AttackValidationError.OK);
         }

@@ -36,10 +36,12 @@ namespace EOLib.Domain.Map
             var chest = CurrentMap.Chests.Where(c => c.X == x && c.Y == y && c.Key != ChestKey.None).Select(c => c.Key).FirstOrDefault();
             var sign = CurrentMap.Signs.FirstOrDefault(s => s.X == x && s.Y == y);
 
-            var character = _mapStateProvider.Characters.Values.Concat(new[] { _characterProvider.MainCharacter })
-                .FirstOrNone(c => CharacterAtCoordinates(c, x, y));
+            var characters = _mapStateProvider.Characters.Values
+                .Concat(new[] { _characterProvider.MainCharacter })
+                .Where(c => CharacterAtCoordinates(c, x, y))
+                .ToList();
             var npc = _mapStateProvider.NPCs.FirstOrNone(n => NPCAtCoordinates(n, x, y));
-            var items = _mapStateProvider.MapItems.Where(i => i.X == x && i.Y == y);
+            var items = _mapStateProvider.MapItems.Where(i => i.X == x && i.Y == y).OrderByDescending(i => i.UniqueID);
 
             return new MapCellState
             {
@@ -50,7 +52,8 @@ namespace EOLib.Domain.Map
                 Warp       = warp.SomeNotNull().Map(w => new Warp(w)),
                 ChestKey   = chest.SomeNotNull(),
                 Sign       = sign.SomeNotNull().Map(s => new Sign(s)),
-                Character  = character,
+                Character  = characters.FirstOrNone(),
+                Characters = characters,
                 NPC        = npc
             };
         }

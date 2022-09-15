@@ -18,5 +18,9 @@ namespace EndlessClient.Rendering.Character
         void SetToCenterScreenPosition();
 
         void DrawToSpriteBatch(SpriteBatch spriteBatch);
+
+        void ShowName();
+
+        void HideName();
     }
 }

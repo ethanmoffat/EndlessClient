@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EOLib.Domain.Map;
 using Optional;
 
 namespace EOLib.Domain.Notifiers
@@ -14,6 +15,8 @@ namespace EOLib.Domain.Notifiers
         void ShowNPCSpeechBubble(int npcIndex, string message);
 
         void NPCTakeDamage(short npcIndex, int fromPlayerId, int damageToNpc, short npcPctHealth, Option<int> spellId);
+
+        void NPCDropItem(MapItem item);
     }
 
     [AutoMappedType]
@@ -28,5 +31,7 @@ namespace EOLib.Domain.Notifiers
         public void ShowNPCSpeechBubble(int npcIndex, string message) { }
 
         public void NPCTakeDamage(short npcIndex, int fromPlayerId, int damageToNpc, short npcPctHealth, Option<int> spellId) { }
+
+        public void NPCDropItem(MapItem item) { }
     }
 }
