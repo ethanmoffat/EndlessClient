@@ -28,10 +28,10 @@ namespace EOLib.PacketHandlers.Trade
 
         public override bool HandlePacket(IPacket packet)
         {
-            var otherPlayerId = packet.ReadShort();
+            var mainPlayerId = packet.ReadShort();
             var otherPlayerAgrees = packet.ReadChar() != 0;
 
-            _tradeRepository.SomeWhen(x => x.PlayerOneOffer.PlayerID == otherPlayerId)
+            _tradeRepository.SomeWhen(x => x.PlayerOneOffer.PlayerID == mainPlayerId)
                 .Map(x => x.PlayerOneOffer = x.PlayerOneOffer.WithAgrees(otherPlayerAgrees))
                 .Or(() => _tradeRepository.PlayerTwoOffer = _tradeRepository.PlayerTwoOffer.WithAgrees(otherPlayerAgrees));
 
