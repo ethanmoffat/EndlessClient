@@ -158,9 +158,11 @@ namespace EndlessClient.Dialogs
 
         public void Close() => Close(XNADialogResult.NO_BUTTON_PRESSED);
 
+        protected override void OnUnconditionalUpdateControl(GameTime gameTime)
         {
             var updateItemVisibility = false;
 
+            // player one offer will always be on the left; player two always on the right
             if (_tradeProvider.PlayerOneOffer != null && !_tradeProvider.PlayerOneOffer.Equals(_leftOffer))
             {
                 UpdateOffer(_tradeProvider.PlayerOneOffer, _leftOffer, _leftPlayerName, _leftPlayerStatus, _leftItems, -3);
@@ -189,14 +191,18 @@ namespace EndlessClient.Dialogs
                 _rightScrollOffset = _rightScroll.ScrollOffset;
             }
 
-            if (_partnerItemChangeTick?.ElapsedMilliseconds > 1000)
+            if (_partnerItemChangeTick?.ElapsedMilliseconds > 1000 && _recentPartnerItemChanges > 0)
             {
                 _recentPartnerItemChanges--;
                 _partnerItemChangeTick = Stopwatch.StartNew();
             }
 
-            SuppressClickDragEvent(!_inventoryPanel.NoItemsDragging());
+            base.OnUnconditionalUpdateControl(gameTime);
+        }
 
+        protected override void OnUpdateControl(GameTime gameTime)
+        {
+            SuppressClickDragEvent(!_inventoryPanel.NoItemsDragging());
             base.OnUpdateControl(gameTime);
         }
 
@@ -207,7 +213,7 @@ namespace EndlessClient.Dialogs
         {
             if (actualOffer.PlayerName != cachedOffer.PlayerName || actualOffer.Items.Count != cachedOffer.Items.Count)
             {
-                playerNameLabel.Text = $"{actualOffer.PlayerName}{(actualOffer.Items.Any() ? $"[{actualOffer.Items.Count}]" : "")}";
+                playerNameLabel.Text = $"{char.ToUpper(actualOffer.PlayerName[0]) + actualOffer.PlayerName[1..]}{(actualOffer.Items.Any() ? $"[{actualOffer.Items.Count}]" : "")}";
             }
 
             // todo: check if packets properly reset agrees to false when items change
@@ -233,10 +239,10 @@ namespace EndlessClient.Dialogs
                 }
             }
 
-            if (!actualOffer.Items.ToHashSet().SetEquals(cachedOffer.Items))
+            if (cachedOffer.Items == null || !actualOffer.Items.ToHashSet().SetEquals(cachedOffer.Items))
             {
-                var added = actualOffer.Items.Except(cachedOffer.Items);
-                var removed = cachedOffer.Items.Where(i => !actualOffer.Items.Contains(i));
+                var added = actualOffer.Items.Except(cachedOffer.Items ?? Enumerable.Empty<InventoryItem>());
+                var removed = (cachedOffer.Items ?? Enumerable.Empty<InventoryItem>()).Where(i => !actualOffer.Items.Contains(i));
 
                 foreach (var addedItem in added)
                 {
@@ -262,7 +268,7 @@ namespace EndlessClient.Dialogs
 
                 foreach (var removedItem in removed)
                 {
-                    listItems.SingleOrNone(y => ((InventoryItem)y.Data).ItemID == removedItem.ItemID)
+                    listItems.SingleOrNone(y => ((InventoryItem)y.Data).Equals(removedItem))
                         .MatchSome(listItem =>
                         {
                             listItems.Remove(listItem);
@@ -270,7 +276,7 @@ namespace EndlessClient.Dialogs
                         });
                 }
 
-                if (actualOffer.PlayerID != _characterProvider.MainCharacter.ID)
+                if (cachedOffer.Items != null && actualOffer.PlayerID != 0 && actualOffer.PlayerID != _characterProvider.MainCharacter.ID)
                 {
                     _partnerItemChangeTick = Stopwatch.StartNew();
                     _recentPartnerItemChanges++;
@@ -283,7 +289,7 @@ namespace EndlessClient.Dialogs
                         // this will prevent the message from showing more than once per trade (I'm too lazy to find something more elegant)
                         _recentPartnerItemChanges = -1000;
                     }
-                    else
+                    else if ((_leftOffer == cachedOffer ? _rightOffer : _leftOffer).Agrees)
                     {
                         var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.TRADE_ABORTED_OFFER_CHANGED);
                         dlg.ShowDialog();
