@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using EOLib.Domain.Character;
+using EOLib.Domain.Map;
 
 namespace EOLib.Domain.Extensions
 {
@@ -113,5 +114,7 @@ namespace EOLib.Domain.Extensions
             props.CurrentAction = props.SitState == SitState.Standing ? CharacterActionState.Standing : CharacterActionState.Sitting;
             return props.ToImmutable();
         }
+
+        public static MapCoordinate Coordinates(this CharacterRenderProperties rp) => new MapCoordinate(rp.MapX, rp.MapY);
     }
 }

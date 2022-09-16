@@ -40,7 +40,6 @@ namespace EndlessClient.Rendering
 
         private readonly Texture2D _mouseCursorTexture;
         private readonly ICharacterProvider _characterProvider;
-        private readonly ICharacterRendererProvider _characterRendererProvider;
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
         private readonly IMapCellStateProvider _mapCellStateProvider;
         private readonly IItemStringService _itemStringService;
@@ -80,7 +79,6 @@ namespace EndlessClient.Rendering
         {
             _mouseCursorTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 24, true);
             _characterProvider = characterProvider;
-            _characterRendererProvider = characterRendererProvider;
             _renderOffsetCalculator = renderOffsetCalculator;
             _mapCellStateProvider = mapCellStateProvider;
             _itemStringService = itemStringService;
@@ -189,37 +187,6 @@ namespace EndlessClient.Rendering
                 //relative to cursor DrawPosition, since this control is a parent of MapItemText
                 _mapItemText.DrawPosition = new Vector2(DrawArea.X + 32 - _mapItemText.ActualWidth / 2f,
                                                         DrawArea.Y + -_mapItemText.ActualHeight - 4);
-            }
-
-            if (cellState.Characters.Count > 1)
-            {
-                var isFirst = true;
-                foreach (var character in cellState.Characters.Reverse())
-                {
-                    if (_characterRendererProvider.CharacterRenderers.ContainsKey(character.ID))
-                    {
-                        if (isFirst)
-                        {
-                            _characterRendererProvider.CharacterRenderers[character.ID].ShowName();
-                        }
-                        else
-                        {
-                            _characterRendererProvider.CharacterRenderers[character.ID].HideName();
-                        }
-                    }
-
-                    isFirst = false;
-                }
-            }
-            else
-            {
-                foreach (var character in cellState.Characters)
-                {
-                    if (_characterRendererProvider.CharacterRenderers.ContainsKey(character.ID))
-                    {
-                        _characterRendererProvider.CharacterRenderers[character.ID].ShowName();
-                    }
-                }
             }
 
             _startClickTime.MatchSome(st =>

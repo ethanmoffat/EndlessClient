@@ -2,6 +2,7 @@
 using EndlessClient.Audio;
 using EndlessClient.Controllers;
 using EndlessClient.Input;
+using EndlessClient.Rendering.Character;
 using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
@@ -28,6 +29,7 @@ namespace EndlessClient.Rendering.Map
         }
 
         private readonly ICharacterProvider _characterProvider;
+        private readonly ICharacterRendererProvider _characterRendererProvider;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IUserInputRepository _userInputRepository;
         private readonly ICurrentMapProvider _currentMapProvider;
@@ -41,6 +43,7 @@ namespace EndlessClient.Rendering.Map
         private List<MapCoordinate> _ambientSounds;
 
         public DynamicMapObjectUpdater(ICharacterProvider characterProvider,
+                                       ICharacterRendererProvider characterRendererProvider,
                                        ICurrentMapStateRepository currentMapStateRepository,
                                        IUserInputRepository userInputRepository,
                                        ICurrentMapProvider currentMapProvider,
@@ -50,6 +53,7 @@ namespace EndlessClient.Rendering.Map
                                        ISfxPlayer sfxPlayer)
         {
             _characterProvider = characterProvider;
+            _characterRendererProvider = characterRendererProvider;
             _currentMapStateRepository = currentMapStateRepository;
             _userInputRepository = userInputRepository;
             _currentMapProvider = currentMapProvider;
@@ -78,6 +82,7 @@ namespace EndlessClient.Rendering.Map
             UpdateAmbientNoiseVolume();
 
             CheckForObjectClicks();
+            HideStackedCharacterNames();
         }
 
         private void OpenNewDoors(DateTime now)
@@ -175,6 +180,39 @@ namespace EndlessClient.Rendering.Map
                 }
 
                 // todo: check for board object clicks
+            }
+        }
+
+        private void HideStackedCharacterNames()
+        {
+            var characters = _characterRendererProvider.CharacterRenderers.Values
+                .Where(x => x.MouseOver)
+                .GroupBy(x => x.Character.RenderProperties.Coordinates());
+
+            foreach (var grouping in characters)
+            {
+                if (grouping.Count() > 1)
+                {
+                    var isFirst = true;
+                    foreach (var character in grouping.Reverse())
+                    {
+                        if (isFirst)
+                        {
+                            character.ShowName();
+                        }
+                        else
+                        {
+                            character.HideName();
+                        }
+
+                        isFirst = false;
+                    }
+                }
+                else
+                {
+                    foreach (var character in grouping)
+                        character.ShowName();
+                }
             }
         }
     }

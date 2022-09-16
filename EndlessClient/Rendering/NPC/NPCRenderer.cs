@@ -65,6 +65,10 @@ namespace EndlessClient.Rendering.NPC
 
         public Rectangle MapProjectedDrawArea { get; private set; }
 
+        public bool MouseOver => DrawArea.Contains(_userInputProvider.CurrentMouseState.Position);
+
+        public bool MouseOverPreviously => DrawArea.Contains(_userInputProvider.PreviousMouseState.Position);
+
         public EOLib.Domain.NPC.NPC NPC { get; set; }
 
         public bool IsDead { get; private set; }
