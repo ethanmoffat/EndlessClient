@@ -101,32 +101,43 @@ namespace EndlessClient.Rendering.Character
         public void StartMainCharacterWalkAnimation(Option<MapCoordinate> targetCoordinate)
         {
             _walkPath.Clear();
-            targetCoordinate.MatchSome(tc =>
-            {
-                _targetCoordinate = targetCoordinate;
 
-                var rp = _characterRepository.MainCharacter.RenderProperties;
-                var characterCoord = new MapCoordinate(rp.MapX, rp.MapY);
-
-                _walkPath = _pathFinder.FindPath(characterCoord, tc);
-
-                if (!_otherPlayerStartWalkingTimes.ContainsKey(_characterRepository.MainCharacter.ID) && _walkPath.Any())
+            targetCoordinate.Match(
+                some: tc =>
                 {
-                    rp = FaceTarget(characterCoord, _walkPath.Peek(), rp);
-                    _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithRenderProperties(rp);
-                }
-            });
+                    _targetCoordinate = targetCoordinate;
 
-            if (_otherPlayerStartWalkingTimes.ContainsKey(_characterRepository.MainCharacter.ID))
+                    var rp = _characterRepository.MainCharacter.RenderProperties;
+                    var characterCoord = new MapCoordinate(rp.MapX, rp.MapY);
+
+                    _walkPath = _pathFinder.FindPath(characterCoord, tc);
+
+                    if (_walkPath.Any())
+                    {
+                        if (!_otherPlayerStartWalkingTimes.ContainsKey(_characterRepository.MainCharacter.ID))
+                        {
+                            rp = FaceTarget(characterCoord, _walkPath.Peek(), rp);
+                            _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithRenderProperties(rp);
+                        }
+
+                        doTheWalk();
+                    }
+                },
+                none: doTheWalk);
+
+            void doTheWalk()
             {
-                _otherPlayerStartWalkingTimes[_characterRepository.MainCharacter.ID].Replay = true;
-                return;
+                if (_otherPlayerStartWalkingTimes.ContainsKey(_characterRepository.MainCharacter.ID))
+                {
+                    _otherPlayerStartWalkingTimes[_characterRepository.MainCharacter.ID].Replay = true;
+                    return;
+                }
+
+                var startWalkingTime = new RenderFrameActionTime(_characterRepository.MainCharacter.ID);
+                _otherPlayerStartWalkingTimes.Add(_characterRepository.MainCharacter.ID, startWalkingTime);
+
+                _characterActions.Walk();
             }
-
-            var startWalkingTime = new RenderFrameActionTime(_characterRepository.MainCharacter.ID);
-            _otherPlayerStartWalkingTimes.Add(_characterRepository.MainCharacter.ID, startWalkingTime);
-
-            _characterActions.Walk();
         }
 
         public void StartMainCharacterAttackAnimation()

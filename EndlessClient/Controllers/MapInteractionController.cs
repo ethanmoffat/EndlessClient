@@ -13,6 +13,7 @@ using EndlessClient.Rendering;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
 using EOLib.Domain.Character;
+using EOLib.Domain.Extensions;
 using EOLib.Domain.Interact;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
@@ -33,6 +34,7 @@ namespace EndlessClient.Controllers
         private readonly ICharacterActions _characterActions;
         private readonly IInGameDialogActions _inGameDialogActions;
         private readonly IPaperdollActions _paperdollActions;
+        private readonly IWalkValidationActions _walkValidationActions;
         private readonly IUnwalkableTileActions _unwalkableTileActions;
         private readonly ICharacterAnimationActions _characterAnimationActions;
         private readonly ISpellCastValidationActions _spellCastValidationActions;
@@ -54,6 +56,7 @@ namespace EndlessClient.Controllers
                                         ICharacterActions characterActions,
                                         IInGameDialogActions inGameDialogActions,
                                         IPaperdollActions paperdollActions,
+                                        IWalkValidationActions walkValidationActions,
                                         IUnwalkableTileActions unwalkableTileActions,
                                         ICharacterAnimationActions characterAnimationActions,
                                         ISpellCastValidationActions spellCastValidationActions,
@@ -75,6 +78,7 @@ namespace EndlessClient.Controllers
             _characterActions = characterActions;
             _inGameDialogActions = inGameDialogActions;
             _paperdollActions = paperdollActions;
+            _walkValidationActions = walkValidationActions;
             _unwalkableTileActions = unwalkableTileActions;
             _characterAnimationActions = characterAnimationActions;
             _spellCastValidationActions = spellCastValidationActions;
@@ -153,7 +157,9 @@ namespace EndlessClient.Controllers
                     }
                 }
             }
-            else if (cellState.InBounds && !cellState.Character.HasValue && !cellState.NPC.HasValue)
+            else if (cellState.InBounds && !cellState.Character.HasValue && !cellState.NPC.HasValue
+                && _walkValidationActions.IsCellStateWalkable(cellState)
+                && _characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Standing))
             {
                 mouseRenderer.MatchSome(r => r.AnimateClick());
                 _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator)
@@ -167,7 +173,11 @@ namespace EndlessClient.Controllers
                 w.SomeWhen(d => d.DoorType != DoorSpec.NoDoor)
                     .MatchSome(d =>
                     {
-                        _mapActions.OpenDoor(d);
+                        if (_unwalkableTileActions.HandleUnwalkableTile(cellState).Any(x => x == UnwalkableTileAction.Door))
+                        {
+                            _mapActions.OpenDoor(d);
+                        }
+
                         _userInputRepository.ClickHandled = true;
                     });
             });
