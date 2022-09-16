@@ -8,7 +8,6 @@ using Optional;
 using Optional.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Documents;
 
 namespace EndlessClient.HUD.Inventory
 {
