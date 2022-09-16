@@ -50,7 +50,6 @@ namespace EndlessClient.HUD.Panels
         private readonly IActiveDialogProvider _activeDialogProvider;
         private readonly ISfxPlayer _sfxPlayer;
 
-        private readonly Dictionary<int, int> _itemSlotMap;
         private readonly List<InventoryPanelItem> _childItems = new List<InventoryPanelItem>();
 
         private readonly IXNALabel _weightLabel;
@@ -101,7 +100,7 @@ namespace EndlessClient.HUD.Panels
                 AutoSize = false
             };
 
-            _itemSlotMap = GetItemSlotMap(_playerInfoProvider.LoggedInAccountName, _characterProvider.MainCharacter.Name);
+            _inventorySlotRepository.SlotMap = GetItemSlotMap(_playerInfoProvider.LoggedInAccountName, _characterProvider.MainCharacter.Name);
 
             var weirdOffsetSheet = NativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 27);
 
@@ -206,7 +205,7 @@ namespace EndlessClient.HUD.Panels
                 {
                     var itemData = _pubFileProvider.EIFFile[item.ItemID];
 
-                    var preferredSlot = _itemSlotMap.SingleOrNone(x => x.Value == item.ItemID).Map(x => x.Key);
+                    var preferredSlot = _inventorySlotRepository.SlotMap.SingleOrNone(x => x.Value == item.ItemID).Map(x => x.Key);
                     var actualSlot = _inventoryService.GetNextOpenSlot(_inventorySlotRepository.FilledSlots, itemData.Size, preferredSlot);
 
                     actualSlot.MatchSome(slot =>
@@ -484,38 +483,6 @@ namespace EndlessClient.HUD.Panels
             {
                 _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);
             }
-
-            #region Unimplemented drag action
-            /*
-            if (TradeDialog.Instance != null && TradeDialog.Instance.MouseOver && TradeDialog.Instance.MouseOverPreviously
-                && !TradeDialog.Instance.MainPlayerAgrees)
-            {
-                if (m_itemData.Special == ItemSpecial.Lore)
-                {
-                    EOMessageBox.Show(DialogResourceID.ITEM_IS_LORE_ITEM);
-                }
-                else if (m_inventory.Amount > 1)
-                {
-                    ItemTransferDialog dlg = new ItemTransferDialog(m_itemData.Name, ItemTransferDialog.TransferType.TradeItems,
-                        m_inventory.Amount, EOResourceID.DIALOG_TRANSFER_OFFER);
-                    dlg.DialogClosing += (o, e) =>
-                    {
-                        if (e.Result != XNADialogResult.OK) return;
-
-                        if (!m_api.TradeAddItem(m_inventory.ItemID, dlg.SelectedAmount))
-                        {
-                            TradeDialog.Instance.Close(XNADialogResult.NO_BUTTON_PRESSED);
-                            ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
-                        }
-                    };
-                }
-                else if (!m_api.TradeAddItem(m_inventory.ItemID, 1))
-                {
-                    TradeDialog.Instance.Close(XNADialogResult.NO_BUTTON_PRESSED);
-                    ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
-                }
-            }*/
-            #endregion
         }
 
         private static IEnumerable<int> GetOverlappingTakenSlots(int newSlot, ItemSize size, IEnumerable<(int Slot, ItemSize Size)> items)
