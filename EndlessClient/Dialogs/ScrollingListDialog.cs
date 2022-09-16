@@ -364,8 +364,6 @@ namespace EndlessClient.Dialogs
 
         protected override void OnUpdateControl(GameTime gameTime)
         {
-            ChildControlClickHandled = false;
-
             if (_listItems.Count > _scrollBar.LinesToRender)
             {
                 for (int i = 0; i < _listItems.Count; ++i)

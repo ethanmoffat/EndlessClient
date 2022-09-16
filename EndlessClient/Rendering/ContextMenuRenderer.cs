@@ -13,6 +13,7 @@ using EOLib;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Interact;
 using EOLib.Domain.Party;
+using EOLib.Domain.Trade;
 using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
@@ -46,6 +47,7 @@ namespace EndlessClient.Rendering
         private readonly IInGameDialogActions _inGameDialogActions;
         private readonly IPaperdollActions _paperdollActions;
         private readonly IPartyActions _partyActions;
+        private readonly ITradeActions _tradeActions;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IFriendIgnoreListService _friendIgnoreListService;
         private readonly IHudControlProvider _hudControlProvider;
@@ -54,13 +56,14 @@ namespace EndlessClient.Rendering
         private readonly IPartyDataProvider _partyDataProvider;
         private readonly ICharacterRenderer _characterRenderer;
 
-        //private DateTime? m_lastTradeRequestedTime;
+        private static DateTime? _lastTradeRequestedTime;
         private static DateTime? _lastPartyRequestTime;
 
         public ContextMenuRenderer(INativeGraphicsManager nativeGraphicsManager,
                                    IInGameDialogActions inGameDialogActions,
                                    IPaperdollActions paperdollActions,
                                    IPartyActions partyActions,
+                                   ITradeActions tradeActions,
                                    IStatusLabelSetter statusLabelSetter,
                                    IFriendIgnoreListService friendIgnoreListService,
                                    IHudControlProvider hudControlProvider,
@@ -73,6 +76,7 @@ namespace EndlessClient.Rendering
             _inGameDialogActions = inGameDialogActions;
             _paperdollActions = paperdollActions;
             _partyActions = partyActions;
+            _tradeActions = tradeActions;
             _statusLabelSetter = statusLabelSetter;
             _friendIgnoreListService = friendIgnoreListService;
             _hudControlProvider = hudControlProvider;
@@ -222,10 +226,10 @@ namespace EndlessClient.Rendering
             switch (menuAction)
             {
                 case MenuAction.Paperdoll: return ShowPaperdollAction;
-                case MenuAction.Book: return () => { };//return _eventShowBook;
+                case MenuAction.Book: return ShowBook;
                 case MenuAction.Join: return JoinParty;
                 case MenuAction.Invite: return InviteToParty;
-                case MenuAction.Trade: return () => { }; //return _eventTrade;
+                case MenuAction.Trade: return Trade;
                 case MenuAction.Whisper: return PrivateMessage;
                 case MenuAction.Friend: return AddFriend;
                 case MenuAction.Ignore: return AddIgnore;
@@ -239,10 +243,9 @@ namespace EndlessClient.Rendering
             _inGameDialogActions.ShowPaperdollDialog(_characterRenderer.Character, isMainCharacter: false);
         }
 
-        //private void _eventShowBook(object arg1, EventArgs arg2)
-        //{
-        //    EOMessageBox.Show("TODO: Show quest info", "TODO ITEM", EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-        //}
+        private void ShowBook()
+        {
+        }
 
         private void JoinParty()
         {
@@ -282,26 +285,26 @@ namespace EndlessClient.Rendering
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, _characterRenderer.Character.Name, EOResourceID.STATUS_LABEL_PARTY_IS_INVITED);
         }
 
-        //private void _eventTrade(object arg1, EventArgs arg2)
-        //{
-        //    if (OldWorld.Instance.MainPlayer.ActiveCharacter.CurrentMap == OldWorld.Instance.JailMap)
-        //        EOMessageBox.Show(OldWorld.GetString(EOResourceID.JAIL_WARNING_CANNOT_TRADE),
-        //            OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
-        //            EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-        //    else
-        //    {
-        //        if(m_lastTradeRequestedTime != null && (DateTime.Now - m_lastTradeRequestedTime.Value).TotalSeconds < Constants.TradeRequestTimeoutSeconds)
-        //        {
-        //            ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_TRADE_RECENTLY_REQUESTED);
-        //            return;
-        //        }
-        //        m_lastTradeRequestedTime = DateTime.Now;
-        //        if (!m_api.TradeRequest((short)m_rend.Character.ID))
-        //            ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
-        //        //todo: is this correct text?
-        //        ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_TRADE_REQUESTED_TO_TRADE);
-        //    }
-        //}
+        private void Trade()
+        {
+            // see: https://github.com/ethanmoffat/EndlessClient/issues/193
+            //if (OldWorld.Instance.MainPlayer.ActiveCharacter.CurrentMap == OldWorld.Instance.JailMap)
+            //    EOMessageBox.Show(OldWorld.GetString(EOResourceID.JAIL_WARNING_CANNOT_TRADE),
+            //        OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
+            //        EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+
+            if (_lastTradeRequestedTime != null && (DateTime.Now - _lastTradeRequestedTime.Value).TotalSeconds < Constants.TradeRequestTimeoutSeconds)
+            {
+                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_TRADE_RECENTLY_REQUESTED);
+                return;
+            }
+
+            _lastTradeRequestedTime = DateTime.Now;
+            
+            _tradeActions.RequestTrade((short)_characterRenderer.Character.ID);
+
+            _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_TRADE_REQUESTED_TO_TRADE);
+        }
 
         private void PrivateMessage()
         {

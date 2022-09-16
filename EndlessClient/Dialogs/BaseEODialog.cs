@@ -34,5 +34,12 @@ namespace EndlessClient.Dialogs
             if (_isInGame())
                 DrawPosition = new Vector2(DrawPosition.X, (330 - DrawArea.Height)/2f);
         }
+
+        protected override void OnUpdateControl(GameTime gameTime)
+        {
+            ChildControlClickHandled = false;
+
+            base.OnUpdateControl(gameTime);
+        }
     }
 }
