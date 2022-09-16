@@ -168,7 +168,7 @@ namespace PacketDecoder
             {
                 lenDat[i/2] = Convert.ToByte(len.Substring(i, 2), 16);
             }
-            lblPacketLength.Text = "Packet Length: " + OldPacket.DecodeNumber(lenDat).ToString();
+            lblPacketLength.Text = "Packet Length: " + new NumberEncoderService().DecodeNumber(lenDat).ToString();
 
             for (int i = 0; i < bytes.Length; i += 2)
             {
@@ -270,11 +270,11 @@ namespace PacketDecoder
                 data[i/2] = Convert.ToByte(inp.Substring(i, 2), 16);
             
             //no need to decrypt since it's init data
-            OldPacket pkt = new OldPacket(data);
-            pkt.Skip(3);
-            txtDMulti.Text = pkt.GetByte().ToString();
-            txtEMulti.Text = pkt.GetByte().ToString();
-            _packetProcessActions.SetEncodeMultiples(pkt.Get()[5], pkt.Get()[6]);
+            var pkt = new Packet(data);
+            pkt.Seek(3, SeekOrigin.Current);
+            txtDMulti.Text = pkt.ReadByte().ToString();
+            txtEMulti.Text = pkt.ReadByte().ToString();
+            _packetProcessActions.SetEncodeMultiples(pkt.RawData[5], pkt.RawData[6]);
         }
     }
 }

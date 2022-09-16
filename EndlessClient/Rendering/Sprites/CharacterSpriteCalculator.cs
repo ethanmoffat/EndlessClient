@@ -8,7 +8,6 @@ using EOLib.IO;
 using EOLib.IO.Extensions;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
-using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Rendering.Sprites
