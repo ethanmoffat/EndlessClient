@@ -62,7 +62,9 @@ namespace EOBot
             [StringValue("DEAD")]
             Dead,
             [StringValue("ITEM")]
-            Item
+            Item,
+            [StringValue("CHAT")]
+            Chat
         }
 
         public static void WriteMessage(Type messageType, string message, ConsoleColor color = ConsoleColor.Gray)

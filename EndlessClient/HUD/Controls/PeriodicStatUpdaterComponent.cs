@@ -44,15 +44,16 @@ namespace EndlessClient.HUD.Controls
                 _lastUsageUpdateTime = DateTime.Now;
             }
 
-            if (stats[CharacterStat.SP] < stats[CharacterStat.MaxSP])
+            if (stats[CharacterStat.SP] < stats[CharacterStat.MaxSP] - 1)
             {
                 _lastSpUpdateTime.Match(
                     some: t =>
                     {
                         // this seems close to 2 but is probably based on level and/or one of the stats
-                        if (t.ElapsedMilliseconds > 2000)
+                        if (t.ElapsedMilliseconds > 2000 - Math.Max(800, _characterRepository.MainCharacter.Stats[CharacterStat.Level] * 80))
                         {
-                            var sp = Math.Min(stats[CharacterStat.SP] + 2, stats[CharacterStat.MaxSP]);
+                            var spUpdate = _characterRepository.MainCharacter.RenderProperties.SitState != SitState.Standing ? 4 : 2;
+                            var sp = Math.Min(stats[CharacterStat.SP] + spUpdate, stats[CharacterStat.MaxSP]);
                             stats = stats.WithNewStat(CharacterStat.SP, sp);
                             _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);
 

@@ -1,6 +1,7 @@
 ﻿using EOLib;
 using EOLib.Domain.Account;
 using EOLib.Domain.Character;
+using EOLib.Domain.Chat;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Item;
 using EOLib.Domain.Login;
@@ -29,9 +30,9 @@ namespace EOBot
         private static readonly int[] JunkItemIds = new[]
         {
             // Dragon Blade, enchanted boots (red/green/blue)
-            //37, 124, 125, 126
+            37, 124, 125, 126
             // cava staff
-            329 
+            //329 
         };
 
         private readonly string _account;
@@ -47,6 +48,9 @@ namespace EOBot
         private IPubFile<EIFRecord> _itemData;
         private IPubFile<ENFRecord> _npcData;
         private IPubFile<ESFRecord> _spellData;
+
+        private IChatProvider _chatProvider;
+        private HashSet<ChatData> _cachedChat;
 
         public TrainerBot(int botIndex, string account, string password, string character)
             : base(botIndex)
@@ -90,6 +94,9 @@ namespace EOBot
             var charInventoryRepo = c.Resolve<ICharacterInventoryRepository>();
             var walkValidator = c.Resolve<IWalkValidationActions>();
 
+            _chatProvider = c.Resolve<IChatProvider>();
+            _cachedChat = new HashSet<ChatData>();
+
             var healItems = new List<InventoryItem>();
             var healSpells = new List<InventorySpell>();
 
@@ -100,6 +107,14 @@ namespace EOBot
             while (!ct.IsCancellationRequested)
             {
                 handler.PollForPacketsAndHandle();
+
+                if (!_cachedChat.SetEquals(_chatProvider.AllChat[ChatTab.Local]))
+                {
+                    foreach (var message in _chatProvider.AllChat[ChatTab.Local].Except(_cachedChat))
+                        ConsoleHelper.WriteMessage(ConsoleHelper.Type.Chat, $"{message.Who}: {message.Message}", ConsoleColor.Cyan);
+
+                    _cachedChat = _chatProvider.AllChat[ChatTab.Local].ToHashSet();
+                }
 
                 var character = _characterRepository.MainCharacter;
                 var charRenderProps = character.RenderProperties;
