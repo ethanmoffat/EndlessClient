@@ -300,9 +300,7 @@ namespace EndlessClient.Rendering
             var currentMouseState = _userInputProvider.CurrentMouseState;
             var previousMouseState = _userInputProvider.PreviousMouseState;
 
-            // todo: some left clicks should be on the graphic itself instead of based on the grid where the cursor is (map sign, board, etc.)
-            if (currentMouseState.LeftButton == ButtonState.Released &&
-                previousMouseState.LeftButton == ButtonState.Pressed)
+            if (currentMouseState.LeftButton == ButtonState.Released && previousMouseState.LeftButton == ButtonState.Pressed)
             {
                 _mapInteractionController.LeftClick(cellState, Option.Some<IMouseCursorRenderer>(this));
             }

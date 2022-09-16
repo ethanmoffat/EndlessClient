@@ -162,6 +162,16 @@ namespace EndlessClient.Controllers
                 _userInputRepository.ClickHandled = true;
             }
 
+            cellState.Warp.MatchSome(w =>
+            {
+                w.SomeWhen(d => d.DoorType != DoorSpec.NoDoor)
+                    .MatchSome(d =>
+                    {
+                        _mapActions.OpenDoor(d);
+                        _userInputRepository.ClickHandled = true;
+                    });
+            });
+
             _userInputTimeRepository.LastInputTime = DateTime.Now;
         }
 
