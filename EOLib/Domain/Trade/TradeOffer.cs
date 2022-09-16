@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace EOLib.Domain.Trade
 {
-    [Record]
+    [Record(Features.Default | Features.EquatableEquals | Features.ObjectEquals)]
     public sealed partial class TradeOffer
     {
         public bool Agrees { get; }
