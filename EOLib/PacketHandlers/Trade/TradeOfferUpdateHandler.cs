@@ -34,6 +34,7 @@ namespace EOLib.PacketHandlers.Trade
             {
                 player1Items.Add(new InventoryItem(packet.ReadShort(), packet.ReadInt()));
             }
+            packet.ReadByte();
 
             var player2Id = packet.ReadShort();
             var player2Items = new List<InventoryItem>();
@@ -41,6 +42,7 @@ namespace EOLib.PacketHandlers.Trade
             {
                 player2Items.Add(new InventoryItem(packet.ReadShort(), packet.ReadInt()));
             }
+            packet.ReadByte();
 
             _tradeRepository.SomeWhen(x => x.PlayerOneOffer.PlayerID == player1Id)
                 .Match(some: x =>
@@ -77,6 +79,7 @@ namespace EOLib.PacketHandlers.Trade
     /// <summary>
     /// Trade completed
     /// </summary>
+    [AutoMappedType]
     public class TradeUseHandler : TradeOfferUpdateHandler
     {
         private readonly ICharacterRepository _characterRepository;
@@ -140,6 +143,9 @@ namespace EOLib.PacketHandlers.Trade
 
                 stats = stats.WithNewStat(CharacterStat.Weight, stats[CharacterStat.Weight] + _eifFileProvider.EIFFile[newItem.ItemID].Weight * newItem.Amount);
             }
+
+            if (stats[CharacterStat.Weight] < 0)
+                stats = stats.WithNewStat(CharacterStat.Weight, 0);
 
             _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);
 
