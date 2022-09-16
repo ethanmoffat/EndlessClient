@@ -9,24 +9,16 @@ namespace EOLib.Domain.Trade
     public class TradeActions : ITradeActions
     {
         private readonly IPacketSendService _packetSendService;
-        private readonly ITradeRepository _tradeRepository;
-        private readonly Random _random;
 
-        public TradeActions(IPacketSendService packetSendService,
-                            ITradeRepository tradeRepository)
+        public TradeActions(IPacketSendService packetSendService)
         {
             _packetSendService = packetSendService;
-            _tradeRepository = tradeRepository;
-            _random = new Random();
         }
 
         public void RequestTrade(short characterID)
         {
-            var tradeId = (byte)(_random.Next(252) + 1);
-            _tradeRepository.TradeSessionID = tradeId;
-
             var packet = new PacketBuilder(PacketFamily.Trade, PacketAction.Request)
-                .AddChar(tradeId)
+                .AddChar(6)
                 .AddShort(characterID)
                 .Build();
             _packetSendService.SendPacket(packet);
@@ -35,7 +27,7 @@ namespace EOLib.Domain.Trade
         public void AcceptTradeRequest(short characterID)
         {
             var packet = new PacketBuilder(PacketFamily.Trade, PacketAction.Accept)
-                .AddChar(_tradeRepository.TradeSessionID)
+                .AddChar(6)
                 .AddShort(characterID)
                 .Build();
             _packetSendService.SendPacket(packet);
@@ -69,7 +61,7 @@ namespace EOLib.Domain.Trade
         public void CancelTrade()
         {
             var packet = new PacketBuilder(PacketFamily.Trade, PacketAction.Close)
-                .AddChar(_tradeRepository.TradeSessionID)
+                .AddChar(6)
                 .Build();
             _packetSendService.SendPacket(packet);
         }
