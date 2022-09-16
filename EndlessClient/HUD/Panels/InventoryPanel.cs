@@ -423,6 +423,14 @@ namespace EndlessClient.HUD.Panels
                     _inventoryController.DropItemInBank(item.Data, item.InventoryItem);
                 }
             });
+            _activeDialogProvider.TradeDialog.MatchSome(x =>
+            {
+                if (x.MouseOver && x.MouseOverPreviously)
+                {
+                    dialogDrop = true;
+                    _inventoryController.TradeItem(item.Data, item.InventoryItem);
+                }
+            });
 
             if (dialogDrop)
             {
