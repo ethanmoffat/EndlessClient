@@ -49,12 +49,12 @@ namespace EndlessClient.Dialogs
                                   TransferType transferType,
                                   int totalAmount,
                                   EOResourceID message)
-            : base(isInGame: true)
+            : base(nativeGraphicsManager, isInGame: true)
         {
             if (!IsValidMessage(message))
                 throw new ArgumentOutOfRangeException(nameof(message), "Use one of the approved messages.");
 
-            _backgroundTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 27);
+            _backgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 27);
             _backgroundTextureSource = new Rectangle(38, 0, 265, 170);
 
             // set so CenterInGameView works properly (expected BackgroundTexture to be set)

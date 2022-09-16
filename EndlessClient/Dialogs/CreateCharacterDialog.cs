@@ -47,13 +47,13 @@ namespace EndlessClient.Dialogs
             IEOMessageBoxFactory messageBoxFactory,
             IEODialogButtonService eoDialogButtonService,
             IXnaControlSoundMapper xnaControlSoundMapper)
-            : base(gameStateProvider)
+            : base(nativeGraphicsManager, gameStateProvider)
         {
             _messageBoxFactory = messageBoxFactory;
             _xnaControlSoundMapper = xnaControlSoundMapper;
-            BackgroundTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 20);
+            BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 20);
 
-            _charCreateSheet = nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 22);
+            _charCreateSheet = GraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 22);
 
             var cursorTexture = contentProvider.Textures[ContentProvider.Cursor];
             _inputBox = new XNATextBox(new Rectangle(80, 57, 138, 19), Constants.FontSize08, caretTexture: cursorTexture)

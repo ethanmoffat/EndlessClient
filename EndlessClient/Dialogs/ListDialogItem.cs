@@ -25,7 +25,7 @@ namespace EndlessClient.Dialogs
         private readonly Texture2D _gfxPadThing;
         private readonly Texture2D _backgroundColor;
 
-        private readonly ScrollingListDialog _parentList;
+        private readonly BaseEODialog _parentDialog;
 
         private bool _drawBackground;
 
@@ -95,12 +95,14 @@ namespace EndlessClient.Dialogs
 
         public bool ShowIconBackGround { get; set; }
 
+        public object Data { get; set; }
+
         public event EventHandler RightClick;
         public event EventHandler LeftClick;
 
-        public ListDialogItem(ScrollingListDialog parent, ListItemStyle style, int listIndex = -1)
+        public ListDialogItem(BaseEODialog parent, ListItemStyle style, int listIndex = -1)
         {
-            _parentList = parent;
+            _parentDialog = parent;
 
             DrawPosition += new Vector2(17, 0);
 
@@ -221,10 +223,10 @@ namespace EndlessClient.Dialogs
                 _drawBackground = true;
                 if (CurrentMouseState.RightButton == ButtonState.Released &&
                     PreviousMouseState.RightButton == ButtonState.Pressed &&
-                    !_parentList.ChildControlClickHandled)
+                    !_parentDialog.ChildControlClickHandled)
                 {
                     RightClick?.Invoke(this, EventArgs.Empty);
-                    _parentList.ChildControlClickHandled = true;
+                    _parentDialog.ChildControlClickHandled = true;
                 }
                 else if(CurrentMouseState.LeftButton == ButtonState.Released &&
                         PreviousMouseState.LeftButton == ButtonState.Pressed)
@@ -234,7 +236,7 @@ namespace EndlessClient.Dialogs
                         !(_primaryText is IXNAHyperLink || _subText is IXNAHyperLink))
                         LeftClick?.Invoke(this, EventArgs.Empty);
 
-                    _parentList.ChildControlClickHandled = true;
+                    _parentDialog.ChildControlClickHandled = true;
                 }
             }
             else

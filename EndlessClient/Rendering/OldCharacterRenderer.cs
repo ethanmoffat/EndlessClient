@@ -149,7 +149,7 @@ namespace EndlessClient.Rendering
             : base(drawLocation, null)
         {
             noLocUpdate = true;
-            _char = new OldCharacter(null, -1, data);
+            _char = new OldCharacter(-1, data);
             spriteSheet = new EOSpriteSheet(((EOGame)Game).GFXManager, _char);
             //when this is a part of a dialog, the drawareaoffset will be set accordingly and is used in the draw method
             //otherwise, it will just draw it at the absolute location specified by drawArea

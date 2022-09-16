@@ -32,7 +32,6 @@ namespace EndlessClient.Dialogs
     {
         private static readonly Rectangle _iconDrawRect = new Rectangle(227, 258, 44, 21);
 
-        private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IInventoryController _inventoryController;
         private readonly IPaperdollProvider _paperdollProvider;
         private readonly IPubFileProvider _pubFileProvider;
@@ -71,7 +70,7 @@ namespace EndlessClient.Dialogs
                                IStatusLabelSetter statusLabelSetter,
                                ISfxPlayer sfxPlayer,
                                Character character, bool isMainCharacter)
-            : base(gameStateProvider)
+            : base(nativeGraphicsManager, gameStateProvider)
         {
             _paperdollProvider = paperdollProvider;
             _pubFileProvider = pubFileProvider;
@@ -79,18 +78,17 @@ namespace EndlessClient.Dialogs
             _eoMessageBoxFactory = eoMessageBoxFactory;
             _statusLabelSetter = statusLabelSetter;
             _sfxPlayer = sfxPlayer;
-            _nativeGraphicsManager = nativeGraphicsManager;
             _inventoryController = inventoryController;
             Character = character;
             _isMainCharacter = isMainCharacter;
-            _characterIconSheet = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 32, true);
+            _characterIconSheet = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 32, true);
             _characterIconSourceRect = Option.None<Rectangle>();
 
             _inventoryPanel = hudControlProvider.GetComponent<InventoryPanel>(HudControlIdentifier.InventoryPanel);
 
             _childItems = new List<PaperdollDialogItem>();
 
-            BackgroundTexture = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 49);
+            BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 49);
             BackgroundTextureSource = new Rectangle(0, BackgroundTexture.Height / 2 * Character.RenderProperties.Gender, DrawArea.Width, BackgroundTexture.Height / 2);
 
             var okButton = new XNAButton(eoDialogButtonService.SmallButtonSheet,
@@ -203,7 +201,7 @@ namespace EndlessClient.Dialogs
 
                 var id = paperdollData.Paperdoll[equipLocation];
                 var eifRecord = id.SomeWhen(i => i > 0).Map(i => _pubFileProvider.EIFFile[i]);
-                var paperdollItem = new PaperdollDialogItem(_nativeGraphicsManager, _sfxPlayer, _inventoryPanel, this, _isMainCharacter, equipLocation, eifRecord)
+                var paperdollItem = new PaperdollDialogItem(GraphicsManager, _sfxPlayer, _inventoryPanel, this, _isMainCharacter, equipLocation, eifRecord)
                 {
                     DrawArea = equipLocation.GetEquipLocationRectangle()
                 };

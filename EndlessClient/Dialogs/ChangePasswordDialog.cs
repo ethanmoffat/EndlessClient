@@ -43,7 +43,7 @@ namespace EndlessClient.Dialogs
                                     IPlayerInfoProvider playerInfoProvider,
                                     IEODialogButtonService dialogButtonService,
                                     IXnaControlSoundMapper xnaControlSoundMapper)
-            : base(gameStateProvider)
+            : base(nativeGraphicsManager, gameStateProvider)
         {
             _eoMessageBoxFactory = eoMessageBoxFactory;
             _playerInfoProvider = playerInfoProvider;
@@ -51,7 +51,7 @@ namespace EndlessClient.Dialogs
 
             var dispatcher = keyboardDispatcherProvider.Dispatcher;
 
-            BackgroundTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 21);
+            BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 21);
 
             var cursorTexture = contentProvider.Textures[ContentProvider.Cursor];
 

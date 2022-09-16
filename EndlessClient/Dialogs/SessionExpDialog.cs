@@ -29,11 +29,11 @@ namespace EndlessClient.Dialogs
                                 ICharacterProvider characterProvider,
                                 IExperienceTableProvider expTableProvider,
                                 ICharacterSessionProvider characterSessionProvider)
-            : base(isInGame: true)
+            : base(nativeGraphicsManager, isInGame: true)
         {
-            BackgroundTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 61);
+            BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 61);
 
-            _icons = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 68, true);
+            _icons = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 68, true);
 
             var okButton = new XNAButton(dialogButtonService.SmallButtonSheet,
                 new Vector2(98, 214),

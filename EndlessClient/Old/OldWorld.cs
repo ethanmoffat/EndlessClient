@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using EndlessClient.Dialogs;
-using EndlessClient.Dialogs.Old;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering;
 using EOLib.Config;
@@ -229,11 +228,6 @@ namespace EndlessClient.Old
                 if (m_client != null)
                     m_client.Dispose();
             }
-        }
-
-        public static void IgnoreDialogs(XNAControl control)
-        {
-            control.IgnoreDialog(typeof(TradeDialog));
         }
     }
 }

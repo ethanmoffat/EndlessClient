@@ -103,7 +103,8 @@ namespace EndlessClient.Rendering.NPC
 
         public void NPCTakeDamage(short npcIndex, int fromPlayerId, int damageToNpc, short npcPctHealth, Option<int> spellId)
         {
-            _npcRendererRepository.NPCRenderers[npcIndex].ShowDamageCounter(damageToNpc, npcPctHealth, isHeal: false);
+            if (_npcRendererRepository.NPCRenderers.ContainsKey(npcIndex))
+                _npcRendererRepository.NPCRenderers[npcIndex].ShowDamageCounter(damageToNpc, npcPctHealth, isHeal: false);
 
             spellId.MatchSome(spell =>
             {

@@ -5,6 +5,8 @@ using EOLib.IO;
 using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 using Optional;
+using Optional.Collections;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace EndlessClient.HUD.Inventory
@@ -38,6 +40,36 @@ namespace EndlessClient.HUD.Inventory
             return _characterInventoryProvider.ItemInventory.Any(x => x.ItemID == itemId) || ItemFits(_eifFileProvider.EIFFile[itemId].Size);
         }
 
+        public bool ItemsFit(IReadOnlyList<InventoryItem> outItems, IReadOnlyList<InventoryItem> inItems)
+        {
+            var slotsCopy = new Matrix<bool>(_inventorySlotProvider.FilledSlots);
+
+            foreach (var item in outItems)
+            {
+                var itemData = _eifFileProvider.EIFFile[item.ItemID];
+                _inventorySlotProvider.SlotMap.SingleOrNone(x => x.Value == item.ItemID)
+                    .Map(x => x.Key)
+                    .MatchSome(x => _inventoryService.ClearSlots(slotsCopy, x, itemData.Size));
+            }
+
+            foreach (var item in inItems)
+            {
+                var itemData = _eifFileProvider.EIFFile[item.ItemID];
+                var itemFits = _inventoryService
+                    .GetNextOpenSlot(slotsCopy, itemData.Size, Option.None<int>())
+                    .Match(some: slot =>
+                    {
+                        _inventoryService.SetSlots(slotsCopy, slot, itemData.Size);
+                        return true;
+                    },
+                    none: () => false);
+                if (!itemFits)
+                    return false;
+            }
+
+            return true;
+        }
+
         private bool ItemFits(ItemSize itemSize)
         {
             return _inventoryService
@@ -52,6 +84,6 @@ namespace EndlessClient.HUD.Inventory
 
         bool ItemFits(int itemId);
 
-        // todo: need "ItemsFit" method for trading
+        bool ItemsFit(IReadOnlyList<InventoryItem> outItems, IReadOnlyList<InventoryItem> inItems);
     }
 }

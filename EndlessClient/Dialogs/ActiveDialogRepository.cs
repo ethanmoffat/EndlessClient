@@ -33,6 +33,8 @@ namespace EndlessClient.Dialogs
 
         Option<ScrollingListDialog> MessageDialog { get; }
 
+        Option<TradeDialog> TradeDialog { get; }
+
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs { get; }
     }
 
@@ -61,6 +63,8 @@ namespace EndlessClient.Dialogs
         Option<BardDialog> BardDialog { get; set; }
 
         Option<ScrollingListDialog> MessageDialog { get; set; }
+
+        Option<TradeDialog> TradeDialog { get; set; }
 
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs { get; }
     }
@@ -92,6 +96,8 @@ namespace EndlessClient.Dialogs
 
         public Option<ScrollingListDialog> MessageDialog { get; set; }
 
+        public Option<TradeDialog> TradeDialog { get; set; }
+
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs
         {
             get
@@ -110,6 +116,7 @@ namespace EndlessClient.Dialogs
                     SkillmasterDialog.Map(d => (IXNADialog)d),
                     BardDialog.Map(d => (IXNADialog)d),
                     MessageDialog.Map(d => (IXNADialog)d),
+                    TradeDialog.Map(d => (IXNADialog)d),
                 }.ToList();
             }
         }
@@ -135,6 +142,7 @@ namespace EndlessClient.Dialogs
             SkillmasterDialog = Option.None<SkillmasterDialog>();
             BardDialog = Option.None<BardDialog>();
             MessageDialog = Option.None<ScrollingListDialog>();
+            TradeDialog = Option.None<TradeDialog>();
         }
     }
 }

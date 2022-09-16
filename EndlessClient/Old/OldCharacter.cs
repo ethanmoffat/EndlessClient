@@ -179,8 +179,6 @@ namespace EndlessClient.Old
 
         public bool IsDrunk { get; set; }
 
-        private readonly PacketAPI m_packetAPI;
-
         public OldCharacter()
         {
             //mock all members with non-null fields
@@ -195,9 +193,8 @@ namespace EndlessClient.Old
             Name = PaddedGuildTag = GuildName = GuildRankStr = "";
         }
 
-        public OldCharacter(PacketAPI api, int id, CharRenderData data)
+        public OldCharacter(int id, CharRenderData data)
         {
-            m_packetAPI = api;
             ID = id;
             RenderData = data ?? new CharRenderData();
 
@@ -207,11 +204,9 @@ namespace EndlessClient.Old
         }
 
         //constructs a character from a packet sent from the server
-        public OldCharacter(PacketAPI api, CharacterData data)
+        public OldCharacter(CharacterData data)
         {
             //initialize lists
-            m_packetAPI = api;
-
             Inventory = new List<InventoryItem>();
             Spells = new List<InventorySpell>();
             PaperDoll = new short[(int)EquipLocation.PAPERDOLL_MAX];

@@ -7,6 +7,7 @@ using EndlessClient.Rendering.Character;
 using EndlessClient.Services;
 using EOLib.Domain.Interact;
 using EOLib.Domain.Party;
+using EOLib.Domain.Trade;
 using EOLib.Graphics;
 
 namespace EndlessClient.Rendering.Factories
@@ -18,6 +19,7 @@ namespace EndlessClient.Rendering.Factories
         private readonly IInGameDialogActions _inGameDialogActions;
         private readonly IPaperdollActions _paperdollActions;
         private readonly IPartyActions _partyActions;
+        private readonly ITradeActions _tradeActions;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IFriendIgnoreListService _friendIgnoreListService;
         private readonly IHudControlProvider _hudControlProvider;
@@ -29,6 +31,7 @@ namespace EndlessClient.Rendering.Factories
             IInGameDialogActions inGameDialogActions,
             IPaperdollActions paperdollActions,
             IPartyActions partyActions,
+            ITradeActions tradeActions,
             IStatusLabelSetter statusLabelSetter,
             IFriendIgnoreListService friendIgnoreListService,
             IHudControlProvider hudControlProvider,
@@ -40,6 +43,7 @@ namespace EndlessClient.Rendering.Factories
             _inGameDialogActions = inGameDialogActions;
             _paperdollActions = paperdollActions;
             _partyActions = partyActions;
+            _tradeActions = tradeActions;
             _statusLabelSetter = statusLabelSetter;
             _friendIgnoreListService = friendIgnoreListService;
             _hudControlProvider = hudControlProvider;
@@ -54,6 +58,7 @@ namespace EndlessClient.Rendering.Factories
                 _inGameDialogActions,
                 _paperdollActions,
                 _partyActions,
+                _tradeActions,
                 _statusLabelSetter,
                 _friendIgnoreListService,
                 _hudControlProvider,

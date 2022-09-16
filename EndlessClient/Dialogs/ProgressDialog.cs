@@ -28,11 +28,11 @@ namespace EndlessClient.Dialogs
                               IEODialogButtonService eoDialogButtonService,
                               string messageText,
                               string captionText)
-            : base(gameStateProvider)
+            : base(nativeGraphicsManager, gameStateProvider)
         {
             _configurationProvider = configurationProvider;
 
-            BackgroundTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 18);
+            BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 18);
 
             _messageLabel = new XNALabel(Constants.FontSize10)
             {
@@ -60,7 +60,7 @@ namespace EndlessClient.Dialogs
             _cancelButton.OnClick += DoCancel;
             _cancelButton.SetParentControl(this);
 
-            _pbBackgroundTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 19);
+            _pbBackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 19);
 
             _pbForegroundTexture = new Texture2D(Game.GraphicsDevice, 1, _pbBackgroundTexture.Height - 2); //foreground texture is just a fill
             var pbForeFill = new Color[_pbForegroundTexture.Width * _pbForegroundTexture.Height];

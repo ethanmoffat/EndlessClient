@@ -30,7 +30,7 @@ namespace EOLib.IO.Map
             Fill(defaultValue);
         } 
 
-        public Matrix(Matrix<T> other)
+        public Matrix(IReadOnlyMatrix<T> other)
             : this(new T[other.Rows, other.Cols])
         {
             for (int row = 0; row < other.Rows; ++row)

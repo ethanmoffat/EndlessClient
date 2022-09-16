@@ -10,8 +10,10 @@ using EndlessClient.Rendering.Map;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Interact;
+using EOLib.Domain.Interact.Bank;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
+using EOLib.Domain.Trade;
 using EOLib.IO;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
@@ -30,6 +32,8 @@ namespace EndlessClient.Controllers
         private readonly IPaperdollActions _paperdollActions;
         private readonly IChestActions _chestActions;
         private readonly ILockerActions _lockerActions;
+        private readonly IBankActions _bankActions;
+        private readonly ITradeActions _tradeActions;
         private readonly IItemEquipValidator _itemEquipValidator;
         private readonly IItemDropValidator _itemDropValidator;
         private readonly ICharacterProvider _characterProvider;
@@ -38,6 +42,7 @@ namespace EndlessClient.Controllers
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IEIFFileProvider _eifFileProvider;
         private readonly IActiveDialogProvider _activeDialogProvider;
+        private readonly ITradeProvider _tradeProvider;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IItemTransferDialogFactory _itemTransferDialogFactory;
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
@@ -47,6 +52,8 @@ namespace EndlessClient.Controllers
                                    IPaperdollActions paperdollActions,
                                    IChestActions chestActions,
                                    ILockerActions lockerActions,
+                                   IBankActions bankActions,
+                                   ITradeActions tradeActions,
                                    IItemEquipValidator itemEquipValidator,
                                    IItemDropValidator itemDropValidator,
                                    ICharacterProvider characterProvider,
@@ -55,6 +62,7 @@ namespace EndlessClient.Controllers
                                    ICurrentMapProvider currentMapProvider,
                                    IEIFFileProvider eifFileProvider,
                                    IActiveDialogProvider activeDialogProvider,
+                                   ITradeProvider tradeProvider,
                                    IStatusLabelSetter statusLabelSetter,
                                    IItemTransferDialogFactory itemTransferDialogFactory,
                                    IEOMessageBoxFactory eoMessageBoxFactory)
@@ -64,6 +72,8 @@ namespace EndlessClient.Controllers
             _paperdollActions = paperdollActions;
             _chestActions = chestActions;
             _lockerActions = lockerActions;
+            _bankActions = bankActions;
+            _tradeActions = tradeActions;
             _itemEquipValidator = itemEquipValidator;
             _itemDropValidator = itemDropValidator;
             _characterProvider = characterProvider;
@@ -72,6 +82,7 @@ namespace EndlessClient.Controllers
             _currentMapProvider = currentMapProvider;
             _eifFileProvider = eifFileProvider;
             _activeDialogProvider = activeDialogProvider;
+            _tradeProvider = tradeProvider;
             _statusLabelSetter = statusLabelSetter;
             _itemTransferDialogFactory = itemTransferDialogFactory;
             _eoMessageBoxFactory = eoMessageBoxFactory;
@@ -262,6 +273,23 @@ namespace EndlessClient.Controllers
             }
         }
 
+        public void DropItemInBank(EIFRecord itemData, InventoryItem inventoryItem)
+        {
+            if (inventoryItem.Amount == 0)
+            {
+                var dlg = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.BANK_ACCOUNT_UNABLE_TO_DEPOSIT);
+                dlg.ShowDialog();
+            }
+            else
+            {
+                DoItemDrop(itemData,
+                    inventoryItem,
+                    a => _bankActions.Deposit(a),
+                    ItemTransferDialog.TransferType.BankTransfer,
+                    EOResourceID.DIALOG_TRANSFER_DEPOSIT);
+            }
+        }
+
         public void JunkItem(EIFRecord itemData, InventoryItem inventoryItem)
         {
             if (inventoryItem.Amount > 1)
@@ -286,6 +314,29 @@ namespace EndlessClient.Controllers
             }
         }
 
+        public void TradeItem(EIFRecord itemData, InventoryItem inventoryItem)
+        {
+            var mainPlayerAgrees = _characterProvider.MainCharacter.ID == _tradeProvider.PlayerOneOffer.PlayerID
+                ? _tradeProvider.PlayerOneOffer.Agrees
+                : _tradeProvider.PlayerTwoOffer.Agrees;
+
+            if (mainPlayerAgrees)
+                return;
+
+            if (itemData.Special == ItemSpecial.Lore)
+            {
+                var dlg = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.ITEM_IS_LORE_ITEM);
+                dlg.ShowDialog();
+            }
+            else
+            {
+                DoItemDrop(itemData, inventoryItem,
+                    a => _tradeActions.AddItemToOffer(inventoryItem.ItemID, a),
+                    ItemTransferDialog.TransferType.TradeItems,
+                    EOResourceID.DIALOG_TRANSFER_OFFER);
+            }
+        }
+
         private void DoItemDrop(EIFRecord itemData, InventoryItem inventoryItem, Action<int> dropAction,
                                 ItemTransferDialog.TransferType transferType = ItemTransferDialog.TransferType.DropItems,
                                 EOResourceID message = EOResourceID.DIALOG_TRANSFER_DROP)
@@ -301,7 +352,7 @@ namespace EndlessClient.Controllers
                 {
                     if (e.Result == XNADialogResult.OK)
                     {
-                        if (inventoryItem.ItemID == 1 && transferDialog.SelectedAmount > 10000)
+                        if (inventoryItem.ItemID == 1 && transferDialog.SelectedAmount > 10000 && transferType == ItemTransferDialog.TransferType.DropItems)
                         {
                             var warningMsg = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.DROP_MANY_GOLD_ON_GROUND, EODialogButtons.OkCancel);
                             warningMsg.DialogClosing += (_, warningArgs) =>
@@ -342,6 +393,10 @@ namespace EndlessClient.Controllers
 
         void DropItemInLocker(EIFRecord itemData, InventoryItem inventoryItem);
 
+        void DropItemInBank(EIFRecord itemData, InventoryItem inventoryItem);
+
         void JunkItem(EIFRecord itemData, InventoryItem inventoryItem);
+
+        void TradeItem(EIFRecord itemData, InventoryItem inventoryItem);
     }
 }

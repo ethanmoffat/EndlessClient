@@ -139,6 +139,9 @@ namespace EndlessClient.Dialogs
 
         private void Deposit(object sender, EventArgs e)
         {
+            if (!_inventoryPanel.NoItemsDragging())
+                return;
+
             _characterInventoryProvider.ItemInventory.SingleOrNone(x => x.ItemID == 1)
                 .Match(
                     some: characterGold =>
@@ -176,6 +179,9 @@ namespace EndlessClient.Dialogs
 
         private void Withdraw(object sender, EventArgs e)
         {
+            if (!_inventoryPanel.NoItemsDragging())
+                return;
+
             if (_bankDataProvider.AccountValue == 0)
             {
                 var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.BANK_ACCOUNT_UNABLE_TO_WITHDRAW);
@@ -201,6 +207,9 @@ namespace EndlessClient.Dialogs
 
         private void Upgrade(object sender, EventArgs e)
         {
+            if (!_inventoryPanel.NoItemsDragging())
+                return;
+
             _bankDataProvider.LockerUpgrades.MatchSome(lockerUpgrades =>
             {
                 if (lockerUpgrades == Constants.MaxLockerUpgrades)

@@ -29,6 +29,7 @@ namespace EndlessClient.Dialogs.Actions
         private readonly ISkillmasterDialogFactory _skillmasterDialogFactory;
         private readonly IBardDialogFactory _bardDialogFactory;
         private readonly IScrollingListDialogFactory _scrollingListDialogFactory;
+        private readonly ITradeDialogFactory _tradeDialogFactory;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IShopDialogFactory _shopDialogFactory;
         private readonly IQuestDialogFactory _questDialogFactory;
@@ -49,6 +50,7 @@ namespace EndlessClient.Dialogs.Actions
                                    ISkillmasterDialogFactory skillmasterDialogFactory,
                                    IBardDialogFactory bardDialogFactory,
                                    IScrollingListDialogFactory scrollingListDialogFactory,
+                                   ITradeDialogFactory tradeDialogFactory,
                                    ISfxPlayer sfxPlayer)
         {
             _friendIgnoreListDialogFactory = friendIgnoreListDialogFactory;
@@ -65,6 +67,7 @@ namespace EndlessClient.Dialogs.Actions
             _skillmasterDialogFactory = skillmasterDialogFactory;
             _bardDialogFactory = bardDialogFactory;
             _scrollingListDialogFactory = scrollingListDialogFactory;
+            _tradeDialogFactory = tradeDialogFactory;
             _sfxPlayer = sfxPlayer;
             _shopDialogFactory = shopDialogFactory;
             _questDialogFactory = questDialogFactory;
@@ -281,6 +284,25 @@ namespace EndlessClient.Dialogs.Actions
             });
         }
 
+        public void ShowTradeDialog()
+        {
+            _activeDialogRepository.TradeDialog.MatchNone(() =>
+            {
+                var dlg = _tradeDialogFactory.Create();
+                dlg.DialogClosed += (_, _) => _activeDialogRepository.TradeDialog = Option.None<TradeDialog>();
+                _activeDialogRepository.TradeDialog = Option.Some(dlg);
+
+                UseDefaultDialogSounds(dlg);
+
+                dlg.Show();
+            });
+        }
+
+        public void CloseTradeDialog()
+        {
+            _activeDialogRepository.TradeDialog.MatchSome(dlg => dlg.Close());
+        }
+
         private void UseDefaultDialogSounds(ScrollingListDialog dialog)
         {
             UseDefaultDialogSounds((BaseEODialog)dialog);
@@ -334,5 +356,9 @@ namespace EndlessClient.Dialogs.Actions
         void ShowBardDialog();
 
         void ShowMessageDialog(string title, IReadOnlyList<string> messages);
+
+        void ShowTradeDialog();
+
+        void CloseTradeDialog();
     }
 }
