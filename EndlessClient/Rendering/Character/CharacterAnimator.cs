@@ -28,6 +28,7 @@ namespace EndlessClient.Rendering.Character
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly ISpellSlotDataRepository _spellSlotDataRepository;
+        private readonly IUserInputRepository _userInputRepository;
         private readonly ICharacterActions _characterActions;
         private readonly IWalkValidationActions _walkValidationActions;
         private readonly IPathFinder _pathFinder;
@@ -46,11 +47,14 @@ namespace EndlessClient.Rendering.Character
         private Queue<MapCoordinate> _walkPath;
         private Option<MapCoordinate> _targetCoordinate;
 
+        private bool _clickHandled;
+
         public CharacterAnimator(IEndlessGameProvider gameProvider,
                                  ICharacterRepository characterRepository,
                                  ICurrentMapStateRepository currentMapStateRepository,
                                  ICurrentMapProvider currentMapProvider,
                                  ISpellSlotDataRepository spellSlotDataRepository,
+                                 IUserInputRepository userInputRepository,
                                  ICharacterActions characterActions,
                                  IWalkValidationActions walkValidationActions,
                                  IPathFinder pathFinder)
@@ -60,6 +64,7 @@ namespace EndlessClient.Rendering.Character
             _currentMapStateRepository = currentMapStateRepository;
             _currentMapProvider = currentMapProvider;
             _spellSlotDataRepository = spellSlotDataRepository;
+            _userInputRepository = userInputRepository;
             _characterActions = characterActions;
             _walkValidationActions = walkValidationActions;
             _pathFinder = pathFinder;
@@ -75,6 +80,9 @@ namespace EndlessClient.Rendering.Character
 
         public override void Update(GameTime gameTime)
         {
+            if (_userInputRepository.ClickHandled && !_userInputRepository.WalkClickHandled && _walkPath.Any())
+                _clickHandled = true;
+
             AnimateCharacterWalking();
             AnimateCharacterAttacking();
             AnimateCharacterSpells();
@@ -175,7 +183,7 @@ namespace EndlessClient.Rendering.Character
 
         public void StartOtherCharacterWalkAnimation(int characterID, byte destinationX, byte destinationY, EODirection direction)
         {
-            if (_otherPlayerStartWalkingTimes.TryGetValue(characterID, out var _))
+            if (_otherPlayerStartWalkingTimes.ContainsKey(characterID))
             {
                 _otherPlayerStartWalkingTimes[characterID].Replay = true;
                 _queuedDirections[characterID] = direction;
@@ -189,7 +197,7 @@ namespace EndlessClient.Rendering.Character
 
         public void StartOtherCharacterAttackAnimation(int characterID)
         {
-            if (_otherPlayerStartAttackingTimes.TryGetValue(characterID, out var _))
+            if (_otherPlayerStartAttackingTimes.ContainsKey(characterID))
             {
                 _otherPlayerStartAttackingTimes[characterID].Replay = true;
                 return;
@@ -205,7 +213,7 @@ namespace EndlessClient.Rendering.Character
                 _otherPlayerStartAttackingTimes.ContainsKey(characterID))
                 return;
 
-            if (_otherPlayerStartSpellCastTimes.TryGetValue(characterID, out var _))
+            if (_otherPlayerStartSpellCastTimes.ContainsKey(characterID))
             {
                 ResetCharacterAnimationFrames(characterID);
                 _otherPlayerStartSpellCastTimes.Remove(characterID);
@@ -303,7 +311,7 @@ namespace EndlessClient.Rendering.Character
                                         playersDoneWalking.Add(pair.UniqueID);
                                     }
                                 }
-                                else if (isMainCharacter && _walkPath.Any())
+                                else if (isMainCharacter && _walkPath.Any() && !_clickHandled)
                                 {
                                     var characterCoord = new MapCoordinate(nextFrameRenderProperties.MapX, nextFrameRenderProperties.MapY);
 
@@ -341,6 +349,8 @@ namespace EndlessClient.Rendering.Character
 
                                     playersDoneWalking.Add(pair.UniqueID);
                                 }
+
+                                _clickHandled = false;
                             }
 
                             var nextFrameCharacter = currentCharacter.WithRenderProperties(nextFrameRenderProperties);

@@ -445,7 +445,7 @@ namespace EndlessClient.HUD.Controls
 
         private ICharacterAnimator CreateCharacterAnimator()
         {
-            return new CharacterAnimator(_endlessGameProvider, _characterRepository, _currentMapStateRepository, _currentMapProvider, _spellSlotDataRepository, _characterActions, _walkValidationActions, _pathFinder);
+            return new CharacterAnimator(_endlessGameProvider, _characterRepository, _currentMapStateRepository, _currentMapProvider, _spellSlotDataRepository, _userInputRepository, _characterActions, _walkValidationActions, _pathFinder);
         }
 
         private INPCAnimator CreateNPCAnimator()

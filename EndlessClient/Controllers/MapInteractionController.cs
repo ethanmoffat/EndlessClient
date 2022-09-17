@@ -159,7 +159,7 @@ namespace EndlessClient.Controllers
             }
             else if (cellState.InBounds && !cellState.Character.HasValue && !cellState.NPC.HasValue
                 && _walkValidationActions.IsCellStateWalkable(cellState)
-                && _characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Standing)
+                && !_characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Attacking)
                 && !_spellSlotDataRepository.SelectedSpellSlot.HasValue)
             {
                 mouseRenderer.MatchSome(r => r.AnimateClick());
@@ -167,6 +167,7 @@ namespace EndlessClient.Controllers
                     .StartMainCharacterWalkAnimation(Option.Some(cellState.Coordinate));
 
                 _userInputRepository.ClickHandled = true;
+                _userInputRepository.WalkClickHandled = true;
             }
 
             cellState.Warp.MatchSome(w =>
@@ -224,6 +225,8 @@ namespace EndlessClient.Controllers
                 _paperdollActions.RequestPaperdoll(_characterProvider.MainCharacter.ID);
                 _inGameDialogActions.ShowPaperdollDialog(_characterProvider.MainCharacter, isMainCharacter: true);
                 _userInputTimeRepository.LastInputTime = DateTime.Now;
+
+                _userInputRepository.ClickHandled = true;
             }
             else if (_characterRendererProvider.CharacterRenderers.ContainsKey(character.ID))
             {
@@ -235,6 +238,8 @@ namespace EndlessClient.Controllers
                     },
                     none: () => Option.Some(_contextMenuRendererFactory.CreateContextMenuRenderer(_characterRendererProvider.CharacterRenderers[character.ID])));
                 _contextMenuRepository.ContextMenu.MatchSome(r => r.Initialize());
+
+                _userInputRepository.ClickHandled = true;
             }
         }
 
