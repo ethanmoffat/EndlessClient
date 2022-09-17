@@ -35,6 +35,8 @@ namespace EndlessClient.Dialogs
 
         Option<TradeDialog> TradeDialog { get; }
 
+        Option<EOMessageBox> MessageBox { get; }
+
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs { get; }
     }
 
@@ -65,6 +67,8 @@ namespace EndlessClient.Dialogs
         Option<ScrollingListDialog> MessageDialog { get; set; }
 
         Option<TradeDialog> TradeDialog { get; set; }
+
+        Option<EOMessageBox> MessageBox { get; set; }
 
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs { get; }
     }
@@ -98,6 +102,8 @@ namespace EndlessClient.Dialogs
 
         public Option<TradeDialog> TradeDialog { get; set; }
 
+        public Option<EOMessageBox> MessageBox { get; set; }
+
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs
         {
             get
@@ -117,6 +123,7 @@ namespace EndlessClient.Dialogs
                     BardDialog.Map(d => (IXNADialog)d),
                     MessageDialog.Map(d => (IXNADialog)d),
                     TradeDialog.Map(d => (IXNADialog)d),
+                    MessageBox.Map(d => (IXNADialog)d),
                 }.ToList();
             }
         }
@@ -143,6 +150,7 @@ namespace EndlessClient.Dialogs
             BardDialog = Option.None<BardDialog>();
             MessageDialog = Option.None<ScrollingListDialog>();
             TradeDialog = Option.None<TradeDialog>();
+            MessageBox = Option.None<EOMessageBox>();
         }
     }
 }

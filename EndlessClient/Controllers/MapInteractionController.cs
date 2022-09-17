@@ -159,7 +159,8 @@ namespace EndlessClient.Controllers
             }
             else if (cellState.InBounds && !cellState.Character.HasValue && !cellState.NPC.HasValue
                 && _walkValidationActions.IsCellStateWalkable(cellState)
-                && _characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Standing))
+                && _characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Standing)
+                && !_spellSlotDataRepository.SelectedSpellSlot.HasValue)
             {
                 mouseRenderer.MatchSome(r => r.AnimateClick());
                 _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator)
@@ -181,6 +182,8 @@ namespace EndlessClient.Controllers
                         _userInputRepository.ClickHandled = true;
                     });
             });
+
+            _spellSlotDataRepository.SelectedSpellSlot = Option.None<int>();
 
             _userInputTimeRepository.LastInputTime = DateTime.Now;
         }

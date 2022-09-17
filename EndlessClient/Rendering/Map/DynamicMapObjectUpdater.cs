@@ -1,6 +1,7 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Controllers;
+using EndlessClient.HUD.Spells;
 using EndlessClient.Input;
 using EndlessClient.Rendering.Character;
 using EOLib.Config;
@@ -36,6 +37,7 @@ namespace EndlessClient.Rendering.Map
         private readonly IMapObjectBoundsCalculator _mapObjectBoundsCalculator;
         private readonly IMapInteractionController _mapInteractionController;
         private readonly IConfigurationProvider _configurationProvider;
+        private readonly ISpellSlotDataRepository _spellSlotDataRepository;
         private readonly ISfxPlayer _sfxPlayer;
 
         private readonly List<DoorTimePair> _cachedDoorState;
@@ -50,6 +52,7 @@ namespace EndlessClient.Rendering.Map
                                        IMapObjectBoundsCalculator mapObjectBoundsCalculator,
                                        IMapInteractionController mapInteractionController,
                                        IConfigurationProvider configurationProvider,
+                                       ISpellSlotDataRepository spellSlotDataRepository,
                                        ISfxPlayer sfxPlayer)
         {
             _characterProvider = characterProvider;
@@ -60,6 +63,7 @@ namespace EndlessClient.Rendering.Map
             _mapObjectBoundsCalculator = mapObjectBoundsCalculator;
             _mapInteractionController = mapInteractionController;
             _configurationProvider = configurationProvider;
+            _spellSlotDataRepository = spellSlotDataRepository;
             _sfxPlayer = sfxPlayer;
 
             _cachedDoorState = new List<DoorTimePair>();
@@ -180,6 +184,9 @@ namespace EndlessClient.Rendering.Map
                 }
 
                 // todo: check for board object clicks
+
+                if (_userInputRepository.ClickHandled)
+                    _spellSlotDataRepository.SelectedSpellSlot = Option.None<int>();
             }
         }
 

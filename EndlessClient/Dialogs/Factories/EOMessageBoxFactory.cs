@@ -4,6 +4,7 @@ using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
 using EOLib.Graphics;
 using EOLib.Localization;
+using Optional;
 using XNAControls;
 
 namespace EndlessClient.Dialogs.Factories
@@ -15,18 +16,21 @@ namespace EndlessClient.Dialogs.Factories
         private readonly IGameStateProvider _gameStateProvider;
         private readonly IEODialogButtonService _eoDialogButtonService;
         private readonly ILocalizedStringFinder _localizedStringFinder;
+        private readonly IActiveDialogRepository _activeDialogRepository;
         private readonly ISfxPlayer _sfxPlayer;
 
         public EOMessageBoxFactory(INativeGraphicsManager nativeGraphicsManager,
                                    IGameStateProvider gameStateProvider,
                                    IEODialogButtonService eoDialogButtonService,
                                    ILocalizedStringFinder localizedStringFinder,
+                                   IActiveDialogRepository activeDialogRepository,
                                    ISfxPlayer sfxPlayer)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _gameStateProvider = gameStateProvider;
             _eoDialogButtonService = eoDialogButtonService;
             _localizedStringFinder = localizedStringFinder;
+            _activeDialogRepository = activeDialogRepository;
             _sfxPlayer = sfxPlayer;
         }
 
@@ -35,6 +39,7 @@ namespace EndlessClient.Dialogs.Factories
                                            EODialogButtons whichButtons = EODialogButtons.Ok,
                                            EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader)
         {
+
             var messageBox = new EOMessageBox(_nativeGraphicsManager,
                                               _gameStateProvider,
                                               _eoDialogButtonService,
@@ -43,6 +48,9 @@ namespace EndlessClient.Dialogs.Factories
                                               style,
                                               whichButtons);
             messageBox.DialogClosing += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
+            messageBox.DialogClosed += (_, _) => _activeDialogRepository.MessageBox = Option.None<EOMessageBox>();
+
+            _activeDialogRepository.MessageBox = Option.Some(messageBox);
 
             return messageBox;
         }
