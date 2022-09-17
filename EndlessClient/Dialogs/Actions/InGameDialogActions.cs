@@ -266,10 +266,10 @@ namespace EndlessClient.Dialogs.Actions
                 dlg.Buttons = ScrollingListDialogButtons.Cancel;
                 dlg.Title = title;
 
-                var _75spaces = new string(Enumerable.Repeat(' ', 75).ToArray());
+                var _68spaces = new string(Enumerable.Repeat(' ', 68).ToArray());
                 var items = messages
-                    // BU hack - assume that 75 spaces or more indicates an extra line break
-                    .Select(x => x.Replace(_75spaces, "   \n"))
+                    // BU hack - assume that 68 spaces or more indicates an extra line break
+                    .Select(x => x.Replace(_68spaces, "   \n"))
                     // BU hack - assume that 3 spaces or more indicates extra padding and should split the message into multiple lines
                     .SelectMany(x => x.Split("   ", StringSplitOptions.RemoveEmptyEntries))
                     .Select(x => new ListDialogItem(dlg, ListDialogItem.ListItemStyle.Small) { PrimaryText = x == "\n" ? string.Empty : x.Trim() }).ToList();
