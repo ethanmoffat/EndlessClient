@@ -289,20 +289,36 @@ namespace EndlessClient.Rendering.Character
                             if (nextFrameRenderProperties.IsActing(CharacterActionState.Standing))
                             {
                                 var isMainCharacter = currentCharacter == _characterRepository.MainCharacter;
+                                var canMoveToDestinationCoordinates = _walkValidationActions.CanMoveToCoordinates(nextFrameRenderProperties.GetDestinationX(), nextFrameRenderProperties.GetDestinationY());
 
                                 if (pair.Replay)
                                 {
-                                    if (!isMainCharacter || (isMainCharacter && _walkValidationActions.CanMoveToCoordinates(nextFrameRenderProperties.GetDestinationX(), nextFrameRenderProperties.GetDestinationY())))
+                                    if (!isMainCharacter || (isMainCharacter && canMoveToDestinationCoordinates))
                                     {
                                         // send the walk packet after the game state has been updated so the correct coordinates are sent
                                         sendWalk = isMainCharacter;
-                                        nextFrameRenderProperties = AnimateOneWalkFrame(nextFrameRenderProperties.ResetAnimationFrames());
+                                        var extraFrameProps = AnimateOneWalkFrame(nextFrameRenderProperties.ResetAnimationFrames());
                                         pair.Replay = false;
 
                                         if (_queuedDirections.ContainsKey(pair.UniqueID))
                                         {
-                                            nextFrameRenderProperties = nextFrameRenderProperties.WithDirection(_queuedDirections[pair.UniqueID]);
+                                            extraFrameProps = extraFrameProps.WithDirection(_queuedDirections[pair.UniqueID]);
                                             _queuedDirections.Remove(pair.UniqueID);
+
+                                            canMoveToDestinationCoordinates = _walkValidationActions.CanMoveToCoordinates(extraFrameProps.GetDestinationX(), extraFrameProps.GetDestinationY());
+                                            if (!canMoveToDestinationCoordinates)
+                                            {
+                                                playersDoneWalking.Add(pair.UniqueID);
+                                                sendWalk = false;
+                                            }
+                                            else
+                                            {
+                                                nextFrameRenderProperties = extraFrameProps;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            nextFrameRenderProperties = extraFrameProps;
                                         }
                                     }
                                     else
