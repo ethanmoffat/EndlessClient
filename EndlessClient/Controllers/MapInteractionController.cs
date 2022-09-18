@@ -129,7 +129,7 @@ namespace EndlessClient.Controllers
             }
             else if (InteractableTileSpec(cellState.TileSpec) && CharacterIsCloseEnough(cellState.Coordinate))
             {
-                var unwalkableActions = _unwalkableTileActions.HandleUnwalkableTile(cellState);
+                var unwalkableActions = _unwalkableTileActions.GetUnwalkableTileActions(cellState);
 
                 foreach (var unwalkableAction in unwalkableActions)
                 {
@@ -175,7 +175,7 @@ namespace EndlessClient.Controllers
                 w.SomeWhen(d => d.DoorType != DoorSpec.NoDoor)
                     .MatchSome(d =>
                     {
-                        if (_unwalkableTileActions.HandleUnwalkableTile(cellState).Any(x => x == UnwalkableTileAction.Door))
+                        if (_unwalkableTileActions.GetUnwalkableTileActions(cellState).Any(x => x == UnwalkableTileAction.Door))
                         {
                             _mapActions.OpenDoor(d);
                         }

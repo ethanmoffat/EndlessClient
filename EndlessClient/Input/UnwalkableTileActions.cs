@@ -17,6 +17,7 @@ namespace EndlessClient.Input
         Chest,
         Door,
         Locker,
+        Character,
     }
 
     [AutoMappedType]
@@ -50,21 +51,21 @@ namespace EndlessClient.Input
             _messageBoxFactory = messageBoxFactory;
         }
 
-        public (IReadOnlyList<UnwalkableTileAction>, IMapCellState) HandleUnwalkableTile()
+        public (IReadOnlyList<UnwalkableTileAction>, IMapCellState) GetUnwalkableTileActions()
         {
             var destX = MainCharacter.RenderProperties.GetDestinationX();
             var destY = MainCharacter.RenderProperties.GetDestinationY();
-            return HandleUnwalkableTile(destX, destY);
+            return GetUnwalkableTileActions(destX, destY);
         }
 
-        public (IReadOnlyList<UnwalkableTileAction>, IMapCellState) HandleUnwalkableTile(int x, int y)
+        public (IReadOnlyList<UnwalkableTileAction>, IMapCellState) GetUnwalkableTileActions(int x, int y)
         {
             var cellState = _mapCellStateProvider.GetCellStateAt(x, y);
-            var action = HandleUnwalkableTile(cellState);
+            var action = GetUnwalkableTileActions(cellState);
             return (action, cellState);
         }
 
-        public IReadOnlyList<UnwalkableTileAction> HandleUnwalkableTile(IMapCellState cellState)
+        public IReadOnlyList<UnwalkableTileAction> GetUnwalkableTileActions(IMapCellState cellState)
         {
             if (MainCharacter.RenderProperties.SitState != SitState.Standing)
                 return new[] { UnwalkableTileAction.None };
@@ -78,6 +79,7 @@ namespace EndlessClient.Input
 
         private UnwalkableTileAction HandleWalkThroughOtherCharacter(Character c)
         {
+            // todo: caller handles this
             //        EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION,
             //            EOResourceID.STATUS_LABEL_KEEP_MOVING_THROUGH_PLAYER);
             //        if (_startWalkingThroughPlayerTime == null)
@@ -87,7 +89,7 @@ namespace EndlessClient.Input
             //            _startWalkingThroughPlayerTime = null;
             //            goto case TileInfoReturnType.IsTileSpec;
             //        }
-            return UnwalkableTileAction.None;
+            return UnwalkableTileAction.Character;
         }
 
         private UnwalkableTileAction HandleWalkToWarpTile(Warp warp)
@@ -177,10 +179,10 @@ namespace EndlessClient.Input
 
     public interface IUnwalkableTileActions
     {
-        (IReadOnlyList<UnwalkableTileAction>, IMapCellState) HandleUnwalkableTile();
+        (IReadOnlyList<UnwalkableTileAction>, IMapCellState) GetUnwalkableTileActions();
 
-        (IReadOnlyList<UnwalkableTileAction>, IMapCellState) HandleUnwalkableTile(int x, int y);
+        (IReadOnlyList<UnwalkableTileAction>, IMapCellState) GetUnwalkableTileActions(int x, int y);
 
-        IReadOnlyList<UnwalkableTileAction> HandleUnwalkableTile(IMapCellState mapCellState);
+        IReadOnlyList<UnwalkableTileAction> GetUnwalkableTileActions(IMapCellState mapCellState);
     }
 }
