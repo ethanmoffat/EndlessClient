@@ -19,6 +19,7 @@ using Microsoft.Xna.Framework.Input;
 using Optional;
 using System;
 using System.Linq;
+using System.Windows.Markup;
 using XNAControls;
 
 namespace EndlessClient.Rendering.NPC
@@ -48,7 +49,7 @@ namespace EndlessClient.Rendering.NPC
 
         private DateTime _lastStandingAnimation;
         private int _fadeAwayAlpha;
-        private bool _isDying;
+        private bool _isDying, _isBlankSprite;
 
         private XNALabel _nameLabel;
         private IChatBubble _chatBubble;
@@ -123,7 +124,7 @@ namespace EndlessClient.Rendering.NPC
 
             _nameLabel = new XNALabel(Constants.FontSize08pt5)
             {
-                Visible = true,
+                Visible = false,
                 TextWidth = 89,
                 TextAlign = LabelAlignment.MiddleCenter,
                 ForeColor = Color.White,
@@ -150,18 +151,37 @@ namespace EndlessClient.Rendering.NPC
             UpdateStandingFrameAnimation();
             UpdateDeadState();
 
-            _nameLabel.Visible = DrawArea.Contains(_userInputProvider.CurrentMouseState.Position) && !_healthBarRenderer.Visible && !_isDying;
-            _nameLabel.DrawPosition = GetNameLabelPosition();
-
-            if (DrawArea.Contains(_userInputProvider.CurrentMouseState.Position) &&
-                _userInputProvider.CurrentMouseState.LeftButton == ButtonState.Released &&
-                _userInputProvider.PreviousMouseState.LeftButton == ButtonState.Pressed &&
-                !_userInputProvider.ClickHandled)
+            var currentMousePosition = _userInputProvider.CurrentMouseState.Position;
+            if (DrawArea.Contains(currentMousePosition))
             {
-                if (_spellSlotDataProvider.SpellIsPrepared)
-                    _mapInteractionController.LeftClick(NPC);
-                else
-                    _npcInteractionController.ShowNPCDialog(NPC);
+                var colorData = new Color[1];
+                var textureCoord = (currentMousePosition - DrawArea.Location);
+                _npcSpriteSheet.GetNPCTexture(_enfFileProvider.ENFFile[NPC.ID].Graphic, NPC.Frame, NPC.Direction)
+                    .GetData(0, new Rectangle(textureCoord.X, textureCoord.Y, 1, 1), colorData, 0, 1);
+
+                _nameLabel.Visible = DrawArea.Contains(currentMousePosition) && !_healthBarRenderer.Visible && !_isDying && (_isBlankSprite || colorData[0].A > 0);
+                _nameLabel.DrawPosition = GetNameLabelPosition();
+
+                if (!_userInputProvider.ClickHandled &&
+                    _userInputProvider.CurrentMouseState.LeftButton == ButtonState.Released &&
+                    _userInputProvider.PreviousMouseState.LeftButton == ButtonState.Pressed)
+                {
+                    if (_spellSlotDataProvider.SpellIsPrepared)
+                    {
+                        _mapInteractionController.LeftClick(NPC);
+                    }
+                    else
+                    {
+                        if (_isBlankSprite || colorData[0].A > 0)
+                        {
+                            _npcInteractionController.ShowNPCDialog(NPC);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                _nameLabel.Visible = false;
             }
 
             _effectRenderer.Update();
@@ -244,7 +264,7 @@ namespace EndlessClient.Rendering.NPC
             int i = 0;
             while (i < frameData.Length && frameData[i].A == 0) i++;
 
-            return i == frameData.Length - 1 ? 0 : i / frameTexture.Height;
+            return (_isBlankSprite = i == frameData.Length) ? 0 : i / frameTexture.Height;
         }
 
         private int GetBottomPixel()
@@ -254,11 +274,10 @@ namespace EndlessClient.Rendering.NPC
             var frameData = new Color[frameTexture.Width * frameTexture.Height];
             frameTexture.GetData(frameData);
 
-
             int i = frameData.Length - 1;
-            while (i >= 0 && frameData[i].A != 0) i--;
+            while (i >= 0 && frameData[i].A == 0) i--;
 
-            return i == frameData.Length - 1 ? frameTexture.Height : i / frameTexture.Height;
+            return (_isBlankSprite = i < 0) ? frameTexture.Height : i / frameTexture.Height;
         }
 
         private bool GetHasStandingAnimation()
