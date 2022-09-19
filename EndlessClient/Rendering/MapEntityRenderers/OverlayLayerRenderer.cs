@@ -15,7 +15,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         public override MapRenderLayer RenderLayer => MapRenderLayer.Overlay;
 
-        protected override int RenderDistance => 10;
+        protected override int RenderDistance => 14;
 
         public OverlayLayerRenderer(INativeGraphicsManager nativeGraphicsManager,
                                     ICurrentMapProvider currentMapProvider,
