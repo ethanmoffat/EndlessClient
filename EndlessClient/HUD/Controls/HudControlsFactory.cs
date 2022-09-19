@@ -324,7 +324,8 @@ namespace EndlessClient.HUD.Controls
             }
 
             //news is visible by default when loading the game if news text is set
-            retPanel.Visible = (_newsProvider.NewsText.Any() && whichState == InGameStates.News) || whichState == InGameStates.Chat;
+            retPanel.Visible = (_newsProvider.NewsText.Any() && whichState == InGameStates.News) ||
+                               (!_newsProvider.NewsText.Any() && whichState == InGameStates.Chat);
 
             return retPanel;
         }
