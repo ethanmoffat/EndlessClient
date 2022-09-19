@@ -33,6 +33,10 @@ On Linux, the `ttf-mscorefonts-installer` package is required. Consult your dist
 
 See [releases](https://github.com/ethanmoffat/EndlessClient/releases) on GitHub for Linux and Windows binaries. .Net 6.0 runtime must be installed.
 
+### How to play
+
+Download the appropriate [release](https://github.com/ethanmoffat/EndlessClient/releases) for your platform, then copy the data directories (data, gfx, jbox, mfx, sfx) from whichever client you normally use to EndlessClient's unzip location. Run EndlessClient by double-clicking the icon (any platform) or running `./EndlessClient` (Linux).
+
 ### Building from source
 
 After installing, clone (or fork+clone) this repository locally and open the solution in your IDE of choice for your platform.
@@ -63,11 +67,11 @@ Here's a working list of things I want to add that would be additional features 
 
  **--version <version>** Overrides the version set in the config file or hard-coded into the client. Convenient for connecting to different servers that might require different version numbers.
 
- **--clonecompat** Enables Main Clone compatibility mode. This allows using Main Clone GFX files that are packaged with the v0.0.29 that Sausage and friends put together. Specifically, it uses a BitmapV3InfoHeader and culture code 1033 when loading GFX.
+ **--account_delay_ms <value>** Sets the delay when creating an account. Some servers enforce a specific limit. Defaults to 2 seconds if unset.
 
 #### Version Numbers
 
-For easily switching servers, there's a version number config setting so it isn't limited to the hard-coded value build into the client by default.
+For easily switching servers, there's a version number config setting so it isn't limited to the hard-coded value build into the client by default. This can be set by server operators, or you can use the `--version` command line argument.
 
 #### Map Transitions
 
