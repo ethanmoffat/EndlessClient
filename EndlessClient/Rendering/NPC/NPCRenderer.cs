@@ -41,7 +41,6 @@ namespace EndlessClient.Rendering.NPC
         private readonly IUserInputProvider _userInputProvider;
         private readonly ISpellSlotDataProvider _spellSlotDataProvider;
         private readonly ISfxPlayer _sfxPlayer;
-        private readonly Rectangle _baseTextureFrameRectangle;
         private readonly int _readonlyTopPixel, _readonlyBottomPixel;
         private readonly bool _hasStandingAnimation;
         private readonly IEffectRenderer _effectRenderer;
@@ -106,7 +105,7 @@ namespace EndlessClient.Rendering.NPC
             _spellSlotDataProvider = spellSlotDataProvider;
             _sfxPlayer = sfxPlayer;
 
-            _baseTextureFrameRectangle = GetStandingFrameRectangle();
+            DrawArea = GetStandingFrameRectangle();
             _readonlyTopPixel = GetTopPixel();
             _readonlyBottomPixel = GetBottomPixel();
 
@@ -151,15 +150,15 @@ namespace EndlessClient.Rendering.NPC
             UpdateStandingFrameAnimation();
             UpdateDeadState();
 
-            var currentMousePosition = _userInputProvider.CurrentMouseState.Position;
-            if (DrawArea.Contains(currentMousePosition))
+            var currentMousePosition = _userInputProvider.CurrentMouseState.Position - DrawArea.Location;
+            var currentFrame = _npcSpriteSheet.GetNPCTexture(_enfFileProvider.ENFFile[NPC.ID].Graphic, NPC.Frame, NPC.Direction);
+
+            if (currentFrame.Bounds.Contains(currentMousePosition))
             {
                 var colorData = new Color[1];
-                var textureCoord = (currentMousePosition - DrawArea.Location);
-                _npcSpriteSheet.GetNPCTexture(_enfFileProvider.ENFFile[NPC.ID].Graphic, NPC.Frame, NPC.Direction)
-                    .GetData(0, new Rectangle(textureCoord.X, textureCoord.Y, 1, 1), colorData, 0, 1);
+                currentFrame.GetData(0, new Rectangle(currentMousePosition.X, currentMousePosition.Y, 1, 1), colorData, 0, 1);
 
-                _nameLabel.Visible = DrawArea.Contains(currentMousePosition) && !_healthBarRenderer.Visible && !_isDying && (_isBlankSprite || colorData[0].A > 0);
+                _nameLabel.Visible = !_healthBarRenderer.Visible && !_isDying && (_isBlankSprite || colorData[0].A > 0);
                 _nameLabel.DrawPosition = GetNameLabelPosition();
 
                 if (!_userInputProvider.ClickHandled &&
@@ -302,18 +301,21 @@ namespace EndlessClient.Rendering.NPC
                     var mainOffsetX = _renderOffsetCalculator.CalculateOffsetX(mainRenderer.Character.RenderProperties);
                     var mainOffsetY = _renderOffsetCalculator.CalculateOffsetY(mainRenderer.Character.RenderProperties);
 
+                    var data = _enfFileProvider.ENFFile[NPC.ID];
+                    var frameTexture = _npcSpriteSheet.GetNPCTexture(data.Graphic, NPCFrame.StandingFrame1, NPC.Direction);
+
                     // Some NPCs have an off-center sprite that needs to be divided by 3 (normal sprites are centered properly)
                     // If e.g. Apozen is facing Down or Left it needs to be offset by 2/3 the sprite width instead of 1/3 the sprite width
                     var widthFactor = _npcsThatAreNotCentered.Contains(NPC.ID)
                         ? NPC.IsFacing(EODirection.Down, EODirection.Left)
-                            ? (_baseTextureFrameRectangle.Width * 2) / 3
-                            : _baseTextureFrameRectangle.Width / 3
-                        : _baseTextureFrameRectangle.Width / 2;
+                            ? (frameTexture.Width * 2) / 3
+                            : frameTexture.Width / 3
+                        : frameTexture.Width / 2;
 
                     // y coordinate Formula courtesy of Apollo
                     var xCoord = offsetX + 320 - mainOffsetX - widthFactor;
-                    var yCoord = (Math.Min(41, _baseTextureFrameRectangle.Width - 23) / 4) + offsetY + 168 - mainOffsetY - _baseTextureFrameRectangle.Height;
-                    DrawArea = _baseTextureFrameRectangle.WithPosition(new Vector2(xCoord, yCoord));
+                    var yCoord = (Math.Min(41, frameTexture.Width - 23) / 4) + offsetY + 168 - mainOffsetY - frameTexture.Height;
+                    DrawArea = frameTexture.Bounds.WithPosition(new Vector2(xCoord, yCoord));
 
                     var oneGridSize = new Vector2(mainRenderer.DrawArea.Width,
                                                   mainRenderer.DrawArea.Height);
