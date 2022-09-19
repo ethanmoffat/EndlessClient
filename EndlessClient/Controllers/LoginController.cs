@@ -254,8 +254,12 @@ namespace EndlessClient.Controllers
             var serverMessage1 = _localizedStringFinder.GetString(EOResourceID.GLOBAL_CHAT_SERVER_MESSAGE_1);
             var serverMessage2 = _localizedStringFinder.GetString(EOResourceID.GLOBAL_CHAT_SERVER_MESSAGE_2);
 
-            _chatRepository.AllChat[ChatTab.Local].Add(
-                new ChatData(ChatTab.Local, server, _newsProvider.NewsHeader, ChatIcon.Note, ChatColor.Server, log: false));
+            if (!string.IsNullOrWhiteSpace(_newsProvider.NewsHeader))
+            {
+                _chatRepository.AllChat[ChatTab.Local].Add(
+                    new ChatData(ChatTab.Local, server, _newsProvider.NewsHeader, ChatIcon.Note, ChatColor.Server, log: false));
+            }
+
             _chatRepository.AllChat[ChatTab.Global].Add(
                 new ChatData(ChatTab.Global, server, serverMessage1, ChatIcon.Note, ChatColor.Server, log: false));
             _chatRepository.AllChat[ChatTab.Global].Add(
