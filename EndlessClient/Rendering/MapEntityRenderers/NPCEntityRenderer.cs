@@ -28,14 +28,17 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         protected override bool ElementExistsAt(int row, int col)
         {
+            // Render NPCs as part of a row/col one higher than they actually are
+            // This fixes weird layer render order bugs (without modifying the underlying data structures)
+            // This is a total hack because I'm not using a depth buffer for map rendering
             return _npcRendererProvider.NPCRenderers.Values
-                .Count(n => IsNpcAt(n.NPC, row, col)) > 0;
+                .Count(n => IsNpcAt(n.NPC, row + 1, col + 1)) > 0;
         }
 
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
         {
             var indicesToRender = _npcRendererProvider.NPCRenderers.Values
-                .Where(n => IsNpcAt(n.NPC, row, col))
+                .Where(n => IsNpcAt(n.NPC, row + 1, col + 1))
                 .Select(n => n.NPC.Index);
 
             foreach (var index in indicesToRender)
