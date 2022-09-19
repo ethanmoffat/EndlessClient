@@ -5,6 +5,7 @@ using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Chat;
+using EndlessClient.Input;
 using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
@@ -34,6 +35,7 @@ namespace EndlessClient.Controllers
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly IChatRepository _chatRepository;
         private readonly INewsProvider _newsProvider;
+        private readonly IUserInputTimeRepository _userInputTimeRepository;
         private readonly IErrorDialogDisplayAction _errorDisplayAction;
         private readonly ISafeNetworkOperationFactory _networkOperationFactory;
         private readonly IGameLoadingDialogFactory _gameLoadingDialogFactory;
@@ -55,7 +57,8 @@ namespace EndlessClient.Controllers
                                IStatusLabelSetter statusLabelSetter,
                                ILocalizedStringFinder localizedStringFinder,
                                IChatRepository chatRepository,
-                               INewsProvider newsProvider)
+                               INewsProvider newsProvider,
+                               IUserInputTimeRepository userInputTimeRepository)
         {
             _loginActions = loginActions;
             _mapFileLoadActions = mapFileLoadActions;
@@ -72,6 +75,7 @@ namespace EndlessClient.Controllers
             _localizedStringFinder = localizedStringFinder;
             _chatRepository = chatRepository;
             _newsProvider = newsProvider;
+            _userInputTimeRepository = userInputTimeRepository;
         }
 
         public async Task LoginToAccount(ILoginParameters loginParameters)
@@ -188,6 +192,8 @@ namespace EndlessClient.Controllers
                 // https://github.com/ethanmoffat/EndlessClient/issues/151#issuecomment-1079738889
                 ClearChat();
                 AddDefaultTextToChat();
+
+                _userInputTimeRepository.LastInputTime = DateTime.Now;
 
                 await Task.Delay(1000).ConfigureAwait(false); //always wait 1 second
             }
