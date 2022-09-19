@@ -76,13 +76,8 @@ namespace EndlessClient.Rendering.Character
                 return;
 
             CancelSpellPrep();
-            Animator.StartMainCharacterWalkAnimation(Option.None<MapCoordinate>());
+            Animator.StartMainCharacterWalkAnimation(Option.None<MapCoordinate>(), PlayMainCharacterWalkSfx);
             ShowWaterSplashiesIfNeeded(CharacterActionState.Walking, _characterRepository.MainCharacter.ID);
-
-            if (_characterRepository.MainCharacter.NoWall)
-                _sfxPlayer.PlaySfx(SoundEffectID.NoWallWalk);
-            else if (IsSteppingStone(_characterRepository.MainCharacter.RenderProperties))
-                _sfxPlayer.PlaySfx(SoundEffectID.JumpStone);
         }
 
         public void StartAttacking(int noteIndex = -1)
@@ -375,6 +370,14 @@ namespace EndlessClient.Rendering.Character
         {
             Animator.MainCharacterCancelSpellPrep();
             _characterRendererProvider.MainCharacterRenderer.MatchSome(r => r.StopShout());
+        }
+
+        private void PlayMainCharacterWalkSfx()
+        {
+            if (_characterRepository.MainCharacter.NoWall)
+                _sfxPlayer.PlaySfx(SoundEffectID.NoWallWalk);
+            else if (IsSteppingStone(_characterRepository.MainCharacter.RenderProperties))
+                _sfxPlayer.PlaySfx(SoundEffectID.JumpStone);
         }
 
         private void PlayWeaponSound(EOLib.Domain.Character.Character character, int noteIndex = -1)

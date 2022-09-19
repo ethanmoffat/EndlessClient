@@ -33,6 +33,7 @@ namespace EndlessClient.Rendering.Character
         private readonly IWalkValidationActions _walkValidationActions;
         private readonly IPathFinder _pathFinder;
 
+        // todo: this state should really be managed better
         private readonly Dictionary<int, EODirection> _queuedDirections;
         private readonly Dictionary<int, MapCoordinate> _queuedPositions;
         private readonly Dictionary<int, RenderFrameActionTime> _otherPlayerStartWalkingTimes;
@@ -106,7 +107,7 @@ namespace EndlessClient.Rendering.Character
             _characterActions.Face(direction);
         }
 
-        public void StartMainCharacterWalkAnimation(Option<MapCoordinate> targetCoordinate)
+        public void StartMainCharacterWalkAnimation(Option<MapCoordinate> targetCoordinate, Action sfxCallback)
         {
             _walkPath.Clear();
 
@@ -141,10 +142,11 @@ namespace EndlessClient.Rendering.Character
                     return;
                 }
 
-                var startWalkingTime = new RenderFrameActionTime(_characterRepository.MainCharacter.ID);
+                var startWalkingTime = new RenderFrameActionTime(_characterRepository.MainCharacter.ID, sfxCallback);
                 _otherPlayerStartWalkingTimes.Add(_characterRepository.MainCharacter.ID, startWalkingTime);
 
                 _characterActions.Walk();
+                startWalkingTime.SoundEffect();
             }
         }
 
@@ -320,6 +322,11 @@ namespace EndlessClient.Rendering.Character
                                         {
                                             nextFrameRenderProperties = extraFrameProps;
                                         }
+
+                                        if (sendWalk)
+                                        {
+                                            pair.SoundEffect();
+                                        }
                                     }
                                     else
                                     {
@@ -346,6 +353,7 @@ namespace EndlessClient.Rendering.Character
                                         nextFrameRenderProperties = FaceTarget(characterCoord, next, nextFrameRenderProperties);
 
                                         sendWalk = true;
+                                        pair.SoundEffect();
                                         nextFrameRenderProperties = AnimateOneWalkFrame(nextFrameRenderProperties.ResetAnimationFrames());
                                     }
                                     else
@@ -583,7 +591,7 @@ namespace EndlessClient.Rendering.Character
     {
         void MainCharacterFace(EODirection direction);
 
-        void StartMainCharacterWalkAnimation(Option<MapCoordinate> targetCoordinate);
+        void StartMainCharacterWalkAnimation(Option<MapCoordinate> targetCoordinate, Action sfxCallback);
 
         void StartMainCharacterAttackAnimation();
 

@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Actions;
@@ -51,6 +52,8 @@ namespace EndlessClient.Controllers
         private readonly IActiveDialogProvider _activeDialogProvider;
         private readonly IUserInputRepository _userInputRepository;
         private readonly ISpellSlotDataRepository _spellSlotDataRepository;
+        private readonly ICurrentMapProvider _currentMapProvider;
+        private readonly ISfxPlayer _sfxPlayer;
 
         public MapInteractionController(IMapActions mapActions,
                                         ICharacterActions characterActions,
@@ -72,7 +75,9 @@ namespace EndlessClient.Controllers
                                         IContextMenuRendererFactory contextMenuRendererFactory,
                                         IActiveDialogProvider activeDialogProvider,
                                         IUserInputRepository userInputRepository,
-                                        ISpellSlotDataRepository spellSlotDataRepository)
+                                        ISpellSlotDataRepository spellSlotDataRepository,
+                                        ICurrentMapProvider currentMapProvider,
+                                        ISfxPlayer sfxPlayer)
         {
             _mapActions = mapActions;
             _characterActions = characterActions;
@@ -95,6 +100,8 @@ namespace EndlessClient.Controllers
             _activeDialogProvider = activeDialogProvider;
             _userInputRepository = userInputRepository;
             _spellSlotDataRepository = spellSlotDataRepository;
+            _currentMapProvider = currentMapProvider;
+            _sfxPlayer = sfxPlayer;
         }
 
         public void LeftClick(IMapCellState cellState, Option<IMouseCursorRenderer> mouseRenderer)
@@ -164,7 +171,7 @@ namespace EndlessClient.Controllers
             {
                 mouseRenderer.MatchSome(r => r.AnimateClick());
                 _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator)
-                    .StartMainCharacterWalkAnimation(Option.Some(cellState.Coordinate));
+                    .StartMainCharacterWalkAnimation(Option.Some(cellState.Coordinate), PlayMainCharacterWalkSfx);
 
                 _userInputRepository.ClickHandled = true;
                 _userInputRepository.WalkClickHandled = true;
@@ -241,6 +248,20 @@ namespace EndlessClient.Controllers
 
                 _userInputRepository.ClickHandled = true;
             }
+        }
+
+        private void PlayMainCharacterWalkSfx()
+        {
+            if (_characterProvider.MainCharacter.NoWall)
+                _sfxPlayer.PlaySfx(SoundEffectID.NoWallWalk);
+            else if (IsSteppingStone(_characterProvider.MainCharacter.RenderProperties))
+                _sfxPlayer.PlaySfx(SoundEffectID.JumpStone);
+        }
+
+        private bool IsSteppingStone(CharacterRenderProperties renderProps)
+        {
+            return _currentMapProvider.CurrentMap.Tiles[renderProps.MapY, renderProps.MapX] == TileSpec.Jump
+                || _currentMapProvider.CurrentMap.Tiles[renderProps.GetDestinationY(), renderProps.GetDestinationX()] == TileSpec.Jump;
         }
 
         private void HandlePickupResult(ItemPickupResult pickupResult, MapItem item)
