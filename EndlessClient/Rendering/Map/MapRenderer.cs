@@ -247,12 +247,17 @@ namespace EndlessClient.Rendering.Map
 
             var renderBounds = _mapRenderDistanceCalculator.CalculateRenderBounds(immutableCharacter, _currentMapProvider.CurrentMap);
 
+            var hitKeys = new HashSet<MapCoordinate>();
+
             // render the grid diagonally. hack that fixes some layering issues due to not using a depth buffer for layers
             // a better solution would be to use a depth buffer like eomap-js
             for (var rowStart = renderBounds.FirstRow; rowStart <= renderBounds.LastRow; rowStart++)
             {
                 var row = rowStart;
                 var col = renderBounds.FirstCol;
+
+                if (!hitKeys.Add(new MapCoordinate(col, row)))
+                    continue;
 
                 while (row >= 0)
                 {
@@ -263,10 +268,13 @@ namespace EndlessClient.Rendering.Map
                 }
             }
 
-            for (var colStart = 1; colStart <= renderBounds.LastCol; colStart++)
+            for (var colStart = renderBounds.FirstCol; colStart <= renderBounds.LastCol; colStart++)
             {
                 var row = renderBounds.LastRow;
                 var col = colStart;
+
+                if (!hitKeys.Add(new MapCoordinate(col, row)))
+                    continue;
 
                 while (col <= renderBounds.LastCol)
                 {
