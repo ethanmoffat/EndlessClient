@@ -73,8 +73,8 @@ namespace EndlessClient.Rendering.Map
                 for (int col = Math.Max(cx - 30, 0); col <= Math.Min(cx + 30, _currentMapProvider.CurrentMap.Properties.Width); ++col)
                 {
                     var loc = GetMiniMapDrawCoordinates(col, row);
-                    var (isEdge, miniMapRectSrc) = GetSourceRectangleForGridSpace(col, row);
-                    DrawGridBox(loc, isEdge, miniMapRectSrc);
+                    var (edgeGfx, miniMapRectSrc) = GetSourceRectangleForGridSpace(col, row);
+                    DrawGridBox(loc, edgeGfx, miniMapRectSrc);
                 }
             }
 
@@ -83,30 +83,30 @@ namespace EndlessClient.Rendering.Map
             base.OnDrawControl(gameTime);
         }
 
-        private (bool IsEdge, Rectangle SourceRect) GetSourceRectangleForGridSpace(int col, int row)
+        private (MiniMapGfx? EdgeGfx, Rectangle SourceRect) GetSourceRectangleForGridSpace(int col, int row)
         {
+            var info = _mapCellStateProvider.GetCellStateAt(col, row);
+
             var (cx, cy) = GetCharacterPos();
             if (cx == col && cy == row)
             {
-                return (false, GetSourceRect(MiniMapGfx.Orange));
+                return (GetEdge(), GetSourceRect(MiniMapGfx.Orange));
             }
-
-            var info = _mapCellStateProvider.GetCellStateAt(col, row);
 
             if (info.NPC.HasValue)
             {
                 return info.NPC.Map(x => _enfFileProvider.ENFFile[x.ID].Type)
                     .Map(x => x == NPCType.Aggressive || x == NPCType.Passive ? MiniMapGfx.Red : MiniMapGfx.Purple)
-                    .Match(x => (false, GetSourceRect(x)), () => (false, Rectangle.Empty));
+                    .Match(x => (GetEdge(), GetSourceRect(x)), () => (GetEdge(), Rectangle.Empty));
             }
             else if (info.Character.HasValue)
             {
-                return (false, GetSourceRect(MiniMapGfx.Green));
+                return (GetEdge(), GetSourceRect(MiniMapGfx.Green));
             }
             else if (info.Warp.HasValue)
             {
                 return info.Warp.Map(x => x.DoorType)
-                    .Match(x => (false, GetSourceRect(x != DoorSpec.NoDoor ? MiniMapGfx.Blue : MiniMapGfx.UpLine)), () => (false, Rectangle.Empty));
+                    .Match(x => (GetEdge(), GetSourceRect(x != DoorSpec.NoDoor ? MiniMapGfx.Blue : MiniMapGfx.UpLine)), () => (GetEdge(), Rectangle.Empty));
             }
             else
             {
@@ -114,7 +114,7 @@ namespace EndlessClient.Rendering.Map
                 {
                     case TileSpec.Wall:
                     case TileSpec.FakeWall:
-                        return (false, GetSourceRect(MiniMapGfx.Solid));
+                        return (GetEdge(), GetSourceRect(MiniMapGfx.Solid));
                     case TileSpec.BankVault:
                     case TileSpec.ChairAll:
                     case TileSpec.ChairDown:
@@ -124,25 +124,53 @@ namespace EndlessClient.Rendering.Map
                     case TileSpec.ChairDownRight:
                     case TileSpec.ChairUpLeft:
                     case TileSpec.Chest:
-                        return (false, GetSourceRect(MiniMapGfx.Blue));
+                    case TileSpec.JammedDoor:
+                        // Unknown TileSpecs 10-15 have been confirmed in the vanilla client to show a Blue ! on the minimap
+                    case (TileSpec)10:
+                    case (TileSpec)11:
+                    case (TileSpec)12:
+                    case (TileSpec)13:
+                    case (TileSpec)14:
+                    case (TileSpec)15:
+                        return (GetEdge(), GetSourceRect(MiniMapGfx.Blue));
                     case TileSpec.MapEdge:
-                        return (true, GetSourceRect(MiniMapGfx.UpLine));
+                        return (null, Rectangle.Empty);
                 }
             }
 
-            return (false, GetSourceRect(MiniMapGfx.UpLine));
+            return (GetEdge(), Rectangle.Empty);
+
+            MiniMapGfx? GetEdge()
+            {
+                if (info.TileSpec == TileSpec.MapEdge)
+                    return null;
+
+                var w = _currentMapProvider.CurrentMap.Properties.Width;
+                var h = _currentMapProvider.CurrentMap.Properties.Height;
+                var tiles = _currentMapProvider.CurrentMap.Tiles;
+
+                if (col - 1 >= 0 && tiles[row, col - 1] == TileSpec.MapEdge &&
+                    row - 1 >= 0 && tiles[row - 1, col] == TileSpec.MapEdge)
+                    return null;
+                else if (col == 0 || (col - 1 >= 0 && tiles[row, col - 1] == TileSpec.MapEdge))
+                    return MiniMapGfx.UpLine;
+                else if (row == 0 || (row - 1 >= 0 && tiles[row - 1, col] == TileSpec.MapEdge))
+                    return MiniMapGfx.LeftLine;
+                else
+                    return MiniMapGfx.Corner;
+            }
         }
 
-        private void DrawGridBox(Vector2 loc, bool isEdge, Rectangle gridSpaceSourceRect)
+        private void DrawGridBox(Vector2 loc, MiniMapGfx? edgeGfx, Rectangle gridSpaceSourceRect)
         {
-            if (!isEdge)
+            if (edgeGfx != null)
             {
-                // draw grid lines on each grid space if it isn't an edge space
+                var src = gridSpaceSourceRect.Equals(Rectangle.Empty)
+                    ? GetSourceRect(MiniMapGfx.UpLine)
+                    : gridSpaceSourceRect;
+
                 _spriteBatch.Draw(_miniMapTexture, loc,
-                    new Rectangle((int)MiniMapGfx.UpLine * gridSpaceSourceRect.Width, 0, gridSpaceSourceRect.Width, gridSpaceSourceRect.Height),
-                    Color.FromNonPremultiplied(255, 255, 255, 128));
-                _spriteBatch.Draw(_miniMapTexture, loc,
-                    new Rectangle((int)MiniMapGfx.LeftLine * gridSpaceSourceRect.Width, 0, gridSpaceSourceRect.Width, gridSpaceSourceRect.Height),
+                    new Rectangle((int)edgeGfx * src.Width, 0, src.Width, src.Height),
                     Color.FromNonPremultiplied(255, 255, 255, 128));
             }
 

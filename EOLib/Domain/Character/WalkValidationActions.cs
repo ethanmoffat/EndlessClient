@@ -114,7 +114,9 @@ namespace EOLib.Domain.Character
                 case TileSpec.None:
                     return true;
                 default:
-                    return false;
+                    // These values were tested with the Vanilla 0.28 client
+                    // TileSpec 10, 12, and 31 are walkable while other unknown values are not
+                    return (int)tileSpec == 10 || (int)tileSpec == 12 || (int)tileSpec == 31;
             }
         }
     }
