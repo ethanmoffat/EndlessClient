@@ -10,6 +10,8 @@ using EOLib.IO.Repositories;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 using EOLib.Net.Translators;
+using Optional;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -52,6 +54,8 @@ namespace EOLib.PacketHandlers
 
             var warpAgreePacketData = _warpAgreePacketTranslator.TranslatePacket(packet);
 
+            _currentMapStateRepository.CurrentMapID = warpAgreePacketData.MapID;
+
             var updatedMainCharacter = warpAgreePacketData.Characters.Single(MainCharacterIDMatches);
 
             //character.renderproperties.isdead is set True by the attack handler
@@ -66,7 +70,6 @@ namespace EOLib.PacketHandlers
 
             var differentMapID = _currentMapStateRepository.CurrentMapID != warpAgreePacketData.MapID;
 
-            _currentMapStateRepository.CurrentMapID = warpAgreePacketData.MapID;
             _currentMapStateRepository.Characters = warpAgreePacketData.Characters.ToDictionary(k => k.ID, v => v);
             _currentMapStateRepository.NPCs = new HashSet<NPC>(warpAgreePacketData.NPCs);
             _currentMapStateRepository.MapItems = new HashSet<MapItem>(warpAgreePacketData.Items);
@@ -80,6 +83,7 @@ namespace EOLib.PacketHandlers
                                           warpAnimation: warpAgreePacketData.WarpAnimation);
 
             _currentMapStateRepository.MapWarpState = WarpState.None;
+            _currentMapStateRepository.MapWarpTime = Option.Some(DateTime.Now);
 
             return true;
         }

@@ -10,11 +10,12 @@ namespace EndlessClient.Input
     public abstract class InputHandlerBase : IInputHandler
     {
         private const int INPUT_RATE_LIMIT_MILLISECONDS = 200;
+        private const int WARP_BACKOFF_TIME_MILLISECONDS = 300;
 
         private readonly IEndlessGameProvider _endlessGameProvider;
         private readonly IUserInputProvider _keyStateProvider;
         private readonly IUserInputTimeRepository _userInputTimeRepository;
-        private readonly ICurrentMapStateProvider _mapStateProvider;
+        private readonly ICurrentMapStateRepository _currentMapStateRepository;
 
         private KeyboardState CurrentState => _keyStateProvider.CurrentKeyState;
 
@@ -23,12 +24,12 @@ namespace EndlessClient.Input
         protected InputHandlerBase(IEndlessGameProvider endlessGameProvider,
                                    IUserInputProvider userInputProvider,
                                    IUserInputTimeRepository userInputTimeRepository,
-                                   ICurrentMapStateProvider mapStateProvider)
+                                   ICurrentMapStateRepository currentMapStateRepository)
         {
             _endlessGameProvider = endlessGameProvider;
             _keyStateProvider = userInputProvider;
             _userInputTimeRepository = userInputTimeRepository;
-            _mapStateProvider = mapStateProvider;
+            _currentMapStateRepository = currentMapStateRepository;
         }
 
         public void HandleKeyboardInput(DateTime timeAtBeginningOfUpdate)
@@ -36,10 +37,14 @@ namespace EndlessClient.Input
             var millisecondsSinceLastUpdate = GetMillisecondsSinceLastUpdate(timeAtBeginningOfUpdate);
             if (!_endlessGameProvider.Game.IsActive ||
                 millisecondsSinceLastUpdate < INPUT_RATE_LIMIT_MILLISECONDS ||
-                _mapStateProvider.MapWarpState != WarpState.None)
+                _currentMapStateRepository.MapWarpState != WarpState.None)
                 return;
 
-            HandleInput().MatchSome(_ => _userInputTimeRepository.LastInputTime = timeAtBeginningOfUpdate);
+            _currentMapStateRepository.MapWarpTime = _currentMapStateRepository.MapWarpTime.Match(
+                some: t => (DateTime.Now - t).TotalMilliseconds > WARP_BACKOFF_TIME_MILLISECONDS ? Option.None<DateTime>() : Option.Some(t),
+                none: () => Option.None<DateTime>());
+
+            _currentMapStateRepository.MapWarpTime.MatchNone(() => HandleInput().MatchSome(_ => _userInputTimeRepository.LastInputTime = timeAtBeginningOfUpdate));
         }
 
         private double GetMillisecondsSinceLastUpdate(DateTime timeAtBeginningOfUpdate)

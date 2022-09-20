@@ -15,9 +15,9 @@ namespace EndlessClient.Input
         public NumPadHandler(IEndlessGameProvider endlessGameProvider,
                              IUserInputProvider userInputProvider,
                              IUserInputTimeRepository userInputTimeRepository,
-                             ICurrentMapStateProvider mapStateProvider,
+                             ICurrentMapStateRepository currentMapStateRepository,
                              INumPadController numPadController)
-            : base(endlessGameProvider, userInputProvider, userInputTimeRepository, mapStateProvider)
+            : base(endlessGameProvider, userInputProvider, userInputTimeRepository, currentMapStateRepository)
         {
             _numPadController = numPadController;
         }

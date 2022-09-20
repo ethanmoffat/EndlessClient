@@ -14,8 +14,8 @@ namespace EndlessClient.Input
                                   IUserInputProvider userInputProvider,
                                   IUserInputTimeRepository userInputTimeRepository,
                                   IFunctionKeyController functionKeyController,
-                                  ICurrentMapStateProvider currentMapStateProvider)
-            : base(endlessGameProvider, userInputProvider, userInputTimeRepository, currentMapStateProvider)
+                                  ICurrentMapStateRepository currentMapStateRepository)
+            : base(endlessGameProvider, userInputProvider, userInputTimeRepository, currentMapStateRepository)
         {
             _functionKeyController = functionKeyController;
         }
