@@ -19,6 +19,7 @@ using Microsoft.Xna.Framework.Input;
 using Optional;
 using System;
 using System.Linq;
+using System.Windows.Markup;
 using XNAControls;
 
 namespace EndlessClient.Rendering.NPC
@@ -40,7 +41,6 @@ namespace EndlessClient.Rendering.NPC
         private readonly IUserInputProvider _userInputProvider;
         private readonly ISpellSlotDataProvider _spellSlotDataProvider;
         private readonly ISfxPlayer _sfxPlayer;
-        private readonly Rectangle _baseTextureFrameRectangle;
         private readonly int _readonlyTopPixel, _readonlyBottomPixel;
         private readonly bool _hasStandingAnimation;
         private readonly IEffectRenderer _effectRenderer;
@@ -48,7 +48,7 @@ namespace EndlessClient.Rendering.NPC
 
         private DateTime _lastStandingAnimation;
         private int _fadeAwayAlpha;
-        private bool _isDying;
+        private bool _isDying, _isBlankSprite;
 
         private XNALabel _nameLabel;
         private IChatBubble _chatBubble;
@@ -64,6 +64,10 @@ namespace EndlessClient.Rendering.NPC
         public Rectangle DrawArea { get; private set; }
 
         public Rectangle MapProjectedDrawArea { get; private set; }
+
+        public bool MouseOver => DrawArea.Contains(_userInputProvider.CurrentMouseState.Position);
+
+        public bool MouseOverPreviously => DrawArea.Contains(_userInputProvider.PreviousMouseState.Position);
 
         public EOLib.Domain.NPC.NPC NPC { get; set; }
 
@@ -101,7 +105,7 @@ namespace EndlessClient.Rendering.NPC
             _spellSlotDataProvider = spellSlotDataProvider;
             _sfxPlayer = sfxPlayer;
 
-            _baseTextureFrameRectangle = GetStandingFrameRectangle();
+            DrawArea = GetStandingFrameRectangle();
             _readonlyTopPixel = GetTopPixel();
             _readonlyBottomPixel = GetBottomPixel();
 
@@ -119,7 +123,7 @@ namespace EndlessClient.Rendering.NPC
 
             _nameLabel = new XNALabel(Constants.FontSize08pt5)
             {
-                Visible = true,
+                Visible = false,
                 TextWidth = 89,
                 TextAlign = LabelAlignment.MiddleCenter,
                 ForeColor = Color.White,
@@ -146,18 +150,37 @@ namespace EndlessClient.Rendering.NPC
             UpdateStandingFrameAnimation();
             UpdateDeadState();
 
-            _nameLabel.Visible = DrawArea.Contains(_userInputProvider.CurrentMouseState.Position) && !_healthBarRenderer.Visible && !_isDying;
-            _nameLabel.DrawPosition = GetNameLabelPosition();
+            var currentMousePosition = _userInputProvider.CurrentMouseState.Position - DrawArea.Location;
+            var currentFrame = _npcSpriteSheet.GetNPCTexture(_enfFileProvider.ENFFile[NPC.ID].Graphic, NPC.Frame, NPC.Direction);
 
-            if (DrawArea.Contains(_userInputProvider.CurrentMouseState.Position) &&
-                _userInputProvider.CurrentMouseState.LeftButton == ButtonState.Released &&
-                _userInputProvider.PreviousMouseState.LeftButton == ButtonState.Pressed &&
-                !_userInputProvider.ClickHandled)
+            if (currentFrame.Bounds.Contains(currentMousePosition))
             {
-                if (_spellSlotDataProvider.SpellIsPrepared)
-                    _mapInteractionController.LeftClick(NPC);
-                else
-                    _npcInteractionController.ShowNPCDialog(NPC);
+                var colorData = new Color[1];
+                currentFrame.GetData(0, new Rectangle(currentMousePosition.X, currentMousePosition.Y, 1, 1), colorData, 0, 1);
+
+                _nameLabel.Visible = !_healthBarRenderer.Visible && !_isDying && (_isBlankSprite || colorData[0].A > 0);
+                _nameLabel.DrawPosition = GetNameLabelPosition();
+
+                if (!_userInputProvider.ClickHandled &&
+                    _userInputProvider.CurrentMouseState.LeftButton == ButtonState.Released &&
+                    _userInputProvider.PreviousMouseState.LeftButton == ButtonState.Pressed)
+                {
+                    if (_spellSlotDataProvider.SpellIsPrepared)
+                    {
+                        _mapInteractionController.LeftClick(NPC);
+                    }
+                    else
+                    {
+                        if (_isBlankSprite || colorData[0].A > 0)
+                        {
+                            _npcInteractionController.ShowNPCDialog(NPC);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                _nameLabel.Visible = false;
             }
 
             _effectRenderer.Update();
@@ -240,7 +263,7 @@ namespace EndlessClient.Rendering.NPC
             int i = 0;
             while (i < frameData.Length && frameData[i].A == 0) i++;
 
-            return i == frameData.Length - 1 ? 0 : i / frameTexture.Height;
+            return (_isBlankSprite = i == frameData.Length) ? 0 : i / frameTexture.Height;
         }
 
         private int GetBottomPixel()
@@ -250,11 +273,10 @@ namespace EndlessClient.Rendering.NPC
             var frameData = new Color[frameTexture.Width * frameTexture.Height];
             frameTexture.GetData(frameData);
 
-
             int i = frameData.Length - 1;
-            while (i >= 0 && frameData[i].A != 0) i--;
+            while (i >= 0 && frameData[i].A == 0) i--;
 
-            return i == frameData.Length - 1 ? frameTexture.Height : i / frameTexture.Height;
+            return (_isBlankSprite = i < 0) ? frameTexture.Height : i / frameTexture.Height;
         }
 
         private bool GetHasStandingAnimation()
@@ -279,18 +301,21 @@ namespace EndlessClient.Rendering.NPC
                     var mainOffsetX = _renderOffsetCalculator.CalculateOffsetX(mainRenderer.Character.RenderProperties);
                     var mainOffsetY = _renderOffsetCalculator.CalculateOffsetY(mainRenderer.Character.RenderProperties);
 
+                    var data = _enfFileProvider.ENFFile[NPC.ID];
+                    var frameTexture = _npcSpriteSheet.GetNPCTexture(data.Graphic, NPCFrame.StandingFrame1, NPC.Direction);
+
                     // Some NPCs have an off-center sprite that needs to be divided by 3 (normal sprites are centered properly)
                     // If e.g. Apozen is facing Down or Left it needs to be offset by 2/3 the sprite width instead of 1/3 the sprite width
                     var widthFactor = _npcsThatAreNotCentered.Contains(NPC.ID)
                         ? NPC.IsFacing(EODirection.Down, EODirection.Left)
-                            ? (_baseTextureFrameRectangle.Width * 2) / 3
-                            : _baseTextureFrameRectangle.Width / 3
-                        : _baseTextureFrameRectangle.Width / 2;
+                            ? (frameTexture.Width * 2) / 3
+                            : frameTexture.Width / 3
+                        : frameTexture.Width / 2;
 
                     // y coordinate Formula courtesy of Apollo
                     var xCoord = offsetX + 320 - mainOffsetX - widthFactor;
-                    var yCoord = (Math.Min(41, _baseTextureFrameRectangle.Width - 23) / 4) + offsetY + 168 - mainOffsetY - _baseTextureFrameRectangle.Height;
-                    DrawArea = _baseTextureFrameRectangle.WithPosition(new Vector2(xCoord, yCoord));
+                    var yCoord = (Math.Min(41, frameTexture.Width - 23) / 4) + offsetY + 168 - mainOffsetY - frameTexture.Height;
+                    DrawArea = frameTexture.Bounds.WithPosition(new Vector2(xCoord, yCoord));
 
                     var oneGridSize = new Vector2(mainRenderer.DrawArea.Width,
                                                   mainRenderer.DrawArea.Height);

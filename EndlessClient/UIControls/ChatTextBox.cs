@@ -26,6 +26,15 @@ namespace EndlessClient.UIControls
             _endMuteTime = Option.None<DateTime>();
         }
 
+        public override void Initialize()
+        {
+            base.Initialize();
+
+            // This must be done after Initialize because MaxWidth uses the sprite font.
+            // SpriteFont is loaded in LoadContent which is called by Initialize.
+            MaxWidth = 440;
+        }
+
         public void SetMuted(DateTime endMuteTime)
         {
             _ignoreAllInput = true;

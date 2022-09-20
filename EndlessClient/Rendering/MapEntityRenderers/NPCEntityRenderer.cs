@@ -1,6 +1,8 @@
 ﻿using EndlessClient.Rendering.Map;
 using EndlessClient.Rendering.NPC;
 using EOLib.Domain.Character;
+using EOLib.Domain.Extensions;
+using EOLib.Domain.NPC;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -27,13 +29,13 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         protected override bool ElementExistsAt(int row, int col)
         {
             return _npcRendererProvider.NPCRenderers.Values
-                .Count(n => n.NPC.X == col && n.NPC.Y == row) > 0;
+                .Count(n => IsNpcAt(n.NPC, row, col)) > 0;
         }
 
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
         {
             var indicesToRender = _npcRendererProvider.NPCRenderers.Values
-                .Where(n => n.NPC.X == col && n.NPC.Y == row)
+                .Where(n => IsNpcAt(n.NPC, row, col))
                 .Select(n => n.NPC.Index);
 
             foreach (var index in indicesToRender)
@@ -46,6 +48,12 @@ namespace EndlessClient.Rendering.MapEntityRenderers
                 var renderer = _npcRendererProvider.NPCRenderers[index];
                 renderer.DrawToSpriteBatch(spriteBatch);
             }
+        }
+
+        private static bool IsNpcAt(EOLib.Domain.NPC.NPC npc, int row, int col)
+        {
+            return (npc.IsActing(NPCActionState.Walking) && npc.GetDestinationX() == col && npc.GetDestinationY() == row) ||
+                (npc.X == col && npc.Y == row);
         }
     }
 }

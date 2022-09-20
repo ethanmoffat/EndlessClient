@@ -14,6 +14,8 @@ namespace EndlessClient.Input
         MouseState CurrentMouseState { get; set; }
         
         bool ClickHandled { get; set; }
+
+        bool WalkClickHandled { get; set; }
     }
 
     public interface IUserInputProvider
@@ -27,6 +29,8 @@ namespace EndlessClient.Input
         MouseState CurrentMouseState { get; }
 
         bool ClickHandled { get; }
+
+        bool WalkClickHandled { get; set; }
     }
 
     [MappedType(BaseType = typeof(IUserInputRepository), IsSingleton = true)]
@@ -42,5 +46,7 @@ namespace EndlessClient.Input
         public MouseState CurrentMouseState { get; set; }
 
         public bool ClickHandled { get; set; }
+
+        public bool WalkClickHandled { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 using AutomaticTypeMapper;
 using Optional;
+using System;
 using System.Collections.Generic;
 
 namespace EOLib.Domain.Map
@@ -29,6 +30,8 @@ namespace EOLib.Domain.Map
         Option<short> MapWarpSession { get; set; }
 
         Option<short> MapWarpID { get; set; }
+
+        Option<DateTime> MapWarpTime { get; set; }
 
         HashSet<short> UnknownPlayerIDs { get; set; }
 
@@ -61,6 +64,8 @@ namespace EOLib.Domain.Map
 
         Option<short> MapWarpID { get; }
 
+        Option<DateTime> MapWarpTime { get; }
+
         HashSet<short> UnknownPlayerIDs { get; }
 
         HashSet<byte> UnknownNPCIndexes { get; }
@@ -92,6 +97,8 @@ namespace EOLib.Domain.Map
         public Option<short> MapWarpSession { get; set; }
 
         public Option<short> MapWarpID { get; set; }
+
+        public Option<DateTime> MapWarpTime { get; set; }
 
         public HashSet<short> UnknownPlayerIDs { get; set; }
 

@@ -1,28 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using Microsoft.Xna.Framework.Graphics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
-using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using System;
+using System.Collections.Concurrent;
+using System.IO;
 
 namespace EOLib.Graphics
 {
     [MappedType(BaseType = typeof(INativeGraphicsManager), IsSingleton = true)]
     public sealed class NativeGraphicsManager : INativeGraphicsManager
     {
-        private readonly Dictionary<LibraryGraphicPair, Texture2D> _cache;
-        private readonly object __cachelock__ = new object();
+        private readonly ConcurrentDictionary<LibraryGraphicPair, Texture2D> _cache;
 
         private readonly INativeGraphicsLoader _gfxLoader;
         private readonly IGraphicsDeviceProvider _graphicsDeviceProvider;
 
         public NativeGraphicsManager(INativeGraphicsLoader gfxLoader, IGraphicsDeviceProvider graphicsDeviceProvider)
         {
-            _cache = new Dictionary<LibraryGraphicPair, Texture2D>();
+            _cache = new ConcurrentDictionary<LibraryGraphicPair, Texture2D>();
             _gfxLoader = gfxLoader;
             _graphicsDeviceProvider = graphicsDeviceProvider;
         }
@@ -33,17 +31,16 @@ namespace EOLib.Graphics
 
             var key = new LibraryGraphicPair((int)file, 100 + resourceVal);
 
-            lock (__cachelock__)
+            if (_cache.ContainsKey(key))
             {
-                if (!reloadFromFile && _cache.ContainsKey(key))
+                if (reloadFromFile)
+                {
+                    _cache[key]?.Dispose();
+                    _cache.TryRemove(key, out var _);
+                }
+                else
                 {
                     return _cache[key];
-                }
-
-                if (_cache.ContainsKey(key) && reloadFromFile)
-                {
-                    if (_cache[key] != null) _cache[key].Dispose();
-                    _cache.Remove(key);
                 }
             }
 
@@ -64,11 +61,7 @@ namespace EOLib.Graphics
                 }
             }
 
-            lock (__cachelock__)
-            {
-                _cache.Add(key, ret);
-            }
-
+            _cache.TryAdd(key, ret);
             return ret;
         }
 
@@ -103,14 +96,9 @@ namespace EOLib.Graphics
 
         public void Dispose()
         {
-            lock (__cachelock__)
-            {
-                foreach (var text in _cache.Values)
-                {
-                    text.Dispose();
-                }
-                _cache.Clear();
-            }
+            foreach (var text in _cache.Values)
+                text.Dispose();
+            _cache.Clear();
         }
     }
 

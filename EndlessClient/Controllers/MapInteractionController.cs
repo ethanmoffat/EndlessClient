@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Actions;
@@ -13,6 +14,7 @@ using EndlessClient.Rendering;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
 using EOLib.Domain.Character;
+using EOLib.Domain.Extensions;
 using EOLib.Domain.Interact;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
@@ -33,6 +35,7 @@ namespace EndlessClient.Controllers
         private readonly ICharacterActions _characterActions;
         private readonly IInGameDialogActions _inGameDialogActions;
         private readonly IPaperdollActions _paperdollActions;
+        private readonly IWalkValidationActions _walkValidationActions;
         private readonly IUnwalkableTileActions _unwalkableTileActions;
         private readonly ICharacterAnimationActions _characterAnimationActions;
         private readonly ISpellCastValidationActions _spellCastValidationActions;
@@ -49,11 +52,14 @@ namespace EndlessClient.Controllers
         private readonly IActiveDialogProvider _activeDialogProvider;
         private readonly IUserInputRepository _userInputRepository;
         private readonly ISpellSlotDataRepository _spellSlotDataRepository;
+        private readonly ICurrentMapProvider _currentMapProvider;
+        private readonly ISfxPlayer _sfxPlayer;
 
         public MapInteractionController(IMapActions mapActions,
                                         ICharacterActions characterActions,
                                         IInGameDialogActions inGameDialogActions,
                                         IPaperdollActions paperdollActions,
+                                        IWalkValidationActions walkValidationActions,
                                         IUnwalkableTileActions unwalkableTileActions,
                                         ICharacterAnimationActions characterAnimationActions,
                                         ISpellCastValidationActions spellCastValidationActions,
@@ -69,12 +75,15 @@ namespace EndlessClient.Controllers
                                         IContextMenuRendererFactory contextMenuRendererFactory,
                                         IActiveDialogProvider activeDialogProvider,
                                         IUserInputRepository userInputRepository,
-                                        ISpellSlotDataRepository spellSlotDataRepository)
+                                        ISpellSlotDataRepository spellSlotDataRepository,
+                                        ICurrentMapProvider currentMapProvider,
+                                        ISfxPlayer sfxPlayer)
         {
             _mapActions = mapActions;
             _characterActions = characterActions;
             _inGameDialogActions = inGameDialogActions;
             _paperdollActions = paperdollActions;
+            _walkValidationActions = walkValidationActions;
             _unwalkableTileActions = unwalkableTileActions;
             _characterAnimationActions = characterAnimationActions;
             _spellCastValidationActions = spellCastValidationActions;
@@ -91,6 +100,8 @@ namespace EndlessClient.Controllers
             _activeDialogProvider = activeDialogProvider;
             _userInputRepository = userInputRepository;
             _spellSlotDataRepository = spellSlotDataRepository;
+            _currentMapProvider = currentMapProvider;
+            _sfxPlayer = sfxPlayer;
         }
 
         public void LeftClick(IMapCellState cellState, Option<IMouseCursorRenderer> mouseRenderer)
@@ -125,7 +136,7 @@ namespace EndlessClient.Controllers
             }
             else if (InteractableTileSpec(cellState.TileSpec) && CharacterIsCloseEnough(cellState.Coordinate))
             {
-                var unwalkableActions = _unwalkableTileActions.HandleUnwalkableTile(cellState);
+                var unwalkableActions = _unwalkableTileActions.GetUnwalkableTileActions(cellState);
 
                 foreach (var unwalkableAction in unwalkableActions)
                 {
@@ -153,14 +164,34 @@ namespace EndlessClient.Controllers
                     }
                 }
             }
-            else if (cellState.InBounds && !cellState.Character.HasValue && !cellState.NPC.HasValue)
+            else if (cellState.InBounds && !cellState.Character.HasValue && !cellState.NPC.HasValue
+                && _walkValidationActions.IsCellStateWalkable(cellState)
+                && !_characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Attacking)
+                && !_spellSlotDataRepository.SelectedSpellSlot.HasValue)
             {
                 mouseRenderer.MatchSome(r => r.AnimateClick());
                 _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator)
-                    .StartMainCharacterWalkAnimation(Option.Some(cellState.Coordinate));
+                    .StartMainCharacterWalkAnimation(Option.Some(cellState.Coordinate), PlayMainCharacterWalkSfx);
 
                 _userInputRepository.ClickHandled = true;
+                _userInputRepository.WalkClickHandled = true;
             }
+
+            cellState.Warp.MatchSome(w =>
+            {
+                w.SomeWhen(d => d.DoorType != DoorSpec.NoDoor)
+                    .MatchSome(d =>
+                    {
+                        if (_unwalkableTileActions.GetUnwalkableTileActions(cellState).Any(x => x == UnwalkableTileAction.Door))
+                        {
+                            _mapActions.OpenDoor(d);
+                        }
+
+                        _userInputRepository.ClickHandled = true;
+                    });
+            });
+
+            _spellSlotDataRepository.SelectedSpellSlot = Option.None<int>();
 
             _userInputTimeRepository.LastInputTime = DateTime.Now;
         }
@@ -201,6 +232,8 @@ namespace EndlessClient.Controllers
                 _paperdollActions.RequestPaperdoll(_characterProvider.MainCharacter.ID);
                 _inGameDialogActions.ShowPaperdollDialog(_characterProvider.MainCharacter, isMainCharacter: true);
                 _userInputTimeRepository.LastInputTime = DateTime.Now;
+
+                _userInputRepository.ClickHandled = true;
             }
             else if (_characterRendererProvider.CharacterRenderers.ContainsKey(character.ID))
             {
@@ -212,7 +245,23 @@ namespace EndlessClient.Controllers
                     },
                     none: () => Option.Some(_contextMenuRendererFactory.CreateContextMenuRenderer(_characterRendererProvider.CharacterRenderers[character.ID])));
                 _contextMenuRepository.ContextMenu.MatchSome(r => r.Initialize());
+
+                _userInputRepository.ClickHandled = true;
             }
+        }
+
+        private void PlayMainCharacterWalkSfx()
+        {
+            if (_characterProvider.MainCharacter.NoWall)
+                _sfxPlayer.PlaySfx(SoundEffectID.NoWallWalk);
+            else if (IsSteppingStone(_characterProvider.MainCharacter.RenderProperties))
+                _sfxPlayer.PlaySfx(SoundEffectID.JumpStone);
+        }
+
+        private bool IsSteppingStone(CharacterRenderProperties renderProps)
+        {
+            return _currentMapProvider.CurrentMap.Tiles[renderProps.MapY, renderProps.MapX] == TileSpec.Jump
+                || _currentMapProvider.CurrentMap.Tiles[renderProps.GetDestinationY(), renderProps.GetDestinationX()] == TileSpec.Jump;
         }
 
         private void HandlePickupResult(ItemPickupResult pickupResult, MapItem item)

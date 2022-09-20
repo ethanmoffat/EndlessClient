@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutomaticTypeMapper;
 using EndlessClient.Audio;
@@ -20,6 +21,7 @@ using EndlessClient.Rendering.Map;
 using EndlessClient.Rendering.NPC;
 using EndlessClient.UIControls;
 using EOLib.Domain.Character;
+using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.Localization;
@@ -62,7 +64,7 @@ namespace EndlessClient.HUD.Controls
         private readonly ISpellSlotDataRepository _spellSlotDataRepository;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IMiniMapRendererFactory _miniMapRendererFactory;
-
+        private readonly INewsProvider _newsProvider;
         private IChatController _chatController;
 
         public HudControlsFactory(IHudButtonController hudButtonController,
@@ -90,7 +92,8 @@ namespace EndlessClient.HUD.Controls
                                   IUserInputTimeProvider userInputTimeProvider,
                                   ISpellSlotDataRepository spellSlotDataRepository,
                                   ISfxPlayer sfxPlayer,
-                                  IMiniMapRendererFactory miniMapRendererFactory)
+                                  IMiniMapRendererFactory miniMapRendererFactory,
+                                  INewsProvider newsProvider)
         {
             _hudButtonController = hudButtonController;
             _hudPanelFactory = hudPanelFactory;
@@ -118,6 +121,7 @@ namespace EndlessClient.HUD.Controls
             _spellSlotDataRepository = spellSlotDataRepository;
             _sfxPlayer = sfxPlayer;
             _miniMapRendererFactory = miniMapRendererFactory;
+            _newsProvider = newsProvider;
         }
 
         public void InjectChatController(IChatController chatController)
@@ -319,9 +323,9 @@ namespace EndlessClient.HUD.Controls
                 default: throw new ArgumentOutOfRangeException(nameof(whichState), whichState, "Panel specification is out of range.");
             }
 
-            //news is visible by default when loading the game
-            if (whichState != InGameStates.News)
-                retPanel.Visible = false;
+            //news is visible by default when loading the game if news text is set
+            retPanel.Visible = (_newsProvider.NewsText.Any() && whichState == InGameStates.News) ||
+                               (!_newsProvider.NewsText.Any() && whichState == InGameStates.Chat);
 
             return retPanel;
         }
@@ -445,7 +449,7 @@ namespace EndlessClient.HUD.Controls
 
         private ICharacterAnimator CreateCharacterAnimator()
         {
-            return new CharacterAnimator(_endlessGameProvider, _characterRepository, _currentMapStateRepository, _currentMapProvider, _spellSlotDataRepository, _characterActions, _walkValidationActions, _pathFinder);
+            return new CharacterAnimator(_endlessGameProvider, _characterRepository, _currentMapStateRepository, _currentMapProvider, _spellSlotDataRepository, _userInputRepository, _characterActions, _walkValidationActions, _pathFinder);
         }
 
         private INPCAnimator CreateNPCAnimator()

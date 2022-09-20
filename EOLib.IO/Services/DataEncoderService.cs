@@ -59,7 +59,7 @@ namespace EOLib.IO.Services
 
         public List<byte> FlipMSB(IReadOnlyList<byte> data)
         {
-            return data.Select(x => (byte)(x ^ 0x80u)).ToList();
+            return data.Select(x => (byte)(x == 128 || x == 0 ? x : x ^ 0x80u)).ToList();
         }
 
         public List<byte> SwapMultiples(IReadOnlyList<byte> data, int multi)

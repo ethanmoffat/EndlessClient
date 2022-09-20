@@ -82,6 +82,10 @@ namespace EndlessClient.Rendering.Character
 
         public int TopPixelWithOffset => TopPixel + DrawArea.Y;
 
+        public bool MouseOver => DrawArea.Contains(_userInputProvider.CurrentMouseState.Position);
+
+        public bool MouseOverPreviously => DrawArea.Contains(_userInputProvider.PreviousMouseState.Position);
+
         public Rectangle EffectTargetArea
             => DrawArea.WithPosition(new Vector2(DrawArea.X, DrawArea.Y - 8));
 
@@ -190,7 +194,7 @@ namespace EndlessClient.Rendering.Character
             {
                 UpdateNameLabel();
 
-                if (DrawArea.Contains(_userInputProvider.CurrentMouseState.Position))
+                if (MouseOver)
                 {
                     if (_userInputProvider.CurrentMouseState.RightButton == ButtonState.Released &&
                         _userInputProvider.PreviousMouseState.RightButton == ButtonState.Pressed)

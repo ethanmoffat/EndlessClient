@@ -2,8 +2,10 @@
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
+using EOLib.Domain.Notifiers;
 using EOLib.Net;
 using EOLib.Net.Handlers;
+using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Locker
 {
@@ -14,16 +16,19 @@ namespace EOLib.PacketHandlers.Locker
     public class LockerOpenHandler : InGameOnlyPacketHandler
     {
         private readonly ILockerDataRepository _lockerDataRepository;
+        private readonly IEnumerable<IUserInterfaceNotifier> _userInterfaceNotifiers;
 
         public override PacketFamily Family => PacketFamily.Locker;
 
         public override PacketAction Action => PacketAction.Open;
 
         public LockerOpenHandler(IPlayerInfoProvider playerInfoProvider,
-                                 ILockerDataRepository lockerDataRepository)
+                                 ILockerDataRepository lockerDataRepository,
+                                 IEnumerable<IUserInterfaceNotifier> userInterfaceNotifiers)
             : base(playerInfoProvider)
         {
             _lockerDataRepository = lockerDataRepository;
+            _userInterfaceNotifiers = userInterfaceNotifiers;
         }
 
         public override bool HandlePacket(IPacket packet)
@@ -36,6 +41,9 @@ namespace EOLib.PacketHandlers.Locker
 
             while (packet.ReadPosition < packet.Length)
                 _lockerDataRepository.Items.Add(new InventoryItem(packet.ReadShort(), packet.ReadThree()));
+
+            foreach (var notifier in _userInterfaceNotifiers)
+                notifier.NotifyPacketDialog(Family);
 
             return true;
         }

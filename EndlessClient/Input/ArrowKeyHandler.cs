@@ -14,8 +14,8 @@ namespace EndlessClient.Input
                                IUserInputProvider userInputProvider,
                                IUserInputTimeRepository userInputTimeRepository,
                                IArrowKeyController arrowKeyController,
-                               ICurrentMapStateProvider currentMapStateProvider)
-            : base(endlessGameProvider, userInputProvider, userInputTimeRepository, currentMapStateProvider)
+                               ICurrentMapStateRepository currentMapStateRepository)
+            : base(endlessGameProvider, userInputProvider, userInputTimeRepository, currentMapStateRepository)
         {
             _arrowKeyController = arrowKeyController;
         }

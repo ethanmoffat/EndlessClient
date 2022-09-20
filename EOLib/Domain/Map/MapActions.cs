@@ -51,6 +51,9 @@ namespace EOLib.Domain.Map
 
         public void OpenDoor(Warp warp)
         {
+            if (_currentMapStateRepository.PendingDoors.Contains(warp))
+                return;
+
             var packet = new PacketBuilder(PacketFamily.Door, PacketAction.Open)
                 .AddChar((byte)warp.X)
                 .AddChar((byte)warp.Y)

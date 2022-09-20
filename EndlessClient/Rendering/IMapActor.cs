@@ -12,6 +12,10 @@ namespace EndlessClient.Rendering
 
         Rectangle MapProjectedDrawArea { get; }
 
+        bool MouseOver { get; }
+
+        bool MouseOverPreviously { get; }
+
         void ShowDamageCounter(int damage, int percentHealth, bool isHeal);
 
         void ShowChatBubble(string text, bool isGroupChat = false);

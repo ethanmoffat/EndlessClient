@@ -164,8 +164,6 @@ namespace EndlessClient.GameExecution
             base.LoadContent();
         }
 
-#if DEBUG
-
         protected override void Update(GameTime gameTime)
         {
             // Force update at 60FPS
@@ -173,6 +171,8 @@ namespace EndlessClient.GameExecution
             // Using IsFixedTimeStep = true with TargetUpdateTime set to 60FPS also limits the draw rate, which is not desired
             if ((gameTime.TotalGameTime - _lastFrameUpdate).TotalMilliseconds > 1000.0 / 60)
             {
+
+#if DEBUG
                 //todo: this is a debug-only mode launched with the F5 key.
                 //todo: move this to be handled by some sort of key listener once function keys are handled in-game
                 var currentKeyState = Keyboard.GetState();
@@ -182,6 +182,7 @@ namespace EndlessClient.GameExecution
                 }
 
                 _previousKeyState = currentKeyState;
+#endif
 
                 try
                 {
@@ -196,7 +197,6 @@ namespace EndlessClient.GameExecution
             }
         }
 
-#endif
 
         protected override void Draw(GameTime gameTime)
         {

@@ -5,6 +5,7 @@ using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Chat;
+using EndlessClient.Input;
 using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
@@ -34,6 +35,7 @@ namespace EndlessClient.Controllers
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly IChatRepository _chatRepository;
         private readonly INewsProvider _newsProvider;
+        private readonly IUserInputTimeRepository _userInputTimeRepository;
         private readonly IErrorDialogDisplayAction _errorDisplayAction;
         private readonly ISafeNetworkOperationFactory _networkOperationFactory;
         private readonly IGameLoadingDialogFactory _gameLoadingDialogFactory;
@@ -55,7 +57,8 @@ namespace EndlessClient.Controllers
                                IStatusLabelSetter statusLabelSetter,
                                ILocalizedStringFinder localizedStringFinder,
                                IChatRepository chatRepository,
-                               INewsProvider newsProvider)
+                               INewsProvider newsProvider,
+                               IUserInputTimeRepository userInputTimeRepository)
         {
             _loginActions = loginActions;
             _mapFileLoadActions = mapFileLoadActions;
@@ -72,6 +75,7 @@ namespace EndlessClient.Controllers
             _localizedStringFinder = localizedStringFinder;
             _chatRepository = chatRepository;
             _newsProvider = newsProvider;
+            _userInputTimeRepository = userInputTimeRepository;
         }
 
         public async Task LoginToAccount(ILoginParameters loginParameters)
@@ -189,6 +193,8 @@ namespace EndlessClient.Controllers
                 ClearChat();
                 AddDefaultTextToChat();
 
+                _userInputTimeRepository.LastInputTime = DateTime.Now;
+
                 await Task.Delay(1000).ConfigureAwait(false); //always wait 1 second
             }
             finally
@@ -248,8 +254,12 @@ namespace EndlessClient.Controllers
             var serverMessage1 = _localizedStringFinder.GetString(EOResourceID.GLOBAL_CHAT_SERVER_MESSAGE_1);
             var serverMessage2 = _localizedStringFinder.GetString(EOResourceID.GLOBAL_CHAT_SERVER_MESSAGE_2);
 
-            _chatRepository.AllChat[ChatTab.Local].Add(
-                new ChatData(ChatTab.Local, server, _newsProvider.NewsHeader, ChatIcon.Note, ChatColor.Server, log: false));
+            if (!string.IsNullOrWhiteSpace(_newsProvider.NewsHeader))
+            {
+                _chatRepository.AllChat[ChatTab.Local].Add(
+                    new ChatData(ChatTab.Local, server, _newsProvider.NewsHeader, ChatIcon.Note, ChatColor.Server, log: false));
+            }
+
             _chatRepository.AllChat[ChatTab.Global].Add(
                 new ChatData(ChatTab.Global, server, serverMessage1, ChatIcon.Note, ChatColor.Server, log: false));
             _chatRepository.AllChat[ChatTab.Global].Add(

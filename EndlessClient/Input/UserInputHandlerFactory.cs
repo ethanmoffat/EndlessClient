@@ -16,7 +16,7 @@ namespace EndlessClient.Input
         private readonly IControlKeyController _controlKeyController;
         private readonly IFunctionKeyController _functionKeyController;
         private readonly INumPadController _numPadController;
-        private readonly ICurrentMapStateProvider _currentMapStateProvider;
+        private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IActiveDialogProvider _activeDialogProvider;
 
         public UserInputHandlerFactory(IEndlessGameProvider endlessGameProvider,
@@ -26,7 +26,7 @@ namespace EndlessClient.Input
                                        IControlKeyController controlKeyController,
                                        IFunctionKeyController functionKeyController,
                                        INumPadController numPadController,
-                                       ICurrentMapStateProvider  currentMapStateProvider,
+                                       ICurrentMapStateRepository currentMapStateRepository,
                                        IActiveDialogProvider activeDialogProvider)
         {
             _endlessGameProvider = endlessGameProvider;
@@ -36,7 +36,7 @@ namespace EndlessClient.Input
             _controlKeyController = controlKeyController;
             _functionKeyController = functionKeyController;
             _numPadController = numPadController;
-            _currentMapStateProvider = currentMapStateProvider;
+            _currentMapStateRepository = currentMapStateRepository;
             _activeDialogProvider = activeDialogProvider;
         }
 
@@ -49,7 +49,7 @@ namespace EndlessClient.Input
                                         _controlKeyController,
                                         _functionKeyController,
                                         _numPadController,
-                                        _currentMapStateProvider,
+                                        _currentMapStateRepository,
                                         _activeDialogProvider);
         }
     }
