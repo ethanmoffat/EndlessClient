@@ -1,18 +1,28 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Dialogs.Actions;
 using EOLib.Domain.Notifiers;
+using EOLib.Net;
 using System.Collections.Generic;
 
 namespace EndlessClient.HUD
 {
     [AutoMappedType]
-    public class ServerMessageActions : IUserInterfaceNotifier
+    public class UserInterfaceActions : IUserInterfaceNotifier
     {
         private readonly IInGameDialogActions _inGameDialogActions;
 
-        public ServerMessageActions(IInGameDialogActions inGameDialogActions)
+        public UserInterfaceActions(IInGameDialogActions inGameDialogActions)
         {
             _inGameDialogActions = inGameDialogActions;
+        }
+
+        public void NotifyPacketDialog(PacketFamily packetFamily)
+        {
+            switch (packetFamily)
+            {
+                case PacketFamily.Locker: _inGameDialogActions.ShowLockerDialog(); break;
+                case PacketFamily.Chest: _inGameDialogActions.ShowChestDialog(); break;
+            }
         }
 
         public void NotifyMessageDialog(string title, IReadOnlyList<string> messages)
