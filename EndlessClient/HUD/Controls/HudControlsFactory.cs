@@ -143,32 +143,32 @@ namespace EndlessClient.HUD.Controls
 
                 {HudControlIdentifier.HudBackground, CreateHudBackground()},
 
-                {HudControlIdentifier.InventoryButton, CreateStateChangeButton(InGameStates.Inventory)},
-                {HudControlIdentifier.ViewMapButton, CreateStateChangeButton(InGameStates.ViewMapToggle)},
-                {HudControlIdentifier.ActiveSpellsButton, CreateStateChangeButton(InGameStates.ActiveSpells)},
-                {HudControlIdentifier.PassiveSpellsButton, CreateStateChangeButton(InGameStates.PassiveSpells)},
-                {HudControlIdentifier.ChatButton, CreateStateChangeButton(InGameStates.Chat)},
-                {HudControlIdentifier.StatsButton, CreateStateChangeButton(InGameStates.Stats)},
-                {HudControlIdentifier.OnlineListButton, CreateStateChangeButton(InGameStates.OnlineList)},
-                {HudControlIdentifier.PartyButton, CreateStateChangeButton(InGameStates.Party)},
-                {HudControlIdentifier.MacroButton, CreateStateChangeButton(InGameStates.Macro)},
-                {HudControlIdentifier.SettingsButton, CreateStateChangeButton(InGameStates.Settings)},
-                {HudControlIdentifier.HelpButton, CreateStateChangeButton(InGameStates.Help)},
+                //{HudControlIdentifier.InventoryButton, CreateStateChangeButton(InGameStates.Inventory)},
+                //{HudControlIdentifier.ViewMapButton, CreateStateChangeButton(InGameStates.ViewMapToggle)},
+                //{HudControlIdentifier.ActiveSpellsButton, CreateStateChangeButton(InGameStates.ActiveSpells)},
+                //{HudControlIdentifier.PassiveSpellsButton, CreateStateChangeButton(InGameStates.PassiveSpells)},
+                //{HudControlIdentifier.ChatButton, CreateStateChangeButton(InGameStates.Chat)},
+                //{HudControlIdentifier.StatsButton, CreateStateChangeButton(InGameStates.Stats)},
+                //{HudControlIdentifier.OnlineListButton, CreateStateChangeButton(InGameStates.OnlineList)},
+                //{HudControlIdentifier.PartyButton, CreateStateChangeButton(InGameStates.Party)},
+                //{HudControlIdentifier.MacroButton, CreateStateChangeButton(InGameStates.Macro)},
+                //{HudControlIdentifier.SettingsButton, CreateStateChangeButton(InGameStates.Settings)},
+                //{HudControlIdentifier.HelpButton, CreateStateChangeButton(InGameStates.Help)},
 
                 {HudControlIdentifier.FriendList, CreateFriendListButton()},
                 {HudControlIdentifier.IgnoreList, CreateIgnoreListButton()},
 
-                {HudControlIdentifier.NewsPanel, CreateStatePanel(InGameStates.News)},
-                {HudControlIdentifier.InventoryPanel, CreateStatePanel(InGameStates.Inventory)},
-                {HudControlIdentifier.ActiveSpellsPanel, CreateStatePanel(InGameStates.ActiveSpells)},
-                {HudControlIdentifier.PassiveSpellsPanel, CreateStatePanel(InGameStates.PassiveSpells)},
-                {HudControlIdentifier.ChatPanel, CreateStatePanel(InGameStates.Chat)},
-                {HudControlIdentifier.StatsPanel, CreateStatePanel(InGameStates.Stats)},
-                {HudControlIdentifier.OnlineListPanel, CreateStatePanel(InGameStates.OnlineList)},
-                {HudControlIdentifier.PartyPanel, CreateStatePanel(InGameStates.Party)},
+                //{HudControlIdentifier.NewsPanel, CreateStatePanel(InGameStates.News)},
+                //{HudControlIdentifier.InventoryPanel, CreateStatePanel(InGameStates.Inventory)},
+                //{HudControlIdentifier.ActiveSpellsPanel, CreateStatePanel(InGameStates.ActiveSpells)},
+                //{HudControlIdentifier.PassiveSpellsPanel, CreateStatePanel(InGameStates.PassiveSpells)},
+                //{HudControlIdentifier.ChatPanel, CreateStatePanel(InGameStates.Chat)},
+                //{HudControlIdentifier.StatsPanel, CreateStatePanel(InGameStates.Stats)},
+                //{HudControlIdentifier.OnlineListPanel, CreateStatePanel(InGameStates.OnlineList)},
+                //{HudControlIdentifier.PartyPanel, CreateStatePanel(InGameStates.Party)},
                 //macro panel
-                {HudControlIdentifier.SettingsPanel, CreateStatePanel(InGameStates.Settings)},
-                {HudControlIdentifier.HelpPanel, CreateStatePanel(InGameStates.Help)},
+                //{HudControlIdentifier.SettingsPanel, CreateStatePanel(InGameStates.Settings)},
+                //{HudControlIdentifier.HelpPanel, CreateStatePanel(InGameStates.Help)},
 
                 {HudControlIdentifier.SessionExpButton, CreateSessionExpButton()},
                 {HudControlIdentifier.QuestsButton, CreateQuestButton()},
@@ -178,10 +178,10 @@ namespace EndlessClient.HUD.Controls
                 {HudControlIdentifier.SPStatusBar, CreateSPStatusBar()},
                 {HudControlIdentifier.TNLStatusBar, CreateTNLStatusBar()},
 
-                //{HudControlIdentifier.ChatModePictureBox, CreateChatModePictureBox()},
-                //{HudControlIdentifier.ChatTextBox, CreateChatTextBox()},
-                //{HudControlIdentifier.ClockLabel, CreateClockLabel()},
-                //{HudControlIdentifier.StatusLabel, CreateStatusLabel()},
+                {HudControlIdentifier.ChatModePictureBox, CreateChatModePictureBox()},
+                {HudControlIdentifier.ChatTextBox, CreateChatTextBox()},
+                {HudControlIdentifier.ClockLabel, CreateClockLabel()},
+                {HudControlIdentifier.StatusLabel, CreateStatusLabel()},
 
                 {HudControlIdentifier.PeriodicStatUpdater, CreatePeriodicStatUpdater()},
                 {HudControlIdentifier.UserInputHandler, CreateUserInputHandler()},
@@ -198,14 +198,19 @@ namespace EndlessClient.HUD.Controls
 
         private PlayerStatusIconRenderer CreatePlayerStatusIconRenderer()
         {
-            return new PlayerStatusIconRenderer(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, (ISpellSlotDataProvider)_spellSlotDataRepository, _currentMapProvider);
+            return new PlayerStatusIconRenderer(
+                _nativeGraphicsManager,
+                (ICharacterProvider)_characterRepository,
+                (ISpellSlotDataProvider)_spellSlotDataRepository,
+                _currentMapProvider, _clientWindowSizeRepository);
         }
 
         private HudBackgroundFrame CreateHudBackground()
         {
             return new HudBackgroundFrame(_nativeGraphicsManager, _graphicsDeviceProvider)
             {
-                DrawOrder = HUD_BASE_LAYER
+                DrawOrder = HUD_BASE_LAYER,
+                Visible = !_clientWindowSizeRepository.Resizable,
             };
         }
 
@@ -239,34 +244,46 @@ namespace EndlessClient.HUD.Controls
 
         private IXNAButton CreateFriendListButton()
         {
+            Func<Vector2> getFriendListDrawPosition = () => new Vector2(_clientWindowSizeRepository.Width - 48, _clientWindowSizeRepository.Height - 37);
             var button = new XNAButton(
                 _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 27, false),
-                new Vector2(592, 312),
+                _clientWindowSizeRepository.Resizable ? getFriendListDrawPosition() : new Vector2(592, 312),
                 new Rectangle(0, 260, 17, 15),
                 new Rectangle(0, 276, 17, 15))
             {
-                DrawOrder = HUD_CONTROL_LAYER
+                DrawOrder = HUD_CONTROL_LAYER + 1
             };
             button.OnClick += (_, _) => _hudButtonController.ClickFriendList();
             button.OnClick += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.ButtonClick);
             button.OnMouseOver += (o, e) => _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_BUTTON, EOResourceID.STATUS_LABEL_FRIEND_LIST);
+
+            if (_clientWindowSizeRepository.Resizable)
+            {
+                _clientWindowSizeRepository.GameWindowSizeChanged += (_, _) => button.DrawPosition = getFriendListDrawPosition();
+            }
 
             return button;
         }
 
         private IXNAButton CreateIgnoreListButton()
         {
+            Func<Vector2> getIgnoreListDrawPosition = () => new Vector2(_clientWindowSizeRepository.Width - 31, _clientWindowSizeRepository.Height - 37);
             var button = new XNAButton(
                 _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 27, false),
-                new Vector2(609, 312),
+                _clientWindowSizeRepository.Resizable ? getIgnoreListDrawPosition() : new Vector2(609, 312),
                 new Rectangle(17, 260, 17, 15),
                 new Rectangle(17, 276, 17, 15))
             {
-                DrawOrder = HUD_CONTROL_LAYER
+                DrawOrder = HUD_CONTROL_LAYER + 1
             };
             button.OnClick += (_, _) => _hudButtonController.ClickIgnoreList();
             button.OnClick += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.ButtonClick);
             button.OnMouseOver += (o, e) => _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_BUTTON, EOResourceID.STATUS_LABEL_IGNORE_LIST);
+
+            if (_clientWindowSizeRepository.Resizable)
+            {
+                _clientWindowSizeRepository.GameWindowSizeChanged += (_, _) => button.DrawPosition = getIgnoreListDrawPosition();
+            }
 
             return button;
         }
@@ -362,63 +379,48 @@ namespace EndlessClient.HUD.Controls
 
         private IGameComponent CreateHPStatusBar()
         {
-            var statusBar = new HPStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, _userInputRepository) { DrawOrder = HUD_CONTROL_LAYER };
+            var statusBar = new HPStatusBar(_nativeGraphicsManager, _clientWindowSizeRepository, (ICharacterProvider)_characterRepository, _userInputRepository) { DrawOrder = HUD_CONTROL_LAYER };
             statusBar.StatusBarClicked += () => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
-            _clientWindowSizeRepository.GameWindowSizeChanged += (o, e) => ChangeStatusBarPosition(statusBar, -2);
             return statusBar;
         }
 
         private IGameComponent CreateTPStatusBar()
         {
-            var statusBar = new TPStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, _userInputRepository) { DrawOrder = HUD_CONTROL_LAYER };
+            var statusBar = new TPStatusBar(_nativeGraphicsManager, _clientWindowSizeRepository, (ICharacterProvider)_characterRepository, _userInputRepository) { DrawOrder = HUD_CONTROL_LAYER };
             statusBar.StatusBarClicked += () => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
-            _clientWindowSizeRepository.GameWindowSizeChanged += (o, e) => ChangeStatusBarPosition(statusBar, -1);
             return statusBar;
         }
 
         private IGameComponent CreateSPStatusBar()
         {
-            var statusBar = new SPStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, _userInputRepository) { DrawOrder = HUD_CONTROL_LAYER };
+            var statusBar = new SPStatusBar(_nativeGraphicsManager, _clientWindowSizeRepository, (ICharacterProvider)_characterRepository, _userInputRepository) { DrawOrder = HUD_CONTROL_LAYER };
             statusBar.StatusBarClicked += () => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
-            _clientWindowSizeRepository.GameWindowSizeChanged += (o, e) => ChangeStatusBarPosition(statusBar, 0);
             return statusBar;
         }
 
         private IGameComponent CreateTNLStatusBar()
         {
-            var statusBar = new TNLStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, _userInputRepository, _experienceTableProvider) { DrawOrder = HUD_CONTROL_LAYER };
+            var statusBar = new TNLStatusBar(_nativeGraphicsManager, _clientWindowSizeRepository, (ICharacterProvider)_characterRepository, _userInputRepository, _experienceTableProvider) { DrawOrder = HUD_CONTROL_LAYER };
             statusBar.StatusBarClicked += () => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
-            _clientWindowSizeRepository.GameWindowSizeChanged += (o, e) => ChangeStatusBarPosition(statusBar, 1);
             return statusBar;
-        }
-
-        private void ChangeStatusBarPosition(StatusBarBase statusBar, int statusBarIndex)
-        {
-            var xCoord = (_clientWindowSizeRepository.Width / 2) + statusBarIndex * statusBar.DrawArea.Width;
-            statusBar.DrawPosition = new Vector2(xCoord, 0);
         }
 
         private ChatModePictureBox CreateChatModePictureBox()
         {
-            var chatModesTexture = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 31);
-            var pictureBox = new ChatModePictureBox(_chatModeCalculator, _hudControlProvider, chatModesTexture)
+            return new ChatModePictureBox(_nativeGraphicsManager, _clientWindowSizeRepository, _chatModeCalculator, _hudControlProvider)
             {
-                DrawArea = new Rectangle(16, 309, chatModesTexture.Width, chatModesTexture.Height / 8),
-                SourceRectangle = new Rectangle(0, 0, chatModesTexture.Width, chatModesTexture.Height / 8),
-                DrawOrder = HUD_CONTROL_LAYER
+                DrawOrder = HUD_CONTROL_LAYER + 1
             };
-
-            return pictureBox;
         }
 
         private ChatTextBox CreateChatTextBox()
         {
-            var chatTextBox = new ChatTextBox(_contentProvider)
+            var chatTextBox = new ChatTextBox(_nativeGraphicsManager, _clientWindowSizeRepository, _contentProvider)
             {
                 Text = "",
                 Selected = true,
                 Visible = true,
-                DrawOrder = HUD_CONTROL_LAYER
+                DrawOrder = HUD_CONTROL_LAYER,
             };
             chatTextBox.OnEnterPressed += (_, _) => _chatController.SendChatAndClearTextBox();
             chatTextBox.OnClicked += (_, _) => _chatController.SelectChatTextBox();
@@ -428,7 +430,7 @@ namespace EndlessClient.HUD.Controls
 
         private TimeLabel CreateClockLabel()
         {
-            return new TimeLabel((IClientWindowSizeProvider)_clientWindowSizeRepository) { DrawOrder = HUD_CONTROL_LAYER };
+            return new TimeLabel(_clientWindowSizeRepository) { DrawOrder = HUD_CONTROL_LAYER + 1 };
         }
 
         private PeriodicStatUpdaterComponent CreatePeriodicStatUpdater()
@@ -443,7 +445,11 @@ namespace EndlessClient.HUD.Controls
 
         private StatusBarLabel CreateStatusLabel()
         {
-            return new StatusBarLabel((IClientWindowSizeProvider)_clientWindowSizeRepository, _statusLabelTextProvider) { DrawOrder = HUD_CONTROL_LAYER };
+            return new StatusBarLabel(_nativeGraphicsManager, _clientWindowSizeRepository, _statusLabelTextProvider)
+            {
+                Visible = true,
+                DrawOrder = HUD_CONTROL_LAYER,
+            };
         }
 
         private CurrentUserInputTracker CreateCurrentUserInputTracker()

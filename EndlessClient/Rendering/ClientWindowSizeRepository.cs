@@ -12,16 +12,16 @@ namespace EndlessClient.Rendering
         int Height { get; }
 
         bool Resizable { get; }
-    }
-
-    public interface IClientWindowSizeRepository : IResettable
-    {
-        int Width { get; set; }
-        int Height { get; set; }
-
-        bool Resizable { get; set; }
 
         event EventHandler<EventArgs> GameWindowSizeChanged;
+    }
+
+    public interface IClientWindowSizeRepository : IResettable, IClientWindowSizeProvider
+    {
+        new int Width { get; set; }
+        new int Height { get; set; }
+
+        new bool Resizable { get; set; }
     }
 
     [AutoMappedType(IsSingleton = true)]
@@ -82,7 +82,7 @@ namespace EndlessClient.Rendering
         }
 
         public ClientWindowSizeRepository(IGameWindowRepository gameWindowRepository,
-                                        IGraphicsDeviceRepository graphicsDeviceRepository)
+                                          IGraphicsDeviceRepository graphicsDeviceRepository)
         {
             _gameWindowRepository = gameWindowRepository;
             _graphicsDeviceRepository = graphicsDeviceRepository;

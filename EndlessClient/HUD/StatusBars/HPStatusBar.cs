@@ -1,5 +1,6 @@
 ﻿using System;
 using EndlessClient.Input;
+using EndlessClient.Rendering;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
@@ -8,12 +9,16 @@ namespace EndlessClient.HUD.StatusBars
 {
     public class HPStatusBar : StatusBarBase
     {
+        protected override int StatusBarIndex => -2;
+
         public HPStatusBar(INativeGraphicsManager nativeGraphicsManager,
+                           IClientWindowSizeProvider clientWindowSizeProvider,
                            ICharacterProvider characterProvider,
                            IUserInputRepository userInputRepository)
-            : base(nativeGraphicsManager, characterProvider, userInputRepository)
+            : base(nativeGraphicsManager, clientWindowSizeProvider, characterProvider, userInputRepository)
         {
             DrawArea = new Rectangle(100, 0, _sourceRectangleArea.Width, _sourceRectangleArea.Height);
+            ChangeStatusBarPosition();
         }
 
         protected override void UpdateLabelText()

@@ -28,7 +28,7 @@ namespace EndlessClient.GameExecution
     [MappedType(BaseType = typeof(IEndlessGame), IsSingleton = true)]
     public class EndlessGame : Game, IEndlessGame
     {
-        private readonly IClientWindowSizeProvider _windowSizeProvider;
+        private readonly IClientWindowSizeRepository _windowSizeRepository;
         private readonly IContentProvider _contentProvider;
         private readonly IGraphicsDeviceRepository _graphicsDeviceRepository;
         private readonly IGameWindowRepository _gameWindowRepository;
@@ -54,7 +54,7 @@ namespace EndlessClient.GameExecution
         private Texture2D _black;
 #endif
 
-        public EndlessGame(IClientWindowSizeProvider windowSizeProvider,
+        public EndlessGame(IClientWindowSizeRepository windowSizeRepository,
                            IContentProvider contentProvider,
                            IGraphicsDeviceRepository graphicsDeviceRepository,
                            IGameWindowRepository gameWindowRepository,
@@ -69,7 +69,7 @@ namespace EndlessClient.GameExecution
                            IMfxPlayer mfxPlayer,
                            IXnaControlSoundMapper soundMapper)
         {
-            _windowSizeProvider = windowSizeProvider;
+            _windowSizeRepository = windowSizeRepository;
             _contentProvider = contentProvider;
             _graphicsDeviceRepository = graphicsDeviceRepository;
             _gameWindowRepository = gameWindowRepository;
@@ -124,10 +124,13 @@ namespace EndlessClient.GameExecution
             IsFixedTimeStep = false;
             _previousKeyState = Keyboard.GetState();
 
+            _windowSizeRepository.Width = ClientWindowSizeRepository.DEFAULT_BACKBUFFER_WIDTH;
+            _windowSizeRepository.Height = ClientWindowSizeRepository.DEFAULT_BACKBUFFER_HEIGHT;
+
             _graphicsDeviceManager.SynchronizeWithVerticalRetrace = false;
             _graphicsDeviceManager.IsFullScreen = false;
-            _graphicsDeviceManager.PreferredBackBufferWidth = _windowSizeProvider.Width;
-            _graphicsDeviceManager.PreferredBackBufferHeight = _windowSizeProvider.Height;
+            _graphicsDeviceManager.PreferredBackBufferWidth = _windowSizeRepository.Width;
+            _graphicsDeviceManager.PreferredBackBufferHeight = _windowSizeRepository.Height;
             _graphicsDeviceManager.ApplyChanges();
 
             Exiting += (_, _) => _mfxPlayer.StopBackgroundMusic();

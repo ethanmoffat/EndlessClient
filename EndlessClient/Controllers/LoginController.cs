@@ -210,20 +210,19 @@ namespace EndlessClient.Controllers
                 gameLoadingDialog?.CloseDialog();
             }
 
+            await DispatcherGameComponent.Invoke(() =>
+            {
+                _clientWindowSizeRepository.Width = _configurationProvider.InGameWidth;
+                _clientWindowSizeRepository.Height = _configurationProvider.InGameHeight;
+            });
+            _clientWindowSizeRepository.Resizable = true;
+
             _gameStateActions.ChangeToState(GameStates.PlayingTheGame);
             _chatTextBoxActions.FocusChatTextBox();
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING,
                                               EOResourceID.LOADING_GAME_HINT_FIRST);
             _firstTimePlayerActions.WarnFirstTimePlayers();
             _mapChangedActions.ActiveCharacterEnterMapForLogin();
-
-            _clientWindowSizeRepository.Resizable = true;
-
-            await DispatcherGameComponent.Invoke(() =>
-            {
-                _clientWindowSizeRepository.Width = _configurationProvider.InGameWidth;
-                _clientWindowSizeRepository.Height = _configurationProvider.InGameHeight;
-            });
         }
 
         private void SetInitialStateAndShowError(NoDataSentException ex)

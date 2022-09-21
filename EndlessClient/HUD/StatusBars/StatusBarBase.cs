@@ -1,5 +1,6 @@
 ﻿using System;
 using EndlessClient.Input;
+using EndlessClient.Rendering;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
@@ -14,6 +15,7 @@ namespace EndlessClient.HUD.StatusBars
     public abstract class StatusBarBase : XNAControl
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
+        private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly IUserInputRepository _userInputRepository;
 
@@ -23,16 +25,20 @@ namespace EndlessClient.HUD.StatusBars
         protected CharacterStats Stats => _characterProvider.MainCharacter.Stats;
         protected Rectangle _sourceRectangleArea;
 
+        protected abstract int StatusBarIndex { get; }
+
         private Option<DateTime> _labelShowTime;
 
         public event Action StatusBarClicked;
         public event Action StatusBarClosed;
 
         protected StatusBarBase(INativeGraphicsManager nativeGraphicsManager,
+                                IClientWindowSizeProvider clientWindowSizeProvider,
                                 ICharacterProvider characterProvider,
                                 IUserInputRepository userInputRepository)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
+            _clientWindowSizeProvider = clientWindowSizeProvider;
             _characterProvider = characterProvider;
             _userInputRepository = userInputRepository;
 
@@ -49,6 +55,9 @@ namespace EndlessClient.HUD.StatusBars
             _label.SetParentControl(this);
 
             _sourceRectangleArea = new Rectangle(0, 0, 110, 14);
+
+            if (_clientWindowSizeProvider.Resizable)
+                _clientWindowSizeProvider.GameWindowSizeChanged += (o, e) => ChangeStatusBarPosition();
         }
 
         protected abstract void UpdateLabelText();
@@ -106,6 +115,12 @@ namespace EndlessClient.HUD.StatusBars
             }
 
             base.OnDrawControl(gameTime);
+        }
+
+        protected void ChangeStatusBarPosition()
+        {
+            var xCoord = (_clientWindowSizeProvider.Width / 2) + StatusBarIndex * DrawArea.Width;
+            DrawPosition = new Vector2(xCoord, 0);
         }
 
         /// <summary>

@@ -7,7 +7,7 @@ using XNAControls;
 
 namespace EndlessClient.HUD.Chat
 {
-    [MappedType(BaseType = typeof(IChatTextBoxActions))]
+    [AutoMappedType]
     public class ChatTextBoxActions : IChatTextBoxActions
     {
         private readonly IKeyboardDispatcherProvider _keyboardDispatcherProvider;
@@ -22,19 +22,17 @@ namespace EndlessClient.HUD.Chat
 
         public void ClearChatText()
         {
-            // TODO: re-enable with UI rework
-            //var chatTextBox = GetChatTextBox();
-            //chatTextBox.Text = "";
+            var chatTextBox = GetChatTextBox();
+            chatTextBox.Text = "";
         }
 
         public void FocusChatTextBox()
         {
-            // TODO: re-enable with UI rework
-            //if (KeyboardDispatcher.Subscriber != null)
-            //    KeyboardDispatcher.Subscriber.Selected = false;
+            if (KeyboardDispatcher.Subscriber != null)
+                KeyboardDispatcher.Subscriber.Selected = false;
 
-            //KeyboardDispatcher.Subscriber = GetChatTextBox();
-            //KeyboardDispatcher.Subscriber.Selected = true;
+            KeyboardDispatcher.Subscriber = GetChatTextBox();
+            KeyboardDispatcher.Subscriber.Selected = true;
         }
 
         private KeyboardDispatcher KeyboardDispatcher => _keyboardDispatcherProvider.Dispatcher;
