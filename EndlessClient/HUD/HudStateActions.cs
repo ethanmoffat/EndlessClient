@@ -33,8 +33,13 @@ namespace EndlessClient.HUD
             if (!_hudControlProvider.IsInGame)
                 return;
 
-            _hudControlProvider.HudPanels.Single(x => x.Visible).Visible = false;
-            _hudControlProvider.HudPanels.Single(x => IsPanelForRequestedState(x, newState)).Visible = true;
+            var targetPanel = _hudControlProvider.HudPanels.Single(x => IsPanelForRequestedState(x, newState));
+            var originalVisibility = targetPanel.Visible;
+
+            foreach (var panel in _hudControlProvider.HudPanels.Where(x => x.Visible))
+                panel.Visible = false;
+
+            targetPanel.Visible = !originalVisibility;
         }
 
         public void ToggleMapView()

@@ -188,7 +188,7 @@ namespace EndlessClient.HUD.Chat
                 foreach (var (ndx, renderable) in _renderables.Skip(_scrollBar.ScrollOffset).Take(_scrollBar.LinesToRender).Select((r, i) => (i, r)))
                 {
                     renderable.DisplayIndex = ndx;
-                    renderable.Render(_spriteBatch, _chatFont);
+                    renderable.Render(_parentPanel, _spriteBatch, _chatFont);
                 }
 
                 _spriteBatch.Begin();

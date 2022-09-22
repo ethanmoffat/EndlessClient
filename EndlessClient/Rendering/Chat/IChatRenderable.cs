@@ -1,5 +1,5 @@
+using EndlessClient.HUD.Panels;
 using EOLib.Domain.Chat;
-using EOLib.Graphics;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.Chat
@@ -10,6 +10,6 @@ namespace EndlessClient.Rendering.Chat
 
         ChatData Data { get; }
 
-        void Render(SpriteBatch spriteBatch, SpriteFont chatFont);
+        void Render(IHudPanel parentPanel, SpriteBatch spriteBatch, SpriteFont chatFont);
     }
 }

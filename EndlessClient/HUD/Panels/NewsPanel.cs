@@ -96,7 +96,7 @@ namespace EndlessClient.HUD.Panels
                 return;
 
             foreach (var renderable in _chatRenderables)
-                renderable.Render(_spriteBatch, _chatFont);
+                renderable.Render(this, _spriteBatch, _chatFont);
         }
 
         private void UpdateCachedNewsStrings()

@@ -329,16 +329,16 @@ namespace EndlessClient.HUD.Panels
                 if (_scrollBar.ScrollOffset == 0)
                 {
                     _spriteBatch.Draw(_functionKeyLabelSheet,
-                        new Vector2(202 + 45 * i, 338),
+                        DrawPosition + new Vector2(100 + 45 * i, 8),
                         _functionKeyRow1Source.WithPosition((_functionKeyRow1Source.Location + new Point(offset, 0)).ToVector2()),
                         Color.White);
                 }
 
                 if (_scrollBar.ScrollOffset < 2)
                 {
-                    var yCoord = _scrollBar.ScrollOffset == 0 ? 390 : 338;
+                    var yCoord = _scrollBar.ScrollOffset == 0 ? 90 : 38;
                     _spriteBatch.Draw(_functionKeyLabelSheet,
-                        new Vector2(202 + 45 * i, yCoord),
+                        DrawPosition + new Vector2(100 + 45 * i, yCoord),
                         _functionKeyRow2Source.WithPosition((_functionKeyRow2Source.Location + new Point(offset, 0)).ToVector2()),
                         Color.White);
                 }

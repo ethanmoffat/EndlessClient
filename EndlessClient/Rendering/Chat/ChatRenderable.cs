@@ -1,3 +1,4 @@
+using EndlessClient.HUD.Panels;
 using EOLib.Domain.Chat;
 using EOLib.Extensions;
 using EOLib.Graphics;
@@ -11,7 +12,6 @@ namespace EndlessClient.Rendering.Chat
     {
         private const int ICON_GRAPHIC_X_OFF = 3;
         private const int CHAT_MESSAGE_X_OFF = 20;
-        private static readonly Vector2 TOP_LEFT = new Vector2(102, 330);
 
         private readonly INativeGraphicsManager _nativeGraphicsManager;
 
@@ -52,11 +52,11 @@ namespace EndlessClient.Rendering.Chat
             return hash;
         }
 
-        public void Render(SpriteBatch spriteBatch, SpriteFont chatFont)
+        public void Render(IHudPanel parentPanel, SpriteBatch spriteBatch, SpriteFont chatFont)
         {
             spriteBatch.Begin();
 
-            var pos = TOP_LEFT + new Vector2(0, DisplayIndex*13);
+            var pos = parentPanel.DrawPosition + new Vector2(0, DisplayIndex*13);
             spriteBatch.Draw(_nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 32, true),
                              new Vector2(pos.X + ICON_GRAPHIC_X_OFF, pos.Y + HeaderYOffset),
                              GetChatIconRectangle(Data.Icon),
