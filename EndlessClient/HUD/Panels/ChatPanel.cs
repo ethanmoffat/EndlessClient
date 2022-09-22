@@ -14,7 +14,7 @@ using XNAControls;
 
 namespace EndlessClient.HUD.Panels
 {
-    public class ChatPanel : XNAPanel, IHudPanel
+    public class ChatPanel : DraggableHudPanel
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IChatActions _chatActions;

@@ -31,7 +31,7 @@ using XNAControls;
 
 namespace EndlessClient.HUD.Panels
 {
-    public class InventoryPanel : XNAPanel, IHudPanel
+    public class InventoryPanel : DraggableHudPanel
     {
         public const int InventoryRows = 4;
         public const int InventoryRowSlots = 14;
@@ -233,6 +233,8 @@ namespace EndlessClient.HUD.Panels
             }
 
             base.OnUpdateControl(gameTime);
+
+            SuppressClickDragEvent(!NoItemsDragging());
         }
 
         protected override void Dispose(bool disposing)

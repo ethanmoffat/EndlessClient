@@ -13,7 +13,7 @@ using XNAControls;
 
 namespace EndlessClient.HUD.Panels
 {
-    public class PartyPanel : XNAPanel, IHudPanel
+    public class PartyPanel : DraggableHudPanel
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IPartyActions _partyActions;

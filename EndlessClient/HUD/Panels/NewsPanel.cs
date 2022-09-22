@@ -1,16 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using EndlessClient.Rendering.Chat;
+﻿using EndlessClient.Rendering.Chat;
 using EndlessClient.UIControls;
 using EOLib.Domain.Login;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using XNAControls;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace EndlessClient.HUD.Panels
 {
-    public class NewsPanel : XNAPanel, IHudPanel
+    public class NewsPanel : DraggableHudPanel
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IChatRenderableGenerator _chatRenderableGenerator;

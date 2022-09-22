@@ -62,11 +62,13 @@ namespace EndlessClient.HUD.Spells
             {
                 //36 is full width of level bar
                 var width = (int)(InventorySpell.Level / 100.0 * 36);
-                _levelDestinationRectangle = new Rectangle(DrawAreaWithParentOffset.X + 3, DrawAreaWithParentOffset.Y + 40, width, 6);
+                _levelDestinationRectangle = new Rectangle(0, 0, width, 6);
 
                 _lastSlot = DisplaySlot;
                 _lastInventorySpell = InventorySpell;
             }
+
+            _levelDestinationRectangle = _levelDestinationRectangle.WithPosition(new Vector2(DrawAreaWithParentOffset.X + 3, DrawAreaWithParentOffset.Y + 40));
 
             base.OnUpdateControl(gameTime);
         }

@@ -1,10 +1,9 @@
 ﻿using EOLib.Graphics;
 using Microsoft.Xna.Framework;
-using XNAControls;
 
 namespace EndlessClient.HUD.Panels
 {
-    public class PassiveSpellsPanel : XNAPanel, IHudPanel
+    public class PassiveSpellsPanel : DraggableHudPanel
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
 

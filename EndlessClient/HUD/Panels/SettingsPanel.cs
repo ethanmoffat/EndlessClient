@@ -14,7 +14,7 @@ using XNAControls;
 
 namespace EndlessClient.HUD.Panels
 {
-    public class SettingsPanel : XNAPanel, IHudPanel
+    public class SettingsPanel : DraggableHudPanel
     {
         private enum KeyboardLayout
         {

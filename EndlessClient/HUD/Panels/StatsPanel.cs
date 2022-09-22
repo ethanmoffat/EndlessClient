@@ -12,7 +12,7 @@ using XNAControls;
 
 namespace EndlessClient.HUD.Panels
 {
-    public class StatsPanel : XNAPanel, IHudPanel
+    public class StatsPanel : DraggableHudPanel
     {
         private readonly ICharacterProvider _characterProvider;
         private readonly ICharacterInventoryProvider _characterInventoryProvider;

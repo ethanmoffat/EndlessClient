@@ -19,7 +19,7 @@ using XNAControls;
 
 namespace EndlessClient.HUD.Panels
 {
-    public class OnlineListPanel : XNAPanel, IHudPanel
+    public class OnlineListPanel : DraggableHudPanel
     {
         private enum Filter
         {

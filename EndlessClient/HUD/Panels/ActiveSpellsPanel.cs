@@ -29,7 +29,7 @@ using static EndlessClient.HUD.Spells.SpellPanelItem;
 
 namespace EndlessClient.HUD.Panels
 {
-    public class ActiveSpellsPanel : XNAPanel, IHudPanel
+    public class ActiveSpellsPanel : DraggableHudPanel
     {
         public const int SpellRows = 4;
         public const int SpellRowLength = 8;
@@ -303,6 +303,8 @@ namespace EndlessClient.HUD.Panels
                     }));
 
             base.OnUpdateControl(gameTime);
+
+            SuppressClickDragEvent(AnySpellsDragging());
         }
 
         protected override void OnDrawControl(GameTime gameTime)

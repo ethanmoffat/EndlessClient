@@ -4,7 +4,7 @@ using XNAControls;
 
 namespace EndlessClient.HUD.Panels
 {
-    public class HelpPanel : XNAPanel, IHudPanel
+    public class HelpPanel : DraggableHudPanel
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
 
