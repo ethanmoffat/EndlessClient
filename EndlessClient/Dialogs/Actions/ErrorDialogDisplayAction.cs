@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using AutomaticTypeMapper;
 using EndlessClient.Dialogs.Factories;
 using EOLib.Domain.Login;
@@ -29,23 +30,47 @@ namespace EndlessClient.Dialogs.Actions
                 case ConnectResult.InvalidEndpoint:
                 case ConnectResult.InvalidSocket:
                 case ConnectResult.SocketError:
-                {
-                    var messageBox = _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_SERVER_NOT_FOUND,
-                        EODialogButtons.Ok,
-                        EOMessageBoxStyle.SmallDialogLargeHeader);
-                    messageBox.ShowDialog();
-                }
+                    {
+                        var messageBox = _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_SERVER_NOT_FOUND,
+                            EODialogButtons.Ok,
+                            EOMessageBoxStyle.SmallDialogLargeHeader);
+                        messageBox.ShowDialog();
+                    }
                     break;
                 default:
-                {
-                    var errorCode = (int) connectResult;
-                    var ex = new SocketException(errorCode);
+                    {
+                        var errorCode = (int)connectResult;
+                        var ex = new SocketException(errorCode);
 
-                    var messageBox = _messageBoxFactory.CreateMessageBox(
-                        $"Error code from socket: {ex.SocketErrorCode}",
-                        "Internal Error");
-                    messageBox.ShowDialog();
-                }
+                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                        {
+                            if (Enum.TryParse<SocketError>(errorCode.ToString(), out var socketError))
+                            {
+                                switch (socketError)
+                                {
+                                    case SocketError.HostUnreachable:
+                                    case SocketError.HostNotFound:
+                                    case SocketError.HostDown:
+                                        var hostDownMessageBox = _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_SERVER_NOT_FOUND,
+                                            EODialogButtons.Ok,
+                                            EOMessageBoxStyle.SmallDialogLargeHeader);
+                                        hostDownMessageBox.ShowDialog();
+                                        return;
+
+                                    // For some reason, this socket error code does not exist in the SocketError enum, but does occurr when the host is unreachable.
+                                    default:
+                                        if (errorCode == 10063)
+                                            goto case SocketError.HostDown;
+                                        break;
+                                }
+                            }
+                        }
+
+                        var messageBox = _messageBoxFactory.CreateMessageBox(
+                            $"Error code from socket: {ex.SocketErrorCode}",
+                            "Internal Error");
+                        messageBox.ShowDialog();
+                    }
                     break;
             }
         }
@@ -55,37 +80,37 @@ namespace EndlessClient.Dialogs.Actions
             switch (initializationData.Response)
             {
                 case InitReply.ClientOutOfDate:
-                {
-                    var versionNumber = initializationData[InitializationDataKey.RequiredVersionNumber];
-                    var extra = $" 0.000.0{versionNumber}";
-                    var messageBox = _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_CLIENT_OUT_OF_DATE,
-                        extra,
-                        EODialogButtons.Ok,
-                        EOMessageBoxStyle.SmallDialogLargeHeader);
-                    messageBox.ShowDialog();
-                }
-                    break;
-                case InitReply.BannedFromServer:
-                {
-                    var banType = (BanType) initializationData[InitializationDataKey.BanType];
-                    if (banType == BanType.PermanentBan)
                     {
-                        var messageBox = _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_IP_BAN_PERM,
-                            EODialogButtons.Ok,
-                            EOMessageBoxStyle.SmallDialogLargeHeader);
-                        messageBox.ShowDialog();
-                    }
-                    else if (banType == BanType.TemporaryBan)
-                    {
-                        var banMinutesRemaining = initializationData[InitializationDataKey.BanTimeRemaining];
-                        var extra = $" {banMinutesRemaining} minutes.";
-                        var messageBox = _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_IP_BAN_TEMP,
+                        var versionNumber = initializationData[InitializationDataKey.RequiredVersionNumber];
+                        var extra = $" 0.000.0{versionNumber}";
+                        var messageBox = _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_CLIENT_OUT_OF_DATE,
                             extra,
                             EODialogButtons.Ok,
                             EOMessageBoxStyle.SmallDialogLargeHeader);
                         messageBox.ShowDialog();
                     }
-                }
+                    break;
+                case InitReply.BannedFromServer:
+                    {
+                        var banType = (BanType)initializationData[InitializationDataKey.BanType];
+                        if (banType == BanType.PermanentBan)
+                        {
+                            var messageBox = _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_IP_BAN_PERM,
+                                EODialogButtons.Ok,
+                                EOMessageBoxStyle.SmallDialogLargeHeader);
+                            messageBox.ShowDialog();
+                        }
+                        else if (banType == BanType.TemporaryBan)
+                        {
+                            var banMinutesRemaining = initializationData[InitializationDataKey.BanTimeRemaining];
+                            var extra = $" {banMinutesRemaining} minutes.";
+                            var messageBox = _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_IP_BAN_TEMP,
+                                extra,
+                                EODialogButtons.Ok,
+                                EOMessageBoxStyle.SmallDialogLargeHeader);
+                            messageBox.ShowDialog();
+                        }
+                    }
                     break;
                 case InitReply.ErrorState:
                     ShowError(ConnectResult.SocketError);
