@@ -59,7 +59,7 @@ namespace EndlessClient.Dialogs
                 ForeColor = ColorConstants.LightYellowText,
                 Text = caption,
                 TextWidth = 254,
-                DrawPosition = useSmallHeader ? new Vector2(18, 12) : new Vector2(59, 23)
+                DrawPosition = useSmallHeader ? new Vector2(18, 12) : new Vector2(60, 26)
             };
             _captionLabel.SetParentControl(this);
 
