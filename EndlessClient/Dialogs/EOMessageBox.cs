@@ -48,9 +48,11 @@ namespace EndlessClient.Dialogs
                 AutoSize = true,
                 ForeColor = ColorConstants.LightYellowText,
                 Text = message,
-                TextWidth = 254,
-                DrawPosition = new Vector2(18, useSmallHeader ? 40 : 57)
+                TextWidth = 240,
+                DrawPosition = new Vector2(21, useSmallHeader ? 40 : 62),
+                WrapBehavior = WrapBehavior.WrapToNewLine,
             };
+
             _messageLabel.SetParentControl(this);
 
             _captionLabel = new XNALabel(Constants.FontSize10)
@@ -59,7 +61,7 @@ namespace EndlessClient.Dialogs
                 ForeColor = ColorConstants.LightYellowText,
                 Text = caption,
                 TextWidth = 254,
-                DrawPosition = useSmallHeader ? new Vector2(18, 12) : new Vector2(60, 26)
+                DrawPosition = useSmallHeader ? new Vector2(18, 12) : new Vector2(60, 27)
             };
             _captionLabel.SetParentControl(this);
 
