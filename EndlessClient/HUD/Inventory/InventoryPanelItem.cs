@@ -48,9 +48,10 @@ namespace EndlessClient.HUD.Inventory
         // Ru Paul's drag properties
         private bool _beingDragged;
         private Vector2 _oldOffset;
+        private bool dragItemPositioned;
 
         private bool MousePressed => CurrentMouseState.LeftButton == ButtonState.Pressed && PreviousMouseState.LeftButton == ButtonState.Released;
-        
+
         private bool MouseReleased => CurrentMouseState.LeftButton == ButtonState.Released && PreviousMouseState.LeftButton == ButtonState.Pressed;
 
         private bool MouseHeld => CurrentMouseState.LeftButton == ButtonState.Pressed && PreviousMouseState.LeftButton == ButtonState.Pressed;
@@ -216,6 +217,7 @@ namespace EndlessClient.HUD.Inventory
                         else
                             DrawPosition = GetPosition(Slot);
 
+                        dragItemPositioned = false;
                         _beingDragged = false;
                         _nameLabel.Visible = false;
                     }
@@ -229,6 +231,7 @@ namespace EndlessClient.HUD.Inventory
         {
             _spriteBatch.Begin();
 
+            // draw highlighted area
             if (MouseOver)
             {
                 if (!_beingDragged || InventoryGridArea.Contains(CurrentMouseState.Position))
@@ -244,10 +247,36 @@ namespace EndlessClient.HUD.Inventory
                 }
             }
 
-            _spriteBatch.Draw(_itemGraphic, DrawPositionWithParentOffset, Color.FromNonPremultiplied(255, 255, 255, _beingDragged ? 128 : 255));
+            if (_beingDragged)
+            {
+                // slot based on current mouse position if being dragged
+                var currentSlot = GetCurrentSlotBasedOnPosition();
+                var drawPosition = GetPosition(currentSlot) + (_beingDragged ? _oldOffset : ImmediateParent.DrawPositionWithParentOffset);
+
+                if (!dragItemPositioned)
+                {
+                    if (InventoryGridArea.Contains(DrawArea.WithPosition(drawPosition)))
+                    {
+                        dragItemPositioned = true;
+                    }
+                }
+
+                if (dragItemPositioned)
+                {
+                    _spriteBatch.Draw(_itemGraphic, DrawPositionWithParentOffset, Color.FromNonPremultiplied(255, 255, 255, _beingDragged ? 128 : 255));
+                }
+
+                if (InventoryGridArea.Contains(DrawArea.WithPosition(drawPosition)))
+                {
+                    _spriteBatch.Draw(_itemGraphic, _beingDragged ? (DrawPositionWithParentOffset) : DrawPositionWithParentOffset, Color.FromNonPremultiplied(255, 255, 255, _beingDragged ? 128 : 255));
+                }
+            }
+            else
+            {
+                _spriteBatch.Draw(_itemGraphic, _beingDragged ? (DrawPositionWithParentOffset) : DrawPositionWithParentOffset, Color.FromNonPremultiplied(255, 255, 255, _beingDragged ? 128 : 255));
+            }
 
             _spriteBatch.End();
-
             base.OnDrawControl(gameTime);
         }
 
@@ -273,7 +302,7 @@ namespace EndlessClient.HUD.Inventory
 
             if (actualPosition.X + _nameLabel.DrawAreaWithParentOffset.Width + DrawArea.Width > InventoryGridArea.Width)
             {
-                _nameLabel.DrawPosition = new Vector2(actualPosition.X -_nameLabel.DrawArea.Width, actualPosition.Y);
+                _nameLabel.DrawPosition = new Vector2(actualPosition.X - _nameLabel.DrawArea.Width, actualPosition.Y);
             }
             else
             {
