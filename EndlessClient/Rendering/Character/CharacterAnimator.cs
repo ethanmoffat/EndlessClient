@@ -20,8 +20,8 @@ namespace EndlessClient.Rendering.Character
 {
     public class CharacterAnimator : GameComponent, ICharacterAnimator
     {
-        public const int WALK_FRAME_TIME_MS = 120;
-        public const int ATTACK_FRAME_TIME_MS = 100;
+        public const int WALK_FRAME_TIME_MS = 95;
+        public const int ATTACK_FRAME_TIME_MS = 95;
         public const int EMOTE_FRAME_TIME_MS = 250;
 
         private readonly ICharacterRepository _characterRepository;
@@ -50,7 +50,6 @@ namespace EndlessClient.Rendering.Character
         private Option<MapCoordinate> _targetCoordinate;
 
         private bool _clickHandled;
-        private bool _updateToggle;
 
         public CharacterAnimator(IEndlessGameProvider gameProvider,
                                  ICharacterRepository characterRepository,
@@ -89,18 +88,16 @@ namespace EndlessClient.Rendering.Character
             if (_userInputRepository.ClickHandled && !_userInputRepository.WalkClickHandled && _walkPath.Any())
                 _clickHandled = true;
 
-            // 8 updates per second
-            // fixes glitchy other character frame changes while main character is walking
             if (_fixedTimeStepRepository.IsUpdateFrame)
             {
-                if (_updateToggle)
+                if (_fixedTimeStepRepository.IsWalkUpdateFrame)
                 {
                     AnimateCharacterWalking();
-                    AnimateCharacterAttacking();
-                    AnimateCharacterSpells();
-                    AnimateCharacterEmotes();
                 }
-                _updateToggle = !_updateToggle;
+
+                AnimateCharacterAttacking();
+                AnimateCharacterSpells();
+                AnimateCharacterEmotes();
             }
 
             base.Update(gameTime);

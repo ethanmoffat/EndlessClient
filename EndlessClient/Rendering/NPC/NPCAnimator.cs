@@ -31,11 +31,11 @@ namespace EndlessClient.Rendering.NPC
 
         public override void Update(GameTime gameTime)
         {
-            // 8 updates per second
-            // see CharacterAnimator
             if (_fixedTimeStepRepository.IsUpdateFrame)
             {
-                AnimateNPCWalking();
+                if (_fixedTimeStepRepository.IsWalkUpdateFrame)
+                    AnimateNPCWalking();
+
                 AnimateNPCAttacking();
             }
 
