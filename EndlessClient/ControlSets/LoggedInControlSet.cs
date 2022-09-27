@@ -1,6 +1,7 @@
 ﻿using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
+using EndlessClient.Rendering;
 using EndlessClient.UIControls;
 using EOLib.Domain.Login;
 using Microsoft.Xna.Framework;
@@ -19,6 +20,7 @@ namespace EndlessClient.ControlSets
         private readonly IAccountController _accountController;
         private readonly IEndlessGameProvider _endlessGameProvider;
         private readonly IUserInputRepository _userInputRepository;
+        private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
         private readonly List<CharacterInfoPanel> _characterInfoPanels;
 
         private IXNAButton _changePasswordButton;
@@ -34,7 +36,8 @@ namespace EndlessClient.ControlSets
                                   ICharacterManagementController characterManagementController,
                                   IAccountController accountController,
                                   IEndlessGameProvider endlessGameProvider,
-                                  IUserInputRepository userInputRepository)
+                                  IUserInputRepository userInputRepository,
+                                  IFixedTimeStepRepository fixedTimeStepRepository)
             : base(dispatcher, mainButtonController)
         {
             _characterInfoPanelFactory = characterInfoPanelFactory;
@@ -43,6 +46,7 @@ namespace EndlessClient.ControlSets
             _accountController = accountController;
             _endlessGameProvider = endlessGameProvider;
             _userInputRepository = userInputRepository;
+            _fixedTimeStepRepository = fixedTimeStepRepository;
             _characterInfoPanels = new List<CharacterInfoPanel>();
         }
 
@@ -53,8 +57,8 @@ namespace EndlessClient.ControlSets
             _changePasswordButton = GetControl(currentControlSet, GameControlIdentifier.ChangePasswordButton, GetPasswordButton);
             _characterInfoPanels.AddRange(_characterInfoPanelFactory.CreatePanels(_characterSelectorProvider.Characters));
 
-            _allComponents.Add(new PreviousUserInputTracker(_endlessGameProvider, _userInputRepository));
             _allComponents.Add(new CurrentUserInputTracker(_endlessGameProvider, _userInputRepository));
+            _allComponents.Add(new PreviousUserInputTracker(_endlessGameProvider, _userInputRepository, _fixedTimeStepRepository));
             _allComponents.Add(_changePasswordButton);
             _allComponents.AddRange(_characterInfoPanels);
         }

@@ -32,6 +32,7 @@ namespace EndlessClient.Rendering.Character
         private readonly ICharacterActions _characterActions;
         private readonly IWalkValidationActions _walkValidationActions;
         private readonly IPathFinder _pathFinder;
+        private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
 
         // todo: this state should really be managed better
         private readonly Dictionary<int, EODirection> _queuedDirections;
@@ -49,6 +50,7 @@ namespace EndlessClient.Rendering.Character
         private Option<MapCoordinate> _targetCoordinate;
 
         private bool _clickHandled;
+        private bool _updateToggle;
 
         public CharacterAnimator(IEndlessGameProvider gameProvider,
                                  ICharacterRepository characterRepository,
@@ -58,7 +60,8 @@ namespace EndlessClient.Rendering.Character
                                  IUserInputRepository userInputRepository,
                                  ICharacterActions characterActions,
                                  IWalkValidationActions walkValidationActions,
-                                 IPathFinder pathFinder)
+                                 IPathFinder pathFinder,
+                                 IFixedTimeStepRepository fixedTimeStepRepository)
             : base((Game) gameProvider.Game)
         {
             _characterRepository = characterRepository;
@@ -69,6 +72,8 @@ namespace EndlessClient.Rendering.Character
             _characterActions = characterActions;
             _walkValidationActions = walkValidationActions;
             _pathFinder = pathFinder;
+            _fixedTimeStepRepository = fixedTimeStepRepository;
+
             _queuedDirections = new Dictionary<int, EODirection>();
             _queuedPositions = new Dictionary<int, MapCoordinate>();
             _otherPlayerStartWalkingTimes = new Dictionary<int, RenderFrameActionTime>();
@@ -84,10 +89,19 @@ namespace EndlessClient.Rendering.Character
             if (_userInputRepository.ClickHandled && !_userInputRepository.WalkClickHandled && _walkPath.Any())
                 _clickHandled = true;
 
-            AnimateCharacterWalking();
-            AnimateCharacterAttacking();
-            AnimateCharacterSpells();
-            AnimateCharacterEmotes();
+            // 8 updates per second
+            // fixes glitchy other character frame changes while main character is walking
+            if (_fixedTimeStepRepository.IsUpdateFrame)
+            {
+                if (_updateToggle)
+                {
+                    AnimateCharacterWalking();
+                    AnimateCharacterAttacking();
+                    AnimateCharacterSpells();
+                    AnimateCharacterEmotes();
+                }
+                _updateToggle = !_updateToggle;
+            }
 
             base.Update(gameTime);
         }

@@ -153,7 +153,7 @@ namespace EndlessClient.Rendering.NPC
             var currentMousePosition = _userInputProvider.CurrentMouseState.Position - DrawArea.Location;
             var currentFrame = _npcSpriteSheet.GetNPCTexture(_enfFileProvider.ENFFile[NPC.ID].Graphic, NPC.Frame, NPC.Direction);
 
-            if (currentFrame.Bounds.Contains(currentMousePosition))
+            if (currentFrame != null && currentFrame.Bounds.Contains(currentMousePosition))
             {
                 var colorData = new Color[1];
                 currentFrame.GetData(0, new Rectangle(currentMousePosition.X, currentMousePosition.Y, 1, 1), colorData, 0, 1);
@@ -199,8 +199,13 @@ namespace EndlessClient.Rendering.NPC
             var effects = NPC.IsFacing(EODirection.Left, EODirection.Down) ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
 
             _effectRenderer.DrawBehindTarget(spriteBatch);
-            spriteBatch.Draw(_npcSpriteSheet.GetNPCTexture(data.Graphic, NPC.Frame, NPC.Direction),
-                             DrawArea, null, color, 0f, Vector2.Zero, effects, 1f);
+
+            var texture = _npcSpriteSheet.GetNPCTexture(data.Graphic, NPC.Frame, NPC.Direction);
+            if (texture != null)
+            {
+                spriteBatch.Draw(texture, DrawArea, null, color, 0f, Vector2.Zero, effects, 1f);
+            }
+
             _effectRenderer.DrawInFrontOfTarget(spriteBatch);
 
             _healthBarRenderer.DrawToSpriteBatch(spriteBatch);
