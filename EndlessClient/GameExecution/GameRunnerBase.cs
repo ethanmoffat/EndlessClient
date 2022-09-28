@@ -6,6 +6,7 @@ using EOLib.Config;
 using EOLib.Graphics;
 using EOLib.Localization;
 using System;
+using System.Net;
 
 #if !LINUX
 using System.Windows.Forms;
@@ -71,8 +72,14 @@ namespace EndlessClient.GameExecution
                 if (string.Equals(arg, "--host") && i < _args.Length - 1)
                 {
                     var host = _args[i + 1];
-                    _registry.Resolve<IConfigurationRepository>()
-                        .Host = host;
+
+                    if (IPEndPoint.TryParse(host, out var endpoint)) {
+                        _registry.Resolve<IConfigurationRepository>()
+                            .Host = endpoint.Address.ToString();
+
+                        _registry.Resolve<IConfigurationRepository>()
+                            .Port = endpoint.Port;
+                    }
 
                     i++;
                 }
