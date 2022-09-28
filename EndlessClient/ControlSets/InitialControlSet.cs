@@ -134,7 +134,7 @@ namespace EndlessClient.ControlSets
             var outSource = new Rectangle(0, i * heightFactor, widthFactor, heightFactor);
             var overSource = new Rectangle(widthFactor, i * heightFactor, widthFactor, heightFactor);
 
-            return new XNAButton(_mainButtonTexture, new Vector2(26, 278 + i * 40), outSource, overSource);
+            return new XNAButton(_mainButtonTexture, new Vector2(25, 280 + i * 40), outSource, overSource);
         }
 
         private IXNALabel GetVersionInfoLabel()
@@ -148,8 +148,8 @@ namespace EndlessClient.ControlSets
                                      _configProvider.VersionBuild,
                                      _configProvider.Host,
                                      _configProvider.Port),
-                ForeColor = Color.Black,
-                DrawArea = new Rectangle(20, 459, 1, 1)
+                ForeColor = Color.FromNonPremultiplied(190, 170, 150, 255),
+                DrawArea = new Rectangle(28, 457, 1, 1)
             };
         }
 
