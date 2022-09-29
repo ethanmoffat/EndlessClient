@@ -33,7 +33,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         }
 
         protected readonly ICharacterProvider _characterProvider;
-        private readonly IRenderOffsetCalculator _renderOffsetCalculator;
+        protected readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
 
         public abstract MapRenderLayer RenderLayer { get; }
 
@@ -42,10 +42,10 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         protected abstract int RenderDistance { get; }
 
         protected BaseMapEntityRenderer(ICharacterProvider characterProvider,
-                                        IRenderOffsetCalculator renderOffsetCalculator)
+                                        IGridDrawCoordinateCalculator gridDrawCoordinateCalculator)
         {
             _characterProvider = characterProvider;
-            _renderOffsetCalculator = renderOffsetCalculator;
+            _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
         }
 
         public virtual bool CanRender(int row, int col)
@@ -72,17 +72,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             }
         }
 
-        // todo: this shouldn't be public, move to another service that's responsible for calculating the offsets for map entities
-        public virtual Vector2 GetDrawCoordinatesFromGridUnits(int gridX, int gridY)
+        protected virtual Vector2 GetDrawCoordinatesFromGridUnits(int gridX, int gridY)
         {
-            const int ViewportWidthFactor = 320; // 640 * (1/2)
-            const int ViewportHeightFactor = 144; // 480 * (3/10)
-
-            var charOffX = _renderOffsetCalculator.CalculateOffsetX(_characterProvider.MainCharacter.RenderProperties);
-            var charOffY = _renderOffsetCalculator.CalculateOffsetY(_characterProvider.MainCharacter.RenderProperties);
-
-            return new Vector2(ViewportWidthFactor + (gridX * 32) - (gridY * 32) - charOffX + _layerOffsets[RenderLayer].X,
-                               ViewportHeightFactor + (gridY * 16) + (gridX * 16) - charOffY + _layerOffsets[RenderLayer].Y);
+            return _gridDrawCoordinateCalculator.CalculateDrawCoordinatesFromGridUnits(gridX, gridY) + _layerOffsets[RenderLayer].ToVector2();
         }
     }
 }

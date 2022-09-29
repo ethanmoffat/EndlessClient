@@ -22,14 +22,14 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         public GroundLayerRenderer(INativeGraphicsManager nativeGraphicsManager,
                                    ICurrentMapProvider currentMapProvider,
                                    ICharacterProvider characterProvider,
-                                   IRenderOffsetCalculator renderOffsetCalculator)
-            : base(characterProvider, renderOffsetCalculator)
+                                   IGridDrawCoordinateCalculator gridDrawCoordinateCalculator)
+            : base(characterProvider, gridDrawCoordinateCalculator)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _currentMapProvider = currentMapProvider;
         }
 
-        public override Vector2 GetDrawCoordinatesFromGridUnits(int gridX, int gridY)
+        protected override Vector2 GetDrawCoordinatesFromGridUnits(int gridX, int gridY)
         {
             // the height is used to offset the 0 point of the grid, which is 32 units per tile in the height of the map
             var height = CurrentMap.Properties.Height;
@@ -77,15 +77,12 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
     public class AnimatedGroundLayerRenderer : GroundLayerRenderer
     {
-        private readonly IRenderOffsetCalculator _renderOffsetCalculator;
-
         public AnimatedGroundLayerRenderer(INativeGraphicsManager nativeGraphicsManager,
                                            ICurrentMapProvider currentMapProvider,
                                            ICharacterProvider characterProvider,
-                                           IRenderOffsetCalculator renderOffsetCalculator)
-            : base(nativeGraphicsManager, currentMapProvider, characterProvider, renderOffsetCalculator)
+                                           IGridDrawCoordinateCalculator gridDrawCoordinateCalculator)
+            : base(nativeGraphicsManager, currentMapProvider, characterProvider, gridDrawCoordinateCalculator)
         {
-            _renderOffsetCalculator = renderOffsetCalculator;
         }
 
         protected override bool ElementExistsAt(int row, int col)
@@ -97,11 +94,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             return tileExists && _nativeGraphicsManager.TextureFromResource(GFXTypes.MapTiles, tileId, true).Width >= ANIMATED_TILE_MIN_WIDTH;
         }
 
-        public override Vector2 GetDrawCoordinatesFromGridUnits(int gridX, int gridY)
+        protected override Vector2 GetDrawCoordinatesFromGridUnits(int gridX, int gridY)
         {
-            var offsetX = _renderOffsetCalculator.CalculateOffsetX(_characterProvider.MainCharacter.RenderProperties) - 288;
-            var offsetY = _renderOffsetCalculator.CalculateOffsetY(_characterProvider.MainCharacter.RenderProperties) - 144;
-            return base.GetDrawCoordinatesFromGridUnits(gridX, gridY) - new Vector2(offsetX + CurrentMap.Properties.Height*32, offsetY);
+            return _gridDrawCoordinateCalculator.CalculateBaseLayerDrawCoordinatesFromGridUnits(gridX, gridY);
         }
     }
 }

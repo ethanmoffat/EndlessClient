@@ -3,10 +3,8 @@ using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.MapEntityRenderers;
 using EndlessClient.Rendering.NPC;
-using EOLib;
 using EOLib.Config;
 using EOLib.Domain.Character;
-using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -14,7 +12,6 @@ using Microsoft.Xna.Framework.Input;
 using Optional;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace EndlessClient.Rendering.Map
 {
@@ -32,7 +29,7 @@ namespace EndlessClient.Rendering.Map
         private readonly IDynamicMapObjectUpdater _dynamicMapObjectUpdater;
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IMouseCursorRenderer _mouseCursorRenderer;
-        private readonly IRenderOffsetCalculator _renderOffsetCalculator;
+        private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
         private readonly IMapGridEffectTargetFactory _mapGridEffectTargetFactory;
         private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
         private RenderTarget2D _mapBaseTarget, _mapObjectTarget;
@@ -67,7 +64,7 @@ namespace EndlessClient.Rendering.Map
                            IDynamicMapObjectUpdater dynamicMapObjectUpdater,
                            IConfigurationProvider configurationProvider,
                            IMouseCursorRenderer mouseCursorRenderer,
-                           IRenderOffsetCalculator renderOffsetCalculator,
+                           IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
                            IMapGridEffectTargetFactory mapGridEffectTargetFactory,
                            IFixedTimeStepRepository fixedTimeStepRepository)
             : base((Game)endlessGame)
@@ -82,7 +79,7 @@ namespace EndlessClient.Rendering.Map
             _dynamicMapObjectUpdater = dynamicMapObjectUpdater;
             _configurationProvider = configurationProvider;
             _mouseCursorRenderer = mouseCursorRenderer;
-            _renderOffsetCalculator = renderOffsetCalculator;
+            _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
             _mapGridEffectTargetFactory = mapGridEffectTargetFactory;
             _fixedTimeStepRepository = fixedTimeStepRepository;
             _mapGridEffectTargets = new Dictionary<MapCoordinate, IMapGridEffectTarget>();
@@ -329,9 +326,10 @@ namespace EndlessClient.Rendering.Map
         {
             spriteBatch.Begin();
 
+            var drawLoc = _gridDrawCoordinateCalculator.CalculateGroundLayerDrawCoordinatesFromGridUnits();
             var offset = _quakeState.Map(qs => qs.Offset).Match(some: o => o, none: () => 0);
 
-            spriteBatch.Draw(_mapBaseTarget, GetGroundLayerDrawPosition() + new Vector2(offset, 0), Color.White);
+            spriteBatch.Draw(_mapBaseTarget, drawLoc + new Vector2(offset, 0), Color.White);
             DrawBaseLayers(spriteBatch);
 
             _mouseCursorRenderer.Draw(spriteBatch, new Vector2(offset, 0));
@@ -348,11 +346,6 @@ namespace EndlessClient.Rendering.Map
         {
             var offset = _quakeState.Map(qs => qs.Offset).Match(some: o => o, none: () => 0);
 
-            var isWalking = _characterProvider.MainCharacter.RenderProperties.CurrentAction == CharacterActionState.Walking;
-            var isUpOrLeft = _characterProvider.MainCharacter.RenderProperties.IsFacing(EODirection.Up, EODirection.Left) ? -1 : 1;
-            var isDownOrLeft = _characterProvider.MainCharacter.RenderProperties.IsFacing(EODirection.Down, EODirection.Left) ? -1 : 1;
-            var walkOffset = new Vector2(isWalking ? isDownOrLeft * 8 : 0, isWalking ? isUpOrLeft * 4 : 0);
-
             var renderBounds = _mapRenderDistanceCalculator.CalculateRenderBounds(_characterProvider.MainCharacter, _currentMapProvider.CurrentMap);
 
             for (var row = renderBounds.FirstRow; row <= renderBounds.LastRow; row++)
@@ -364,36 +357,10 @@ namespace EndlessClient.Rendering.Map
                     foreach (var renderer in _mapEntityRendererProvider.BaseRenderers)
                     {
                         if (renderer.CanRender(row, col))
-                            renderer.RenderElementAt(spriteBatch, row, col, alpha, new Vector2(offset, 0) + walkOffset);
+                            renderer.RenderElementAt(spriteBatch, row, col, alpha, new Vector2(offset, 0));
                     }
                 }
             }
-        }
-
-        private Vector2 GetGroundLayerDrawPosition()
-        {
-            // TODO: update for dynamic viewport sizing
-            const int ViewportWidthFactor = 320; // 640 * (1/2)
-            const int ViewportHeightFactor = 144; // 480 * (3/10)
-
-            var props = _characterProvider.MainCharacter.RenderProperties;
-
-            // todo: WTF
-            // this fixes the weird shifting issue with the base layers but idk why they're weirdly offset in the first place
-            props = props.IsActing(CharacterActionState.Walking)
-                ? props.WithActualWalkFrame(props.ActualWalkFrame - 1)
-                : props;
-
-            var charOffX = _renderOffsetCalculator.CalculateWalkAdjustX(props);
-            var charOffY = _renderOffsetCalculator.CalculateWalkAdjustY(props);
-
-            var mapHeightPlusOne = _currentMapProvider.CurrentMap.Properties.Height + 1;
-
-            // X coordinate: +32 per Y, -32 per X
-            // Y coordinate: -16 per Y, -16 per X
-            // basically the opposite of the algorithm for rendering the ground tiles
-            return new Vector2(ViewportWidthFactor - (mapHeightPlusOne * 32) + (props.MapY * 32) - (props.MapX * 32) - charOffX,
-                               ViewportHeightFactor - (props.MapY * 16) - (props.MapX * 16) - charOffY);
         }
 
         private int GetAlphaForCoordinates(int objX, int objY, EOLib.Domain.Character.Character character)
