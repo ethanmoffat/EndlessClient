@@ -72,13 +72,17 @@ namespace EndlessClient.GameExecution
                 if (string.Equals(arg, "--host") && i < _args.Length - 1)
                 {
                     var host = _args[i + 1];
+                    _registry.Resolve<IConfigurationRepository>().Host = host;
 
-                    if (IPEndPoint.TryParse(host, out var endpoint)) {
-                        _registry.Resolve<IConfigurationRepository>()
-                            .Host = endpoint.Address.ToString();
+                    i++;
+                }
+                else if(string.Equals(arg, "--port") && i < _args.Length - 1)
+                {
+                    var port = _args[i + 1];
 
-                        _registry.Resolve<IConfigurationRepository>()
-                            .Port = endpoint.Port;
+                    if (int.TryParse(port, out var intPort))
+                    {
+                        _registry.Resolve<IConfigurationRepository>().Port = intPort;
                     }
 
                     i++;
