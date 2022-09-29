@@ -457,7 +457,7 @@ namespace EndlessClient.HUD.Controls
 
         private INPCAnimator CreateNPCAnimator()
         {
-            return new NPCAnimator(_endlessGameProvider, _currentMapStateRepository, _fixedTimeStepRepository);
+            return new NPCAnimator(_endlessGameProvider, _currentMapStateRepository);
         }
 
         private IPeriodicEmoteHandler CreatePeriodicEmoteHandler(ICharacterAnimator characterAnimator)

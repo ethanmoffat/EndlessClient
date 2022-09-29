@@ -11,34 +11,26 @@ namespace EndlessClient.Rendering.NPC
 {
     public class NPCAnimator : GameComponent, INPCAnimator
     {
-        private const int ACTION_FRAME_TIME_MS = 80;
+        private const int ACTION_FRAME_TIME_MS = 70;
 
         private readonly List<RenderFrameActionTime> _npcStartWalkingTimes;
         private readonly List<RenderFrameActionTime> _npcStartAttackingTimes;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
-        private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
 
         public NPCAnimator(IEndlessGameProvider gameProvider,
-                           ICurrentMapStateRepository currentMapStateRepository,
-                           IFixedTimeStepRepository fixedTimeStepRepository)
+                           ICurrentMapStateRepository currentMapStateRepository)
             : base((Game)gameProvider.Game)
         {
             _currentMapStateRepository = currentMapStateRepository;
-            _fixedTimeStepRepository = fixedTimeStepRepository;
             _npcStartWalkingTimes = new List<RenderFrameActionTime>();
             _npcStartAttackingTimes = new List<RenderFrameActionTime>();
         }
 
         public override void Update(GameTime gameTime)
         {
-            if (_fixedTimeStepRepository.IsUpdateFrame)
-            {
-                if (_fixedTimeStepRepository.IsWalkUpdateFrame)
-                    AnimateNPCWalking();
-
-                AnimateNPCAttacking();
-            }
-
+            AnimateNPCWalking();
+            AnimateNPCAttacking();
+            
             base.Update(gameTime);
         }
 
