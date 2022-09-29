@@ -6,7 +6,7 @@ namespace EndlessClient.Rendering
     [AutoMappedType(IsSingleton = true)]
     public class FixedTimeStepRepository : IFixedTimeStepRepository
     {
-        private const int FIXED_UPDATE_TIME_MS = 48; // ~21 FPS
+        private const int FIXED_UPDATE_TIME_MS = 51; // ~21 FPS
 
         private bool _isWalkUpdate;
 
