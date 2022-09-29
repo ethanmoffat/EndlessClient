@@ -25,6 +25,7 @@ namespace EndlessClient.Rendering.Factories
         private readonly IMouseCursorRendererFactory _mouseCursorRendererFactory;
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
         private readonly IMapGridEffectTargetFactory _mapGridEffectTargetFactory;
+        private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
         private readonly INPCRendererUpdater _npcRendererUpdater;
         private readonly IDynamicMapObjectUpdater _dynamicMapObjectUpdater;
 
@@ -40,7 +41,8 @@ namespace EndlessClient.Rendering.Factories
             IConfigurationProvider configurationProvider,
             IMouseCursorRendererFactory mouseCursorRendererFactory,
             IRenderOffsetCalculator renderOffsetCalculator,
-            IMapGridEffectTargetFactory mapGridEffectTargetFactory)
+            IMapGridEffectTargetFactory mapGridEffectTargetFactory,
+            IFixedTimeStepRepository fixedTimeStepRepository)
         {
             _endlessGameProvider = endlessGameProvider;
             _renderTargetFactory = renderTargetFactory;
@@ -55,6 +57,7 @@ namespace EndlessClient.Rendering.Factories
             _mouseCursorRendererFactory = mouseCursorRendererFactory;
             _renderOffsetCalculator = renderOffsetCalculator;
             _mapGridEffectTargetFactory = mapGridEffectTargetFactory;
+            _fixedTimeStepRepository = fixedTimeStepRepository;
         }
 
         public IMapRenderer CreateMapRenderer()
@@ -71,7 +74,8 @@ namespace EndlessClient.Rendering.Factories
                                    _configurationProvider,
                                    _mouseCursorRendererFactory.Create(),
                                    _renderOffsetCalculator,
-                                   _mapGridEffectTargetFactory);
+                                   _mapGridEffectTargetFactory,
+                                   _fixedTimeStepRepository);
         }
     }
 }

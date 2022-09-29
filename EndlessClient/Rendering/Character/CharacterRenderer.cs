@@ -20,6 +20,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Optional;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using XNAControls;
 
@@ -40,7 +41,7 @@ namespace EndlessClient.Rendering.Character
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IUserInputProvider _userInputProvider;
         private readonly ISfxPlayer _sfxPlayer;
-
+        private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
         private readonly IEffectRenderer _effectRenderer;
 
         private EOLib.Domain.Character.Character _character;
@@ -104,7 +105,8 @@ namespace EndlessClient.Rendering.Character
                                  IGameStateProvider gameStateProvider,
                                  ICurrentMapProvider currentMapProvider,
                                  IUserInputProvider userInputProvider,
-                                 ISfxPlayer sfxPlayer)
+                                 ISfxPlayer sfxPlayer,
+                                 IFixedTimeStepRepository fixedTimeStepRepository)
             : base(game)
         {
             _mapInteractionController = mapInteractionController;
@@ -121,6 +123,7 @@ namespace EndlessClient.Rendering.Character
             _currentMapProvider = currentMapProvider;
             _userInputProvider = userInputProvider;
             _sfxPlayer = sfxPlayer;
+            _fixedTimeStepRepository = fixedTimeStepRepository;
 
             _effectRenderer = new EffectRenderer(nativeGraphicsmanager, _sfxPlayer, this);
             _chatBubble = new Lazy<IChatBubble>(() => _chatBubbleFactory.CreateChatBubble(this));
@@ -161,7 +164,7 @@ namespace EndlessClient.Rendering.Character
 
         protected override void LoadContent()
         {
-            _characterTextures.Refresh(_character.RenderProperties);
+            _textureUpdateRequired = true;
 
             _outline = new Texture2D(GraphicsDevice, 1, 1);
             _outline.SetData(new[] { Color.White });
@@ -179,16 +182,19 @@ namespace EndlessClient.Rendering.Character
             if (!Visible)
                 return;
 
-            if (_textureUpdateRequired)
+            if (_fixedTimeStepRepository.IsUpdateFrame)
             {
-                _characterTextures.Refresh(_character.RenderProperties);
-                DrawToRenderTarget();
+                if (_positionIsRelative)
+                    SetGridCoordinatePosition();
 
-                _textureUpdateRequired = false;
+                if (_textureUpdateRequired)
+                {
+                    _characterTextures.Refresh(_character.RenderProperties);
+                    DrawToRenderTarget();
+
+                    _textureUpdateRequired = false;
+                }
             }
-
-            if (_positionIsRelative)
-                SetGridCoordinatePosition();
 
             if (_gameStateProvider.CurrentState == GameStates.PlayingTheGame)
             {

@@ -5,6 +5,7 @@ using EndlessClient.Input;
 using EndlessClient.Rendering.Character;
 using EOLib;
 using EOLib.Domain.Character;
+using EOLib.Domain.Extensions;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
@@ -216,9 +217,14 @@ namespace EndlessClient.Rendering
         }
 
         //todo: this same logic is in a base map entity renderer. Maybe extract a service out.
-        private static Vector2 GetDrawCoordinatesFromGridUnits(int x, int y, int cOffX, int cOffY)
+        private Vector2 GetDrawCoordinatesFromGridUnits(int x, int y, int cOffX, int cOffY)
         {
-            return new Vector2(x*32 - y*32 + 288 - cOffX, y*16 + x*16 + 144 - cOffY);
+            var isWalking = _characterProvider.MainCharacter.RenderProperties.CurrentAction == CharacterActionState.Walking;
+            var isUpOrLeft = _characterProvider.MainCharacter.RenderProperties.IsFacing(EODirection.Up, EODirection.Left) ? -1 : 1;
+            var isDownOrLeft = _characterProvider.MainCharacter.RenderProperties.IsFacing(EODirection.Down, EODirection.Left) ? -1 : 1;
+            var walkOffset = new Vector2(isWalking ? isDownOrLeft * 8 : 0, isWalking ? isUpOrLeft * 4 : 0);
+
+            return new Vector2(x*32 - y*32 + 288 - cOffX, y*16 + x*16 + 144 - cOffY) + walkOffset;
         }
 
         private void UpdateMapItemLabel(Option<MapItem> item)

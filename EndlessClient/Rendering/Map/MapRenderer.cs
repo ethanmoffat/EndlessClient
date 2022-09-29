@@ -3,8 +3,10 @@ using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.MapEntityRenderers;
 using EndlessClient.Rendering.NPC;
+using EOLib;
 using EOLib.Config;
 using EOLib.Domain.Character;
+using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -32,6 +34,7 @@ namespace EndlessClient.Rendering.Map
         private readonly IMouseCursorRenderer _mouseCursorRenderer;
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
         private readonly IMapGridEffectTargetFactory _mapGridEffectTargetFactory;
+        private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
         private RenderTarget2D _mapBaseTarget, _mapObjectTarget;
         private SpriteBatch _sb;
         private MapTransitionState _mapTransitionState = MapTransitionState.Default;
@@ -65,7 +68,8 @@ namespace EndlessClient.Rendering.Map
                            IConfigurationProvider configurationProvider,
                            IMouseCursorRenderer mouseCursorRenderer,
                            IRenderOffsetCalculator renderOffsetCalculator,
-                           IMapGridEffectTargetFactory mapGridEffectTargetFactory)
+                           IMapGridEffectTargetFactory mapGridEffectTargetFactory,
+                           IFixedTimeStepRepository fixedTimeStepRepository)
             : base((Game)endlessGame)
         {
             _renderTargetFactory = renderTargetFactory;
@@ -80,7 +84,7 @@ namespace EndlessClient.Rendering.Map
             _mouseCursorRenderer = mouseCursorRenderer;
             _renderOffsetCalculator = renderOffsetCalculator;
             _mapGridEffectTargetFactory = mapGridEffectTargetFactory;
-
+            _fixedTimeStepRepository = fixedTimeStepRepository;
             _mapGridEffectTargets = new Dictionary<MapCoordinate, IMapGridEffectTarget>();
         }
 
@@ -115,6 +119,9 @@ namespace EndlessClient.Rendering.Map
             {
                 DrawGroundLayerToRenderTarget();
 
+                if (_fixedTimeStepRepository.IsWalkUpdateFrame)
+                    DrawMapToRenderTarget();
+
                 _characterRendererUpdater.UpdateCharacters(gameTime);
                 _npcRendererUpdater.UpdateNPCs(gameTime);
                 _dynamicMapObjectUpdater.UpdateMapObjects(gameTime);
@@ -138,7 +145,6 @@ namespace EndlessClient.Rendering.Map
             if (!Visible)
                 return;
 
-            DrawMapToRenderTarget();
             DrawToSpriteBatch(_sb, gameTime);
 
             base.Draw(gameTime);
@@ -332,7 +338,6 @@ namespace EndlessClient.Rendering.Map
 
             spriteBatch.Draw(_mapObjectTarget, new Vector2(offset, 0), Color.White);
 
-
             foreach (var target in _mapGridEffectTargets.Values)
                 target.Draw(spriteBatch);
 
@@ -342,6 +347,11 @@ namespace EndlessClient.Rendering.Map
         private void DrawBaseLayers(SpriteBatch spriteBatch)
         {
             var offset = _quakeState.Map(qs => qs.Offset).Match(some: o => o, none: () => 0);
+
+            var isWalking = _characterProvider.MainCharacter.RenderProperties.CurrentAction == CharacterActionState.Walking;
+            var isUpOrLeft = _characterProvider.MainCharacter.RenderProperties.IsFacing(EODirection.Up, EODirection.Left) ? -1 : 1;
+            var isDownOrLeft = _characterProvider.MainCharacter.RenderProperties.IsFacing(EODirection.Down, EODirection.Left) ? -1 : 1;
+            var walkOffset = new Vector2(isWalking ? isDownOrLeft * 8 : 0, isWalking ? isUpOrLeft * 4 : 0);
 
             var renderBounds = _mapRenderDistanceCalculator.CalculateRenderBounds(_characterProvider.MainCharacter, _currentMapProvider.CurrentMap);
 
@@ -354,7 +364,7 @@ namespace EndlessClient.Rendering.Map
                     foreach (var renderer in _mapEntityRendererProvider.BaseRenderers)
                     {
                         if (renderer.CanRender(row, col))
-                            renderer.RenderElementAt(spriteBatch, row, col, alpha, new Vector2(offset, 0));
+                            renderer.RenderElementAt(spriteBatch, row, col, alpha, new Vector2(offset, 0) + walkOffset);
                     }
                 }
             }
@@ -367,6 +377,13 @@ namespace EndlessClient.Rendering.Map
             const int ViewportHeightFactor = 144; // 480 * (3/10)
 
             var props = _characterProvider.MainCharacter.RenderProperties;
+
+            // todo: WTF
+            // this fixes the weird shifting issue with the base layers but idk why they're weirdly offset in the first place
+            props = props.IsActing(CharacterActionState.Walking)
+                ? props.WithActualWalkFrame(props.ActualWalkFrame - 1)
+                : props;
+
             var charOffX = _renderOffsetCalculator.CalculateWalkAdjustX(props);
             var charOffY = _renderOffsetCalculator.CalculateWalkAdjustY(props);
 

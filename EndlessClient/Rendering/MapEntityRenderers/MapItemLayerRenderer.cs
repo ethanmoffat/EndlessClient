@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Linq;
 using EndlessClient.Rendering.Map;
+using EOLib;
 using EOLib.Domain.Character;
+using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
