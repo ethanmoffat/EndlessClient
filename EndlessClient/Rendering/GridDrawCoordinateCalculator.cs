@@ -1,11 +1,8 @@
 ﻿using AutomaticTypeMapper;
-using EndlessClient.Input;
-using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
-using System.Windows.Controls;
 using System;
 
 namespace EndlessClient.Rendering
