@@ -10,23 +10,29 @@ namespace EndlessClient.Rendering
     [AutoMappedType]
     public class GridDrawCoordinateCalculator : IGridDrawCoordinateCalculator
     {
+        private const int GridSpaceWidth = 64;
+        private const int GridSpaceHeight = 32;
+
         private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
+        private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
 
         public GridDrawCoordinateCalculator(ICharacterProvider characterProvider,
                                             ICurrentMapProvider currentMapProvider,
-                                            IRenderOffsetCalculator renderOffsetCalculator)
+                                            IRenderOffsetCalculator renderOffsetCalculator,
+                                            IClientWindowSizeProvider clientWindowSizeProvider)
         {
             _characterProvider = characterProvider;
             _currentMapProvider = currentMapProvider;
             _renderOffsetCalculator = renderOffsetCalculator;
+            _clientWindowSizeProvider = clientWindowSizeProvider;
         }
 
         public Vector2 CalculateDrawCoordinatesFromGridUnits(int gridX, int gridY)
         {
-            const int ViewportWidthFactor = 320; // 640 * (1/2)
-            const int ViewportHeightFactor = 144; // 480 * (3/10)
+            var ViewportWidthFactor = _clientWindowSizeProvider.Width / 2; // 640 * (1/2)
+            var ViewportHeightFactor = _clientWindowSizeProvider.Height * 3 / 10; // 480 * (3/10)
 
             return new Vector2(ViewportWidthFactor + (gridX * 32) - (gridY * 32),
                                ViewportHeightFactor + (gridY * 16) + (gridX * 16)) - CalculateCharacterOffsets();
@@ -39,8 +45,8 @@ namespace EndlessClient.Rendering
 
         public Vector2 CalculateBaseLayerDrawCoordinatesFromGridUnits(int gridX, int gridY)
         {
-            const int ViewportWidthFactor = 288; // ???
-            const int ViewportHeightFactor = 144; // 480 * (3/10)
+            var ViewportWidthFactor = (_clientWindowSizeProvider.Width - GridSpaceWidth) / 2; // 288 = (640 - 64) / 2
+            var ViewportHeightFactor = _clientWindowSizeProvider.Height * 3 / 10; // 144 = 480 * (3/10)
 
             return new Vector2(ViewportWidthFactor + (gridX * 32) - (gridY * 32),
                                ViewportHeightFactor + (gridY * 16) + (gridX * 16)) - CalculateBaseLayerOffsets();
@@ -53,8 +59,8 @@ namespace EndlessClient.Rendering
 
         public Vector2 CalculateGroundLayerDrawCoordinatesFromGridUnits()
         {
-            const int ViewportWidthFactor = 320; // 640 * (1/2)
-            const int ViewportHeightFactor = 144; // 480 * (3/10)
+            var ViewportWidthFactor = _clientWindowSizeProvider.Width / 2; // 640 * (1/2)
+            var ViewportHeightFactor = _clientWindowSizeProvider.Height * 3 / 10; // 480 * (3/10)
 
             var props = _characterProvider.MainCharacter.RenderProperties;
 
@@ -76,17 +82,17 @@ namespace EndlessClient.Rendering
             //pixY = (_gridX * 16) + (_gridY * 16) + 144 - c.OffsetY =>
             //(pixY - (_gridX * 16) - 144 + c.OffsetY) / 16 = _gridY
 
-            const int GridSpaceWidth = 64;
-            const int GridSpaceHeight = 32;
-
             var msX = drawLocation.X - GridSpaceWidth / 2;
             var msY = drawLocation.Y - GridSpaceHeight / 2;
+
+            var widthFactor = _clientWindowSizeProvider.Width * 9 / 10; // 288 = 640 * .45, 576 = 640 * .9
+            var heightFactor = _clientWindowSizeProvider.Height * 3 / 10;
 
             var offsetX = _renderOffsetCalculator.CalculateOffsetX(_characterProvider.MainCharacter.RenderProperties);
             var offsetY = _renderOffsetCalculator.CalculateOffsetY(_characterProvider.MainCharacter.RenderProperties);
 
-            var gridX = (int)Math.Round((msX + 2 * msY - 576 + offsetX + 2 * offsetY) / 64.0);
-            var gridY = (int)Math.Round((msY - gridX * 16 - 144 + offsetY) / 16.0);
+            var gridX = (int)Math.Round((msX + 2 * msY - widthFactor + offsetX + 2 * offsetY) / 64.0);
+            var gridY = (int)Math.Round((msY - gridX * 16 - heightFactor + offsetY) / 16.0);
 
             return new MapCoordinate(gridX, gridY);
         }

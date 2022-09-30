@@ -119,12 +119,6 @@ namespace EndlessClient.Rendering
                 _contextMenuProvider.ContextMenu.HasValue)
                 return;
 
-            // TODO AFTER MERGE
-            // var widthFactor = _clientWindowSizeProvider.Width * 9 / 10; // 288 = 640 * .45, 576 = 640 * .9
-            // var heightFactor = _clientWindowSizeProvider.Height * 3 / 10;
-
-            // _gridX = (int)Math.Round((msX + 2 * msY - widthFactor + offsetX + 2 * offsetY) / 64.0);
-            // _gridY = (int)Math.Round((msY - _gridX * 16 - heightFactor + offsetY) / 16.0);
             var gridPosition = _gridDrawCoordinateCalculator.CalculateGridCoordinatesFromDrawLocation(_userInputProvider.CurrentMouseState.Position.ToVector2());
             _gridX = gridPosition.X;
             _gridY = gridPosition.Y;
@@ -139,9 +133,6 @@ namespace EndlessClient.Rendering
 
         private void UpdateDrawPostionBasedOnGridPosition()
         {
-            // TODO AFTER MERGE
-            // var widthFactor = _clientWindowSizeProvider.Width * 45 / 100;
-            // var heightFactor = _clientWindowSizeProvider.Height * 3 / 10;
             var drawPosition = _gridDrawCoordinateCalculator.CalculateBaseLayerDrawCoordinatesFromGridUnits(_gridX, _gridY);
             DrawArea = new Rectangle((int)drawPosition.X,
                                       (int)drawPosition.Y,

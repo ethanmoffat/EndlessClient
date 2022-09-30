@@ -343,9 +343,6 @@ namespace EndlessClient.Rendering.Map
         {
             spriteBatch.Begin();
 
-            // TODO AFTER MERGE
-            // var ViewportWidthFactor = _clientWindowSizeRepository.Width / 2; // 640 * (1/2)
-            // var ViewportHeightFactor = _clientWindowSizeRepository.Height * 3 / 10; // 480 * (3/10)
             var drawLoc = _gridDrawCoordinateCalculator.CalculateGroundLayerDrawCoordinatesFromGridUnits();
             var offset = _quakeState.Map(qs => qs.Offset).Match(some: o => o, none: () => 0);
 

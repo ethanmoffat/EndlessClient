@@ -77,9 +77,6 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         protected virtual Vector2 GetDrawCoordinatesFromGridUnits(int gridX, int gridY)
         {
-            // TODO AFTER MERGE
-            // var ViewportWidthFactor = _clientWindowSizeProvider.Width / 2; // 640 * (1/2)
-            // var ViewportHeightFactor = _clientWindowSizeProvider.Height * 3 / 10; // 480 * (3/10)
             return _gridDrawCoordinateCalculator.CalculateDrawCoordinatesFromGridUnits(gridX, gridY) + _layerOffsets[RenderLayer].ToVector2();
         }
     }
