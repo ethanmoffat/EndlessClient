@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using AutomaticTypeMapper;
 using EndlessClient.Rendering.Character;
-using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.MapEntityRenderers;
 using EndlessClient.Rendering.NPC;
 using EOLib.Config;
@@ -25,7 +24,7 @@ namespace EndlessClient.Rendering.Map
                                          ICharacterProvider characterProvider,
                                          ICurrentMapStateProvider currentMapStateProvider,
                                          IMapItemGraphicProvider mapItemGraphicProvider,
-                                         IRenderOffsetCalculator renderOffsetCalculator,
+                                         IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
                                          IConfigurationProvider configurationProvider,
                                          ICharacterRendererProvider characterRendererProvider,
                                          INPCRendererProvider npcRendererProvider,
@@ -35,16 +34,16 @@ namespace EndlessClient.Rendering.Map
                 new GroundLayerRenderer(nativeGraphicsManager,
                                         currentMapProvider,
                                         characterProvider,
-                                        renderOffsetCalculator);
+                                        gridDrawCoordinateCalculator);
 
             BaseRenderers = new List<IMapEntityRenderer>
             {
                 new AnimatedGroundLayerRenderer(nativeGraphicsManager,
                                                 currentMapProvider,
                                                 characterProvider,
-                                                renderOffsetCalculator),
+                                                gridDrawCoordinateCalculator),
                 new MapItemLayerRenderer(characterProvider,
-                                         renderOffsetCalculator,
+                                         gridDrawCoordinateCalculator,
                                          currentMapStateProvider,
                                          mapItemGraphicProvider)
             };
@@ -54,53 +53,53 @@ namespace EndlessClient.Rendering.Map
                 new ShadowLayerRenderer(nativeGraphicsManager,
                                         currentMapProvider,
                                         characterProvider,
-                                        renderOffsetCalculator,
+                                        gridDrawCoordinateCalculator,
                                         configurationProvider),
                 new OverlayLayerRenderer(nativeGraphicsManager,
                                          currentMapProvider,
                                          characterProvider,
-                                         renderOffsetCalculator),
+                                         gridDrawCoordinateCalculator),
                 new MapObjectLayerRenderer(nativeGraphicsManager,
                                            currentMapProvider,
                                            characterProvider,
-                                           renderOffsetCalculator,
+                                           gridDrawCoordinateCalculator,
                                            currentMapStateProvider),
                 new MainCharacterEntityRenderer(characterProvider,
                                                 characterRendererProvider,
-                                                renderOffsetCalculator,
+                                                gridDrawCoordinateCalculator,
                                                 transparent: false),
                 new DownWallLayerRenderer(nativeGraphicsManager,
                                           currentMapProvider,
                                           characterProvider,
-                                          renderOffsetCalculator,
+                                          gridDrawCoordinateCalculator,
                                           currentMapStateProvider),
                 new RightWallLayerRenderer(nativeGraphicsManager,
                                            currentMapProvider,
                                            characterProvider,
-                                           renderOffsetCalculator,
+                                           gridDrawCoordinateCalculator,
                                            currentMapStateProvider),
                 new OtherCharacterEntityRenderer(characterProvider,
                                                  characterRendererProvider,
                                                  characterStateCache,
-                                                 renderOffsetCalculator),
+                                                 gridDrawCoordinateCalculator),
                 new NPCEntityRenderer(characterProvider,
-                                      renderOffsetCalculator,
+                                      gridDrawCoordinateCalculator,
                                       npcRendererProvider),
                 new Overlay2LayerRenderer(nativeGraphicsManager,
                                       currentMapProvider,
                                       characterProvider,
-                                      renderOffsetCalculator),
+                                      gridDrawCoordinateCalculator),
                 new RoofLayerRenderer(nativeGraphicsManager,
                                          currentMapProvider,
                                          characterProvider,
-                                         renderOffsetCalculator),
+                                         gridDrawCoordinateCalculator),
                 new OnTopLayerRenderer(nativeGraphicsManager,
                                        currentMapProvider,
                                        characterProvider,
-                                       renderOffsetCalculator),
+                                       gridDrawCoordinateCalculator),
                 new MainCharacterEntityRenderer(characterProvider,
                                                 characterRendererProvider,
-                                                renderOffsetCalculator,
+                                                gridDrawCoordinateCalculator,
                                                 transparent: true)
             };
         }

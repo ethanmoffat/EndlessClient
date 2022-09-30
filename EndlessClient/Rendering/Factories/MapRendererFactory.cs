@@ -1,7 +1,6 @@
 using AutomaticTypeMapper;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Character;
-using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Map;
 using EndlessClient.Rendering.MapEntityRenderers;
 using EndlessClient.Rendering.NPC;
@@ -23,8 +22,9 @@ namespace EndlessClient.Rendering.Factories
         private readonly ICharacterRendererUpdater _characterRendererUpdater;
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IMouseCursorRendererFactory _mouseCursorRendererFactory;
-        private readonly IRenderOffsetCalculator _renderOffsetCalculator;
+        private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
         private readonly IMapGridEffectTargetFactory _mapGridEffectTargetFactory;
+        private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
         private readonly INPCRendererUpdater _npcRendererUpdater;
         private readonly IDynamicMapObjectUpdater _dynamicMapObjectUpdater;
 
@@ -39,8 +39,9 @@ namespace EndlessClient.Rendering.Factories
             IDynamicMapObjectUpdater dynamicMapObjectUpdater,
             IConfigurationProvider configurationProvider,
             IMouseCursorRendererFactory mouseCursorRendererFactory,
-            IRenderOffsetCalculator renderOffsetCalculator,
-            IMapGridEffectTargetFactory mapGridEffectTargetFactory)
+            IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
+            IMapGridEffectTargetFactory mapGridEffectTargetFactory,
+            IFixedTimeStepRepository fixedTimeStepRepository)
         {
             _endlessGameProvider = endlessGameProvider;
             _renderTargetFactory = renderTargetFactory;
@@ -53,8 +54,9 @@ namespace EndlessClient.Rendering.Factories
             _dynamicMapObjectUpdater = dynamicMapObjectUpdater;
             _configurationProvider = configurationProvider;
             _mouseCursorRendererFactory = mouseCursorRendererFactory;
-            _renderOffsetCalculator = renderOffsetCalculator;
+            _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
             _mapGridEffectTargetFactory = mapGridEffectTargetFactory;
+            _fixedTimeStepRepository = fixedTimeStepRepository;
         }
 
         public IMapRenderer CreateMapRenderer()
@@ -70,8 +72,9 @@ namespace EndlessClient.Rendering.Factories
                                    _dynamicMapObjectUpdater,
                                    _configurationProvider,
                                    _mouseCursorRendererFactory.Create(),
-                                   _renderOffsetCalculator,
-                                   _mapGridEffectTargetFactory);
+                                   _gridDrawCoordinateCalculator,
+                                   _mapGridEffectTargetFactory,
+                                   _fixedTimeStepRepository);
         }
     }
 }

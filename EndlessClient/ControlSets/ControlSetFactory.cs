@@ -7,6 +7,7 @@ using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Input;
+using EndlessClient.Rendering;
 using EndlessClient.UIControls;
 using EOLib.Config;
 using EOLib.Domain.Login;
@@ -28,6 +29,7 @@ namespace EndlessClient.ControlSets
         private readonly IEndlessGameProvider _endlessGameProvider;
         private readonly IUserInputRepository _userInputRepository;
         private readonly IActiveDialogRepository _activeDialogRepository;
+        private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
         private IMainButtonController _mainButtonController;
         private IAccountController _accountController;
         private ILoginController _loginController;
@@ -43,7 +45,8 @@ namespace EndlessClient.ControlSets
                                  ICharacterSelectorProvider characterSelectorProvider,
                                  IEndlessGameProvider endlessGameProvider,
                                  IUserInputRepository userInputRepository,
-                                 IActiveDialogRepository activeDialogRepository)
+                                 IActiveDialogRepository activeDialogRepository,
+                                 IFixedTimeStepRepository fixedTimeStepRepository)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _messageBoxFactory = messageBoxFactory;
@@ -56,6 +59,7 @@ namespace EndlessClient.ControlSets
             _endlessGameProvider = endlessGameProvider;
             _userInputRepository = userInputRepository;
             _activeDialogRepository = activeDialogRepository;
+            _fixedTimeStepRepository = fixedTimeStepRepository;
         }
 
         public IControlSet CreateControlsForState(GameStates newState, IControlSet currentControlSet)
@@ -107,7 +111,8 @@ namespace EndlessClient.ControlSets
                         _characterManagementController,
                         _accountController,
                         _endlessGameProvider,
-                        _userInputRepository);
+                        _userInputRepository,
+                        _fixedTimeStepRepository);
                 case GameStates.PlayingTheGame:
                     return new InGameControlSet(_mainButtonController, _messageBoxFactory, _hudControlsFactory, _activeDialogRepository, _userInputRepository);
                 default: throw new ArgumentOutOfRangeException(nameof(newState), newState, null);

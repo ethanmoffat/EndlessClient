@@ -17,8 +17,7 @@ namespace EndlessClient.Rendering.Factories
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly ICharacterProvider _characterProvider;
-        private readonly ICharacterRendererProvider _characterRendererProvider;
-        private readonly IRenderOffsetCalculator _renderOffsetCalculator;
+        private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
         private readonly IMapCellStateProvider _mapCellStateProvider;
         private readonly IItemStringService _itemStringService;
         private readonly IItemNameColorService _itemNameColorService;
@@ -31,8 +30,7 @@ namespace EndlessClient.Rendering.Factories
 
         public MouseCursorRendererFactory(INativeGraphicsManager nativeGraphicsManager,
                                           ICharacterProvider characterProvider,
-                                          ICharacterRendererProvider characterRendererProvider,
-                                          IRenderOffsetCalculator renderOffsetCalculator,
+                                          IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
                                           IMapCellStateProvider mapCellStateProvider,
                                           IItemStringService itemStringService,
                                           IItemNameColorService itemNameColorService,
@@ -45,8 +43,7 @@ namespace EndlessClient.Rendering.Factories
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _characterProvider = characterProvider;
-            _characterRendererProvider = characterRendererProvider;
-            _renderOffsetCalculator = renderOffsetCalculator;
+            _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
             _mapCellStateProvider = mapCellStateProvider;
             _itemStringService = itemStringService;
             _itemNameColorService = itemNameColorService;
@@ -62,8 +59,7 @@ namespace EndlessClient.Rendering.Factories
         {
             return new MouseCursorRenderer(_nativeGraphicsManager,
                                            _characterProvider,
-                                           _characterRendererProvider,
-                                           _renderOffsetCalculator,
+                                           _gridDrawCoordinateCalculator,
                                            _mapCellStateProvider,
                                            _itemStringService,
                                            _itemNameColorService,

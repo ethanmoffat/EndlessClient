@@ -20,8 +20,8 @@ namespace EndlessClient.Rendering.Character
 {
     public class CharacterAnimator : GameComponent, ICharacterAnimator
     {
-        public const int WALK_FRAME_TIME_MS = 120;
-        public const int ATTACK_FRAME_TIME_MS = 100;
+        public const int WALK_FRAME_TIME_MS = 100;
+        public const int ATTACK_FRAME_TIME_MS = 95;
         public const int EMOTE_FRAME_TIME_MS = 250;
 
         private readonly ICharacterRepository _characterRepository;
@@ -32,6 +32,7 @@ namespace EndlessClient.Rendering.Character
         private readonly ICharacterActions _characterActions;
         private readonly IWalkValidationActions _walkValidationActions;
         private readonly IPathFinder _pathFinder;
+        private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
 
         // todo: this state should really be managed better
         private readonly Dictionary<int, EODirection> _queuedDirections;
@@ -58,7 +59,8 @@ namespace EndlessClient.Rendering.Character
                                  IUserInputRepository userInputRepository,
                                  ICharacterActions characterActions,
                                  IWalkValidationActions walkValidationActions,
-                                 IPathFinder pathFinder)
+                                 IPathFinder pathFinder,
+                                 IFixedTimeStepRepository fixedTimeStepRepository)
             : base((Game) gameProvider.Game)
         {
             _characterRepository = characterRepository;
@@ -69,6 +71,8 @@ namespace EndlessClient.Rendering.Character
             _characterActions = characterActions;
             _walkValidationActions = walkValidationActions;
             _pathFinder = pathFinder;
+            _fixedTimeStepRepository = fixedTimeStepRepository;
+
             _queuedDirections = new Dictionary<int, EODirection>();
             _queuedPositions = new Dictionary<int, MapCoordinate>();
             _otherPlayerStartWalkingTimes = new Dictionary<int, RenderFrameActionTime>();
@@ -84,10 +88,17 @@ namespace EndlessClient.Rendering.Character
             if (_userInputRepository.ClickHandled && !_userInputRepository.WalkClickHandled && _walkPath.Any())
                 _clickHandled = true;
 
-            AnimateCharacterWalking();
-            AnimateCharacterAttacking();
-            AnimateCharacterSpells();
-            AnimateCharacterEmotes();
+            if (_fixedTimeStepRepository.IsUpdateFrame)
+            {
+                if (_fixedTimeStepRepository.IsWalkUpdateFrame)
+                {
+                    AnimateCharacterWalking();
+                }
+
+                AnimateCharacterAttacking();
+                AnimateCharacterSpells();
+                AnimateCharacterEmotes();
+            }
 
             base.Update(gameTime);
         }

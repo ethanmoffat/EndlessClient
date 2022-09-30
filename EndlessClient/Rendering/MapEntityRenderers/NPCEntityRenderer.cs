@@ -15,9 +15,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         private readonly INPCRendererProvider _npcRendererProvider;
 
         public NPCEntityRenderer(ICharacterProvider characterProvider,
-                                 IRenderOffsetCalculator renderOffsetCalculator,
+                                 IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
                                  INPCRendererProvider npcRendererProvider)
-            : base(characterProvider, renderOffsetCalculator)
+            : base(characterProvider, gridDrawCoordinateCalculator)
         {
             _npcRendererProvider = npcRendererProvider;
         }

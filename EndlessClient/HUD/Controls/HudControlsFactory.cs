@@ -65,6 +65,7 @@ namespace EndlessClient.HUD.Controls
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IMiniMapRendererFactory _miniMapRendererFactory;
         private readonly INewsProvider _newsProvider;
+        private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
         private IChatController _chatController;
 
         public HudControlsFactory(IHudButtonController hudButtonController,
@@ -93,7 +94,8 @@ namespace EndlessClient.HUD.Controls
                                   ISpellSlotDataRepository spellSlotDataRepository,
                                   ISfxPlayer sfxPlayer,
                                   IMiniMapRendererFactory miniMapRendererFactory,
-                                  INewsProvider newsProvider)
+                                  INewsProvider newsProvider,
+                                  IFixedTimeStepRepository fixedTimeStepRepository)
         {
             _hudButtonController = hudButtonController;
             _hudPanelFactory = hudPanelFactory;
@@ -122,6 +124,7 @@ namespace EndlessClient.HUD.Controls
             _sfxPlayer = sfxPlayer;
             _miniMapRendererFactory = miniMapRendererFactory;
             _newsProvider = newsProvider;
+            _fixedTimeStepRepository = fixedTimeStepRepository;
         }
 
         public void InjectChatController(IChatController chatController)
@@ -449,7 +452,7 @@ namespace EndlessClient.HUD.Controls
 
         private ICharacterAnimator CreateCharacterAnimator()
         {
-            return new CharacterAnimator(_endlessGameProvider, _characterRepository, _currentMapStateRepository, _currentMapProvider, _spellSlotDataRepository, _userInputRepository, _characterActions, _walkValidationActions, _pathFinder);
+            return new CharacterAnimator(_endlessGameProvider, _characterRepository, _currentMapStateRepository, _currentMapProvider, _spellSlotDataRepository, _userInputRepository, _characterActions, _walkValidationActions, _pathFinder, _fixedTimeStepRepository);
         }
 
         private INPCAnimator CreateNPCAnimator()
@@ -464,7 +467,7 @@ namespace EndlessClient.HUD.Controls
 
         private PreviousUserInputTracker CreatePreviousUserInputTracker()
         {
-            return new PreviousUserInputTracker(_endlessGameProvider, _userInputRepository);
+            return new PreviousUserInputTracker(_endlessGameProvider, _userInputRepository, _fixedTimeStepRepository);
         }
     }
 }

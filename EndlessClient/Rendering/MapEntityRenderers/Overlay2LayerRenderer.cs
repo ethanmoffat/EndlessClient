@@ -20,8 +20,8 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         public Overlay2LayerRenderer(INativeGraphicsManager nativeGraphicsManager,
                                      ICurrentMapProvider currentMapProvider,
                                      ICharacterProvider characterProvider,
-                                     IRenderOffsetCalculator renderOffsetCalculator)
-            : base(characterProvider, renderOffsetCalculator)
+                                     IGridDrawCoordinateCalculator gridDrawCoordinateCalculator)
+            : base(characterProvider, gridDrawCoordinateCalculator)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _currentMapProvider = currentMapProvider;
