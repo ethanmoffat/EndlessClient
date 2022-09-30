@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
@@ -23,10 +22,10 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         protected WallLayerRendererBase(INativeGraphicsManager nativeGraphicsManager,
                                         ICurrentMapProvider currentMapProvider,
                                         ICharacterProvider characterProvider,
-                                        IRenderOffsetCalculator renderOffsetCalculator,
+                                        IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
                                         IClientWindowSizeProvider clientWindowSizeProvider,
                                         ICurrentMapStateProvider currentMapStateProvider)
-            : base(characterProvider, renderOffsetCalculator, clientWindowSizeProvider)
+            : base(characterProvider, gridDrawCoordinateCalculator, clientWindowSizeProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _currentMapProvider = currentMapProvider;
@@ -61,10 +60,10 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         public DownWallLayerRenderer(INativeGraphicsManager nativeGraphicsManager,
                                     ICurrentMapProvider currentMapProvider,
                                     ICharacterProvider characterProvider,
-                                    IRenderOffsetCalculator renderOffsetCalculator,
+                                    IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
                                     IClientWindowSizeProvider clientWindowSizeProvider,
                                     ICurrentMapStateProvider currentMapStateProvider)
-            : base(nativeGraphicsManager, currentMapProvider, characterProvider, renderOffsetCalculator, clientWindowSizeProvider, currentMapStateProvider)
+            : base(nativeGraphicsManager, currentMapProvider, characterProvider, gridDrawCoordinateCalculator, clientWindowSizeProvider, currentMapStateProvider)
         {
         }
 
@@ -89,10 +88,10 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         public RightWallLayerRenderer(INativeGraphicsManager nativeGraphicsManager,
                                       ICurrentMapProvider currentMapProvider,
                                       ICharacterProvider characterProvider,
-                                      IRenderOffsetCalculator renderOffsetCalculator,
+                                      IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
                                       IClientWindowSizeProvider clientWindowSizeProvider,
                                       ICurrentMapStateProvider currentMapStateProvider)
-            : base(nativeGraphicsManager, currentMapProvider, characterProvider, renderOffsetCalculator, clientWindowSizeProvider, currentMapStateProvider)
+            : base(nativeGraphicsManager, currentMapProvider, characterProvider, gridDrawCoordinateCalculator, clientWindowSizeProvider, currentMapStateProvider)
         {
         }
 

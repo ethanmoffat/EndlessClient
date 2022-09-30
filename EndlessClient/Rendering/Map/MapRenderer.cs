@@ -12,7 +12,6 @@ using Microsoft.Xna.Framework.Input;
 using Optional;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace EndlessClient.Rendering.Map
 {
@@ -32,9 +31,10 @@ namespace EndlessClient.Rendering.Map
         private readonly IDynamicMapObjectUpdater _dynamicMapObjectUpdater;
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IMouseCursorRenderer _mouseCursorRenderer;
-        private readonly IRenderOffsetCalculator _renderOffsetCalculator;
+        private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
         private readonly IMapGridEffectTargetFactory _mapGridEffectTargetFactory;
         private readonly IClientWindowSizeRepository _clientWindowSizeRepository;
+        private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
 
         private RenderTarget2D _mapBaseTarget, _mapObjectTarget;
         private SpriteBatch _sb;
@@ -68,9 +68,10 @@ namespace EndlessClient.Rendering.Map
                            IDynamicMapObjectUpdater dynamicMapObjectUpdater,
                            IConfigurationProvider configurationProvider,
                            IMouseCursorRenderer mouseCursorRenderer,
-                           IRenderOffsetCalculator renderOffsetCalculator,
+                           IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
                            IMapGridEffectTargetFactory mapGridEffectTargetFactory,
-                           IClientWindowSizeRepository clientWindowSizeRepository)
+                           IClientWindowSizeRepository clientWindowSizeRepository,
+                           IFixedTimeStepRepository fixedTimeStepRepository)
             : base((Game)endlessGame)
         {
             _renderTargetFactory = renderTargetFactory;
@@ -83,9 +84,10 @@ namespace EndlessClient.Rendering.Map
             _dynamicMapObjectUpdater = dynamicMapObjectUpdater;
             _configurationProvider = configurationProvider;
             _mouseCursorRenderer = mouseCursorRenderer;
-            _renderOffsetCalculator = renderOffsetCalculator;
+            _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
             _mapGridEffectTargetFactory = mapGridEffectTargetFactory;
             _clientWindowSizeRepository = clientWindowSizeRepository;
+            _fixedTimeStepRepository = fixedTimeStepRepository;
 
             _mapGridEffectTargets = new Dictionary<MapCoordinate, IMapGridEffectTarget>();
         }
@@ -126,6 +128,9 @@ namespace EndlessClient.Rendering.Map
             {
                 DrawGroundLayerToRenderTarget();
 
+                if (_fixedTimeStepRepository.IsWalkUpdateFrame)
+                    DrawMapToRenderTarget();
+
                 _characterRendererUpdater.UpdateCharacters(gameTime);
                 _npcRendererUpdater.UpdateNPCs(gameTime);
                 _dynamicMapObjectUpdater.UpdateMapObjects(gameTime);
@@ -149,7 +154,6 @@ namespace EndlessClient.Rendering.Map
             if (!Visible)
                 return;
 
-            DrawMapToRenderTarget();
             DrawToSpriteBatch(_sb, gameTime);
 
             base.Draw(gameTime);
@@ -339,11 +343,15 @@ namespace EndlessClient.Rendering.Map
         {
             spriteBatch.Begin();
 
+            // TODO AFTER MERGE
+            // var ViewportWidthFactor = _clientWindowSizeRepository.Width / 2; // 640 * (1/2)
+            // var ViewportHeightFactor = _clientWindowSizeRepository.Height * 3 / 10; // 480 * (3/10)
+            var drawLoc = _gridDrawCoordinateCalculator.CalculateGroundLayerDrawCoordinatesFromGridUnits();
             var offset = _quakeState.Map(qs => qs.Offset).Match(some: o => o, none: () => 0);
 
             lock (_rt_locker_)
             {
-                spriteBatch.Draw(_mapBaseTarget, GetGroundLayerDrawPosition() + new Vector2(offset, 0), Color.White);
+                spriteBatch.Draw(_mapBaseTarget, drawLoc + new Vector2(offset, 0), Color.White);
                 DrawBaseLayers(spriteBatch);
 
                 _mouseCursorRenderer.Draw(spriteBatch, new Vector2(offset, 0));
@@ -376,24 +384,6 @@ namespace EndlessClient.Rendering.Map
                     }
                 }
             }
-        }
-
-        private Vector2 GetGroundLayerDrawPosition()
-        {
-            var ViewportWidthFactor = _clientWindowSizeRepository.Width / 2; // 640 * (1/2)
-            var ViewportHeightFactor = _clientWindowSizeRepository.Height * 3 / 10; // 480 * (3/10)
-
-            var props = _characterProvider.MainCharacter.RenderProperties;
-            var charOffX = _renderOffsetCalculator.CalculateWalkAdjustX(props);
-            var charOffY = _renderOffsetCalculator.CalculateWalkAdjustY(props);
-
-            var mapHeightPlusOne = _currentMapProvider.CurrentMap.Properties.Height + 1;
-
-            // X coordinate: +32 per Y, -32 per X
-            // Y coordinate: -16 per Y, -16 per X
-            // basically the opposite of the algorithm for rendering the ground tiles
-            return new Vector2(ViewportWidthFactor - (mapHeightPlusOne * 32) + (props.MapY * 32) - (props.MapX * 32) - charOffX,
-                               ViewportHeightFactor - (props.MapY * 16) - (props.MapX * 16) - charOffY);
         }
 
         private int GetAlphaForCoordinates(int objX, int objY, EOLib.Domain.Character.Character character)

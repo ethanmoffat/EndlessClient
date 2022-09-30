@@ -22,10 +22,10 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         public ShadowLayerRenderer(INativeGraphicsManager nativeGraphicsManager,
                                    ICurrentMapProvider currentMapProvider,
                                    ICharacterProvider characterProvider,
-                                   IRenderOffsetCalculator renderOffsetCalculator,
-                                   IConfigurationProvider configurationProvider,
-                                   IClientWindowSizeProvider clientWindowSizeProvider)
-            : base(characterProvider, renderOffsetCalculator, clientWindowSizeProvider)
+                                   IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
+                                   IClientWindowSizeProvider clientWindowSizeProvider,
+                                   IConfigurationProvider configurationProvider)
+            : base(characterProvider, gridDrawCoordinateCalculator, clientWindowSizeProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _currentMapProvider = currentMapProvider;

@@ -23,10 +23,10 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         public MapObjectLayerRenderer(INativeGraphicsManager nativeGraphicsManager,
                                       ICurrentMapProvider currentMapProvider,
                                       ICharacterProvider characterProvider,
-                                      IRenderOffsetCalculator renderOffsetCalculator,
+                                      IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
                                       IClientWindowSizeProvider clientWindowSizeProvider,
                                       ICurrentMapStateProvider currentMapStateProvider)
-            : base(characterProvider, renderOffsetCalculator, clientWindowSizeProvider)
+            : base(characterProvider, gridDrawCoordinateCalculator, clientWindowSizeProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _currentMapProvider = currentMapProvider;

@@ -65,6 +65,8 @@ Here's a working list of things I want to add that would be additional features 
 
  **--host <server>** Overrides the server set in the config file with a different value. Convenient for testing against different servers from Visual Studio, since the build process will overwrite the configuration file in the output directory.
 
+ **--port <port>** Overrides the port set in the config file with a different value.
+
  **--version <version>** Overrides the version set in the config file or hard-coded into the client. Convenient for connecting to different servers that might require different version numbers.
 
  **--account_delay_ms <value>** Sets the delay when creating an account. Some servers enforce a specific limit. Defaults to 2 seconds if unset.

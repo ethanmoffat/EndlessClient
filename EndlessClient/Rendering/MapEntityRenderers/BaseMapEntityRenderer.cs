@@ -33,7 +33,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         }
 
         protected readonly ICharacterProvider _characterProvider;
-        private readonly IRenderOffsetCalculator _renderOffsetCalculator;
+        protected readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
         private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
 
         public abstract MapRenderLayer RenderLayer { get; }
@@ -43,11 +43,11 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         protected abstract int RenderDistance { get; }
 
         protected BaseMapEntityRenderer(ICharacterProvider characterProvider,
-                                        IRenderOffsetCalculator renderOffsetCalculator,
+                                        IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
                                         IClientWindowSizeProvider clientWindowSizeProvider)
         {
             _characterProvider = characterProvider;
-            _renderOffsetCalculator = renderOffsetCalculator;
+            _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
             _clientWindowSizeProvider = clientWindowSizeProvider;
         }
 
@@ -75,17 +75,12 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             }
         }
 
-        // todo: this shouldn't be public, move to another service that's responsible for calculating the offsets for map entities
-        public virtual Vector2 GetDrawCoordinatesFromGridUnits(int gridX, int gridY)
+        protected virtual Vector2 GetDrawCoordinatesFromGridUnits(int gridX, int gridY)
         {
-            var ViewportWidthFactor = _clientWindowSizeProvider.Width / 2; // 640 * (1/2)
-            var ViewportHeightFactor = _clientWindowSizeProvider.Height * 3 / 10; // 480 * (3/10)
-
-            var charOffX = _renderOffsetCalculator.CalculateOffsetX(_characterProvider.MainCharacter.RenderProperties);
-            var charOffY = _renderOffsetCalculator.CalculateOffsetY(_characterProvider.MainCharacter.RenderProperties);
-
-            return new Vector2(ViewportWidthFactor + (gridX * 32) - (gridY * 32) - charOffX + _layerOffsets[RenderLayer].X,
-                               ViewportHeightFactor + (gridY * 16) + (gridX * 16) - charOffY + _layerOffsets[RenderLayer].Y);
+            // TODO AFTER MERGE
+            // var ViewportWidthFactor = _clientWindowSizeProvider.Width / 2; // 640 * (1/2)
+            // var ViewportHeightFactor = _clientWindowSizeProvider.Height * 3 / 10; // 480 * (3/10)
+            return _gridDrawCoordinateCalculator.CalculateDrawCoordinatesFromGridUnits(gridX, gridY) + _layerOffsets[RenderLayer].ToVector2();
         }
     }
 }

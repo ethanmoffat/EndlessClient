@@ -13,24 +13,23 @@ namespace EndlessClient.Rendering.Map
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly ICharacterProvider _characterProvider;
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
-        private readonly MapObjectLayerRenderer _objectRenderer;
-
+        private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
+        
         public MapObjectBoundsCalculator(INativeGraphicsManager nativeGraphicsManager,
-                                      ICharacterProvider characterProvider,
-                                      IRenderOffsetCalculator renderOffsetCalculator,
-                                      IMapEntityRendererProvider mapEntityRendererProvider)
+                                         ICharacterProvider characterProvider,
+                                         IRenderOffsetCalculator renderOffsetCalculator,
+                                         IGridDrawCoordinateCalculator gridDrawCoordinateCalculator)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _characterProvider = characterProvider;
             _renderOffsetCalculator = renderOffsetCalculator;
-
-            _objectRenderer = mapEntityRendererProvider.MapEntityRenderers.OfType<MapObjectLayerRenderer>().Single();
+            _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
         }
 
         public Rectangle GetMapObjectBounds(int gridX, int gridY, int gfxNum)
         {
             var gfx = _nativeGraphicsManager.TextureFromResource(GFXTypes.MapObjects, gfxNum, transparent: true);
-            var drawPosition = _objectRenderer.GetDrawCoordinatesFromGridUnits(gridX, gridY);
+            var drawPosition = _gridDrawCoordinateCalculator.CalculateDrawCoordinatesFromGridUnits(gridX, gridY);
             // see: MapObjectLayerRenderer
             // todo: more centralized way of representing this
             drawPosition -= new Vector2(gfx.Width / 2, gfx.Height - 32);

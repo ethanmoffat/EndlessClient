@@ -16,9 +16,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         public OtherCharacterEntityRenderer(ICharacterProvider characterProvider,
                                             ICharacterRendererProvider characterRendererProvider,
                                             ICharacterStateCache characterStateCache,
-                                            IRenderOffsetCalculator renderOffsetCalculator,
+                                            IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
                                             IClientWindowSizeProvider clientWindowSizeProvider)
-            : base(characterProvider, renderOffsetCalculator, clientWindowSizeProvider)
+            : base(characterProvider, gridDrawCoordinateCalculator, clientWindowSizeProvider)
         {
             _characterRendererProvider = characterRendererProvider;
             _characterStateCache = characterStateCache;

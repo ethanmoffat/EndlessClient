@@ -30,6 +30,8 @@ namespace EndlessClient.ControlSets
         private readonly IUserInputRepository _userInputRepository;
         private readonly IActiveDialogRepository _activeDialogRepository;
         private readonly IClientWindowSizeRepository _clientWindowSizeRepository;
+        private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
+
         private IMainButtonController _mainButtonController;
         private IAccountController _accountController;
         private ILoginController _loginController;
@@ -46,7 +48,8 @@ namespace EndlessClient.ControlSets
                                  IEndlessGameProvider endlessGameProvider,
                                  IUserInputRepository userInputRepository,
                                  IActiveDialogRepository activeDialogRepository,
-                                 IClientWindowSizeRepository clientWindowSizeRepository)
+                                 IClientWindowSizeRepository clientWindowSizeRepository,
+                                 IFixedTimeStepRepository fixedTimeStepRepository)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _messageBoxFactory = messageBoxFactory;
@@ -60,6 +63,7 @@ namespace EndlessClient.ControlSets
             _userInputRepository = userInputRepository;
             _activeDialogRepository = activeDialogRepository;
             _clientWindowSizeRepository = clientWindowSizeRepository;
+            _fixedTimeStepRepository = fixedTimeStepRepository;
         }
 
         public IControlSet CreateControlsForState(GameStates newState, IControlSet currentControlSet)
@@ -113,7 +117,8 @@ namespace EndlessClient.ControlSets
                         _characterManagementController,
                         _accountController,
                         _endlessGameProvider,
-                        _userInputRepository);
+                        _userInputRepository,
+                        _fixedTimeStepRepository);
                 case GameStates.PlayingTheGame:
                     return new InGameControlSet(_mainButtonController, _clientWindowSizeRepository, _messageBoxFactory, _hudControlsFactory, _activeDialogRepository, _userInputRepository);
                 default: throw new ArgumentOutOfRangeException(nameof(newState), newState, null);

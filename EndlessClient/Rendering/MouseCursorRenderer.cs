@@ -2,24 +2,19 @@
 using EndlessClient.Dialogs;
 using EndlessClient.HUD;
 using EndlessClient.Input;
-using EndlessClient.Rendering.Character;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
-using EOLib.IO;
 using EOLib.IO.Map;
-using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Optional;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using XNAControls;
 
 namespace EndlessClient.Rendering
@@ -40,7 +35,7 @@ namespace EndlessClient.Rendering
 
         private readonly Texture2D _mouseCursorTexture;
         private readonly ICharacterProvider _characterProvider;
-        private readonly IRenderOffsetCalculator _renderOffsetCalculator;
+        private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
         private readonly IMapCellStateProvider _mapCellStateProvider;
         private readonly IItemStringService _itemStringService;
         private readonly IItemNameColorService _itemNameColorService;
@@ -67,8 +62,7 @@ namespace EndlessClient.Rendering
 
         public MouseCursorRenderer(INativeGraphicsManager nativeGraphicsManager,
                                    ICharacterProvider characterProvider,
-                                   ICharacterRendererProvider characterRendererProvider,
-                                   IRenderOffsetCalculator renderOffsetCalculator,
+                                   IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
                                    IMapCellStateProvider mapCellStateProvider,
                                    IItemStringService itemStringService,
                                    IItemNameColorService itemNameColorService,
@@ -82,7 +76,7 @@ namespace EndlessClient.Rendering
         {
             _mouseCursorTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 24, true);
             _characterProvider = characterProvider;
-            _renderOffsetCalculator = renderOffsetCalculator;
+            _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
             _mapCellStateProvider = mapCellStateProvider;
             _itemStringService = itemStringService;
             _itemNameColorService = itemNameColorService;
@@ -125,13 +119,17 @@ namespace EndlessClient.Rendering
                 _contextMenuProvider.ContextMenu.HasValue)
                 return;
 
-            // todo: don't do anything if there is a context menu and mouse is over context menu
+            // TODO AFTER MERGE
+            // var widthFactor = _clientWindowSizeProvider.Width * 9 / 10; // 288 = 640 * .45, 576 = 640 * .9
+            // var heightFactor = _clientWindowSizeProvider.Height * 3 / 10;
 
-            var offsetX = MainCharacterOffsetX();
-            var offsetY = MainCharacterOffsetY();
+            // _gridX = (int)Math.Round((msX + 2 * msY - widthFactor + offsetX + 2 * offsetY) / 64.0);
+            // _gridY = (int)Math.Round((msY - _gridX * 16 - heightFactor + offsetY) / 16.0);
+            var gridPosition = _gridDrawCoordinateCalculator.CalculateGridCoordinatesFromDrawLocation(_userInputProvider.CurrentMouseState.Position.ToVector2());
+            _gridX = gridPosition.X;
+            _gridY = gridPosition.Y;
 
-            SetGridCoordsBasedOnMousePosition(offsetX, offsetY);
-            UpdateDrawPostionBasedOnGridPosition(offsetX, offsetY);
+            UpdateDrawPostionBasedOnGridPosition();
 
             var cellState = _mapCellStateProvider.GetCellStateAt(_gridX, _gridY);
             UpdateCursorSourceRectangle(cellState);
@@ -139,32 +137,12 @@ namespace EndlessClient.Rendering
             CheckForClicks(cellState);
         }
 
-        private void SetGridCoordsBasedOnMousePosition(int offsetX, int offsetY)
+        private void UpdateDrawPostionBasedOnGridPosition()
         {
-            //need to solve this system of equations to get x, y on the grid
-            //(x * 32) - (y * 32) + 288 - c.OffsetX, => pixX = 32x - 32y + 288 - c.OffsetX
-            //(y * 16) + (x * 16) + 144 - c.OffsetY  => 2pixY = 32y + 32x + 288 - 2c.OffsetY
-            //                                         => 2pixY + pixX = 64x + 576 - c.OffsetX - 2c.OffsetY
-            //                                         => 2pixY + pixX - 576 + c.OffsetX + 2c.OffsetY = 64x
-            //                                         => _gridX = (pixX + 2pixY - 576 + c.OffsetX + 2c.OffsetY) / 64; <=
-            //pixY = (_gridX * 16) + (_gridY * 16) + 144 - c.OffsetY =>
-            //(pixY - (_gridX * 16) - 144 + c.OffsetY) / 16 = _gridY
-
-            var mouseState = _userInputProvider.CurrentMouseState;
-
-            var msX = mouseState.X - SingleCursorFrameArea.Width / 2;
-            var msY = mouseState.Y - SingleCursorFrameArea.Height / 2;
-
-            var widthFactor = _clientWindowSizeProvider.Width * 9 / 10; // 288 = 640 * .45, 576 = 640 * .9
-            var heightFactor = _clientWindowSizeProvider.Height * 3 / 10;
-
-            _gridX = (int)Math.Round((msX + 2 * msY - widthFactor + offsetX + 2 * offsetY) / 64.0);
-            _gridY = (int)Math.Round((msY - _gridX * 16 - heightFactor + offsetY) / 16.0);
-        }
-
-        private void UpdateDrawPostionBasedOnGridPosition(int offsetX, int offsetY)
-        {
-            var drawPosition = GetDrawCoordinatesFromGridUnits(_gridX, _gridY, offsetX, offsetY);
+            // TODO AFTER MERGE
+            // var widthFactor = _clientWindowSizeProvider.Width * 45 / 100;
+            // var heightFactor = _clientWindowSizeProvider.Height * 3 / 10;
+            var drawPosition = _gridDrawCoordinateCalculator.CalculateBaseLayerDrawCoordinatesFromGridUnits(_gridX, _gridY);
             DrawArea = new Rectangle((int)drawPosition.X,
                                       (int)drawPosition.Y,
                                       DrawArea.Width,
@@ -211,24 +189,6 @@ namespace EndlessClient.Rendering
                         }
                     }
                 });
-        }
-
-        private int MainCharacterOffsetX()
-        {
-            return _renderOffsetCalculator.CalculateOffsetX(_characterProvider.MainCharacter.RenderProperties);
-        }
-
-        private int MainCharacterOffsetY()
-        {
-            return _renderOffsetCalculator.CalculateOffsetY(_characterProvider.MainCharacter.RenderProperties);
-        }
-
-        private Vector2 GetDrawCoordinatesFromGridUnits(int x, int y, int cOffX, int cOffY)
-        {
-            var widthFactor = _clientWindowSizeProvider.Width * 45 / 100;
-            var heightFactor = _clientWindowSizeProvider.Height * 3 / 10;
-
-            return new Vector2(x*32 - y*32 + widthFactor - cOffX, y*16 + x*16 + heightFactor - cOffY);
         }
 
         private void UpdateMapItemLabel(Option<MapItem> item)
@@ -339,7 +299,7 @@ namespace EndlessClient.Rendering
                 {
                     _clickCoordinate.MatchSome(c =>
                     {
-                        var position = GetDrawCoordinatesFromGridUnits(c.X, c.Y, MainCharacterOffsetX(), MainCharacterOffsetY());
+                        var position = _gridDrawCoordinateCalculator.CalculateBaseLayerDrawCoordinatesFromGridUnits(c);
                         spriteBatch.Draw(_mouseCursorTexture,
                                          position + additionalOffset,
                                          SingleCursorFrameArea.WithPosition(new Vector2(SingleCursorFrameArea.Width * (int)_clickFrame, 0)),

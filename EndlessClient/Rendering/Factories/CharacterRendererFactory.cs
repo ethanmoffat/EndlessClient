@@ -34,6 +34,7 @@ namespace EndlessClient.Rendering.Factories
         private readonly IUserInputProvider _userInputProvider;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IClientWindowSizeRepository _clientWindowSizeRepository;
+        private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
 
         public CharacterRendererFactory(INativeGraphicsManager nativeGraphicsManager,
                                         IEndlessGameProvider gameProvider,
@@ -50,7 +51,8 @@ namespace EndlessClient.Rendering.Factories
                                         ICurrentMapProvider currentMapProvider,
                                         IUserInputProvider userInputProvider,
                                         ISfxPlayer sfxPlayer,
-                                        IClientWindowSizeRepository clientWindowSizeRepository)
+                                        IClientWindowSizeRepository clientWindowSizeRepository,
+                                        IFixedTimeStepRepository fixedTimeStepRepository)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _gameProvider = gameProvider;
@@ -68,6 +70,7 @@ namespace EndlessClient.Rendering.Factories
             _userInputProvider = userInputProvider;
             _sfxPlayer = sfxPlayer;
             _clientWindowSizeRepository = clientWindowSizeRepository;
+            _fixedTimeStepRepository = fixedTimeStepRepository;
         }
 
         public ICharacterRenderer CreateCharacterRenderer(EOLib.Domain.Character.Character character)
@@ -89,7 +92,8 @@ namespace EndlessClient.Rendering.Factories
                 _currentMapProvider,
                 _userInputProvider,
                 _sfxPlayer,
-                _clientWindowSizeRepository);
+                _clientWindowSizeRepository,
+                _fixedTimeStepRepository);
         }
     }
 }
