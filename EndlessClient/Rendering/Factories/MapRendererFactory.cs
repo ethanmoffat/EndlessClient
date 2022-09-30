@@ -23,7 +23,6 @@ namespace EndlessClient.Rendering.Factories
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IMouseCursorRendererFactory _mouseCursorRendererFactory;
         private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
-        private readonly IRenderOffsetCalculator _renderOffsetCalculator;
         private readonly IMapGridEffectTargetFactory _mapGridEffectTargetFactory;
         private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
         private readonly INPCRendererUpdater _npcRendererUpdater;
