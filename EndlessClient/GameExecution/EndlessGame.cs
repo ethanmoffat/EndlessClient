@@ -7,14 +7,12 @@ using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Content;
 using EndlessClient.ControlSets;
-using EndlessClient.Network;
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Test;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Config;
-using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.IO.Actions;
@@ -108,30 +106,26 @@ namespace EndlessClient.GameExecution
                 }
             };
 
-            Components.ComponentRemoved += (o, e) =>
-            {
-                //if (e.GameComponent is PacketHandlerGameComponent)
-                //{
-                //    throw new InvalidOperationException("Packet handler game component should never be removed from Game components");
-                //}
-            };
-
             base.Initialize();
-
-            AttemptToLoadPubFiles();
 
             IsMouseVisible = true;
             IsFixedTimeStep = false;
             _previousKeyState = Keyboard.GetState();
 
+            // setting Width/Height in window size repository applies the change to disable vsync
+            _graphicsDeviceManager.SynchronizeWithVerticalRetrace = false;
+            _graphicsDeviceManager.IsFullScreen = false;
             _windowSizeRepository.Width = ClientWindowSizeRepository.DEFAULT_BACKBUFFER_WIDTH;
             _windowSizeRepository.Height = ClientWindowSizeRepository.DEFAULT_BACKBUFFER_HEIGHT;
 
-            _graphicsDeviceManager.SynchronizeWithVerticalRetrace = false;
-            _graphicsDeviceManager.IsFullScreen = false;
-            _graphicsDeviceManager.PreferredBackBufferWidth = _windowSizeRepository.Width;
-            _graphicsDeviceManager.PreferredBackBufferHeight = _windowSizeRepository.Height;
-            _graphicsDeviceManager.ApplyChanges();
+            _windowSizeRepository.GameWindowSizeChanged += (_, _) =>
+            {
+                if (_windowSizeRepository.Width < ClientWindowSizeRepository.DEFAULT_BACKBUFFER_HEIGHT)
+                    _windowSizeRepository.Width = ClientWindowSizeRepository.DEFAULT_BACKBUFFER_WIDTH;
+
+                if (_windowSizeRepository.Height < ClientWindowSizeRepository.DEFAULT_BACKBUFFER_HEIGHT)
+                    _windowSizeRepository.Height = ClientWindowSizeRepository.DEFAULT_BACKBUFFER_HEIGHT;
+            };
 
             Exiting += (_, _) => _mfxPlayer.StopBackgroundMusic();
         }
@@ -172,6 +166,8 @@ namespace EndlessClient.GameExecution
             {
                 _mfxPlayer.PlayBackgroundMusic(1, EOLib.IO.Map.MusicControl.InterruptPlayRepeat);
             }
+
+            AttemptToLoadPubFiles();
 
             base.LoadContent();
         }
