@@ -29,7 +29,7 @@ namespace EndlessClient.Rendering.NPC
         // todo: load this from a config or find a better way
         // list: Reaper, Royal Guard, Elite Captain, Horse, Unicorn, Anundo Leader, Apozen
         private static readonly int[] _npcsThatAreNotCentered = new[] { 9, 57, 58, 66, 67, 120, 142 };
-
+        private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
         private readonly ICharacterRendererProvider _characterRendererProvider;
         private readonly IENFFileProvider _enfFileProvider;
         private readonly INPCSpriteSheet _npcSpriteSheet;
@@ -76,6 +76,7 @@ namespace EndlessClient.Rendering.NPC
         public Rectangle EffectTargetArea => DrawArea;
 
         public NPCRenderer(INativeGraphicsManager nativeGraphicsManager,
+                           IClientWindowSizeProvider clientWindowSizeProvider,
                            IEndlessGameProvider endlessGameProvider,
                            ICharacterRendererProvider characterRendererProvider,
                            IENFFileProvider enfFileProvider,
@@ -92,7 +93,7 @@ namespace EndlessClient.Rendering.NPC
             : base((Game)endlessGameProvider.Game)
         {
             NPC = initialNPC;
-
+            _clientWindowSizeProvider = clientWindowSizeProvider;
             _characterRendererProvider = characterRendererProvider;
             _enfFileProvider = enfFileProvider;
             _npcSpriteSheet = npcSpriteSheet;
@@ -317,9 +318,12 @@ namespace EndlessClient.Rendering.NPC
                             : frameTexture.Width / 3
                         : frameTexture.Width / 2;
 
-                    // y coordinate Formula courtesy of Apollo
-                    var xCoord = offsetX + 320 - mainOffsetX - widthFactor;
-                    var yCoord = (Math.Min(41, frameTexture.Width - 23) / 4) + offsetY + 168 - mainOffsetY - frameTexture.Height;
+                    var heightFactor = _clientWindowSizeProvider.Resizable
+                        ? (_clientWindowSizeProvider.Height / 2) + 16
+                        : 168;
+
+                    var xCoord = offsetX + (_clientWindowSizeProvider.Width / 2) - mainOffsetX - widthFactor;
+                    var yCoord = (Math.Min(41, frameTexture.Width - 23) / 4) + offsetY + heightFactor - mainOffsetY - frameTexture.Height;
                     DrawArea = frameTexture.Bounds.WithPosition(new Vector2(xCoord, yCoord));
 
                     var oneGridSize = new Vector2(mainRenderer.DrawArea.Width,

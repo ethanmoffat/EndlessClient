@@ -17,6 +17,7 @@ namespace EndlessClient.Rendering.NPC
     public class NPCRendererFactory : INPCRendererFactory
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
+        private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
         private readonly IEndlessGameProvider _endlessGameProvider;
         private readonly ICharacterRendererProvider _characterRendererProvider;
         private readonly IENFFileProvider _enfFileProvider;
@@ -31,6 +32,7 @@ namespace EndlessClient.Rendering.NPC
         private readonly ISfxPlayer _sfxPlayer;
 
         public NPCRendererFactory(INativeGraphicsManager nativeGraphicsManager,
+                                  IClientWindowSizeProvider clientWindowSizeProvider,
                                   IEndlessGameProvider endlessGameProvider,
                                   ICharacterRendererProvider characterRendererProvider,
                                   IENFFileProvider enfFileProvider,
@@ -45,6 +47,7 @@ namespace EndlessClient.Rendering.NPC
                                   ISfxPlayer sfxPlayer)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
+            _clientWindowSizeProvider = clientWindowSizeProvider;
             _endlessGameProvider = endlessGameProvider;
             _characterRendererProvider = characterRendererProvider;
             _enfFileProvider = enfFileProvider;
@@ -62,6 +65,7 @@ namespace EndlessClient.Rendering.NPC
         public INPCRenderer CreateRendererFor(EOLib.Domain.NPC.NPC npc)
         {
             return new NPCRenderer(_nativeGraphicsManager,
+                                   _clientWindowSizeProvider,
                                    _endlessGameProvider,
                                    _characterRendererProvider,
                                    _enfFileProvider,

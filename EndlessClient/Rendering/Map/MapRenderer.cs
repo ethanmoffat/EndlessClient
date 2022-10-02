@@ -50,8 +50,9 @@ namespace EndlessClient.Rendering.Map
             get
             {
                 var ms = Mouse.GetState();
-                //todo: turn magic numbers into meaningful values
-                return Game.IsActive && ms.X > 0 && ms.Y > 0 && ms.X < 640 && ms.Y < 320;
+                return Game.IsActive && ms.X > 0 && ms.Y > 0 &&
+                    ms.X < _clientWindowSizeRepository.Width &&
+                    ms.Y < (_clientWindowSizeRepository.Resizable ? _clientWindowSizeRepository.Height : _clientWindowSizeRepository.Height * 2 / 3);
             }
         }
 

@@ -40,6 +40,9 @@ namespace EndlessClient.Rendering
             get => _gameWindowRepository.Window.ClientBounds.Width;
             set
             {
+                if (value < DEFAULT_BACKBUFFER_WIDTH)
+                    value = DEFAULT_BACKBUFFER_WIDTH;
+
                 _graphicsDeviceRepository.GraphicsDeviceManager.PreferredBackBufferWidth = value;
                 _graphicsDeviceRepository.GraphicsDeviceManager.ApplyChanges();
 
@@ -53,6 +56,9 @@ namespace EndlessClient.Rendering
             get => _gameWindowRepository.Window.ClientBounds.Height;
             set
             {
+                if (value < DEFAULT_BACKBUFFER_HEIGHT)
+                    value = DEFAULT_BACKBUFFER_HEIGHT;
+
                 _graphicsDeviceRepository.GraphicsDeviceManager.PreferredBackBufferHeight = value;
                 _graphicsDeviceRepository.GraphicsDeviceManager.ApplyChanges();
 

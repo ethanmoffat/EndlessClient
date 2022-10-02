@@ -62,6 +62,10 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             var colDelta = Math.Abs(props.MapX - col);
 
             return rowDelta <= RenderDistance && colDelta <= RenderDistance;
+            var renderDistanceScaledX = (int)Math.Ceiling(_clientWindowSizeProvider.Width / 640.0 * RenderDistance);
+            var renderDistanceScaledY = (int)Math.Ceiling(_clientWindowSizeProvider.Height / 480.0 * RenderDistance);
+
+            return rowDelta <= renderDistanceScaledX && colDelta <= renderDistanceScaledY;
         }
 
         protected abstract bool ElementExistsAt(int row, int col);

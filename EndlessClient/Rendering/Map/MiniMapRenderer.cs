@@ -28,6 +28,7 @@ namespace EndlessClient.Rendering.Map
             NUM_GRIDS = 9,
         }
 
+        private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly ICharacterProvider _characterProvider;
@@ -36,12 +37,14 @@ namespace EndlessClient.Rendering.Map
         private readonly Texture2D _miniMapTexture;
 
         public MiniMapRenderer(INativeGraphicsManager nativeGraphicsManager,
+                               IClientWindowSizeProvider clientWindowSizeProvider,
                                ICurrentMapProvider currentMapProvider,
                                ICurrentMapStateProvider currentMapStateProvider,
                                ICharacterProvider characterProvider,
                                IMapCellStateProvider mapCellStateProvider,
                                IENFFileProvider enfFileProvider)
         {
+            _clientWindowSizeProvider = clientWindowSizeProvider;
             _currentMapProvider = currentMapProvider;
             _currentMapStateProvider = currentMapStateProvider;
             _characterProvider = characterProvider;
@@ -179,10 +182,20 @@ namespace EndlessClient.Rendering.Map
 
         private Vector2 GetMiniMapDrawCoordinates(int x, int y)
         {
-            // holy magic numbers batman
-            // TODO - make this not gross
+            // these are the same as in MouseCursorRenderer
+            var widthFactor = _clientWindowSizeProvider.Resizable
+                ? _clientWindowSizeProvider.Width / 2 // 288 = 640 * .45, viewport width factor
+                : _clientWindowSizeProvider.Width * 9 / 10; // 288 = 640 * .45, 576 = 640 * .9
+            var heightFactor = _clientWindowSizeProvider.Resizable
+                ? _clientWindowSizeProvider.Height / 2 // 144 = 480 * .45, viewport height factor
+                : _clientWindowSizeProvider.Height * 3 / 10;
+
+            var tileWidthFactor = _miniMapTexture.Height; // 14
+            var tileHeightFactor = _miniMapTexture.Height / 2; // 7
+
             var (cx, cy) = GetCharacterPos();
-            return new Vector2(x * 13 - y * 13 + 288 - (cx * 13 - cy * 13), y * 7 + x * 7 + 144 - (cx * 7 + cy * 7));
+            return new Vector2(x * tileWidthFactor - y * tileWidthFactor + widthFactor - (cx * tileWidthFactor - cy * tileWidthFactor),
+                               y * tileHeightFactor + x * tileHeightFactor + heightFactor - (cx * tileHeightFactor + cy * tileHeightFactor));
         }
 
         private Rectangle GetSourceRect(MiniMapGfx gfx)

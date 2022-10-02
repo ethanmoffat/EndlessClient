@@ -31,11 +31,13 @@ namespace EndlessClient.Rendering
 
         public Vector2 CalculateDrawCoordinatesFromGridUnits(int gridX, int gridY)
         {
-            var ViewportWidthFactor = _clientWindowSizeProvider.Width / 2; // 640 * (1/2)
-            var ViewportHeightFactor = _clientWindowSizeProvider.Height * 3 / 10; // 480 * (3/10)
+            var widthFactor = _clientWindowSizeProvider.Width / 2; // 640 * (1/2)
+            var heightFactor = _clientWindowSizeProvider.Resizable
+                ? _clientWindowSizeProvider.Height / 2
+                : _clientWindowSizeProvider.Height * 3 / 10; // 480 * (3/10)
 
-            return new Vector2(ViewportWidthFactor + (gridX * 32) - (gridY * 32),
-                               ViewportHeightFactor + (gridY * 16) + (gridX * 16)) - CalculateCharacterOffsets();
+            return new Vector2(widthFactor + (gridX * 32) - (gridY * 32),
+                               heightFactor + (gridY * 16) + (gridX * 16)) - CalculateCharacterOffsets();
         }
 
         public Vector2 CalculateDrawCoordinatesFromGridUnits(MapCoordinate mapCoordinate)
@@ -45,11 +47,17 @@ namespace EndlessClient.Rendering
 
         public Vector2 CalculateBaseLayerDrawCoordinatesFromGridUnits(int gridX, int gridY)
         {
-            var ViewportWidthFactor = (_clientWindowSizeProvider.Width - GridSpaceWidth) / 2; // 288 = (640 - 64) / 2
-            var ViewportHeightFactor = _clientWindowSizeProvider.Height * 3 / 10; // 144 = 480 * (3/10)
+            // todo: this might need some hax...see GroundLayerRenderer in the stash
 
-            return new Vector2(ViewportWidthFactor + (gridX * 32) - (gridY * 32),
-                               ViewportHeightFactor + (gridY * 16) + (gridX * 16)) - CalculateBaseLayerOffsets();
+            var widthFactor = _clientWindowSizeProvider.Resizable
+                ? (_clientWindowSizeProvider.Width - GridSpaceWidth) / 2 // 288 = (640 - 64) / 2
+                : _clientWindowSizeProvider.Width * 45 / 100;
+            var heightFactor = _clientWindowSizeProvider.Resizable
+                ? _clientWindowSizeProvider.Height / 2
+                : _clientWindowSizeProvider.Height * 3 / 10; // 144 = 480 * (3/10)
+
+            return new Vector2(widthFactor + (gridX * 32) - (gridY * 32),
+                               heightFactor + (gridY * 16) + (gridX * 16)) - CalculateBaseLayerOffsets();
         }
 
         public Vector2 CalculateBaseLayerDrawCoordinatesFromGridUnits(MapCoordinate mapCoordinate)
@@ -60,7 +68,9 @@ namespace EndlessClient.Rendering
         public Vector2 CalculateGroundLayerDrawCoordinatesFromGridUnits()
         {
             var ViewportWidthFactor = _clientWindowSizeProvider.Width / 2; // 640 * (1/2)
-            var ViewportHeightFactor = _clientWindowSizeProvider.Height * 3 / 10; // 480 * (3/10)
+            var ViewportHeightFactor = _clientWindowSizeProvider.Resizable
+                ? _clientWindowSizeProvider.Height / 2
+                : _clientWindowSizeProvider.Height * 3 / 10; // 480 * (3/10)
 
             var props = _characterProvider.MainCharacter.RenderProperties;
 
@@ -82,19 +92,42 @@ namespace EndlessClient.Rendering
             //pixY = (_gridX * 16) + (_gridY * 16) + 144 - c.OffsetY =>
             //(pixY - (_gridX * 16) - 144 + c.OffsetY) / 16 = _gridY
 
-            var msX = drawLocation.X - GridSpaceWidth / 2;
-            var msY = drawLocation.Y - GridSpaceHeight / 2;
+            if (_clientWindowSizeProvider.Resizable)
+            {
+                var msX = drawLocation.X;
+                var msY = drawLocation.Y - GridSpaceHeight / 2;
 
-            var widthFactor = _clientWindowSizeProvider.Width * 9 / 10; // 288 = 640 * .45, 576 = 640 * .9
-            var heightFactor = _clientWindowSizeProvider.Height * 3 / 10;
+                var widthFactor = _clientWindowSizeProvider.Resizable
+                    ? _clientWindowSizeProvider.Width / 2 // 288 = 640 * .45, viewport width factor
+                    : _clientWindowSizeProvider.Width * 9 / 10; // 288 = 640 * .45, 576 = 640 * .9
+                var heightFactor = _clientWindowSizeProvider.Resizable
+                    ? _clientWindowSizeProvider.Height / 2 // 144 = 480 * .45, viewport height factor
+                    : _clientWindowSizeProvider.Height * 3 / 10;
 
-            var offsetX = _renderOffsetCalculator.CalculateOffsetX(_characterProvider.MainCharacter.RenderProperties);
-            var offsetY = _renderOffsetCalculator.CalculateOffsetY(_characterProvider.MainCharacter.RenderProperties);
+                var offsetX = _renderOffsetCalculator.CalculateOffsetX(_characterProvider.MainCharacter.RenderProperties);
+                var offsetY = _renderOffsetCalculator.CalculateOffsetY(_characterProvider.MainCharacter.RenderProperties);
 
-            var gridX = (int)Math.Round((msX + 2 * msY - widthFactor + offsetX + 2 * offsetY) / 64.0);
-            var gridY = (int)Math.Round((msY - gridX * 16 - heightFactor + offsetY) / 16.0);
+                var gridX = (int)Math.Round((msX + (2 * msY) - widthFactor - heightFactor * 2 + offsetX + (2 * offsetY)) / 64.0);
+                var gridY = (int)Math.Round((msY - (16 * gridX) - heightFactor + offsetY) / 16.0);
 
-            return new MapCoordinate(gridX, gridY);
+                return new MapCoordinate(gridX, gridY);
+            }
+            else
+            {
+                var msX = drawLocation.X - GridSpaceWidth / 2;
+                var msY = drawLocation.Y - GridSpaceHeight / 2;
+
+                var widthFactor = _clientWindowSizeProvider.Width * 9 / 10; // 288 = 640 * .45, 576 = 640 * .9
+                var heightFactor = _clientWindowSizeProvider.Height * 3 / 10;
+
+                var offsetX = _renderOffsetCalculator.CalculateOffsetX(_characterProvider.MainCharacter.RenderProperties);
+                var offsetY = _renderOffsetCalculator.CalculateOffsetY(_characterProvider.MainCharacter.RenderProperties);
+
+                var gridX = (int)Math.Round((msX + 2 * msY - widthFactor + offsetX + 2 * offsetY) / 64.0);
+                var gridY = (int)Math.Round((msY - gridX * 16 - heightFactor + offsetY) / 16.0);
+
+                return new MapCoordinate(gridX, gridY);
+            }
         }
 
         private Vector2 CalculateCharacterOffsets()

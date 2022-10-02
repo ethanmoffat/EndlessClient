@@ -28,6 +28,8 @@ namespace EndlessClient.Rendering.Character
 {
     public class CharacterRenderer : DrawableGameComponent, ICharacterRenderer
     {
+        private readonly object _rt_locker_ = new object();
+
         private readonly IMapInteractionController _mapInteractionController;
         private readonly IRenderTargetFactory _renderTargetFactory;
         private readonly IHealthBarRendererFactory _healthBarRendererFactory;
@@ -130,13 +132,27 @@ namespace EndlessClient.Rendering.Character
 
             _effectRenderer = new EffectRenderer(nativeGraphicsmanager, _sfxPlayer, this);
             _chatBubble = new Lazy<IChatBubble>(() => _chatBubbleFactory.CreateChatBubble(this));
+
+            _clientWindowSizeRepository.GameWindowSizeChanged += (_, _) =>
+            {
+                lock (_rt_locker_)
+                {
+                    _charRenderTarget.Dispose();
+                    _charRenderTarget = _renderTargetFactory.CreateRenderTarget();
+                }
+            };
+
+            if (_character == _characterProvider.MainCharacter)
+                _clientWindowSizeRepository.GameWindowSizeChanged += (_, _) => SetToCenterScreenPosition();
         }
 
         #region Game Component
 
         public override void Initialize()
         {
-            _charRenderTarget = _renderTargetFactory.CreateRenderTarget();
+            lock(_rt_locker_)
+                _charRenderTarget = _renderTargetFactory.CreateRenderTarget();
+
             _sb = new SpriteBatch(Game.GraphicsDevice);
 
             if (_gameStateProvider.CurrentState == GameStates.PlayingTheGame)
@@ -168,6 +184,7 @@ namespace EndlessClient.Rendering.Character
         protected override void LoadContent()
         {
             _textureUpdateRequired = true;
+            _characterTextures.Refresh(_character.RenderProperties);
 
             _outline = new Texture2D(GraphicsDevice, 1, 1);
             _outline.SetData(new[] { Color.White });
@@ -259,7 +276,7 @@ namespace EndlessClient.Rendering.Character
             var skinRect = _characterTextures.Skin.SourceRectangle;
 
             var xCoord = (_clientWindowSizeRepository.Width - skinRect.Width) / 2;
-            var yCoord = (_clientWindowSizeRepository.Height * 3 / 10) - (skinRect.Height / 2) - (skinRect.Height / 4);
+            var yCoord = (_clientWindowSizeRepository.Height - skinRect.Height) / 2 - (_clientWindowSizeRepository.Resizable ? 11 : 0);
 
             SetAbsoluteScreenPosition(xCoord, yCoord);
         }
@@ -269,7 +286,12 @@ namespace EndlessClient.Rendering.Character
             _effectRenderer.DrawBehindTarget(spriteBatch);
 
             if (Visible)
-                spriteBatch.Draw(_charRenderTarget, new Vector2(0, GetSteppingStoneOffset(Character.RenderProperties)), GetAlphaColor());
+            {
+                lock (_rt_locker_)
+                {
+                    spriteBatch.Draw(_charRenderTarget, new Vector2(0, GetSteppingStoneOffset(Character.RenderProperties)), GetAlphaColor());
+                }
+            }
 
             _effectRenderer.DrawInFrontOfTarget(spriteBatch);
 
@@ -302,29 +324,32 @@ namespace EndlessClient.Rendering.Character
 
         private void DrawToRenderTarget()
         {
-            GraphicsDevice.SetRenderTarget(_charRenderTarget);
-            GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
-            _sb.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend);
-
-            var characterPropertyRenderers = _characterPropertyRendererBuilder
-                .BuildList(_characterTextures, _character.RenderProperties)
-                .Where(x => x.CanRender);
-            foreach (var renderer in characterPropertyRenderers)
-                renderer.Render(_sb, DrawArea);
-
-            if (_gameStateProvider.CurrentState == GameStates.None)
+            lock (_rt_locker_)
             {
-                _sb.Draw(_outline, DrawArea.WithSize(DrawArea.Width, 1), Color.Black);
-                _sb.Draw(_outline, DrawArea.WithPosition(new Vector2(DrawArea.X + DrawArea.Width, DrawArea.Y)).WithSize(1, DrawArea.Height), Color.Black);
-                _sb.Draw(_outline, DrawArea.WithPosition(new Vector2(DrawArea.X, DrawArea.Y + DrawArea.Height)).WithSize(DrawArea.Width, 1), Color.Black);
-                _sb.Draw(_outline, DrawArea.WithSize(1, DrawArea.Height), Color.Black);
+                GraphicsDevice.SetRenderTarget(_charRenderTarget);
+                GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
+                _sb.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend);
 
-                _sb.Draw(_outline, DrawArea, Color.FromNonPremultiplied(255, 0, 0, 64));
-                _sb.Draw(_outline, MapProjectedDrawArea, Color.FromNonPremultiplied(0, 255, 0, 64));
+                var characterPropertyRenderers = _characterPropertyRendererBuilder
+                    .BuildList(_characterTextures, _character.RenderProperties)
+                    .Where(x => x.CanRender);
+                foreach (var renderer in characterPropertyRenderers)
+                    renderer.Render(_sb, DrawArea);
+
+                if (_gameStateProvider.CurrentState == GameStates.None)
+                {
+                    _sb.Draw(_outline, DrawArea.WithSize(DrawArea.Width, 1), Color.Black);
+                    _sb.Draw(_outline, DrawArea.WithPosition(new Vector2(DrawArea.X + DrawArea.Width, DrawArea.Y)).WithSize(1, DrawArea.Height), Color.Black);
+                    _sb.Draw(_outline, DrawArea.WithPosition(new Vector2(DrawArea.X, DrawArea.Y + DrawArea.Height)).WithSize(DrawArea.Width, 1), Color.Black);
+                    _sb.Draw(_outline, DrawArea.WithSize(1, DrawArea.Height), Color.Black);
+
+                    _sb.Draw(_outline, DrawArea, Color.FromNonPremultiplied(255, 0, 0, 64));
+                    _sb.Draw(_outline, MapProjectedDrawArea, Color.FromNonPremultiplied(0, 255, 0, 64));
+                }
+
+                _sb.End();
+                GraphicsDevice.SetRenderTarget(null);
             }
-
-            _sb.End();
-            GraphicsDevice.SetRenderTarget(null);
         }
 
         private Color GetAlphaColor()
@@ -342,9 +367,9 @@ namespace EndlessClient.Rendering.Character
         private void SetGridCoordinatePosition()
         {
             var centerX = _clientWindowSizeRepository.Width / 2;
-            var centerY = _clientWindowSizeRepository.Height * 3 / 10;
+            var centerY = _clientWindowSizeRepository.Height * 45 / 100;
 
-            var screenX = _renderOffsetCalculator.CalculateOffsetX(_character.RenderProperties) + centerX - GetMainCharacterOffsetX();
+            var screenX = _renderOffsetCalculator.CalculateOffsetX(_character.RenderProperties) + centerX - GetMainCharacterOffsetX() - (_clientWindowSizeRepository.Resizable ? 8 : 0);
             var screenY = _renderOffsetCalculator.CalculateOffsetY(_character.RenderProperties) + centerY - GetMainCharacterOffsetY();
 
             SetScreenCoordinates(screenX, screenY);
@@ -543,7 +568,9 @@ namespace EndlessClient.Rendering.Character
                     _chatBubble.Value?.Dispose();
 
                 _sb?.Dispose();
-                _charRenderTarget?.Dispose();
+
+                lock(_rt_locker_)
+                    _charRenderTarget?.Dispose();
             }
 
             base.Dispose(disposing);

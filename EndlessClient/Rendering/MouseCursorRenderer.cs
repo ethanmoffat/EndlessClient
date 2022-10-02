@@ -279,7 +279,7 @@ namespace EndlessClient.Rendering
                 _gridY <= _currentMapProvider.CurrentMap.Properties.Height)
             {
                 spriteBatch.Draw(_mouseCursorTexture,
-                                 DrawArea.Location.ToVector2() + additionalOffset,
+                                 DrawPosition + additionalOffset,
                                  new Rectangle(SingleCursorFrameArea.Width*(int) _cursorIndex,
                                                0,
                                                SingleCursorFrameArea.Width,

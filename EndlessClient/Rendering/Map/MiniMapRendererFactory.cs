@@ -10,6 +10,7 @@ namespace EndlessClient.Rendering.Map
     public class MiniMapRendererFactory : IMiniMapRendererFactory
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
+        private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly ICharacterProvider _characterProvider;
@@ -17,6 +18,7 @@ namespace EndlessClient.Rendering.Map
         private readonly IENFFileProvider _enfFileProvider;
 
         public MiniMapRendererFactory(INativeGraphicsManager nativeGraphicsManager,
+                                      IClientWindowSizeProvider clientWindowSizeProvider,
                                       ICurrentMapProvider currentMapProvider,
                                       ICurrentMapStateProvider currentMapStateProvider,
                                       ICharacterProvider characterProvider,
@@ -24,6 +26,7 @@ namespace EndlessClient.Rendering.Map
                                       IENFFileProvider enfFileProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
+            _clientWindowSizeProvider = clientWindowSizeProvider;
             _currentMapProvider = currentMapProvider;
             _currentMapStateProvider = currentMapStateProvider;
             _characterProvider = characterProvider;
@@ -34,6 +37,7 @@ namespace EndlessClient.Rendering.Map
         public MiniMapRenderer Create()
         {
             return new MiniMapRenderer(_nativeGraphicsManager,
+                                       _clientWindowSizeProvider,
                                        _currentMapProvider,
                                        _currentMapStateProvider,
                                        _characterProvider,
