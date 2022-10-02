@@ -12,6 +12,8 @@ namespace EndlessClient.HUD
     [MappedType(BaseType = typeof(IHudStateActions))]
     public class HudStateActions : IHudStateActions
     {
+        private const int HUD_CONTROL_LAYER = 130;
+
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
@@ -33,13 +35,18 @@ namespace EndlessClient.HUD
             if (!_hudControlProvider.IsInGame)
                 return;
 
+            _hudControlProvider.GetComponent<IHudPanel>(Controls.HudControlIdentifier.NewsPanel).Visible = false;
+
             var targetPanel = _hudControlProvider.HudPanels.Single(x => IsPanelForRequestedState(x, newState));
-            var originalVisibility = targetPanel.Visible;
+            targetPanel.Visible = !targetPanel.Visible;
 
-            foreach (var panel in _hudControlProvider.HudPanels.Where(x => x.Visible))
-                panel.Visible = false;
+            foreach (var panel in _hudControlProvider.HudPanels)
+            {
+                panel.UpdateOrder = panel.DrawOrder = HUD_CONTROL_LAYER;
+            }
 
-            targetPanel.Visible = !originalVisibility;
+            targetPanel.UpdateOrder = HUD_CONTROL_LAYER - 1;
+            targetPanel.DrawOrder = HUD_CONTROL_LAYER + 1;
         }
 
         public void ToggleMapView()

@@ -257,7 +257,12 @@ namespace EndlessClient.HUD.Controls
                     DrawOrder = HUD_CONTROL_LAYER
                 };
 
-                _clientWindowSizeRepository.GameWindowSizeChanged += (_, _) => retButton.DrawPosition = new Vector2(xPosition, yPosition);
+                _clientWindowSizeRepository.GameWindowSizeChanged += (_, _) =>
+                {
+                    var capturedXPos = buttonIndex < 6 ? 0 : _clientWindowSizeRepository.Width - widthDelta;
+                    var capturedYPos = (_clientWindowSizeRepository.Height / 2 + heightDelta * yIndex);
+                    retButton.DrawPosition = new Vector2(capturedXPos, capturedYPos);
+                };
             }
 
             retButton.OnClick += (_, _) => DoHudStateChangeClick(whichState);
@@ -343,6 +348,7 @@ namespace EndlessClient.HUD.Controls
                 default: throw new ArgumentOutOfRangeException(nameof(whichState), whichState, null);
             }
 
+            _userInputRepository.ClickHandled = true;
             _sfxPlayer.PlaySfx(SoundEffectID.ButtonClick);
         }
 
@@ -377,6 +383,8 @@ namespace EndlessClient.HUD.Controls
 
                 updateDrawArea();
                 _clientWindowSizeRepository.GameWindowSizeChanged += (_, _) => updateDrawArea();
+
+                retPanel.DragCompleted += () => _userInputRepository.ClickHandled = true;
             }
 
             return retPanel;

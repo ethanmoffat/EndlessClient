@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using System;
 using XNAControls;
 
 namespace EndlessClient.HUD.Panels
@@ -7,8 +8,14 @@ namespace EndlessClient.HUD.Panels
     {
         bool Visible { get; set; }
 
+        int UpdateOrder { get; set; }
+
+        int DrawOrder { get; set; }
+
         Vector2 DrawPosition { get; set; }
 
         Rectangle DrawArea { get; set; }
+
+        event Action DragCompleted;
     }
 }
