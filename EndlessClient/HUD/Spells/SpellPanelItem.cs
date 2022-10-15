@@ -91,7 +91,7 @@ namespace EndlessClient.HUD.Spells
 
         private void DoClickAndDragLogic()
         {
-            if (!_dragging && _parentPanel.AnySpellsDragging())
+            if (!_dragging && (_parentPanel.AnySpellsDragging() || _parentPanel.AnyPanelsDragging))
                 return;
 
             if (LeftButtonDown)

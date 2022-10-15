@@ -35,6 +35,7 @@ namespace EndlessClient.Dialogs
         private readonly IInventoryController _inventoryController;
         private readonly IPaperdollProvider _paperdollProvider;
         private readonly IPubFileProvider _pubFileProvider;
+        private readonly IHudControlProvider _hudControlProvider;
         private readonly IInventorySpaceValidator _inventorySpaceValidator;
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
         private readonly IStatusLabelSetter _statusLabelSetter;
@@ -74,6 +75,7 @@ namespace EndlessClient.Dialogs
         {
             _paperdollProvider = paperdollProvider;
             _pubFileProvider = pubFileProvider;
+            _hudControlProvider = hudControlProvider;
             _inventorySpaceValidator = inventorySpaceValidator;
             _eoMessageBoxFactory = eoMessageBoxFactory;
             _statusLabelSetter = statusLabelSetter;
@@ -84,7 +86,7 @@ namespace EndlessClient.Dialogs
             _characterIconSheet = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 32, true);
             _characterIconSourceRect = Option.None<Rectangle>();
 
-            _inventoryPanel = hudControlProvider.GetComponent<InventoryPanel>(HudControlIdentifier.InventoryPanel);
+            _inventoryPanel = _hudControlProvider.GetComponent<InventoryPanel>(HudControlIdentifier.InventoryPanel);
 
             _childItems = new List<PaperdollDialogItem>();
 
@@ -133,7 +135,7 @@ namespace EndlessClient.Dialogs
             _paperdollData = Option.None<PaperdollData>();
         }
 
-        public bool NoItemsDragging() => !_childItems.Any(x => x.IsBeingDragged);
+        public bool NoItemsDragging() => !_childItems.Any(x => x.IsBeingDragged) && !_hudControlProvider.AnyPanelsDragging;
 
         protected override void OnUpdateControl(GameTime gameTime)
         {

@@ -1,5 +1,4 @@
-﻿using EndlessClient.Input;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Optional;
 using System;
@@ -12,6 +11,8 @@ namespace EndlessClient.HUD.Panels
         public event Action DragCompleted;
 
         private static Option<DraggableHudPanel> _dragging;
+
+        public bool IsBeingDragged => _dragging.HasValue;
 
         protected override void OnUpdateControl(GameTime gameTime)
         {

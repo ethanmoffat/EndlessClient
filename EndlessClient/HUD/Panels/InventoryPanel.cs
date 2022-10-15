@@ -131,6 +131,8 @@ namespace EndlessClient.HUD.Panels
 
         public bool NoItemsDragging() => !_childItems.Any(x => x.IsDragging);
 
+        public bool AnyPanelsDragging => _hudControlProvider.AnyPanelsDragging;
+
         public override void Initialize()
         {
             _weightLabel.Initialize();

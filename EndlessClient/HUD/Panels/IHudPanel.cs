@@ -16,6 +16,8 @@ namespace EndlessClient.HUD.Panels
 
         Rectangle DrawArea { get; set; }
 
+        bool IsBeingDragged { get; }
+
         event Action DragCompleted;
     }
 }

@@ -158,6 +158,7 @@ namespace EndlessClient.HUD.Panels
                 _characterInventoryProvider,
                 _pubFileProvider,
                 _spellSlotDataRepository,
+                _hudControlProvider,
                 _sfxPlayer) { DrawOrder = HUD_CONTROL_LAYER };
         }
 

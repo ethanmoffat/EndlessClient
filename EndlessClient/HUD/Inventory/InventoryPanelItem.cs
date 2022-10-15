@@ -136,6 +136,9 @@ namespace EndlessClient.HUD.Inventory
 
         public void StartDragging()
         {
+            if (_inventoryPanel.AnyPanelsDragging)
+                return;
+
             _beingDragged = true;
             _nameLabel.Visible = false;
 
@@ -234,13 +237,13 @@ namespace EndlessClient.HUD.Inventory
             // draw highlighted area
             if (MouseOver)
             {
-                if (!_beingDragged || InventoryGridArea.Contains(CurrentMouseState.Position))
+                if (!_beingDragged || _inventoryPanel.DrawAreaWithParentOffset.Contains(CurrentMouseState.Position))
                 {
                     // slot based on current mouse position if being dragged
                     var currentSlot = GetCurrentSlotBasedOnPosition();
                     var drawPosition = GetPosition(currentSlot) + (_beingDragged ? _oldOffset : ImmediateParent.DrawPositionWithParentOffset);
 
-                    if (InventoryGridArea.Contains(DrawArea.WithPosition(drawPosition)))
+                    if (_inventoryPanel.DrawAreaWithParentOffset.Contains(DrawArea.WithPosition(drawPosition)))
                         _spriteBatch.Draw(_highlightBackground, DrawArea.WithPosition(drawPosition), Color.White);
                 }
             }
@@ -252,9 +255,9 @@ namespace EndlessClient.HUD.Inventory
                 var drawPosition = GetPosition(currentSlot) + _oldOffset;
 
                 if (!_dragPositioned)
-                    _dragPositioned = InventoryGridArea.Contains(DrawArea.WithPosition(drawPosition));
+                    _dragPositioned = _inventoryPanel.DrawAreaWithParentOffset.Contains(DrawArea.WithPosition(drawPosition));
 
-                if (_dragPositioned || InventoryGridArea.Contains(DrawArea.WithPosition(drawPosition)))
+                if (_dragPositioned || _inventoryPanel.DrawAreaWithParentOffset.Contains(DrawArea.WithPosition(drawPosition)))
                     _spriteBatch.Draw(_itemGraphic, DrawPositionWithParentOffset, Color.FromNonPremultiplied(255, 255, 255, 128));
             }
             else

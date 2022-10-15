@@ -377,6 +377,8 @@ namespace EndlessClient.HUD.Controls
 
             if (_clientWindowSizeRepository.Resizable)
             {
+                retPanel.UpdateOrder = -1;
+
                 Action updateDrawArea = () => retPanel.DrawArea = retPanel.DrawArea.WithPosition(new Vector2(
                     (_clientWindowSizeRepository.Width - retPanel.DrawArea.Width) / 2,
                     _clientWindowSizeRepository.Height - 45 - retPanel.DrawArea.Height));

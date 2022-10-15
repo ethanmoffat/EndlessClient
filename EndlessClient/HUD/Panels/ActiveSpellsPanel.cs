@@ -1,5 +1,6 @@
 ﻿using EndlessClient.Audio;
 using EndlessClient.Controllers;
+using EndlessClient.ControlSets;
 using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD.Spells;
@@ -42,6 +43,7 @@ namespace EndlessClient.HUD.Panels
         private readonly ICharacterInventoryProvider _characterInventoryProvider;
         private readonly IESFFileProvider _esfFileProvider;
         private readonly ISpellSlotDataRepository _spellSlotDataRepository;
+        private readonly IHudControlProvider _hudControlProvider;
         private readonly ISfxPlayer _sfxPlayer;
 
         private readonly Dictionary<int, int> _spellSlotMap;
@@ -73,6 +75,7 @@ namespace EndlessClient.HUD.Panels
                                  ICharacterInventoryProvider characterInventoryProvider,
                                  IESFFileProvider esfFileProvider,
                                  ISpellSlotDataRepository spellSlotDataRepository,
+                                 IHudControlProvider hudControlProvider,
                                  ISfxPlayer sfxPlayer)
         {
             NativeGraphicsManager = nativeGraphicsManager;
@@ -84,6 +87,7 @@ namespace EndlessClient.HUD.Panels
             _characterInventoryProvider = characterInventoryProvider;
             _esfFileProvider = esfFileProvider;
             _spellSlotDataRepository = spellSlotDataRepository;
+            _hudControlProvider = hudControlProvider;
             _sfxPlayer = sfxPlayer;
 
             _spellSlotMap = GetSpellSlotMap(_playerInfoProvider.LoggedInAccountName, _characterProvider.MainCharacter.Name);
@@ -177,6 +181,8 @@ namespace EndlessClient.HUD.Panels
         }
 
         public bool AnySpellsDragging() => _childItems.Any(x => x.IsBeingDragged);
+
+        public bool AnyPanelsDragging => _hudControlProvider.AnyPanelsDragging;
 
         protected override void OnUpdateControl(GameTime gameTime)
         {
