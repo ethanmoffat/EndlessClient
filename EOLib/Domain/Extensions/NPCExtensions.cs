@@ -50,21 +50,18 @@ namespace EOLib.Domain.Extensions
             return npc.WithFrame(npc.Frame + 1);
         }
 
-        public static int GetAttackFrame(this NPC.NPC npc)
-        {
-            if (!npc.IsActing(NPCActionState.Attacking))
-                return 0;
-            return npc.Frame - NPCFrame.Attack1 + 1;
-        }
-
         public static NPC.NPC WithNextAttackFrame(this NPC.NPC npc)
         {
-            if (npc.Frame == NPCFrame.Attack2)
-                return npc.WithFrame(NPCFrame.Standing);
-            if (npc.Frame == NPCFrame.Standing)
-                return npc.WithFrame(NPCFrame.Attack1);
+            var retNpc = npc.WithActualAttackFrame((npc.ActualAttackFrame + 1) % 5);
 
-            return npc.WithFrame(npc.Frame + 1);
+            if (npc.ActualAttackFrame == 0)
+                retNpc = retNpc.WithFrame(NPCFrame.Standing);
+            else if (npc.Frame == NPCFrame.Standing)
+                retNpc = retNpc.WithFrame(NPCFrame.Attack1);
+            else if (npc.Frame == NPCFrame.Attack1)
+                retNpc = retNpc.WithFrame(NPCFrame.Attack2);
+
+            return retNpc;
         }
 
         public static int GetDestinationX(this NPC.NPC npc)
