@@ -79,7 +79,47 @@ namespace EndlessClient.Rendering.Sprites
                         HasStandingFrameAnimation = false,
                         NameLabelOffset = 0,
                     }.ToImmutable();
-                case 16: // doot doot bois
+                case 3: // slime
+                    return new NPCFrameMetadata.Builder
+                    {
+                        OffsetX = 0,
+                        OffsetY = 16,
+                        AttackOffsetX = -8,
+                        AttackOffsetY = -4,
+                        HasStandingFrameAnimation = false,
+                        NameLabelOffset = 0,
+                    }.ToImmutable();
+                case 4: // mummy
+                    return new NPCFrameMetadata.Builder
+                    {
+                        OffsetX = 0,
+                        OffsetY = 18,
+                        AttackOffsetX = -8,
+                        AttackOffsetY = -4,
+                        HasStandingFrameAnimation = false,
+                        NameLabelOffset = 50,
+                    }.ToImmutable();
+                case 5: // fox
+                    return new NPCFrameMetadata.Builder
+                    {
+                        OffsetX = -2,
+                        OffsetY = 7,
+                        AttackOffsetX = -8,
+                        AttackOffsetY = -4,
+                        HasStandingFrameAnimation = false,
+                        NameLabelOffset = 20,
+                    }.ToImmutable();
+                case 8: // centaur
+                    return new NPCFrameMetadata.Builder
+                    {
+                        OffsetX = 0,
+                        OffsetY = 0,
+                        AttackOffsetX = -2,
+                        AttackOffsetY = -1,
+                        HasStandingFrameAnimation = false,
+                        NameLabelOffset = 75,
+                    }.ToImmutable();
+                case 16: // doot doot skeltal
                 case 17:
                 case 18:
                     return new NPCFrameMetadata.Builder
