@@ -70,7 +70,7 @@ namespace EndlessClient.Rendering.NPC
 
         public bool IsDead { get; private set; }
 
-        public Rectangle EffectTargetArea => DrawArea;
+        public Rectangle EffectTargetArea { get; private set; }
 
         public NPCRenderer(INativeGraphicsManager nativeGraphicsManager,
                            IEndlessGameProvider endlessGameProvider,
@@ -309,6 +309,8 @@ namespace EndlessClient.Rendering.NPC
 
                     var horizontalOffset = _npcSpriteSheet.GetNPCMetadata(data.Graphic).OffsetX * (NPC.IsFacing(EODirection.Down, EODirection.Left) ? -1 : 1);
                     HorizontalCenter = DrawArea.X + (DrawArea.Width / 2) + horizontalOffset;
+
+                    EffectTargetArea = DrawArea.WithSize(DrawArea.Width + horizontalOffset * 2, DrawArea.Height);
                 });
         }
 
