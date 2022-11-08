@@ -24,6 +24,7 @@ namespace EndlessClient.Rendering.NPC
         private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
         private readonly IHealthBarRendererFactory _healthBarRendererFactory;
         private readonly IChatBubbleFactory _chatBubbleFactory;
+        private readonly IRenderTargetFactory _renderTargetFactory;
         private readonly INPCInteractionController _npcInteractionController;
         private readonly IMapInteractionController _mapInteractionController;
         private readonly IUserInputProvider _userInputProvider;
@@ -38,6 +39,7 @@ namespace EndlessClient.Rendering.NPC
                                   IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
                                   IHealthBarRendererFactory healthBarRendererFactory,
                                   IChatBubbleFactory chatBubbleFactory,
+                                  IRenderTargetFactory renderTargetFactory,
                                   INPCInteractionController npcInteractionController,
                                   IMapInteractionController mapInteractionController,
                                   IUserInputProvider userInputProvider,
@@ -52,6 +54,7 @@ namespace EndlessClient.Rendering.NPC
             _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
             _healthBarRendererFactory = healthBarRendererFactory;
             _chatBubbleFactory = chatBubbleFactory;
+            _renderTargetFactory = renderTargetFactory;
             _npcInteractionController = npcInteractionController;
             _mapInteractionController = mapInteractionController;
             _userInputProvider = userInputProvider;
@@ -69,6 +72,7 @@ namespace EndlessClient.Rendering.NPC
                                    _gridDrawCoordinateCalculator,
                                    _healthBarRendererFactory,
                                    _chatBubbleFactory,
+                                   _renderTargetFactory,
                                    _npcInteractionController,
                                    _mapInteractionController,
                                    _userInputProvider,
