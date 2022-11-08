@@ -289,15 +289,18 @@ namespace EndlessClient.Rendering.NPC
                     var frameTexture = _npcSpriteSheet.GetNPCTexture(data.Graphic, NPC.Frame, NPC.Direction);
                     var metaData = _npcSpriteSheet.GetNPCMetadata(data.Graphic);
 
+                    var isUpOrRight = NPC.IsFacing(EODirection.Up, EODirection.Right) ? -1 : 1;
+                    var isDownOrRight = NPC.IsFacing(EODirection.Down, EODirection.Right) ? -1 : 1;
+
                     int metaDataOffsetX, metaDataOffsetY;
                     if (NPC.Frame == NPCFrame.Attack2)
                     {
-                        metaDataOffsetX = metaData.AttackOffsetX * (NPC.IsFacing(EODirection.Up, EODirection.Right) ? -1 : 1);
-                        metaDataOffsetY = (metaData.AttackOffsetY * (NPC.IsFacing(EODirection.Down, EODirection.Right) ? -1 : 1)) - metaData.OffsetY;
+                        metaDataOffsetX = metaData.AttackOffsetX * isUpOrRight + (metaData.OffsetX * isUpOrRight);
+                        metaDataOffsetY = metaData.AttackOffsetY * isDownOrRight - metaData.OffsetY;
                     }
                     else
                     {
-                        metaDataOffsetX = metaData.OffsetX * (NPC.IsFacing(EODirection.Up, EODirection.Right) ? -1 : 1);
+                        metaDataOffsetX = metaData.OffsetX * isUpOrRight;
                         metaDataOffsetY = -metaData.OffsetY;
                     }
 
