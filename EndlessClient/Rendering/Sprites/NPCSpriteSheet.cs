@@ -1,4 +1,5 @@
 using AutomaticTypeMapper;
+using EndlessClient.Rendering.NPC;
 using EOLib;
 using EOLib.Domain.NPC;
 using EOLib.Graphics;
@@ -52,10 +53,73 @@ namespace EndlessClient.Rendering.Sprites
             var baseGfx = (baseGraphic - 1) * 40;
             return _gfxManager.TextureFromResource(GFXTypes.NPC, baseGfx + offset, true);
         }
+
+        public NPCFrameMetadata GetNPCMetadata(int graphic)
+        {
+            // todo: load from GFX file RCData
+            switch (graphic)
+            {
+                case 1: // crow
+                    return new NPCFrameMetadata.Builder
+                    {
+                        OffsetX = 0,
+                        OffsetY = 16,
+                        AttackOffsetX = 0,
+                        AttackOffsetY = 0,
+                        HasStandingFrameAnimation = false,
+                        NameLabelOffset = 4,
+                    }.ToImmutable();
+                case 2: // rat
+                    return new NPCFrameMetadata.Builder
+                    {
+                        OffsetX = 0,
+                        OffsetY = 18,
+                        AttackOffsetX = -6,
+                        AttackOffsetY = -3,
+                        HasStandingFrameAnimation = false,
+                        NameLabelOffset = 0,
+                    }.ToImmutable();
+                case 16: // doot doot bois
+                case 17:
+                case 18:
+                    return new NPCFrameMetadata.Builder
+                    {
+                        OffsetX = 0,
+                        OffsetY = 14,
+                        AttackOffsetX = -6,
+                        AttackOffsetY = -3,
+                        HasStandingFrameAnimation = false,
+                        NameLabelOffset = 45,
+                    }.ToImmutable();
+                case 107: // apozen
+                    return new NPCFrameMetadata.Builder
+                    {
+                        OffsetX = -31,
+                        OffsetY = 4,
+                        AttackOffsetX = -4,
+                        AttackOffsetY = -2,
+                        HasStandingFrameAnimation = false,
+                        NameLabelOffset = 138,
+                    }.ToImmutable();
+                case 113: // robo tile
+                    return new NPCFrameMetadata.Builder
+                    {
+                        OffsetX = 1,
+                        OffsetY = 7,
+                        AttackOffsetX = 0,
+                        AttackOffsetY = 0,
+                        HasStandingFrameAnimation = false,
+                        NameLabelOffset = 6
+                    }.ToImmutable();
+                default: return new NPCFrameMetadata.Builder().ToImmutable();
+            }
+        }
     }
 
     public interface INPCSpriteSheet
     {
         Texture2D GetNPCTexture(int baseGraphic, NPCFrame whichFrame, EODirection direction);
+
+        NPCFrameMetadata GetNPCMetadata(int graphic);
     }
 }

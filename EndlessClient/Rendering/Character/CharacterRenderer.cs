@@ -253,10 +253,10 @@ namespace EndlessClient.Rendering.Character
 
         public void SetToCenterScreenPosition()
         {
-            const int x = 314; // 618 / 2.0
+            const int x = 310; // 620 / 2.0
 
             var skinRect = new Rectangle(0, 0, 18, 58);
-            var y = (298 - skinRect.Height)/2 - skinRect.Height/4;
+            var y = (298 - skinRect.Height)/2 - skinRect.Height/4 - 3;
             SetAbsoluteScreenPosition(x, y);
         }
 

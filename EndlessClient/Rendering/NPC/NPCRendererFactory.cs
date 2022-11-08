@@ -21,7 +21,7 @@ namespace EndlessClient.Rendering.NPC
         private readonly ICharacterRendererProvider _characterRendererProvider;
         private readonly IENFFileProvider _enfFileProvider;
         private readonly INPCSpriteSheet _npcSpriteSheet;
-        private readonly IRenderOffsetCalculator _renderOffsetCalculator;
+        private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
         private readonly IHealthBarRendererFactory _healthBarRendererFactory;
         private readonly IChatBubbleFactory _chatBubbleFactory;
         private readonly INPCInteractionController _npcInteractionController;
@@ -35,7 +35,7 @@ namespace EndlessClient.Rendering.NPC
                                   ICharacterRendererProvider characterRendererProvider,
                                   IENFFileProvider enfFileProvider,
                                   INPCSpriteSheet npcSpriteSheet,
-                                  IRenderOffsetCalculator renderOffsetCalculator,
+                                  IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
                                   IHealthBarRendererFactory healthBarRendererFactory,
                                   IChatBubbleFactory chatBubbleFactory,
                                   INPCInteractionController npcInteractionController,
@@ -49,7 +49,7 @@ namespace EndlessClient.Rendering.NPC
             _characterRendererProvider = characterRendererProvider;
             _enfFileProvider = enfFileProvider;
             _npcSpriteSheet = npcSpriteSheet;
-            _renderOffsetCalculator = renderOffsetCalculator;
+            _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
             _healthBarRendererFactory = healthBarRendererFactory;
             _chatBubbleFactory = chatBubbleFactory;
             _npcInteractionController = npcInteractionController;
@@ -66,7 +66,7 @@ namespace EndlessClient.Rendering.NPC
                                    _characterRendererProvider,
                                    _enfFileProvider,
                                    _npcSpriteSheet,
-                                   _renderOffsetCalculator,
+                                   _gridDrawCoordinateCalculator,
                                    _healthBarRendererFactory,
                                    _chatBubbleFactory,
                                    _npcInteractionController,
