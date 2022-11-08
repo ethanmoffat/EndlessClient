@@ -285,17 +285,26 @@ namespace EndlessClient.Rendering.NPC
                     var frameTexture = _npcSpriteSheet.GetNPCTexture(data.Graphic, NPC.Frame, NPC.Direction);
                     var metaData = _npcSpriteSheet.GetNPCMetadata(data.Graphic);
 
-                    var metaDataOffsetX = NPC.Frame == NPCFrame.Attack2 ? metaData.AttackOffsetX : metaData.OffsetX;
-                    var metaDataOffsetY = NPC.Frame == NPCFrame.Attack2 ? metaData.AttackOffsetY - metaData.OffsetY : -metaData.OffsetY;
+                    int metaDataOffsetX, metaDataOffsetY;
+                    if (NPC.Frame == NPCFrame.Attack2)
+                    {
+                        metaDataOffsetX = metaData.AttackOffsetX * (NPC.IsFacing(EODirection.Up, EODirection.Right) ? -1 : 1);
+                        metaDataOffsetY = (metaData.AttackOffsetY * (NPC.IsFacing(EODirection.Down, EODirection.Right) ? -1 : 1)) - metaData.OffsetY;
+                    }
+                    else
+                    {
+                        metaDataOffsetX = metaData.OffsetX;
+                        metaDataOffsetY = -metaData.OffsetY;
+                    }
 
                     var renderCoordinates = _gridDrawCoordinateCalculator.CalculateDrawCoordinates(NPC) +
-                        new Vector2(metaDataOffsetX - frameTexture.Width / 2, metaDataOffsetY);
+                        new Vector2(metaDataOffsetX - frameTexture.Width / 2, metaDataOffsetY - (frameTexture.Height - 23));
                     DrawArea = frameTexture.Bounds.WithPosition(renderCoordinates);
 
                     var oneGridSize = new Vector2(mainRenderer.DrawArea.Width,
                                                   mainRenderer.DrawArea.Height);
                     MapProjectedDrawArea = new Rectangle(
-                        (int)renderCoordinates.X + (frameTexture.Width / 2) - (int)oneGridSize.X,
+                        (int)renderCoordinates.X + (frameTexture.Width - (int)oneGridSize.X) / 2,
                         BottomPixelWithOffset - (int)oneGridSize.Y,
                         (int)oneGridSize.X,
                         (int)oneGridSize.Y);
@@ -330,9 +339,8 @@ namespace EndlessClient.Rendering.NPC
         private Vector2 GetNameLabelPosition()
         {
             var data = _enfFileProvider.ENFFile[NPC.ID];
-            var offset = _npcSpriteSheet.GetNPCMetadata(data.Graphic).NameLabelOffset;
             return new Vector2(DrawArea.X + (DrawArea.Width - _nameLabel.ActualWidth) / 2f,
-                               TopPixelWithOffset - _nameLabel.ActualHeight - offset);
+                               DrawArea.Y - _nameLabel.ActualHeight);
 
         }
 
