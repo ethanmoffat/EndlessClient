@@ -76,12 +76,12 @@ namespace EndlessClient.Rendering.Character
 
         public Rectangle DrawArea { get; private set; }
 
-        public Rectangle MapProjectedDrawArea => DrawArea;
-
         private int? _topPixel;
         public int TopPixel => _topPixel.HasValue ? _topPixel.Value : 0;
 
         public int TopPixelWithOffset => TopPixel + DrawArea.Y;
+
+        public int HorizontalCenter { get; private set; }
 
         public bool MouseOver => DrawArea.Contains(_userInputProvider.CurrentMouseState.Position);
 
@@ -314,7 +314,6 @@ namespace EndlessClient.Rendering.Character
                 _sb.Draw(_outline, DrawArea.WithSize(1, DrawArea.Height), Color.Black);
 
                 _sb.Draw(_outline, DrawArea, Color.FromNonPremultiplied(255, 0, 0, 64));
-                _sb.Draw(_outline, MapProjectedDrawArea, Color.FromNonPremultiplied(0, 255, 0, 64));
             }
 
             _sb.End();
@@ -348,6 +347,7 @@ namespace EndlessClient.Rendering.Character
             {
                 // size of standing still skin texture
                 DrawArea = new Rectangle(xPosition, yPosition, 18, 58);
+                HorizontalCenter = xPosition + 9;
                 _textureUpdateRequired = true;
             }
         }

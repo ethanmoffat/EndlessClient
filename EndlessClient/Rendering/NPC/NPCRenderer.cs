@@ -18,7 +18,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Optional;
 using System;
-using System.Windows.Markup;
 using XNAControls;
 
 namespace EndlessClient.Rendering.NPC
@@ -57,11 +56,11 @@ namespace EndlessClient.Rendering.NPC
 
         public int TopPixelWithOffset => _readonlyTopPixel + DrawArea.Y;
 
+        public int HorizontalCenter { get; private set; }
+
         public int BottomPixelWithOffset => _readonlyBottomPixel + DrawArea.Y;
 
         public Rectangle DrawArea { get; private set; }
-
-        public Rectangle MapProjectedDrawArea { get; private set; }
 
         public bool MouseOver => DrawArea.Contains(_userInputProvider.CurrentMouseState.Position);
 
@@ -308,13 +307,8 @@ namespace EndlessClient.Rendering.NPC
                         new Vector2(metaDataOffsetX - frameTexture.Width / 2, metaDataOffsetY - (frameTexture.Height - 23));
                     DrawArea = frameTexture.Bounds.WithPosition(renderCoordinates);
 
-                    var oneGridSize = new Vector2(mainRenderer.DrawArea.Width,
-                                                  mainRenderer.DrawArea.Height);
-                    MapProjectedDrawArea = new Rectangle(
-                        (int)renderCoordinates.X + (frameTexture.Width - (int)oneGridSize.X) / 2,
-                        BottomPixelWithOffset - (int)oneGridSize.Y,
-                        (int)oneGridSize.X,
-                        (int)oneGridSize.Y);
+                    var horizontalOffset = _npcSpriteSheet.GetNPCMetadata(data.Graphic).OffsetX * (NPC.IsFacing(EODirection.Down, EODirection.Left) ? -1 : 1);
+                    HorizontalCenter = DrawArea.X + (DrawArea.Width / 2) + horizontalOffset;
                 });
         }
 
