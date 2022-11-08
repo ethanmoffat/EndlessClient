@@ -3,7 +3,6 @@ using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Spells;
 using EndlessClient.Input;
-using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Factories;
@@ -24,7 +23,6 @@ namespace EndlessClient.Rendering.NPC
 {
     public class NPCRenderer : DrawableGameComponent, INPCRenderer
     {
-        private readonly ICharacterRendererProvider _characterRendererProvider;
         private readonly IENFFileProvider _enfFileProvider;
         private readonly INPCSpriteSheet _npcSpriteSheet;
         private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
@@ -74,7 +72,6 @@ namespace EndlessClient.Rendering.NPC
 
         public NPCRenderer(INativeGraphicsManager nativeGraphicsManager,
                            IEndlessGameProvider endlessGameProvider,
-                           ICharacterRendererProvider characterRendererProvider,
                            IENFFileProvider enfFileProvider,
                            INPCSpriteSheet npcSpriteSheet,
                            IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
@@ -91,7 +88,6 @@ namespace EndlessClient.Rendering.NPC
         {
             NPC = initialNPC;
 
-            _characterRendererProvider = characterRendererProvider;
             _enfFileProvider = enfFileProvider;
             _npcSpriteSheet = npcSpriteSheet;
             _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
@@ -281,37 +277,33 @@ namespace EndlessClient.Rendering.NPC
 
         private void UpdateDrawAreas()
         {
-            _characterRendererProvider.MainCharacterRenderer
-                .MatchSome(mainRenderer =>
-                {
-                    var data = _enfFileProvider.ENFFile[NPC.ID];
-                    var frameTexture = _npcSpriteSheet.GetNPCTexture(data.Graphic, NPC.Frame, NPC.Direction);
-                    var metaData = _npcSpriteSheet.GetNPCMetadata(data.Graphic);
+            var data = _enfFileProvider.ENFFile[NPC.ID];
+            var frameTexture = _npcSpriteSheet.GetNPCTexture(data.Graphic, NPC.Frame, NPC.Direction);
+            var metaData = _npcSpriteSheet.GetNPCMetadata(data.Graphic);
 
-                    var isUpOrRight = NPC.IsFacing(EODirection.Up, EODirection.Right) ? -1 : 1;
-                    var isDownOrRight = NPC.IsFacing(EODirection.Down, EODirection.Right) ? -1 : 1;
+            var isUpOrRight = NPC.IsFacing(EODirection.Up, EODirection.Right) ? -1 : 1;
+            var isDownOrRight = NPC.IsFacing(EODirection.Down, EODirection.Right) ? -1 : 1;
 
-                    int metaDataOffsetX, metaDataOffsetY;
-                    if (NPC.Frame == NPCFrame.Attack2)
-                    {
-                        metaDataOffsetX = metaData.AttackOffsetX * isUpOrRight + (metaData.OffsetX * isUpOrRight);
-                        metaDataOffsetY = metaData.AttackOffsetY * isDownOrRight - metaData.OffsetY;
-                    }
-                    else
-                    {
-                        metaDataOffsetX = metaData.OffsetX * isUpOrRight;
-                        metaDataOffsetY = -metaData.OffsetY;
-                    }
+            int metaDataOffsetX, metaDataOffsetY;
+            if (NPC.Frame == NPCFrame.Attack2)
+            {
+                metaDataOffsetX = metaData.AttackOffsetX * isUpOrRight + (metaData.OffsetX * isUpOrRight);
+                metaDataOffsetY = metaData.AttackOffsetY * isDownOrRight - metaData.OffsetY;
+            }
+            else
+            {
+                metaDataOffsetX = metaData.OffsetX * isUpOrRight;
+                metaDataOffsetY = -metaData.OffsetY;
+            }
 
-                    var renderCoordinates = _gridDrawCoordinateCalculator.CalculateDrawCoordinates(NPC) +
-                        new Vector2(metaDataOffsetX - frameTexture.Width / 2, metaDataOffsetY - (frameTexture.Height - 23));
-                    DrawArea = frameTexture.Bounds.WithPosition(renderCoordinates);
+            var renderCoordinates = _gridDrawCoordinateCalculator.CalculateDrawCoordinates(NPC) +
+                new Vector2(metaDataOffsetX - frameTexture.Width / 2, metaDataOffsetY - (frameTexture.Height - 23));
+            DrawArea = frameTexture.Bounds.WithPosition(renderCoordinates);
 
-                    var horizontalOffset = _npcSpriteSheet.GetNPCMetadata(data.Graphic).OffsetX * (NPC.IsFacing(EODirection.Down, EODirection.Left) ? -1 : 1);
-                    HorizontalCenter = DrawArea.X + (DrawArea.Width / 2) + horizontalOffset;
+            var horizontalOffset = _npcSpriteSheet.GetNPCMetadata(data.Graphic).OffsetX * (NPC.IsFacing(EODirection.Down, EODirection.Left) ? -1 : 1);
+            HorizontalCenter = DrawArea.X + (DrawArea.Width / 2) + horizontalOffset;
 
-                    EffectTargetArea = DrawArea.WithSize(DrawArea.Width + horizontalOffset * 2, DrawArea.Height);
-                });
+            EffectTargetArea = DrawArea.WithSize(DrawArea.Width + horizontalOffset * 2, DrawArea.Height);
         }
 
         private void UpdateStandingFrameAnimation()

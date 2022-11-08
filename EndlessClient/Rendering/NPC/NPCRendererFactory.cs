@@ -4,7 +4,6 @@ using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Spells;
 using EndlessClient.Input;
-using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
@@ -18,7 +17,6 @@ namespace EndlessClient.Rendering.NPC
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IEndlessGameProvider _endlessGameProvider;
-        private readonly ICharacterRendererProvider _characterRendererProvider;
         private readonly IENFFileProvider _enfFileProvider;
         private readonly INPCSpriteSheet _npcSpriteSheet;
         private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
@@ -33,7 +31,6 @@ namespace EndlessClient.Rendering.NPC
 
         public NPCRendererFactory(INativeGraphicsManager nativeGraphicsManager,
                                   IEndlessGameProvider endlessGameProvider,
-                                  ICharacterRendererProvider characterRendererProvider,
                                   IENFFileProvider enfFileProvider,
                                   INPCSpriteSheet npcSpriteSheet,
                                   IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
@@ -48,7 +45,6 @@ namespace EndlessClient.Rendering.NPC
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _endlessGameProvider = endlessGameProvider;
-            _characterRendererProvider = characterRendererProvider;
             _enfFileProvider = enfFileProvider;
             _npcSpriteSheet = npcSpriteSheet;
             _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
@@ -66,7 +62,6 @@ namespace EndlessClient.Rendering.NPC
         {
             return new NPCRenderer(_nativeGraphicsManager,
                                    _endlessGameProvider,
-                                   _characterRendererProvider,
                                    _enfFileProvider,
                                    _npcSpriteSheet,
                                    _gridDrawCoordinateCalculator,
