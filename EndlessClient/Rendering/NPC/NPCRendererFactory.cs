@@ -4,7 +4,6 @@ using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Spells;
 using EndlessClient.Input;
-using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
@@ -18,12 +17,12 @@ namespace EndlessClient.Rendering.NPC
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IEndlessGameProvider _endlessGameProvider;
-        private readonly ICharacterRendererProvider _characterRendererProvider;
         private readonly IENFFileProvider _enfFileProvider;
         private readonly INPCSpriteSheet _npcSpriteSheet;
-        private readonly IRenderOffsetCalculator _renderOffsetCalculator;
+        private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
         private readonly IHealthBarRendererFactory _healthBarRendererFactory;
         private readonly IChatBubbleFactory _chatBubbleFactory;
+        private readonly IRenderTargetFactory _renderTargetFactory;
         private readonly INPCInteractionController _npcInteractionController;
         private readonly IMapInteractionController _mapInteractionController;
         private readonly IUserInputProvider _userInputProvider;
@@ -32,12 +31,12 @@ namespace EndlessClient.Rendering.NPC
 
         public NPCRendererFactory(INativeGraphicsManager nativeGraphicsManager,
                                   IEndlessGameProvider endlessGameProvider,
-                                  ICharacterRendererProvider characterRendererProvider,
                                   IENFFileProvider enfFileProvider,
                                   INPCSpriteSheet npcSpriteSheet,
-                                  IRenderOffsetCalculator renderOffsetCalculator,
+                                  IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
                                   IHealthBarRendererFactory healthBarRendererFactory,
                                   IChatBubbleFactory chatBubbleFactory,
+                                  IRenderTargetFactory renderTargetFactory,
                                   INPCInteractionController npcInteractionController,
                                   IMapInteractionController mapInteractionController,
                                   IUserInputProvider userInputProvider,
@@ -46,12 +45,12 @@ namespace EndlessClient.Rendering.NPC
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _endlessGameProvider = endlessGameProvider;
-            _characterRendererProvider = characterRendererProvider;
             _enfFileProvider = enfFileProvider;
             _npcSpriteSheet = npcSpriteSheet;
-            _renderOffsetCalculator = renderOffsetCalculator;
+            _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
             _healthBarRendererFactory = healthBarRendererFactory;
             _chatBubbleFactory = chatBubbleFactory;
+            _renderTargetFactory = renderTargetFactory;
             _npcInteractionController = npcInteractionController;
             _mapInteractionController = mapInteractionController;
             _userInputProvider = userInputProvider;
@@ -63,12 +62,12 @@ namespace EndlessClient.Rendering.NPC
         {
             return new NPCRenderer(_nativeGraphicsManager,
                                    _endlessGameProvider,
-                                   _characterRendererProvider,
                                    _enfFileProvider,
                                    _npcSpriteSheet,
-                                   _renderOffsetCalculator,
+                                   _gridDrawCoordinateCalculator,
                                    _healthBarRendererFactory,
                                    _chatBubbleFactory,
+                                   _renderTargetFactory,
                                    _npcInteractionController,
                                    _mapInteractionController,
                                    _userInputProvider,

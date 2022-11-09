@@ -84,20 +84,20 @@ namespace EndlessClient.Rendering
             if (_frameOffset > 4)
                 Visible = false;
 
-            _healthBarPosition = _parentReference.DrawArea.Location.ToVector2() +
-                new Vector2((_parentReference.DrawArea.Width - _healthBarBackgroundSource.Width) / 2f,
-                            _parentReference.TopPixel - 26);
+            _healthBarPosition = new Vector2(
+                _parentReference.HorizontalCenter - _healthBarBackgroundSource.Width / 2f,
+                _parentReference.TopPixelWithOffset - 26);
 
             if (_isMiss)
             {
-                var xPos = _parentReference.DrawArea.X + (_parentReference.DrawArea.Width - _numberSourceRectangles[0].Width) / 2f;
+                var xPos = _parentReference.HorizontalCenter - (_numberSourceRectangles[0].Width / 2f);
                 var yPos = _parentReference.TopPixelWithOffset - _frameOffset - DamageCounterAdditionalOffset;
                 _damageCounterPosition = new Vector2(xPos, yPos);
             }
             else
             {
                 var digitCount = _numberSourceRectangles.Count;
-                var xPos = _parentReference.DrawArea.X + (_parentReference.DrawArea.Width - (digitCount * DigitWidth)) / 2f;
+                var xPos = _parentReference.HorizontalCenter - (digitCount * DigitWidth / 2f);
                 var yPos = _parentReference.TopPixelWithOffset - _frameOffset - DamageCounterAdditionalOffset;
                 _damageCounterPosition = new Vector2(xPos, yPos);
             }

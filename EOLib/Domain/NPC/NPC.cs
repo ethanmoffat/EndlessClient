@@ -19,6 +19,8 @@ namespace EOLib.Domain.NPC
 
         public NPCFrame Frame { get; }
 
+        public int ActualAttackFrame { get; }
+
         public Option<short> OpponentID { get; }
     }
 }

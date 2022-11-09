@@ -155,7 +155,7 @@ namespace EndlessClient.Rendering.Chat
         private void SetLabelDrawPosition()
         {
             _textLabel.DrawPosition = new Vector2(
-                _parent.DrawArea.X + _parent.DrawArea.Width / 2.0f - _textLabel.ActualWidth / 2.0f,
+                _parent.HorizontalCenter - _textLabel.ActualWidth / 2.0f,
                 _parent.TopPixelWithOffset - _textLabel.ActualHeight - (GetTexture(ChatBubbleTexture.TopMiddle).Height * 5));
         }
 

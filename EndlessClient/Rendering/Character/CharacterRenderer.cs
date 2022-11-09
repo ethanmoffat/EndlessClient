@@ -76,12 +76,12 @@ namespace EndlessClient.Rendering.Character
 
         public Rectangle DrawArea { get; private set; }
 
-        public Rectangle MapProjectedDrawArea => DrawArea;
-
         private int? _topPixel;
         public int TopPixel => _topPixel.HasValue ? _topPixel.Value : 0;
 
         public int TopPixelWithOffset => TopPixel + DrawArea.Y;
+
+        public int HorizontalCenter { get; private set; }
 
         public bool MouseOver => DrawArea.Contains(_userInputProvider.CurrentMouseState.Position);
 
@@ -253,10 +253,10 @@ namespace EndlessClient.Rendering.Character
 
         public void SetToCenterScreenPosition()
         {
-            const int x = 314; // 618 / 2.0
+            const int x = 310; // 620 / 2.0
 
             var skinRect = new Rectangle(0, 0, 18, 58);
-            var y = (298 - skinRect.Height)/2 - skinRect.Height/4;
+            var y = (298 - skinRect.Height)/2 - skinRect.Height/4 - 3;
             SetAbsoluteScreenPosition(x, y);
         }
 
@@ -314,7 +314,6 @@ namespace EndlessClient.Rendering.Character
                 _sb.Draw(_outline, DrawArea.WithSize(1, DrawArea.Height), Color.Black);
 
                 _sb.Draw(_outline, DrawArea, Color.FromNonPremultiplied(255, 0, 0, 64));
-                _sb.Draw(_outline, MapProjectedDrawArea, Color.FromNonPremultiplied(0, 255, 0, 64));
             }
 
             _sb.End();
@@ -336,8 +335,8 @@ namespace EndlessClient.Rendering.Character
         private void SetGridCoordinatePosition()
         {
             //todo: the constants here should be dynamically configurable to support window resizing
-            var screenX = _renderOffsetCalculator.CalculateOffsetX(_character.RenderProperties) + 312 - GetMainCharacterOffsetX();
-            var screenY = _renderOffsetCalculator.CalculateOffsetY(_character.RenderProperties) + 106 - GetMainCharacterOffsetY();
+            var screenX = _renderOffsetCalculator.CalculateOffsetX(_character.RenderProperties) + 310 - GetMainCharacterOffsetX();
+            var screenY = _renderOffsetCalculator.CalculateOffsetY(_character.RenderProperties) + 104 - GetMainCharacterOffsetY();
 
             SetScreenCoordinates(screenX, screenY);
         }
@@ -348,6 +347,7 @@ namespace EndlessClient.Rendering.Character
             {
                 // size of standing still skin texture
                 DrawArea = new Rectangle(xPosition, yPosition, 18, 58);
+                HorizontalCenter = xPosition + 9;
                 _textureUpdateRequired = true;
             }
         }

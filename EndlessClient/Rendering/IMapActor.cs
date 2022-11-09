@@ -8,9 +8,9 @@ namespace EndlessClient.Rendering
 
         int TopPixelWithOffset { get; }
 
-        Rectangle DrawArea { get; }
+        int HorizontalCenter { get; }
 
-        Rectangle MapProjectedDrawArea { get; }
+        Rectangle DrawArea { get; }
 
         bool MouseOver { get; }
 

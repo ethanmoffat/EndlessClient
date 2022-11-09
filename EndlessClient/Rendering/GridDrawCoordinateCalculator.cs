@@ -5,6 +5,8 @@ using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
 using System;
 
+using DomainNPC = EOLib.Domain.NPC.NPC;
+
 namespace EndlessClient.Rendering
 {
     [AutoMappedType]
@@ -25,8 +27,8 @@ namespace EndlessClient.Rendering
 
         public Vector2 CalculateDrawCoordinatesFromGridUnits(int gridX, int gridY)
         {
-            const int ViewportWidthFactor = 320; // 640 * (1/2)
-            const int ViewportHeightFactor = 144; // 480 * (3/10)
+            const int ViewportWidthFactor = 319; // 640 * (1/2)
+            const int ViewportHeightFactor = 142; // 480 * (3/10) - 2
 
             return new Vector2(ViewportWidthFactor + (gridX * 32) - (gridY * 32),
                                ViewportHeightFactor + (gridY * 16) + (gridX * 16)) - CalculateCharacterOffsets();
@@ -39,8 +41,8 @@ namespace EndlessClient.Rendering
 
         public Vector2 CalculateBaseLayerDrawCoordinatesFromGridUnits(int gridX, int gridY)
         {
-            const int ViewportWidthFactor = 288; // ???
-            const int ViewportHeightFactor = 144; // 480 * (3/10)
+            const int ViewportWidthFactor = 288; // 640 * (1/2) - 32
+            const int ViewportHeightFactor = 142; // 480 * (3/10) - 2
 
             return new Vector2(ViewportWidthFactor + (gridX * 32) - (gridY * 32),
                                ViewportHeightFactor + (gridY * 16) + (gridX * 16)) - CalculateBaseLayerOffsets();
@@ -53,8 +55,8 @@ namespace EndlessClient.Rendering
 
         public Vector2 CalculateGroundLayerDrawCoordinatesFromGridUnits()
         {
-            const int ViewportWidthFactor = 320; // 640 * (1/2)
-            const int ViewportHeightFactor = 144; // 480 * (3/10)
+            const int ViewportWidthFactor = 319; // 640 * (1/2) - 1
+            const int ViewportHeightFactor = 142; // 480 * (3/10) - 2
 
             var props = _characterProvider.MainCharacter.RenderProperties;
 
@@ -65,8 +67,26 @@ namespace EndlessClient.Rendering
                                ViewportHeightFactor - (props.MapY * 16) - (props.MapX * 16)) - CalculateGroundLayerCharacterOffsets();
         }
 
+        public Vector2 CalculateDrawCoordinates(DomainNPC npc)
+        {
+            const int ViewportWidthFactor = 319; // 640 * (1/2) - 1
+            const int ViewportHeightFactor = 143; // 480 * (3/10) - 1 // ???
+
+            var npcOffsetX = _renderOffsetCalculator.CalculateOffsetX(npc);
+            var npcOffsetY = _renderOffsetCalculator.CalculateOffsetY(npc);
+
+            var mainOffsetX = _renderOffsetCalculator.CalculateOffsetX(_characterProvider.MainCharacter.RenderProperties);
+            var mainOffsetY = _renderOffsetCalculator.CalculateOffsetY(_characterProvider.MainCharacter.RenderProperties);
+
+            return new Vector2(ViewportWidthFactor + npcOffsetX - mainOffsetX,
+                               ViewportHeightFactor + npcOffsetY - mainOffsetY + 16);
+        }
+
         public MapCoordinate CalculateGridCoordinatesFromDrawLocation(Vector2 drawLocation)
         {
+            const int ViewportWidthFactor = 288; // 640 * (1/2) - 32
+            const int ViewportHeightFactor = 142; // 480 * (3/10) - 2
+
             //need to solve this system of equations to get x, y on the grid
             //(x * 32) - (y * 32) + 288 - c.OffsetX, => pixX = 32x - 32y + 288 - c.OffsetX
             //(y * 16) + (x * 16) + 144 - c.OffsetY  => 2pixY = 32y + 32x + 288 - 2c.OffsetY
@@ -85,8 +105,8 @@ namespace EndlessClient.Rendering
             var offsetX = _renderOffsetCalculator.CalculateOffsetX(_characterProvider.MainCharacter.RenderProperties);
             var offsetY = _renderOffsetCalculator.CalculateOffsetY(_characterProvider.MainCharacter.RenderProperties);
 
-            var gridX = (int)Math.Round((msX + 2 * msY - 576 + offsetX + 2 * offsetY) / 64.0);
-            var gridY = (int)Math.Round((msY - gridX * 16 - 144 + offsetY) / 16.0);
+            var gridX = (int)Math.Round((msX + 2 * msY - (ViewportWidthFactor*2) + offsetX + 2 * offsetY) / 64.0);
+            var gridY = (int)Math.Round((msY - gridX * 16 - ViewportHeightFactor + offsetY) / 16.0);
 
             return new MapCoordinate(gridX, gridY);
         }
@@ -135,6 +155,8 @@ namespace EndlessClient.Rendering
         Vector2 CalculateBaseLayerDrawCoordinatesFromGridUnits(MapCoordinate mapCoordinate);
 
         Vector2 CalculateGroundLayerDrawCoordinatesFromGridUnits();
+
+        Vector2 CalculateDrawCoordinates(DomainNPC npc);
 
         MapCoordinate CalculateGridCoordinatesFromDrawLocation(Vector2 drawLocation);
     }
