@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Factories;
 using EOLib;
 using EOLib.Domain.Character;
@@ -104,7 +105,7 @@ namespace EndlessClient.Rendering.Character
                 if (_characterRendererRepository.NeedsWarpArriveAnimation.Contains(id) &&
                     _characterRendererRepository.CharacterRenderers.ContainsKey(id))
                 {
-                    _characterRendererRepository.CharacterRenderers[id].ShowWarpArrive();
+                    _characterRendererRepository.CharacterRenderers[id].PlayEffect((int)HardCodedEffect.WarpArrive);
                     _characterRendererRepository.NeedsWarpArriveAnimation.Remove(id);
                 }
             }

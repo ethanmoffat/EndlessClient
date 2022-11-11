@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using EndlessClient.Audio;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.Effects
@@ -10,6 +11,6 @@ namespace EndlessClient.Rendering.Effects
 
         void NextFrame();
         void Restart();
-        void DrawToSpriteBatch(SpriteBatch sb, Rectangle target);
+        void DrawToSpriteBatch(SpriteBatch sb, Vector2 gridCoordinatePosition);
     }
 }

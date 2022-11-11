@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using EOLib.Domain.Map;
+using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Rendering
 {
@@ -10,6 +11,8 @@ namespace EndlessClient.Rendering
 
         int HorizontalCenter { get; }
 
+        MapCoordinate Coordinate { get; }
+
         Rectangle DrawArea { get; }
 
         bool MouseOver { get; }
@@ -19,5 +22,9 @@ namespace EndlessClient.Rendering
         void ShowDamageCounter(int damage, int percentHealth, bool isHeal);
 
         void ShowChatBubble(string text, bool isGroupChat = false);
+
+        bool EffectIsPlaying();
+
+        void PlayEffect(int effectId);
     }
 }

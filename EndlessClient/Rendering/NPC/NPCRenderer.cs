@@ -9,6 +9,7 @@ using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
 using EOLib;
 using EOLib.Domain.Extensions;
+using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
 using EOLib.Graphics;
 using EOLib.IO.Repositories;
@@ -60,6 +61,8 @@ namespace EndlessClient.Rendering.NPC
 
         public Rectangle DrawArea { get; private set; }
 
+        public MapCoordinate Coordinate => new MapCoordinate(NPC.X, NPC.Y);
+
         public bool MouseOver => DrawArea.Contains(_userInputProvider.CurrentMouseState.Position);
 
         public bool MouseOverPreviously => DrawArea.Contains(_userInputProvider.PreviousMouseState.Position);
@@ -70,8 +73,7 @@ namespace EndlessClient.Rendering.NPC
 
         public Rectangle EffectTargetArea { get; private set; }
 
-        public NPCRenderer(INativeGraphicsManager nativeGraphicsManager,
-                           IEndlessGameProvider endlessGameProvider,
+        public NPCRenderer(IEndlessGameProvider endlessGameProvider,
                            IENFFileProvider enfFileProvider,
                            INPCSpriteSheet npcSpriteSheet,
                            IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
@@ -82,6 +84,7 @@ namespace EndlessClient.Rendering.NPC
                            IMapInteractionController mapInteractionController,
                            IUserInputProvider userInputProvider,
                            ISpellSlotDataProvider spellSlotDataProvider,
+                           IEffectRendererFactory effectRendererFactory,
                            ISfxPlayer sfxPlayer,
                            EOLib.Domain.NPC.NPC initialNPC)
             : base((Game)endlessGameProvider.Game)
@@ -98,6 +101,7 @@ namespace EndlessClient.Rendering.NPC
             _mapInteractionController = mapInteractionController;
             _userInputProvider = userInputProvider;
             _spellSlotDataProvider = spellSlotDataProvider;
+            _effectRenderer = effectRendererFactory.Create();
             _sfxPlayer = sfxPlayer;
 
             DrawArea = GetStandingFrameRectangle();
@@ -107,7 +111,6 @@ namespace EndlessClient.Rendering.NPC
             _lastStandingAnimation = DateTime.Now;
             _fadeAwayAlpha = 255;
 
-            _effectRenderer = new EffectRenderer(nativeGraphicsManager, _sfxPlayer, this);
             _healthBarRenderer = _healthBarRendererFactory.CreateHealthBarRenderer(this);
         }
 
@@ -227,17 +230,9 @@ namespace EndlessClient.Rendering.NPC
             return _effectRenderer.State == EffectState.Playing;
         }
 
-        public void ShowWaterSplashies() { }
-
-        public void ShowWarpArrive() { }
-
-        public void ShowWarpLeave() { }
-
-        public void ShowPotionAnimation(int potionId) { }
-
-        public void ShowSpellAnimation(int spellGraphic)
+        public void PlayEffect(int graphic)
         {
-            _effectRenderer.PlayEffect(EffectType.Spell, spellGraphic);
+            _effectRenderer.PlayEffect(graphic, this);
         }
 
         #endregion

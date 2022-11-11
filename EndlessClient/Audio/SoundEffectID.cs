@@ -6,6 +6,7 @@
     public enum SoundEffectID
     {
         LayeredTechIntro,
+        NONE = LayeredTechIntro,
         ButtonClick,
         DialogButtonClick,
         TextBoxFocus,
@@ -48,6 +49,7 @@
         PotionOfFireworksEffect,
         PotionOfSparklesEffect,
         LearnNewSpell = 36,
+        PotionOfLoveEffect = LearnNewSpell,
         AttackBow,
         LevelUp,
         Dead,
@@ -76,7 +78,7 @@
         IceBlastSpell2,
         MapAmbientNoiseWater,
         MapAmbientNoiseDrone1 = 64,
-        UnknownMapAmbientNoise1,
+        AdminHide,
         UnknownMapAmbientNoise2,
         UnknownMapAmbientNoise3,
         UnknownMapAmbientNoise4 = 68,

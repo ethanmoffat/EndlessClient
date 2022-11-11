@@ -1,11 +1,10 @@
-﻿using EndlessClient.Rendering.Effects;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
 namespace EndlessClient.Rendering.Character
 {
-    public interface ICharacterRenderer : IDrawable, IUpdateable, IGameComponent, IDisposable, IMapActor, IEffectTarget, ISpellCaster
+    public interface ICharacterRenderer : IDrawable, IUpdateable, IGameComponent, IDisposable, IMapActor, ISpellCaster
     {
         EOLib.Domain.Character.Character Character { get; set; }
 

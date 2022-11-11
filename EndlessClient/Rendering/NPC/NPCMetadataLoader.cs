@@ -12,36 +12,39 @@ namespace EndlessClient.Rendering.NPC
     public class NPCMetadataLoader : INPCMetadataLoader
     {
         private readonly IPEFileCollection _peFileCollection;
-        private readonly Dictionary<int, NPCFrameMetadata> _cache;
+        private readonly Dictionary<int, NPCMetadata> _cache;
 
         public NPCMetadataLoader(IPEFileCollection peFileCollection)
         {
             _peFileCollection = peFileCollection;
-            _cache = new Dictionary<int, NPCFrameMetadata>();
+            _cache = new Dictionary<int, NPCMetadata>();
         }
 
-        public Option<NPCFrameMetadata> GetMetadata(int graphic)
+        public Option<NPCMetadata> GetMetadata(int graphic)
         {
             if (_cache.ContainsKey(graphic))
-                return Option.Some(_cache[graphic]);
+                return _cache[graphic].SomeNotNull();
 
             try
             {
                 var rawMetadata = _peFileCollection[GFXTypes.NPC].GetResourceByID(ResourceType.RCData, graphic);
                 var metadataString = Encoding.Unicode.GetString(rawMetadata);
-                _cache.Add(graphic, JsonConvert.DeserializeObject<NPCFrameMetadata>(metadataString));
+                var deserialized = JsonConvert.DeserializeObject<NPCMetadata>(metadataString);
+
+                if (deserialized != null)
+                    _cache.Add(graphic, deserialized);
 
                 return _cache[graphic].SomeNotNull();
             }
             catch
             {
-                return Option.None<NPCFrameMetadata>();
+                return Option.None<NPCMetadata>();
             }
         }
     }
 
     public interface INPCMetadataLoader
     {
-        Option<NPCFrameMetadata> GetMetadata(int graphic);
+        Option<NPCMetadata> GetMetadata(int graphic);
     }
 }
