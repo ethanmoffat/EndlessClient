@@ -207,7 +207,7 @@ namespace EndlessClient.Rendering.Map
 
             var noise = _currentMapProvider.CurrentMap.Properties.AmbientNoise;
             if (noise > 0)
-                _sfxPlayer.PlayLoopingSfx((SoundEffectID)noise - 1);
+                _sfxPlayer.PlayLoopingSfx((SoundEffectID)noise);
             else
                 _sfxPlayer.StopLoopingSfx();
         }
