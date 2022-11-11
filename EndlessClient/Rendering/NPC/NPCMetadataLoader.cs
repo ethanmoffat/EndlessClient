@@ -29,10 +29,7 @@ namespace EndlessClient.Rendering.NPC
             {
                 var rawMetadata = _peFileCollection[GFXTypes.NPC].GetResourceByID(ResourceType.RCData, graphic);
                 var metadataString = Encoding.Unicode.GetString(rawMetadata);
-                var deserialized = JsonConvert.DeserializeObject<NPCMetadata>(metadataString);
-
-                if (deserialized != null)
-                    _cache.Add(graphic, deserialized);
+                _cache.Add(graphic, JsonConvert.DeserializeObject<NPCMetadata>(metadataString));
 
                 return _cache[graphic].SomeNotNull();
             }

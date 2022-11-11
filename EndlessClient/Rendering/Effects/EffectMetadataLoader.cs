@@ -29,11 +29,7 @@ namespace EndlessClient.Rendering.Effects
             {
                 var rawMetadata = _peFileCollection[GFXTypes.Spells].GetResourceByID(ResourceType.RCData, graphic);
                 var metadataString = Encoding.Unicode.GetString(rawMetadata);
-
-                var deserialized = JsonConvert.DeserializeObject<EffectMetadata>(metadataString);
-
-                if (deserialized != null)
-                    _cache.Add(graphic, deserialized);
+                _cache.Add(graphic, JsonConvert.DeserializeObject<EffectMetadata>(metadataString));
 
                 return _cache[graphic].SomeNotNull();
             }
