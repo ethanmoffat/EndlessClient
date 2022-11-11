@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Optional;
 using System;
 using System.Collections.Generic;
 
@@ -27,33 +28,27 @@ namespace EndlessClient.Rendering.Effects
             _layer = layer;
             _graphic = graphic;
             _random = new Random();
+
+            _displayFrame = GetDisplayFrame();
         }
 
         public void NextFrame()
         {
             if (Done) return;
 
-            _displayFrame = _metadata.AnimationType switch
-            {
-                // todo: this might need to be tracked across multiple EffectSpriteInfo
-                EffectAnimationType.Flickering =>
-                    _random.Next(_metadata.RandomFlickeringMetadata?.FirstFrame ?? 0, (_metadata.RandomFlickeringMetadata?.LastFrame ?? 0) + 1),
-                _ => _displayFrame + 1
-            };
-
+            _displayFrame = GetDisplayFrame();
             _actualFrame++;
+
             if (_actualFrame >= _metadata.Frames)
             {
-                _actualFrame = 0;
-                _displayFrame = 0;
+                ResetFrame();
                 _iterations++;
             }
         }
 
         public void Restart()
         {
-            _displayFrame = 0;
-            _actualFrame = 0;
+            ResetFrame();
             _iterations = 0;
         }
 
@@ -96,6 +91,24 @@ namespace EndlessClient.Rendering.Effects
             };
 
             return new Vector2(targetX + _metadata.OffsetX + additionalX, targetY + _metadata.OffsetY + additionalY);
+        }
+
+        private int GetDisplayFrame()
+        {
+            return _metadata.AnimationType switch
+                {
+                    EffectAnimationType.Flickering =>
+                        _random.Next(_metadata.RandomFlickeringMetadata?.FirstFrame ?? 0, (_metadata.RandomFlickeringMetadata?.LastFrame ?? 0) + 1) - 1,
+                    _ => _displayFrame + 1
+                };
+        }
+
+        private void ResetFrame()
+        {
+            _actualFrame = 0;
+
+            if (_metadata.AnimationType != EffectAnimationType.Flickering)
+                _displayFrame = 0;
         }
     }
 }
