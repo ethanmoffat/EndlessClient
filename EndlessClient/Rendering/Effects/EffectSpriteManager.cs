@@ -23,17 +23,17 @@ namespace EndlessClient.Rendering.Effects
 
         public EffectMetadata GetEffectMetadata(int graphic)
         {
-            var emptyMetadata = new EffectMetadata.Builder().ToImmutable();
+            var emptyMetadata = new EffectMetadata.Builder { HasInFrontLayer = true, Loops = 2, Frames = 4, AnimationType = EffectAnimationType.Static }.ToImmutable();
             return _effectMetadataLoader.GetEffectMetadata(graphic)
                 .ValueOr(_effectMetadataProvider.DefaultMetadata.TryGetValue(graphic, out var ret) ? ret : emptyMetadata);
         }
 
-        public IReadOnlyList<IEffectSpriteInfo> GetEffectInfo(int graphic)
+        public IList<IEffectSpriteInfo> GetEffectInfo(int graphic)
         {
             return GetEffectInfo(graphic, GetEffectMetadata(graphic));
         }
 
-        public IReadOnlyList<IEffectSpriteInfo> GetEffectInfo(int graphic, EffectMetadata metadata)
+        public IList<IEffectSpriteInfo> GetEffectInfo(int graphic, EffectMetadata metadata)
         {            
             var baseGraphic = 101 + (graphic - 1) * 3;
 
@@ -58,8 +58,8 @@ namespace EndlessClient.Rendering.Effects
     {
         EffectMetadata GetEffectMetadata(int graphic);
 
-        IReadOnlyList<IEffectSpriteInfo> GetEffectInfo(int graphic);
+        IList<IEffectSpriteInfo> GetEffectInfo(int graphic);
 
-        IReadOnlyList<IEffectSpriteInfo> GetEffectInfo(int graphic, EffectMetadata metadata);
+        IList<IEffectSpriteInfo> GetEffectInfo(int graphic, EffectMetadata metadata);
     }
 }

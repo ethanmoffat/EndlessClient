@@ -2,8 +2,8 @@
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework.Graphics;
 using Optional;
-using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace EndlessClient.Rendering.Effects
@@ -24,8 +24,11 @@ namespace EndlessClient.Rendering.Effects
         private Option<IMapActor> _targetActor;
 
         private EffectMetadata _metadata;
-        private IReadOnlyList<IEffectSpriteInfo> _effectInfo;
-        private DateTime _lastFrameChange;
+        private IList<IEffectSpriteInfo> _effectInfo;
+        private Stopwatch _lastFrameTimer;
+
+        private int _nextEffectID;
+        private Option<MapCoordinate> _nextTargetCoordinate;
 
         public int EffectID { get; private set; }
 
@@ -39,7 +42,7 @@ namespace EndlessClient.Rendering.Effects
             _sfxPlayer = sfxPlayer;
             _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
 
-            _lastFrameChange = DateTime.Now;
+            _lastFrameTimer = new Stopwatch();
             _effectInfo = new List<IEffectSpriteInfo>();
         }
 
@@ -55,6 +58,12 @@ namespace EndlessClient.Rendering.Effects
             EffectID = effectID;
             _targetActor = Option.Some(target);
             StartPlaying();
+        }
+
+        public void QueueEffect(int effectID, MapCoordinate target)
+        {
+            _nextEffectID = effectID;
+            _nextTargetCoordinate = Option.Some(target);
         }
 
         public void Restart()
@@ -75,42 +84,57 @@ namespace EndlessClient.Rendering.Effects
 
         public void Update()
         {
-            if (State == EffectState.Stopped)
+            if (!_effectInfo.Any())
                 return;
 
-            var nowTime = DateTime.Now;
-            if ((nowTime - _lastFrameChange).TotalMilliseconds >= 120)
+            if (_lastFrameTimer.ElapsedMilliseconds >= 120)
             {
-                _lastFrameChange = nowTime;
+                _lastFrameTimer.Restart();
                 _effectInfo.ToList().ForEach(ei => ei.NextFrame());
+
+                var doneEffects = _effectInfo.Where(ei => ei.Done);
+                doneEffects.ToList().ForEach(ei => _effectInfo.Remove(ei));
+            }
+
+            if (!_effectInfo.Any())
+            {
+                State = EffectState.Stopped;
+                _lastFrameTimer.Stop();
+
+                _nextTargetCoordinate.MatchSome(_ =>
+                {
+                    EffectID = _nextEffectID;
+                    _nextEffectID = 0;
+
+                    _targetCoordinate = _nextTargetCoordinate;
+                    _nextTargetCoordinate = Option.None<MapCoordinate>();
+                    StartPlaying();
+                });
             }
         }
 
         public void DrawBehindTarget(SpriteBatch sb, bool beginHasBeenCalled = true)
         {
-            if (State != EffectState.Playing)
+            if (!_effectInfo.Any())
                 return;
 
-            DrawEffects(sb, beginHasBeenCalled, _effectInfo.Where(x => !x.Done && !x.OnTopOfCharacter));
+            DrawEffects(sb, beginHasBeenCalled, _effectInfo.Where(x => !x.OnTopOfCharacter));
         }
 
         public void DrawInFrontOfTarget(SpriteBatch sb, bool beginHasBeenCalled = true)
         {
-            if (State != EffectState.Playing)
+            if (!_effectInfo.Any())
                 return;
 
-            DrawEffects(sb, beginHasBeenCalled, _effectInfo.Where(x => !x.Done && x.OnTopOfCharacter));
+            DrawEffects(sb, beginHasBeenCalled, _effectInfo.Where(x => x.OnTopOfCharacter));
         }
 
         private void StartPlaying()
         {
-            _lastFrameChange = DateTime.Now;
+            _lastFrameTimer.Restart();
 
             _metadata = _effectSpriteManager.GetEffectMetadata(EffectID);
             _effectInfo = _effectSpriteManager.GetEffectInfo(EffectID, _metadata);
-
-            foreach (var ei in _effectInfo.Where(x => x.Done))
-                ei.Restart();
 
             State = EffectState.Playing;
 
@@ -147,6 +171,8 @@ namespace EndlessClient.Rendering.Effects
         void PlayEffect(int effectID, MapCoordinate target);
 
         void PlayEffect(int effectID, IMapActor target);
+
+        void QueueEffect(int effectID, MapCoordinate target);
 
         void Restart();
 

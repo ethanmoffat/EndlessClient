@@ -173,10 +173,14 @@ namespace EndlessClient.Rendering.Map
                 var renderer = _effectRendererFactory.Create();
                 _mapGridEffectRenderers[coordinate] = renderer;
             }
-            
+
             if (_mapGridEffectRenderers[coordinate].State == EffectState.Stopped)
             {
-                _mapGridEffectRenderers[coordinate].PlayEffect(effectId, coordinate);
+                _mapGridEffectRenderers[coordinate].PlayEffect(effectId + 1, coordinate);
+            }
+            else
+            {
+                _mapGridEffectRenderers[coordinate].QueueEffect(effectId + 1, coordinate);
             }
         }
 
