@@ -334,35 +334,32 @@ namespace EndlessClient.Rendering.Character
 
         private void ShowWaterSplashiesIfNeeded(CharacterActionState action, int characterID)
         {
-            var character = characterID == _characterRepository.MainCharacter.ID
-                ? Option.Some(_characterRepository.MainCharacter)
-                : _currentMapStateProvider.Characters.ContainsKey(characterID)
-                    ? Option.Some(_currentMapStateProvider.Characters[characterID])
-                    : Option.None<EOLib.Domain.Character.Character>();
-
             var characterRenderer = characterID == _characterRepository.MainCharacter.ID
                 ? _characterRendererProvider.MainCharacterRenderer
                 : _characterRendererProvider.CharacterRenderers.ContainsKey(characterID)
                     ? Option.Some(_characterRendererProvider.CharacterRenderers[characterID])
                     : Option.None<ICharacterRenderer>();
 
-            character.MatchSome(c =>
+            characterRenderer.MatchSome(cr =>
             {
-                var rp = c.RenderProperties;
+                var rp = cr.Character.RenderProperties;
 
-                characterRenderer.MatchSome(cr =>
+                if (action == CharacterActionState.Attacking)
                 {
-                    if (action == CharacterActionState.Attacking)
+                    if (_currentMapProvider.CurrentMap.Tiles[rp.MapY, rp.MapX] == TileSpec.Water)
                     {
-                        if (_currentMapProvider.CurrentMap.Tiles[rp.MapY, rp.MapX] == TileSpec.Water)
-                            cr.PlayEffect((int)HardCodedEffect.WaterSplashies);
+                        cr.PlayEffect((int)HardCodedEffect.WaterSplashies);
+                        _sfxPlayer.PlaySfx(SoundEffectID.Water);
                     }
-                    else if (action == CharacterActionState.Walking)
+                }
+                else if (action == CharacterActionState.Walking)
+                {
+                    if (_currentMapProvider.CurrentMap.Tiles[rp.GetDestinationY(), rp.GetDestinationX()] == TileSpec.Water)
                     {
-                        if (_currentMapProvider.CurrentMap.Tiles[rp.GetDestinationY(), rp.GetDestinationX()] == TileSpec.Water)
-                            cr.PlayEffect((int)HardCodedEffect.WaterSplashies);
+                        cr.PlayEffect((int)HardCodedEffect.WaterSplashies);
+                        _sfxPlayer.PlaySfx(SoundEffectID.Water);
                     }
-                });
+                }
             });
         }
 
