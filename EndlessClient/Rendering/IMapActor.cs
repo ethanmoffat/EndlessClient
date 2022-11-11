@@ -1,4 +1,4 @@
-﻿using EOLib.Domain.Map;
+﻿using EOLib.Domain.Spells;
 using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Rendering
@@ -11,7 +11,7 @@ namespace EndlessClient.Rendering
 
         int HorizontalCenter { get; }
 
-        MapCoordinate Coordinate { get; }
+        ISpellTargetable SpellTarget { get; }
 
         Rectangle DrawArea { get; }
 

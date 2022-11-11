@@ -9,10 +9,10 @@ using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
 using EndlessClient.UIControls;
 using EOLib;
-using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
+using EOLib.Domain.Spells;
 using EOLib.Graphics;
 using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
@@ -20,7 +20,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Optional;
 using System;
-using System.Diagnostics;
 using System.Linq;
 using XNAControls;
 
@@ -76,7 +75,7 @@ namespace EndlessClient.Rendering.Character
 
         public Rectangle DrawArea { get; private set; }
 
-        public MapCoordinate Coordinate => Character.RenderProperties.Coordinates();
+        public ISpellTargetable SpellTarget => Character;
 
         private int? _topPixel;
         public int TopPixel => _topPixel.HasValue ? _topPixel.Value : 0;

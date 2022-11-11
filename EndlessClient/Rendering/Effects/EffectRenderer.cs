@@ -1,10 +1,15 @@
 ﻿using EndlessClient.Audio;
+using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Optional;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+
+using DomainCharacter = EOLib.Domain.Character.Character;
+using DomainNPC = EOLib.Domain.NPC.NPC;
 
 namespace EndlessClient.Rendering.Effects
 {
@@ -19,6 +24,7 @@ namespace EndlessClient.Rendering.Effects
         private readonly IEffectSpriteManager _effectSpriteManager;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
+        private readonly IRenderOffsetCalculator _renderOffsetCalculator;
 
         private Option<MapCoordinate> _targetCoordinate;
         private Option<IMapActor> _targetActor;
@@ -36,12 +42,13 @@ namespace EndlessClient.Rendering.Effects
 
         public EffectRenderer(IEffectSpriteManager effectSpriteManager,
                               ISfxPlayer sfxPlayer,
-                              IGridDrawCoordinateCalculator gridDrawCoordinateCalculator)
+                              IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
+                              IRenderOffsetCalculator renderOffsetCalculator)
         {
             _effectSpriteManager = effectSpriteManager;
             _sfxPlayer = sfxPlayer;
             _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
-
+            _renderOffsetCalculator = renderOffsetCalculator;
             _lastFrameTimer = new Stopwatch();
             _effectInfo = new List<IEffectSpriteInfo>();
         }
@@ -149,8 +156,25 @@ namespace EndlessClient.Rendering.Effects
             if (!beginHasBeenCalled)
                 sb.Begin();
 
-            var targetCoordinate = _targetCoordinate.ValueOr(_targetActor.Match(x => x.Coordinate, () => MapCoordinate.Zero));
-            var targetBasePosition = _gridDrawCoordinateCalculator.CalculateBaseLayerDrawCoordinatesFromGridUnits(targetCoordinate);
+            var targetBasePosition = _targetCoordinate.Match(
+                some: c => _gridDrawCoordinateCalculator.CalculateBaseLayerDrawCoordinatesFromGridUnits(c),
+                none: () => _targetActor.Match(
+                    some: actor =>
+                    {
+                        return actor.SpellTarget switch
+                        {
+                            DomainCharacter c =>
+                                _gridDrawCoordinateCalculator.CalculateBaseLayerDrawCoordinatesFromGridUnits(c.RenderProperties.Coordinates()) +
+                                    new Vector2(_renderOffsetCalculator.CalculateWalkAdjustX(c.RenderProperties),
+                                                _renderOffsetCalculator.CalculateWalkAdjustY(c.RenderProperties)),
+                            DomainNPC n => 
+                                _gridDrawCoordinateCalculator.CalculateBaseLayerDrawCoordinatesFromGridUnits(n.X, n.Y) +
+                                    new Vector2(_renderOffsetCalculator.CalculateWalkAdjustX(n),
+                                                _renderOffsetCalculator.CalculateWalkAdjustY(n)),
+                            _ => Vector2.Zero
+                        };
+                    },
+                    none: () => Vector2.Zero));
 
             foreach (var effectInfo in effectSprites)
             {

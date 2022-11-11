@@ -1,5 +1,4 @@
 ﻿using AutomaticTypeMapper;
-using EndlessClient.Audio;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Spells;
@@ -29,7 +28,6 @@ namespace EndlessClient.Rendering.NPC
         private readonly IUserInputProvider _userInputProvider;
         private readonly ISpellSlotDataProvider _spellSlotDataProvider;
         private readonly IEffectRendererFactory _effectRendererFactory;
-        private readonly ISfxPlayer _sfxPlayer;
 
         public NPCRendererFactory(INativeGraphicsManager nativeGraphicsManager,
                                   IEndlessGameProvider endlessGameProvider,
@@ -43,8 +41,7 @@ namespace EndlessClient.Rendering.NPC
                                   IMapInteractionController mapInteractionController,
                                   IUserInputProvider userInputProvider,
                                   ISpellSlotDataProvider spellSlotDataProvider,
-                                  IEffectRendererFactory effectRendererFactory,
-                                  ISfxPlayer sfxPlayer)
+                                  IEffectRendererFactory effectRendererFactory)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _endlessGameProvider = endlessGameProvider;
@@ -59,7 +56,6 @@ namespace EndlessClient.Rendering.NPC
             _userInputProvider = userInputProvider;
             _spellSlotDataProvider = spellSlotDataProvider;
             _effectRendererFactory = effectRendererFactory;
-            _sfxPlayer = sfxPlayer;
         }
 
         public INPCRenderer CreateRendererFor(EOLib.Domain.NPC.NPC npc)
@@ -76,7 +72,6 @@ namespace EndlessClient.Rendering.NPC
                                    _userInputProvider,
                                    _spellSlotDataProvider,
                                    _effectRendererFactory,
-                                   _sfxPlayer,
                                    npc);
         }
     }

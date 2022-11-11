@@ -11,6 +11,7 @@ using EOLib;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
+using EOLib.Domain.Spells;
 using EOLib.Graphics;
 using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
@@ -34,7 +35,6 @@ namespace EndlessClient.Rendering.NPC
         private readonly IMapInteractionController _mapInteractionController;
         private readonly IUserInputProvider _userInputProvider;
         private readonly ISpellSlotDataProvider _spellSlotDataProvider;
-        private readonly ISfxPlayer _sfxPlayer;
         private readonly int _readonlyTopPixel, _readonlyBottomPixel;
         private readonly IEffectRenderer _effectRenderer;
         private readonly IHealthBarRenderer _healthBarRenderer;
@@ -61,13 +61,13 @@ namespace EndlessClient.Rendering.NPC
 
         public Rectangle DrawArea { get; private set; }
 
-        public MapCoordinate Coordinate => new MapCoordinate(NPC.X, NPC.Y);
-
         public bool MouseOver => DrawArea.Contains(_userInputProvider.CurrentMouseState.Position);
 
         public bool MouseOverPreviously => DrawArea.Contains(_userInputProvider.PreviousMouseState.Position);
 
         public EOLib.Domain.NPC.NPC NPC { get; set; }
+
+        public ISpellTargetable SpellTarget => NPC;
 
         public bool IsDead { get; private set; }
 
@@ -85,7 +85,6 @@ namespace EndlessClient.Rendering.NPC
                            IUserInputProvider userInputProvider,
                            ISpellSlotDataProvider spellSlotDataProvider,
                            IEffectRendererFactory effectRendererFactory,
-                           ISfxPlayer sfxPlayer,
                            EOLib.Domain.NPC.NPC initialNPC)
             : base((Game)endlessGameProvider.Game)
         {
@@ -102,7 +101,6 @@ namespace EndlessClient.Rendering.NPC
             _userInputProvider = userInputProvider;
             _spellSlotDataProvider = spellSlotDataProvider;
             _effectRenderer = effectRendererFactory.Create();
-            _sfxPlayer = sfxPlayer;
 
             DrawArea = GetStandingFrameRectangle();
             _readonlyTopPixel = GetTopPixel();
