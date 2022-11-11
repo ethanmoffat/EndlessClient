@@ -54,6 +54,7 @@ namespace EOLib.PacketHandlers
 
             var warpAgreePacketData = _warpAgreePacketTranslator.TranslatePacket(packet);
 
+            var differentMapID = _currentMapStateRepository.CurrentMapID != warpAgreePacketData.MapID;
             _currentMapStateRepository.CurrentMapID = warpAgreePacketData.MapID;
 
             var updatedMainCharacter = warpAgreePacketData.Characters.Single(MainCharacterIDMatches);
@@ -67,8 +68,6 @@ namespace EOLib.PacketHandlers
 
             var withoutMainCharacter = warpAgreePacketData.Characters.Where(x => !MainCharacterIDMatches(x));
             warpAgreePacketData = warpAgreePacketData.WithCharacters(withoutMainCharacter.ToList());
-
-            var differentMapID = _currentMapStateRepository.CurrentMapID != warpAgreePacketData.MapID;
 
             _currentMapStateRepository.Characters = warpAgreePacketData.Characters.ToDictionary(k => k.ID, v => v);
             _currentMapStateRepository.NPCs = new HashSet<NPC>(warpAgreePacketData.NPCs);

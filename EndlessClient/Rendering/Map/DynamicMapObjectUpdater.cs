@@ -72,6 +72,7 @@ namespace EndlessClient.Rendering.Map
 
         public void UpdateMapObjects(GameTime gameTime)
         {
+            // todo: this should probably be part of currentMapStateRepository instead of tracked here
             if (_cachedMap != _currentMapProvider.CurrentMap)
             {
                 _ambientSounds = new List<MapCoordinate>(_currentMapProvider.CurrentMap.GetTileSpecs(TileSpec.AmbientSource));
