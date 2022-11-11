@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace EndlessClient.Rendering.Effects
 {
-    [AutoMappedType(IsSingleton = true)]
+    [AutoMappedType]
     public class EffectSpriteManager : IEffectSpriteManager
     {
         private readonly INativeGraphicsManager _graphicsManager;
