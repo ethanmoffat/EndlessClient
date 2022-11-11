@@ -1,71 +1,114 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Optional;
+using System;
+using System.Collections.Generic;
 
 namespace EndlessClient.Rendering.Effects
 {
     public class EffectSpriteInfo : IEffectSpriteInfo
     {
-        protected readonly int _numberOfFrames;
-        protected readonly int _repeats;
-        protected readonly int _alpha;
-        protected readonly Texture2D _graphic;
+        private readonly EffectMetadata _metadata;
+        private readonly EffectLayer _layer;
+        private readonly Texture2D _graphic;
+        private readonly Random _random;
 
-        protected int _currentFrame;
-        protected int _iterations;
+        private int _displayFrame;
+        private int _actualFrame;
+        private int _iterations;
 
-        public bool OnTopOfCharacter { get; }
-        public bool Done => _iterations == _repeats;
+        public bool OnTopOfCharacter => _layer != EffectLayer.Behind;
+        public bool Done => _iterations == _metadata.Loops;
 
-        public EffectSpriteInfo(int numberOfFrames,
-                                int repeats,
-                                bool onTopOfCharacter,
-                                int alpha,
+        public EffectSpriteInfo(EffectMetadata metadata,
+                                EffectLayer layer,
                                 Texture2D graphic)
         {
-            _numberOfFrames = numberOfFrames;
-            _repeats = repeats;
-            OnTopOfCharacter = onTopOfCharacter;
-            _alpha = alpha;
+            _metadata = metadata;
+            _layer = layer;
             _graphic = graphic;
+            _random = new Random();
+
+            _displayFrame = GetDisplayFrame();
         }
 
         public void NextFrame()
         {
-            _currentFrame++;
-            if (_currentFrame >= _numberOfFrames)
+            if (Done) return;
+
+            _displayFrame = GetDisplayFrame();
+            _actualFrame++;
+
+            if (_actualFrame >= _metadata.Frames)
             {
-                _currentFrame = 0;
+                ResetFrame();
                 _iterations++;
             }
         }
 
         public void Restart()
         {
-            _currentFrame = 0;
+            ResetFrame();
             _iterations = 0;
         }
 
-        public virtual void DrawToSpriteBatch(SpriteBatch sb, Rectangle targetRectangle)
+        public void DrawToSpriteBatch(SpriteBatch sb, Vector2 gridCoordinatePosition)
         {
             var sourceRect = GetFrameSourceRectangle();
-            var drawLocation = GetDrawLocation(sourceRect, targetRectangle);
+            var drawLocation = GetDrawLocation(sourceRect, gridCoordinatePosition);
+            var alpha = _layer == EffectLayer.Transparent ? 128 : 255;
 
-            sb.Draw(_graphic, drawLocation, sourceRect, Color.FromNonPremultiplied(255, 255, 255, _alpha));
+            sb.Draw(_graphic, drawLocation, sourceRect, Color.FromNonPremultiplied(255, 255, 255, alpha));
         }
 
-        protected virtual Rectangle GetFrameSourceRectangle()
+        private Rectangle GetFrameSourceRectangle()
         {
-            var frameWidth = _graphic.Width / _numberOfFrames;
-            return new Rectangle(_currentFrame * frameWidth, 0, frameWidth, _graphic.Height);
+            var frameWidth = _graphic.Width / _metadata.Frames;
+            return new Rectangle(_displayFrame * frameWidth, 0, frameWidth, _graphic.Height);
         }
 
-        protected virtual Vector2 GetDrawLocation(Rectangle textureSourceRectangle, Rectangle targetActorRectangle)
+        private Vector2 GetDrawLocation(Rectangle textureSourceRectangle, Vector2 gridCoordinatePosition)
         {
-            var targetX = targetActorRectangle.X + (targetActorRectangle.Width - textureSourceRectangle.Width) / 2;
-            //todo: the y-coordinate does not show up properly on NPCs
-            var targetY = targetActorRectangle.Y + (targetActorRectangle.Height - textureSourceRectangle.Height) / 2;
+            const int GridWidth = 64;
 
-            return new Vector2(targetX, targetY);
+            var targetX = gridCoordinatePosition.X + (GridWidth - textureSourceRectangle.Width) / 2;
+            var targetY = gridCoordinatePosition.Y - (textureSourceRectangle.Height - (36 + (int)Math.Floor((textureSourceRectangle.Height - 100) / 2.0)));
+
+            var slidingMetadata = _metadata.VerticalSlidingMetadata ?? new VerticalSlidingEffectMetadata(0);
+            var positionMetadata = _metadata.PositionOffsetMetadata ?? new PositionOffsetEffectMetadata(new List<int>(), new List<int>());
+
+            var additionalX = _metadata.AnimationType switch
+            {
+                EffectAnimationType.Position => positionMetadata.OffsetXByFrame.Count < _displayFrame ? positionMetadata.OffsetXByFrame[_displayFrame] : 0,
+                _ => 0
+            };
+
+            var additionalY = _metadata.AnimationType switch
+            {
+                EffectAnimationType.VerticalSliding => slidingMetadata.FrameOffsetY * _displayFrame,
+                EffectAnimationType.Position => positionMetadata.OffsetYByFrame.Count < _displayFrame ? positionMetadata.OffsetYByFrame[_displayFrame] : 0,
+                _ => 0
+            };
+
+            return new Vector2(targetX + _metadata.OffsetX + additionalX, targetY + _metadata.OffsetY + additionalY);
+        }
+
+        private int GetDisplayFrame()
+        {
+            return _metadata.AnimationType switch
+                {
+                    EffectAnimationType.Flickering =>
+                        _random.Next(_metadata.RandomFlickeringMetadata?.FirstFrame ?? 0, (_metadata.RandomFlickeringMetadata?.LastFrame ?? 0) + 1) - 1,
+                    _ => _displayFrame + 1
+                };
+        }
+
+        private void ResetFrame()
+        {
+            _actualFrame = 0;
+
+            if (_metadata.AnimationType != EffectAnimationType.Flickering)
+                _displayFrame = 0;
         }
     }
 }

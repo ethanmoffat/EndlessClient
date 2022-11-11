@@ -1,95 +1,122 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using EndlessClient.Audio;
-using EOLib.Graphics;
+﻿using EndlessClient.Audio;
+using EOLib.Domain.Extensions;
+using EOLib.Domain.Map;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Optional;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+
+using DomainCharacter = EOLib.Domain.Character.Character;
+using DomainNPC = EOLib.Domain.NPC.NPC;
 
 namespace EndlessClient.Rendering.Effects
 {
-    public enum EffectType
-    {
-        Invalid,
-        Potion,
-        Spell,
-        WarpOriginal,
-        WarpDestination,
-        WaterSplashies
-    }
-
     public enum EffectState
     {
+        Stopped,
         Playing,
-        Stopped
     }
 
     public sealed class EffectRenderer : IEffectRenderer
     {
+        private readonly IEffectSpriteManager _effectSpriteManager;
         private readonly ISfxPlayer _sfxPlayer;
-        private readonly IEffectTarget _target;
-        private readonly EffectSpriteManager _effectSpriteManager;
-        private readonly EffectSoundMapper _effectSoundMapper;
+        private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
+        private readonly IRenderOffsetCalculator _renderOffsetCalculator;
 
+        private Option<MapCoordinate> _targetCoordinate;
+        private Option<IMapActor> _targetActor;
+
+        private EffectMetadata _metadata;
         private IList<IEffectSpriteInfo> _effectInfo;
-        private DateTime _lastFrameChange;
+        private Stopwatch _lastFrameTimer;
 
-        private int _effectID;
+        private int _nextEffectID;
+        private Option<MapCoordinate> _nextTargetCoordinate;
 
-        public EffectType EffectType { get; private set; }
+        public int EffectID { get; private set; }
 
         public EffectState State { get; private set; }
 
-        public EffectRenderer(INativeGraphicsManager nativeGraphicsManager,
+        public EffectRenderer(IEffectSpriteManager effectSpriteManager,
                               ISfxPlayer sfxPlayer,
-                              IEffectTarget target)
+                              IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
+                              IRenderOffsetCalculator renderOffsetCalculator)
         {
+            _effectSpriteManager = effectSpriteManager;
             _sfxPlayer = sfxPlayer;
-            _target = target;
-
-            _effectSpriteManager = new EffectSpriteManager(nativeGraphicsManager);
-            _effectSoundMapper = new EffectSoundMapper();
-
-            _lastFrameChange = DateTime.Now;
+            _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
+            _renderOffsetCalculator = renderOffsetCalculator;
+            _lastFrameTimer = new Stopwatch();
             _effectInfo = new List<IEffectSpriteInfo>();
         }
 
-        public void PlayEffect(EffectType effectType, int effectID)
+        public void PlayEffect(int effectID, MapCoordinate target)
         {
-            _effectID = effectID;
-            EffectType = effectType;
+            EffectID = effectID;
+            _targetCoordinate = Option.Some(target);
+            StartPlaying();
+        }
 
-            _lastFrameChange = DateTime.Now;
-            _effectInfo = _effectSpriteManager.GetEffectInfo(EffectType, _effectID);
+        public void PlayEffect(int effectID, IMapActor target)
+        {
+            EffectID = effectID;
+            _targetActor = Option.Some(target);
+            StartPlaying();
+        }
 
-            State = EffectState.Playing;
-            PlaySoundsFromBeginning();
+        public void QueueEffect(int effectID, MapCoordinate target)
+        {
+            _nextEffectID = effectID;
+            _nextTargetCoordinate = Option.Some(target);
         }
 
         public void Restart()
         {
+            if (State != EffectState.Playing)
+                return;
+
             foreach (var effect in _effectInfo)
                 effect.Restart();
 
             State = EffectState.Playing;
-            PlaySoundsFromBeginning();
+
+            if (_metadata.SoundEffect != SoundEffectID.NONE)
+            {
+                _sfxPlayer.PlaySfx(_metadata.SoundEffect);
+            }
         }
 
         public void Update()
         {
             if (!_effectInfo.Any())
-            {
-                State = EffectState.Stopped;
                 return;
-            }
 
-            var nowTime = DateTime.Now;
-            if ((nowTime - _lastFrameChange).TotalMilliseconds > 100)
+            if (_lastFrameTimer.ElapsedMilliseconds >= 120)
             {
-                _lastFrameChange = nowTime;
+                _lastFrameTimer.Restart();
                 _effectInfo.ToList().ForEach(ei => ei.NextFrame());
 
                 var doneEffects = _effectInfo.Where(ei => ei.Done);
                 doneEffects.ToList().ForEach(ei => _effectInfo.Remove(ei));
+            }
+
+            if (!_effectInfo.Any())
+            {
+                State = EffectState.Stopped;
+                _lastFrameTimer.Stop();
+
+                _nextTargetCoordinate.MatchSome(_ =>
+                {
+                    EffectID = _nextEffectID;
+                    _nextEffectID = 0;
+
+                    _targetCoordinate = _nextTargetCoordinate;
+                    _nextTargetCoordinate = Option.None<MapCoordinate>();
+                    StartPlaying();
+                });
             }
         }
 
@@ -109,33 +136,67 @@ namespace EndlessClient.Rendering.Effects
             DrawEffects(sb, beginHasBeenCalled, _effectInfo.Where(x => x.OnTopOfCharacter));
         }
 
+        private void StartPlaying()
+        {
+            _lastFrameTimer.Restart();
+
+            _metadata = _effectSpriteManager.GetEffectMetadata(EffectID);
+            _effectInfo = _effectSpriteManager.GetEffectInfo(EffectID, _metadata);
+
+            State = EffectState.Playing;
+
+            if (_metadata.SoundEffect != SoundEffectID.NONE)
+            {
+                _sfxPlayer.PlaySfx(_metadata.SoundEffect);
+            }
+        }
+
         private void DrawEffects(SpriteBatch sb, bool beginHasBeenCalled, IEnumerable<IEffectSpriteInfo> effectSprites)
         {
             if (!beginHasBeenCalled)
                 sb.Begin();
 
+            var targetBasePosition = _targetCoordinate.Match(
+                some: c => _gridDrawCoordinateCalculator.CalculateBaseLayerDrawCoordinatesFromGridUnits(c),
+                none: () => _targetActor.Match(
+                    some: actor =>
+                    {
+                        return actor.SpellTarget switch
+                        {
+                            DomainCharacter c =>
+                                _gridDrawCoordinateCalculator.CalculateBaseLayerDrawCoordinatesFromGridUnits(c.RenderProperties.Coordinates()) +
+                                    new Vector2(_renderOffsetCalculator.CalculateWalkAdjustX(c.RenderProperties),
+                                                _renderOffsetCalculator.CalculateWalkAdjustY(c.RenderProperties)),
+                            DomainNPC n => 
+                                _gridDrawCoordinateCalculator.CalculateBaseLayerDrawCoordinatesFromGridUnits(n.X, n.Y) +
+                                    new Vector2(_renderOffsetCalculator.CalculateWalkAdjustX(n),
+                                                _renderOffsetCalculator.CalculateWalkAdjustY(n)),
+                            _ => Vector2.Zero
+                        };
+                    },
+                    none: () => Vector2.Zero));
+
             foreach (var effectInfo in effectSprites)
-                effectInfo.DrawToSpriteBatch(sb, _target.EffectTargetArea);
+            {
+                effectInfo.DrawToSpriteBatch(sb, targetBasePosition);
+            }
 
             if (!beginHasBeenCalled)
                 sb.End();
-        }
-
-        private void PlaySoundsFromBeginning()
-        {
-            var soundInfo = _effectSoundMapper.GetSoundEffectsForEffect(EffectType, _effectID);
-            foreach (var sound in soundInfo)
-                _sfxPlayer.PlaySfx(sound);
         }
     }
 
     public interface IEffectRenderer
     {
-        EffectType EffectType { get; }
+        int EffectID { get; }
 
         EffectState State { get; }
 
-        void PlayEffect(EffectType effectType, int effectID);
+        void PlayEffect(int effectID, MapCoordinate target);
+
+        void PlayEffect(int effectID, IMapActor target);
+
+        void QueueEffect(int effectID, MapCoordinate target);
 
         void Restart();
 

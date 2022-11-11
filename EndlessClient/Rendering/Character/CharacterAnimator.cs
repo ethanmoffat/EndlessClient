@@ -483,9 +483,7 @@ namespace EndlessClient.Rendering.Character
         {
             _mainPlayerStartShoutTime.MatchSome(t =>
             {
-                // todo: math ???
-                // grabbed this formula from OldCharacterRenderer but it isn't certain that this is correct
-                if (t.ElapsedMilliseconds > (int)Math.Round(_shoutSpellData.CastTime / 2.0 * 950))
+                if (t.ElapsedMilliseconds >= (_shoutSpellData.CastTime - 1) * 480 + 350)
                 {
                     _otherPlayerStartSpellCastTimes.Add(_characterRepository.MainCharacter.ID, new RenderFrameActionTime(_characterRepository.MainCharacter.ID));
                     _characterActions.CastSpell(_shoutSpellData.ID, _spellTarget);

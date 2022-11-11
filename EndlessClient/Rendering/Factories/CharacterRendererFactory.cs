@@ -6,11 +6,10 @@ using EndlessClient.Input;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Chat;
+using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Sprites;
-using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
-using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Rendering.Factories
@@ -18,7 +17,6 @@ namespace EndlessClient.Rendering.Factories
     [MappedType(BaseType = typeof(ICharacterRendererFactory))]
     public class CharacterRendererFactory : ICharacterRendererFactory
     {
-        private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IEndlessGameProvider _gameProvider;
         private readonly IMapInteractionController _mapInteractionController;
         private readonly IRenderTargetFactory _renderTargetFactory;
@@ -32,11 +30,11 @@ namespace EndlessClient.Rendering.Factories
         private readonly IGameStateProvider _gameStateProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IUserInputProvider _userInputProvider;
+        private readonly IEffectRendererFactory _effectRendererFactory;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
 
-        public CharacterRendererFactory(INativeGraphicsManager nativeGraphicsManager,
-                                        IEndlessGameProvider gameProvider,
+        public CharacterRendererFactory(IEndlessGameProvider gameProvider,
                                         IMapInteractionController mapInteractionController,
                                         IRenderTargetFactory renderTargetFactory,
                                         IHealthBarRendererFactory healthBarRendererFactory,
@@ -49,10 +47,10 @@ namespace EndlessClient.Rendering.Factories
                                         IGameStateProvider gameStateProvider,
                                         ICurrentMapProvider currentMapProvider,
                                         IUserInputProvider userInputProvider,
+                                        IEffectRendererFactory effectRendererFactory,
                                         ISfxPlayer sfxPlayer,
                                         IFixedTimeStepRepository fixedTimeStepRepository)
         {
-            _nativeGraphicsManager = nativeGraphicsManager;
             _gameProvider = gameProvider;
             _mapInteractionController = mapInteractionController;
             _renderTargetFactory = renderTargetFactory;
@@ -66,6 +64,7 @@ namespace EndlessClient.Rendering.Factories
             _gameStateProvider = gameStateProvider;
             _currentMapProvider = currentMapProvider;
             _userInputProvider = userInputProvider;
+            _effectRendererFactory = effectRendererFactory;
             _sfxPlayer = sfxPlayer;
             _fixedTimeStepRepository = fixedTimeStepRepository;
         }
@@ -73,7 +72,6 @@ namespace EndlessClient.Rendering.Factories
         public ICharacterRenderer CreateCharacterRenderer(EOLib.Domain.Character.Character character)
         {
             return new CharacterRenderer(
-                _nativeGraphicsManager,
                 (Game) _gameProvider.Game,
                 _mapInteractionController,
                 _renderTargetFactory,
@@ -88,6 +86,7 @@ namespace EndlessClient.Rendering.Factories
                 _gameStateProvider,
                 _currentMapProvider,
                 _userInputProvider,
+                _effectRendererFactory,
                 _sfxPlayer,
                 _fixedTimeStepRepository);
         }

@@ -3,6 +3,7 @@ using EndlessClient.Audio;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Rendering.Character;
+using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.NPC;
 using EOLib.Config;
 using EOLib.Domain.Chat;
@@ -176,7 +177,7 @@ namespace EndlessClient.Rendering.Map
             _characterRendererRepository.MainCharacterRenderer.MatchSome(r =>
             {
                 if (animation == WarpAnimation.Admin)
-                    r.ShowWarpArrive();
+                    r.PlayEffect((int)HardCodedEffect.WarpArrive);
             });
         }
 
@@ -206,7 +207,10 @@ namespace EndlessClient.Rendering.Map
 
             var noise = _currentMapProvider.CurrentMap.Properties.AmbientNoise;
             if (noise > 0)
-                _sfxPlayer.PlayLoopingSfx((SoundEffectID)noise - 1);
+            {
+                _sfxPlayer.StopLoopingSfx();
+                _sfxPlayer.PlayLoopingSfx((SoundEffectID)noise);
+            }
             else
                 _sfxPlayer.StopLoopingSfx();
         }

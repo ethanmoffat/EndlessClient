@@ -9,7 +9,9 @@ using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
 using EOLib;
 using EOLib.Domain.Extensions;
+using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
+using EOLib.Domain.Spells;
 using EOLib.Graphics;
 using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
@@ -33,7 +35,6 @@ namespace EndlessClient.Rendering.NPC
         private readonly IMapInteractionController _mapInteractionController;
         private readonly IUserInputProvider _userInputProvider;
         private readonly ISpellSlotDataProvider _spellSlotDataProvider;
-        private readonly ISfxPlayer _sfxPlayer;
         private readonly int _readonlyTopPixel, _readonlyBottomPixel;
         private readonly IEffectRenderer _effectRenderer;
         private readonly IHealthBarRenderer _healthBarRenderer;
@@ -66,12 +67,13 @@ namespace EndlessClient.Rendering.NPC
 
         public EOLib.Domain.NPC.NPC NPC { get; set; }
 
+        public ISpellTargetable SpellTarget => NPC;
+
         public bool IsDead { get; private set; }
 
         public Rectangle EffectTargetArea { get; private set; }
 
-        public NPCRenderer(INativeGraphicsManager nativeGraphicsManager,
-                           IEndlessGameProvider endlessGameProvider,
+        public NPCRenderer(IEndlessGameProvider endlessGameProvider,
                            IENFFileProvider enfFileProvider,
                            INPCSpriteSheet npcSpriteSheet,
                            IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
@@ -82,7 +84,7 @@ namespace EndlessClient.Rendering.NPC
                            IMapInteractionController mapInteractionController,
                            IUserInputProvider userInputProvider,
                            ISpellSlotDataProvider spellSlotDataProvider,
-                           ISfxPlayer sfxPlayer,
+                           IEffectRendererFactory effectRendererFactory,
                            EOLib.Domain.NPC.NPC initialNPC)
             : base((Game)endlessGameProvider.Game)
         {
@@ -98,7 +100,7 @@ namespace EndlessClient.Rendering.NPC
             _mapInteractionController = mapInteractionController;
             _userInputProvider = userInputProvider;
             _spellSlotDataProvider = spellSlotDataProvider;
-            _sfxPlayer = sfxPlayer;
+            _effectRenderer = effectRendererFactory.Create();
 
             DrawArea = GetStandingFrameRectangle();
             _readonlyTopPixel = GetTopPixel();
@@ -107,7 +109,6 @@ namespace EndlessClient.Rendering.NPC
             _lastStandingAnimation = DateTime.Now;
             _fadeAwayAlpha = 255;
 
-            _effectRenderer = new EffectRenderer(nativeGraphicsManager, _sfxPlayer, this);
             _healthBarRenderer = _healthBarRendererFactory.CreateHealthBarRenderer(this);
         }
 
@@ -156,7 +157,8 @@ namespace EndlessClient.Rendering.NPC
                 var colorData = new Color[] { Color.FromNonPremultiplied(0, 0, 0, 255) };
                 if (currentFrame != null && !_isBlankSprite)
                 {
-                    _npcRenderTarget.GetData(0, new Rectangle(currentMousePosition.X, currentMousePosition.Y, 1, 1), colorData, 0, 1);
+                    if (_npcRenderTarget.Bounds.Contains(currentMousePosition))
+                        _npcRenderTarget.GetData(0, new Rectangle(currentMousePosition.X, currentMousePosition.Y, 1, 1), colorData, 0, 1);
                 }
 
                 _nameLabel.Visible = !_healthBarRenderer.Visible && !_isDying && (_isBlankSprite || colorData[0].A > 0);
@@ -227,17 +229,9 @@ namespace EndlessClient.Rendering.NPC
             return _effectRenderer.State == EffectState.Playing;
         }
 
-        public void ShowWaterSplashies() { }
-
-        public void ShowWarpArrive() { }
-
-        public void ShowWarpLeave() { }
-
-        public void ShowPotionAnimation(int potionId) { }
-
-        public void ShowSpellAnimation(int spellGraphic)
+        public void PlayEffect(int graphic)
         {
-            _effectRenderer.PlayEffect(EffectType.Spell, spellGraphic);
+            _effectRenderer.PlayEffect(graphic, this);
         }
 
         #endregion

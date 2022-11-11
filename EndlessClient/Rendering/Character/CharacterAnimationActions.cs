@@ -3,6 +3,7 @@ using EndlessClient.Audio;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Controls;
+using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Map;
 using EOLib;
 using EOLib.Config;
@@ -145,7 +146,7 @@ namespace EndlessClient.Rendering.Character
         public void NotifyWarpLeaveEffect(short characterId, WarpAnimation anim)
         {
             if (anim == WarpAnimation.Admin)
-                _characterRendererProvider.CharacterRenderers[characterId].ShowWarpLeave();
+                _characterRendererProvider.CharacterRenderers[characterId].PlayEffect((int)HardCodedEffect.WarpLeave);
         }
 
         public void NotifyWarpEnterEffect(short characterId, WarpAnimation anim)
@@ -155,16 +156,16 @@ namespace EndlessClient.Rendering.Character
                 if (!_characterRendererProvider.CharacterRenderers.ContainsKey(characterId))
                     _characterRendererProvider.NeedsWarpArriveAnimation.Add(characterId);
                 else
-                    _characterRendererProvider.CharacterRenderers[characterId].ShowWarpArrive();
+                    _characterRendererProvider.CharacterRenderers[characterId].PlayEffect((int)HardCodedEffect.WarpArrive);
             }
         }
 
         public void NotifyPotionEffect(short playerId, int effectId)
         {
             if (playerId == _characterRepository.MainCharacter.ID)
-                _characterRendererProvider.MainCharacterRenderer.MatchSome(cr => cr.ShowPotionAnimation(effectId));
+                _characterRendererProvider.MainCharacterRenderer.MatchSome(cr => cr.PlayEffect(effectId + 1));
             else if (_characterRendererProvider.CharacterRenderers.ContainsKey(playerId))
-                _characterRendererProvider.CharacterRenderers[playerId].ShowPotionAnimation(effectId);
+                _characterRendererProvider.CharacterRenderers[playerId].PlayEffect(effectId + 1);
         }
 
         public void NotifyStartSpellCast(short playerId, short spellId)
@@ -193,7 +194,7 @@ namespace EndlessClient.Rendering.Character
                 _characterRendererProvider.MainCharacterRenderer.MatchSome(cr =>
                 {
                     cr.ShoutSpellCast();
-                    cr.ShowSpellAnimation(spellGraphic);
+                    cr.PlayEffect(spellGraphic);
                     cr.ShowDamageCounter(spellHp, percentHealth, isHeal: true);
                 });
             }
@@ -201,7 +202,7 @@ namespace EndlessClient.Rendering.Character
             {
                 Animator.StartOtherCharacterSpellCast(playerId);
                 _characterRendererProvider.CharacterRenderers[playerId].ShoutSpellCast();
-                _characterRendererProvider.CharacterRenderers[playerId].ShowSpellAnimation(spellGraphic);
+                _characterRendererProvider.CharacterRenderers[playerId].PlayEffect(spellGraphic);
                 _characterRendererProvider.CharacterRenderers[playerId].ShowDamageCounter(spellHp, percentHealth, isHeal: true);
             }
         }
@@ -224,13 +225,13 @@ namespace EndlessClient.Rendering.Character
             {
                 _characterRendererProvider.MainCharacterRenderer.MatchSome(cr =>
                 {
-                    cr.ShowSpellAnimation(spellData.Graphic);
+                    cr.PlayEffect(spellData.Graphic);
                     cr.ShowDamageCounter(recoveredHP, targetPercentHealth, isHeal: spellData.Type == EOLib.IO.SpellType.Heal);
                 });
             }
             else
             {
-                _characterRendererProvider.CharacterRenderers[targetPlayerID].ShowSpellAnimation(spellData.Graphic);
+                _characterRendererProvider.CharacterRenderers[targetPlayerID].PlayEffect(spellData.Graphic);
                 _characterRendererProvider.CharacterRenderers[targetPlayerID].ShowDamageCounter(recoveredHP, targetPercentHealth, isHeal: spellData.Type == EOLib.IO.SpellType.Heal);
             }
         }
@@ -259,13 +260,13 @@ namespace EndlessClient.Rendering.Character
                 {
                     _characterRendererProvider.MainCharacterRenderer.MatchSome(cr =>
                     {
-                        cr.ShowSpellAnimation(spellData.Graphic);
+                        cr.PlayEffect(spellData.Graphic);
                         cr.ShowDamageCounter(spellHp, target.PercentHealth, isHeal: true);
                     });
                 }
                 else if (_characterRendererProvider.CharacterRenderers.ContainsKey(target.TargetId))
                 {
-                    _characterRendererProvider.CharacterRenderers[target.TargetId].ShowSpellAnimation(spellData.Graphic);
+                    _characterRendererProvider.CharacterRenderers[target.TargetId].PlayEffect(spellData.Graphic);
                     _characterRendererProvider.CharacterRenderers[target.TargetId].ShowDamageCounter(spellHp, target.PercentHealth, isHeal: true);
                 }
             }
@@ -333,36 +334,32 @@ namespace EndlessClient.Rendering.Character
 
         private void ShowWaterSplashiesIfNeeded(CharacterActionState action, int characterID)
         {
-            var character = characterID == _characterRepository.MainCharacter.ID
-                ? Option.Some(_characterRepository.MainCharacter)
-                : _currentMapStateProvider.Characters.ContainsKey(characterID)
-                    ? Option.Some(_currentMapStateProvider.Characters[characterID])
-                    : Option.None<EOLib.Domain.Character.Character>();
-
             var characterRenderer = characterID == _characterRepository.MainCharacter.ID
                 ? _characterRendererProvider.MainCharacterRenderer
                 : _characterRendererProvider.CharacterRenderers.ContainsKey(characterID)
                     ? Option.Some(_characterRendererProvider.CharacterRenderers[characterID])
                     : Option.None<ICharacterRenderer>();
 
-            character.MatchSome(c =>
+            characterRenderer.MatchSome(cr =>
             {
-                var rp = c.RenderProperties;
+                var rp = cr.Character.RenderProperties;
 
-                characterRenderer.MatchSome(cr =>
+                if (action == CharacterActionState.Attacking)
                 {
-                    if (action == CharacterActionState.Attacking)
+                    if (_currentMapProvider.CurrentMap.Tiles[rp.MapY, rp.MapX] == TileSpec.Water)
                     {
-                        if (_currentMapProvider.CurrentMap.Tiles[rp.MapY, rp.MapX] == TileSpec.Water)
-                            cr.ShowWaterSplashies();
+                        cr.PlayEffect((int)HardCodedEffect.WaterSplashies);
+                        _sfxPlayer.PlaySfx(SoundEffectID.Water);
                     }
-                    else if (action == CharacterActionState.Walking)
+                }
+                else if (action == CharacterActionState.Walking)
+                {
+                    if (_currentMapProvider.CurrentMap.Tiles[rp.GetDestinationY(), rp.GetDestinationX()] == TileSpec.Water)
                     {
-                        if (_currentMapProvider.CurrentMap.Tiles[rp.GetDestinationY(), rp.GetDestinationX()] == TileSpec.Water)
-                            cr.ShowWaterSplashies();
+                        cr.PlayEffect((int)HardCodedEffect.WaterSplashies);
+                        _sfxPlayer.PlaySfx(SoundEffectID.Water);
                     }
-
-                });
+                }
             });
         }
 

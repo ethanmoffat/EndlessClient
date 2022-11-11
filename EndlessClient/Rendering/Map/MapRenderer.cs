@@ -1,5 +1,6 @@
 ﻿using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Character;
+using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.MapEntityRenderers;
 using EndlessClient.Rendering.NPC;
@@ -20,6 +21,7 @@ namespace EndlessClient.Rendering.Map
         private const double TRANSITION_TIME_MS = 125.0;
 
         private readonly IRenderTargetFactory _renderTargetFactory;
+        private readonly IEffectRendererFactory _effectRendererFactory;
         private readonly IMapEntityRendererProvider _mapEntityRendererProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
@@ -30,7 +32,6 @@ namespace EndlessClient.Rendering.Map
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IMouseCursorRenderer _mouseCursorRenderer;
         private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
-        private readonly IMapGridEffectTargetFactory _mapGridEffectTargetFactory;
         private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
         private RenderTarget2D _mapBaseTarget, _mapObjectTarget;
         private SpriteBatch _sb;
@@ -39,7 +40,7 @@ namespace EndlessClient.Rendering.Map
 
         private Option<MapQuakeState> _quakeState;
 
-        private IDictionary<MapCoordinate, IMapGridEffectTarget> _mapGridEffectTargets;
+        private IDictionary<MapCoordinate, IEffectRenderer> _mapGridEffectRenderers;
 
         public bool MouseOver
         {
@@ -55,6 +56,7 @@ namespace EndlessClient.Rendering.Map
 
         public MapRenderer(IEndlessGame endlessGame,
                            IRenderTargetFactory renderTargetFactory,
+                           IEffectRendererFactory effectRendererFactory,
                            IMapEntityRendererProvider mapEntityRendererProvider,
                            ICharacterProvider characterProvider,
                            ICurrentMapProvider currentMapProvider,
@@ -65,11 +67,11 @@ namespace EndlessClient.Rendering.Map
                            IConfigurationProvider configurationProvider,
                            IMouseCursorRenderer mouseCursorRenderer,
                            IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
-                           IMapGridEffectTargetFactory mapGridEffectTargetFactory,
                            IFixedTimeStepRepository fixedTimeStepRepository)
             : base((Game)endlessGame)
         {
             _renderTargetFactory = renderTargetFactory;
+            _effectRendererFactory = effectRendererFactory;
             _mapEntityRendererProvider = mapEntityRendererProvider;
             _characterProvider = characterProvider;
             _currentMapProvider = currentMapProvider;
@@ -80,9 +82,8 @@ namespace EndlessClient.Rendering.Map
             _configurationProvider = configurationProvider;
             _mouseCursorRenderer = mouseCursorRenderer;
             _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
-            _mapGridEffectTargetFactory = mapGridEffectTargetFactory;
             _fixedTimeStepRepository = fixedTimeStepRepository;
-            _mapGridEffectTargets = new Dictionary<MapCoordinate, IMapGridEffectTarget>();
+            _mapGridEffectRenderers = new Dictionary<MapCoordinate, IEffectRenderer>();
         }
 
         public override void Initialize()
@@ -128,7 +129,7 @@ namespace EndlessClient.Rendering.Map
 
                 UpdateQuakeState();
 
-                foreach (var target in _mapGridEffectTargets.Values)
+                foreach (var target in _mapGridEffectRenderers.Values)
                     target.Update();
             }
 
@@ -165,22 +166,27 @@ namespace EndlessClient.Rendering.Map
 
         public void RenderEffect(byte x, byte y, short effectId)
         {
-            if (_mapGridEffectTargets.TryGetValue(new MapCoordinate(x, y), out var target) && !target.EffectIsPlaying())
+            var coordinate = new MapCoordinate(x, y);
+
+            if (!_mapGridEffectRenderers.ContainsKey(coordinate))
             {
-                target.ShowSpellAnimation(effectId);
+                var renderer = _effectRendererFactory.Create();
+                _mapGridEffectRenderers[coordinate] = renderer;
+            }
+
+            if (_mapGridEffectRenderers[coordinate].State == EffectState.Stopped)
+            {
+                _mapGridEffectRenderers[coordinate].PlayEffect(effectId + 1, coordinate);
             }
             else
             {
-                var renderer = _mapGridEffectTargetFactory.Create(x, y);
-                renderer.ShowSpellAnimation(effectId);
-
-                _mapGridEffectTargets[new MapCoordinate(x, y)] = renderer;
+                _mapGridEffectRenderers[coordinate].QueueEffect(effectId + 1, coordinate);
             }
         }
 
         public void ClearTransientRenderables()
         {
-            _mapGridEffectTargets.Clear();
+            _mapGridEffectRenderers.Clear();
             _mouseCursorRenderer.ClearTransientRenderables();
         }
 
@@ -336,8 +342,11 @@ namespace EndlessClient.Rendering.Map
 
             spriteBatch.Draw(_mapObjectTarget, new Vector2(offset, 0), Color.White);
 
-            foreach (var target in _mapGridEffectTargets.Values)
-                target.Draw(spriteBatch);
+            foreach (var target in _mapGridEffectRenderers.Values)
+            {
+                target.DrawBehindTarget(spriteBatch);
+                target.DrawInFrontOfTarget(spriteBatch);
+            }
 
             spriteBatch.End();
         }

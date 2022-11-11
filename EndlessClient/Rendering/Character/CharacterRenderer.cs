@@ -9,10 +9,10 @@ using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
 using EndlessClient.UIControls;
 using EOLib;
-using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
+using EOLib.Domain.Spells;
 using EOLib.Graphics;
 using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
@@ -20,7 +20,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Optional;
 using System;
-using System.Diagnostics;
 using System.Linq;
 using XNAControls;
 
@@ -76,6 +75,8 @@ namespace EndlessClient.Rendering.Character
 
         public Rectangle DrawArea { get; private set; }
 
+        public ISpellTargetable SpellTarget => Character;
+
         private int? _topPixel;
         public int TopPixel => _topPixel.HasValue ? _topPixel.Value : 0;
 
@@ -90,8 +91,7 @@ namespace EndlessClient.Rendering.Character
         public Rectangle EffectTargetArea
             => DrawArea.WithPosition(new Vector2(DrawArea.X, DrawArea.Y - 8));
 
-        public CharacterRenderer(INativeGraphicsManager nativeGraphicsmanager,
-                                 Game game,
+        public CharacterRenderer(Game game,
                                  IMapInteractionController mapInteractionController,
                                  IRenderTargetFactory renderTargetFactory,
                                  IHealthBarRendererFactory healthBarRendererFactory,
@@ -105,6 +105,7 @@ namespace EndlessClient.Rendering.Character
                                  IGameStateProvider gameStateProvider,
                                  ICurrentMapProvider currentMapProvider,
                                  IUserInputProvider userInputProvider,
+                                 IEffectRendererFactory effectRendererFactory,
                                  ISfxPlayer sfxPlayer,
                                  IFixedTimeStepRepository fixedTimeStepRepository)
             : base(game)
@@ -122,10 +123,10 @@ namespace EndlessClient.Rendering.Character
             _gameStateProvider = gameStateProvider;
             _currentMapProvider = currentMapProvider;
             _userInputProvider = userInputProvider;
+            _effectRenderer = effectRendererFactory.Create();
             _sfxPlayer = sfxPlayer;
             _fixedTimeStepRepository = fixedTimeStepRepository;
 
-            _effectRenderer = new EffectRenderer(nativeGraphicsmanager, _sfxPlayer, this);
             _chatBubble = new Lazy<IChatBubble>(() => _chatBubbleFactory.CreateChatBubble(this));
         }
 
@@ -445,43 +446,18 @@ namespace EndlessClient.Rendering.Character
 
         #endregion
 
-        #region Effects
-
         public bool EffectIsPlaying()
         {
             return _effectRenderer.State == EffectState.Playing;
         }
 
-        public void ShowWaterSplashies()
+        public void PlayEffect(int graphic)
         {
-            if (_effectRenderer.EffectType == EffectType.WaterSplashies &&
-                _effectRenderer.State == EffectState.Playing)
+            if (_effectRenderer.EffectID == graphic && _effectRenderer.State == EffectState.Playing)
                 _effectRenderer.Restart();
 
-            _effectRenderer.PlayEffect(EffectType.WaterSplashies, 0);
+            _effectRenderer.PlayEffect(graphic, this);
         }
-
-        public void ShowWarpArrive()
-        {
-            _effectRenderer.PlayEffect(EffectType.WarpDestination, 0);
-        }
-
-        public void ShowWarpLeave()
-        {
-            _effectRenderer.PlayEffect(EffectType.WarpOriginal, 0);
-        }
-
-        public void ShowPotionAnimation(int potionId)
-        {
-            _effectRenderer.PlayEffect(EffectType.Potion, potionId);
-        }
-
-        public void ShowSpellAnimation(int spellGraphic)
-        {
-            _effectRenderer.PlayEffect(EffectType.Spell, spellGraphic);
-        }
-
-        #endregion
 
         // Called when the spell cast begins
         public void ShoutSpellPrep(string spellName)

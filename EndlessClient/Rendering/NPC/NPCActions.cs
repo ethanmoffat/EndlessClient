@@ -88,7 +88,7 @@ namespace EndlessClient.Rendering.NPC
                 spellId.MatchSome(spell =>
                 {
                     var graphic = _esfFileProvider.ESFFile[spell].Graphic;
-                    _npcRendererRepository.NPCRenderers[npcIndex].ShowSpellAnimation(graphic);
+                    _npcRendererRepository.NPCRenderers[npcIndex].PlayEffect(graphic);
                     ShoutSpellCast(playerId);
                 });
 
@@ -111,7 +111,7 @@ namespace EndlessClient.Rendering.NPC
                 var renderer = _npcRendererRepository.NPCRenderers[npcIndex];
 
                 var graphic = _esfFileProvider.ESFFile[spell].Graphic;
-                renderer.ShowSpellAnimation(graphic);
+                renderer.PlayEffect(graphic);
                 ShoutSpellCast(fromPlayerId);
             });
         }

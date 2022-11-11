@@ -1,10 +1,10 @@
 ﻿using AutomaticTypeMapper;
-using EndlessClient.Audio;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Spells;
 using EndlessClient.Input;
 using EndlessClient.Rendering.Chat;
+using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
 using EOLib.Graphics;
@@ -27,7 +27,7 @@ namespace EndlessClient.Rendering.NPC
         private readonly IMapInteractionController _mapInteractionController;
         private readonly IUserInputProvider _userInputProvider;
         private readonly ISpellSlotDataProvider _spellSlotDataProvider;
-        private readonly ISfxPlayer _sfxPlayer;
+        private readonly IEffectRendererFactory _effectRendererFactory;
 
         public NPCRendererFactory(INativeGraphicsManager nativeGraphicsManager,
                                   IEndlessGameProvider endlessGameProvider,
@@ -41,7 +41,7 @@ namespace EndlessClient.Rendering.NPC
                                   IMapInteractionController mapInteractionController,
                                   IUserInputProvider userInputProvider,
                                   ISpellSlotDataProvider spellSlotDataProvider,
-                                  ISfxPlayer sfxPlayer)
+                                  IEffectRendererFactory effectRendererFactory)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _endlessGameProvider = endlessGameProvider;
@@ -55,13 +55,12 @@ namespace EndlessClient.Rendering.NPC
             _mapInteractionController = mapInteractionController;
             _userInputProvider = userInputProvider;
             _spellSlotDataProvider = spellSlotDataProvider;
-            _sfxPlayer = sfxPlayer;
+            _effectRendererFactory = effectRendererFactory;
         }
 
         public INPCRenderer CreateRendererFor(EOLib.Domain.NPC.NPC npc)
         {
-            return new NPCRenderer(_nativeGraphicsManager,
-                                   _endlessGameProvider,
+            return new NPCRenderer(_endlessGameProvider,
                                    _enfFileProvider,
                                    _npcSpriteSheet,
                                    _gridDrawCoordinateCalculator,
@@ -72,7 +71,7 @@ namespace EndlessClient.Rendering.NPC
                                    _mapInteractionController,
                                    _userInputProvider,
                                    _spellSlotDataProvider,
-                                   _sfxPlayer,
+                                   _effectRendererFactory,
                                    npc);
         }
     }

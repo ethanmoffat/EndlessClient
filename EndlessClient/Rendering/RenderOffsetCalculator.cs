@@ -41,20 +41,28 @@ namespace EndlessClient.Rendering
 
         public int CalculateOffsetX(EOLib.Domain.NPC.NPC npc)
         {
+            return npc.X*WidthFactor - npc.Y*WidthFactor + CalculateWalkAdjustX(npc);
+        }
+
+        public int CalculateWalkAdjustX(EOLib.Domain.NPC.NPC npc)
+        {
             var multiplier = npc.IsFacing(EODirection.Left, EODirection.Down) ? -1 : 1;
             var walkAdjust = npc.IsActing(NPCActionState.Walking) ? WalkWidthFactor * npc.GetWalkFrame() : 0;
 
-            //walkAdjust * multiplier is the old ViewAdjustX
-            return npc.X*WidthFactor - npc.Y*WidthFactor + walkAdjust*multiplier;
+            return walkAdjust * multiplier;
         }
 
         public int CalculateOffsetY(EOLib.Domain.NPC.NPC npc)
         {
+            return npc.X*HeightFactor + npc.Y*HeightFactor + CalculateWalkAdjustY(npc);
+        }
+
+        public int CalculateWalkAdjustY(EOLib.Domain.NPC.NPC npc)
+        {
             var multiplier = npc.IsFacing(EODirection.Left, EODirection.Up) ? -1 : 1;
             var walkAdjust = npc.IsActing(NPCActionState.Walking) ? WalkHeightFactor * npc.GetWalkFrame() : 0;
 
-            //walkAdjust * multiplier is the old ViewAdjustY
-            return npc.X*HeightFactor + npc.Y*HeightFactor + walkAdjust*multiplier;
+            return walkAdjust * multiplier;
         }
 
         public int CalculateOffsetX(MapCoordinate coordinate)
@@ -77,8 +85,10 @@ namespace EndlessClient.Rendering
         int CalculateWalkAdjustY(CharacterRenderProperties properties);
 
         int CalculateOffsetX(EOLib.Domain.NPC.NPC npc);
+        int CalculateWalkAdjustX(EOLib.Domain.NPC.NPC npc);
 
         int CalculateOffsetY(EOLib.Domain.NPC.NPC npc);
+        int CalculateWalkAdjustY(EOLib.Domain.NPC.NPC npc);
 
         int CalculateOffsetX(MapCoordinate coordinate);
 
