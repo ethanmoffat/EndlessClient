@@ -21,7 +21,7 @@ namespace EndlessClient.Rendering.Character
     public class CharacterAnimator : GameComponent, ICharacterAnimator
     {
         public const int WALK_FRAME_TIME_MS = 100;
-        public const int ATTACK_FRAME_TIME_MS = 95;
+        public const int ATTACK_FRAME_TIME_MS = 100;
         public const int EMOTE_FRAME_TIME_MS = 250;
 
         private readonly ICharacterRepository _characterRepository;
