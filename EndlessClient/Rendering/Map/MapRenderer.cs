@@ -37,6 +37,7 @@ namespace EndlessClient.Rendering.Map
         private SpriteBatch _sb;
         private MapTransitionState _mapTransitionState = MapTransitionState.Default;
         private int? _lastMapChecksum;
+        private bool _groundDrawn;
 
         private Option<MapQuakeState> _quakeState;
 
@@ -111,15 +112,11 @@ namespace EndlessClient.Rendering.Map
                 _mapBaseTarget = _renderTargetFactory.CreateRenderTarget(
                     (widthPlus1 + heightPlus1) * 32,
                     (widthPlus1 + heightPlus1) * 16);
+                _groundDrawn = false;
             }
 
             if (Visible)
             {
-                DrawGroundLayerToRenderTarget();
-
-                if (_fixedTimeStepRepository.IsWalkUpdateFrame)
-                    DrawMapToRenderTarget();
-
                 _characterRendererUpdater.UpdateCharacters(gameTime);
                 _npcRendererUpdater.UpdateNPCs(gameTime);
                 _dynamicMapObjectUpdater.UpdateMapObjects(gameTime);
@@ -131,6 +128,12 @@ namespace EndlessClient.Rendering.Map
 
                 foreach (var target in _mapGridEffectRenderers.Values)
                     target.Update();
+
+                if (_fixedTimeStepRepository.IsWalkUpdateFrame)
+                {
+                    DrawGroundLayerToRenderTarget();
+                    DrawMapToRenderTarget();
+                }
             }
 
             _lastMapChecksum = _currentMapProvider.CurrentMap.Properties.ChecksumInt;
@@ -214,8 +217,10 @@ namespace EndlessClient.Rendering.Map
 
         private void DrawGroundLayerToRenderTarget()
         {
-            if (!_mapTransitionState.StartTime.HasValue && _lastMapChecksum == _currentMapProvider.CurrentMap.Properties.ChecksumInt)
+            if (_groundDrawn && (!_mapTransitionState.StartTime.HasValue && _lastMapChecksum == _currentMapProvider.CurrentMap.Properties.ChecksumInt))
                 return;
+
+            _groundDrawn = true;
 
             GraphicsDevice.SetRenderTarget(_mapBaseTarget);
             _sb.Begin();
