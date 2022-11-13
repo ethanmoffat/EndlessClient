@@ -488,6 +488,9 @@ namespace EndlessClient.Rendering.Character
                     _otherPlayerStartSpellCastTimes.Add(_characterRepository.MainCharacter.ID, new RenderFrameActionTime(_characterRepository.MainCharacter.ID));
                     _characterActions.CastSpell(_shoutSpellData.ID, _spellTarget);
                     MainCharacterCancelSpellPrep();
+
+                    var nextRenderProps = _characterRepository.MainCharacter.RenderProperties.WithCurrentAction(CharacterActionState.SpellCast);
+                    _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithRenderProperties(nextRenderProps);
                 }
             });
 
