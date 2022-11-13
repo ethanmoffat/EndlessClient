@@ -99,7 +99,7 @@ namespace EOLib.Domain.Extensions
         {
             // spell cast frame ticks: 0 0 1 1 1
             var props = rp.ToBuilder();
-            props.ActualSpellCastFrame = (props.ActualSpellCastFrame + 1) % CharacterRenderProperties.MAX_NUMBER_OF_ATTACK_FRAMES;
+            props.ActualSpellCastFrame = (props.ActualSpellCastFrame + 1) % CharacterRenderProperties.MAX_NUMBER_OF_WALK_FRAMES;
             props.CurrentAction = props.ActualSpellCastFrame == 0 ? CharacterActionState.Standing : CharacterActionState.SpellCast;
             return props.ToImmutable();
         }
