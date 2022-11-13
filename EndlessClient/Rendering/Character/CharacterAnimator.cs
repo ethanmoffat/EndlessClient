@@ -20,8 +20,8 @@ namespace EndlessClient.Rendering.Character
 {
     public class CharacterAnimator : GameComponent, ICharacterAnimator
     {
-        public const int WALK_FRAME_TIME_MS = 100;
-        public const int ATTACK_FRAME_TIME_MS = 100;
+        public const int WALK_FRAME_TIME_MS = 125;
+        public const int ATTACK_FRAME_TIME_MS = 125;
         public const int EMOTE_FRAME_TIME_MS = 250;
 
         private readonly ICharacterRepository _characterRepository;
@@ -488,6 +488,9 @@ namespace EndlessClient.Rendering.Character
                     _otherPlayerStartSpellCastTimes.Add(_characterRepository.MainCharacter.ID, new RenderFrameActionTime(_characterRepository.MainCharacter.ID));
                     _characterActions.CastSpell(_shoutSpellData.ID, _spellTarget);
                     MainCharacterCancelSpellPrep();
+
+                    var nextRenderProps = _characterRepository.MainCharacter.RenderProperties.WithCurrentAction(CharacterActionState.SpellCast);
+                    _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithRenderProperties(nextRenderProps);
                 }
             });
 

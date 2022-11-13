@@ -22,8 +22,15 @@ namespace EndlessClient.Audio
             _fileNames = Directory.GetFiles(Constants.MfxDirectory, "*.mid");
             Array.Sort(_fileNames);
 
-            var access = MidiAccessManager.Default;
-            _output = access.OpenOutputAsync(access.Outputs.Last().Id).Result;
+            try
+            {
+                var access = MidiAccessManager.Default;
+                _output = access.OpenOutputAsync(access.Outputs.Last().Id).Result;
+            }
+            catch
+            {
+                Console.WriteLine("WARNING: Unable to initialize the midi sound system. Background music will not play.");
+            }
         }
 
         public void PlayBackgroundMusic(int id, MusicControl musicControl)
@@ -80,9 +87,12 @@ namespace EndlessClient.Audio
 
             void StartPlaying()
             {
-                var music = MidiMusic.Read(File.OpenRead(_fileNames[id - 1]));
-                _activePlayer = new MidiPlayer(music, _output);
-                _activePlayer.Play();
+                if (_output != null)
+                {
+                    var music = MidiMusic.Read(File.OpenRead(_fileNames[id - 1]));
+                    _activePlayer = new MidiPlayer(music, _output);
+                    _activePlayer.Play();
+                }
 
                 _activeId = id;
             }
@@ -103,7 +113,7 @@ namespace EndlessClient.Audio
         public void Dispose()
         {
             StopBackgroundMusic();
-            _output.Dispose();
+            _output?.Dispose();
         }
     }
 

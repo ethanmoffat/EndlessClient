@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Runtime.InteropServices;
-using System.Runtime.Versioning;
+using AutomaticTypeMapper;
+
 #if !LINUX
+using System.Runtime.Versioning;
 using System.Windows.Forms;
 #endif
-using AutomaticTypeMapper;
 
 namespace EndlessClient.GameExecution
 {
@@ -31,7 +31,7 @@ namespace EndlessClient.GameExecution
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
 #else
-                throw;
+                Console.WriteLine($"Exception thrown during dependency setup: {ex.Message}\n\n{ex.StackTrace}");
 #endif
                 return false;
             }
@@ -46,12 +46,9 @@ namespace EndlessClient.GameExecution
             catch (Exception ex)
             {
 #if !LINUX
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                    ShowExceptionDialog(ex);
-                else
-                    throw;
+                ShowExceptionDialog(ex);
 #else
-                throw;
+                Console.WriteLine($"Exception thrown during game execution: {ex.Message}\n\n{ex.StackTrace}");
 #endif
             }
         }

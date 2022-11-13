@@ -13,7 +13,7 @@ namespace EndlessClient.Rendering.Effects
         private readonly Texture2D _graphic;
         private readonly Random _random;
 
-        private int _displayFrame;
+        private int _displayFrame = -1;
         private int _actualFrame;
         private int _iterations;
 
