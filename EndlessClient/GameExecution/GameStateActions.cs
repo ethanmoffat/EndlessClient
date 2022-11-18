@@ -6,6 +6,7 @@ using EndlessClient.Audio;
 using EndlessClient.ControlSets;
 using EndlessClient.Network;
 using EOLib.Domain.Character;
+using EOLib.Domain.Login;
 using Microsoft.Xna.Framework;
 
 namespace EndlessClient.GameExecution
@@ -17,6 +18,7 @@ namespace EndlessClient.GameExecution
         private readonly IControlSetRepository _controlSetRepository;
         private readonly IControlSetFactory _controlSetFactory;
         private readonly IEndlessGameProvider _endlessGameProvider;
+        private readonly IPlayerInfoRepository _playerInfoRepository;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IMfxPlayer _mfxPlayer;
 
@@ -24,6 +26,7 @@ namespace EndlessClient.GameExecution
                                 IControlSetRepository controlSetRepository,
                                 IControlSetFactory controlSetFactory,
                                 IEndlessGameProvider endlessGameProvider,
+                                IPlayerInfoRepository playerInfoRepository,
                                 ISfxPlayer sfxPlayer,
                                 IMfxPlayer mfxPlayer)
         {
@@ -31,6 +34,7 @@ namespace EndlessClient.GameExecution
             _controlSetRepository = controlSetRepository;
             _controlSetFactory = controlSetFactory;
             _endlessGameProvider = endlessGameProvider;
+            _playerInfoRepository = playerInfoRepository;
             _sfxPlayer = sfxPlayer;
             _mfxPlayer = mfxPlayer;
         }
@@ -39,6 +43,9 @@ namespace EndlessClient.GameExecution
         {
             if (newState == _gameStateRepository.CurrentState)
                 return;
+
+            if (_gameStateRepository.CurrentState == GameStates.PlayingTheGame)
+                _playerInfoRepository.PlayerIsInGame = false;
 
             var currentSet = _controlSetRepository.CurrentControlSet;
             var nextSet = _controlSetFactory.CreateControlsForState(newState, currentSet);
