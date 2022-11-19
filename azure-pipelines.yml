@@ -2,12 +2,14 @@ name: 1.0.$(rev:rrr)
 
 trigger:
 - master
+- release/*
 
 schedules:
 - cron: 0 5 * * 6
   branches:
     include:
     - master
+    - release/*
   always: true
 
 strategy:
