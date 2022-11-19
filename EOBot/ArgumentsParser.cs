@@ -74,7 +74,7 @@ namespace EOBot
                         break;
                     }
 
-                    var pair = arg.ToLower().Split('=');
+                    var pair = arg.Split('=');
 
                     if (pair.Length != 2)
                     {
@@ -82,7 +82,7 @@ namespace EOBot
                         return;
                     }
 
-                    switch (pair[0])
+                    switch (pair[0].ToLower())
                     {
                         case "script":
                             if (!File.Exists(pair[1]))
