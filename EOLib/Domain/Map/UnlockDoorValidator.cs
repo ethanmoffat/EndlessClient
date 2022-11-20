@@ -1,10 +1,9 @@
-﻿using System;
-using System.Linq;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
-using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 using Optional;
+using Optional.Collections;
+using System.Linq;
 
 namespace EOLib.Domain.Map
 {
@@ -23,24 +22,16 @@ namespace EOLib.Domain.Map
 
         public bool CanMainCharacterOpenDoor(Warp warp)
         {
-            return GetRequiredKey(warp).Match(
-                some: keyName => _characterInventoryProvider
-                    .ItemInventory
-                    .Where(x => _eifFileProvider.EIFFile[x.ItemID].Type == IO.ItemType.Key)
-                    .Select(x => _eifFileProvider.EIFFile[x.ItemID].Name)
-                    .Any(keyName.Equals),
-                none: () => true);
+            return (int)warp.DoorType <= 1 || _characterInventoryProvider.ItemInventory
+                .Any(x => _eifFileProvider.EIFFile[x.ItemID].Type == IO.ItemType.Key && _eifFileProvider.EIFFile[x.ItemID].Key == (int)warp.DoorType);
         }
 
         public Option<string> GetRequiredKey(Warp warp)
         {
-            switch (warp.DoorType)
-            {
-                case DoorSpec.LockedSilver: return Option.Some("Silver Key");
-                case DoorSpec.LockedCrystal: return Option.Some("Crystal Key");
-                case DoorSpec.LockedWraith: return Option.Some("Wraith Key");
-                default: return Option.None<string>();
-            }
+            return warp.SomeWhen(x => (int)x.DoorType > 1)
+                .FlatMap(w => _eifFileProvider.EIFFile
+                    .SingleOrNone(item => item.Type == IO.ItemType.Key && item.Key == (int)w.DoorType)
+                    .Map(x => x.Name));
         }
     }
 
