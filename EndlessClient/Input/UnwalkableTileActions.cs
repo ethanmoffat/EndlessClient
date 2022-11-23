@@ -98,13 +98,13 @@ namespace EndlessClient.Input
             {
                 if (!_unlockDoorValidator.CanMainCharacterOpenDoor(warp))
                 {
-                    var requiredKey = _unlockDoorValidator.GetRequiredKey(warp);
-
                     var messageBox = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.DOOR_LOCKED);
                     messageBox.ShowDialog();
+
+                    var requiredKey = _unlockDoorValidator.GetRequiredKey(warp);
                     _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING,
                         EOResourceID.STATUS_LABEL_THE_DOOR_IS_LOCKED_EXCLAMATION,
-                        " - " + requiredKey);
+                        requiredKey.Match(x => $" - {x}", () => string.Empty));
                 }
                 else if (!_currentMapStateRepository.OpenDoors.Contains(warp) &&
                          !_currentMapStateRepository.PendingDoors.Contains(warp))
