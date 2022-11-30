@@ -8,10 +8,18 @@
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EOLib.Config\EOLib.Config.csproj" />
-    <ProjectReference Include="..\EOLib.IO\EOLib.IO.csproj" />
-    <ProjectReference Include="..\EOLib.Logger\EOLib.Logger.csproj" />
-    <ProjectReference Include="..\EOLib\EOLib.csproj" />
+    <ProjectReference Include="..\EOLib.Config\EOLib.Config.csproj">
+      <ReferenceSourceTarget></ReferenceSourceTarget>
+    </ProjectReference>
+    <ProjectReference Include="..\EOLib.IO\EOLib.IO.csproj">
+      <ReferenceSourceTarget></ReferenceSourceTarget>
+    </ProjectReference>
+    <ProjectReference Include="..\EOLib.Logger\EOLib.Logger.csproj">
+      <ReferenceSourceTarget></ReferenceSourceTarget>
+    </ProjectReference>
+    <ProjectReference Include="..\EOLib\EOLib.csproj">
+      <ReferenceSourceTarget></ReferenceSourceTarget>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.0" />

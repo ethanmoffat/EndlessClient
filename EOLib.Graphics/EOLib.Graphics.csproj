@@ -15,7 +15,7 @@
   <ItemGroup>
     <PackageReference Include="AutomaticTypeMapper" Version="1.4.1" />
     <PackageReference Include="PELoaderLib" Version="1.5.0" />
-    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.0.1641" />
+    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.1.303" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.0.0" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta14" />
   </ItemGroup>
