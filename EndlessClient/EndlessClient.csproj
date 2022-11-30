@@ -50,6 +50,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\Game.ico" />
+    <EmbeddedResource Include="Resources\Icon.bmp">
+      <LogicalName>Icon.bmp</LogicalName>
+    </EmbeddedResource>
     <None Update="ContentPipeline\HairClipTypes.ini">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
