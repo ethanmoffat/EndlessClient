@@ -52,15 +52,30 @@
   </ItemGroup>
   <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
     <Content Include="ContentPipeline\HairClip.mgfx">
+      <PublishFolderType>RootDirectory</PublishFolderType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+<ItemGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
+  <None Include="..\bin\$(Configuration)\client\net6.0-macos\osx-x64\config\*" Link="config\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" PublishFolderType="RootDirectory" />
+  <None Include="..\bin\$(Configuration)\client\net6.0-macos\osx-x64\data\*" Link="data\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" PublishFolderType="RootDirectory" />
+  <None Include="..\bin\$(Configuration)\client\net6.0-macos\osx-x64\gfx\*" Link="gfx\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" PublishFolderType="RootDirectory" />
+  <None Include="..\bin\$(Configuration)\client\net6.0-macos\osx-x64\help\*" Link="help\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" PublishFolderType="RootDirectory" />
+  <None Include="..\bin\$(Configuration)\client\net6.0-macos\osx-x64\jbox\*" Link="jbox\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" PublishFolderType="RootDirectory" />
+  <None Include="..\bin\$(Configuration)\client\net6.0-macos\osx-x64\mfx\*" Link="mfx\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" PublishFolderType="RootDirectory" />
+  <None Include="..\bin\$(Configuration)\client\net6.0-macos\osx-x64\sfx\*" Link="sfx\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" PublishFolderType="RootDirectory" />
+  <None Include="ContentPipeline\bin\MacOSX\Content\*.xnb" Link="ContentPipeline\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" PublishFolderType="Resource" />
+  <None Include="ContentPipeline\bin\MacOSX\Content\ChatBubble\*.xnb" Link="ContentPipeline\ChatBubble\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" PublishFolderType="Resource" />
+  <None Include="ContentPipeline\bin\MacOSX\Content\Fonts\*.xnb" Link="ContentPipeline\Fonts\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" PublishFolderType="Resource" />
+  <None Include="ContentPipeline\bin\MacOSX\Content\Party\*.xnb" Link="ContentPipeline\Party\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" PublishFolderType="Resource" />
+</ItemGroup>
   <ItemGroup>
     <Content Include="Resources\Game.ico" />
     <EmbeddedResource Include="Resources\Icon.bmp">
       <LogicalName>Icon.bmp</LogicalName>
     </EmbeddedResource>
     <None Update="ContentPipeline\HairClipTypes.ini">
+    <None Update="ContentPipeline\HairClipTypes.ini" PublishFolderType="RootDirectory">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

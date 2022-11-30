@@ -130,6 +130,8 @@ namespace EndlessClient.GameExecution
         {
 #if !LINUX && !OSX
             MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+#else
+            Console.WriteLine(message);
 #endif
         }
 
