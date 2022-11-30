@@ -74,7 +74,6 @@
     <EmbeddedResource Include="Resources\Icon.bmp">
       <LogicalName>Icon.bmp</LogicalName>
     </EmbeddedResource>
-    <None Update="ContentPipeline\HairClipTypes.ini">
     <None Update="ContentPipeline\HairClipTypes.ini" PublishFolderType="RootDirectory">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
