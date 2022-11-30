@@ -41,6 +41,15 @@ Download the appropriate [release](https://github.com/ethanmoffat/EndlessClient/
 
 After installing, clone (or fork+clone) this repository locally and open the solution in your IDE of choice for your platform.
 
+### Building on Mac
+
+1. Download and install the [.NET 6.0 SDK (x64)](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-6.0.403-macos-x64-installer).
+2. Link the binary to so it's in path `sudo ln -s /usr/local/share/dotnet/x64/dotnet /usr/local/bin/dotnet`
+3. Run `dotnet build /p:PublishReadyToRun=false /p:TieredCompilation=false --self-contained EndlessClient`
+4. The build will fail do to a using alias already being declared
+4. Run `echo '' > EndlessClient/obj/Debug/net6.0-macos/osx-x64/EndlessClient.GlobalUsings.g.*.generated.cs`
+5. Run the build again `dotnet build /p:PublishReadyToRun=false /p:TieredCompilation=false --self-contained EndlessClient`
+
 <a name="Todo" />Todo list
 ---------------------
 
