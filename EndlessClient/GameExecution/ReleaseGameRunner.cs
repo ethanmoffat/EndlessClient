@@ -1,8 +1,9 @@
 ﻿using System;
 using AutomaticTypeMapper;
+
 using System.Runtime.Versioning;
 
-#if !LINUX
+#if !LINUX && !OSX
 using System.Windows.Forms;
 #endif
 
@@ -51,7 +52,7 @@ namespace EndlessClient.GameExecution
         [SupportedOSPlatform("Windows")]
         private static void ShowExceptionDialog(Exception ex)
         {
-#if !LINUX
+#if !LINUX && !OSX
             Application.EnableVisualStyles();
 
             var exForm = new Form

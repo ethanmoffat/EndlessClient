@@ -8,7 +8,7 @@ using EOLib.Localization;
 using System;
 using System.Net;
 
-#if !LINUX
+#if !LINUX && !OSX
 using System.Windows.Forms;
 #endif
 
@@ -99,7 +99,7 @@ namespace EndlessClient.GameExecution
                         _registry.Resolve<IConfigurationRepository>()
                             .VersionBuild = version;
                     }
-                    
+
                     i++;
                 }
                 else if (string.Equals(arg, "--account_delay_ms") && i < _args.Length - 1)
@@ -128,7 +128,7 @@ namespace EndlessClient.GameExecution
 
         private void ShowErrorMessage(string message, string caption)
         {
-#if !LINUX
+#if !LINUX && !OSX
             MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
 #endif
         }
