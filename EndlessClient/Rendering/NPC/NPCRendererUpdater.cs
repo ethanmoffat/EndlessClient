@@ -1,15 +1,13 @@
-﻿using System;
-using System.Linq;
-using AutomaticTypeMapper;
-using EOLib;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Map;
-using EOLib.Domain.NPC;
 using Microsoft.Xna.Framework;
 using Optional;
+using System;
+using System.Linq;
 
 namespace EndlessClient.Rendering.NPC
 {
-    [MappedType(BaseType = typeof(INPCRendererUpdater))]
+    [AutoMappedType]
     public class NPCRendererUpdater : INPCRendererUpdater
     {
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
@@ -102,6 +100,7 @@ namespace EndlessClient.Rendering.NPC
 
         public void Dispose()
         {
+            _npcStateCache.Reset();
             _npcRendererRepository.Dispose();
         }
     }
