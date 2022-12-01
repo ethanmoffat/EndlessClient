@@ -37,5 +37,17 @@
             ],
             "problemMatcher": "$msCompile"
         },
+        {
+            "label": "build-client-mac",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/EndlessClient/EndlessClient.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
     ]
 }

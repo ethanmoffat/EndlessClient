@@ -38,6 +38,17 @@
             "stopAtEntry": false
         },
         {
+            "name": "EndlessClient - Mac",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-client-mac",
+            "program": "${workspaceFolder}/bin/Debug/client/net6.0-macos/osx-x64/EndlessClient.app/Contents/MacOS/EndlessClient",
+            "args": [],
+            "cwd": "${workspaceFolder}/bin/Debug/client/net6.0-macos/osx-x64/EndlessClient.app",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
             "name": ".NET Core Attach",
             "type": "coreclr",
             "request": "attach"
