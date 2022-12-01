@@ -23,8 +23,7 @@ namespace EndlessClient.Rendering.Character
         HashSet<int> NeedsWarpArriveAnimation { get; }
     }
 
-    [MappedType(BaseType = typeof(ICharacterRendererProvider), IsSingleton = true)]
-    [MappedType(BaseType = typeof(ICharacterRendererRepository), IsSingleton = true)]
+    [AutoMappedType(IsSingleton = true)]
     public class CharacterRendererRepository : ICharacterRendererRepository, ICharacterRendererProvider
     {
         public Option<ICharacterRenderer> MainCharacterRenderer { get; set; }
