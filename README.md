@@ -44,8 +44,8 @@ After installing, clone (or fork+clone) this repository locally and open the sol
 ### Building on Mac
 
 1. Download and install the [.NET 6.0 SDK (x64)](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-6.0.403-macos-x64-installer).
-2. Install XCode from the [AppStore](https://apps.apple.com/us/app/xcode/id497799835?ls=1&mt=12)
-3. Link the binary to so it's in path `sudo ln -s /usr/local/share/dotnet/x64/dotnet /usr/local/bin/dotnet`
+2. Link the binary to so it's in path `sudo ln -s /usr/local/share/dotnet/x64/dotnet /usr/local/bin/dotnet`
+3. Install XCode from the [AppStore](https://apps.apple.com/us/app/xcode/id497799835?ls=1&mt=12)
 4. Run `dotnet build /p:PublishReadyToRun=false /p:TieredCompilation=false --self-contained EndlessClient`
 5. The build will fail due to a using alias already being declared
 6. Run `echo '' > EndlessClient/obj/Debug/net6.0-macos/osx-x64/EndlessClient.GlobalUsings.g.*.generated.cs`
