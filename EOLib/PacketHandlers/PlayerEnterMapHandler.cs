@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
@@ -15,6 +16,7 @@ namespace EOLib.PacketHandlers
     [AutoMappedType]
     public class PlayerEnterMapHandler : InGameOnlyPacketHandler
     {
+        private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _mapStateRepository;
         private readonly ICharacterFromPacketFactory _characterFromPacketFactory;
         private readonly IEIFFileProvider _eifFileProvider;
@@ -25,12 +27,14 @@ namespace EOLib.PacketHandlers
         public override PacketAction Action => PacketAction.Agree;
 
         public PlayerEnterMapHandler(IPlayerInfoProvider playerInfoProvider,
+                                     ICharacterRepository characterRepository,
                                      ICurrentMapStateRepository mapStateRepository,
                                      ICharacterFromPacketFactory characterFromPacketFactory,
                                      IEIFFileProvider eifFileProvider,
                                      IEnumerable<IEffectNotifier> effectNotifiers)
             : base(playerInfoProvider)
         {
+            _characterRepository = characterRepository;
             _mapStateRepository = mapStateRepository;
             _characterFromPacketFactory = characterFromPacketFactory;
             _eifFileProvider = eifFileProvider;
@@ -59,13 +63,23 @@ namespace EOLib.PacketHandlers
             if (packet.ReadChar() != 1)
                 throw new MalformedPacketException("Missing '1' char after warp animation for player enter map handler. Are you using a non-standard version of EOSERV?", packet);
 
-            if (_mapStateRepository.Characters.ContainsKey(character.ID))
+            if (_characterRepository.MainCharacter.ID == character.ID)
+            {
+                var existingCharacter = _characterRepository.MainCharacter;
+                var isRangedWeapon = _eifFileProvider.EIFFile.IsRangedWeapon(character.RenderProperties.WeaponGraphic);
+                _characterRepository.MainCharacter = existingCharacter.WithAppliedData(character, isRangedWeapon);
+                _characterRepository.HasAvatar = true;
+            }
+            else if (_mapStateRepository.Characters.ContainsKey(character.ID))
             {
                 var existingCharacter = _mapStateRepository.Characters[character.ID];
                 var isRangedWeapon = _eifFileProvider.EIFFile.IsRangedWeapon(character.RenderProperties.WeaponGraphic);
-                character = existingCharacter.WithAppliedData(character, isRangedWeapon);
+                _mapStateRepository.Characters[character.ID] = existingCharacter.WithAppliedData(character, isRangedWeapon);
             }
-            _mapStateRepository.Characters[character.ID] = character;
+            else
+            {
+                _mapStateRepository.Characters[character.ID] = character;
+            }
 
             return true;
         }
