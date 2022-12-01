@@ -18,13 +18,13 @@
     <OutputType>Exe</OutputType>
     <DefineConstants>$(DefineConstants);OSX</DefineConstants>
     <MonoGamePlatform>MacOSX</MonoGamePlatform>
+    <ApplicationId>io.moffat.endlessclient</ApplicationId>
   </PropertyGroup>
   <PropertyGroup>
     <_ResolveReferenceDependencies>true</_ResolveReferenceDependencies>
     <NoWarn>CS0649;NU1701</NoWarn>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <OutputPath>..\bin\$(Configuration)\client</OutputPath>
-    <ApplicationId>io.moffat.endlessclient</ApplicationId>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Resources\Game.ico</ApplicationIcon>
