@@ -90,10 +90,8 @@ namespace EndlessClient.Rendering.Character
 
             if (noteIndex >= 0 || IsInstrumentWeapon(_characterRepository.MainCharacter.RenderProperties.WeaponGraphic))
                 Animator.Emote(_characterRepository.MainCharacter.ID, EOLib.Domain.Character.Emote.MusicNotes);
-            Animator.StartMainCharacterAttackAnimation();
+            Animator.StartMainCharacterAttackAnimation(() => PlayWeaponSound(_characterRepository.MainCharacter, noteIndex));
             ShowWaterSplashiesIfNeeded(CharacterActionState.Attacking, _characterRepository.MainCharacter.ID);
-
-            PlayWeaponSound(_characterRepository.MainCharacter, noteIndex);
         }
 
         public bool PrepareMainCharacterSpell(int spellId, ISpellTargetable spellTarget)
@@ -137,10 +135,8 @@ namespace EndlessClient.Rendering.Character
             if (noteIndex >= 0 || IsInstrumentWeapon(_currentMapStateProvider.Characters[characterID].RenderProperties.WeaponGraphic))
                 Animator.Emote(characterID, EOLib.Domain.Character.Emote.MusicNotes);
 
-            Animator.StartOtherCharacterAttackAnimation(characterID);
+            Animator.StartOtherCharacterAttackAnimation(characterID, () => PlayWeaponSound(_currentMapStateProvider.Characters[characterID], noteIndex));
             ShowWaterSplashiesIfNeeded(CharacterActionState.Attacking, characterID);
-
-            PlayWeaponSound(_currentMapStateProvider.Characters[characterID], noteIndex);
         }
 
         public void NotifyWarpLeaveEffect(short characterId, WarpAnimation anim)

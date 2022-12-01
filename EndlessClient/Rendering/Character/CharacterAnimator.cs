@@ -161,7 +161,7 @@ namespace EndlessClient.Rendering.Character
             }
         }
 
-        public void StartMainCharacterAttackAnimation()
+        public void StartMainCharacterAttackAnimation(Action sfxCallback)
         {
             if (_otherPlayerStartAttackingTimes.ContainsKey(_characterRepository.MainCharacter.ID))
             {
@@ -169,7 +169,7 @@ namespace EndlessClient.Rendering.Character
                 return;
             }
 
-            var startAttackingTime = new RenderFrameActionTime(_characterRepository.MainCharacter.ID);
+            var startAttackingTime = new RenderFrameActionTime(_characterRepository.MainCharacter.ID, sfxCallback);
             _otherPlayerStartAttackingTimes.Add(_characterRepository.MainCharacter.ID, startAttackingTime);
         }
 
@@ -208,7 +208,7 @@ namespace EndlessClient.Rendering.Character
             _otherPlayerStartWalkingTimes.Add(characterID, startWalkingTimeAndID);
         }
 
-        public void StartOtherCharacterAttackAnimation(int characterID)
+        public void StartOtherCharacterAttackAnimation(int characterID, Action sfxCallback)
         {
             if (_otherPlayerStartAttackingTimes.ContainsKey(characterID))
             {
@@ -216,7 +216,7 @@ namespace EndlessClient.Rendering.Character
                 return;
             }
 
-            var startAttackingTime = new RenderFrameActionTime(characterID);
+            var startAttackingTime = new RenderFrameActionTime(characterID, sfxCallback);
             _otherPlayerStartAttackingTimes.Add(characterID, startAttackingTime);
         }
 
@@ -450,6 +450,9 @@ namespace EndlessClient.Rendering.Character
                             var renderProperties = currentCharacter.RenderProperties;
                             var nextFrameRenderProperties = renderProperties.WithNextAttackFrame();
 
+                            if (nextFrameRenderProperties.ActualAttackFrame == 2)
+                                pair.SoundEffect();
+
                             pair.UpdateActionStartTime();
                             if (nextFrameRenderProperties.IsActing(CharacterActionState.Standing))
                             {
@@ -591,7 +594,7 @@ namespace EndlessClient.Rendering.Character
 
         void StartMainCharacterWalkAnimation(Option<MapCoordinate> targetCoordinate, Action sfxCallback);
 
-        void StartMainCharacterAttackAnimation();
+        void StartMainCharacterAttackAnimation(Action sfxCallback);
 
         bool MainCharacterShoutSpellPrep(ESFRecord spellData, ISpellTargetable spellTarget);
 
@@ -599,7 +602,7 @@ namespace EndlessClient.Rendering.Character
 
         void StartOtherCharacterWalkAnimation(int characterID, byte targetX, byte targetY, EODirection direction);
 
-        void StartOtherCharacterAttackAnimation(int characterID);
+        void StartOtherCharacterAttackAnimation(int characterID, Action sfxCallback);
 
         void StartOtherCharacterSpellCast(int characterID);
 
