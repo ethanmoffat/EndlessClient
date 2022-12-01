@@ -226,7 +226,8 @@ namespace EndlessClient.Rendering.Character
 
         public override void Draw(GameTime gameTime)
         {
-            if (!Visible || _sb.IsDisposed)
+            if (!Visible || _sb.IsDisposed ||
+                (Character == _characterProvider.MainCharacter && !_characterProvider.HasAvatar))
                 return;
 
             if (!Character.RenderProperties.IsHidden || _characterProvider.MainCharacter.AdminLevel > 0)

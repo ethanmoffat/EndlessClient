@@ -1,4 +1,6 @@
 ﻿using AutomaticTypeMapper;
+using EOLib.Domain.Character;
+using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
@@ -11,6 +13,7 @@ namespace EOLib.PacketHandlers
     [AutoMappedType]
     public class PlayerLeaveMapHandler : InGameOnlyPacketHandler
     {
+        private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IEnumerable<IEffectNotifier> _effectNotifiers;
 
@@ -19,10 +22,12 @@ namespace EOLib.PacketHandlers
         public override PacketAction Action => PacketAction.Remove;
 
         public PlayerLeaveMapHandler(IPlayerInfoProvider playerInfoProvider,
+                                     ICharacterRepository characterRepository,
                                      ICurrentMapStateRepository currentMapStateRepository,
                                      IEnumerable<IEffectNotifier> effectNotifiers)
             : base(playerInfoProvider)
         {
+            _characterRepository = characterRepository;
             _currentMapStateRepository = currentMapStateRepository;
             _effectNotifiers = effectNotifiers;
         }
@@ -31,19 +36,23 @@ namespace EOLib.PacketHandlers
         {
             var id = packet.ReadShort();
 
-            var anim = WarpAnimation.None;
             if (packet.ReadPosition < packet.Length)
             {
-                anim = (WarpAnimation)packet.ReadChar();
+                var anim = (WarpAnimation)packet.ReadChar();
                 foreach (var notifier in _effectNotifiers)
                     notifier.NotifyWarpLeaveEffect(id, anim);
             }
 
-            if (_currentMapStateRepository.Characters.ContainsKey(id))
+            if (_characterRepository.MainCharacter.ID == id)
+            {
+                _characterRepository.HasAvatar = false;
+                _currentMapStateRepository.VisibleSpikeTraps.Remove(_characterRepository.MainCharacter.RenderProperties.Coordinates());
+            }
+            else if (_currentMapStateRepository.Characters.ContainsKey(id))
             {
                 var character = _currentMapStateRepository.Characters[id];
                 _currentMapStateRepository.Characters.Remove(id);
-                _currentMapStateRepository.VisibleSpikeTraps.Remove(new MapCoordinate(character.RenderProperties.MapX, character.RenderProperties.MapY));
+                _currentMapStateRepository.VisibleSpikeTraps.Remove(character.RenderProperties.Coordinates());
             }
             else
             {
