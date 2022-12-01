@@ -3,8 +3,6 @@ using EndlessClient.Controllers;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD;
 using EndlessClient.Input;
-using EndlessClient.Rendering.Character;
-using EOLib.Domain.Character;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
@@ -16,7 +14,6 @@ namespace EndlessClient.Rendering.Factories
     public class MouseCursorRendererFactory : IMouseCursorRendererFactory
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
-        private readonly ICharacterProvider _characterProvider;
         private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
         private readonly IMapCellStateProvider _mapCellStateProvider;
         private readonly IItemStringService _itemStringService;
@@ -29,7 +26,6 @@ namespace EndlessClient.Rendering.Factories
         private readonly IContextMenuProvider _contextMenuProvider;
 
         public MouseCursorRendererFactory(INativeGraphicsManager nativeGraphicsManager,
-                                          ICharacterProvider characterProvider,
                                           IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
                                           IMapCellStateProvider mapCellStateProvider,
                                           IItemStringService itemStringService,
@@ -42,7 +38,6 @@ namespace EndlessClient.Rendering.Factories
                                           IContextMenuProvider contextMenuProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
-            _characterProvider = characterProvider;
             _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
             _mapCellStateProvider = mapCellStateProvider;
             _itemStringService = itemStringService;
@@ -58,7 +53,6 @@ namespace EndlessClient.Rendering.Factories
         public IMouseCursorRenderer Create()
         {
             return new MouseCursorRenderer(_nativeGraphicsManager,
-                                           _characterProvider,
                                            _gridDrawCoordinateCalculator,
                                            _mapCellStateProvider,
                                            _itemStringService,

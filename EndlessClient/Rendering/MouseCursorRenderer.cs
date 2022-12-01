@@ -34,7 +34,6 @@ namespace EndlessClient.Rendering
         private readonly Rectangle SingleCursorFrameArea;
 
         private readonly Texture2D _mouseCursorTexture;
-        private readonly ICharacterProvider _characterProvider;
         private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
         private readonly IMapCellStateProvider _mapCellStateProvider;
         private readonly IItemStringService _itemStringService;
@@ -59,7 +58,6 @@ namespace EndlessClient.Rendering
         public MapCoordinate GridCoordinates => new MapCoordinate(_gridX, _gridY);
 
         public MouseCursorRenderer(INativeGraphicsManager nativeGraphicsManager,
-                                   ICharacterProvider characterProvider,
                                    IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
                                    IMapCellStateProvider mapCellStateProvider,
                                    IItemStringService itemStringService,
@@ -72,7 +70,6 @@ namespace EndlessClient.Rendering
                                    IContextMenuProvider contextMenuProvider)
         {
             _mouseCursorTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 24, true);
-            _characterProvider = characterProvider;
             _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
             _mapCellStateProvider = mapCellStateProvider;
             _itemStringService = itemStringService;
