@@ -27,7 +27,7 @@ strategy:
       dropDir: net6.0-windows
       additionalBuildArgs: ""
     macos:
-      imageName: "macOS-12"
+      imageName: "macOS-latest"
       solutionName: "EndlessClient"
       friendlyPlatform: "macOS"
       dropDir: net6.0-macos
@@ -100,6 +100,22 @@ steps:
     command: 'restore'
     verbosityRestore: 'minimal'
     projects: '$(solutionName)'
+
+# Workaround for compilation error due to generated code / Xamarin stuff on macOS
+#
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet build (first pass - macOS only)'
+  continueOnError: true
+  condition: eq(variables['friendlyPlatform'], 'macOS')
+  inputs:
+    command: 'build'
+    projects: '$(solutionName)'
+    arguments: '--configuration $(buildConfiguration) $(additionalBuildArgs)'
+- script: |
+    echo '' > EndlessClient/obj/$(buildConfiguration)/net6.0-macos/osx-x64/EndlessClient.GlobalUsings.g.*.generated.cs
+  displayName: 'Erase generated code (macOS only)'
+  condition: eq(variables['friendlyPlatform'], 'macOS')
+
 - task: DotNetCoreCLI@2
   displayName: 'dotnet build'
   inputs:
