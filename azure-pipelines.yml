@@ -19,11 +19,19 @@ strategy:
       solutionName: "EndlessClient.Linux.sln"
       friendlyPlatform: "Linux"
       dropDir: net6.0
+      additionalBuildArgs: ""
     windows:
       imageName: "windows-latest"
       solutionName: "EndlessClient.sln"
       friendlyPlatform: "Windows"
       dropDir: net6.0-windows
+      additionalBuildArgs: ""
+    macos:
+      imageName: "macOS-latest"
+      solutionName: "EndlessClient"
+      friendlyPlatform: "macOS"
+      dropDir: net6.0-macos
+      additionalBuildArgs: "/p:PublishReadyToRun=false /p:TieredCompilation=false --self-contained"
 
 pool:
   vmImage: $(imageName)
@@ -34,11 +42,6 @@ variables:
 steps:
 - checkout: self
   persistCredentials: true
-- task: UseDotNet@2
-  displayName: 'Install .Net core 3.1.x runtime'
-  inputs:
-    packageType: runtime
-    version: 3.1.x
 - task: UseDotNet@2
   displayName: 'Install .Net 6 runtime/sdk'
   inputs:
@@ -53,7 +56,7 @@ steps:
     WriteBOM: false
     GenerateDocumentationFile: 'false'
     Authors: 'Ethan Moffat'
-    Copyright: 'Copyright © 2014-2022 Ethan Moffat'
+    Copyright: 'Copyright © 2014-2023 Ethan Moffat'
     VersionNumber: '$(Build.BuildNumber)'
     FileVersionNumber: '$(Build.BuildNumber)'
     InformationalVersion: '$(Build.BuildNumber)'
@@ -86,7 +89,7 @@ steps:
   inputs:
     command: 'restore'
     verbosityRestore: 'minimal'
-    projects: '$(Build.SourcesDirectory)/$(solutionName)'
+    projects: '$(solutionName)'
 - script: |
     echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections
     sudo apt-get install -y ttf-mscorefonts-installer && sudo fc-cache -f
@@ -96,13 +99,13 @@ steps:
   displayName: 'dotnet build'
   inputs:
     command: 'build'
-    projects: '$(Build.SourcesDirectory)/$(solutionName)'
-    arguments: '--configuration $(buildConfiguration)'
+    projects: '$(solutionName)'
+    arguments: '--configuration $(buildConfiguration) $(additionalBuildArgs)'
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test - skipping EOLib.Graphics.Test (not supported on VSTS agent)'
   inputs:
     command: 'test'
-    projects: '$(Build.SourcesDirectory)/$(solutionName)'
+    projects: '$(solutionName)'
     arguments: '--filter "TestCategory!=GraphicsDevice" --configuration $(buildConfiguration)'
     testRunTitle: $(friendlyPlatform)
 
