@@ -27,7 +27,7 @@ strategy:
       dropDir: net6.0-windows
       additionalBuildArgs: ""
     macos:
-      imageName: "macOS-latest"
+      imageName: "macOS-12"
       solutionName: "EndlessClient"
       friendlyPlatform: "macOS"
       dropDir: net6.0-macos
