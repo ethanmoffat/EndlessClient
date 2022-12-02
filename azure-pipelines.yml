@@ -19,18 +19,21 @@ strategy:
       solutionName: "EndlessClient.Linux.sln"
       friendlyPlatform: "Linux"
       dropDir: net6.0
+      botDropDir: net6.0
       additionalBuildArgs: ""
     windows:
       imageName: "windows-latest"
       solutionName: "EndlessClient.sln"
       friendlyPlatform: "Windows"
       dropDir: net6.0-windows
+      botDropDir: net6.0
       additionalBuildArgs: ""
     macos:
       imageName: "macOS-12"
       solutionName: "EndlessClient"
       friendlyPlatform: "macOS"
-      dropDir: net6.0-macos
+      dropDir: net6.0-macos/osx-x64/EndlessClient.app
+      botDropDir: net6.0-macos
       additionalBuildArgs: "/p:PublishReadyToRun=false /p:TieredCompilation=false --self-contained"
 
 pool:
@@ -145,7 +148,7 @@ steps:
 - task: ArchiveFiles@2
   displayName: 'ZIP EOBot'
   inputs:
-    rootFolderOrFile: $(Build.SourcesDirectory)/bin/$(buildConfiguration)/utils/EOBot/$(dropDir)/
+    rootFolderOrFile: $(Build.SourcesDirectory)/bin/$(buildConfiguration)/utils/EOBot/$(botDropDir)/
     archiveFile: $(Build.ArtifactStagingDirectory)/zip/EOBot.$(friendlyPlatform).zip
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifacts'
