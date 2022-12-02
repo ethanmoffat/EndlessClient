@@ -170,8 +170,7 @@ namespace EndlessClient.Controllers
                 && !_spellSlotDataRepository.SelectedSpellSlot.HasValue)
             {
                 mouseRenderer.MatchSome(r => r.AnimateClick());
-                _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator)
-                    .StartMainCharacterWalkAnimation(Option.Some(cellState.Coordinate), PlayMainCharacterWalkSfx);
+                _characterAnimationActions.StartWalking(Option.Some(cellState.Coordinate));
 
                 _userInputRepository.ClickHandled = true;
                 _userInputRepository.WalkClickHandled = true;

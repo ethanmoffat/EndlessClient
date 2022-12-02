@@ -6,6 +6,7 @@ using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
+using Optional;
 
 namespace EndlessClient.Controllers
 {
@@ -107,7 +108,7 @@ namespace EndlessClient.Controllers
             }
             else
             {
-                _characterAnimationActions.StartWalking();
+                _characterAnimationActions.StartWalking(Option.None<MapCoordinate>());
 
                 var coordinate = new MapCoordinate(
                     _characterProvider.MainCharacter.RenderProperties.MapX,
