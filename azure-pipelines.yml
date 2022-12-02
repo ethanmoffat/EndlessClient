@@ -31,7 +31,7 @@ strategy:
       solutionName: "EndlessClient.Linux.sln"
       friendlyPlatform: "macOS"
       dropDir: net6.0-macos
-      additionalBuildArgs: "/p:PublishReadyToRun=false /p:TieredCompilation=false --self-contained"
+      additionalBuildArgs: "/p:PublishReadyToRun=false /p:TieredCompilation=false --self-contained --runtime osx-x64"
 
 pool:
   vmImage: $(imageName)
