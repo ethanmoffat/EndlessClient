@@ -147,7 +147,7 @@ namespace EndlessClient.HUD.Chat
 
                 if (Active)
                 {
-                    _scrollBar.UpdateDimensions(_cachedChat.Count);
+                    _scrollBar.UpdateDimensions(_renderables.Count);
                     _scrollBar.ScrollToEnd();
                 }
                 else
