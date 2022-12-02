@@ -71,14 +71,17 @@ namespace EndlessClient.Rendering.Character
             Animator.MainCharacterFace(direction);
         }
 
-        public void StartWalking()
+        public void StartWalking(Option<MapCoordinate> targetCoordinate)
         {
             if (!_hudControlProvider.IsInGame)
                 return;
 
             CancelSpellPrep();
-            Animator.StartMainCharacterWalkAnimation(Option.None<MapCoordinate>(), PlayMainCharacterWalkSfx);
-            ShowWaterSplashiesIfNeeded(CharacterActionState.Walking, _characterRepository.MainCharacter.ID);
+            Animator.StartMainCharacterWalkAnimation(targetCoordinate, () =>
+            {
+                PlayMainCharacterWalkSfx();
+                ShowWaterSplashiesIfNeeded(CharacterActionState.Walking, _characterRepository.MainCharacter.ID);
+            });
         }
 
         public void StartAttacking(int noteIndex = -1)
@@ -441,7 +444,7 @@ namespace EndlessClient.Rendering.Character
     {
         void Face(EODirection direction);
 
-        void StartWalking();
+        void StartWalking(Option<MapCoordinate> targetCoordinate);
 
         void StartAttacking(int noteIndex = -1);
 
