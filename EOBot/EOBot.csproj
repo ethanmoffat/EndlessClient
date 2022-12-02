@@ -5,6 +5,11 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <OutputPath>..\bin\$(Configuration)\utils\EOBot\</OutputPath>
   </PropertyGroup>
+  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
+    <TargetFramework>net6.0-macos</TargetFramework>
+    <DefineConstants>$(DefineConstants);OSX</DefineConstants>
+    <ApplicationId>io.moffat.eobot</ApplicationId>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\EOLib.Config\EOLib.Config.csproj" />
     <ProjectReference Include="..\EOLib.IO\EOLib.IO.csproj" />
