@@ -28,7 +28,7 @@ strategy:
       additionalBuildArgs: ""
     macos:
       imageName: "macOS-12"
-      solutionName: "EndlessClient"
+      solutionName: "EndlessClient.Linux.sln"
       friendlyPlatform: "macOS"
       dropDir: net6.0-macos
       additionalBuildArgs: "/p:PublishReadyToRun=false /p:TieredCompilation=false --self-contained"
