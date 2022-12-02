@@ -134,6 +134,7 @@ namespace EndlessClient.Rendering
             // todo: WTF
             // this fixes the weird shifting issue with the base layers
             // not sure why they're weirdly offset in the first place
+            // see also: EffectRenderer::GetCharacterBasePosition
             var props = _characterProvider.MainCharacter.RenderProperties;
             props = props.IsActing(CharacterActionState.Walking)
                 ? props.WithActualWalkFrame(props.ActualWalkFrame - 1)

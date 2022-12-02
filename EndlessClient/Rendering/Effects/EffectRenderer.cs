@@ -1,4 +1,5 @@
 ﻿using EndlessClient.Audio;
+using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
@@ -25,6 +26,7 @@ namespace EndlessClient.Rendering.Effects
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
+        private readonly ICharacterProvider _characterProvider;
 
         private Option<MapCoordinate> _targetCoordinate;
         private Option<IMapActor> _targetActor;
@@ -43,12 +45,14 @@ namespace EndlessClient.Rendering.Effects
         public EffectRenderer(IEffectSpriteManager effectSpriteManager,
                               ISfxPlayer sfxPlayer,
                               IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
-                              IRenderOffsetCalculator renderOffsetCalculator)
+                              IRenderOffsetCalculator renderOffsetCalculator,
+                              ICharacterProvider characterProvider)
         {
             _effectSpriteManager = effectSpriteManager;
             _sfxPlayer = sfxPlayer;
             _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
             _renderOffsetCalculator = renderOffsetCalculator;
+            _characterProvider = characterProvider;
             _lastFrameTimer = new Stopwatch();
             _effectInfo = new List<IEffectSpriteInfo>();
         }
@@ -163,14 +167,8 @@ namespace EndlessClient.Rendering.Effects
                     {
                         return actor.SpellTarget switch
                         {
-                            DomainCharacter c =>
-                                _gridDrawCoordinateCalculator.CalculateBaseLayerDrawCoordinatesFromGridUnits(c.RenderProperties.Coordinates()) +
-                                    new Vector2(_renderOffsetCalculator.CalculateWalkAdjustX(c.RenderProperties),
-                                                _renderOffsetCalculator.CalculateWalkAdjustY(c.RenderProperties)),
-                            DomainNPC n => 
-                                _gridDrawCoordinateCalculator.CalculateBaseLayerDrawCoordinatesFromGridUnits(n.X, n.Y) +
-                                    new Vector2(_renderOffsetCalculator.CalculateWalkAdjustX(n),
-                                                _renderOffsetCalculator.CalculateWalkAdjustY(n)),
+                            DomainCharacter c => GetCharacterBasePosition(c),
+                            DomainNPC n => GetNPCBasePosition(n),
                             _ => Vector2.Zero
                         };
                     },
@@ -183,6 +181,28 @@ namespace EndlessClient.Rendering.Effects
 
             if (!beginHasBeenCalled)
                 sb.End();
+        }
+
+        private Vector2 GetCharacterBasePosition(DomainCharacter c)
+        {
+            // todo: WTF
+            // this fixes the weird shifting issue with the base layers
+            // not sure why they're weirdly offset in the first place
+            // see also: GridDrawCoordinateCalculator::CalculateGroundLayerCharacterOffsets
+            var rp = c.RenderProperties;
+            if (c == _characterProvider.MainCharacter && rp.IsActing(CharacterActionState.Walking))
+            {
+                rp = rp.WithActualWalkFrame(rp.ActualWalkFrame - 1);
+            }
+
+            var walkExtra = new Vector2(_renderOffsetCalculator.CalculateWalkAdjustX(rp), _renderOffsetCalculator.CalculateWalkAdjustY(rp));
+            return _gridDrawCoordinateCalculator.CalculateBaseLayerDrawCoordinatesFromGridUnits(rp.Coordinates()) + walkExtra;
+        }
+
+        private Vector2 GetNPCBasePosition(DomainNPC n)
+        {
+            var walkExtra = new Vector2(_renderOffsetCalculator.CalculateWalkAdjustX(n), _renderOffsetCalculator.CalculateWalkAdjustY(n));
+            return _gridDrawCoordinateCalculator.CalculateBaseLayerDrawCoordinatesFromGridUnits(n.X, n.Y) + walkExtra;
         }
     }
 
