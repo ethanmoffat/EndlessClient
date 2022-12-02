@@ -28,10 +28,10 @@ strategy:
       additionalBuildArgs: ""
     macos:
       imageName: "macOS-12"
-      solutionName: "EndlessClient.Linux.sln"
+      solutionName: "EndlessClient"
       friendlyPlatform: "macOS"
       dropDir: net6.0-macos
-      additionalBuildArgs: "/p:PublishReadyToRun=false /p:TieredCompilation=false --self-contained --runtime osx-x64"
+      additionalBuildArgs: "/p:PublishReadyToRun=false /p:TieredCompilation=false --self-contained"
 
 pool:
   vmImage: $(imageName)
@@ -117,11 +117,18 @@ steps:
   condition: eq(variables['friendlyPlatform'], 'macOS')
 
 - task: DotNetCoreCLI@2
-  displayName: 'dotnet build'
+  displayName: 'dotnet build - $(solutionName)'
   inputs:
     command: 'build'
     projects: '$(solutionName)'
     arguments: '--configuration $(buildConfiguration) $(additionalBuildArgs)'
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet build - EOBot (macOS)'
+  inputs:
+    command: 'build'
+    projects: 'EOBot'
+    arguments: '--configuration $(buildConfiguration) $(additionalBuildArgs)'
+  condition: eq(variables['friendlyPlatform'], 'macOS')
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test - skipping EOLib.Graphics.Test (not supported on VSTS agent)'
   inputs:
