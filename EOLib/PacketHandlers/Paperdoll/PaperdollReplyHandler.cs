@@ -7,8 +7,11 @@ using EOLib.Net;
 using EOLib.Net.Handlers;
 using System.Collections.Generic;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Paperdoll
 {
+    /// <summary>
+    /// Sets paperdoll information for a given player
+    /// </summary>
     [AutoMappedType]
     internal class PaperdollReplyHandler : InGameOnlyPacketHandler
     {
@@ -63,6 +66,6 @@ namespace EOLib.PacketHandlers
             _paperdollRepository.VisibleCharacterPaperdolls[playerID] = paperdollData;
 
             return true;
-    }
+        }
     }
 }

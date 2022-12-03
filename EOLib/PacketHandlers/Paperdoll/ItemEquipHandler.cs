@@ -1,5 +1,4 @@
-﻿using AutomaticTypeMapper;
-using EOLib.Domain.Character;
+﻿using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.IO.Extensions;
@@ -9,8 +8,11 @@ using Optional;
 using Optional.Collections;
 using System.Linq;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Paperdoll
 {
+    /// <summary>
+    /// Base handler for Paperdoll equip/unequip
+    /// </summary>
     public abstract class ItemEquipHandler : PlayerAvatarChangeHandler
     {
         private readonly IPaperdollRepository _paperdollRepository;
@@ -115,52 +117,6 @@ namespace EOLib.PacketHandlers
             });
 
             return true;
-        }
-    }
-
-    [AutoMappedType]
-    public class PaperdollAgreeHandler : ItemEquipHandler
-    {
-        public override PacketFamily Family => PacketFamily.PaperDoll;
-
-        public override PacketAction Action => PacketAction.Agree;
-
-        public PaperdollAgreeHandler(IPlayerInfoProvider playerInfoProvider,
-                                      ICurrentMapStateRepository currentMapStateRepository,
-                                      ICharacterRepository characterRepository,
-                                      IEIFFileProvider eifFileProvider,
-                                      IPaperdollRepository paperdollRepository,
-                                      ICharacterInventoryRepository characterInventoryRepository)
-            : base(playerInfoProvider, currentMapStateRepository, characterRepository, eifFileProvider, paperdollRepository, characterInventoryRepository)
-        {
-        }
-
-        public override bool HandlePacket(IPacket packet)
-        {
-            return HandlePaperdollPacket(packet, itemUnequipped: false);
-        }
-    }
-
-    [AutoMappedType]
-    public class PaperdollRemoveHandler : ItemEquipHandler
-    {
-        public override PacketFamily Family => PacketFamily.PaperDoll;
-
-        public override PacketAction Action => PacketAction.Remove;
-
-        public PaperdollRemoveHandler(IPlayerInfoProvider playerInfoProvider,
-                                      ICurrentMapStateRepository currentMapStateRepository,
-                                      ICharacterRepository characterRepository,
-                                      IEIFFileProvider eifFileProvider,
-                                      IPaperdollRepository paperdollRepository,
-                                      ICharacterInventoryRepository characterInventoryRepository)
-            : base(playerInfoProvider, currentMapStateRepository, characterRepository, eifFileProvider, paperdollRepository, characterInventoryRepository)
-        {
-        }
-
-        public override bool HandlePacket(IPacket packet)
-        {
-            return HandlePaperdollPacket(packet, itemUnequipped: true);
         }
     }
 }
