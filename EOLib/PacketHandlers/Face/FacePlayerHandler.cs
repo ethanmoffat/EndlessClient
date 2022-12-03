@@ -4,10 +4,13 @@ using EOLib.Domain.Map;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Face
 {
+    /// <summary>
+    /// Player changing direction
+    /// </summary>
     [AutoMappedType]
-    public class PlayerDirectionHandler : InGameOnlyPacketHandler
+    public class FacePlayerHandler : InGameOnlyPacketHandler
     {
         private readonly ICurrentMapStateRepository _mapStateRepository;
 
@@ -15,8 +18,8 @@ namespace EOLib.PacketHandlers
 
         public override PacketAction Action => PacketAction.Player;
 
-        public PlayerDirectionHandler(IPlayerInfoProvider playerInfoProvider,
-                                      ICurrentMapStateRepository mapStateRepository)
+        public FacePlayerHandler(IPlayerInfoProvider playerInfoProvider,
+                                 ICurrentMapStateRepository mapStateRepository)
             : base(playerInfoProvider)
         {
             _mapStateRepository = mapStateRepository;
@@ -25,7 +28,7 @@ namespace EOLib.PacketHandlers
         public override bool HandlePacket(IPacket packet)
         {
             var id = packet.ReadShort();
-            var direction = (EODirection) packet.ReadChar();
+            var direction = (EODirection)packet.ReadChar();
 
             if (!_mapStateRepository.Characters.ContainsKey(id))
                 return false;
