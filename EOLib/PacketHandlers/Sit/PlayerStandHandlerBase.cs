@@ -1,22 +1,24 @@
-﻿using AutomaticTypeMapper;
-using EOLib.Domain.Character;
+﻿using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Sit
 {
-    public abstract class PlayerStandHandler : InGameOnlyPacketHandler
+    /// <summary>
+    /// Base class for handling a character standing up
+    /// </summary>
+    public abstract class PlayerStandHandlerBase : InGameOnlyPacketHandler
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
 
         public override PacketFamily Family => PacketFamily.Sit;
 
-        public PlayerStandHandler(IPlayerInfoProvider playerInfoProvider,
-                                  ICharacterRepository characterRepository,
-                                  ICurrentMapStateRepository currentMapStateRepository)
+        public PlayerStandHandlerBase(IPlayerInfoProvider playerInfoProvider,
+                                      ICharacterRepository characterRepository,
+                                      ICurrentMapStateRepository currentMapStateRepository)
             : base(playerInfoProvider)
         {
             _characterRepository = characterRepository;
@@ -55,38 +57,5 @@ namespace EOLib.PacketHandlers
 
             return true;
         }
-    }
-
-    [AutoMappedType]
-    public class OtherPlayerStandHandler : PlayerStandHandler
-    {
-        public override PacketAction Action => PacketAction.Remove;
-
-        public OtherPlayerStandHandler(IPlayerInfoProvider playerInfoProvider,
-                                       ICharacterRepository characterRepository,
-                                       ICurrentMapStateRepository currentMapStateRepository)
-            : base(playerInfoProvider, characterRepository, currentMapStateRepository) { }
-    }
-
-    [AutoMappedType]
-    public class MainPlayerStandHandler : PlayerStandHandler
-    {
-        public override PacketAction Action => PacketAction.Close;
-
-        public MainPlayerStandHandler(IPlayerInfoProvider playerInfoProvider,
-                                      ICharacterRepository characterRepository,
-                                      ICurrentMapStateRepository currentMapStateRepository)
-            : base(playerInfoProvider, characterRepository, currentMapStateRepository) { }
-    }
-
-    [AutoMappedType]
-    public class MainPlayerStandFromChairHandler : MainPlayerStandHandler
-    {
-        public override PacketFamily Family => PacketFamily.Chair;
-
-        public MainPlayerStandFromChairHandler(IPlayerInfoProvider playerInfoProvider,
-                                               ICharacterRepository characterRepository,
-                                               ICurrentMapStateRepository currentMapStateRepository)
-            : base(playerInfoProvider, characterRepository, currentMapStateRepository) { }
     }
 }

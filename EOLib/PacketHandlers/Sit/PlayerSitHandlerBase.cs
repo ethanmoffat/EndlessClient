@@ -1,22 +1,24 @@
-﻿using AutomaticTypeMapper;
-using EOLib.Domain.Character;
+﻿using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Sit
 {
-    public abstract class PlayerSitHandler : InGameOnlyPacketHandler
+    /// <summary>
+    /// Base class for handling a character sitting down
+    /// </summary>
+    public abstract class PlayerSitHandlerBase : InGameOnlyPacketHandler
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
 
         public override PacketAction Action => PacketAction.Player;
 
-        public PlayerSitHandler(IPlayerInfoProvider playerInfoProvider,
-                                ICharacterRepository characterRepository,
-                                ICurrentMapStateRepository currentMapStateRepository)
+        public PlayerSitHandlerBase(IPlayerInfoProvider playerInfoProvider,
+                                    ICharacterRepository characterRepository,
+                                    ICurrentMapStateRepository currentMapStateRepository)
             : base(playerInfoProvider)
         {
             _characterRepository = characterRepository;
@@ -64,27 +66,5 @@ namespace EOLib.PacketHandlers
 
             return true;
         }
-    }
-
-    [AutoMappedType]
-    public class PlayerSitFloorHandler : PlayerSitHandler
-    {
-        public override PacketFamily Family => PacketFamily.Sit;
-
-        public PlayerSitFloorHandler(IPlayerInfoProvider playerInfoProvider,
-                                     ICharacterRepository characterRepository,
-                                     ICurrentMapStateRepository currentMapStateRepository)
-            : base(playerInfoProvider, characterRepository, currentMapStateRepository) { }
-    }
-
-    [AutoMappedType]
-    public class PlayerSitChairHandler : PlayerSitHandler
-    {
-        public override PacketFamily Family => PacketFamily.Chair;
-
-        public PlayerSitChairHandler(IPlayerInfoProvider playerInfoProvider,
-                                     ICharacterRepository characterRepository,
-                                     ICurrentMapStateRepository currentMapStateRepository)
-            : base(playerInfoProvider, characterRepository, currentMapStateRepository) { }
     }
 }
