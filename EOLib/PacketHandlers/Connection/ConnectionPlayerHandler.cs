@@ -1,21 +1,19 @@
 ﻿using AutomaticTypeMapper;
-using EOLib.Logger;
 using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.Handlers;
 using EOLib.Net.PacketProcessing;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Connection
 {
     /// <summary>
-    /// Handles incoming CONNECTION_PLAYER packets which are used for updating sequence numbers in the EO protocol
+    /// Sent when the server is updating the sequence numbers for the client
     /// </summary>
     [AutoMappedType]
     public class ConnectionPlayerHandler : DefaultAsyncPacketHandler
     {
         private readonly IPacketProcessActions _packetProcessActions;
         private readonly IPacketSendService _packetSendService;
-        private readonly ILoggerProvider _loggerProvider;
 
         public override PacketFamily Family => PacketFamily.Connection;
 
@@ -24,12 +22,10 @@ namespace EOLib.PacketHandlers
         public override bool CanHandle => true;
 
         public ConnectionPlayerHandler(IPacketProcessActions packetProcessActions,
-                                       IPacketSendService packetSendService,
-                                       ILoggerProvider loggerProvider)
+                                       IPacketSendService packetSendService)
         {
             _packetProcessActions = packetProcessActions;
             _packetSendService = packetSendService;
-            _loggerProvider = loggerProvider;
         }
 
         public override bool HandlePacket(IPacket packet)
