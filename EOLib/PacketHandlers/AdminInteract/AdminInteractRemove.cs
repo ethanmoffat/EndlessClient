@@ -5,20 +5,23 @@ using EOLib.Domain.Map;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.AdminInteract
 {
+    /// <summary>
+    /// Admin hiding
+    /// </summary>
     [AutoMappedType]
-    public class AdminShowHandler : InGameOnlyPacketHandler
+    public class AdminInteractRemove : InGameOnlyPacketHandler
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
 
         public override PacketFamily Family => PacketFamily.AdminInteract;
-        public override PacketAction Action => PacketAction.Agree;
+        public override PacketAction Action => PacketAction.Remove;
 
-        public AdminShowHandler(IPlayerInfoProvider playerInfoProvider,
-                                ICharacterRepository characterRepository,
-                                ICurrentMapStateRepository currentMapStateRepository)
+        public AdminInteractRemove(IPlayerInfoProvider playerInfoProvider,
+                                  ICharacterRepository characterRepository,
+                                  ICurrentMapStateRepository currentMapStateRepository)
             : base(playerInfoProvider)
         {
             _characterRepository = characterRepository;
@@ -30,14 +33,14 @@ namespace EOLib.PacketHandlers
             var id = packet.ReadShort();
 
             if (id == _characterRepository.MainCharacter.ID)
-                _characterRepository.MainCharacter = Shown(_characterRepository.MainCharacter);
+                _characterRepository.MainCharacter = Hidden(_characterRepository.MainCharacter);
             else
             {
                 if (_currentMapStateRepository.Characters.ContainsKey(id))
                 {
                     var character = _currentMapStateRepository.Characters[id];
 
-                    var updatedCharacter = Shown(character);
+                    var updatedCharacter = Hidden(character);
                     _currentMapStateRepository.Characters[id] = updatedCharacter;
                 }
                 else
@@ -49,9 +52,9 @@ namespace EOLib.PacketHandlers
             return true;
         }
 
-        private static Character Shown(Character input)
+        private static Character Hidden(Character input)
         {
-            var renderProps = input.RenderProperties.WithIsHidden(false);
+            var renderProps = input.RenderProperties.WithIsHidden(true);
             return input.WithRenderProperties(renderProps);
         }
     }
