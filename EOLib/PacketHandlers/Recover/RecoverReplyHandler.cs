@@ -6,8 +6,11 @@ using EOLib.Net;
 using EOLib.Net.Handlers;
 using System.Collections.Generic;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Recover
 {
+    /// <summary>
+    /// Sent when the main character is given EXP or Karma in a quest
+    /// </summary>
     [AutoMappedType]
     public class RecoverReplyHandler : InGameOnlyPacketHandler
     {

@@ -4,17 +4,20 @@ using EOLib.Domain.Login;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Recover
 {
+    /// <summary>
+    /// Sent when the main character gains HP/TP
+    /// </summary>
     [AutoMappedType]
-    public class PlayerRecoverHandler : InGameOnlyPacketHandler
+    public class RecoverPlayerHandler : InGameOnlyPacketHandler
     {
         private readonly ICharacterRepository _characterRepository;
 
         public override PacketFamily Family => PacketFamily.Recover;
         public override PacketAction Action => PacketAction.Player;
 
-        public PlayerRecoverHandler(IPlayerInfoProvider playerInfoProvider,
+        public RecoverPlayerHandler(IPlayerInfoProvider playerInfoProvider,
                                     ICharacterRepository characterRepository)
             : base(playerInfoProvider)
         {

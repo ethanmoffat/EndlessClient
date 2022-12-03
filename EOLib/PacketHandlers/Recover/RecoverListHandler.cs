@@ -4,18 +4,21 @@ using EOLib.Domain.Login;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Recover
 {
+    /// <summary>
+    /// Sent when the main character's stats are updated by a quest (or stat change command)
+    /// </summary>
     [AutoMappedType]
-    public class RecoverStatListHandler : InGameOnlyPacketHandler
+    public class RecoverListHandler : InGameOnlyPacketHandler
     {
         private readonly ICharacterRepository _characterRepository;
 
         public override PacketFamily Family => PacketFamily.Recover;
         public override PacketAction Action => PacketAction.List;
 
-        public RecoverStatListHandler(IPlayerInfoProvider playerInfoProvider,
-                                      ICharacterRepository characterRepository)
+        public RecoverListHandler(IPlayerInfoProvider playerInfoProvider,
+                                  ICharacterRepository characterRepository)
             : base(playerInfoProvider)
         {
             _characterRepository = characterRepository;

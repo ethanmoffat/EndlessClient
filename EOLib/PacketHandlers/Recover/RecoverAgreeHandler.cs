@@ -8,8 +8,11 @@ using EOLib.Net.Handlers;
 using System;
 using System.Collections.Generic;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Recover
 {
+    /// <summary>
+    /// Sent when a player uses a heal item
+    /// </summary>
     [AutoMappedType]
     public class RecoverAgreeHandler : InGameOnlyPacketHandler
     {
