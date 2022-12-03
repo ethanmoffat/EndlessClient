@@ -11,10 +11,13 @@ using System.Linq;
 
 using DomainNPC = EOLib.Domain.NPC.NPC;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Refresh
 {
+    /// <summary>
+    /// Sent when the map state (characters, npcs, and map items) should be refreshed
+    /// </summary>
     [AutoMappedType]
-    public class RefreshMapStateHandler : InGameOnlyPacketHandler
+    public class RefreshReplyHandler : InGameOnlyPacketHandler
     {
         private readonly IPacketTranslator<RefreshReplyData> _refreshReplyTranslator;
         private readonly ICharacterRepository _characterRepository;
@@ -25,11 +28,11 @@ namespace EOLib.PacketHandlers
 
         public override PacketAction Action => PacketAction.Reply;
 
-        public RefreshMapStateHandler(IPlayerInfoProvider playerInfoProvider,
-                                      IPacketTranslator<RefreshReplyData> refreshReplyTranslator,
-                                      ICharacterRepository characterRepository,
-                                      ICurrentMapStateRepository currentMapStateRepository,
-                                      IEnumerable<IMapChangedNotifier> mapChangedNotifiers)
+        public RefreshReplyHandler(IPlayerInfoProvider playerInfoProvider,
+                                   IPacketTranslator<RefreshReplyData> refreshReplyTranslator,
+                                   ICharacterRepository characterRepository,
+                                   ICurrentMapStateRepository currentMapStateRepository,
+                                   IEnumerable<IMapChangedNotifier> mapChangedNotifiers)
             : base(playerInfoProvider)
         {
             _refreshReplyTranslator = refreshReplyTranslator;
