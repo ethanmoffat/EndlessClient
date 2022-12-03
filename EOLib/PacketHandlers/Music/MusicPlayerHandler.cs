@@ -5,8 +5,11 @@ using EOLib.Net;
 using EOLib.Net.Handlers;
 using System.Collections.Generic;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Music
 {
+    /// <summary>
+    /// Sent by the server when a sound effect should be played
+    /// </summary>
     [AutoMappedType]
     public class MusicPlayerHandler : InGameOnlyPacketHandler
     {
