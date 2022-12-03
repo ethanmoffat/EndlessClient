@@ -11,10 +11,13 @@ using EOLib.Net.Handlers;
 using EOLib.Net.Translators;
 using System.Collections.Generic;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Players
 {
+    /// <summary>
+    /// Sent when a player is entering the map
+    /// </summary>
     [AutoMappedType]
-    public class PlayerEnterMapHandler : InGameOnlyPacketHandler
+    public class PlayersAgreeHandler : InGameOnlyPacketHandler
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _mapStateRepository;
@@ -26,7 +29,7 @@ namespace EOLib.PacketHandlers
 
         public override PacketAction Action => PacketAction.Agree;
 
-        public PlayerEnterMapHandler(IPlayerInfoProvider playerInfoProvider,
+        public PlayersAgreeHandler(IPlayerInfoProvider playerInfoProvider,
                                      ICharacterRepository characterRepository,
                                      ICurrentMapStateRepository mapStateRepository,
                                      ICharacterFromPacketFactory characterFromPacketFactory,
@@ -50,7 +53,7 @@ namespace EOLib.PacketHandlers
 
             if (packet.PeekByte() != 255) // next byte was the warp animation: sent on Map::Enter in eoserv
             {
-                var anim = (WarpAnimation) packet.ReadChar();
+                var anim = (WarpAnimation)packet.ReadChar();
 
                 foreach (var notifier in _effectNotifiers)
                     notifier.NotifyWarpEnterEffect((short)character.ID, anim);
