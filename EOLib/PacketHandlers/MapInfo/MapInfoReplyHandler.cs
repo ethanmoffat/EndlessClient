@@ -8,10 +8,10 @@ using EOLib.Net;
 using EOLib.Net.Handlers;
 using EOLib.Net.Translators;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.MapInfo
 {
     [AutoMappedType]
-    public class MapInfoHandler : InGameOnlyPacketHandler
+    public class MapInfoReplyHandler : InGameOnlyPacketHandler
     {
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly ICharacterFromPacketFactory _characterFromPacketFactory;
@@ -22,12 +22,11 @@ namespace EOLib.PacketHandlers
 
         public override PacketAction Action => PacketAction.Reply;
 
-        public MapInfoHandler(IPlayerInfoProvider playerInfoProvider,
-                              ICurrentMapStateRepository currentMapStateRepository,
-                              ICharacterFromPacketFactory characterFromPacketFactory,
-                              INPCFromPacketFactory npcFromPacketFactory,
-                              IEIFFileProvider eifFileProvider
-                              )
+        public MapInfoReplyHandler(IPlayerInfoProvider playerInfoProvider,
+                                   ICurrentMapStateRepository currentMapStateRepository,
+                                   ICharacterFromPacketFactory characterFromPacketFactory,
+                                   INPCFromPacketFactory npcFromPacketFactory,
+                                   IEIFFileProvider eifFileProvider)
             : base(playerInfoProvider)
         {
             _currentMapStateRepository = currentMapStateRepository;
@@ -38,12 +37,12 @@ namespace EOLib.PacketHandlers
 
         public override bool HandlePacket(IPacket packet)
         {
-            var numOfEntities = packet.ReadChar();
+            var numberOfCharacters = packet.ReadChar();
 
-            if (packet.PeekByte() == 0xFF)
+            if (packet.PeekByte() == byte.MaxValue)
             {
                 packet.ReadByte();
-                for (var i = 0; i < numOfEntities; i++)
+                for (var i = 0; i < numberOfCharacters; i++)
                 {
                     var character = _characterFromPacketFactory.CreateCharacter(packet);
                     if (_currentMapStateRepository.Characters.ContainsKey(character.ID))
@@ -53,7 +52,7 @@ namespace EOLib.PacketHandlers
                         character = existingCharacter.WithAppliedData(character, isRangedWeapon);
                     }
                     _currentMapStateRepository.Characters[character.ID] = character;
-                    if (packet.ReadByte() != 255)
+                    if (packet.ReadByte() != byte.MaxValue)
                         throw new MalformedPacketException("Missing 255 byte after character data", packet);
                 }
             }
