@@ -7,7 +7,7 @@ using EOLib.Net.Handlers;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace EOLib.PacketHandlers.Skill
+namespace EOLib.PacketHandlers.StatSkill
 {
     /// <summary>
     /// Sent when learning a skill, either via $learn command or from skillmaster

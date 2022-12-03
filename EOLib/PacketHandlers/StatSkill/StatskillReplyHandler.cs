@@ -6,7 +6,7 @@ using EOLib.Net;
 using EOLib.Net.Handlers;
 using System.Collections.Generic;
 
-namespace EOLib.PacketHandlers.Skill
+namespace EOLib.PacketHandlers.StatSkill
 {
     /// <summary>
     /// Sent when failing to learn a skill from skillmaster

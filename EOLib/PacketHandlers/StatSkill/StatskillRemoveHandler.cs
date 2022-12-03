@@ -7,7 +7,7 @@ using EOLib.Net.Handlers;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace EOLib.PacketHandlers.Skill
+namespace EOLib.PacketHandlers.StatSkill
 {
     /// <summary>
     /// Sent when forgetting a skill

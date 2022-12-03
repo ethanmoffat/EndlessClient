@@ -4,18 +4,21 @@ using EOLib.Domain.Login;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.StatSkill
 {
+    /// <summary>
+    /// Sent when the main character spends their stat points
+    /// </summary>
     [AutoMappedType]
-    public class StatTrainingHandler : InGameOnlyPacketHandler
+    public class StatskillPlayerHandler : InGameOnlyPacketHandler
     {
         private readonly ICharacterRepository _characterRepository;
 
         public override PacketFamily Family => PacketFamily.StatSkill;
         public override PacketAction Action => PacketAction.Player;
 
-        public StatTrainingHandler(IPlayerInfoProvider playerInfoProvider,
-                                   ICharacterRepository characterRepository)
+        public StatskillPlayerHandler(IPlayerInfoProvider playerInfoProvider,
+                                      ICharacterRepository characterRepository)
             : base(playerInfoProvider)
         {
             _characterRepository = characterRepository;

@@ -4,10 +4,13 @@ using EOLib.Domain.Login;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.StatSkill
 {
+    /// <summary>
+    /// Sent when spending skill points on a spell
+    /// </summary>
     [AutoMappedType]
-    public class SpellTrainingHandler : InGameOnlyPacketHandler
+    public class StatskillAcceptHandler : InGameOnlyPacketHandler
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly ICharacterInventoryRepository _characterInventoryRepository;
@@ -16,9 +19,9 @@ namespace EOLib.PacketHandlers
 
         public override PacketAction Action => PacketAction.Accept;
 
-        public SpellTrainingHandler(IPlayerInfoProvider playerInfoProvider,
-                                    ICharacterRepository characterRepository,
-                                    ICharacterInventoryRepository characterInventoryRepository)
+        public StatskillAcceptHandler(IPlayerInfoProvider playerInfoProvider,
+                                      ICharacterRepository characterRepository,
+                                      ICharacterInventoryRepository characterInventoryRepository)
             : base(playerInfoProvider)
         {
             _characterRepository = characterRepository;
