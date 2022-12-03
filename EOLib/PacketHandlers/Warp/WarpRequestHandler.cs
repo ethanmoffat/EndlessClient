@@ -11,10 +11,13 @@ using System;
 using System.IO;
 using System.Linq;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Warp
 {
+    /// <summary>
+    /// Sent when the server requests warp for the main character
+    /// </summary>
     [AutoMappedType]
-    public class BeginPlayerWarpHandler : InGameOnlyPacketHandler
+    public class WarpRequestHandler : InGameOnlyPacketHandler
     {
         private const int WARP_SAME_MAP = 1, WARP_NEW_MAP = 2;
 
@@ -28,12 +31,12 @@ namespace EOLib.PacketHandlers
 
         public override PacketAction Action => PacketAction.Request;
 
-        public BeginPlayerWarpHandler(IPlayerInfoProvider playerInfoProvider,
-                                      IPacketSendService packetSendService,
-                                      IFileRequestActions fileRequestActions,
-                                      IMapFileLoadActions mapFileLoadActions,
-                                      ICurrentMapStateRepository mapStateRepository,
-                                      IMapFileProvider mapFileProvider)
+        public WarpRequestHandler(IPlayerInfoProvider playerInfoProvider,
+                                  IPacketSendService packetSendService,
+                                  IFileRequestActions fileRequestActions,
+                                  IMapFileLoadActions mapFileLoadActions,
+                                  ICurrentMapStateRepository mapStateRepository,
+                                  IMapFileProvider mapFileProvider)
             : base(playerInfoProvider)
         {
             _packetSendService = packetSendService;

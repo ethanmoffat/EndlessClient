@@ -5,8 +5,13 @@ using EOLib.Domain.Map;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 
-namespace EOLib.PacketHandlers
+using DomainWarp = EOLib.Domain.Map.Warp;
+
+namespace EOLib.PacketHandlers.Door
 {
+    /// <summary>
+    /// Sent when a player near you opens a door
+    /// </summary>
     [AutoMappedType]
     public class DoorOpenHandler : InGameOnlyPacketHandler
     {
@@ -35,7 +40,7 @@ namespace EOLib.PacketHandlers
             if (_currentMapStateRepository.OpenDoors.Any(d => d.X == x && d.Y == y))
                 return true;
 
-            Warp warp;
+            DomainWarp warp;
             try
             {
                 warp = _currentMapStateRepository.PendingDoors.Single(w => w.X == x && w.Y == y);
@@ -43,7 +48,7 @@ namespace EOLib.PacketHandlers
             catch
             {
                 // another player attempted to open a door
-                warp = new Warp(_currentMapProvider.CurrentMap.Warps[y, x]);
+                warp = new DomainWarp(_currentMapProvider.CurrentMap.Warps[y, x]);
             }
 
             _currentMapStateRepository.PendingDoors.Remove(warp);

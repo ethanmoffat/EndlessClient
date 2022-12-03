@@ -15,10 +15,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Warp
 {
+    /// <summary>
+    /// Sent when completing warp for the main character
+    /// </summary>
     [AutoMappedType]
-    public class EndPlayerWarpHandler : InGameOnlyPacketHandler
+    public class WarpAgreeHandler : InGameOnlyPacketHandler
     {
         private readonly IPacketTranslator<WarpAgreePacketData> _warpAgreePacketTranslator;
         private readonly ICharacterRepository _characterRepository;
@@ -31,13 +34,13 @@ namespace EOLib.PacketHandlers
 
         public override PacketAction Action => PacketAction.Agree;
 
-        public EndPlayerWarpHandler(IPlayerInfoProvider playerInfoProvider,
-                                    IPacketTranslator<WarpAgreePacketData> warpAgreePacketTranslator,
-                                    ICharacterRepository characterRepository,
-                                    ICurrentMapStateRepository currentMapStateRepository,
-                                    ICurrentMapProvider currentMapProvider,
-                                    IEIFFileProvider eifFileProvider,
-                                    IEnumerable<IMapChangedNotifier> mapChangedNotifiers)
+        public WarpAgreeHandler(IPlayerInfoProvider playerInfoProvider,
+                                IPacketTranslator<WarpAgreePacketData> warpAgreePacketTranslator,
+                                ICharacterRepository characterRepository,
+                                ICurrentMapStateRepository currentMapStateRepository,
+                                ICurrentMapProvider currentMapProvider,
+                                IEIFFileProvider eifFileProvider,
+                                IEnumerable<IMapChangedNotifier> mapChangedNotifiers)
             : base(playerInfoProvider)
         {
             _warpAgreePacketTranslator = warpAgreePacketTranslator;
