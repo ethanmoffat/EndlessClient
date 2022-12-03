@@ -7,10 +7,13 @@ using EOLib.Net;
 using EOLib.Net.Handlers;
 using System.Collections.Generic;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Avatar
 {
+    /// <summary>
+    /// Sent when a player takes damge from a PK spell
+    /// </summary>
     [AutoMappedType]
-    public class PlayerPKSpellHandler : InGameOnlyPacketHandler
+    public class AvatarAdminHandler : InGameOnlyPacketHandler
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
@@ -20,10 +23,10 @@ namespace EOLib.PacketHandlers
 
         public override PacketAction Action => PacketAction.Admin;
 
-        public PlayerPKSpellHandler(IPlayerInfoProvider playerInfoProvider,
-                                    ICharacterRepository characterRepository,
-                                    ICurrentMapStateRepository currentMapStateRepository,
-                                    IEnumerable<IOtherCharacterAnimationNotifier> animationNotifiers)
+        public AvatarAdminHandler(IPlayerInfoProvider playerInfoProvider,
+                                  ICharacterRepository characterRepository,
+                                  ICurrentMapStateRepository currentMapStateRepository,
+                                  IEnumerable<IOtherCharacterAnimationNotifier> animationNotifiers)
             : base(playerInfoProvider)
         {
             _characterRepository = characterRepository;

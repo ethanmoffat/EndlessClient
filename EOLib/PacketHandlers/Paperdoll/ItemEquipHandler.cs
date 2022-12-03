@@ -4,6 +4,7 @@ using EOLib.Domain.Map;
 using EOLib.IO.Extensions;
 using EOLib.IO.Repositories;
 using EOLib.Net;
+using EOLib.PacketHandlers.Avatar;
 using Optional;
 using Optional.Collections;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace EOLib.PacketHandlers.Paperdoll
     /// <summary>
     /// Base handler for Paperdoll equip/unequip
     /// </summary>
-    public abstract class ItemEquipHandler : PlayerAvatarChangeHandler
+    public abstract class ItemEquipHandler : AvatarAgreeHandler
     {
         private readonly IPaperdollRepository _paperdollRepository;
         private readonly ICharacterInventoryRepository _characterInventoryRepository;

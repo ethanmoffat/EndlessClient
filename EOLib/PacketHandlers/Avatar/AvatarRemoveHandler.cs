@@ -8,10 +8,13 @@ using EOLib.Net;
 using EOLib.Net.Handlers;
 using System.Collections.Generic;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Avatar
 {
+    /// <summary>
+    /// Sent when a player leaves the map
+    /// </summary>
     [AutoMappedType]
-    public class PlayerLeaveMapHandler : InGameOnlyPacketHandler
+    public class AvatarRemoveHandler : InGameOnlyPacketHandler
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
@@ -21,10 +24,10 @@ namespace EOLib.PacketHandlers
 
         public override PacketAction Action => PacketAction.Remove;
 
-        public PlayerLeaveMapHandler(IPlayerInfoProvider playerInfoProvider,
-                                     ICharacterRepository characterRepository,
-                                     ICurrentMapStateRepository currentMapStateRepository,
-                                     IEnumerable<IEffectNotifier> effectNotifiers)
+        public AvatarRemoveHandler(IPlayerInfoProvider playerInfoProvider,
+                                   ICharacterRepository characterRepository,
+                                   ICurrentMapStateRepository currentMapStateRepository,
+                                   IEnumerable<IEffectNotifier> effectNotifiers)
             : base(playerInfoProvider)
         {
             _characterRepository = characterRepository;
