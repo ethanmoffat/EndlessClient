@@ -8,8 +8,11 @@ using System;
 
 namespace EOLib.PacketHandlers.Items
 {
+    /// <summary>
+    /// Sent when another player drops an item on the map
+    /// </summary>
     [AutoMappedType]
-    public class OtherPlayerDropItemHandler : InGameOnlyPacketHandler
+    public class ItemAddHandler : InGameOnlyPacketHandler
     {
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
 
@@ -17,8 +20,8 @@ namespace EOLib.PacketHandlers.Items
 
         public override PacketAction Action => PacketAction.Add;
 
-        public OtherPlayerDropItemHandler(IPlayerInfoProvider playerInfoProvider,
-                                          ICurrentMapStateRepository currentMapStateRepository)
+        public ItemAddHandler(IPlayerInfoProvider playerInfoProvider,
+                              ICurrentMapStateRepository currentMapStateRepository)
             : base(playerInfoProvider)
         {
             _currentMapStateRepository = currentMapStateRepository;

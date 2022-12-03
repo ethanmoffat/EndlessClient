@@ -3,7 +3,6 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
 using EOLib.IO;
-using EOLib.IO.Extensions;
 using EOLib.IO.Repositories;
 using EOLib.Net;
 using EOLib.Net.Handlers;
@@ -14,8 +13,11 @@ using System.Linq;
 
 namespace EOLib.PacketHandlers.Items
 {
+    /// <summary>
+    /// Sent when the main character uses an item
+    /// </summary>
     [AutoMappedType]
-    public class UseItemHandler : InGameOnlyPacketHandler
+    public class ItemReplyHandler : InGameOnlyPacketHandler
     {
         private readonly ICharacterInventoryRepository _characterInventoryRepository;
         private readonly ICharacterRepository _characterRepository;
@@ -29,14 +31,14 @@ namespace EOLib.PacketHandlers.Items
 
         public override PacketAction Action => PacketAction.Reply;
 
-        public UseItemHandler(IPlayerInfoProvider playerInfoProvider,
-                              ICharacterInventoryRepository characterInventoryRepository,
-                              ICharacterRepository characterRepository,
-                              IPaperdollRepository paperdollRepository,
-                              IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers,
-                              IEnumerable<IEffectNotifier> effectNotifiers,
-                              IEnumerable<IEmoteNotifier> emoteNotifiers,
-                              IEIFFileProvider itemFileProvider)
+        public ItemReplyHandler(IPlayerInfoProvider playerInfoProvider,
+                                ICharacterInventoryRepository characterInventoryRepository,
+                                ICharacterRepository characterRepository,
+                                IPaperdollRepository paperdollRepository,
+                                IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers,
+                                IEnumerable<IEffectNotifier> effectNotifiers,
+                                IEnumerable<IEmoteNotifier> emoteNotifiers,
+                                IEIFFileProvider itemFileProvider)
             : base(playerInfoProvider)
         {
             _characterInventoryRepository = characterInventoryRepository;

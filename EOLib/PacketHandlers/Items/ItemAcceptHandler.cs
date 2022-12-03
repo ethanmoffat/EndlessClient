@@ -6,10 +6,13 @@ using EOLib.Net;
 using EOLib.Net.Handlers;
 using System.Collections.Generic;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Items
 {
+    /// <summary>
+    /// Sent when another player uses an EXP scroll type item
+    /// </summary>
     [AutoMappedType]
-    public class OtherPlayerLevelUpHandler : InGameOnlyPacketHandler
+    public class ItemAcceptHandler : InGameOnlyPacketHandler
     {
         private readonly IEnumerable<IEmoteNotifier> _emoteNotifiers;
 
@@ -17,8 +20,8 @@ namespace EOLib.PacketHandlers
 
         public override PacketAction Action => PacketAction.Accept;
 
-        public OtherPlayerLevelUpHandler(IPlayerInfoProvider playerInfoProvider,
-                                         IEnumerable<IEmoteNotifier> emoteNotifiers)
+        public ItemAcceptHandler(IPlayerInfoProvider playerInfoProvider,
+                                 IEnumerable<IEmoteNotifier> emoteNotifiers)
             : base(playerInfoProvider)
         {
             _emoteNotifiers = emoteNotifiers;

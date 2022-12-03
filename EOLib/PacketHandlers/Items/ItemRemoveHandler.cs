@@ -6,8 +6,11 @@ using EOLib.Net.Handlers;
 
 namespace EOLib.PacketHandlers.Items
 {
+    /// <summary>
+    /// Sent when an item is removed from the map by someone other than the main character
+    /// </summary>
     [AutoMappedType]
-    public class RemoveItemFromMapHandler : InGameOnlyPacketHandler
+    public class ItemRemoveHandler : InGameOnlyPacketHandler
     {
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
 
@@ -15,8 +18,8 @@ namespace EOLib.PacketHandlers.Items
 
         public override PacketAction Action => PacketAction.Remove;
 
-        public RemoveItemFromMapHandler(IPlayerInfoProvider playerInfoProvider,
-                                        ICurrentMapStateRepository currentMapStateRepository)
+        public ItemRemoveHandler(IPlayerInfoProvider playerInfoProvider,
+                                 ICurrentMapStateRepository currentMapStateRepository)
             : base(playerInfoProvider)
         {
             _currentMapStateRepository = currentMapStateRepository;

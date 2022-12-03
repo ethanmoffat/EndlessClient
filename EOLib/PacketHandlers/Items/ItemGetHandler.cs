@@ -8,10 +8,13 @@ using EOLib.Net.Handlers;
 using Optional.Collections;
 using System.Collections.Generic;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Items
 {
+    /// <summary>
+    /// Sent when a player picks up an item
+    /// </summary>
     [AutoMappedType]
-    public class ItemPickupHandler : InGameOnlyPacketHandler
+    public class ItemGetHandler : InGameOnlyPacketHandler
     {
         private readonly ICharacterInventoryRepository _characterInventoryRepository;
         private readonly ICharacterRepository _characterRepository;
@@ -22,11 +25,11 @@ namespace EOLib.PacketHandlers
 
         public override PacketAction Action => PacketAction.Get;
 
-        public ItemPickupHandler(IPlayerInfoProvider playerInfoProvider,
-                                 ICharacterInventoryRepository characterInventoryRepository,
-                                 ICharacterRepository characterRepository,
-                                 ICurrentMapStateRepository mapStateRepository,
-                                 IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers)
+        public ItemGetHandler(IPlayerInfoProvider playerInfoProvider,
+                              ICharacterInventoryRepository characterInventoryRepository,
+                              ICharacterRepository characterRepository,
+                              ICurrentMapStateRepository mapStateRepository,
+                              IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers)
             : base(playerInfoProvider)
         {
             _characterInventoryRepository = characterInventoryRepository;
