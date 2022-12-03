@@ -6,10 +6,13 @@ using EOLib.Net;
 using EOLib.Net.Handlers;
 using System.Collections.Generic;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Spell
 {
+    /// <summary>
+    /// Sent when a player cast a spell targeting themselves
+    /// </summary>
     [AutoMappedType]
-    public class PlayerSelfTargetSpellHandler : InGameOnlyPacketHandler
+    public class SpellTargetSelfHandler : InGameOnlyPacketHandler
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly IEnumerable<IOtherCharacterAnimationNotifier> _animationNotifiers;
@@ -17,9 +20,9 @@ namespace EOLib.PacketHandlers
         public override PacketFamily Family => PacketFamily.Spell;
         public override PacketAction Action => PacketAction.TargetSelf;
 
-        public PlayerSelfTargetSpellHandler(IPlayerInfoProvider playerInfoProvider,
-                                            ICharacterRepository characterRepository,
-                                            IEnumerable<IOtherCharacterAnimationNotifier> animationNotifiers)
+        public SpellTargetSelfHandler(IPlayerInfoProvider playerInfoProvider,
+                                      ICharacterRepository characterRepository,
+                                      IEnumerable<IOtherCharacterAnimationNotifier> animationNotifiers)
             : base(playerInfoProvider)
         {
             _characterRepository = characterRepository;

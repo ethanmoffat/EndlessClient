@@ -7,10 +7,13 @@ using EOLib.Net;
 using EOLib.Net.Handlers;
 using System.Collections.Generic;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Spell
 {
+    /// <summary>
+    /// Sent when a player targets another player with a heal spell
+    /// </summary>
     [AutoMappedType]
-    public class PlayerTargetOtherSpellHandler : InGameOnlyPacketHandler
+    public class SpellTargetOtherHandler : InGameOnlyPacketHandler
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
@@ -19,10 +22,10 @@ namespace EOLib.PacketHandlers
         public override PacketFamily Family => PacketFamily.Spell;
         public override PacketAction Action => PacketAction.TargetOther;
 
-        public PlayerTargetOtherSpellHandler(IPlayerInfoProvider playerInfoProvider,
-                                             ICharacterRepository characterRepository,
-                                             ICurrentMapStateRepository currentMapStateRepository,
-                                             IEnumerable<IOtherCharacterAnimationNotifier> animationNotifiers)
+        public SpellTargetOtherHandler(IPlayerInfoProvider playerInfoProvider,
+                                       ICharacterRepository characterRepository,
+                                       ICurrentMapStateRepository currentMapStateRepository,
+                                       IEnumerable<IOtherCharacterAnimationNotifier> animationNotifiers)
             : base(playerInfoProvider)
         {
             _characterRepository = characterRepository;

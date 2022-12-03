@@ -10,10 +10,13 @@ using Optional.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Spell
 {
+    /// <summary>
+    /// Sent when a spell targeting a group is successfully cast
+    /// </summary>
     [AutoMappedType]
-    public class TargetGroupSpellHandler : InGameOnlyPacketHandler
+    public class SpellTargetGroupHandler : InGameOnlyPacketHandler
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly IPartyDataRepository _partyDataRepository;
@@ -23,7 +26,7 @@ namespace EOLib.PacketHandlers
 
         public override PacketAction Action => PacketAction.TargetGroup;
 
-        public TargetGroupSpellHandler(IPlayerInfoProvider playerInfoProvider,
+        public SpellTargetGroupHandler(IPlayerInfoProvider playerInfoProvider,
                                        ICharacterRepository characterRepository,
                                        IPartyDataRepository partyDataRepository,
                                        IEnumerable<IOtherCharacterAnimationNotifier> notifiers)
@@ -52,6 +55,7 @@ namespace EOLib.PacketHandlers
             {
                 // eoserv puts 5 '255' bytes between party members
                 // unknown what data structures are supposed to be represented between these break bytes
+                // todo: these bytes are garbage data for an empty record (5 bytes read per group spell target) - handle accordingly
                 if (packet.ReadBytes(5).Any(x => x != 255)) return false;
 
                 var targetId = packet.ReadShort();
