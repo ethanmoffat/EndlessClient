@@ -31,7 +31,7 @@ namespace EOLib.PacketHandlers.Items
         {
             var playerId = packet.ReadShort();
             foreach (var notifier in _emoteNotifiers)
-                notifier.NotifyEmote(playerId, Emote.LevelUp);
+                notifier.NotifyEmote(playerId, Domain.Character.Emote.LevelUp);
 
             return true;
         }

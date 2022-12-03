@@ -1,15 +1,17 @@
 ﻿using AutomaticTypeMapper;
-using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 using System.Collections.Generic;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Emote
 {
+    /// <summary>
+    /// Sent when a player does an emote
+    /// </summary>
     [AutoMappedType]
-    public class PlayerEmoteHandler : InGameOnlyPacketHandler
+    public class EmotePlayerHandler : InGameOnlyPacketHandler
     {
         private readonly IEnumerable<IEmoteNotifier> _emoteNotifiers;
 
@@ -17,7 +19,7 @@ namespace EOLib.PacketHandlers
 
         public override PacketAction Action => PacketAction.Player;
 
-        public PlayerEmoteHandler(IPlayerInfoProvider playerInfoProvider,
+        public EmotePlayerHandler(IPlayerInfoProvider playerInfoProvider,
                                   IEnumerable<IEmoteNotifier> emoteNotifiers)
             : base(playerInfoProvider)
         {
@@ -27,7 +29,7 @@ namespace EOLib.PacketHandlers
         public override bool HandlePacket(IPacket packet)
         {
             var playerId = packet.ReadShort();
-            var emote = (Emote)packet.ReadChar();
+            var emote = (Domain.Character.Emote)packet.ReadChar();
             foreach (var notifier in _emoteNotifiers)
                 notifier.NotifyEmote(playerId, emote);
 

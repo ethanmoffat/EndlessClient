@@ -41,7 +41,7 @@ namespace EOLib.PacketHandlers
             {
                 stats = stats.WithNewStat(CharacterStat.Level, level);
                 foreach (var notifier in _emoteNotifiers)
-                    notifier.NotifyEmote((short)_characterRepository.MainCharacter.ID, Emote.LevelUp);
+                    notifier.NotifyEmote((short)_characterRepository.MainCharacter.ID, Domain.Character.Emote.LevelUp);
             }
 
             if (packet.ReadPosition < packet.Length)

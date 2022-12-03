@@ -173,7 +173,7 @@ namespace EOLib.PacketHandlers.Items
                     {
                         foreach (var notifier in _emoteNotifiers)
                         {
-                            notifier.NotifyEmote((short)_characterRepository.MainCharacter.ID, Emote.LevelUp);
+                            notifier.NotifyEmote((short)_characterRepository.MainCharacter.ID, Domain.Character.Emote.LevelUp);
                         }
 
                         stats = stats.WithNewStat(CharacterStat.Level, levelUpLevel);
