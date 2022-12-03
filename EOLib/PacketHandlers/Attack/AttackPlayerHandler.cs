@@ -6,8 +6,11 @@ using EOLib.Net;
 using EOLib.Net.Handlers;
 using System.Collections.Generic;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Attack
 {
+    /// <summary>
+    /// Sent when another player attacks
+    /// </summary>
     [AutoMappedType]
     public class PlayerAttackHandler : InGameOnlyPacketHandler
     {
