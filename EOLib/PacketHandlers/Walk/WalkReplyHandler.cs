@@ -5,18 +5,21 @@ using EOLib.Net;
 using EOLib.Net.Handlers;
 using System.Linq;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Walk
 {
+    /// <summary>
+    /// Sent in response to the main character walking successfully
+    /// </summary>
     [AutoMappedType]
-    public class MainPlayerWalkHandler : InGameOnlyPacketHandler
+    public class WalkReplyHandler : InGameOnlyPacketHandler
     {
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
 
         public override PacketFamily Family => PacketFamily.Walk;
         public override PacketAction Action => PacketAction.Reply;
 
-        public MainPlayerWalkHandler(IPlayerInfoProvider playerInfoProvider,
-                                     ICurrentMapStateRepository currentMapStateRepository)
+        public WalkReplyHandler(IPlayerInfoProvider playerInfoProvider,
+                                ICurrentMapStateRepository currentMapStateRepository)
             : base(playerInfoProvider)
         {
             _currentMapStateRepository = currentMapStateRepository;

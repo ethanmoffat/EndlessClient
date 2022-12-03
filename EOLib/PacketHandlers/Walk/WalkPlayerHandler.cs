@@ -8,10 +8,13 @@ using EOLib.Domain.Notifiers;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Walk
 {
+    /// <summary>
+    /// Sent in response to another player walking successfully
+    /// </summary>
     [AutoMappedType]
-    public class PlayerWalkHandler : InGameOnlyPacketHandler
+    public class WalkPlayerHandler : InGameOnlyPacketHandler
     {
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IEnumerable<IOtherCharacterAnimationNotifier> _otherCharacterAnimationNotifiers;
@@ -20,7 +23,7 @@ namespace EOLib.PacketHandlers
 
         public override PacketAction Action => PacketAction.Player;
 
-        public PlayerWalkHandler(IPlayerInfoProvider playerInfoProvider,
+        public WalkPlayerHandler(IPlayerInfoProvider playerInfoProvider,
                                  ICurrentMapStateRepository currentMapStateRepository,
                                  IEnumerable<IOtherCharacterAnimationNotifier> otherCharacterAnimationNotifiers)
             : base(playerInfoProvider)
