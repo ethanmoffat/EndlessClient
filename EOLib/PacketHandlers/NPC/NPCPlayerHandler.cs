@@ -5,7 +5,6 @@ using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.Domain.NPC;
 using EOLib.IO.Repositories;
 using EOLib.Net;
 using EOLib.Net.Handlers;
@@ -14,10 +13,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace EOLib.PacketHandlers
+using DomainNPC = EOLib.Domain.NPC.NPC;
+
+namespace EOLib.PacketHandlers.NPC
 {
+    /// <summary>
+    /// Sent when an NPC does something (walk/attack/talk)
+    /// </summary>
     [AutoMappedType]
-    public class NPCActionHandler : InGameOnlyPacketHandler
+    public class NPCPlayerHandler : InGameOnlyPacketHandler
     {
         private const int NPC_WALK_ACTION = 0;
         private const int NPC_ATTK_ACTION = 1;
@@ -35,7 +39,7 @@ namespace EOLib.PacketHandlers
 
         public override PacketAction Action => PacketAction.Player;
 
-        public NPCActionHandler(IPlayerInfoProvider playerInfoProvider,
+        public NPCPlayerHandler(IPlayerInfoProvider playerInfoProvider,
                                 ICurrentMapStateRepository currentMapStateRepository,
                                 ICharacterRepository characterRepository,
                                 IChatRepository chatRepository,
@@ -64,18 +68,18 @@ namespace EOLib.PacketHandlers
             }
 
             var index = packet.ReadChar();
-            NPC npc;
+            DomainNPC npc;
             try
             {
                 npc = _currentMapStateRepository.NPCs.Single(n => n.Index == index);
             }
-            catch (InvalidOperationException) 
+            catch (InvalidOperationException)
             {
                 _currentMapStateRepository.UnknownNPCIndexes.Add(index);
                 return true;
             }
 
-            var updatedNpc = Option.None<NPC>();
+            var updatedNpc = Option.None<DomainNPC>();
             switch (num255s)
             {
                 case NPC_WALK_ACTION: HandleNPCWalk(packet, npc); break;
@@ -93,12 +97,12 @@ namespace EOLib.PacketHandlers
             return true;
         }
 
-        private void HandleNPCWalk(IPacket packet, NPC npc)
+        private void HandleNPCWalk(IPacket packet, DomainNPC npc)
         {
             //npc remove from view sets x/y to either 0,0 or 252,252 based on target coords
             var x = packet.ReadChar();
             var y = packet.ReadChar();
-            var npcDirection = (EODirection) packet.ReadChar();
+            var npcDirection = (EODirection)packet.ReadChar();
             if (packet.ReadBytes(3).Any(b => b != 255))
                 throw new MalformedPacketException("Expected 3 bytes of value 0xFF in NPC_PLAYER packet for Walk action", packet);
 
@@ -112,7 +116,7 @@ namespace EOLib.PacketHandlers
                 notifier.StartNPCWalkAnimation(npc.Index);
         }
 
-        private NPC HandleNPCAttack(IPacket packet, NPC npc)
+        private DomainNPC HandleNPCAttack(IPacket packet, DomainNPC npc)
         {
             var isDead = packet.ReadChar() == 2; //2 if target player is dead, 1 if alive
             var npcDirection = (EODirection)packet.ReadChar();
@@ -154,7 +158,7 @@ namespace EOLib.PacketHandlers
             return npc.WithDirection(npcDirection);
         }
 
-        private void HandleNPCTalk(IPacket packet, NPC npc)
+        private void HandleNPCTalk(IPacket packet, DomainNPC npc)
         {
             var messageLength = packet.ReadChar();
             var message = packet.ReadString(messageLength);
@@ -168,7 +172,7 @@ namespace EOLib.PacketHandlers
                 notifier.ShowNPCSpeechBubble(npc.Index, message);
         }
 
-        private static NPC EnsureCorrectXAndY(NPC npc, byte destinationX, byte destinationY)
+        private static DomainNPC EnsureCorrectXAndY(DomainNPC npc, byte destinationX, byte destinationY)
         {
             var opposite = npc.Direction.Opposite();
             var tempNPC = npc

@@ -9,10 +9,13 @@ using Optional;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.NPC
 {
+    /// <summary>
+    /// Sent when despawning child NPCs after a boss is killed
+    /// </summary>
     [AutoMappedType]
-    public class NPCChildDespawnHandler : InGameOnlyPacketHandler
+    public class NPCJunkHandler : InGameOnlyPacketHandler
     {
         private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
@@ -22,10 +25,10 @@ namespace EOLib.PacketHandlers
 
         public override PacketAction Action => PacketAction.Junk;
 
-        public NPCChildDespawnHandler(IPlayerInfoProvider playerInfoProvider,
-                                      ICharacterProvider characterProvider,
-                                      ICurrentMapStateRepository currentMapStateRepository,
-                                      IEnumerable<INPCActionNotifier> npcActionNotifiers)
+        public NPCJunkHandler(IPlayerInfoProvider playerInfoProvider,
+                              ICharacterProvider characterProvider,
+                              ICurrentMapStateRepository currentMapStateRepository,
+                              IEnumerable<INPCActionNotifier> npcActionNotifiers)
             : base(playerInfoProvider)
         {
             _characterProvider = characterProvider;

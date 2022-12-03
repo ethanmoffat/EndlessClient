@@ -1,5 +1,4 @@
-﻿using AutomaticTypeMapper;
-using EOLib.Domain.Character;
+﻿using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
@@ -10,8 +9,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.NPC
 {
+    /// <summary>
+    /// Base type for NPC taking damage
+    /// </summary>
     public abstract class NPCTakeDamageHandler : InGameOnlyPacketHandler
     {
         private readonly ICharacterRepository _characterRepository;
@@ -65,7 +67,7 @@ namespace EOLib.PacketHandlers
 
                 _characterRepository.MainCharacter = character;
             }
-            else if(_currentMapStateRepository.Characters.ContainsKey(fromPlayerId))
+            else if (_currentMapStateRepository.Characters.ContainsKey(fromPlayerId))
             {
                 var renderProps = _currentMapStateRepository.Characters[fromPlayerId].RenderProperties.WithDirection(fromDirection);
                 var updatedCharacter = _currentMapStateRepository.Characters[fromPlayerId].WithRenderProperties(renderProps);
@@ -100,31 +102,5 @@ namespace EOLib.PacketHandlers
 
             return true;
         }
-    }
-
-    [AutoMappedType]
-    public class NPCTakeWeaponDamageHandler : NPCTakeDamageHandler
-    {
-        public override PacketFamily Family => PacketFamily.NPC;
-
-        public NPCTakeWeaponDamageHandler(IPlayerInfoProvider playerInfoProvider,
-                                          ICharacterRepository characterRepository,
-                                          ICurrentMapStateRepository currentMapStateRepository,
-                                          IEnumerable<INPCActionNotifier> npcNotifiers,
-                                          IEnumerable<IOtherCharacterAnimationNotifier> otherCharacterAnimationNotifiers)
-            : base(playerInfoProvider, characterRepository, currentMapStateRepository, npcNotifiers, otherCharacterAnimationNotifiers) { }
-    }
-
-    [AutoMappedType]
-    public class NPCTakeSpellDamageHandler : NPCTakeDamageHandler
-    {
-        public override PacketFamily Family => PacketFamily.Cast;
-
-        public NPCTakeSpellDamageHandler(IPlayerInfoProvider playerInfoProvider,
-                                         ICharacterRepository characterRepository,
-                                         ICurrentMapStateRepository currentMapStateRepository,
-                                         IEnumerable<INPCActionNotifier> npcNotifiers,
-                                         IEnumerable<IOtherCharacterAnimationNotifier> otherCharacterAnimationNotifiers)
-            : base(playerInfoProvider, characterRepository, currentMapStateRepository, npcNotifiers, otherCharacterAnimationNotifiers) { }
     }
 }

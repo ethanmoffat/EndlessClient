@@ -9,10 +9,13 @@ using Optional;
 using System;
 using System.Collections.Generic;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.NPC
 {
+    /// <summary>
+    /// Sent when an NPC dies to a weapon
+    /// </summary>
     [AutoMappedType]
-    public class NPCLeaveMapHandler : InGameOnlyPacketHandler
+    public class NPCSpecHandler : InGameOnlyPacketHandler
     {
         protected readonly ICurrentMapStateRepository _currentMapStateRepository;
         protected readonly ICharacterRepository _characterRepository;
@@ -25,13 +28,13 @@ namespace EOLib.PacketHandlers
 
         public override PacketAction Action => PacketAction.Spec;
 
-        public NPCLeaveMapHandler(IPlayerInfoProvider playerInfoProvider,
-                                  ICurrentMapStateRepository currentMapStateRepository,
-                                  ICharacterRepository characterRepository,
-                                  ICharacterSessionRepository characterSessionRepository,
-                                  IEnumerable<INPCActionNotifier> npcActionNotifiers,
-                                  IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers,
-                                  IEnumerable<IOtherCharacterAnimationNotifier> otherCharacterAnimationNotifiers)
+        public NPCSpecHandler(IPlayerInfoProvider playerInfoProvider,
+                              ICurrentMapStateRepository currentMapStateRepository,
+                              ICharacterRepository characterRepository,
+                              ICharacterSessionRepository characterSessionRepository,
+                              IEnumerable<INPCActionNotifier> npcActionNotifiers,
+                              IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers,
+                              IEnumerable<IOtherCharacterAnimationNotifier> otherCharacterAnimationNotifiers)
             : base(playerInfoProvider)
         {
             _currentMapStateRepository = currentMapStateRepository;
@@ -155,27 +158,5 @@ namespace EOLib.PacketHandlers
             foreach (var notifier in _npcActionNotifiers)
                 notifier.NPCDropItem(mapItem);
         }
-    }
-
-    /// <summary>
-    /// This is handled the same way as the NPC_SPEC packet. There is some additional special handling 
-    /// that is done from NPCLeaveMapHandler.HandlePlacket (see if packet.Family == PacketFamily.Cast) blocks
-    /// </summary>
-    [AutoMappedType]
-    public class NPCDieFromSpellCastHandler : NPCLeaveMapHandler
-    {
-        public override PacketFamily Family => PacketFamily.Cast;
-
-        public override PacketAction Action => PacketAction.Spec;
-
-        public NPCDieFromSpellCastHandler(IPlayerInfoProvider playerInfoProvider,
-                                          ICurrentMapStateRepository currentMapStateRepository,
-                                          ICharacterRepository characterRepository,
-                                          ICharacterSessionRepository characterSessionRepository,
-                                          IEnumerable<INPCActionNotifier> npcAnimationNotifiers,
-                                          IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers,
-                                          IEnumerable<IOtherCharacterAnimationNotifier> otherCharacterAnimationNotifiers)
-            : base(playerInfoProvider, currentMapStateRepository, characterRepository, characterSessionRepository,
-                   npcAnimationNotifiers, mainCharacterEventNotifiers, otherCharacterAnimationNotifiers) { }
     }
 }

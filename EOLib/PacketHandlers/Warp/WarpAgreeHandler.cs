@@ -4,7 +4,6 @@ using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.Domain.NPC;
 using EOLib.IO.Extensions;
 using EOLib.IO.Repositories;
 using EOLib.Net;
@@ -14,6 +13,8 @@ using Optional;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
+using DomainNPC = EOLib.Domain.NPC.NPC;
 
 namespace EOLib.PacketHandlers.Warp
 {
@@ -73,7 +74,7 @@ namespace EOLib.PacketHandlers.Warp
             warpAgreePacketData = warpAgreePacketData.WithCharacters(withoutMainCharacter.ToList());
 
             _currentMapStateRepository.Characters = warpAgreePacketData.Characters.ToDictionary(k => k.ID, v => v);
-            _currentMapStateRepository.NPCs = new HashSet<NPC>(warpAgreePacketData.NPCs);
+            _currentMapStateRepository.NPCs = new HashSet<DomainNPC>(warpAgreePacketData.NPCs);
             _currentMapStateRepository.MapItems = new HashSet<MapItem>(warpAgreePacketData.Items);
             _currentMapStateRepository.OpenDoors.Clear();
             _currentMapStateRepository.VisibleSpikeTraps.Clear();
