@@ -129,10 +129,14 @@ namespace EndlessClient.Rendering.Map
                 foreach (var target in _mapGridEffectRenderers.Values)
                     target.Update();
 
-                if (_fixedTimeStepRepository.IsWalkUpdateFrame)
+                if (_fixedTimeStepRepository.IsWalkUpdateFrame || _mapTransitionState.StartTime.HasValue)
                 {
                     DrawGroundLayerToRenderTarget();
-                    DrawMapToRenderTarget();
+
+                    if (_fixedTimeStepRepository.IsWalkUpdateFrame)
+                    {
+                        DrawMapToRenderTarget();
+                    }
                 }
             }
 

@@ -1,14 +1,14 @@
-﻿using AutomaticTypeMapper;
-using EOLib.Domain.Character;
+﻿using EOLib.Domain.Character;
 using EOLib.Domain.Login;
-using EOLib.Domain.Notifiers;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 using Optional.Collections;
-using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Items
 {
+    /// <summary>
+    /// Base handler for when a quest gives/takes items from the main character
+    /// </summary>
     public abstract class QuestItemChangeHandler : InGameOnlyPacketHandler
     {
         private readonly ICharacterRepository _characterRepository;
@@ -28,7 +28,7 @@ namespace EOLib.PacketHandlers.Items
         public override bool HandlePacket(IPacket packet)
         {
             var id = packet.ReadShort();
-            var amount = packet.ReadThree();
+            var amount = Action == PacketAction.Obtain ? packet.ReadThree() : packet.ReadInt();
             var weight = packet.ReadChar();
 
             var inventoryItem = _inventoryRepository.ItemInventory
@@ -53,32 +53,6 @@ namespace EOLib.PacketHandlers.Items
             _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);
 
             return true;
-        }
-    }
-
-    [AutoMappedType]
-    public class ItemObtainHandler : QuestItemChangeHandler
-    {
-        public override PacketAction Action => PacketAction.Obtain;
-
-        public ItemObtainHandler(IPlayerInfoProvider playerInfoProvider,
-            ICharacterRepository characterRepository,
-            ICharacterInventoryRepository inventoryRepository)
-            : base(playerInfoProvider, characterRepository, inventoryRepository)
-        {
-        }
-    }
-
-    [AutoMappedType]
-    public class ItemKickHandler : QuestItemChangeHandler
-    {
-        public override PacketAction Action => PacketAction.Kick;
-
-        public ItemKickHandler(IPlayerInfoProvider playerInfoProvider,
-            ICharacterRepository characterRepository,
-            ICharacterInventoryRepository inventoryRepository)
-            : base(playerInfoProvider, characterRepository, inventoryRepository)
-        {
         }
     }
 }
