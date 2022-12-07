@@ -32,12 +32,16 @@
   <ItemGroup>
     <Compile Remove="ContentPipeline\bin\**" />
     <Compile Remove="ContentPipeline\obj\**" />
+    <Compile Remove="packages\**" />
     <EmbeddedResource Remove="ContentPipeline\bin\**" />
     <EmbeddedResource Remove="ContentPipeline\obj\**" />
+    <EmbeddedResource Remove="packages\**" />
     <None Remove="ContentPipeline\bin\**" />
     <None Remove="ContentPipeline\obj\**" />
+    <None Remove="packages\**" />
     <Page Remove="ContentPipeline\bin\**" />
     <Page Remove="ContentPipeline\obj\**" />
+    <Page Remove="packages\**" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="ContentPipeline\Content.mgcb" />
@@ -87,6 +91,6 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.0" />
-    <PackageReference Include="XNAControls" Version="1.7.1" />
+    <PackageReference Include="XNAControls" Version="1.7.2" />
   </ItemGroup>
 </Project>
