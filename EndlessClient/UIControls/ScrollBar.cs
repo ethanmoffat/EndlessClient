@@ -68,6 +68,7 @@ namespace EndlessClient.UIControls
             _scrollButton.SetParentControl(this);
 
             _totalHeight = DrawAreaWithParentOffset.Height;
+            this.ScrollToTop();
         }
 
         public override void Initialize()
@@ -88,7 +89,7 @@ namespace EndlessClient.UIControls
         {
             ScrollOffset = 0;
             var pixelsPerLine = (float)(scrollArea.Height - _scrollButton.DrawArea.Height * 2) / (_totalHeight - LinesToRender);
-            _scrollButton.DrawPosition = new Vector2(_scrollButton.DrawArea.X, _scrollButton.DrawArea.Height + pixelsPerLine * ScrollOffset);
+            _scrollButton.DrawPosition = new Vector2(_scrollButton.DrawArea.X, 1 + _scrollButton.DrawArea.Height + pixelsPerLine * ScrollOffset);
         }
 
         public void ScrollToEnd()
@@ -141,10 +142,7 @@ namespace EndlessClient.UIControls
             }
 
             var pixelsPerLine = (float)(scrollArea.Height - _scrollButton.DrawArea.Height * 2) / (_totalHeight - LinesToRender);
-            _scrollButton.DrawPosition = new Vector2(_scrollButton.DrawPosition.X, _scrollButton.DrawArea.Height + pixelsPerLine * ScrollOffset);
-            if (_scrollButton.DrawPosition.Y > scrollArea.Height - _scrollButton.DrawArea.Height)
             {
-                _scrollButton.DrawPosition = new Vector2(_scrollButton.DrawPosition.X, scrollArea.Height - _scrollButton.DrawArea.Height);
             }
         }
 
@@ -160,12 +158,11 @@ namespace EndlessClient.UIControls
             else if (y > scrollArea.Height - _scrollButton.DrawArea.Height)
                 y = scrollArea.Height - _scrollButton.DrawArea.Height;
 
-            _scrollButton.DrawPosition = new Vector2(0, y);
+                _scrollButton.DrawPosition = new Vector2(_scrollButton.DrawPosition.X, (scrollArea.Height - 1) - _scrollButton.DrawArea.Height);
 
             if (_totalHeight <= LinesToRender)
                 return;
 
-            var pixelsPerLine = (double)(scrollArea.Height - _scrollButton.DrawArea.Height * 2) / (_totalHeight - LinesToRender);
             ScrollOffset = (int)Math.Round((y - _scrollButton.DrawArea.Height) / pixelsPerLine);
         }
 
@@ -183,10 +180,10 @@ namespace EndlessClient.UIControls
 
                     var pixelsPerLine = (float)(scrollArea.Height - _scrollButton.DrawArea.Height * 2) /
                                         (_totalHeight - LinesToRender);
-                    _scrollButton.DrawPosition = new Vector2(_scrollButton.DrawPosition.X, _scrollButton.DrawArea.Height + pixelsPerLine * ScrollOffset);
+                    _scrollButton.DrawPosition = new Vector2(_scrollButton.DrawPosition.X, 1 + (_scrollButton.DrawArea.Height + pixelsPerLine * ScrollOffset));
 
-                    if (_scrollButton.DrawPosition.Y > scrollArea.Height - _scrollButton.DrawArea.Height)
-                        _scrollButton.DrawPosition = new Vector2(_scrollButton.DrawPosition.X, scrollArea.Height - _scrollButton.DrawArea.Height);
+                    if (_scrollButton.DrawPosition.Y >= (scrollArea.Height - 1) - _scrollButton.DrawArea.Height)
+                        _scrollButton.DrawPosition = new Vector2(_scrollButton.DrawPosition.X, (scrollArea.Height - 1) - _scrollButton.DrawArea.Height);
                 }
             }
 
