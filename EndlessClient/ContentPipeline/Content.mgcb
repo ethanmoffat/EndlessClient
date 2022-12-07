@@ -14,12 +14,12 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin BitmapFonts/sans_10px.fnt
+#begin BitmapFonts/sans_09px.fnt
 /importer:BitmapFontImporter
 /processor:BitmapFontProcessor
-/build:BitmapFonts/sans_10px.fnt
+/build:BitmapFonts/sans_09px.fnt
 
-#begin BitmapFonts/sans_10px_0.png
+#begin BitmapFonts/sans_09px_0.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -29,14 +29,14 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:BitmapFonts/sans_10px_0.png
+/build:BitmapFonts/sans_09px_0.png
 
-#begin BitmapFonts/sans_6px.fnt
+#begin BitmapFonts/sans_11px.fnt
 /importer:BitmapFontImporter
 /processor:BitmapFontProcessor
-/build:BitmapFonts/sans_6px.fnt
+/build:BitmapFonts/sans_11px.fnt
 
-#begin BitmapFonts/sans_6px_0.png
+#begin BitmapFonts/sans_11px_0.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -46,14 +46,14 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:BitmapFonts/sans_6px_0.png
+/build:BitmapFonts/sans_11px_0.png
 
-#begin BitmapFonts/sans_7px.fnt
+#begin BitmapFonts/sans_12px.fnt
 /importer:BitmapFontImporter
 /processor:BitmapFontProcessor
-/build:BitmapFonts/sans_7px.fnt
+/build:BitmapFonts/sans_12px.fnt
 
-#begin BitmapFonts/sans_7px_0.png
+#begin BitmapFonts/sans_12px_0.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -63,14 +63,14 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:BitmapFonts/sans_7px_0.png
+/build:BitmapFonts/sans_12px_0.png
 
-#begin BitmapFonts/sans_8px.fnt
+#begin BitmapFonts/sans_13px.fnt
 /importer:BitmapFontImporter
 /processor:BitmapFontProcessor
-/build:BitmapFonts/sans_8px.fnt
+/build:BitmapFonts/sans_13px.fnt
 
-#begin BitmapFonts/sans_8px_0.png
+#begin BitmapFonts/sans_13px_0.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -80,24 +80,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:BitmapFonts/sans_8px_0.png
-
-#begin BitmapFonts/sans_9px.fnt
-/importer:BitmapFontImporter
-/processor:BitmapFontProcessor
-/build:BitmapFonts/sans_9px.fnt
-
-#begin BitmapFonts/sans_9px_0.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:BitmapFonts/sans_9px_0.png
+/build:BitmapFonts/sans_13px_0.png
 
 #begin ChatBubble/ML.png
 /importer:TextureImporter

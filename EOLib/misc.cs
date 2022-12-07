@@ -61,11 +61,11 @@ namespace EOLib
         public static readonly int[] InstrumentIDs = { 349, 350 };
         // Item IDs of ranged weapons (overrides pub value)
         public static readonly int[] RangedWeaponIDs = { 365 };
-        public const string FontSize07 = @"BitmapFonts/sans_6px";
-        public const string FontSize08 = @"BitmapFonts/sans_7px";
-        public const string FontSize08pt5 = @"BitmapFonts/sans_8px";
-        public const string FontSize09 = @"BitmapFonts/sans_9px";
-        public const string FontSize10 = @"BitmapFonts/sans_10px";
+        public const string FontSize07 = @"BitmapFonts/sans_09px";
+        public const string FontSize08 = @"BitmapFonts/sans_11px";
+        public const string FontSize08pt5 = @"BitmapFonts/sans_11px";
+        public const string FontSize09 = @"BitmapFonts/sans_12px";
+        public const string FontSize10 = @"BitmapFonts/sans_13px";
 
         public const int OutOfBand_Packets_Handled_Per_Update = 10;
 

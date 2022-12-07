@@ -2,21 +2,21 @@
 fileVersion=1
 
 # font settings
-fontName=MS Sans Serif
+fontName=Microsoft Sans Serif
 fontFile=
 charSet=0
-fontSize=-6
+fontSize=-9
 aa=1
 scaleH=100
 useSmoothing=0
 isBold=0
 isItalic=0
-useUnicode=0
+useUnicode=1
 disableBoxChars=1
 outputInvalidCharGlyph=0
 dontIncludeKerningPairs=1
 useHinting=1
-renderFromOutline=1
+renderFromOutline=0
 useClearType=1
 autoFitNumPages=0
 autoFitFontSizeMin=0
@@ -34,8 +34,8 @@ forceZero=1
 widthPaddingFactor=0.00
 
 # output file
-outWidth=256
-outHeight=256
+outWidth=384
+outHeight=384
 outBitDepth=32
 fontDescFormat=1
 fourChnlPacked=0
@@ -54,6 +54,6 @@ invB=0
 outlineThickness=0
 
 # selected chars
-chars=32-126,160-255
+chars=32-126,160-591,7680-7935
 
 # imported icon images
