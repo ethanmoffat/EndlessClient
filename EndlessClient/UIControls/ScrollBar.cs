@@ -142,7 +142,10 @@ namespace EndlessClient.UIControls
             }
 
             var pixelsPerLine = (float)(scrollArea.Height - _scrollButton.DrawArea.Height * 2) / (_totalHeight - LinesToRender);
+            _scrollButton.DrawPosition = new Vector2(_scrollButton.DrawPosition.X, 1 + _scrollButton.DrawArea.Height + pixelsPerLine * ScrollOffset);
+            if (_scrollButton.DrawPosition.Y > 1 + scrollArea.Height - _scrollButton.DrawArea.Height)
             {
+                _scrollButton.DrawPosition = new Vector2(_scrollButton.DrawPosition.X, 1 + scrollArea.Height - _scrollButton.DrawArea.Height);
             }
         }
 
@@ -158,6 +161,12 @@ namespace EndlessClient.UIControls
             else if (y > scrollArea.Height - _scrollButton.DrawArea.Height)
                 y = scrollArea.Height - _scrollButton.DrawArea.Height;
 
+            var dif = (CurrentMouseState.ScrollWheelValue - PreviousMouseState.ScrollWheelValue) / -160;
+            var pixelsPerLine = (float)(scrollArea.Height - _scrollButton.DrawArea.Height * 2) /
+                                        (_totalHeight - LinesToRender);
+            _scrollButton.DrawPosition = new Vector2(_scrollButton.DrawPosition.X, 1 + (_scrollButton.DrawArea.Height + pixelsPerLine * ScrollOffset));
+
+            if (_scrollButton.DrawPosition.Y >= (scrollArea.Height - 1) - _scrollButton.DrawArea.Height)
                 _scrollButton.DrawPosition = new Vector2(_scrollButton.DrawPosition.X, (scrollArea.Height - 1) - _scrollButton.DrawArea.Height);
 
             if (_totalHeight <= LinesToRender)
