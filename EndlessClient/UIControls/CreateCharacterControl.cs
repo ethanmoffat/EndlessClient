@@ -26,8 +26,8 @@ namespace EndlessClient.UIControls
             if (!ShouldUpdate())
                 return;
 
-            var actualDrawPosition = new Vector2(DrawPositionWithParentOffset.X + 34,
-                                                 DrawPositionWithParentOffset.Y + 25);
+            var actualDrawPosition = new Vector2(DrawPositionWithParentOffset.X + 40,
+                                                 DrawPositionWithParentOffset.Y + 36);
 
             if (_lastPosition != actualDrawPosition)
                 _characterRenderer.SetAbsoluteScreenPosition((int)actualDrawPosition.X, (int)actualDrawPosition.Y);
