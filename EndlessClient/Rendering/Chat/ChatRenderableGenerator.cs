@@ -6,6 +6,7 @@ using EOLib;
 using EOLib.Domain.Chat;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended.BitmapFonts;
 using XNAControls;
 
 namespace EndlessClient.Rendering.Chat
@@ -22,11 +23,11 @@ namespace EndlessClient.Rendering.Chat
 
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IFriendIgnoreListService _friendIgnoreListService;
-        private readonly SpriteFont _chatFont;
+        private readonly BitmapFont _chatFont;
 
         public ChatRenderableGenerator(INativeGraphicsManager nativeGraphicsManager,
                                        IFriendIgnoreListService friendIgnoreListService,
-                                       SpriteFont chatFont)
+                                       BitmapFont chatFont)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _friendIgnoreListService = friendIgnoreListService;
@@ -76,7 +77,7 @@ namespace EndlessClient.Rendering.Chat
 
             string indentForUserName = "  "; //padding string for additional lines if it is a multi-line message
             if (!string.IsNullOrEmpty(who))
-                while (_chatFont.MeasureString(indentForUserName).X < _chatFont.MeasureString(who).X)
+                while (_chatFont.MeasureString(indentForUserName).Width < _chatFont.MeasureString(who).Width)
                     indentForUserName += " ";
 
             var splitter = new TextSplitter("", _chatFont)

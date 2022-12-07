@@ -11,6 +11,7 @@ using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.BitmapFonts;
 using Optional.Unsafe;
 using System;
 using System.Collections.Generic;
@@ -40,7 +41,7 @@ namespace EndlessClient.HUD.Panels
         private readonly IFriendIgnoreListService _friendIgnoreListService;
         private readonly ISfxPlayer _sfxPlayer;
 
-        private readonly SpriteFont _chatFont;
+        private readonly BitmapFont _chatFont;
 
         private readonly List<OnlinePlayerInfo> _onlineList;
         private readonly IXNALabel _totalNumberOfPlayers;
@@ -62,7 +63,7 @@ namespace EndlessClient.HUD.Panels
                                IPartyDataProvider partyDataProvider,
                                IFriendIgnoreListService friendIgnoreListService,
                                ISfxPlayer sfxPlayer,
-                               SpriteFont chatFont)
+                               BitmapFont chatFont)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _hudControlProvider = hudControlProvider;

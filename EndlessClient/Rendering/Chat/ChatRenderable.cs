@@ -3,6 +3,7 @@ using EOLib.Extensions;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended.BitmapFonts;
 using Optional.Unsafe;
 
 namespace EndlessClient.Rendering.Chat
@@ -52,7 +53,7 @@ namespace EndlessClient.Rendering.Chat
             return hash;
         }
 
-        public void Render(SpriteBatch spriteBatch, SpriteFont chatFont)
+        public void Render(SpriteBatch spriteBatch, BitmapFont chatFont)
         {
             spriteBatch.Begin();
 

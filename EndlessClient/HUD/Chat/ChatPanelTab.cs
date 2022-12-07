@@ -7,8 +7,8 @@ using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Chat;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.BitmapFonts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +25,7 @@ namespace EndlessClient.HUD.Chat
         private readonly ChatPanel _parentPanel;
         private readonly ScrollBar _scrollBar;
         private readonly ISpriteSheet _tabSheetSelected, _tabSheetUnselected;
-        private readonly SpriteFont _chatFont;
+        private readonly BitmapFont _chatFont;
 
         private readonly IXNAButton _closeButton, _tab;
         private readonly IXNALabel _label;
@@ -68,7 +68,7 @@ namespace EndlessClient.HUD.Chat
                             ChatTab whichTab,
                             ISpriteSheet tabSheetSelected,
                             ISpriteSheet tabSheetUnselected,
-                            SpriteFont chatFont)
+                            BitmapFont chatFont)
         {
             _chatProvider = chatProvider;
             _hudControlProvider = hudControlProvider;

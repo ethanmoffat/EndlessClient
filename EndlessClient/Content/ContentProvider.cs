@@ -4,6 +4,7 @@ using EOLib;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended.BitmapFonts;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,7 +15,7 @@ namespace EndlessClient.Content
     {
         IReadOnlyDictionary<string, Texture2D> Textures { get; }
 
-        IReadOnlyDictionary<string, SpriteFont> Fonts { get; }
+        IReadOnlyDictionary<string, BitmapFont> Fonts { get; }
 
         IReadOnlyDictionary<SoundEffectID, SoundEffect> SFX { get; }
 
@@ -31,7 +32,7 @@ namespace EndlessClient.Content
     public class ContentProvider : IContentProvider
     {
         private readonly Dictionary<string, Texture2D> _textures;
-        private readonly Dictionary<string, SpriteFont> _fonts;
+        private readonly Dictionary<string, BitmapFont> _fonts;
         private readonly Dictionary<SoundEffectID, SoundEffect> _sfx;
         private readonly List<SoundEffect> _harpNotes;
         private readonly List<SoundEffect> _guitarNotes;
@@ -62,7 +63,7 @@ namespace EndlessClient.Content
 
         public IReadOnlyDictionary<string, Texture2D> Textures => _textures;
 
-        public IReadOnlyDictionary<string, SpriteFont> Fonts => _fonts;
+        public IReadOnlyDictionary<string, BitmapFont> Fonts => _fonts;
 
         public IReadOnlyDictionary<SoundEffectID, SoundEffect> SFX => _sfx;
 
@@ -73,7 +74,7 @@ namespace EndlessClient.Content
         public ContentProvider()
         {
             _textures = new Dictionary<string, Texture2D>();
-            _fonts = new Dictionary<string, SpriteFont>();
+            _fonts = new Dictionary<string, BitmapFont>();
             _sfx = new Dictionary<SoundEffectID, SoundEffect>();
             _harpNotes = new List<SoundEffect>();
             _guitarNotes = new List<SoundEffect>();
@@ -123,8 +124,8 @@ namespace EndlessClient.Content
 
         private void RefreshFonts()
         {
-            _fonts[Constants.FontSize08] = _content.Load<SpriteFont>(Constants.FontSize08);
-            _fonts[Constants.FontSize09] = _content.Load<SpriteFont>(Constants.FontSize09);
+            _fonts[Constants.FontSize08] = _content.Load<BitmapFont>(Constants.FontSize08);
+            _fonts[Constants.FontSize09] = _content.Load<BitmapFont>(Constants.FontSize09);
         }
 
         private void LoadSFX()

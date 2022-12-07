@@ -27,8 +27,6 @@ Source builds require Visual Studio, the .Net 6.0 SDK, and the .Net 3.1 runtime 
 
 .Net 6.0 runtime is required to run the pre-built binary.
 
-On Linux, the `ttf-mscorefonts-installer` package is required. Consult your distribution's package manager documentation for instructions on how to install this.
-
 ### Pre-built binary
 
 See [releases](https://github.com/ethanmoffat/EndlessClient/releases) on GitHub for Linux and Windows binaries. .Net 6.0 runtime must be installed.
