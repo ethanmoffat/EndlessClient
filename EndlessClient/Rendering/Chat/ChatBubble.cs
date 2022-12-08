@@ -37,7 +37,8 @@ namespace EndlessClient.Rendering.Chat
             _textLabel = new XNALabel(Constants.FontSize08pt5)
             {
                 Visible = false,
-                TextWidth = 150,
+                TextWidth = 95,
+                HardBreak = 145,
                 ForeColor = Color.Black,
                 AutoSize = true,
                 Text = string.Empty,
@@ -84,7 +85,7 @@ namespace EndlessClient.Rendering.Chat
 
             _startTime.MatchSome(st =>
             {
-                if ((DateTime.Now - st).TotalMilliseconds > Constants.ChatBubbleTimeout)
+                if ((DateTime.Now - st).TotalMilliseconds > (24 + _textLabel.Text.Length / 3)*120)
                 {
                     _textLabel.Visible = false;
                     Visible = false;
@@ -110,8 +111,8 @@ namespace EndlessClient.Rendering.Chat
 
             var xCov = TL.Width;
             var yCov = TL.Height;
-            
-            var color = _isGroupChat ? Color.Tan : Color.FromNonPremultiplied(255, 255, 255, 232);
+
+            var color = _isGroupChat ? Color.Tan : Color.FromNonPremultiplied(255, 255, 255, 244);
 
             _spriteBatch.Begin();
 
