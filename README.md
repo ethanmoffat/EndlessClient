@@ -39,6 +39,13 @@ Download the appropriate [release](https://github.com/ethanmoffat/EndlessClient/
 
 After installing, clone (or fork+clone) this repository locally and open the solution in your IDE of choice for your platform.
 
+> ⚠️ If you have previously built EndlessClient, you mean need to clear your dotnet tool cache and nuget package cache
+>
+> Run the following commands:
+> - `dotnet nuget locals all --clear`
+> - Windows: `rmdir -recurse -force $env:USERPROFILE\\.dotnet\\toolResolverCache`
+> - Linux: `rm -rf ~/.dotnet/toolResolverCache`
+
 ### Building on Mac
 
 1. Download and install the [.NET 6.0 SDK (x64)](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-6.0.403-macos-x64-installer).
