@@ -50,20 +50,6 @@
             "stopAtEntry": false
         },
         {
-            "name": "EndlessClient - Mac (Main Clone)",
-            "type": "coreclr",
-            "targetArchitecture": "x86_64",
-            "request": "launch",
-            "preLaunchTask": "build-client-mac",
-            "program": "${workspaceFolder}/bin/Debug/client/net6.0-macos/osx-x64/EndlessClient.app/Contents/MacOS/EndlessClient",
-            "args": [
-                "--host game.eoserv.net"
-            ],
-            "cwd": "${workspaceFolder}/bin/Debug/client/net6.0-macos/osx-x64/EndlessClient.app",
-            "console": "internalConsole",
-            "stopAtEntry": false
-        },
-        {
             "name": ".NET Core Attach",
             "type": "coreclr",
             "request": "attach"
