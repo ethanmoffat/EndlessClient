@@ -36,7 +36,7 @@
         Earthquake,
         DoorClose,
         DoorOpen = 24,
-        UnknownClickSound3,
+        DoorOrChestLocked,
         BuySell,
         Craft,
         UnknownBuzzSound = 28,
