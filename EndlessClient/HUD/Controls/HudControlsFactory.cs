@@ -140,6 +140,8 @@ namespace EndlessClient.HUD.Controls
             {
                 {HudControlIdentifier.CurrentUserInputTracker, CreateCurrentUserInputTracker()},
 
+                {HudControlIdentifier.CharacterAnimator, characterAnimator},
+                {HudControlIdentifier.NPCAnimator, CreateNPCAnimator()},
                 {HudControlIdentifier.MapRenderer, _mapRendererFactory.CreateMapRenderer()},
                 {HudControlIdentifier.StatusIcons, CreatePlayerStatusIconRenderer()},
                 {HudControlIdentifier.MiniMapRenderer, _miniMapRendererFactory.Create()},
@@ -188,8 +190,6 @@ namespace EndlessClient.HUD.Controls
 
                 {HudControlIdentifier.PeriodicStatUpdater, CreatePeriodicStatUpdater()},
                 {HudControlIdentifier.UserInputHandler, CreateUserInputHandler()},
-                {HudControlIdentifier.CharacterAnimator, characterAnimator},
-                {HudControlIdentifier.NPCAnimator, CreateNPCAnimator()},
                 {HudControlIdentifier.UnknownEntitiesRequester, CreateUnknownEntitiesRequester()},
                 {HudControlIdentifier.PeriodicEmoteHandler, CreatePeriodicEmoteHandler(characterAnimator)},
 
