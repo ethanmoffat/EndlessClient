@@ -62,7 +62,7 @@ namespace EOLib
         public static readonly int[] RangedWeaponIDs = { 365 };
         public const string FontSize07 = @"BitmapFonts/sans_09px";
         public const string FontSize08 = @"BitmapFonts/sans_11px";
-        public const string FontSize08pt5 = @"BitmapFonts/sans_11px";
+        public const string FontSize08pt5 = @"BitmapFonts/sans_11px_103pct";
         public const string FontSize09 = @"BitmapFonts/sans_12px";
         public const string FontSize10 = @"BitmapFonts/sans_13px";
 
