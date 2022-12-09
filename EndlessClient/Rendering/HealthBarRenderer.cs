@@ -11,7 +11,6 @@ namespace EndlessClient.Rendering
     public class HealthBarRenderer : IHealthBarRenderer
     {
         private const int DigitWidth = 9;
-        private const int DamageCounterAdditionalOffset = 40;
 
         private readonly IMapActor _parentReference;
 
@@ -19,6 +18,7 @@ namespace EndlessClient.Rendering
         private static readonly Point _numberSpritesOffset, _healthBarSpritesOffset;
         private static readonly Rectangle _healthBarBackgroundSource;
 
+        private Action _doneCallback;
         private bool _isMiss;
         private List<Rectangle> _numberSourceRectangles;
         private Rectangle _healthBarSourceRectangle;
@@ -43,10 +43,11 @@ namespace EndlessClient.Rendering
             _numberSourceRectangles = new List<Rectangle>();
         }
 
-        public void SetDamage(Option<int> value, int percentHealth)
+        public void SetDamage(Option<int> value, int percentHealth, Action doneCallback = null)
         {
             Visible = true;
             _isMiss = !value.HasValue;
+            _doneCallback = doneCallback;
             _frameOffset = 0;
 
             _numberSourceRectangles.Clear();
@@ -61,10 +62,11 @@ namespace EndlessClient.Rendering
             _healthBarSourceRectangle = new Rectangle(_healthBarSpritesOffset + _healthBarSourceRectangle.Location, _healthBarSourceRectangle.Size);
         }
 
-        public void SetHealth(int value, int percentHealth)
+        public void SetHealth(int value, int percentHealth, Action doneCallback = null)
         {
             Visible = true;
             _isMiss = false;
+            _doneCallback = doneCallback;
             _frameOffset = 0;
 
             _numberSourceRectangles.Clear();
@@ -82,23 +84,26 @@ namespace EndlessClient.Rendering
 
             _frameOffset += .1f;
             if (_frameOffset > 4)
+            {
                 Visible = false;
+                _doneCallback?.Invoke();
+            }
 
             _healthBarPosition = new Vector2(
                 _parentReference.HorizontalCenter - _healthBarBackgroundSource.Width / 2f,
-                _parentReference.TopPixelWithOffset - 26);
+                _parentReference.NameLabelY);
 
             if (_isMiss)
             {
                 var xPos = _parentReference.HorizontalCenter - (_numberSourceRectangles[0].Width / 2f);
-                var yPos = _parentReference.TopPixelWithOffset - _frameOffset - DamageCounterAdditionalOffset;
+                var yPos = _parentReference.NameLabelY - _frameOffset - _healthBarBackgroundSource.Height*2f;
                 _damageCounterPosition = new Vector2(xPos, yPos);
             }
             else
             {
                 var digitCount = _numberSourceRectangles.Count;
                 var xPos = _parentReference.HorizontalCenter - (digitCount * DigitWidth / 2f);
-                var yPos = _parentReference.TopPixelWithOffset - _frameOffset - DamageCounterAdditionalOffset;
+                var yPos = _parentReference.NameLabelY - _frameOffset - _healthBarBackgroundSource.Height*2f;
                 _damageCounterPosition = new Vector2(xPos, yPos);
             }
         }
@@ -149,9 +154,9 @@ namespace EndlessClient.Rendering
     {
         bool Visible { get; }
 
-        void SetDamage(Option<int> value, int percentHealth);
+        void SetDamage(Option<int> value, int percentHealth, Action doneCallback = null);
 
-        void SetHealth(int value, int percentHealth);
+        void SetHealth(int value, int percentHealth, Action doneCallback = null);
 
         void Update(GameTime gameTime);
 

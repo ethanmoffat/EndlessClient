@@ -77,6 +77,16 @@ namespace EndlessClient.Rendering.Chat
             _startTime = Option.Some(Stopwatch.StartNew());
         }
 
+        public void Hide()
+        {
+            Visible = _textLabel.Visible = false;
+        }
+
+        public void Show()
+        {
+            Visible = _textLabel.Visible = _parent.IsAlive && _startTime.HasValue;
+        }
+
         public override void Update(GameTime gameTime)
         {
             SetLabelDrawPosition();
@@ -113,7 +123,7 @@ namespace EndlessClient.Rendering.Chat
             var xCov = TL.Width;
             var yCov = TL.Height;
 
-            var color = _isGroupChat ? Color.Tan : Color.FromNonPremultiplied(255, 255, 255, 244);
+            var color = _isGroupChat ? Color.Tan : Color.FromNonPremultiplied(255, 255, 255, 250);
 
             _spriteBatch.Begin();
 
@@ -158,7 +168,7 @@ namespace EndlessClient.Rendering.Chat
         {
             _textLabel.DrawPosition = new Vector2(
                 _parent.HorizontalCenter - _textLabel.ActualWidth / 2.0f,
-                _parent.TopPixelWithOffset - _textLabel.ActualHeight - (GetTexture(ChatBubbleTexture.TopMiddle).Height * 5));
+                _parent.NameLabelY - _textLabel.ActualHeight);
         }
 
         protected override void Dispose(bool disposing)
@@ -178,6 +188,12 @@ namespace EndlessClient.Rendering.Chat
 
     public interface IChatBubble : IDisposable
     {
+        bool Visible { get; }
+
         void SetMessage(string message, bool isGroupChat);
+
+        void Hide();
+
+        void Show();
     }
 }

@@ -130,7 +130,7 @@ namespace EndlessClient.Rendering
 
             Rectangle rendRect = renderer.DrawArea;
 
-            DrawPosition = new Vector2(rendRect.Right + 20, rendRect.Y + renderer.TopPixel);
+            DrawPosition = new Vector2(rendRect.Right + 20, rendRect.Y);
 
             if (DrawArea.Right > Game.GraphicsDevice.PresentationParameters.BackBufferWidth - 15)
             {
