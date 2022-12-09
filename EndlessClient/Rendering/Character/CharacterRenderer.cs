@@ -362,7 +362,7 @@ namespace EndlessClient.Rendering.Character
             {
                 _nameLabel.Visible = true;
                 _nameLabel.BlinkRate = null;
-                _nameLabel.Text = _character.Name;
+                _nameLabel.Text = !string.IsNullOrWhiteSpace(_character.GuildTag) ? $"{_character.Name} {_character.GuildTag}" : _character.Name;
             }
             else if (_shoutName != string.Empty && _nameLabel.Text != _shoutName)
             {

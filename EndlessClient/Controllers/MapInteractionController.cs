@@ -276,7 +276,7 @@ namespace EndlessClient.Controllers
                         message = EOResourceID.STATUS_LABEL_ITEM_PICKUP_PROTECTED_BY;
                         if (_currentMapStateProvider.Characters.ContainsKey(playerId))
                         {
-                            extra = _currentMapStateProvider.Characters[playerId].Name;
+                            extra = $" {_currentMapStateProvider.Characters[playerId].Name}";
                         }
                     });
 
