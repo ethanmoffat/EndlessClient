@@ -14,7 +14,6 @@ namespace EndlessClient.Input
         private readonly IUserInputTimeRepository _userInputTimeRepository;
         private readonly IArrowKeyController _arrowKeyController;
         private readonly IControlKeyController _controlKeyController;
-        private readonly ITabKeyController _tabKeyController;
         private readonly IFunctionKeyController _functionKeyController;
         private readonly INumPadController _numPadController;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
@@ -25,7 +24,6 @@ namespace EndlessClient.Input
                                        IUserInputTimeRepository userInputTimeRepository,
                                        IArrowKeyController arrowKeyController,
                                        IControlKeyController controlKeyController,
-                                       ITabKeyController tabKeyController,
                                        IFunctionKeyController functionKeyController,
                                        INumPadController numPadController,
                                        ICurrentMapStateRepository currentMapStateRepository,
@@ -36,7 +34,6 @@ namespace EndlessClient.Input
             _userInputTimeRepository = userInputTimeRepository;
             _arrowKeyController = arrowKeyController;
             _controlKeyController = controlKeyController;
-            _tabKeyController = tabKeyController;
             _functionKeyController = functionKeyController;
             _numPadController = numPadController;
             _currentMapStateRepository = currentMapStateRepository;
@@ -50,7 +47,6 @@ namespace EndlessClient.Input
                                         _userInputTimeRepository,
                                         _arrowKeyController,
                                         _controlKeyController,
-                                        _tabKeyController,
                                         _functionKeyController,
                                         _numPadController,
                                         _currentMapStateRepository,
