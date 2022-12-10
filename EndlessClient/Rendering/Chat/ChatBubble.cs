@@ -111,7 +111,7 @@ namespace EndlessClient.Rendering.Chat
             var xCov = TL.Width;
             var yCov = TL.Height;
             
-            var color = _isGroupChat ? Color.Tan : Color.FromNonPremultiplied(255, 255, 255, 232);
+            var color = _isGroupChat ? Color.FromNonPremultiplied(247, 234, 164, 232) : Color.FromNonPremultiplied(255, 255, 255, 232);
 
             _spriteBatch.Begin();
 

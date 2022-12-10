@@ -25,7 +25,6 @@ namespace EOLib.Domain.Chat
         private readonly IChatRepository _chatRepository;
         private readonly ICharacterProvider _characterProvider;
         private readonly IPartyDataProvider _partyDataProvider;
-        private readonly IChatTypeCalculator _chatTypeCalculator;
         private readonly IChatPacketBuilder _chatPacketBuilder;
         private readonly IPacketSendService _packetSendService;
         private readonly ILocalCommandHandler _localCommandHandler;
@@ -34,7 +33,6 @@ namespace EOLib.Domain.Chat
         public ChatActions(IChatRepository chatRepository,
                            ICharacterProvider characterProvider,
                            IPartyDataProvider partyDataProvider,
-                           IChatTypeCalculator chatTypeCalculator,
                            IChatPacketBuilder chatPacketBuilder,
                            IPacketSendService packetSendService,
                            ILocalCommandHandler localCommandHandler,
@@ -43,17 +41,14 @@ namespace EOLib.Domain.Chat
             _chatRepository = chatRepository;
             _characterProvider = characterProvider;
             _partyDataProvider = partyDataProvider;
-            _chatTypeCalculator = chatTypeCalculator;
             _chatPacketBuilder = chatPacketBuilder;
             _packetSendService = packetSendService;
             _localCommandHandler = localCommandHandler;
             _chatProcessor = chatProcessor;
         }
 
-        public (ChatResult, string) SendChatToServer(string chat, string targetCharacter)
+        public (ChatResult, string) SendChatToServer(string chat, string targetCharacter, ChatType chatType)
         {
-            var chatType = _chatTypeCalculator.CalculateChatType(chat);
-
             if (chatType == ChatType.Command)
             {
                 if (HandleCommand(chat))
@@ -188,7 +183,7 @@ namespace EOLib.Domain.Chat
 
     public interface IChatActions
     {
-        (ChatResult Ok, string Processed) SendChatToServer(string chat, string targetCharacter);
+        (ChatResult Ok, string Processed) SendChatToServer(string chat, string targetCharacter, ChatType chatType);
 
         void SetHearWhispers(bool whispersEnabled);
 
