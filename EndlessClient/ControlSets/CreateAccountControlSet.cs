@@ -188,7 +188,7 @@ namespace EndlessClient.ControlSets
                 {
                     Texture = _labelsTexture,
                     SourceRectangle = new Rectangle(0, srcYIndex * (srcYIndex < 2 ? 14 : 15), 149, 15),
-                    DrawPosition = new Vector2(358, (srcYIndex < 3 ? 50 : 241) + srcYIndex % 3 * 51)
+                    DrawPosition = new Vector2(430, (srcYIndex < 3 ? 50 : 241) + 10 + srcYIndex % 3 * 51)
                 };
                 texturePictureBox.SetParentControl(labelsPanel);
             }
