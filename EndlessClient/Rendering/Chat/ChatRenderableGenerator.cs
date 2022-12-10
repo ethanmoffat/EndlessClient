@@ -13,8 +13,6 @@ namespace EndlessClient.Rendering.Chat
 {
     public class ChatRenderableGenerator : IChatRenderableGenerator
     {
-        private const int LINE_LEN = 380;
-
         private class ChatPair
         {
             public string Text { get; set; }
@@ -46,7 +44,7 @@ namespace EndlessClient.Rendering.Chat
                     newsTextWithBlankLines.Add(" ");
             }
 
-            var splitStrings = SplitTextIntoLines("", newsTextWithBlankLines);
+            var splitStrings = SplitTextIntoLines(string.Empty, newsTextWithBlankLines);
             return splitStrings.Select(CreateNewsRenderableFromChatPair).ToList();
         }
 
@@ -73,16 +71,19 @@ namespace EndlessClient.Rendering.Chat
         private IReadOnlyList<ChatPair> SplitTextIntoLines(string who, IReadOnlyList<string> input)
         {
             var retStrings = new List<ChatPair>();
-            who = who ?? "";
+            who = who ?? string.Empty;
 
-            string indentForUserName = "  "; //padding string for additional lines if it is a multi-line message
-            if (!string.IsNullOrEmpty(who))
-                while (_chatFont.MeasureString(indentForUserName).Width < _chatFont.MeasureString(who).Width)
-                    indentForUserName += " ";
+            // padding string for additional lines if it is a multi-line message
+            var indentForUserName = string.Empty;
+            while (_chatFont.MeasureString(indentForUserName).Width < _chatFont.MeasureString(who).Width)
+                indentForUserName += " ";
+            indentForUserName += string.IsNullOrEmpty(who) ? string.Empty : "  ";
 
             var splitter = new TextSplitter("", _chatFont)
             {
-                LineLength = LINE_LEN,
+                LineLength = 380,
+                HardBreak = 425,
+                Hyphen = "-",
                 LineIndent = indentForUserName
             };
 
@@ -94,17 +95,20 @@ namespace EndlessClient.Rendering.Chat
                     continue;
                 }
 
-                splitter.Text = text;
+                splitter.Text = string.IsNullOrEmpty(who) ? text : $"{who} {text}";
                 if (!splitter.NeedsProcessing)
                 {
                     retStrings.Add(new ChatPair { Text = text, IsFirstLineOfMultilineMessage = true });
                     continue;
                 }
 
-                var stringsToAdd = splitter.SplitIntoLines()
-                                           .Select((str, i) => new ChatPair {Text = str, IsFirstLineOfMultilineMessage = i == 0})
-                                           .ToList();
-                retStrings.AddRange(stringsToAdd);
+                var stringsToAdd = splitter.SplitIntoLines();
+                if (who.Length > 0)
+                {
+                    stringsToAdd[0] = stringsToAdd[0].Remove(0, who.Length + 1);
+                }
+
+                retStrings.AddRange(stringsToAdd.Select((str, i) => new ChatPair { Text = str, IsFirstLineOfMultilineMessage = i == 0 }));
             }
 
             return retStrings;

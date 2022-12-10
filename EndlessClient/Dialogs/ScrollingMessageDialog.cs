@@ -61,7 +61,7 @@ namespace EndlessClient.Dialogs
             : base(nativeGraphicsManager, gameStateProvider)
         {
             _font = contentProvider.Fonts[Constants.FontSize08];
-            _textSplitter = new TextSplitter("", _font) { LineLength = 275 };
+            _textSplitter = new TextSplitter("", _font) { LineLength = 280 };
 
             BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 40);
 
