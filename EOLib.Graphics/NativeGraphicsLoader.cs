@@ -23,14 +23,14 @@ namespace EOLib.Graphics
             }
             catch (ArgumentException)
             {
-#if DEBUG && THROW_ON_IMAGE_LOAD_FAIL
+#if DEBUG
                 throw;
 #endif
             }
 
             if (fileBytes.Length == 0)
             {
-#if DEBUG && THROW_ON_IMAGE_LOAD_FAIL
+#if DEBUG
                 throw new GFXLoadException(resourceValue, file);
 #else
                 return new Image<SixLabors.ImageSharp.PixelFormats.Rgba32>(1, 1);
