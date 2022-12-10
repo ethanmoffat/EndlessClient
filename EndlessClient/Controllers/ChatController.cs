@@ -22,6 +22,7 @@ namespace EndlessClient.Controllers
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly ISfxPlayer _sfxPlayer;
+        private readonly IChatTypeCalculator _chatTypeCalculator;
 
         public ChatController(IChatTextBoxActions chatTextBoxActions,
                               IChatActions chatActions,
@@ -29,7 +30,8 @@ namespace EndlessClient.Controllers
                               IChatBubbleActions chatBubbleActions,
                               IStatusLabelSetter statusLabelSetter,
                               IHudControlProvider hudControlProvider,
-                              ISfxPlayer sfxPlayer)
+                              ISfxPlayer sfxPlayer,
+                              IChatTypeCalculator chatTypeCalculator)
         {
             _chatTextBoxActions = chatTextBoxActions;
             _chatActions = chatActions;
@@ -38,6 +40,7 @@ namespace EndlessClient.Controllers
             _statusLabelSetter = statusLabelSetter;
             _hudControlProvider = hudControlProvider;
             _sfxPlayer = sfxPlayer;
+            _chatTypeCalculator = chatTypeCalculator;
         }
 
         public void SendChatAndClearTextBox()
@@ -52,10 +55,11 @@ namespace EndlessClient.Controllers
                     _sfxPlayer.PlaySfx(SoundEffectID.PrivateMessageSent);
                 }
 
-                var (result, updatedChat) = _chatActions.SendChatToServer(localTypedText, targetCharacter);
+                var chatType = _chatTypeCalculator.CalculateChatType(localTypedText);
+                var (result, updatedChat) = _chatActions.SendChatToServer(localTypedText, targetCharacter, chatType);
                 switch (result)
                 {
-                    case ChatResult.Ok: _chatBubbleActions.ShowChatBubbleForMainCharacter(updatedChat); break;
+                    case ChatResult.Ok: _chatBubbleActions.ShowChatBubbleForMainCharacter(updatedChat, chatType == ChatType.Party); break;
                     case ChatResult.YourMindPrevents: _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.YOUR_MIND_PREVENTS_YOU_TO_SAY); break;
                     case ChatResult.Command:
                         {

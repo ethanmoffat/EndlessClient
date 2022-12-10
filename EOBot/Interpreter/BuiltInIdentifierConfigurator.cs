@@ -194,7 +194,7 @@ namespace EOBot.Interpreter
         private void Chat(string chatText)
         {
             var c = DependencyMaster.TypeRegistry[_botIndex];
-            c.Resolve<IChatActions>().SendChatToServer(chatText, string.Empty);
+            c.Resolve<IChatActions>().SendChatToServer(chatText, string.Empty, ChatType.Local);
         }
 
         private (bool, IIdentifiable) SetupAccountObject()
