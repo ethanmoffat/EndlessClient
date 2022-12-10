@@ -65,7 +65,7 @@ namespace EndlessClient.Dialogs
 
             if (transferType != TransferType.DropItems)
             {
-                _titleBarTextureSource = new Rectangle(40, 172 + ((int)transferType - 1) * 24, 241, 22);
+                _titleBarTextureSource = new Rectangle(40, 172 + ((int)transferType - 1) * 24, 240, 22);
             }
 
             _okButton = new XNAButton(eoDialogButtonService.SmallButtonSheet,
@@ -150,7 +150,7 @@ namespace EndlessClient.Dialogs
 
             if (_titleBarTextureSource != null)
             {
-                _spriteBatch.Draw(_backgroundTexture, DrawPositionWithParentOffset + new Vector2(10, 10), _titleBarTextureSource, Color.White);
+                _spriteBatch.Draw(_backgroundTexture, DrawPositionWithParentOffset + new Vector2(11, 10), _titleBarTextureSource, Color.White);
             }
 
             _spriteBatch.End();
