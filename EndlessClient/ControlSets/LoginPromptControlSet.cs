@@ -110,7 +110,7 @@ namespace EndlessClient.ControlSets
                 _textBoxCursor)
             {
                 MaxChars = 16,
-                DefaultText = "",
+                DefaultText = "Username",
                 LeftPadding = 4,
                 DrawOrder = _personPicture.DrawOrder + 2,
                 DefaultTextColor = Color.FromNonPremultiplied(80, 80, 80, 0xff),
@@ -133,7 +133,7 @@ namespace EndlessClient.ControlSets
                 MaxChars = 12,
                 PasswordBox = true,
                 LeftPadding = 4,
-                DefaultText = "",
+                DefaultText = "Password",
                 DrawOrder = _personPicture.DrawOrder + 2,
                 DefaultTextColor = Color.FromNonPremultiplied(80, 80, 80, 0xff),
                 TextColor = Color.Black
