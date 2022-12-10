@@ -10,7 +10,6 @@ using XNAControls;
 
 namespace EndlessClient.Rendering.Chat
 {
-    //todo: clear message when IHaveChatBubble dies
     public class ChatBubble : DrawableGameComponent, IChatBubble
     {
         private readonly IMapActor _parent;
@@ -38,8 +37,9 @@ namespace EndlessClient.Rendering.Chat
             _textLabel = new XNALabel(Constants.FontSize08pt5)
             {
                 Visible = false,
-                TextWidth = 95,
-                HardBreak = 145,
+                TextWidth = 102,
+                HardBreak = 150,
+                Hyphen = "-",
                 ForeColor = Color.Black,
                 AutoSize = true,
                 Text = string.Empty,
@@ -66,7 +66,7 @@ namespace EndlessClient.Rendering.Chat
 
         public void SetMessage(string message, bool isGroupChat)
         {
-            if (!_configurationProvider.ShowChatBubbles)
+            if (!_configurationProvider.ShowChatBubbles || !_parent.IsAlive)
                 return;
 
             _isGroupChat = isGroupChat;
