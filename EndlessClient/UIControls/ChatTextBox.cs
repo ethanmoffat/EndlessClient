@@ -1,10 +1,9 @@
-﻿using System;
-using EndlessClient.Content;
+﻿using EndlessClient.Content;
 using EOLib;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Optional;
+using System;
 using XNAControls;
 
 namespace EndlessClient.UIControls
@@ -59,7 +58,7 @@ namespace EndlessClient.UIControls
         {
             if (_ignoreAllInput) return;
 
-            if (IsSpecialInput((Keys) inp))
+            if (IsSpecialInput((Keys)inp))
                 HandleSpecialInput((Keys)inp);
             else
                 base.ReceiveTextInput(inp);
@@ -75,7 +74,7 @@ namespace EndlessClient.UIControls
         {
             //todo: figure out how to handle num pad
             return k == Keys.Escape;// || k == Keys.Decimal ||
-                   //(k >= Keys.NumPad0 && k <= Keys.NumPad9);
+                                    //(k >= Keys.NumPad0 && k <= Keys.NumPad9);
         }
     }
 }

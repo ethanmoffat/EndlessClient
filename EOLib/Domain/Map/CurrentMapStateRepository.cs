@@ -46,6 +46,8 @@ namespace EOLib.Domain.Map
 
         short JailMapID { get; }
 
+        bool IsJail { get; }
+
         IReadOnlyDictionary<int, Character.Character> Characters { get; }
 
         IReadOnlyCollection<NPC.NPC> NPCs { get; }
@@ -79,6 +81,8 @@ namespace EOLib.Domain.Map
         public bool ShowMiniMap { get; set; }
 
         public short JailMapID { get; set; }
+
+        public bool IsJail => JailMapID == CurrentMapID;
 
         public Dictionary<int, Character.Character> Characters { get; set; }
 
