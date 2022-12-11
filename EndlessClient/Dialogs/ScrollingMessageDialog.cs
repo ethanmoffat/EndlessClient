@@ -7,18 +7,20 @@ using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended.BitmapFonts;
 using XNAControls;
 
 namespace EndlessClient.Dialogs
 {
     public class ScrollingMessageDialog : BaseEODialog
     {
+        const int TEXT_LINE_HEIGHT = 16;
+
         private readonly XNAButton _ok;
         private readonly ScrollBar _scrollBar;
         private readonly List<string> _chatStrings = new List<string>();
         private readonly TextSplitter _textSplitter;
-        private readonly SpriteFont _font;
+        private readonly BitmapFont _font;
 
         public string MessageText
         {
@@ -46,7 +48,7 @@ namespace EndlessClient.Dialogs
                 _chatStrings.AddRange(_textSplitter.SplitIntoLines());
 
                 _scrollBar.UpdateDimensions(_chatStrings.Count);
-                _scrollBar.LinesToRender = (int)Math.Round(110.0f / 13); //draw area for the text is 117px, 13px per line
+                _scrollBar.LinesToRender = (int)Math.Round(110.0f / TEXT_LINE_HEIGHT);
                 if (_scrollBar.LinesToRender < _chatStrings.Count)
                     _scrollBar.SetDownArrowFlashSpeed(500);
             }
@@ -59,7 +61,7 @@ namespace EndlessClient.Dialogs
             : base(nativeGraphicsManager, gameStateProvider)
         {
             _font = contentProvider.Fonts[Constants.FontSize08];
-            _textSplitter = new TextSplitter("", _font) { LineLength = 275 };
+            _textSplitter = new TextSplitter("", _font) { LineLength = 280 };
 
             BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 40);
 
@@ -103,7 +105,7 @@ namespace EndlessClient.Dialogs
 
                 var strToDraw = _chatStrings[i];
 
-                _spriteBatch.DrawString(_font, strToDraw, new Vector2(pos.X, pos.Y + (i - _scrollBar.ScrollOffset) * 13), ColorConstants.LightGrayText);
+                _spriteBatch.DrawString(_font, strToDraw, new Vector2(pos.X, pos.Y + (i - _scrollBar.ScrollOffset) * TEXT_LINE_HEIGHT), ColorConstants.LightGrayText);
             }
 
             _spriteBatch.End();

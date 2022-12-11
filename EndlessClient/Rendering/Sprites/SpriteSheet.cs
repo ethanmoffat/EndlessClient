@@ -26,6 +26,9 @@ namespace EndlessClient.Rendering.Sprites
         public T[] GetSourceTextureData<T>() where T : struct
         {
             var data = new T[SourceRectangle.Width * SourceRectangle.Height];
+            if (!SheetTexture.Bounds.Contains(SourceRectangle))
+                return data;
+
             SheetTexture.GetData(0, SourceRectangle, data, 0, data.Length);
 
             return data;

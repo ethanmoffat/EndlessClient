@@ -18,7 +18,7 @@ namespace EndlessClient.UIControls
             : base(Constants.FontSize07)
         {
             _statusLabelTextProvider = statusLabelTextProvider;
-            DrawArea = new Rectangle(97, clientWindowSizeProvider.Height - 24, 1, 1);
+            DrawArea = new Rectangle(97, clientWindowSizeProvider.Height - 26, 1, 1);
         }
 
         protected override bool ShouldUpdate()

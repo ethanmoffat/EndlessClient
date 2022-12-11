@@ -5,11 +5,11 @@ namespace EndlessClient.Rendering
 {
     public interface IMapActor
     {
-        int TopPixel { get; }
-
-        int TopPixelWithOffset { get; }
+        int NameLabelY { get; }
 
         int HorizontalCenter { get; }
+
+        bool IsAlive { get; }
 
         ISpellTargetable SpellTarget { get; }
 

@@ -22,6 +22,7 @@ using EOLib.Logger;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.BitmapFonts;
 
 namespace EndlessClient.GameExecution
 {
@@ -208,10 +209,10 @@ namespace EndlessClient.GameExecution
             _frames++;
 
             var fpsString = $"FPS: {_displayFrames}{(gameTime.IsRunningSlowly ? " (SLOW)" : string.Empty)}";
-            var dim = _contentProvider.Fonts[Constants.FontSize09].MeasureString(fpsString).ToPoint();
+            var dim = _contentProvider.Fonts[Constants.FontSize09].MeasureString(fpsString);
 
             _spriteBatch.Begin();
-            _spriteBatch.Draw(_black, new Rectangle(18, 18, dim.X + 4, dim.Y + 4), Color.White);
+            _spriteBatch.Draw(_black, new Rectangle(18, 18, (int)dim.Width + 4, (int)dim.Height + 4), Color.White);
             _spriteBatch.DrawString(_contentProvider.Fonts[Constants.FontSize09], fpsString, new Vector2(20, 20), Color.White);
             _spriteBatch.End();
 

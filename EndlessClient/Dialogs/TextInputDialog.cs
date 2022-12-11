@@ -33,9 +33,9 @@ namespace EndlessClient.Dialogs
             var lblPrompt = new XNALabel(Constants.FontSize10)
             {
                 AutoSize = false,
-                DrawArea = new Rectangle(16, 20, 235, 49),
+                DrawArea = new Rectangle(21, 19, 230, 49),
                 ForeColor = ColorConstants.LightGrayDialogMessage,
-                TextWidth = 230,
+                TextWidth = 225,
                 Text = prompt
             };
             lblPrompt.Initialize();

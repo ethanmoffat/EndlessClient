@@ -33,7 +33,7 @@ namespace EndlessClient.UIControls
         {
             //original location: 558, 456
             var xLoc = windowSizeProvider.Width - 82;
-            var yLoc = windowSizeProvider.Height - 24;
+            var yLoc = windowSizeProvider.Height - 26;
 
             return new Rectangle(xLoc, yLoc, 1, 1);
         }

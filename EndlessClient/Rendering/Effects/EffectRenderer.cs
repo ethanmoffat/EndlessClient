@@ -185,18 +185,8 @@ namespace EndlessClient.Rendering.Effects
 
         private Vector2 GetCharacterBasePosition(DomainCharacter c)
         {
-            // todo: WTF
-            // this fixes the weird shifting issue with the base layers
-            // not sure why they're weirdly offset in the first place
-            // see also: GridDrawCoordinateCalculator::CalculateGroundLayerCharacterOffsets
-            var rp = c.RenderProperties;
-            if (c == _characterProvider.MainCharacter && rp.IsActing(CharacterActionState.Walking))
-            {
-                rp = rp.WithActualWalkFrame(rp.ActualWalkFrame - 1);
-            }
-
-            var walkExtra = new Vector2(_renderOffsetCalculator.CalculateWalkAdjustX(rp), _renderOffsetCalculator.CalculateWalkAdjustY(rp));
-            return _gridDrawCoordinateCalculator.CalculateBaseLayerDrawCoordinatesFromGridUnits(rp.Coordinates()) + walkExtra;
+            var walkExtra = new Vector2(_renderOffsetCalculator.CalculateWalkAdjustX(c.RenderProperties), _renderOffsetCalculator.CalculateWalkAdjustY(c.RenderProperties));
+            return _gridDrawCoordinateCalculator.CalculateBaseLayerDrawCoordinatesFromGridUnits(c.RenderProperties.Coordinates()) + walkExtra;
         }
 
         private Vector2 GetNPCBasePosition(DomainNPC n)

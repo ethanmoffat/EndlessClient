@@ -77,12 +77,11 @@ namespace EndlessClient.Rendering.Character
 
         public ISpellTargetable SpellTarget => Character;
 
-        private int? _topPixel;
-        public int TopPixel => _topPixel.HasValue ? _topPixel.Value : 0;
-
-        public int TopPixelWithOffset => TopPixel + DrawArea.Y;
+        public int NameLabelY { get; private set; }
 
         public int HorizontalCenter { get; private set; }
+
+        public bool IsAlive => !Character.RenderProperties.IsDead;
 
         public bool MouseOver => DrawArea.Contains(_userInputProvider.CurrentMouseState.Position);
 
@@ -175,8 +174,6 @@ namespace EndlessClient.Rendering.Character
 
         public override void Update(GameTime gameTime)
         {
-            _topPixel = _topPixel ?? FigureOutTopPixel(_characterSpriteCalculator, _character.RenderProperties);
-
             // Effects can be rendered when character is not visible (leaving map)
             _effectRenderer.Update();
 
@@ -279,21 +276,6 @@ namespace EndlessClient.Rendering.Character
 
         #endregion
 
-        #region Texture Loading Helpers
-
-        private static int FigureOutTopPixel(ICharacterSpriteCalculator spriteCalculator, CharacterRenderProperties renderProperties)
-        {
-            var spriteForSkin = spriteCalculator.GetSkinTexture(renderProperties);
-            var skinData = spriteForSkin.GetSourceTextureData<Color>();
-
-            int i = 0;
-            while (i < skinData.Length && skinData[i].A == 0) i++;
-
-            return i == skinData.Length - 1 ? 0 : i/spriteForSkin.SourceRectangle.Height;
-        }
-
-        #endregion
-
         #region Update/Drawing Helpers
 
         private void DrawToRenderTarget()
@@ -350,6 +332,7 @@ namespace EndlessClient.Rendering.Character
                 // size of standing still skin texture
                 DrawArea = new Rectangle(xPosition, yPosition, 18, 58);
                 HorizontalCenter = xPosition + 9;
+                NameLabelY = DrawArea.Y - 12 - (int)(_nameLabel?.ActualHeight ?? 0);
                 _textureUpdateRequired = true;
             }
         }
@@ -402,8 +385,7 @@ namespace EndlessClient.Rendering.Character
 
         private Vector2 GetNameLabelPosition()
         {
-            return new Vector2(DrawArea.X - Math.Abs(DrawArea.Width - _nameLabel.ActualWidth) / 2,
-                               TopPixelWithOffset - 8 - _nameLabel.ActualHeight);
+            return new Vector2(HorizontalCenter - (_nameLabel.ActualWidth / 2f), NameLabelY);
         }
 
         private bool GetIsSteppingStone(CharacterRenderProperties renderProps)
@@ -488,9 +470,11 @@ namespace EndlessClient.Rendering.Character
         public void ShowDamageCounter(int damage, int percentHealth, bool isHeal)
         {
             if (isHeal)
-                _healthBarRenderer.SetHealth(damage, percentHealth);
+                _healthBarRenderer.SetHealth(damage, percentHealth, () => _chatBubble.Value.Show());
             else
-                _healthBarRenderer.SetDamage(damage.SomeWhen(d => d > 0), percentHealth);
+                _healthBarRenderer.SetDamage(damage.SomeWhen(d => d > 0), percentHealth, () => _chatBubble.Value.Show());
+
+            _chatBubble.Value.Hide();
         }
 
         public void ShowChatBubble(string message, bool isGroupChat)

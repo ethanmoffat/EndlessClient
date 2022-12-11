@@ -31,7 +31,7 @@ namespace EndlessClient.Rendering
             const int ViewportHeightFactor = 142; // 480 * (3/10) - 2
 
             return new Vector2(ViewportWidthFactor + (gridX * 32) - (gridY * 32),
-                               ViewportHeightFactor + (gridY * 16) + (gridX * 16)) - CalculateCharacterOffsets();
+                               ViewportHeightFactor + (gridY * 16) + (gridX * 16)) - GetMainCharacterOffsets();
         }
 
         public Vector2 CalculateDrawCoordinatesFromGridUnits(MapCoordinate mapCoordinate)
@@ -45,7 +45,7 @@ namespace EndlessClient.Rendering
             const int ViewportHeightFactor = 142; // 480 * (3/10) - 2
 
             return new Vector2(ViewportWidthFactor + (gridX * 32) - (gridY * 32),
-                               ViewportHeightFactor + (gridY * 16) + (gridX * 16)) - CalculateBaseLayerOffsets();
+                               ViewportHeightFactor + (gridY * 16) + (gridX * 16)) - GetMainCharacterOffsets();
         }
 
         public Vector2 CalculateBaseLayerDrawCoordinatesFromGridUnits(MapCoordinate mapCoordinate)
@@ -64,7 +64,7 @@ namespace EndlessClient.Rendering
 
             // opposite of the algorithm for rendering the base layers
             return new Vector2(ViewportWidthFactor - (mapHeightPlusOne * 32) + (props.MapY * 32) - (props.MapX * 32),
-                               ViewportHeightFactor - (props.MapY * 16) - (props.MapX * 16)) - CalculateGroundLayerCharacterOffsets();
+                               ViewportHeightFactor - (props.MapY * 16) - (props.MapX * 16)) - GetMainCharacterWalkAdjustOffsets();
         }
 
         public Vector2 CalculateDrawCoordinates(DomainNPC npc)
@@ -111,35 +111,16 @@ namespace EndlessClient.Rendering
             return new MapCoordinate(gridX, gridY);
         }
 
-        private Vector2 CalculateCharacterOffsets()
+        private Vector2 GetMainCharacterOffsets()
         {
             var props = _characterProvider.MainCharacter.RenderProperties;
             return new Vector2(_renderOffsetCalculator.CalculateOffsetX(props),
                                _renderOffsetCalculator.CalculateOffsetY(props));
         }
 
-        private Vector2 CalculateBaseLayerOffsets()
+        private Vector2 GetMainCharacterWalkAdjustOffsets()
         {
             var props = _characterProvider.MainCharacter.RenderProperties;
-            props = props.IsActing(CharacterActionState.Walking)
-                ? props.WithActualWalkFrame(props.ActualWalkFrame - 1)
-                : props;
-
-            return new Vector2(_renderOffsetCalculator.CalculateOffsetX(props),
-                               _renderOffsetCalculator.CalculateOffsetY(props));
-        }
-
-        private Vector2 CalculateGroundLayerCharacterOffsets()
-        {
-            // todo: WTF
-            // this fixes the weird shifting issue with the base layers
-            // not sure why they're weirdly offset in the first place
-            // see also: EffectRenderer::GetCharacterBasePosition
-            var props = _characterProvider.MainCharacter.RenderProperties;
-            props = props.IsActing(CharacterActionState.Walking)
-                ? props.WithActualWalkFrame(props.ActualWalkFrame - 1)
-                : props;
-
             return new Vector2(_renderOffsetCalculator.CalculateWalkAdjustX(props),
                                _renderOffsetCalculator.CalculateWalkAdjustY(props));
         }

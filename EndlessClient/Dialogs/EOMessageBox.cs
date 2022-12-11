@@ -46,10 +46,10 @@ namespace EndlessClient.Dialogs
             _messageLabel = new XNALabel(Constants.FontSize10)
             {
                 AutoSize = true,
-                ForeColor = ColorConstants.LightYellowText,
+                ForeColor = ColorConstants.LightGrayDialogMessage,
                 Text = message,
-                TextWidth = 240,
-                DrawPosition = new Vector2(21, useSmallHeader ? 40 : 62),
+                TextWidth = 254,
+                DrawPosition = new Vector2(19, useSmallHeader ? 40 : 62),
                 WrapBehavior = WrapBehavior.WrapToNewLine,
             };
 

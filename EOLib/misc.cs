@@ -28,7 +28,6 @@ namespace EOLib
 
     public static class Constants
     {
-        public const int ChatBubbleTimeout = 4000;
         public const int ResponseTimeout = 5000;
         public const int ResponseFileTimeout = 10000;
 
@@ -61,11 +60,11 @@ namespace EOLib
         public static readonly int[] InstrumentIDs = { 349, 350 };
         // Item IDs of ranged weapons (overrides pub value)
         public static readonly int[] RangedWeaponIDs = { 365 };
-        public const string FontSize07 = @"Fonts/InGame_Main_07";
-        public const string FontSize08 = @"Fonts/InGame_Main_08";
-        public const string FontSize08pt5 = @"Fonts/InGame_Main_08pt5";
-        public const string FontSize09 = @"Fonts/InGame_Main_09";
-        public const string FontSize10 = @"Fonts/InGame_Main_10";
+        public const string FontSize07 = @"BitmapFonts/sans_09px";
+        public const string FontSize08 = @"BitmapFonts/sans_11px";
+        public const string FontSize08pt5 = @"BitmapFonts/sans_11px_103pct";
+        public const string FontSize09 = @"BitmapFonts/sans_12px";
+        public const string FontSize10 = @"BitmapFonts/sans_13px";
 
         public const int OutOfBand_Packets_Handled_Per_Update = 10;
 

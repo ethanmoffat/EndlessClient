@@ -57,14 +57,14 @@ namespace EndlessClient.Dialogs
 
             SetSize(427, 16);
 
-            _primaryText.DrawPosition += new Vector2(25, 0);
+            _primaryText.DrawPosition += new Vector2(25, 2);
             _subText.DrawPosition = new Vector2(169, _primaryText.DrawPosition.Y);
             ((DrawableGameComponent)_subText).Visible = true;
 
             PrimaryText = " ";
             SubText = " ";
 
-            _progress = new XNALabel(Constants.FontSize09)
+            _progress = new XNALabel(Constants.FontSize08pt5)
             {
                 DrawPosition = new Vector2(page == QuestPage.Progress ? 353 : 289, _primaryText.DrawPosition.Y),
                 AutoSize = true,
@@ -75,8 +75,8 @@ namespace EndlessClient.Dialogs
             };
 
             _signalPosition = page == QuestPage.Progress
-                ? new Vector2(334, 0)
-                : new Vector2(270, 0);
+                ? new Vector2(334, 2)
+                : new Vector2(270, 2);
 
             Icon = page == QuestPage.Progress
                 ? QuestStatusIcon.None

@@ -32,12 +32,17 @@
   <ItemGroup>
     <Compile Remove="ContentPipeline\bin\**" />
     <Compile Remove="ContentPipeline\obj\**" />
+    <Compile Remove="packages\**" />
     <EmbeddedResource Remove="ContentPipeline\bin\**" />
     <EmbeddedResource Remove="ContentPipeline\obj\**" />
+    <EmbeddedResource Remove="packages\**" />
     <None Remove="ContentPipeline\bin\**" />
     <None Remove="ContentPipeline\obj\**" />
+    <None Remove="packages\**" />
     <Page Remove="ContentPipeline\bin\**" />
     <Page Remove="ContentPipeline\obj\**" />
+    <Page Remove="packages\**" />
+    <Content Remove="..\packages\monogame.extended.content.pipeline\3.8.0\contentFiles\**" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="ContentPipeline\Content.mgcb" />
@@ -84,9 +89,10 @@
     <PackageReference Include="EndlessClient.Binaries" Version="1.3.1.2" />
     <PackageReference Include="managed-midi" Version="1.9.14" />
     <PackageReference Include="Monogame.Content.Builder.Task" Version="3.8.1.303" />
+    <PackageReference Include="MonoGame.Extended.Content.Pipeline" Version="3.8.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.0" />
-    <PackageReference Include="XNAControls" Version="1.6.0" />
+    <PackageReference Include="XNAControls" Version="1.7.4" />
   </ItemGroup>
 </Project>
