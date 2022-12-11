@@ -49,7 +49,7 @@ namespace EndlessClient.HUD.Panels
         private readonly IHudControlProvider _hudControlProvider;
         private readonly IActiveDialogProvider _activeDialogProvider;
         private readonly ISfxPlayer _sfxPlayer;
-        private readonly IConfigurationRepository _configRepository;
+        private readonly IConfigurationProvider _configProvider;
 
         private readonly List<InventoryPanelItem> _childItems = new List<InventoryPanelItem>();
 
@@ -76,7 +76,7 @@ namespace EndlessClient.HUD.Panels
                               IHudControlProvider hudControlProvider,
                               IActiveDialogProvider activeDialogProvider,
                               ISfxPlayer sfxPlayer,
-                              IConfigurationRepository configRepository)
+                              IConfigurationProvider configProvider)
         {
             NativeGraphicsManager = nativeGraphicsManager;
             _inventoryController = inventoryController;
@@ -92,6 +92,7 @@ namespace EndlessClient.HUD.Panels
             _hudControlProvider = hudControlProvider;
             _activeDialogProvider = activeDialogProvider;
             _sfxPlayer = sfxPlayer;
+            _configProvider = configProvider;
 
             _weightLabel = new XNALabel(Constants.FontSize08pt5)
             {
@@ -102,7 +103,7 @@ namespace EndlessClient.HUD.Panels
                 AutoSize = false
             };
 
-            _inventorySlotRepository.SlotMap = GetItemSlotMap(_playerInfoProvider.LoggedInAccountName, _characterProvider.MainCharacter.Name, _configRepository.Host);
+            _inventorySlotRepository.SlotMap = GetItemSlotMap(_playerInfoProvider.LoggedInAccountName, _characterProvider.MainCharacter.Name, _configProvider.Host);
 
             var weirdOffsetSheet = NativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 27);
 
@@ -129,8 +130,6 @@ namespace EndlessClient.HUD.Panels
             DrawArea = new Rectangle(102, 330, BackgroundImage.Width, BackgroundImage.Height);
 
             Game.Exiting += SaveInventoryFile;
-
-            _configRepository = configRepository;
         }
 
         public bool NoItemsDragging() => !_childItems.Any(x => x.IsDragging);
@@ -329,7 +328,7 @@ namespace EndlessClient.HUD.Panels
         private void SaveInventoryFile(object sender, EventArgs e)
         {
             var inventory = new IniReader(Constants.InventoryFile);
-            var inventoryKey = $"{_configRepository.Host}:{_playerInfoProvider.LoggedInAccountName}";
+            var inventoryKey = $"{_configProvider.Host}:{_playerInfoProvider.LoggedInAccountName}";
 
             var section = inventory.Load() && inventory.Sections.ContainsKey(inventoryKey)
                 ? inventory.Sections[inventoryKey]

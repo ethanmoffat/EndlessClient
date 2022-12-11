@@ -43,7 +43,7 @@ namespace EndlessClient.HUD.Panels
         private readonly IESFFileProvider _esfFileProvider;
         private readonly ISpellSlotDataRepository _spellSlotDataRepository;
         private readonly ISfxPlayer _sfxPlayer;
-        private readonly IConfigurationRepository _configRepository;
+        private readonly IConfigurationProvider _configProvider;
 
         private readonly Dictionary<int, int> _spellSlotMap;
         private readonly List<ISpellPanelItem> _childItems;
@@ -75,7 +75,7 @@ namespace EndlessClient.HUD.Panels
                                  IESFFileProvider esfFileProvider,
                                  ISpellSlotDataRepository spellSlotDataRepository,
                                  ISfxPlayer sfxPlayer,
-                                 IConfigurationRepository configRepository)
+                                 IConfigurationProvider configProvider)
         {
             NativeGraphicsManager = nativeGraphicsManager;
             _trainingController = trainingController;
@@ -87,8 +87,9 @@ namespace EndlessClient.HUD.Panels
             _esfFileProvider = esfFileProvider;
             _spellSlotDataRepository = spellSlotDataRepository;
             _sfxPlayer = sfxPlayer;
+            _configProvider = configProvider;
 
-            _spellSlotMap = GetSpellSlotMap(_playerInfoProvider.LoggedInAccountName, _characterProvider.MainCharacter.Name, _configRepository.Host);
+            _spellSlotMap = GetSpellSlotMap(_playerInfoProvider.LoggedInAccountName, _characterProvider.MainCharacter.Name, _configProvider.Host);
             _childItems = new List<ISpellPanelItem>();
             ResetChildItems();
 
@@ -153,7 +154,6 @@ namespace EndlessClient.HUD.Panels
             DrawArea = new Rectangle(102, 330, BackgroundImage.Width, BackgroundImage.Height);
 
             Game.Exiting += SaveSpellsFile;
-            _configRepository = configRepository;
         }
 
         public override void Initialize()
