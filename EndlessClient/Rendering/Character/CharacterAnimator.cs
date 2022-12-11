@@ -132,16 +132,15 @@ namespace EndlessClient.Rendering.Character
 
                     _walkPath = _pathFinder.FindPath(characterCoord, tc);
 
-                    if (_walkPath.Any())
-                    {
-                        if (!_otherPlayerStartWalkingTimes.ContainsKey(_characterRepository.MainCharacter.ID))
-                        {
-                            rp = FaceTarget(characterCoord, _walkPath.Peek(), rp);
-                            _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithRenderProperties(rp);
-                        }
+                    if (!_walkPath.Any()) return;
 
-                        doTheWalk();
+                    if (!_otherPlayerStartWalkingTimes.ContainsKey(_characterRepository.MainCharacter.ID))
+                    {
+                        rp = FaceTarget(characterCoord, _walkPath.Peek(), rp);
+                        _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithRenderProperties(rp);
                     }
+                    
+                    doTheWalk();
                 },
                 none: doTheWalk);
 
@@ -432,6 +431,11 @@ namespace EndlessClient.Rendering.Character
             return rp;
         }
 
+        public void ClearWalkPath()
+        {
+            _walkPath.Clear();
+        }
+
         #endregion
 
         #region Attack Animation
@@ -595,6 +599,8 @@ namespace EndlessClient.Rendering.Character
         void StartMainCharacterWalkAnimation(Option<MapCoordinate> targetCoordinate, Action sfxCallback);
 
         void StartMainCharacterAttackAnimation(Action sfxCallback);
+
+        void ClearWalkPath();
 
         bool MainCharacterShoutSpellPrep(ESFRecord spellData, ISpellTargetable spellTarget);
 

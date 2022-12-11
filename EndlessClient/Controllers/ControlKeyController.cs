@@ -31,6 +31,8 @@ namespace EndlessClient.Controllers
 
         public bool Attack()
         {
+            _characterAnimationActions.ClearWalkPath();
+
             if (!CanAttackAgain())
                 return false;
 
