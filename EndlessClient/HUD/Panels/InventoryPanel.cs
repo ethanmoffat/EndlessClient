@@ -272,7 +272,7 @@ namespace EndlessClient.HUD.Panels
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !File.Exists(Constants.InventoryFile))
             {
-                using var registryInventoryKey = TryGetCharacterRegistryKey(accountName, characterName, host);
+                using var registryInventoryKey = TryGetCharacterRegistryKey(accountName, characterName);
                 if (registryInventoryKey != null)
                 {
                     for (int i = 0; i < InventoryRowSlots * 4; ++i)
@@ -306,11 +306,11 @@ namespace EndlessClient.HUD.Panels
         }
 
         [SupportedOSPlatform("Windows")]
-        private static RegistryKey TryGetCharacterRegistryKey(string accountName, string characterName, string host)
+        private static RegistryKey TryGetCharacterRegistryKey(string accountName, string characterName)
         {
             using RegistryKey currentUser = Registry.CurrentUser;
 
-            var pathSegments = $"Software\\EndlessClient\\{host}\\{accountName}\\{characterName}\\inventory".Split('\\');
+            var pathSegments = $"Software\\EndlessClient\\{accountName}\\{characterName}\\inventory".Split('\\');
             var currentPath = string.Empty;
 
             RegistryKey retKey = null;

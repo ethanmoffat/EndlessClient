@@ -529,7 +529,7 @@ namespace EndlessClient.HUD.Panels
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !File.Exists(Constants.SpellsFile))
             {
-                using var registrySpellsKey = TryGetCharacterRegistryKey(accountName, characterName, host);
+                using var registrySpellsKey = TryGetCharacterRegistryKey(accountName, characterName);
                 if (registrySpellsKey != null)
                 {
                     for (int i = 0; i < SpellRowLength * SpellRows; ++i)
@@ -563,11 +563,11 @@ namespace EndlessClient.HUD.Panels
         }
 
         [SupportedOSPlatform("Windows")]
-        private static RegistryKey TryGetCharacterRegistryKey(string accountName, string characterName, string host)
+        private static RegistryKey TryGetCharacterRegistryKey(string accountName, string characterName)
         {
             using RegistryKey currentUser = Registry.CurrentUser;
 
-            var pathSegments = $"Software\\EndlessClient\\{host}\\{accountName}\\{characterName}\\spells".Split('\\');
+            var pathSegments = $"Software\\EndlessClient\\{accountName}\\{characterName}\\spells".Split('\\');
             var currentPath = string.Empty;
 
             RegistryKey retKey = null;
