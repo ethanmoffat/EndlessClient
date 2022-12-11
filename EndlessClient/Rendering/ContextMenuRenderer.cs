@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using EndlessClient.ControlSets;
+﻿using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Actions;
+using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Input;
@@ -10,8 +8,8 @@ using EndlessClient.Rendering.Character;
 using EndlessClient.Services;
 using EndlessClient.UIControls;
 using EOLib;
-using EOLib.Domain.Chat;
 using EOLib.Domain.Interact;
+using EOLib.Domain.Map;
 using EOLib.Domain.Party;
 using EOLib.Domain.Trade;
 using EOLib.Graphics;
@@ -20,6 +18,9 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Optional;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Rendering
@@ -55,6 +56,8 @@ namespace EndlessClient.Rendering
         private readonly IUserInputRepository _userInputRepository;
         private readonly IPartyDataProvider _partyDataProvider;
         private readonly ICharacterRenderer _characterRenderer;
+        private readonly ICurrentMapStateProvider _currentMapStateProvider;
+        private readonly IEOMessageBoxFactory _messageBoxFactory;
 
         private static DateTime? _lastTradeRequestedTime;
         private static DateTime? _lastPartyRequestTime;
@@ -70,7 +73,9 @@ namespace EndlessClient.Rendering
                                    IContextMenuRepository contextMenuRepository,
                                    IUserInputRepository userInputRepository,
                                    IPartyDataProvider partyDataProvider,
-                                   ICharacterRenderer characterRenderer)
+                                   ICharacterRenderer characterRenderer,
+                                   ICurrentMapStateProvider currentMapStateProvider, 
+                                   IEOMessageBoxFactory messageBoxFactory)
         {
             _menuActions = new Dictionary<Rectangle, Action>();
             _inGameDialogActions = inGameDialogActions;
@@ -84,6 +89,8 @@ namespace EndlessClient.Rendering
             _userInputRepository = userInputRepository;
             _partyDataProvider = partyDataProvider;
             _characterRenderer = characterRenderer;
+            _currentMapStateProvider = currentMapStateProvider;
+            _messageBoxFactory = messageBoxFactory;
 
             //first, load up the images. split in half: the right half is the 'over' text
             _backgroundTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 41, true);
@@ -95,15 +102,15 @@ namespace EndlessClient.Rendering
             //this GFX is stupid. a bunch of white space throws off coordinates so I have to use hard-coded values
             //define regions for clicking and their associated actions
             //6,11,86,14
-            for (int i = 0; i < (int) MenuAction.NUM_MENU_ACTIONS; ++i)
+            for (int i = 0; i < (int)MenuAction.NUM_MENU_ACTIONS; ++i)
             {
-                Rectangle region = new Rectangle(6, (i < 5 ? 11 : 13)+ 14*i, 86, 14);
+                Rectangle region = new Rectangle(6, (i < 5 ? 11 : 13) + 14 * i, 86, 14);
                 _menuActions.Add(region, GetActionFromMenuAction((MenuAction)i));
             }
 
             //set the fill color
             _bgfill = new Texture2D(GraphicsDevice, 1, 1);
-            _bgfill.SetData(new [] { Color.White });
+            _bgfill.SetData(new[] { Color.White });
 
             SetPositionBasedOnCharacterRenderer(_characterRenderer);
             SetSize(W, H);
@@ -293,6 +300,13 @@ namespace EndlessClient.Rendering
             //        OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
             //        EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 
+            if (_currentMapStateProvider.IsJail)
+            {
+                _messageBoxFactory.CreateMessageBox(EOResourceID.JAIL_WARNING_CANNOT_TRADE, EOResourceID.STATUS_LABEL_TYPE_WARNING).ShowDialog();
+                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.JAIL_WARNING_CANNOT_TRADE);
+                return;
+            }
+
             if (_lastTradeRequestedTime != null && (DateTime.Now - _lastTradeRequestedTime.Value).TotalSeconds < Constants.TradeRequestTimeoutSeconds)
             {
                 _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_TRADE_RECENTLY_REQUESTED);
@@ -300,7 +314,7 @@ namespace EndlessClient.Rendering
             }
 
             _lastTradeRequestedTime = DateTime.Now;
-            
+
             _tradeActions.RequestTrade((short)_characterRenderer.Character.ID);
 
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_TRADE_REQUESTED_TO_TRADE);
