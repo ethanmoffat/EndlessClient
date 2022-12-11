@@ -144,7 +144,8 @@ namespace EndlessClient.HUD.Panels
                 _pubFileProvider,
                 _hudControlProvider,
                 _activeDialogProvider,
-                _sfxPlayer) { DrawOrder = HUD_CONTROL_LAYER };
+                _sfxPlayer,
+                _configurationRepository) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public ActiveSpellsPanel CreateActiveSpellsPanel()
@@ -158,7 +159,8 @@ namespace EndlessClient.HUD.Panels
                 _characterInventoryProvider,
                 _pubFileProvider,
                 _spellSlotDataRepository,
-                _sfxPlayer) { DrawOrder = HUD_CONTROL_LAYER };
+                _sfxPlayer,
+                _configurationRepository) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public PassiveSpellsPanel CreatePassiveSpellsPanel()

@@ -49,6 +49,7 @@ namespace EndlessClient.HUD.Panels
         private readonly IHudControlProvider _hudControlProvider;
         private readonly IActiveDialogProvider _activeDialogProvider;
         private readonly ISfxPlayer _sfxPlayer;
+        private readonly IConfigurationRepository _configRepository;
 
         private readonly List<InventoryPanelItem> _childItems = new List<InventoryPanelItem>();
 
@@ -74,7 +75,8 @@ namespace EndlessClient.HUD.Panels
                               IPubFileProvider pubFileProvider,
                               IHudControlProvider hudControlProvider,
                               IActiveDialogProvider activeDialogProvider,
-                              ISfxPlayer sfxPlayer)
+                              ISfxPlayer sfxPlayer,
+                              IConfigurationRepository configRepository)
         {
             NativeGraphicsManager = nativeGraphicsManager;
             _inventoryController = inventoryController;
@@ -100,7 +102,7 @@ namespace EndlessClient.HUD.Panels
                 AutoSize = false
             };
 
-            _inventorySlotRepository.SlotMap = GetItemSlotMap(_playerInfoProvider.LoggedInAccountName, _characterProvider.MainCharacter.Name);
+            _inventorySlotRepository.SlotMap = GetItemSlotMap(_playerInfoProvider.LoggedInAccountName, _characterProvider.MainCharacter.Name, _configRepository.Host);
 
             var weirdOffsetSheet = NativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 27);
 
@@ -127,6 +129,8 @@ namespace EndlessClient.HUD.Panels
             DrawArea = new Rectangle(102, 330, BackgroundImage.Width, BackgroundImage.Height);
 
             Game.Exiting += SaveInventoryFile;
+
+            _configRepository = configRepository;
         }
 
         public bool NoItemsDragging() => !_childItems.Any(x => x.IsDragging);
@@ -263,27 +267,28 @@ namespace EndlessClient.HUD.Panels
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_BUTTON, id);
         }
 
-        private static Dictionary<int, int> GetItemSlotMap(string accountName, string characterName)
+        private static Dictionary<int, int> GetItemSlotMap(string accountName, string characterName, string host)
         {
             var map = new Dictionary<int, int>();
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !File.Exists(Constants.InventoryFile))
             {
-                using var inventoryKey = TryGetCharacterRegistryKey(accountName, characterName);
-                if (inventoryKey != null)
+                using var registryInventoryKey = TryGetCharacterRegistryKey(accountName, characterName, host);
+                if (registryInventoryKey != null)
                 {
                     for (int i = 0; i < InventoryRowSlots * 4; ++i)
                     {
-                        if (int.TryParse(inventoryKey.GetValue($"item{i}")?.ToString() ?? string.Empty, out var id))
+                        if (int.TryParse(registryInventoryKey.GetValue($"item{i}")?.ToString() ?? string.Empty, out var id))
                             map[i] = id;
                     }
                 }
             }
 
             var inventory = new IniReader(Constants.InventoryFile);
-            if (inventory.Load() && inventory.Sections.ContainsKey(accountName))
+            var inventoryKey = $"{host}:{accountName}";
+            if (inventory.Load() && inventory.Sections.ContainsKey(inventoryKey))
             {
-                var section = inventory.Sections[accountName];
+                var section = inventory.Sections[inventoryKey];
                 foreach (var key in section.Keys.Where(x => x.Contains(characterName, StringComparison.OrdinalIgnoreCase)))
                 {
                     if (!key.Contains("."))
@@ -302,11 +307,11 @@ namespace EndlessClient.HUD.Panels
         }
 
         [SupportedOSPlatform("Windows")]
-        private static RegistryKey TryGetCharacterRegistryKey(string accountName, string characterName)
+        private static RegistryKey TryGetCharacterRegistryKey(string accountName, string characterName, string host)
         {
             using RegistryKey currentUser = Registry.CurrentUser;
 
-            var pathSegments = $"Software\\EndlessClient\\{accountName}\\{characterName}\\inventory".Split('\\');
+            var pathSegments = $"Software\\EndlessClient\\{host}\\{accountName}\\{characterName}\\inventory".Split('\\');
             var currentPath = string.Empty;
 
             RegistryKey retKey = null;
@@ -324,9 +329,10 @@ namespace EndlessClient.HUD.Panels
         private void SaveInventoryFile(object sender, EventArgs e)
         {
             var inventory = new IniReader(Constants.InventoryFile);
+            var inventoryKey = $"{_configRepository.Host}:{_playerInfoProvider.LoggedInAccountName}";
 
-            var section = inventory.Load() && inventory.Sections.ContainsKey(_playerInfoProvider.LoggedInAccountName)
-                ? inventory.Sections[_playerInfoProvider.LoggedInAccountName]
+            var section = inventory.Load() && inventory.Sections.ContainsKey(inventoryKey)
+                ? inventory.Sections[inventoryKey]
                 : new SortedList<string, string>();
 
             var existing = section.Where(x => x.Key.Contains(_characterProvider.MainCharacter.Name)).Select(x => x.Key).ToList();
@@ -336,7 +342,7 @@ namespace EndlessClient.HUD.Panels
             foreach (var item in _childItems)
                 section[$"{_characterProvider.MainCharacter.Name}.{item.Slot}"] = $"{item.InventoryItem.ItemID}";
 
-            inventory.Sections[_playerInfoProvider.LoggedInAccountName] = section;
+            inventory.Sections[inventoryKey] = section;
 
             inventory.Save();
         }

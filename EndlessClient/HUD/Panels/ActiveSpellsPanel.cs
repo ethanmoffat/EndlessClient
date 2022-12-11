@@ -43,6 +43,7 @@ namespace EndlessClient.HUD.Panels
         private readonly IESFFileProvider _esfFileProvider;
         private readonly ISpellSlotDataRepository _spellSlotDataRepository;
         private readonly ISfxPlayer _sfxPlayer;
+        private readonly IConfigurationRepository _configRepository;
 
         private readonly Dictionary<int, int> _spellSlotMap;
         private readonly List<ISpellPanelItem> _childItems;
@@ -73,7 +74,8 @@ namespace EndlessClient.HUD.Panels
                                  ICharacterInventoryProvider characterInventoryProvider,
                                  IESFFileProvider esfFileProvider,
                                  ISpellSlotDataRepository spellSlotDataRepository,
-                                 ISfxPlayer sfxPlayer)
+                                 ISfxPlayer sfxPlayer,
+                                 IConfigurationRepository configRepository)
         {
             NativeGraphicsManager = nativeGraphicsManager;
             _trainingController = trainingController;
@@ -86,7 +88,7 @@ namespace EndlessClient.HUD.Panels
             _spellSlotDataRepository = spellSlotDataRepository;
             _sfxPlayer = sfxPlayer;
 
-            _spellSlotMap = GetSpellSlotMap(_playerInfoProvider.LoggedInAccountName, _characterProvider.MainCharacter.Name);
+            _spellSlotMap = GetSpellSlotMap(_playerInfoProvider.LoggedInAccountName, _characterProvider.MainCharacter.Name, _configRepository.Host);
             _childItems = new List<ISpellPanelItem>();
             ResetChildItems();
 
@@ -151,6 +153,7 @@ namespace EndlessClient.HUD.Panels
             DrawArea = new Rectangle(102, 330, BackgroundImage.Width, BackgroundImage.Height);
 
             Game.Exiting += SaveSpellsFile;
+            _configRepository = configRepository;
         }
 
         public override void Initialize()
@@ -520,27 +523,28 @@ namespace EndlessClient.HUD.Panels
 
         #region Slot loading
 
-        private static Dictionary<int, int> GetSpellSlotMap(string accountName, string characterName)
+        private static Dictionary<int, int> GetSpellSlotMap(string accountName, string characterName, string host)
         {
             var map = new Dictionary<int, int>();
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !File.Exists(Constants.SpellsFile))
             {
-                using var spellsKey = TryGetCharacterRegistryKey(accountName, characterName);
-                if (spellsKey != null)
+                using var registrySpellsKey = TryGetCharacterRegistryKey(accountName, characterName, host);
+                if (registrySpellsKey != null)
                 {
                     for (int i = 0; i < SpellRowLength * SpellRows; ++i)
                     {
-                        if (int.TryParse(spellsKey.GetValue($"item{i}")?.ToString() ?? string.Empty, out var id))
+                        if (int.TryParse(registrySpellsKey.GetValue($"item{i}")?.ToString() ?? string.Empty, out var id))
                             map[i] = id;
                     }
                 }
             }
 
             var spells = new IniReader(Constants.SpellsFile);
-            if (spells.Load() && spells.Sections.ContainsKey(accountName))
+            var spellsKey = $"{host}:{accountName}";
+            if (spells.Load() && spells.Sections.ContainsKey(spellsKey))
             {
-                var section = spells.Sections[accountName];
+                var section = spells.Sections[spellsKey];
                 foreach (var key in section.Keys.Where(x => x.Contains(characterName, StringComparison.OrdinalIgnoreCase)))
                 {
                     if (!key.Contains("."))
@@ -559,11 +563,11 @@ namespace EndlessClient.HUD.Panels
         }
 
         [SupportedOSPlatform("Windows")]
-        private static RegistryKey TryGetCharacterRegistryKey(string accountName, string characterName)
+        private static RegistryKey TryGetCharacterRegistryKey(string accountName, string characterName, string host)
         {
             using RegistryKey currentUser = Registry.CurrentUser;
 
-            var pathSegments = $"Software\\EndlessClient\\{accountName}\\{characterName}\\spells".Split('\\');
+            var pathSegments = $"Software\\EndlessClient\\{host}\\{accountName}\\{characterName}\\spells".Split('\\');
             var currentPath = string.Empty;
 
             RegistryKey retKey = null;
