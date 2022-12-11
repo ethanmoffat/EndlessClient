@@ -294,12 +294,6 @@ namespace EndlessClient.Rendering
 
         private void Trade()
         {
-            // see: https://github.com/ethanmoffat/EndlessClient/issues/193
-            //if (OldWorld.Instance.MainPlayer.ActiveCharacter.CurrentMap == OldWorld.Instance.JailMap)
-            //    EOMessageBox.Show(OldWorld.GetString(EOResourceID.JAIL_WARNING_CANNOT_TRADE),
-            //        OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
-            //        EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-
             if (_currentMapStateProvider.IsJail)
             {
                 _messageBoxFactory.CreateMessageBox(EOResourceID.JAIL_WARNING_CANNOT_TRADE, EOResourceID.STATUS_LABEL_TYPE_WARNING).ShowDialog();
