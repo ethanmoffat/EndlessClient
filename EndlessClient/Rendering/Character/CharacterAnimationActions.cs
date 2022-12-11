@@ -97,6 +97,11 @@ namespace EndlessClient.Rendering.Character
             ShowWaterSplashiesIfNeeded(CharacterActionState.Attacking, _characterRepository.MainCharacter.ID);
         }
 
+        public void ClearWalkPath()
+        {
+            Animator.ClearWalkPath();
+        }
+
         public bool PrepareMainCharacterSpell(int spellId, ISpellTargetable spellTarget)
         {
             if (!_hudControlProvider.IsInGame)
@@ -447,6 +452,8 @@ namespace EndlessClient.Rendering.Character
         void StartWalking(Option<MapCoordinate> targetCoordinate);
 
         void StartAttacking(int noteIndex = -1);
+
+        void ClearWalkPath();
 
         bool PrepareMainCharacterSpell(int spellId, ISpellTargetable spellTarget);
 
