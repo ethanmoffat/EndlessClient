@@ -1,5 +1,4 @@
 using EOLib.Domain.Chat;
-using EOLib.Graphics;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.BitmapFonts;
 
