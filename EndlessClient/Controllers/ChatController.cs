@@ -92,8 +92,7 @@ namespace EndlessClient.Controllers
 
         public void ClearAndWarnIfJailAndGlobal()
         {
-            if (!_currentMapStateProvider.IsJail) return;
-            if (_chatTypeCalculator.CalculateChatType(ChatTextBox.Text) != ChatType.Global) return;
+            if (!_currentMapStateProvider.IsJail || _chatTypeCalculator.CalculateChatType(ChatTextBox.Text) != ChatType.Global) return;
 
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.JAIL_WARNING_CANNOT_USE_GLOBAL);
             _chatTextBoxActions.ClearChatText();
