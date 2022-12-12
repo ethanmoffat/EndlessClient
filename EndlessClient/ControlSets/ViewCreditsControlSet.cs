@@ -41,7 +41,7 @@ namespace EndlessClient.ControlSets
             {
                 AutoSize = true,
                 Text = Constants.CreditsText,
-                DrawPosition = new Vector2(300, 260)
+                DrawPosition = new Vector2(300, 200)
             };
         }
     }
