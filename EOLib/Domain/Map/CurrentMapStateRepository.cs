@@ -13,6 +13,8 @@ namespace EOLib.Domain.Map
 
         short JailMapID { get; set; }
 
+        bool IsJail { get; }
+
         Dictionary<int, Character.Character> Characters { get; set; }
 
         HashSet<NPC.NPC> NPCs { get; set; }
