@@ -68,7 +68,6 @@ namespace EndlessClient.Rendering.Map
             ShowMapTransition(true);
             PlayBackgroundMusic(differentMapID: true);
             PlayAmbientNoise(differentMapID: true);
-            _chatController.ClearAndWarnIfJailAndGlobal();
             //todo: show message if map is a PK map
         }
 
@@ -88,6 +87,8 @@ namespace EndlessClient.Rendering.Map
 
             if (!differentMapID)
                 RedrawGroundLayer();
+
+            _chatController.ClearAndWarnIfJailAndGlobal();
         }
 
         public void NotifyMapMutation()
