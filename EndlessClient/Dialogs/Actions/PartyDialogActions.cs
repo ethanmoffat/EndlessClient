@@ -45,7 +45,7 @@ namespace EndlessClient.Dialogs.Actions
                 return;
 
             var dlg = _messageBoxFactory.CreateMessageBox(
-                char.ToUpper(name[0]) + name[1..],
+                $"{char.ToUpper(name[0])}{name[1..]} ",
                 type == PartyRequestType.Join
                     ? DialogResourceID.PARTY_GROUP_REQUEST_TO_JOIN
                     : DialogResourceID.PARTY_GROUP_SEND_INVITATION,
