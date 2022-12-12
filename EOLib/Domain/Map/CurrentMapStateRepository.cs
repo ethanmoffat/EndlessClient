@@ -13,6 +13,8 @@ namespace EOLib.Domain.Map
 
         short JailMapID { get; set; }
 
+        bool IsJail { get; }
+
         Dictionary<int, Character.Character> Characters { get; set; }
 
         HashSet<NPC.NPC> NPCs { get; set; }
@@ -45,6 +47,8 @@ namespace EOLib.Domain.Map
         bool ShowMiniMap { get; }
 
         short JailMapID { get; }
+
+        bool IsJail { get; }
 
         IReadOnlyDictionary<int, Character.Character> Characters { get; }
 
@@ -79,6 +83,8 @@ namespace EOLib.Domain.Map
         public bool ShowMiniMap { get; set; }
 
         public short JailMapID { get; set; }
+
+        public bool IsJail => JailMapID == CurrentMapID;
 
         public Dictionary<int, Character.Character> Characters { get; set; }
 

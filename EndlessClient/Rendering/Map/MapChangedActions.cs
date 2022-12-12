@@ -1,5 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Audio;
+using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Rendering.Character;
@@ -30,6 +31,7 @@ namespace EndlessClient.Rendering.Map
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IMfxPlayer _mfxPlayer;
         private readonly ISfxPlayer _sfxPlayer;
+        private readonly IChatController _chatController;
 
         public MapChangedActions(ICharacterStateCache characterStateCache,
                                  INPCStateCache npcStateCache,
@@ -42,7 +44,8 @@ namespace EndlessClient.Rendering.Map
                                  ICurrentMapStateRepository currentMapStateRepository,
                                  IConfigurationProvider configurationProvider,
                                  IMfxPlayer mfxPlayer,
-                                 ISfxPlayer sfxPlayer)
+                                 ISfxPlayer sfxPlayer,
+                                 IChatController chatController)
         {
             _characterStateCache = characterStateCache;
             _npcStateCache = npcStateCache;
@@ -56,6 +59,7 @@ namespace EndlessClient.Rendering.Map
             _configurationProvider = configurationProvider;
             _mfxPlayer = mfxPlayer;
             _sfxPlayer = sfxPlayer;
+            _chatController = chatController;
         }
 
         public void ActiveCharacterEnterMapForLogin()
@@ -83,6 +87,8 @@ namespace EndlessClient.Rendering.Map
 
             if (!differentMapID)
                 RedrawGroundLayer();
+
+            _chatController.ClearAndWarnIfJailAndGlobal();
         }
 
         public void NotifyMapMutation()

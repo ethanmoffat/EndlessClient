@@ -49,6 +49,7 @@ namespace EndlessClient.HUD.Panels
         private readonly IHudControlProvider _hudControlProvider;
         private readonly IActiveDialogProvider _activeDialogProvider;
         private readonly ISfxPlayer _sfxPlayer;
+        private readonly IConfigurationProvider _configProvider;
 
         private readonly List<InventoryPanelItem> _childItems = new List<InventoryPanelItem>();
 
@@ -74,7 +75,8 @@ namespace EndlessClient.HUD.Panels
                               IPubFileProvider pubFileProvider,
                               IHudControlProvider hudControlProvider,
                               IActiveDialogProvider activeDialogProvider,
-                              ISfxPlayer sfxPlayer)
+                              ISfxPlayer sfxPlayer,
+                              IConfigurationProvider configProvider)
         {
             NativeGraphicsManager = nativeGraphicsManager;
             _inventoryController = inventoryController;
@@ -90,6 +92,7 @@ namespace EndlessClient.HUD.Panels
             _hudControlProvider = hudControlProvider;
             _activeDialogProvider = activeDialogProvider;
             _sfxPlayer = sfxPlayer;
+            _configProvider = configProvider;
 
             _weightLabel = new XNALabel(Constants.FontSize08pt5)
             {
@@ -100,7 +103,7 @@ namespace EndlessClient.HUD.Panels
                 AutoSize = false
             };
 
-            _inventorySlotRepository.SlotMap = GetItemSlotMap(_playerInfoProvider.LoggedInAccountName, _characterProvider.MainCharacter.Name);
+            _inventorySlotRepository.SlotMap = GetItemSlotMap(_playerInfoProvider.LoggedInAccountName, _characterProvider.MainCharacter.Name, _configProvider.Host);
 
             var weirdOffsetSheet = NativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 27);
 
@@ -263,27 +266,28 @@ namespace EndlessClient.HUD.Panels
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_BUTTON, id);
         }
 
-        private static Dictionary<int, int> GetItemSlotMap(string accountName, string characterName)
+        private static Dictionary<int, int> GetItemSlotMap(string accountName, string characterName, string host)
         {
             var map = new Dictionary<int, int>();
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !File.Exists(Constants.InventoryFile))
             {
-                using var inventoryKey = TryGetCharacterRegistryKey(accountName, characterName);
-                if (inventoryKey != null)
+                using var registryInventoryKey = TryGetCharacterRegistryKey(accountName, characterName);
+                if (registryInventoryKey != null)
                 {
                     for (int i = 0; i < InventoryRowSlots * 4; ++i)
                     {
-                        if (int.TryParse(inventoryKey.GetValue($"item{i}")?.ToString() ?? string.Empty, out var id))
+                        if (int.TryParse(registryInventoryKey.GetValue($"item{i}")?.ToString() ?? string.Empty, out var id))
                             map[i] = id;
                     }
                 }
             }
 
             var inventory = new IniReader(Constants.InventoryFile);
-            if (inventory.Load() && inventory.Sections.ContainsKey(accountName))
+            var inventoryKey = $"{host}:{accountName}";
+            if (inventory.Load() && inventory.Sections.ContainsKey(inventoryKey))
             {
-                var section = inventory.Sections[accountName];
+                var section = inventory.Sections[inventoryKey];
                 foreach (var key in section.Keys.Where(x => x.Contains(characterName, StringComparison.OrdinalIgnoreCase)))
                 {
                     if (!key.Contains("."))
@@ -324,9 +328,10 @@ namespace EndlessClient.HUD.Panels
         private void SaveInventoryFile(object sender, EventArgs e)
         {
             var inventory = new IniReader(Constants.InventoryFile);
+            var inventoryKey = $"{_configProvider.Host}:{_playerInfoProvider.LoggedInAccountName}";
 
-            var section = inventory.Load() && inventory.Sections.ContainsKey(_playerInfoProvider.LoggedInAccountName)
-                ? inventory.Sections[_playerInfoProvider.LoggedInAccountName]
+            var section = inventory.Load() && inventory.Sections.ContainsKey(inventoryKey)
+                ? inventory.Sections[inventoryKey]
                 : new SortedList<string, string>();
 
             var existing = section.Where(x => x.Key.Contains(_characterProvider.MainCharacter.Name)).Select(x => x.Key).ToList();
@@ -336,7 +341,7 @@ namespace EndlessClient.HUD.Panels
             foreach (var item in _childItems)
                 section[$"{_characterProvider.MainCharacter.Name}.{item.Slot}"] = $"{item.InventoryItem.ItemID}";
 
-            inventory.Sections[_playerInfoProvider.LoggedInAccountName] = section;
+            inventory.Sections[inventoryKey] = section;
 
             inventory.Save();
         }
