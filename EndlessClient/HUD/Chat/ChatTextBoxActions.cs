@@ -37,9 +37,6 @@ namespace EndlessClient.HUD.Chat
 
         private KeyboardDispatcher KeyboardDispatcher => _keyboardDispatcherProvider.Dispatcher;
 
-        private ChatTextBox GetChatTextBox()
-        {
-            return _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox);
-        }
+        private ChatTextBox GetChatTextBox() => _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox);
     }
 }

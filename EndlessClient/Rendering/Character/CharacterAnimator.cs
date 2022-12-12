@@ -132,16 +132,15 @@ namespace EndlessClient.Rendering.Character
 
                     _walkPath = _pathFinder.FindPath(characterCoord, tc);
 
-                    if (_walkPath.Any())
-                    {
-                        if (!_otherPlayerStartWalkingTimes.ContainsKey(_characterRepository.MainCharacter.ID))
-                        {
-                            rp = FaceTarget(characterCoord, _walkPath.Peek(), rp);
-                            _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithRenderProperties(rp);
-                        }
+                    if (!_walkPath.Any()) return;
 
-                        doTheWalk();
+                    if (!_otherPlayerStartWalkingTimes.ContainsKey(_characterRepository.MainCharacter.ID))
+                    {
+                        rp = FaceTarget(characterCoord, _walkPath.Peek(), rp);
+                        _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithRenderProperties(rp);
                     }
+                    
+                    doTheWalk();
                 },
                 none: doTheWalk);
 
@@ -159,6 +158,11 @@ namespace EndlessClient.Rendering.Character
                 _characterActions.Walk();
                 startWalkingTime.SoundEffect();
             }
+        }
+
+        public void CancelClickToWalk()
+        {
+            _walkPath.Clear();
         }
 
         public void StartMainCharacterAttackAnimation(Action sfxCallback)
@@ -593,6 +597,8 @@ namespace EndlessClient.Rendering.Character
         void MainCharacterFace(EODirection direction);
 
         void StartMainCharacterWalkAnimation(Option<MapCoordinate> targetCoordinate, Action sfxCallback);
+
+        void CancelClickToWalk();
 
         void StartMainCharacterAttackAnimation(Action sfxCallback);
 
