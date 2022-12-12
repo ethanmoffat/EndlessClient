@@ -81,9 +81,9 @@
         MapAmbientNoiseWater = 64,
         MapAmbientNoiseDrone1,
         AdminHide,
-        HellLavaBubbles,
+        LavaBubbles1,
         UnknownMapAmbientNoise3 = 68,
-        UnknownMapAmbientNoise4,
+        FactoryWhirring,
         MapEffectHPDrain,
         MapEffectTPDrain,
         Spikes = 72,
@@ -95,6 +95,6 @@
         MagicWhirlSpell,
         PowerWindSpell,
         FireBlastSpell = 80,
-        UnknownBubblesNoise,
+        LavaBubbles2,
     }
 }
