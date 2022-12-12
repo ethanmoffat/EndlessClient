@@ -84,6 +84,11 @@ namespace EndlessClient.Rendering.Character
             });
         }
 
+        public void CancelClickToWalk()
+        {
+            Animator.CancelClickToWalk();
+        }
+
         public void StartAttacking(int noteIndex = -1)
         {
             if (!_hudControlProvider.IsInGame)
@@ -95,11 +100,6 @@ namespace EndlessClient.Rendering.Character
                 Animator.Emote(_characterRepository.MainCharacter.ID, EOLib.Domain.Character.Emote.MusicNotes);
             Animator.StartMainCharacterAttackAnimation(() => PlayWeaponSound(_characterRepository.MainCharacter, noteIndex));
             ShowWaterSplashiesIfNeeded(CharacterActionState.Attacking, _characterRepository.MainCharacter.ID);
-        }
-
-        public void ClearWalkPath()
-        {
-            Animator.ClearWalkPath();
         }
 
         public bool PrepareMainCharacterSpell(int spellId, ISpellTargetable spellTarget)
@@ -451,9 +451,9 @@ namespace EndlessClient.Rendering.Character
 
         void StartWalking(Option<MapCoordinate> targetCoordinate);
 
-        void StartAttacking(int noteIndex = -1);
+        void CancelClickToWalk();
 
-        void ClearWalkPath();
+        void StartAttacking(int noteIndex = -1);
 
         bool PrepareMainCharacterSpell(int spellId, ISpellTargetable spellTarget);
 

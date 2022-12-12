@@ -160,6 +160,11 @@ namespace EndlessClient.Rendering.Character
             }
         }
 
+        public void CancelClickToWalk()
+        {
+            _walkPath.Clear();
+        }
+
         public void StartMainCharacterAttackAnimation(Action sfxCallback)
         {
             if (_otherPlayerStartAttackingTimes.ContainsKey(_characterRepository.MainCharacter.ID))
@@ -431,11 +436,6 @@ namespace EndlessClient.Rendering.Character
             return rp;
         }
 
-        public void ClearWalkPath()
-        {
-            _walkPath.Clear();
-        }
-
         #endregion
 
         #region Attack Animation
@@ -598,9 +598,9 @@ namespace EndlessClient.Rendering.Character
 
         void StartMainCharacterWalkAnimation(Option<MapCoordinate> targetCoordinate, Action sfxCallback);
 
-        void StartMainCharacterAttackAnimation(Action sfxCallback);
+        void CancelClickToWalk();
 
-        void ClearWalkPath();
+        void StartMainCharacterAttackAnimation(Action sfxCallback);
 
         bool MainCharacterShoutSpellPrep(ESFRecord spellData, ISpellTargetable spellTarget);
 
