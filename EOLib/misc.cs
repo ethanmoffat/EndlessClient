@@ -76,7 +76,14 @@ Copyright Vult-R
 Thanks to :
 --Sausage for eoserv + C# EO libs
 --eoserv.net community
---Hotdog for Eodev client";
+--Hotdog for Eodev client
+
+Contributors : 
+-- Sorokya
+-- Septharoth
+-- miou-gh
+-- CoderDanUK";
+
         public const string VersionInfoFormat = "{0}.{1:000}.{2:000} - {3}:{4}";
     }
 }
