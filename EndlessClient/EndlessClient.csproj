@@ -71,7 +71,7 @@
   <None Include="..\bin\$(Configuration)\client\net6.0-macos\osx-x64\sfx\*" Link="sfx\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" PublishFolderType="RootDirectory" />
   <None Include="ContentPipeline\bin\MacOSX\Content\*.xnb" Link="ContentPipeline\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" PublishFolderType="Resource" />
   <None Include="ContentPipeline\bin\MacOSX\Content\ChatBubble\*.xnb" Link="ContentPipeline\ChatBubble\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" PublishFolderType="Resource" />
-  <None Include="ContentPipeline\bin\MacOSX\Content\BitmapFonts\*.xnb" Link="ContentPipeline\BitmapFonts\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" PublishFolderType="Resource" />
+  <None Include="ContentPipeline\bin\MacOSX\Content\BitmapFonts\*" Link="ContentPipeline\BitmapFonts\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" PublishFolderType="Resource" />
   <None Include="ContentPipeline\bin\MacOSX\Content\Party\*.xnb" Link="ContentPipeline\Party\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" PublishFolderType="Resource" />
 </ItemGroup>
   <ItemGroup>
