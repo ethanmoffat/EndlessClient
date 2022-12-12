@@ -8,6 +8,14 @@ using System.Linq;
 
 namespace EOLib.Domain.Character
 {
+    public enum WalkValidationResult
+    {
+        BlockedByCharacter,
+        GhostComplete,
+        NotWalkable,
+        Walkable
+    }
+
     [AutoMappedType]
     public class WalkValidationActions : IWalkValidationActions
     {
@@ -15,6 +23,10 @@ namespace EOLib.Domain.Character
         private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly IUnlockDoorValidator _unlockDoorValidator;
+
+        private DateTime? _startedGhosting = null;
+        private Character _currentlyGhosting = null;
+        private DateTime? _finishedGhosting = null;
 
         public WalkValidationActions(IMapCellStateProvider mapCellStateProvider,
                                      ICharacterProvider characterProvider,
@@ -27,10 +39,31 @@ namespace EOLib.Domain.Character
             _unlockDoorValidator = unlockDoorValidator;
         }
 
-        public bool CanMoveToDestinationCoordinates()
+        public void ClearGhostingCacheIfNeeded()
+        {
+            if (_currentlyGhosting == null)
+                return;
+
+            var mc = _characterProvider.MainCharacter;
+            var playersXDiff = Math.Abs(mc.RenderProperties.MapX - _currentlyGhosting.RenderProperties.MapX);
+            var playersYDiff = Math.Abs(mc.RenderProperties.MapY - _currentlyGhosting.RenderProperties.MapY);
+            var playersAreNextToEachother =  playersXDiff == 1 || playersYDiff == 1;
+            var playersAreOnTopOfEachother = playersXDiff == 0 && playersYDiff == 0;
+
+            var timerHasBeenTooLong = _finishedGhosting.HasValue ? (DateTime.Now - _finishedGhosting.Value).TotalSeconds > 2 : false;
+
+            if (!playersAreNextToEachother || playersAreOnTopOfEachother || timerHasBeenTooLong)
+            {
+                _startedGhosting = null;
+                _currentlyGhosting = null;
+                _finishedGhosting = null;
+            }
+        }
+
+        public WalkValidationResult CanMoveToDestinationCoordinates()
         {
             if (_currentMapStateProvider.MapWarpState == WarpState.WarpStarted)
-                return false;
+                return WalkValidationResult.NotWalkable;
 
             var renderProperties = _characterProvider.MainCharacter.RenderProperties;
             var destX = renderProperties.GetDestinationX();
@@ -39,30 +72,55 @@ namespace EOLib.Domain.Character
             return CanMoveToCoordinates(destX, destY);
         }
 
-        public bool CanMoveToCoordinates(int gridX, int gridY)
+        public WalkValidationResult CanMoveToCoordinates(int gridX, int gridY)
         {
             var mainCharacter = _characterProvider.MainCharacter;
 
             if (mainCharacter.RenderProperties.SitState != SitState.Standing)
-                return false;
+                return WalkValidationResult.NotWalkable;
 
             var cellState = _mapCellStateProvider.GetCellStateAt(gridX, gridY);
             return IsCellStateWalkable(cellState);
         }
 
-        public bool IsCellStateWalkable(IMapCellState cellState)
+        public WalkValidationResult IsCellStateWalkable(IMapCellState cellState)
         {
             var mc = _characterProvider.MainCharacter;
 
             var cellChar = cellState.Character.FlatMap(c => c.SomeWhen(cc => cc != mc));
 
             return cellChar.Match(
-                some: _ => mc.NoWall && IsTileSpecWalkable(cellState.TileSpec),
+                some: c => {
+                    if (!CanGhostOtherCharacter(c)) return WalkValidationResult.BlockedByCharacter;
+                    return (mc.NoWall || IsTileSpecWalkable(cellState.TileSpec)) ? _finishedGhosting != null ? WalkValidationResult.GhostComplete : WalkValidationResult.Walkable : WalkValidationResult.NotWalkable;
+                },
                 none: () => cellState.NPC.Match(
-                    some: _ => mc.NoWall && IsTileSpecWalkable(cellState.TileSpec),
+                    some: _ => (mc.NoWall && IsTileSpecWalkable(cellState.TileSpec)) ? WalkValidationResult.Walkable : WalkValidationResult.NotWalkable,
                     none: () => cellState.Warp.Match(
-                        some: w => mc.NoWall || IsWarpWalkable(w, cellState.TileSpec),
-                        none: () => mc.NoWall || IsTileSpecWalkable(cellState.TileSpec))));
+                        some: w => (mc.NoWall || IsWarpWalkable(w, cellState.TileSpec)) ? WalkValidationResult.Walkable : WalkValidationResult.NotWalkable,
+                        none: () => (mc.NoWall || IsTileSpecWalkable(cellState.TileSpec)) ? WalkValidationResult.Walkable : WalkValidationResult.NotWalkable)));
+        }
+
+        private bool CanGhostOtherCharacter(Character c)
+        {
+            void _resetGhosting()
+            {
+                _finishedGhosting = null;
+                _startedGhosting = DateTime.Now;
+                _currentlyGhosting = c;
+            }
+
+            if (c != _currentlyGhosting) _resetGhosting();
+
+            if (_startedGhosting.HasValue && (DateTime.Now - _startedGhosting.Value).TotalSeconds > 3 && _currentlyGhosting == c)
+            {
+                _finishedGhosting = DateTime.Now;
+                return true;
+            }
+
+            if (!_startedGhosting.HasValue) _resetGhosting();
+
+            return false;
         }
 
         private bool IsWarpWalkable(Warp warp, TileSpec tile)
@@ -75,7 +133,7 @@ namespace EOLib.Domain.Character
             return IsTileSpecWalkable(tile);
         }
 
-        private static bool IsTileSpecWalkable(TileSpec tileSpec)
+        private bool IsTileSpecWalkable(TileSpec tileSpec)
         {
             switch (tileSpec)
             {
@@ -123,10 +181,12 @@ namespace EOLib.Domain.Character
 
     public interface IWalkValidationActions
     {
-        bool CanMoveToDestinationCoordinates();
+        void ClearGhostingCacheIfNeeded();
 
-        bool CanMoveToCoordinates(int gridX, int gridY);
+        WalkValidationResult CanMoveToDestinationCoordinates();
 
-        bool IsCellStateWalkable(IMapCellState cellState);
+        WalkValidationResult CanMoveToCoordinates(int gridX, int gridY);
+
+        WalkValidationResult IsCellStateWalkable(IMapCellState cellState);
     }
 }
