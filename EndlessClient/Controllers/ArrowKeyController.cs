@@ -23,6 +23,7 @@ namespace EndlessClient.Controllers
         private readonly ISpikeTrapActions _spikeTrapActions;
         private readonly IUnwalkableTileActionsHandler _unwalkableTileActionsHandler;
         private readonly IStatusLabelSetter _statusLabelSetter;
+        private readonly IGhostingRepository _ghostingRepository;
         private readonly ISfxPlayer _sfxPlayer;
 
         public ArrowKeyController(IWalkValidationActions walkValidationActions,
@@ -32,6 +33,7 @@ namespace EndlessClient.Controllers
                                   ISpikeTrapActions spikeTrapActions,
                                   IUnwalkableTileActionsHandler unwalkableTileActionsHandler,
                                   IStatusLabelSetter statusLabelSetter,
+                                  IGhostingRepository ghostingRepository,
                                   ISfxPlayer sfxPlayer)
         {
             _walkValidationActions = walkValidationActions;
@@ -41,6 +43,7 @@ namespace EndlessClient.Controllers
             _spikeTrapActions = spikeTrapActions;
             _unwalkableTileActionsHandler = unwalkableTileActionsHandler;
             _statusLabelSetter = statusLabelSetter;
+            _ghostingRepository = ghostingRepository;
             _sfxPlayer = sfxPlayer;
         }
 
@@ -110,7 +113,7 @@ namespace EndlessClient.Controllers
 
         private void AttemptToStartWalking()
         {
-            _walkValidationActions.ClearGhostingCacheIfNeeded();
+            _ghostingRepository.ClearCacheIfNeeded();
 
             var walkValidationResult = _walkValidationActions.CanMoveToDestinationCoordinates();
             if (walkValidationResult == WalkValidationResult.GhostComplete)

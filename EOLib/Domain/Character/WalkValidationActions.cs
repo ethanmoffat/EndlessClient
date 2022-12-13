@@ -23,41 +23,19 @@ namespace EOLib.Domain.Character
         private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly IUnlockDoorValidator _unlockDoorValidator;
-
-        private DateTime? _startedGhosting = null;
-        private Character _currentlyGhosting = null;
-        private DateTime? _finishedGhosting = null;
+        private readonly IGhostingRepository _ghostingRepository;
 
         public WalkValidationActions(IMapCellStateProvider mapCellStateProvider,
                                      ICharacterProvider characterProvider,
                                      ICurrentMapStateProvider currentMapStateProvider,
-                                     IUnlockDoorValidator unlockDoorValidator)
+                                     IUnlockDoorValidator unlockDoorValidator,
+                                     IGhostingRepository ghostingRepository)
         {
             _mapCellStateProvider = mapCellStateProvider;
             _characterProvider = characterProvider;
             _currentMapStateProvider = currentMapStateProvider;
             _unlockDoorValidator = unlockDoorValidator;
-        }
-
-        public void ClearGhostingCacheIfNeeded()
-        {
-            if (_currentlyGhosting == null)
-                return;
-
-            var mc = _characterProvider.MainCharacter;
-            var playersXDiff = Math.Abs(mc.RenderProperties.MapX - _currentlyGhosting.RenderProperties.MapX);
-            var playersYDiff = Math.Abs(mc.RenderProperties.MapY - _currentlyGhosting.RenderProperties.MapY);
-            var playersAreNextToEachother =  playersXDiff == 1 || playersYDiff == 1;
-            var playersAreOnTopOfEachother = playersXDiff == 0 && playersYDiff == 0;
-
-            var timerHasBeenTooLong = _finishedGhosting.HasValue ? (DateTime.Now - _finishedGhosting.Value).TotalSeconds > 2 : false;
-
-            if (!playersAreNextToEachother || playersAreOnTopOfEachother || timerHasBeenTooLong)
-            {
-                _startedGhosting = null;
-                _currentlyGhosting = null;
-                _finishedGhosting = null;
-            }
+            _ghostingRepository = ghostingRepository;
         }
 
         public WalkValidationResult CanMoveToDestinationCoordinates()
@@ -91,36 +69,14 @@ namespace EOLib.Domain.Character
 
             return cellChar.Match(
                 some: c => {
-                    if (!CanGhostOtherCharacter(c)) return WalkValidationResult.BlockedByCharacter;
-                    return (mc.NoWall || IsTileSpecWalkable(cellState.TileSpec)) ? _finishedGhosting != null ? WalkValidationResult.GhostComplete : WalkValidationResult.Walkable : WalkValidationResult.NotWalkable;
+                    if (!_ghostingRepository.CanGhostPlayer(c)) return WalkValidationResult.BlockedByCharacter;
+                    return (mc.NoWall || IsTileSpecWalkable(cellState.TileSpec)) ? _ghostingRepository.GhostedRecently() ? WalkValidationResult.GhostComplete : WalkValidationResult.Walkable : WalkValidationResult.NotWalkable;
                 },
                 none: () => cellState.NPC.Match(
                     some: _ => (mc.NoWall && IsTileSpecWalkable(cellState.TileSpec)) ? WalkValidationResult.Walkable : WalkValidationResult.NotWalkable,
                     none: () => cellState.Warp.Match(
                         some: w => (mc.NoWall || IsWarpWalkable(w, cellState.TileSpec)) ? WalkValidationResult.Walkable : WalkValidationResult.NotWalkable,
                         none: () => (mc.NoWall || IsTileSpecWalkable(cellState.TileSpec)) ? WalkValidationResult.Walkable : WalkValidationResult.NotWalkable)));
-        }
-
-        private bool CanGhostOtherCharacter(Character c)
-        {
-            void _resetGhosting()
-            {
-                _finishedGhosting = null;
-                _startedGhosting = DateTime.Now;
-                _currentlyGhosting = c;
-            }
-
-            if (c != _currentlyGhosting) _resetGhosting();
-
-            if (_startedGhosting.HasValue && (DateTime.Now - _startedGhosting.Value).TotalSeconds > 3 && _currentlyGhosting == c)
-            {
-                _finishedGhosting = DateTime.Now;
-                return true;
-            }
-
-            if (!_startedGhosting.HasValue) _resetGhosting();
-
-            return false;
         }
 
         private bool IsWarpWalkable(Warp warp, TileSpec tile)
@@ -181,8 +137,6 @@ namespace EOLib.Domain.Character
 
     public interface IWalkValidationActions
     {
-        void ClearGhostingCacheIfNeeded();
-
         WalkValidationResult CanMoveToDestinationCoordinates();
 
         WalkValidationResult CanMoveToCoordinates(int gridX, int gridY);
