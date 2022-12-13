@@ -1,4 +1,5 @@
-﻿using EndlessClient.ControlSets;
+﻿using EndlessClient.Audio;
+using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD;
@@ -58,6 +59,7 @@ namespace EndlessClient.Rendering
         private readonly ICharacterRenderer _characterRenderer;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
+        private readonly ISfxPlayer _sfxPlayer;
 
         private static DateTime? _lastTradeRequestedTime;
         private static DateTime? _lastPartyRequestTime;
@@ -75,7 +77,8 @@ namespace EndlessClient.Rendering
                                    IPartyDataProvider partyDataProvider,
                                    ICharacterRenderer characterRenderer,
                                    ICurrentMapStateProvider currentMapStateProvider, 
-                                   IEOMessageBoxFactory messageBoxFactory)
+                                   IEOMessageBoxFactory messageBoxFactory,
+                                   ISfxPlayer sfxPlayer)
         {
             _menuActions = new Dictionary<Rectangle, Action>();
             _inGameDialogActions = inGameDialogActions;
@@ -91,6 +94,7 @@ namespace EndlessClient.Rendering
             _characterRenderer = characterRenderer;
             _currentMapStateProvider = currentMapStateProvider;
             _messageBoxFactory = messageBoxFactory;
+            _sfxPlayer = sfxPlayer;
 
             //first, load up the images. split in half: the right half is the 'over' text
             _backgroundTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 41, true);
@@ -122,6 +126,7 @@ namespace EndlessClient.Rendering
         public override void Initialize()
         {
             base.Initialize();
+            _sfxPlayer.PlaySfx(SoundEffectID.ButtonClick);
 
             if (!Game.Components.Contains(this))
                 Game.Components.Add(this);
@@ -198,6 +203,8 @@ namespace EndlessClient.Rendering
 
             if (leftClicked || rightClicked)
             {
+                if (_userInputRepository.ClickHandled) _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
+                    
                 Game.Components.Remove(this);
                 Dispose();
 
