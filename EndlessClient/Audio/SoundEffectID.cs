@@ -33,7 +33,7 @@
         PrivateMessageSent,
         InventoryPickup = 20,
         InventoryPlace,
-        ItemUnequip = InventoryPickup,
+        ItemUnequip = InventoryPlace,
         Earthquake,
         DoorClose,
         DoorOpen = 24,
