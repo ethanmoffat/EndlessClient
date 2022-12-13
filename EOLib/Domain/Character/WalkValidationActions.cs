@@ -10,10 +10,10 @@ namespace EOLib.Domain.Character
 {
     public enum WalkValidationResult
     {
-        BlockedByCharacter,
-        GhostComplete,
         NotWalkable,
-        Walkable
+        Walkable,
+        BlockedByCharacter,
+        GhostComplete
     }
 
     [AutoMappedType]
@@ -69,14 +69,22 @@ namespace EOLib.Domain.Character
 
             return cellChar.Match(
                 some: c => {
-                    if (!mc.NoWall && !_ghostingRepository.CanGhostPlayer(c)) return WalkValidationResult.BlockedByCharacter;
-                    return (mc.NoWall || IsTileSpecWalkable(cellState.TileSpec)) ? _ghostingRepository.GhostedRecently() ? WalkValidationResult.GhostComplete : WalkValidationResult.Walkable : WalkValidationResult.NotWalkable;
+                    if (mc.NoWall)
+                        return WalkValidationResult.Walkable;
+
+                    if (!_ghostingRepository.CanGhostPlayer(c))
+                        return WalkValidationResult.BlockedByCharacter;
+
+                    if (IsTileSpecWalkable(cellState.TileSpec) && _ghostingRepository.GhostedRecently())
+                        return WalkValidationResult.GhostComplete;
+
+                    return BoolToWalkResult(IsTileSpecWalkable(cellState.TileSpec));
                 },
                 none: () => cellState.NPC.Match(
-                    some: _ => (mc.NoWall && IsTileSpecWalkable(cellState.TileSpec)) ? WalkValidationResult.Walkable : WalkValidationResult.NotWalkable,
+                    some: _ => BoolToWalkResult(mc.NoWall && IsTileSpecWalkable(cellState.TileSpec)),
                     none: () => cellState.Warp.Match(
-                        some: w => (mc.NoWall || IsWarpWalkable(w, cellState.TileSpec)) ? WalkValidationResult.Walkable : WalkValidationResult.NotWalkable,
-                        none: () => (mc.NoWall || IsTileSpecWalkable(cellState.TileSpec)) ? WalkValidationResult.Walkable : WalkValidationResult.NotWalkable)));
+                        some: w => BoolToWalkResult(mc.NoWall || IsWarpWalkable(w, cellState.TileSpec)),
+                        none: () => BoolToWalkResult(mc.NoWall || IsTileSpecWalkable(cellState.TileSpec)))));
         }
 
         private bool IsWarpWalkable(Warp warp, TileSpec tile)
@@ -88,6 +96,8 @@ namespace EOLib.Domain.Character
                 return warp.LevelRequirement <= _characterProvider.MainCharacter.Stats[CharacterStat.Level];
             return IsTileSpecWalkable(tile);
         }
+
+        private WalkValidationResult BoolToWalkResult(bool b) => b ? WalkValidationResult.Walkable : WalkValidationResult.NotWalkable;
 
         private bool IsTileSpecWalkable(TileSpec tileSpec)
         {
