@@ -69,7 +69,7 @@ namespace EOLib.Domain.Character
 
             return cellChar.Match(
                 some: c => {
-                    if (!_ghostingRepository.CanGhostPlayer(c)) return WalkValidationResult.BlockedByCharacter;
+                    if (!mc.NoWall && !_ghostingRepository.CanGhostPlayer(c)) return WalkValidationResult.BlockedByCharacter;
                     return (mc.NoWall || IsTileSpecWalkable(cellState.TileSpec)) ? _ghostingRepository.GhostedRecently() ? WalkValidationResult.GhostComplete : WalkValidationResult.Walkable : WalkValidationResult.NotWalkable;
                 },
                 none: () => cellState.NPC.Match(
