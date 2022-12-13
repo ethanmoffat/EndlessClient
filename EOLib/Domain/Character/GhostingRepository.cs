@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using AutomaticTypeMapper;
 
 namespace EOLib.Domain.Character
@@ -24,9 +25,8 @@ namespace EOLib.Domain.Character
     {
         private readonly ICharacterProvider _characterProvider;
 
-        private DateTime? _startedGhosting = null;
-        private Character _currentlyGhosting = null;
-        private DateTime? _finishedGhosting = null;
+        private Stopwatch _ghostAttemptTime = new Stopwatch();
+        private Character _characterToGhost = null;
         private const double GHOST_TIME = 2.0d;
 
         public GhostingRepository(ICharacterProvider characterProvider)
@@ -34,52 +34,52 @@ namespace EOLib.Domain.Character
             _characterProvider = characterProvider;
         }
 
-        public bool GhostedRecently() => _finishedGhosting != null;
+        public bool GhostedRecently() => _ghostAttemptTime.Elapsed.Seconds > 0 && !_ghostAttemptTime.IsRunning;
 
         public bool CanGhostPlayer(Character c)
         {
             void _resetGhosting()
             {
-                _finishedGhosting = null;
-                _startedGhosting = DateTime.Now;
-                _currentlyGhosting = c;
+                _ghostAttemptTime.Reset();
+                _ghostAttemptTime.Start();
+                _characterToGhost = c;
             }
 
-            if (c != _currentlyGhosting) _resetGhosting();
+            if (c != _characterToGhost) _resetGhosting();
 
-            if (_startedGhosting.HasValue && (DateTime.Now - _startedGhosting.Value).TotalSeconds > GHOST_TIME + 1 && _currentlyGhosting == c)
+            if (_ghostAttemptTime.Elapsed.TotalSeconds > GHOST_TIME && _characterToGhost == c)
             {
-                _finishedGhosting = DateTime.Now;
+                _ghostAttemptTime.Stop();
                 return true;
             }
 
-            if (!_startedGhosting.HasValue) _resetGhosting();
+            if (GhostedRecently()) _resetGhosting();
 
             return false;
         }
 
         public void ClearCacheIfNeeded()
         {
-            if (_currentlyGhosting == null)
+            if (_characterToGhost == null)
                 return;
 
             var mc = _characterProvider.MainCharacter;
-            var playersXDiff = Math.Abs(mc.RenderProperties.MapX - _currentlyGhosting.RenderProperties.MapX);
-            var playersYDiff = Math.Abs(mc.RenderProperties.MapY - _currentlyGhosting.RenderProperties.MapY);
-            var playersAreNextToEachother = playersXDiff == 1 || playersYDiff == 1;
-            var playersAreOnTopOfEachother = playersXDiff == 0 && playersYDiff == 0;
+            var playersDiff = Math.Abs(mc.RenderProperties.MapX - _characterToGhost.RenderProperties.MapX) +
+                Math.Abs(mc.RenderProperties.MapY - _characterToGhost.RenderProperties.MapY);
 
-            var timerHasBeenTooLong = _finishedGhosting.HasValue && (DateTime.Now - _finishedGhosting.Value).TotalSeconds > GHOST_TIME;
+            var playersAreTooFar = playersDiff > 2;
+            var playersAreOnTopOfEachother = playersDiff == 0;
+            var timerHasBeenTooLong = _ghostAttemptTime.Elapsed.TotalSeconds > GHOST_TIME + 1;
 
-            if (!playersAreNextToEachother || playersAreOnTopOfEachother || timerHasBeenTooLong)
+            if (playersAreTooFar || playersAreOnTopOfEachother || timerHasBeenTooLong)
                 ResetState();
         }
 
         public void ResetState()
         {
-            _startedGhosting = null;
-            _currentlyGhosting = null;
-            _finishedGhosting = null;
+            _ghostAttemptTime.Stop();
+            _ghostAttemptTime.Reset();
+            _characterToGhost = null;
         }
     }
 }
