@@ -7,6 +7,7 @@ using EndlessClient.HUD.Controls;
 using EndlessClient.UIControls;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Chat.Commands;
+using EOLib.Domain.Map;
 using EOLib.Localization;
 using System;
 
@@ -23,6 +24,7 @@ namespace EndlessClient.Controllers
         private readonly IHudControlProvider _hudControlProvider;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IChatTypeCalculator _chatTypeCalculator;
+        private readonly ICurrentMapStateProvider _currentMapStateProvider;
 
         public ChatController(IChatTextBoxActions chatTextBoxActions,
                               IChatActions chatActions,
@@ -31,7 +33,8 @@ namespace EndlessClient.Controllers
                               IStatusLabelSetter statusLabelSetter,
                               IHudControlProvider hudControlProvider,
                               ISfxPlayer sfxPlayer,
-                              IChatTypeCalculator chatTypeCalculator)
+                              IChatTypeCalculator chatTypeCalculator,
+                              ICurrentMapStateProvider currentMapStateProvider)
         {
             _chatTextBoxActions = chatTextBoxActions;
             _chatActions = chatActions;
@@ -41,6 +44,7 @@ namespace EndlessClient.Controllers
             _hudControlProvider = hudControlProvider;
             _sfxPlayer = sfxPlayer;
             _chatTypeCalculator = chatTypeCalculator;
+            _currentMapStateProvider = currentMapStateProvider;
         }
 
         public void SendChatAndClearTextBox()
@@ -71,6 +75,7 @@ namespace EndlessClient.Controllers
                             });
                         }
                         break;
+                    case ChatResult.JailProtection: _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.JAIL_WARNING_CANNOT_USE_GLOBAL); break;
                     case ChatResult.AdminAnnounce: _sfxPlayer.PlaySfx(SoundEffectID.AdminAnnounceReceived); goto case ChatResult.Ok;
                     case ChatResult.HideSpeechBubble: break; // no-op
                     case ChatResult.HideAll: break; // no-op
@@ -85,6 +90,14 @@ namespace EndlessClient.Controllers
             _chatTextBoxActions.FocusChatTextBox();
         }
 
+        public void ClearAndWarnIfJailAndGlobal()
+        {
+            if (!_currentMapStateProvider.IsJail || _chatTypeCalculator.CalculateChatType(ChatTextBox.Text) != ChatType.Global) return;
+
+            _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.JAIL_WARNING_CANNOT_USE_GLOBAL);
+            _chatTextBoxActions.ClearChatText();
+        }
+
         private ChatTextBox ChatTextBox => _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox);
     }
 
@@ -93,5 +106,7 @@ namespace EndlessClient.Controllers
         void SendChatAndClearTextBox();
 
         void SelectChatTextBox();
+
+        void ClearAndWarnIfJailAndGlobal();
     }
 }

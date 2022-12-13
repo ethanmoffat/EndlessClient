@@ -84,6 +84,11 @@ namespace EndlessClient.Rendering.Character
             });
         }
 
+        public void CancelClickToWalk()
+        {
+            Animator.CancelClickToWalk();
+        }
+
         public void StartAttacking(int noteIndex = -1)
         {
             if (!_hudControlProvider.IsInGame)
@@ -445,6 +450,8 @@ namespace EndlessClient.Rendering.Character
         void Face(EODirection direction);
 
         void StartWalking(Option<MapCoordinate> targetCoordinate);
+
+        void CancelClickToWalk();
 
         void StartAttacking(int noteIndex = -1);
 
