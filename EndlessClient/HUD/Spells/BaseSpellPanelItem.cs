@@ -5,6 +5,7 @@ using EOLib.IO.Pub;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.Input.InputListeners;
 using XNAControls;
 
 using static EndlessClient.HUD.Spells.SpellPanelItem;
@@ -60,18 +61,6 @@ namespace EndlessClient.HUD.Spells
             SetSize(ICON_AREA_WIDTH, ICON_AREA_HEIGHT);
         }
 
-        protected override void OnUpdateControl(GameTime gameTime)
-        {
-            if (MouseOver && !_parentPanel.AnySpellsDragging()
-                && CurrentMouseState.LeftButton == ButtonState.Pressed
-                && PreviousMouseState.LeftButton == ButtonState.Released)
-            {
-                Clicked?.Invoke(this, EventArgs.Empty);
-            }
-
-            base.OnUpdateControl(gameTime);
-        }
-
         protected override void OnDrawControl(GameTime gameTime)
         {
             if (MouseOver && _parentPanel.AnySpellsDragging())
@@ -82,6 +71,12 @@ namespace EndlessClient.HUD.Spells
             }
 
             base.OnDrawControl(gameTime);
+        }
+
+        protected override void HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            if (!_parentPanel.AnySpellsDragging())
+                Clicked?.Invoke(this, EventArgs.Empty);
         }
 
         protected override void Dispose(bool disposing)

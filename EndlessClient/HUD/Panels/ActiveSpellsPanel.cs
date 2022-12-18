@@ -15,6 +15,7 @@ using Microsoft.Win32;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.Input;
 using Optional;
 using Optional.Collections;
 using System;
@@ -257,10 +258,9 @@ namespace EndlessClient.HUD.Panels
                 _cachedSpells = _characterInventoryProvider.SpellInventory.ToHashSet();
             }
 
-            if ((CurrentKeyState.IsKeyDown(Keys.RightShift) && PreviousKeyState.IsKeyUp(Keys.RightShift)) ||
-                (CurrentKeyState.IsKeyDown(Keys.LeftShift) && PreviousKeyState.IsKeyUp(Keys.LeftShift)) ||
-                (CurrentKeyState.IsKeyUp(Keys.RightShift) && PreviousKeyState.IsKeyDown(Keys.RightShift)) ||
-                (CurrentKeyState.IsKeyUp(Keys.LeftShift) && PreviousKeyState.IsKeyDown(Keys.LeftShift)))
+            var kbd = KeyboardExtended.GetState();
+            if (kbd.WasKeyJustUp(Keys.RightShift) || kbd.WasKeyJustDown(Keys.RightShift) ||
+                kbd.WasKeyJustUp(Keys.LeftShift) || kbd.WasKeyJustDown(Keys.LeftShift))
             {
                 SwapFunctionKeySourceRectangles();
             }
@@ -411,7 +411,7 @@ namespace EndlessClient.HUD.Panels
             _levelUpButton1.Visible = _levelUpButton2.Visible = false;
         }
 
-        private void SetSpellStatusLabelHover(object sender, EventArgs e)
+        private void SetSpellStatusLabelHover(object sender, MouseStateExtended e)
         {
             var spell = ((SpellPanelItem)sender).SpellData;
             _statusLabelSetter.SetStatusLabel(EOResourceID.SKILLMASTER_WORD_SPELL, spell.Name);

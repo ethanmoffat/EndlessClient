@@ -16,7 +16,6 @@ namespace EndlessClient.Dialogs.Factories
         private readonly IGameStateProvider _gameStateProvider;
         private readonly ICharacterRendererFactory _characterRendererFactory;
         private readonly IContentProvider _contentProvider;
-        private readonly IKeyboardDispatcherProvider _keyboardDispatcherProvider;
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
         private readonly IEODialogButtonService _dialogButtonService;
         private readonly IXnaControlSoundMapper _xnaControlSoundMapper;
@@ -25,7 +24,6 @@ namespace EndlessClient.Dialogs.Factories
                                             IGameStateProvider gameStateProvider,
                                             ICharacterRendererFactory characterRendererFactory,
                                             IContentProvider contentProvider,
-                                            IKeyboardDispatcherProvider keyboardDispatcherProvider,
                                             IEOMessageBoxFactory eoMessageBoxFactory,
                                             IEODialogButtonService dialogButtonService,
                                             IXnaControlSoundMapper xnaControlSoundMapper)
@@ -34,7 +32,6 @@ namespace EndlessClient.Dialogs.Factories
             _gameStateProvider = gameStateProvider;
             _characterRendererFactory = characterRendererFactory;
             _contentProvider = contentProvider;
-            _keyboardDispatcherProvider = keyboardDispatcherProvider;
             _eoMessageBoxFactory = eoMessageBoxFactory;
             _dialogButtonService = dialogButtonService;
             _xnaControlSoundMapper = xnaControlSoundMapper;
@@ -46,7 +43,6 @@ namespace EndlessClient.Dialogs.Factories
                                              _gameStateProvider,
                                              _characterRendererFactory,
                                              _contentProvider,
-                                             _keyboardDispatcherProvider.Dispatcher,
                                              _eoMessageBoxFactory,
                                              _dialogButtonService,
                                              _xnaControlSoundMapper);

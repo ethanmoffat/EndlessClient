@@ -1,9 +1,10 @@
-﻿using System;
-using EOLib;
+﻿using EOLib;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.Input;
+using MonoGame.Extended.Input.InputListeners;
+using System;
 using XNAControls;
 
 namespace EndlessClient.Dialogs
@@ -98,7 +99,7 @@ namespace EndlessClient.Dialogs
         public object Data { get; set; }
 
         public event EventHandler RightClick;
-        public event EventHandler LeftClick;
+        public event EventHandler<MouseEventArgs> LeftClick;
 
         public ListDialogItem(BaseEODialog parent, ListItemStyle style, int listIndex = -1)
         {
@@ -148,10 +149,13 @@ namespace EndlessClient.Dialogs
 
             SetParentControl(parent);
 
+            OnMouseEnter += (_, _) => _drawBackground = true;
+            OnMouseLeave += (_, _) => _drawBackground = false;
+
             OffsetY = Style == ListItemStyle.Large ? 25 : 45;
         }
 
-        public void SetPrimaryClickAction(EventHandler onClickAction)
+        public void SetPrimaryClickAction(EventHandler<MouseEventArgs> onClickAction)
         {
             var oldText = _primaryText;
             _primaryText = new XNAHyperLink(Constants.FontSize08pt5)
@@ -177,7 +181,7 @@ namespace EndlessClient.Dialogs
                 LeftClick += onClickAction;
         }
 
-        public void SetSubtextClickAction(EventHandler onClickAction)
+        public void SetSubtextClickAction(EventHandler<MouseEventArgs> onClickAction)
         {
             if (Style == ListItemStyle.Small)
                 throw new InvalidOperationException("Unable to set subtext click action when style is Small");
@@ -214,37 +218,6 @@ namespace EndlessClient.Dialogs
             _primaryText.ForeColor = Color.FromNonPremultiplied(colorFactor, colorFactor, colorFactor, 0xff);
         }
 
-        protected override void OnUpdateControl(GameTime gameTime)
-        {
-            base.OnUpdateControl(gameTime);
-
-            if (MouseOver && MouseOverPreviously)
-            {
-                _drawBackground = true;
-                if (CurrentMouseState.RightButton == ButtonState.Released &&
-                    PreviousMouseState.RightButton == ButtonState.Pressed &&
-                    !_parentDialog.ChildControlClickHandled)
-                {
-                    RightClick?.Invoke(this, EventArgs.Empty);
-                    _parentDialog.ChildControlClickHandled = true;
-                }
-                else if(CurrentMouseState.LeftButton == ButtonState.Released &&
-                        PreviousMouseState.LeftButton == ButtonState.Pressed)
-                {
-                    if ((_subText is IXNAHyperLink && !_subText.MouseOver) ||
-                        (_primaryText is IXNAHyperLink && !_primaryText.MouseOver) ||
-                        !(_primaryText is IXNAHyperLink || _subText is IXNAHyperLink))
-                        LeftClick?.Invoke(this, EventArgs.Empty);
-
-                    _parentDialog.ChildControlClickHandled = true;
-                }
-            }
-            else
-            {
-                _drawBackground = false;
-            }
-        }
-
         protected override void OnDrawControl(GameTime gameTime)
         {
             base.OnDrawControl(gameTime);
@@ -270,6 +243,18 @@ namespace EndlessClient.Dialogs
             }
 
             _spriteBatch.End();
+        }
+
+        protected override void HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            if (eventArgs.Button == MouseButton.Left)
+            {
+                LeftClick?.Invoke(this, eventArgs);
+            }
+            else if (eventArgs.Button == MouseButton.Right)
+            {
+                RightClick?.Invoke(this, eventArgs);
+            }
         }
 
         private static Vector2 GetCoordsFromGraphic(Rectangle sourceTextureArea)

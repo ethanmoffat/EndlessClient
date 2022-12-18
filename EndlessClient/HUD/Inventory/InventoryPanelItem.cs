@@ -8,9 +8,11 @@ using EOLib.IO.Extensions;
 using EOLib.IO.Pub;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.Input;
+using MonoGame.Extended.Input.InputListeners;
+using Optional;
 using System;
-using System.Diagnostics;
+using System.Diagnostics.Tracing;
 using XNAControls;
 
 namespace EndlessClient.HUD.Inventory
@@ -40,21 +42,17 @@ namespace EndlessClient.HUD.Inventory
 
         private int _slot;
 
-        private readonly Stopwatch _clickTimer;
-        private int _recentClicks;
-
-        private ulong _updateTick;
+        private Option<Vector2> _highlightDrawPosition;
 
         // Ru Paul's drag properties
-        private bool _beingDragged;
+        // _beingDragged: true when a drag is in progress (either single click or click + drag
+        // _followMouse: true when a single-click drag is in progress and the icon should follow the mouse
+        //               otherwise, drag event handles following the mouse
+        // _oldOffset: the top-left of the parent inventory panel when the drag started
+        // _dragPositioned: flag indicating positions are correctly set (prevents icon from flashing in top-left on first update/draw)
+        private bool _beingDragged, _followMouse;
         private Vector2 _oldOffset;
         private bool _dragPositioned;
-
-        private bool MousePressed => CurrentMouseState.LeftButton == ButtonState.Pressed && PreviousMouseState.LeftButton == ButtonState.Released;
-
-        private bool MouseReleased => CurrentMouseState.LeftButton == ButtonState.Released && PreviousMouseState.LeftButton == ButtonState.Pressed;
-
-        private bool MouseHeld => CurrentMouseState.LeftButton == ButtonState.Pressed && PreviousMouseState.LeftButton == ButtonState.Pressed;
 
         public int Slot
         {
@@ -87,6 +85,8 @@ namespace EndlessClient.HUD.Inventory
         public event EventHandler<EIFRecord> DoubleClick;
         public event EventHandler<ItemDragCompletedEventArgs> DoneDragging;
 
+        public override Rectangle EventArea => IsDragging ? DrawArea : DrawAreaWithParentOffset;
+
         public InventoryPanelItem(IItemNameColorService itemNameColorService,
                                   InventoryPanel inventoryPanel,
                                   IActiveDialogProvider activeDialogProvider,
@@ -118,12 +118,11 @@ namespace EndlessClient.HUD.Inventory
             };
 
             OnMouseEnter += (_, _) => _nameLabel.Visible = _inventoryPanel.NoItemsDragging() && _activeDialogProvider.PaperdollDialog.Match(d => d.NoItemsDragging(), () => true);
-            OnMouseLeave += (_, _) => _nameLabel.Visible = false;
+            OnMouseOver += InventoryPanelItem_OnMouseOver;
+            OnMouseLeave += (_, _) => { _nameLabel.Visible = false; _highlightDrawPosition = Option.None<Vector2>(); };
 
             var (slotWidth, slotHeight) = Data.Size.GetDimensions();
             SetSize(slotWidth * 26 - 3, slotHeight * 26 - 3);
-
-            _clickTimer = new Stopwatch();
         }
 
         public int GetCurrentSlotBasedOnPosition()
@@ -136,17 +135,16 @@ namespace EndlessClient.HUD.Inventory
 
         public void StartDragging()
         {
+            if (!_inventoryPanel.NoItemsDragging())
+                return;
+
             _beingDragged = true;
             _nameLabel.Visible = false;
 
-            _oldOffset = DrawPositionWithParentOffset - DrawPosition;
+            _oldOffset = ImmediateParent.DrawPositionWithParentOffset;
+            DrawPosition = MouseExtended.GetState().Position.ToVector2();
 
             _sfxPlayer.PlaySfx(SoundEffectID.InventoryPickup);
-
-            // todo: drag without unparenting this control
-            SetControlUnparented();
-            AddControlToDefaultGame();
-
             DrawOrder = 1000;
         }
 
@@ -161,67 +159,9 @@ namespace EndlessClient.HUD.Inventory
 
         protected override void OnUpdateControl(GameTime gameTime)
         {
-            if (_recentClicks > 0)
+            if (_followMouse)
             {
-                if (_clickTimer.Elapsed.TotalMilliseconds > 500)
-                {
-                    _clickTimer.Restart();
-                    _recentClicks--;
-                }
-                else if (_clickTimer.Elapsed.TotalMilliseconds > 200 && _inventoryPanel.NoItemsDragging())
-                {
-                    StartDragging();
-                }
-            }
-
-            if (MousePressed)
-                _updateTick = 0;
-
-            if (!_beingDragged && MouseOver && MouseOverPreviously && MouseReleased)
-            {
-                _clickTimer.Restart();
-                _recentClicks++;
-
-                if (_recentClicks == 2)
-                {
-                    DoubleClick?.Invoke(this, Data);
-                    _recentClicks = 0;
-                }
-            }
-            else if (++_updateTick % 8 == 0 && !_beingDragged && MouseOver && MouseOverPreviously && MouseHeld)
-            {
-                if (_inventoryPanel.NoItemsDragging() &&
-                    _activeDialogProvider.PaperdollDialog.Match(dlg => dlg.NoItemsDragging(), () => true))
-                {
-                    StartDragging();
-                }
-            }
-            else if (_beingDragged)
-            {
-                DrawPosition = new Vector2(CurrentMouseState.X - (DrawArea.Width / 2), CurrentMouseState.Y - (DrawArea.Height / 2));
-
-                if (MouseReleased)
-                {
-                    var args = new ItemDragCompletedEventArgs(Data);
-                    DoneDragging?.Invoke(this, args);
-
-                    if (!args.ContinueDrag)
-                    {
-                        if (Game.Components.Contains(this))
-                            Game.Components.Remove(this);
-
-                        SetParentControl(_inventoryPanel);
-
-                        if (!args.RestoreOriginalSlot)
-                            Slot = GetCurrentSlotBasedOnPosition();
-                        else
-                            DrawPosition = GetPosition(Slot);
-
-                        _dragPositioned = false;
-                        _beingDragged = false;
-                        _nameLabel.Visible = false;
-                    }
-                }
+                DrawPosition = MouseExtended.GetState().Position.ToVector2() - new Vector2(DrawArea.Width / 2, DrawArea.Height / 2);
             }
 
             base.OnUpdateControl(gameTime);
@@ -231,19 +171,11 @@ namespace EndlessClient.HUD.Inventory
         {
             _spriteBatch.Begin();
 
-            // draw highlighted area
-            if (MouseOver)
+            _highlightDrawPosition.MatchSome(drawPosition =>
             {
-                if (!_beingDragged || InventoryGridArea.Contains(CurrentMouseState.Position))
-                {
-                    // slot based on current mouse position if being dragged
-                    var currentSlot = GetCurrentSlotBasedOnPosition();
-                    var drawPosition = GetPosition(currentSlot) + (_beingDragged ? _oldOffset : ImmediateParent.DrawPositionWithParentOffset);
-
-                    if (InventoryGridArea.Contains(DrawArea.WithPosition(drawPosition)))
-                        _spriteBatch.Draw(_highlightBackground, DrawArea.WithPosition(drawPosition), Color.White);
-                }
-            }
+                if (InventoryGridArea.Contains(DrawArea.WithPosition(drawPosition)))
+                    _spriteBatch.Draw(_highlightBackground, DrawArea.WithPosition(drawPosition), Color.White);
+            });
 
             if (_beingDragged)
             {
@@ -255,7 +187,7 @@ namespace EndlessClient.HUD.Inventory
                     _dragPositioned = InventoryGridArea.Contains(DrawArea.WithPosition(drawPosition));
 
                 if (_dragPositioned || InventoryGridArea.Contains(DrawArea.WithPosition(drawPosition)))
-                    _spriteBatch.Draw(_itemGraphic, DrawPositionWithParentOffset, Color.FromNonPremultiplied(255, 255, 255, 128));
+                    _spriteBatch.Draw(_itemGraphic, DrawPosition, Color.FromNonPremultiplied(255, 255, 255, 128));
             }
             else
             {
@@ -264,6 +196,48 @@ namespace EndlessClient.HUD.Inventory
 
             _spriteBatch.End();
             base.OnDrawControl(gameTime);
+        }
+
+        private void InventoryPanelItem_OnMouseOver(object sender, MouseStateExtended e)
+        {
+            if (!InventoryGridArea.Contains(e.Position))
+                return;
+
+            var currentSlot = GetCurrentSlotBasedOnPosition();
+            _highlightDrawPosition = Option.Some(GetPosition(currentSlot) + (_beingDragged ? _oldOffset : ImmediateParent.DrawPositionWithParentOffset));
+        }
+
+        protected override void HandleDragStart(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            StartDragging();
+        }
+
+        protected override void HandleDrag(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            DrawPosition = eventArgs.Position.ToVector2() - new Vector2(DrawArea.Width / 2, DrawArea.Height / 2);
+        }
+
+        protected override void HandleDragEnd(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            StopDragging();
+        }
+
+        protected override void HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            if (_followMouse)
+            {
+                StopDragging();
+            }
+            else
+            {
+                StartDragging();
+                _followMouse = true;
+            }
+        }
+
+        protected override void HandleDoubleClick(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            DoubleClick?.Invoke(control, Data);
         }
 
         protected override void Dispose(bool disposing)
@@ -297,6 +271,31 @@ namespace EndlessClient.HUD.Inventory
 
             DrawOrder = 110;
             _nameLabel.DrawOrder = 200;
+        }
+
+        private void StopDragging()
+        {
+            var args = new ItemDragCompletedEventArgs(Data);
+            DoneDragging?.Invoke(this, args);
+
+            if (!args.ContinueDrag)
+            {
+                if (!args.RestoreOriginalSlot)
+                    Slot = GetCurrentSlotBasedOnPosition();
+                else
+                    DrawPosition = GetPosition(Slot);
+
+                _dragPositioned = false;
+                _beingDragged = false;
+                _nameLabel.Visible = false;
+                _oldOffset = Vector2.Zero;
+
+                _followMouse = false;
+            }
+            else
+            {
+                _followMouse = true;
+            }
         }
 
         private static Vector2 GetPosition(int slot)

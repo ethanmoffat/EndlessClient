@@ -22,7 +22,6 @@ namespace EndlessClient.ControlSets
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly IHudControlsFactory _hudControlsFactory;
         private readonly IContentProvider _contentProvider;
-        private readonly IKeyboardDispatcherProvider _keyboardDispatcherProvider;
         private readonly IConfigurationProvider _configProvider;
         private readonly ICharacterInfoPanelFactory _characterInfoPanelFactory;
         private readonly ICharacterSelectorProvider _characterSelectorProvider;
@@ -39,7 +38,6 @@ namespace EndlessClient.ControlSets
                                  IEOMessageBoxFactory messageBoxFactory,
                                  IHudControlsFactory hudControlsFactory,
                                  IContentProvider contentProvider,
-                                 IKeyboardDispatcherProvider keyboardDispatcherProvider,
                                  IConfigurationProvider configProvider,
                                  ICharacterInfoPanelFactory characterInfoPanelFactory,
                                  ICharacterSelectorProvider characterSelectorProvider,
@@ -52,7 +50,6 @@ namespace EndlessClient.ControlSets
             _messageBoxFactory = messageBoxFactory;
             _hudControlsFactory = hudControlsFactory;
             _contentProvider = contentProvider;
-            _keyboardDispatcherProvider = keyboardDispatcherProvider;
             _configProvider = configProvider;
             _characterInfoPanelFactory = characterInfoPanelFactory;
             _characterSelectorProvider = characterSelectorProvider;
@@ -91,20 +88,12 @@ namespace EndlessClient.ControlSets
             {
                 case GameStates.Initial: return new InitialControlSet(_configProvider, _mainButtonController);
                 case GameStates.CreateAccount:
-                    return new CreateAccountControlSet(
-                        _keyboardDispatcherProvider.Dispatcher,
-                        _mainButtonController,
-                        _accountController);
+                    return new CreateAccountControlSet(_mainButtonController, _accountController);
                 case GameStates.Login:
-                    return new LoginPromptControlSet(
-                        _keyboardDispatcherProvider.Dispatcher,
-                        _configProvider,
-                        _mainButtonController,
-                        _loginController);
+                    return new LoginPromptControlSet(_configProvider, _mainButtonController, _loginController);
                 case GameStates.ViewCredits: return new ViewCreditsControlSet(_configProvider, _mainButtonController);
                 case GameStates.LoggedIn:
                     return new LoggedInControlSet(
-                        _keyboardDispatcherProvider.Dispatcher,
                         _mainButtonController,
                         _characterInfoPanelFactory,
                         _characterSelectorProvider,

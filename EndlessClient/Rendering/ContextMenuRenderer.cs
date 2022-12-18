@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using EndlessClient.ControlSets;
+﻿using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Controls;
@@ -10,7 +7,6 @@ using EndlessClient.Rendering.Character;
 using EndlessClient.Services;
 using EndlessClient.UIControls;
 using EOLib;
-using EOLib.Domain.Chat;
 using EOLib.Domain.Interact;
 using EOLib.Domain.Party;
 using EOLib.Domain.Trade;
@@ -18,8 +14,12 @@ using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.Input;
+using MonoGame.Extended.Input.InputListeners;
 using Optional;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Rendering
@@ -108,6 +108,8 @@ namespace EndlessClient.Rendering
             SetPositionBasedOnCharacterRenderer(_characterRenderer);
             SetSize(W, H);
 
+            OnMouseOver += ContextMenuRenderer_OnMouseOver;
+
             // Update this before map renderer so that clicks are handled first
             UpdateOrder = -20;
         }
@@ -158,48 +160,6 @@ namespace EndlessClient.Rendering
             return base.ShouldUpdate();
         }
 
-        protected override void OnUpdateControl(GameTime gameTime)
-        {
-            int checkX = CurrentMouseState.X - DrawAreaWithParentOffset.X;
-            int checkY = CurrentMouseState.Y - DrawAreaWithParentOffset.Y;
-
-            var leftClicked = CurrentMouseState.LeftButton == ButtonState.Released && PreviousMouseState.LeftButton == ButtonState.Pressed;
-            var rightClicked = CurrentMouseState.RightButton == ButtonState.Released && PreviousMouseState.RightButton == ButtonState.Pressed;
-
-            bool found = false;
-            foreach (var (sourceRect, menuAction) in _menuActions)
-            {
-                if (sourceRect.Contains(checkX, checkY))
-                {
-                    _overRect = Option.Some(sourceRect);
-                    found = true;
-
-                    if (leftClicked && !_userInputRepository.ClickHandled)
-                    {
-                        menuAction();
-                        _userInputRepository.ClickHandled = true;
-                    }
-
-                    break;
-                }
-            }
-
-            if (!found)
-            {
-                _overRect = Option.None<Rectangle>();
-            }
-
-            if (leftClicked || rightClicked)
-            {
-                Game.Components.Remove(this);
-                Dispose();
-
-                _contextMenuRepository.ContextMenu = Option.None<IContextMenuRenderer>();
-            }
-
-            base.OnUpdateControl(gameTime);
-        }
-
         protected override void OnDrawControl(GameTime gameTime)
         {
             _spriteBatch.Begin();
@@ -218,6 +178,45 @@ namespace EndlessClient.Rendering
             _spriteBatch.End();
 
             base.OnDrawControl(gameTime);
+        }
+
+        private void ContextMenuRenderer_OnMouseOver(object sender, MouseStateExtended e)
+        {
+            bool found = false;
+            foreach (var (sourceRect, menuAction) in _menuActions)
+            {
+                if (sourceRect.Contains(e.Position - DrawAreaWithParentOffset.Location))
+                {
+                    _overRect = Option.Some(sourceRect);
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                _overRect = Option.None<Rectangle>();
+            }
+        }
+
+        protected override void HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            if (eventArgs.Button == MouseButton.Left && !_userInputRepository.ClickHandled)
+            {
+                _overRect.MatchSome(sourceRect =>
+                {
+                    if (!_menuActions.ContainsKey(sourceRect)) return;
+
+                    var menuAction = _menuActions[sourceRect];
+                    menuAction();
+                    _userInputRepository.ClickHandled = true;
+                });
+            }
+
+            Game.Components.Remove(this);
+            Dispose();
+
+            _contextMenuRepository.ContextMenu = Option.None<IContextMenuRenderer>();
         }
 
         /* Helper maps MenuAction enum value to a member method for easy initialization */

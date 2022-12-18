@@ -1,7 +1,6 @@
 ﻿using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
-using EndlessClient.Input;
 using EOLib;
 using EOLib.Domain.Account;
 using EOLib.Graphics;
@@ -29,17 +28,13 @@ namespace EndlessClient.ControlSets
         private IXNAButton _btnCancel;
         private IXNAPanel _labels;
 
-        private TextBoxClickEventHandler _clickHandler;
-        private TextBoxTabEventHandler _tabHandler;
-
         private Task _createAccountTask;
 
         public override GameStates GameState => GameStates.CreateAccount;
 
-        public CreateAccountControlSet(KeyboardDispatcher dispatcher,
-                                       IMainButtonController mainButtonController,
+        public CreateAccountControlSet(IMainButtonController mainButtonController,
                                        IAccountController accountController)
-            : base(dispatcher, mainButtonController)
+            : base(mainButtonController)
         {
             _accountController = accountController;
         }
@@ -72,13 +67,8 @@ namespace EndlessClient.ControlSets
             _allComponents.Add(_labels);
 
             var textBoxes = _allComponents.OfType<IXNATextBox>().ToArray();
-            _clickHandler = new TextBoxClickEventHandler(_dispatcher, textBoxes);
-            _tabHandler = new TextBoxTabEventHandler(_dispatcher, textBoxes);
 
-            if (_dispatcher.Subscriber != null)
-                _dispatcher.Subscriber.Selected = false;
-            _dispatcher.Subscriber = _tbAccountName;
-            _dispatcher.Subscriber.Selected = true;
+            _tbAccountName.Selected = true;
 
             base.InitializeControlsHelper(currentControlSet);
         }
@@ -165,7 +155,8 @@ namespace EndlessClient.ControlSets
                 LeftPadding = 4,
                 MaxChars = 35,
                 Text = "",
-                DefaultText = " "
+                DefaultText = " ",
+                TabOrder = whichControl - GameControlIdentifier.CreateAccountName
             };
         }
 
@@ -215,17 +206,6 @@ namespace EndlessClient.ControlSets
                                                 _tbEmail.Text));
                 _createAccountTask.ContinueWith(_ => _createAccountTask = null);
             }
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                _clickHandler.Dispose();
-                _tabHandler.Dispose();
-            }
-
-            base.Dispose(disposing);
         }
     }
 }

@@ -132,8 +132,6 @@ namespace EndlessClient.Dialogs
                 },
                 none: () => _cachedUpgrades = _bankDataProvider.LockerUpgrades);
 
-            SuppressClickDragEvent(!_inventoryPanel.NoItemsDragging());
-
             base.OnUpdateControl(gameTime);
         }
 

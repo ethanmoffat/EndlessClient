@@ -9,6 +9,8 @@ using EOLib.Domain.Chat;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.BitmapFonts;
+using MonoGame.Extended.Input;
+using MonoGame.Extended.Input.InputListeners;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -157,20 +159,6 @@ namespace EndlessClient.HUD.Chat
                 }
             }
 
-            if (Active && MouseOver &&
-                CurrentMouseState.RightButton == ButtonState.Released &&
-                PreviousMouseState.RightButton == ButtonState.Pressed)
-            {
-                var clickedYRelativeToTopOfPanel = CurrentMouseState.Y - DrawAreaWithParentOffset.Y;
-                var clickedChatRow = (int)Math.Round(clickedYRelativeToTopOfPanel / 13.0) - 1;
-
-                if (clickedChatRow >= 0 && _scrollBar.ScrollOffset + clickedChatRow < _cachedChat.Count)
-                {
-                    var who = _chatProvider.AllChat[Tab][_scrollBar.ScrollOffset + clickedChatRow].Who;
-                    _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox).Text = $"!{who} ";
-                }
-            }
-
             base.OnUpdateControl(gameTime);
         }
 
@@ -197,6 +185,21 @@ namespace EndlessClient.HUD.Chat
             _spriteBatch.End();
 
             base.OnDrawControl(gameTime);
+        }
+
+        protected override void HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            if (eventArgs.Button == MouseButton.Right)
+            {
+                var clickedYRelativeToTopOfPanel = eventArgs.Position.Y - DrawAreaWithParentOffset.Y;
+                var clickedChatRow = (int)Math.Round(clickedYRelativeToTopOfPanel / 13.0) - 1;
+
+                if (clickedChatRow >= 0 && _scrollBar.ScrollOffset + clickedChatRow < _cachedChat.Count)
+                {
+                    var who = _chatProvider.AllChat[Tab][_scrollBar.ScrollOffset + clickedChatRow].Who;
+                    _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox).Text = $"!{who} ";
+                }
+            }
         }
 
         private void SelectThisTab()

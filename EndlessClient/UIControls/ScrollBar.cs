@@ -1,7 +1,10 @@
 ﻿using System;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
+using MonoGame.Extended.Input;
+using MonoGame.Extended.Input.InputListeners;
 using XNAControls;
+using XNAControls.Input;
 
 namespace EndlessClient.UIControls
 {
@@ -18,6 +21,10 @@ namespace EndlessClient.UIControls
         private Rectangle scrollArea; //area valid for scrolling: always 16 from top and 16 from bottom
         public int ScrollOffset { get; private set; }
         public int LinesToRender { get; set; }
+
+        public override Rectangle EventArea => ScrollArea.WithPosition((ImmediateParent?.DrawPositionWithParentOffset ?? DrawPositionWithParentOffset) + ScrollArea.Location.ToVector2());
+
+        public Rectangle ScrollArea { get; set; }
 
         private readonly XNAButton _upButton, _downButton, _scrollButton; //buttons
 
@@ -53,18 +60,25 @@ namespace EndlessClient.UIControls
             downArrows[1] = new Rectangle(0, vertOff + 15 * 2, 16, 15);
             var scrollBox = new Rectangle(0, vertOff, 16, 15);
 
-            _upButton = new XNAButton(scrollSpriteSheet, Vector2.Zero, upArrows[0], upArrows[1]);
+            _upButton = new XNAButton(scrollSpriteSheet, Vector2.Zero, upArrows[0], upArrows[1])
+            {
+                HandlesEvents = EventType.All ^ EventType.MouseWheelMoved
+            };
             _upButton.OnClick += arrowClicked;
             _upButton.SetParentControl(this);
 
-            _downButton = new XNAButton(scrollSpriteSheet, new Vector2(0, size.Y - 15), downArrows[0], downArrows[1]);
+            _downButton = new XNAButton(scrollSpriteSheet, new Vector2(0, size.Y - 15), downArrows[0], downArrows[1])
+            {
+                HandlesEvents = EventType.All ^ EventType.MouseWheelMoved
+            };
             _downButton.OnClick += arrowClicked;
             _downButton.SetParentControl(this);
 
-            _scrollButton = new XNAButton(scrollSpriteSheet, new Vector2(0, 15), scrollBox, scrollBox);
+            _scrollButton = new XNAButton(scrollSpriteSheet, new Vector2(0, 15), scrollBox, scrollBox)
+            {
+                HandlesEvents = EventType.All ^ EventType.MouseWheelMoved
+            };
             _scrollButton.OnClickDrag += OnScrollButtonDragged;
-            _scrollButton.OnMouseEnter += (o, e) => { SuppressParentClickDragEvent(true); };
-            _scrollButton.OnMouseLeave += (o, e) => { SuppressParentClickDragEvent(false); };
             _scrollButton.SetParentControl(this);
 
             _totalHeight = DrawAreaWithParentOffset.Height;
@@ -148,12 +162,12 @@ namespace EndlessClient.UIControls
             }
         }
 
-        private void OnScrollButtonDragged(object btn, EventArgs e)
+        private void OnScrollButtonDragged(object btn, MouseEventArgs e)
         {
             if (_downButton.FlashSpeed.HasValue)
                 _downButton.FlashSpeed = null; //as soon as we are dragged, stop flashing
 
-            var y = CurrentMouseState.Y - (DrawAreaWithParentOffset.Y + _scrollButton.DrawArea.Height / 2);
+            var y = e.Position.Y - (DrawAreaWithParentOffset.Y + _scrollButton.DrawArea.Height / 2);
 
             if (y < _upButton.DrawAreaWithParentOffset.Height)
                 y = _upButton.DrawAreaWithParentOffset.Height + 1;
@@ -169,28 +183,24 @@ namespace EndlessClient.UIControls
             ScrollOffset = (int)Math.Round((y - _scrollButton.DrawArea.Height) / pixelsPerLine);
         }
 
-        protected override void OnUpdateControl(GameTime gt)
+        protected override void HandleMouseWheelMoved(IXNAControl control, MouseEventArgs eventArgs)
         {
-            if (CurrentMouseState.ScrollWheelValue != PreviousMouseState.ScrollWheelValue
-                && ImmediateParent != null && ImmediateParent.MouseOver && ImmediateParent.MouseOverPreviously
-                && _totalHeight > LinesToRender)
+            if (_totalHeight <= LinesToRender)
+                return;
+
+            //value must be /-120, otherwise you get "Natural" (smooth) scroll. We'll have none of that.
+            var dif = eventArgs.ScrollWheelDelta / -120;
+            if ((dif < 0 && dif + ScrollOffset >= 0) || (dif > 0 && ScrollOffset + dif <= _totalHeight - LinesToRender))
             {
-                //value must be /-120, otherwise you get "Natural" scroll. We'll have none of that.
-                var dif = (CurrentMouseState.ScrollWheelValue - PreviousMouseState.ScrollWheelValue) / -120;
-                if ((dif < 0 && dif + ScrollOffset >= 0) || (dif > 0 && ScrollOffset + dif <= _totalHeight - LinesToRender))
-                {
-                    ScrollOffset += dif;
+                ScrollOffset += dif;
 
-                    var pixelsPerLine = (float)(scrollArea.Height - _scrollButton.DrawArea.Height * 2) /
-                                        (_totalHeight - LinesToRender);
-                    _scrollButton.DrawPosition = new Vector2(_scrollButton.DrawPosition.X, _scrollButton.DrawArea.Height + pixelsPerLine * ScrollOffset);
+                var pixelsPerLine = (float)(scrollArea.Height - _scrollButton.DrawArea.Height * 2) /
+                                    (_totalHeight - LinesToRender);
+                _scrollButton.DrawPosition = new Vector2(_scrollButton.DrawPosition.X, _scrollButton.DrawArea.Height + pixelsPerLine * ScrollOffset);
 
-                    if (_scrollButton.DrawPosition.Y > scrollArea.Height - _scrollButton.DrawArea.Height)
-                        _scrollButton.DrawPosition = new Vector2(_scrollButton.DrawPosition.X, scrollArea.Height - _scrollButton.DrawArea.Height);
-                }
+                if (_scrollButton.DrawPosition.Y > scrollArea.Height - _scrollButton.DrawArea.Height)
+                    _scrollButton.DrawPosition = new Vector2(_scrollButton.DrawPosition.X, scrollArea.Height - _scrollButton.DrawArea.Height);
             }
-
-            base.OnUpdateControl(gt);
         }
     }
 }

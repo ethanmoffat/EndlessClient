@@ -90,9 +90,14 @@
     <PackageReference Include="managed-midi" Version="1.9.14" />
     <PackageReference Include="Monogame.Content.Builder.Task" Version="3.8.1.303" />
     <PackageReference Include="MonoGame.Extended.Content.Pipeline" Version="3.8.0" />
+    <PackageReference Include="MonoGame.Extended.Input" Version="3.8.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.0" />
-    <PackageReference Include="XNAControls" Version="1.7.4" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="XNAControls">
+      <HintPath>..\..\XNAControls\XNAControls\bin\Debug\net6.0\XNAControls.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>

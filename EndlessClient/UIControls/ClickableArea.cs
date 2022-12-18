@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.Input.InputListeners;
 using System;
 using XNAControls;
 
@@ -15,9 +15,9 @@ namespace EndlessClient.UIControls
             set => throw new InvalidOperationException("Unable to get flash speed on clickable area");
         }
 
-        public event EventHandler OnClick;
+        public event EventHandler<MouseEventArgs> OnClick;
 
-        public event EventHandler OnClickDrag
+        public event EventHandler<MouseEventArgs> OnClickDrag
         {
             add => throw new InvalidOperationException("Unable to set ClickDrag event on clickable area");
             remove => throw new InvalidOperationException("Unable to set ClickDrag event on clickable area");
@@ -29,16 +29,9 @@ namespace EndlessClient.UIControls
             ClickArea = area;
         }
 
-        protected override void OnUpdateControl(GameTime gameTime)
+        protected override void HandleClick(IXNAControl control, MouseEventArgs eventArgs)
         {
-            if (DrawAreaWithParentOffset.Contains(CurrentMouseState.Position) &&
-                CurrentMouseState.LeftButton == ButtonState.Released &&
-                PreviousMouseState.LeftButton == ButtonState.Pressed)
-            {
-                OnClick?.Invoke(this, EventArgs.Empty);
-            }
-
-            base.OnUpdateControl(gameTime);
+            OnClick?.Invoke(control, eventArgs);
         }
     }
 }

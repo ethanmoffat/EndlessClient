@@ -2,7 +2,7 @@
 using EOLib;
 using EOLib.Domain.Character;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.Input.InputListeners;
 using System;
 using XNAControls;
 
@@ -32,20 +32,18 @@ namespace EndlessClient.UIControls
             if (_lastPosition != actualDrawPosition)
                 _characterRenderer.SetAbsoluteScreenPosition((int)actualDrawPosition.X, (int)actualDrawPosition.Y);
 
-            if (((CurrentMouseState.LeftButton == ButtonState.Released && PreviousMouseState.LeftButton == ButtonState.Pressed) ||
-                (CurrentMouseState.RightButton == ButtonState.Released && PreviousMouseState.RightButton == ButtonState.Pressed)) &&
-                DrawAreaWithParentOffset.ContainsPoint(CurrentMouseState.X, CurrentMouseState.Y))
-            {
-                var nextDirectionInt = (int)RenderProperties.Direction + 1;
-                var nextDirection = (EODirection)(nextDirectionInt % 4);
-                RenderProperties = RenderProperties.WithDirection(nextDirection);
-
-                Clicked?.Invoke(this, EventArgs.Empty);
-            }
-
             base.OnUpdateControl(gameTime);
 
             _lastPosition = actualDrawPosition;
+        }
+
+        protected override void HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            var nextDirectionInt = (int)RenderProperties.Direction + 1;
+            var nextDirection = (EODirection)(nextDirectionInt % 4);
+            RenderProperties = RenderProperties.WithDirection(nextDirection);
+
+            Clicked?.Invoke(this, EventArgs.Empty);
         }
 
         public void NextGender()

@@ -6,6 +6,7 @@ using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.Input.InputListeners;
 using Optional;
 using XNAControls;
 
@@ -62,19 +63,6 @@ namespace EndlessClient.HUD.StatusBars
 
         protected override void OnUpdateControl(GameTime gameTime)
         {
-            if (MouseOver &&
-                CurrentMouseState.LeftButton == ButtonState.Released &&
-                PreviousMouseState.LeftButton == ButtonState.Pressed)
-            {
-                // eat this mouse click so that other game elements don't attempt to use it
-                _userInputRepository.PreviousMouseState = _userInputRepository.CurrentMouseState;
-
-                _label.Visible = !_label.Visible;
-                _labelShowTime = _label.SomeWhen(x => x.Visible).Map(_ => DateTime.Now);
-
-                StatusBarClicked?.Invoke();
-            }
-
             _labelShowTime.MatchSome(x =>
             {
                 UpdateLabelText();
@@ -106,6 +94,17 @@ namespace EndlessClient.HUD.StatusBars
             }
 
             base.OnDrawControl(gameTime);
+        }
+
+        protected override void HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            // eat this mouse click so that other game elements don't attempt to use it
+            _userInputRepository.PreviousMouseState = _userInputRepository.CurrentMouseState;
+
+            _label.Visible = !_label.Visible;
+            _labelShowTime = _label.SomeWhen(x => x.Visible).Map(_ => DateTime.Now);
+
+            StatusBarClicked?.Invoke();
         }
 
         /// <summary>

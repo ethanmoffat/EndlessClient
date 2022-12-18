@@ -7,6 +7,9 @@ using EOLib.IO.Pub;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.Input;
+using MonoGame.Extended.Input.InputListeners;
+using XNAControls;
 
 namespace EndlessClient.HUD.Spells
 {
@@ -128,14 +131,9 @@ namespace EndlessClient.HUD.Spells
             }
         }
 
-        private bool LeftButtonDown =>
-            MouseOver && MouseOverPreviously &&
-            CurrentMouseState.LeftButton == ButtonState.Pressed &&
-            PreviousMouseState.LeftButton == ButtonState.Released;
+        private bool LeftButtonDown => MouseOver && MouseOverPreviously && MouseExtended.GetState().WasButtonJustUp(MouseButton.Left);
 
-        private bool LeftButtonUp =>
-            CurrentMouseState.LeftButton == ButtonState.Released &&
-            PreviousMouseState.LeftButton == ButtonState.Pressed;
+        private bool LeftButtonUp => MouseExtended.GetState().WasButtonJustDown(MouseButton.Left);
 
         private void EndDragging()
         {

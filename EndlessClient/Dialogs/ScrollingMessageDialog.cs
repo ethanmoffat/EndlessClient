@@ -22,6 +22,8 @@ namespace EndlessClient.Dialogs
         private readonly TextSplitter _textSplitter;
         private readonly BitmapFont _font;
 
+        private static readonly Rectangle TextArea = new Rectangle(27, 69, 300, 110);
+
         public string MessageText
         {
             set
@@ -72,11 +74,12 @@ namespace EndlessClient.Dialogs
                 eoDialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Ok),
                 eoDialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Ok));
             _ok.OnClick += (sender, e) => Close(XNADialogResult.OK);
-            _ok.SetParentControl(this);
 
             _scrollBar = new ScrollBar(new Vector2(320, 66), new Vector2(16, 119),
-                ScrollBarColors.LightOnMed, GraphicsManager);
-            _scrollBar.SetParentControl(this);
+                ScrollBarColors.LightOnMed, GraphicsManager)
+            {
+                ScrollArea = TextArea
+            };
 
             MessageText = "";
 
@@ -86,7 +89,10 @@ namespace EndlessClient.Dialogs
         public override void Initialize()
         {
             _ok.Initialize();
+            _ok.SetParentControl(this);
+
             _scrollBar.Initialize();
+            _scrollBar.SetParentControl(this);
 
             base.Initialize();
         }

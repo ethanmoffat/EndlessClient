@@ -1,10 +1,10 @@
-﻿using System;
-using EndlessClient.Content;
+﻿using EndlessClient.Content;
 using EOLib;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.Input.InputListeners;
 using Optional;
+using System;
 using XNAControls;
 
 namespace EndlessClient.UIControls
@@ -55,14 +55,15 @@ namespace EndlessClient.UIControls
             base.OnUpdateControl(gameTime);
         }
 
-        public override void ReceiveTextInput(char inp)
+        protected override void HandleTextInput(KeyboardEventArgs eventArgs)
         {
-            if (_ignoreAllInput) return;
+            if (_ignoreAllInput)
+                return;
 
-            if (IsSpecialInput((Keys) inp))
-                HandleSpecialInput((Keys)inp);
+            if (IsSpecialInput(eventArgs.Key))
+                HandleSpecialInput(eventArgs.Key);
             else
-                base.ReceiveTextInput(inp);
+                base.HandleTextInput(eventArgs);
         }
 
         private void HandleSpecialInput(Keys key)
@@ -73,9 +74,8 @@ namespace EndlessClient.UIControls
 
         private bool IsSpecialInput(Keys k)
         {
-            //todo: figure out how to handle num pad
-            return k == Keys.Escape;// || k == Keys.Decimal ||
-                   //(k >= Keys.NumPad0 && k <= Keys.NumPad9);
+            return k == Keys.Escape || k == Keys.Decimal ||
+                   (k >= Keys.NumPad0 && k <= Keys.NumPad9);
         }
     }
 }

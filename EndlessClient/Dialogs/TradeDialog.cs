@@ -200,12 +200,6 @@ namespace EndlessClient.Dialogs
             base.OnUnconditionalUpdateControl(gameTime);
         }
 
-        protected override void OnUpdateControl(GameTime gameTime)
-        {
-            SuppressClickDragEvent(!_inventoryPanel.NoItemsDragging());
-            base.OnUpdateControl(gameTime);
-        }
-
         private void UpdateOffer(TradeOffer actualOffer, TradeOffer cachedOffer,
             IXNALabel playerNameLabel, IXNALabel playerStatusLabel,
             List<ListDialogItem> listItems,

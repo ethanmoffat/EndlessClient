@@ -19,6 +19,7 @@ using EOLib.IO.Repositories;
 using EOLib.Localization;
 using Microsoft.Win32;
 using Microsoft.Xna.Framework;
+using MonoGame.Extended.Input;
 using Optional;
 using Optional.Collections;
 using System;
@@ -253,7 +254,7 @@ namespace EndlessClient.HUD.Panels
             base.Dispose(disposing);
         }
 
-        private void MouseOverButton(object sender, EventArgs e)
+        private void MouseOverButton(object sender, MouseStateExtended e)
         {
             var id = sender == _paperdoll
                 ? EOResourceID.STATUS_LABEL_INVENTORY_SHOW_YOUR_PAPERDOLL

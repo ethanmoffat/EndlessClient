@@ -43,7 +43,6 @@ namespace EndlessClient.Dialogs
             IGameStateProvider gameStateProvider,
             ICharacterRendererFactory rendererFactory,
             IContentProvider contentProvider,
-            KeyboardDispatcher dispatcher,
             IEOMessageBoxFactory messageBoxFactory,
             IEODialogButtonService eoDialogButtonService,
             IXnaControlSoundMapper xnaControlSoundMapper)
@@ -67,7 +66,7 @@ namespace EndlessClient.Dialogs
                 Visible = true
             };
             _inputBox.SetParentControl(this);
-            dispatcher.Subscriber = _inputBox;
+            _inputBox.Selected = true;
 
             for (int i = 0; i < _arrowButtons.Length; ++i)
             {
