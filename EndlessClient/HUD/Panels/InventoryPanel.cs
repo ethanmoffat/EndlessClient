@@ -466,7 +466,7 @@ namespace EndlessClient.HUD.Panels
                 _inventoryService.SetSlots(_inventorySlotRepository.FilledSlots, newSlot, e.Data.Size);
 
                 // start a chained drag on another item (see below comment)
-                _childItems.Single(x => x.Slot == overlapped[0]).StartDragging();
+                _childItems.Single(x => x.Slot == overlapped[0]).StartDragging(isChainedDrag: true);
             }
             else if (oldSlot != newSlot)
             {

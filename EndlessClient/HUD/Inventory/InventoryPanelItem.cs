@@ -133,12 +133,13 @@ namespace EndlessClient.HUD.Inventory
             return (int)((DrawPosition.X - _oldOffset.X) / 26) + InventoryPanel.InventoryRowSlots * (int)((DrawPosition.Y - _oldOffset.Y) / 26);
         }
 
-        public void StartDragging()
+        public void StartDragging(bool isChainedDrag)
         {
-            if (!_inventoryPanel.NoItemsDragging())
+            if (!isChainedDrag && !_inventoryPanel.NoItemsDragging())
                 return;
 
             _beingDragged = true;
+            _followMouse = isChainedDrag;
             _nameLabel.Visible = false;
 
             _oldOffset = ImmediateParent.DrawPositionWithParentOffset;
@@ -209,7 +210,7 @@ namespace EndlessClient.HUD.Inventory
 
         protected override void HandleDragStart(IXNAControl control, MouseEventArgs eventArgs)
         {
-            StartDragging();
+            StartDragging(isChainedDrag: false);
         }
 
         protected override void HandleDrag(IXNAControl control, MouseEventArgs eventArgs)
@@ -230,7 +231,7 @@ namespace EndlessClient.HUD.Inventory
             }
             else
             {
-                StartDragging();
+                StartDragging(isChainedDrag: false);
                 _followMouse = true;
             }
         }
