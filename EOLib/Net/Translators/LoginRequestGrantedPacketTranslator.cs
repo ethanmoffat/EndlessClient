@@ -63,8 +63,8 @@ namespace EOLib.Net.Translators
             var evade = packet.ReadShort();
             var armor = packet.ReadShort();
             var dispStr = packet.ReadShort();
-            var dispInt = packet.ReadShort();
             var dispWis = packet.ReadShort();
+            var dispInt = packet.ReadShort();
             var dispAgi = packet.ReadShort();
             var dispCon = packet.ReadShort();
             var dispCha = packet.ReadShort();
