@@ -1,5 +1,6 @@
 ﻿using EndlessClient.Audio;
 using EndlessClient.Dialogs;
+using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Panels;
 using EOLib;
 using EOLib.Domain.Character;
@@ -17,23 +18,11 @@ using XNAControls;
 
 namespace EndlessClient.HUD.Inventory
 {
-    public class InventoryPanelItem : XNAControl
+    public class InventoryPanelItem : DraggablePanelItem<EIFRecord>
     {
-        public class ItemDragCompletedEventArgs
-        {
-            public bool ContinueDrag { get; set; } = false;
-
-            public bool RestoreOriginalSlot { get; set; } = false;
-
-            public EIFRecord Data { get; }
-
-            public ItemDragCompletedEventArgs(EIFRecord data) => Data = data;
-        }
-
         // uses absolute coordinates
         private static readonly Rectangle InventoryGridArea = new Rectangle(114, 338, 363, 102);
 
-        private readonly InventoryPanel _inventoryPanel;
         private readonly IActiveDialogProvider _activeDialogProvider;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly Texture2D _itemGraphic;
@@ -43,16 +32,6 @@ namespace EndlessClient.HUD.Inventory
         private int _slot;
 
         private Option<Vector2> _highlightDrawPosition;
-
-        // Ru Paul's drag properties
-        // _beingDragged: true when a drag is in progress (either single click or click + drag
-        // _followMouse: true when a single-click drag is in progress and the icon should follow the mouse
-        //               otherwise, drag event handles following the mouse
-        // _oldOffset: the top-left of the parent inventory panel when the drag started
-        // _dragPositioned: flag indicating positions are correctly set (prevents icon from flashing in top-left on first update/draw)
-        private bool _beingDragged, _followMouse;
-        private Vector2 _oldOffset;
-        private bool _dragPositioned;
 
         public int Slot
         {
@@ -78,12 +57,7 @@ namespace EndlessClient.HUD.Inventory
             }
         }
 
-        public bool IsDragging => _beingDragged;
-
-        public EIFRecord Data { get; }
-
         public event EventHandler<EIFRecord> DoubleClick;
-        public event EventHandler<ItemDragCompletedEventArgs> DoneDragging;
 
         public override Rectangle EventArea => IsDragging ? DrawArea : DrawAreaWithParentOffset;
 
@@ -94,8 +68,8 @@ namespace EndlessClient.HUD.Inventory
                                   int slot,
                                   InventoryItem inventoryItem,
                                   EIFRecord data)
+            : base(inventoryPanel)
         {
-            _inventoryPanel = inventoryPanel;
             _activeDialogProvider = activeDialogProvider;
             _sfxPlayer = sfxPlayer;
 
@@ -117,9 +91,19 @@ namespace EndlessClient.HUD.Inventory
                 Text = string.Empty
             };
 
-            OnMouseEnter += (_, _) => _nameLabel.Visible = _inventoryPanel.NoItemsDragging() && _activeDialogProvider.PaperdollDialog.Match(d => d.NoItemsDragging(), () => true);
+            OnMouseEnter += (_, _) => _nameLabel.Visible = _parentContainer.NoItemsDragging() && _activeDialogProvider.PaperdollDialog.Match(d => d.NoItemsDragging(), () => true);
             OnMouseOver += InventoryPanelItem_OnMouseOver;
-            OnMouseLeave += (_, _) => { _nameLabel.Visible = false; _highlightDrawPosition = Option.None<Vector2>(); };
+            OnMouseLeave += (_, _) =>
+            {
+                _nameLabel.Visible = false;
+                _highlightDrawPosition = Option.None<Vector2>();
+            };
+
+            DraggingStarted += (_, _) =>
+            {
+                _nameLabel.Visible = false;
+                _sfxPlayer.PlaySfx(SoundEffectID.InventoryPickup);
+            };
 
             var (slotWidth, slotHeight) = Data.Size.GetDimensions();
             SetSize(slotWidth * 26 - 3, slotHeight * 26 - 3);
@@ -127,45 +111,19 @@ namespace EndlessClient.HUD.Inventory
 
         public int GetCurrentSlotBasedOnPosition()
         {
-            if (!_beingDragged)
+            if (!IsDragging)
                 return Slot;
 
-            return (int)((DrawPosition.X - _oldOffset.X) / 26) + InventoryPanel.InventoryRowSlots * (int)((DrawPosition.Y - _oldOffset.Y) / 26);
-        }
-
-        public void StartDragging(bool isChainedDrag)
-        {
-            if (!isChainedDrag && !_inventoryPanel.NoItemsDragging())
-                return;
-
-            _beingDragged = true;
-            _followMouse = isChainedDrag;
-            _nameLabel.Visible = false;
-
-            _oldOffset = ImmediateParent.DrawPositionWithParentOffset;
-            DrawPosition = MouseExtended.GetState().Position.ToVector2();
-
-            _sfxPlayer.PlaySfx(SoundEffectID.InventoryPickup);
-            DrawOrder = 1000;
+            return (int)((DrawPosition.X - OldOffset.X) / 26) + InventoryPanel.InventoryRowSlots * (int)((DrawPosition.Y - OldOffset.Y) / 26);
         }
 
         public override void Initialize()
         {
             _nameLabel.Initialize();
-            _nameLabel.SetParentControl(_inventoryPanel);
+            _nameLabel.SetParentControl(_parentContainer);
             _nameLabel.ResizeBasedOnText(16, 9);
 
             base.Initialize();
-        }
-
-        protected override void OnUpdateControl(GameTime gameTime)
-        {
-            if (_followMouse)
-            {
-                DrawPosition = MouseExtended.GetState().Position.ToVector2() - new Vector2(DrawArea.Width / 2, DrawArea.Height / 2);
-            }
-
-            base.OnUpdateControl(gameTime);
         }
 
         protected override void OnDrawControl(GameTime gameTime)
@@ -178,17 +136,9 @@ namespace EndlessClient.HUD.Inventory
                     _spriteBatch.Draw(_highlightBackground, DrawArea.WithPosition(drawPosition), Color.White);
             });
 
-            if (_beingDragged)
+            if (IsDragging)
             {
-                // slot based on current mouse position if being dragged
-                var currentSlot = GetCurrentSlotBasedOnPosition();
-                var drawPosition = GetPosition(currentSlot) + _oldOffset;
-
-                if (!_dragPositioned)
-                    _dragPositioned = InventoryGridArea.Contains(DrawArea.WithPosition(drawPosition));
-
-                if (_dragPositioned || InventoryGridArea.Contains(DrawArea.WithPosition(drawPosition)))
-                    _spriteBatch.Draw(_itemGraphic, DrawPosition, Color.FromNonPremultiplied(255, 255, 255, 128));
+                _spriteBatch.Draw(_itemGraphic, DrawPosition, Color.FromNonPremultiplied(255, 255, 255, 128));
             }
             else
             {
@@ -205,35 +155,7 @@ namespace EndlessClient.HUD.Inventory
                 return;
 
             var currentSlot = GetCurrentSlotBasedOnPosition();
-            _highlightDrawPosition = Option.Some(GetPosition(currentSlot) + (_beingDragged ? _oldOffset : ImmediateParent.DrawPositionWithParentOffset));
-        }
-
-        protected override void HandleDragStart(IXNAControl control, MouseEventArgs eventArgs)
-        {
-            StartDragging(isChainedDrag: false);
-        }
-
-        protected override void HandleDrag(IXNAControl control, MouseEventArgs eventArgs)
-        {
-            DrawPosition = eventArgs.Position.ToVector2() - new Vector2(DrawArea.Width / 2, DrawArea.Height / 2);
-        }
-
-        protected override void HandleDragEnd(IXNAControl control, MouseEventArgs eventArgs)
-        {
-            StopDragging();
-        }
-
-        protected override void HandleClick(IXNAControl control, MouseEventArgs eventArgs)
-        {
-            if (_followMouse)
-            {
-                StopDragging();
-            }
-            else
-            {
-                StartDragging(isChainedDrag: false);
-                _followMouse = true;
-            }
+            _highlightDrawPosition = Option.Some(GetPosition(currentSlot) + (IsDragging ? OldOffset : ImmediateParent.DrawPositionWithParentOffset));
         }
 
         protected override void HandleDoubleClick(IXNAControl control, MouseEventArgs eventArgs)
@@ -274,29 +196,19 @@ namespace EndlessClient.HUD.Inventory
             _nameLabel.DrawOrder = 200;
         }
 
-        private void StopDragging()
+        protected override void OnDraggingFinished(DragCompletedEventArgs<EIFRecord> args)
         {
-            var args = new ItemDragCompletedEventArgs(Data);
-            DoneDragging?.Invoke(this, args);
+            base.OnDraggingFinished(args);
 
-            if (!args.ContinueDrag)
-            {
-                if (!args.RestoreOriginalSlot)
-                    Slot = GetCurrentSlotBasedOnPosition();
-                else
-                    DrawPosition = GetPosition(Slot);
+            if (args.ContinueDrag)
+                return;
 
-                _dragPositioned = false;
-                _beingDragged = false;
-                _nameLabel.Visible = false;
-                _oldOffset = Vector2.Zero;
-
-                _followMouse = false;
-            }
+            if (!args.RestoreOriginalSlot)
+                Slot = GetCurrentSlotBasedOnPosition();
             else
-            {
-                _followMouse = true;
-            }
+                DrawPosition = GetPosition(Slot);
+
+            _nameLabel.Visible = false;
         }
 
         private static Vector2 GetPosition(int slot)

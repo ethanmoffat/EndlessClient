@@ -32,7 +32,7 @@ using XNAControls;
 
 namespace EndlessClient.HUD.Panels
 {
-    public class InventoryPanel : XNAPanel, IHudPanel
+    public class InventoryPanel : XNAPanel, IHudPanel, IDraggableItemContainer
     {
         public const int InventoryRows = 4;
         public const int InventoryRowSlots = 14;
@@ -220,7 +220,7 @@ namespace EndlessClient.HUD.Panels
 
                         newItem.OnMouseEnter += (_, _) => _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ITEM, newItem.Text);
                         newItem.DoubleClick += HandleItemDoubleClick;
-                        newItem.DoneDragging += HandleItemDoneDragging;
+                        newItem.DraggingFinished += HandleItemDoneDragging;
 
                         // side-effect of calling newItem.SetParentControl(this) is that the draw order gets reset
                         // setting the slot manually here resets it so the item labels render appropriately
@@ -356,7 +356,7 @@ namespace EndlessClient.HUD.Panels
             _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);
         }
 
-        private void HandleItemDoneDragging(object sender, InventoryPanelItem.ItemDragCompletedEventArgs e)
+        private void HandleItemDoneDragging(object sender, DragCompletedEventArgs<EIFRecord> e)
         {
             var item = sender as InventoryPanelItem;
             if (item == null)
