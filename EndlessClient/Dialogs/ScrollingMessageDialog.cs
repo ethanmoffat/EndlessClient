@@ -74,12 +74,12 @@ namespace EndlessClient.Dialogs
                 eoDialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Ok),
                 eoDialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Ok));
             _ok.OnClick += (sender, e) => Close(XNADialogResult.OK);
+            _ok.SetParentControl(this);
 
             _scrollBar = new ScrollBar(new Vector2(320, 66), new Vector2(16, 119),
-                ScrollBarColors.LightOnMed, GraphicsManager)
-            {
-                ScrollArea = TextArea
-            };
+                ScrollBarColors.LightOnMed, GraphicsManager);
+            _scrollBar.SetParentControl(this);
+            SetScrollWheelHandler(_scrollBar);
 
             MessageText = "";
 
@@ -89,10 +89,7 @@ namespace EndlessClient.Dialogs
         public override void Initialize()
         {
             _ok.Initialize();
-            _ok.SetParentControl(this);
-
             _scrollBar.Initialize();
-            _scrollBar.SetParentControl(this);
 
             base.Initialize();
         }

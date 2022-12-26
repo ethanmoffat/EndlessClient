@@ -1,7 +1,6 @@
 ﻿using System;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
-using MonoGame.Extended.Input;
 using MonoGame.Extended.Input.InputListeners;
 using XNAControls;
 using XNAControls.Input;
@@ -21,10 +20,6 @@ namespace EndlessClient.UIControls
         private Rectangle scrollArea; //area valid for scrolling: always 16 from top and 16 from bottom
         public int ScrollOffset { get; private set; }
         public int LinesToRender { get; set; }
-
-        public override Rectangle EventArea => ScrollArea.WithPosition((ImmediateParent?.DrawPositionWithParentOffset ?? DrawPositionWithParentOffset) + ScrollArea.Location.ToVector2());
-
-        public Rectangle ScrollArea { get; set; }
 
         private readonly XNAButton _upButton, _downButton, _scrollButton; //buttons
 
@@ -183,10 +178,10 @@ namespace EndlessClient.UIControls
             ScrollOffset = (int)Math.Round((y - _scrollButton.DrawArea.Height) / pixelsPerLine);
         }
 
-        protected override void HandleMouseWheelMoved(IXNAControl control, MouseEventArgs eventArgs)
+        protected override bool HandleMouseWheelMoved(IXNAControl control, MouseEventArgs eventArgs)
         {
             if (_totalHeight <= LinesToRender)
-                return;
+                return false;
 
             //value must be /-120, otherwise you get "Natural" (smooth) scroll. We'll have none of that.
             var dif = eventArgs.ScrollWheelDelta / -120;
@@ -201,6 +196,8 @@ namespace EndlessClient.UIControls
                 if (_scrollButton.DrawPosition.Y > scrollArea.Height - _scrollButton.DrawArea.Height)
                     _scrollButton.DrawPosition = new Vector2(_scrollButton.DrawPosition.X, scrollArea.Height - _scrollButton.DrawArea.Height);
             }
+
+            return true;
         }
     }
 }

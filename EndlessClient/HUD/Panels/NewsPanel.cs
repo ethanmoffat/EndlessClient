@@ -42,6 +42,7 @@ namespace EndlessClient.HUD.Panels
                 Visible = true
             };
             _scrollBar.SetParentControl(this);
+            SetScrollWheelHandler(_scrollBar);
 
             _chatRenderables = new List<IChatRenderable>();
             _chatFont = chatFont;

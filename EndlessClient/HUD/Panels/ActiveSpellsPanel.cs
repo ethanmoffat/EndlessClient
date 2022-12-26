@@ -147,6 +147,7 @@ namespace EndlessClient.HUD.Panels
                 LinesToRender = 2
             };
             _scrollBar.UpdateDimensions(4);
+            SetScrollWheelHandler(_scrollBar);
 
             BackgroundImage = NativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 62);
             DrawArea = new Rectangle(102, 330, BackgroundImage.Width, BackgroundImage.Height);

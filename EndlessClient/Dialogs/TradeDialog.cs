@@ -35,6 +35,7 @@ namespace EndlessClient.Dialogs
         private readonly IMapItemGraphicProvider _mapItemGraphicProvider;
         private readonly InventoryPanel _inventoryPanel;
 
+        private readonly IXNAPanel _leftPanel, _rightPanel;
         private readonly IXNALabel _leftPlayerName, _rightPlayerName;
         private readonly IXNALabel _leftPlayerStatus, _rightPlayerStatus;
         private readonly ScrollBar _leftScroll, _rightScroll;
@@ -78,6 +79,18 @@ namespace EndlessClient.Dialogs
             _inventoryPanel = inventoryPanel;
             BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 50);
 
+            _leftPanel = new XNAPanel
+            {
+                DrawArea = new Rectangle(0, 0, BackgroundTexture.Width / 2, BackgroundTexture.Height),
+            };
+            _leftPanel.SetParentControl(this);
+
+            _rightPanel = new XNAPanel
+            {
+                DrawArea = new Rectangle(0, BackgroundTexture.Width / 2, BackgroundTexture.Width / 2, BackgroundTexture.Height)
+            };
+            _rightPanel.SetParentControl(this);
+
             _leftPlayerName = new XNALabel(Constants.FontSize08pt5)
             {
                 DrawArea = new Rectangle(20, 14, 166, 20),
@@ -85,16 +98,16 @@ namespace EndlessClient.Dialogs
                 TextAlign = LabelAlignment.MiddleLeft,
                 ForeColor = ColorConstants.LightGrayText
             };
-            _leftPlayerName.SetParentControl(this);
+            _leftPlayerName.SetParentControl(_leftPanel);
 
             _rightPlayerName = new XNALabel(Constants.FontSize08pt5)
             {
-                DrawArea = new Rectangle(285, 14, 166, 20),
+                DrawArea = new Rectangle(285, 14, 166, 20), // todo
                 AutoSize = false,
                 TextAlign = LabelAlignment.MiddleLeft,
                 ForeColor = ColorConstants.LightGrayText
             };
-            _rightPlayerName.SetParentControl(this);
+            _rightPlayerName.SetParentControl(_rightPanel);
 
             _leftPlayerStatus = new XNALabel(Constants.FontSize08pt5)
             {
@@ -104,34 +117,38 @@ namespace EndlessClient.Dialogs
                 ForeColor = ColorConstants.LightGrayText,
                 Text = _localizedStringFinder.GetString(EOResourceID.DIALOG_TRADE_WORD_TRADING)
             };
-            _leftPlayerStatus.SetParentControl(this);
+            _leftPlayerStatus.SetParentControl(_leftPanel);
 
             _rightPlayerStatus = new XNALabel(Constants.FontSize08pt5)
             {
-                DrawArea = new Rectangle(462, 14, 79, 20),
+                DrawArea = new Rectangle(462, 14, 79, 20), // todo
                 AutoSize = false,
                 TextAlign = LabelAlignment.MiddleLeft,
                 ForeColor = ColorConstants.LightGrayText,
                 Text = _localizedStringFinder.GetString(EOResourceID.DIALOG_TRADE_WORD_TRADING)
             };
-            _rightPlayerStatus.SetParentControl(this);
+            _rightPlayerStatus.SetParentControl(_rightPanel);
 
             _leftScroll = new ScrollBar(new Vector2(252, 44), new Vector2(16, 199), ScrollBarColors.LightOnMed, GraphicsManager) { LinesToRender = 5 };
-            _leftScroll.SetParentControl(this);
+            _leftScroll.SetParentControl(_leftPanel);
+            _leftPanel.SetScrollWheelHandler(_leftScroll);
+
+            // todo: position
             _rightScroll = new ScrollBar(new Vector2(518, 44), new Vector2(16, 199), ScrollBarColors.LightOnMed, GraphicsManager) { LinesToRender = 5 };
-            _rightScroll.SetParentControl(this);
+            _rightScroll.SetParentControl(_rightPanel);
+            _rightPanel.SetScrollWheelHandler(_rightScroll);
 
             _ok = new XNAButton(dialogButtonService.SmallButtonSheet, new Vector2(356, 252),
                 dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Ok),
                 dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Ok));
             _ok.OnClick += OkButtonClicked;
-            _ok.SetParentControl(this);
+            _ok.SetParentControl(_leftPanel);
 
             _cancel = new XNAButton(dialogButtonService.SmallButtonSheet, new Vector2(449, 252),
                 dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Cancel),
                 dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Cancel));
             _cancel.OnClick += CancelButtonClicked;
-            _cancel.SetParentControl(this);
+            _cancel.SetParentControl(_leftPanel);
 
             _leftItems = new List<ListDialogItem>();
             _rightItems = new List<ListDialogItem>();
@@ -142,6 +159,9 @@ namespace EndlessClient.Dialogs
         public override void Initialize()
         {
             base.Initialize();
+
+            _leftPanel.Initialize();
+            _rightPanel.Initialize();
 
             _leftPlayerName.Initialize();
             _rightPlayerName.Initialize();

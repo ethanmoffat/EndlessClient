@@ -45,6 +45,8 @@ namespace EndlessClient.HUD.Panels
                 Visible = true,
             };
             _scrollBar.SetParentControl(this);
+            _scrollBar.UpdateDimensions(0);
+            SetScrollWheelHandler(_scrollBar);
 
             _numMembers = new XNALabel(Constants.FontSize09)
             {

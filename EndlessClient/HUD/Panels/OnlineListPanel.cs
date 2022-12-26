@@ -94,6 +94,7 @@ namespace EndlessClient.HUD.Panels
                 Visible = true
             };
             _scrollBar.SetParentControl(this);
+            SetScrollWheelHandler(_scrollBar);
 
             _filterClickArea = new ClickableArea(new Rectangle(2, 2, 14, 14));
             _filterClickArea.SetParentControl(this);
