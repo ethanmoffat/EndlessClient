@@ -34,7 +34,7 @@ namespace EOLib.IO.Services.Serializers
 
                 var lenBytes = new byte[2];
                 mem.Read(lenBytes, 0, 2);
-                var recordsInFile = (short)_numberEncoderService.DecodeNumber(lenBytes);
+                var recordsInFile = _numberEncoderService.DecodeNumber(lenBytes);
 
                 mem.Seek(1, SeekOrigin.Current);
 

@@ -131,7 +131,7 @@ namespace EOLib.PacketHandlers.NPC
                 var characterToUpdate = _characterRepository.MainCharacter;
 
                 var stats = characterToUpdate.Stats;
-                stats = stats.WithNewStat(CharacterStat.HP, (short)Math.Max(stats[CharacterStat.HP] - damageTaken, 0));
+                stats = stats.WithNewStat(CharacterStat.HP, Math.Max(stats[CharacterStat.HP] - damageTaken, 0));
 
                 var props = characterToUpdate.RenderProperties.WithIsDead(isDead);
                 _characterRepository.MainCharacter = characterToUpdate.WithStats(stats).WithRenderProperties(props);
@@ -172,7 +172,7 @@ namespace EOLib.PacketHandlers.NPC
                 notifier.ShowNPCSpeechBubble(npc.Index, message);
         }
 
-        private static DomainNPC EnsureCorrectXAndY(DomainNPC npc, byte destinationX, byte destinationY)
+        private static DomainNPC EnsureCorrectXAndY(DomainNPC npc, int destinationX, int destinationY)
         {
             var opposite = npc.Direction.Opposite();
             var tempNPC = npc
@@ -180,8 +180,8 @@ namespace EOLib.PacketHandlers.NPC
                 .WithX(destinationX)
                 .WithY(destinationY);
             return npc
-                .WithX((byte)tempNPC.GetDestinationX())
-                .WithY((byte)tempNPC.GetDestinationY());
+                .WithX(tempNPC.GetDestinationX())
+                .WithY(tempNPC.GetDestinationY());
         }
     }
 }

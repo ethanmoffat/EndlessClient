@@ -5,7 +5,7 @@ namespace EOLib.IO.Extensions
 {
     public static class EIFFileExtensions
     {
-        public static bool IsShieldOnBack(this IPubFile<EIFRecord> itemFile, short graphic)
+        public static bool IsShieldOnBack(this IPubFile<EIFRecord> itemFile, int graphic)
         {
             if (itemFile == null)
                 return false;
@@ -18,7 +18,7 @@ namespace EOLib.IO.Extensions
                     shieldInfo.SubType == ItemSubType.Wings);
         }
 
-        public static bool IsRangedWeapon(this IPubFile<EIFRecord> itemFile, short graphic)
+        public static bool IsRangedWeapon(this IPubFile<EIFRecord> itemFile, int graphic)
         {
             var weaponInfo = itemFile?.FirstOrDefault(x => x.Type == ItemType.Weapon && x.DollGraphic == graphic);
             return weaponInfo?.SubType == ItemSubType.Ranged;

@@ -26,10 +26,10 @@ namespace EOLib.Net.FileTransfer
             _pubFileDeserializer = pubFileDeserializer;
         }
 
-        public async Task<IMapFile> RequestMapFile(short mapID, short sessionID)
+        public async Task<IMapFile> RequestMapFile(int mapID, int sessionID)
         {
             var request = new PacketBuilder(PacketFamily.Welcome, PacketAction.Agree)
-                .AddChar((byte)InitFileType.Map)
+                .AddChar((int)InitFileType.Map)
                 .AddShort(sessionID)
                 .AddShort(mapID)
                 .Build();
@@ -37,7 +37,7 @@ namespace EOLib.Net.FileTransfer
             return await GetMapFile(request, mapID);
         }
 
-        public void RequestMapFileForWarp(short mapID, short sessionID)
+        public void RequestMapFileForWarp(int mapID, int sessionID)
         {
             var request = new PacketBuilder(PacketFamily.Warp, PacketAction.Take)
                 .AddShort(mapID)
@@ -47,11 +47,11 @@ namespace EOLib.Net.FileTransfer
             _packetSendService.SendPacket(request);
         }
 
-        public async Task<IPubFile<TRecord>> RequestFile<TRecord>(InitFileType fileType, short sessionID)
+        public async Task<IPubFile<TRecord>> RequestFile<TRecord>(InitFileType fileType, int sessionID)
             where TRecord : class, IPubRecord, new()
         {
             var request = new PacketBuilder(PacketFamily.Welcome, PacketAction.Agree)
-                .AddChar((byte)fileType)
+                .AddChar((int)fileType)
                 .AddShort(sessionID)
                 .AddChar(1) // file id (for chunking oversize pub files)
                 .Build();
@@ -110,11 +110,11 @@ namespace EOLib.Net.FileTransfer
 
     public interface IFileRequestService
     {
-        Task<IMapFile> RequestMapFile(short mapID, short sessionID);
+        Task<IMapFile> RequestMapFile(int mapID, int sessionID);
 
-        void RequestMapFileForWarp(short mapID, short sessionID);
+        void RequestMapFileForWarp(int mapID, int sessionID);
 
-        Task<IPubFile<TRecord>> RequestFile<TRecord>(InitFileType fileType, short sessionID)
+        Task<IPubFile<TRecord>> RequestFile<TRecord>(InitFileType fileType, int sessionID)
             where TRecord : class, IPubRecord, new();
     }
 }

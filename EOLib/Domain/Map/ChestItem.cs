@@ -5,7 +5,7 @@ namespace EOLib.Domain.Map
     [Record]
     public sealed partial class ChestItem
     {
-        public short ItemID { get; }
+        public int ItemID { get; }
 
         public int Amount { get; }
 

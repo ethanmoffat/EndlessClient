@@ -36,7 +36,7 @@ namespace EOBot
                 _enfFileProvider = enfFileProvider;
             }
 
-            public void NPCTakeDamage(short npcIndex, int fromPlayerId, int damageToNpc, short npcPctHealth, Option<int> spellId)
+            public void NPCTakeDamage(int npcIndex, int fromPlayerId, int damageToNpc, int npcPctHealth, Option<int> spellId)
             {
                 if (fromPlayerId != _characterProvider.MainCharacter.ID)
                     return;
@@ -53,7 +53,7 @@ namespace EOBot
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.Hit, $"{damageToNpc,7} - {npcPctHealth,3}% HP - {npcIndex,2} - {npcName ?? string.Empty}", color);
             }
 
-            public void RemoveNPCFromView(int npcIndex, int playerId, Option<short> spellId, Option<int> damage, bool showDeathAnimation)
+            public void RemoveNPCFromView(int npcIndex, int playerId, Option<int> spellId, Option<int> damage, bool showDeathAnimation)
             {
             }
 
@@ -71,7 +71,7 @@ namespace EOBot
                 var npc = _currentMapStateRepository.NPCs.SingleOrDefault(x => x.Index == npcIndex);
                 if (npc == null) return;
 
-                var newNpc = npc.WithX((byte)npc.GetDestinationX()).WithY((byte)npc.GetDestinationY()).WithFrame(NPCFrame.Standing);
+                var newNpc = npc.WithX(npc.GetDestinationX()).WithY(npc.GetDestinationY()).WithFrame(NPCFrame.Standing);
                 _currentMapStateRepository.NPCs.Remove(npc);
                 _currentMapStateRepository.NPCs.Add(newNpc);
             }
@@ -123,7 +123,7 @@ namespace EOBot
                 }
             }
 
-            public void TakeItemFromMap(short id, int amountTaken)
+            public void TakeItemFromMap(int id, int amountTaken)
             {
                 var inventoryCount = _characterInventoryProvider.ItemInventory.SingleOrDefault(x => x.ItemID == id);
                 var weight = _characterProvider.MainCharacter.Stats[CharacterStat.Weight];
@@ -131,11 +131,11 @@ namespace EOBot
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.Item, $"{weight,3}/{maxWeight,3} - weight - {inventoryCount.Amount} in inventory");
             }
 
-            public void DropItem(short id, int amountDropped)
+            public void DropItem(int id, int amountDropped)
             {
             }
 
-            public void JunkItem(short id, int amountRemoved)
+            public void JunkItem(int id, int amountRemoved)
             {
                 var inventoryCount = _characterInventoryProvider.ItemInventory.SingleOrDefault(x => x.ItemID == id);
                 var weight = _characterProvider.MainCharacter.Stats[CharacterStat.Weight];
@@ -156,18 +156,18 @@ namespace EOBot
                 _characterProvider = characterProvider;
             }
 
-            public void NotifySelfSpellCast(short playerId, short spellId, int spellHp, byte percentHealth)
+            public void NotifySelfSpellCast(int playerId, int spellId, int spellHp, int percentHealth)
             {
                 if (playerId == _characterProvider.MainCharacter.ID && spellHp > 0)
                     ConsoleHelper.WriteMessage(ConsoleHelper.Type.Heal, $"{spellHp,7} - {percentHealth}% HP", ConsoleColor.DarkGreen);
             }
 
-            public void NotifyStartSpellCast(short playerId, short spellId) { }
-            public void NotifyTargetNpcSpellCast(short playerId) { }
-            public void NotifyTargetOtherSpellCast(short sourcePlayerID, short targetPlayerID, short spellId, int recoveredHP, byte targetPercentHealth) { }
+            public void NotifyStartSpellCast(int playerId, int spellId) { }
+            public void NotifyTargetNpcSpellCast(int playerId) { }
+            public void NotifyTargetOtherSpellCast(int sourcePlayerID, int targetPlayerID, int spellId, int recoveredHP, int targetPercentHealth) { }
             public void StartOtherCharacterAttackAnimation(int characterID, int noteIndex) { }
-            public void StartOtherCharacterWalkAnimation(int characterID, byte destinationX, byte destinationY, EODirection direction) { }
-            public void NotifyGroupSpellCast(short playerId, short spellId, short spellHp, List<GroupSpellTarget> spellTargets) { }
+            public void StartOtherCharacterWalkAnimation(int characterID, MapCoordinate destination, EODirection direction) { }
+            public void NotifyGroupSpellCast(int playerId, int spellId, int spellHp, List<GroupSpellTarget> spellTargets) { }
         }
 
         static async Task<int> Main(string[] args)

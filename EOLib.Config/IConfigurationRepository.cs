@@ -8,9 +8,9 @@ namespace EOLib.Config
         string Host { get; set; }
         int Port { get; set; }
 
-        byte VersionMajor { get; set; }
-        byte VersionMinor { get; set; }
-        byte VersionBuild { get; set; }
+        int VersionMajor { get; set; }
+        int VersionMinor { get; set; }
+        int VersionBuild { get; set; }
 
         EOLanguage Language { get; set; }
 
@@ -40,9 +40,9 @@ namespace EOLib.Config
         string Host { get; }
         int Port { get; }
 
-        byte VersionMajor { get; }
-        byte VersionMinor { get; }
-        byte VersionBuild { get; }
+        int VersionMajor { get; }
+        int VersionMinor { get; }
+        int VersionBuild { get; }
 
         EOLanguage Language { get; }
 
@@ -73,9 +73,9 @@ namespace EOLib.Config
         public string Host { get; set; }
         public int Port { get; set; }
 
-        public byte VersionMajor { get; set; }
-        public byte VersionMinor { get; set; }
-        public byte VersionBuild { get; set; }
+        public int VersionMajor { get; set; }
+        public int VersionMinor { get; set; }
+        public int VersionBuild { get; set; }
 
         public EOLanguage Language { get; set; }
 

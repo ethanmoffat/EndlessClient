@@ -63,7 +63,7 @@ namespace EOLib.PacketHandlers.Recover
                 .WithNewStat(CharacterStat.Armor, armor);
 
             _characterRepository.MainCharacter = _characterRepository.MainCharacter
-                .WithClassID((byte)@class)
+                .WithClassID(@class)
                 .WithStats(stats);
 
             return true;

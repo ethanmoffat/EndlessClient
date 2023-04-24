@@ -40,7 +40,7 @@ namespace EOLib.Net.PacketProcessing
             _sequenceRepository.SequenceStart = updatedSequence;
         }
 
-        public void SetEncodeMultiples(byte emulti_d, byte emulti_e)
+        public void SetEncodeMultiples(int emulti_d, int emulti_e)
         {
             _encoderRepository.ReceiveMultiplier = emulti_d;
             _encoderRepository.SendMultiplier = emulti_e;
@@ -86,7 +86,7 @@ namespace EOLib.Net.PacketProcessing
 
         void SetUpdatedBaseSequenceNumber(int seq1, int seq2);
 
-        void SetEncodeMultiples(byte emulti_d, byte emulti_e);
+        void SetEncodeMultiples(int emulti_d, int emulti_e);
 
         byte[] EncodePacket(IPacket pkt);
 

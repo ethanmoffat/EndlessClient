@@ -50,22 +50,22 @@ namespace EndlessClient.UIControls
 
         public void NextGender()
         {
-            RenderProperties = RenderProperties.WithGender((byte)((RenderProperties.Gender + 1) % 2));
+            RenderProperties = RenderProperties.WithGender((RenderProperties.Gender + 1) % 2);
         }
 
         public void NextRace()
         {
-            RenderProperties = RenderProperties.WithRace((byte)((RenderProperties.Race + 1) % 6));
+            RenderProperties = RenderProperties.WithRace((RenderProperties.Race + 1) % 6);
         }
 
         public void NextHairStyle()
         {
-            RenderProperties = RenderProperties.WithHairStyle((byte)((RenderProperties.HairStyle + 1) % 21));
+            RenderProperties = RenderProperties.WithHairStyle((RenderProperties.HairStyle + 1) % 21);
         }
 
         public void NextHairColor()
         {
-            RenderProperties = RenderProperties.WithHairColor((byte)((RenderProperties.HairColor + 1) % 10));
+            RenderProperties = RenderProperties.WithHairColor((RenderProperties.HairColor + 1) % 10);
         }
 
         private static CharacterRenderProperties GetDefaultProperties()

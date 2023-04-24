@@ -141,7 +141,7 @@ namespace EndlessClient.Dialogs
                     PrimaryText = action.DisplayText
                 };
 
-                var linkIndex = (byte)action.ActionID;
+                var linkIndex = action.ActionID;
                 actionItem.SetPrimaryClickAction((_, _) =>
                 {
                     _questActions.RespondToQuestDialog(DialogReply.Link, linkIndex);

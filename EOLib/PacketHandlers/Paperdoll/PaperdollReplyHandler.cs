@@ -44,7 +44,7 @@ namespace EOLib.PacketHandlers.Paperdoll
             if (packet.ReadChar() != 0)
                 return false;
 
-            var paperdoll = new Dictionary<EquipLocation, short>((int)EquipLocation.PAPERDOLL_MAX);
+            var paperdoll = new Dictionary<EquipLocation, int>((int)EquipLocation.PAPERDOLL_MAX);
             for (var loc = (EquipLocation)0; loc < EquipLocation.PAPERDOLL_MAX; ++loc)
                 paperdoll[loc] = packet.ReadShort();
 

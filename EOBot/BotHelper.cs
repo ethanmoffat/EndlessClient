@@ -30,7 +30,7 @@ namespace EOBot
             var accParams = new CreateAccountParameters(name, password, password, name, name, name + "@eobot.net");
             var nameResult = await accountActions.CheckAccountNameWithServer(name);
             return nameResult >= AccountReply.OK_CodeRange
-                ? await accountActions.CreateAccount(accParams, (short)nameResult)
+                ? await accountActions.CreateAccount(accParams, (int)nameResult)
                 : nameResult;
         }
 

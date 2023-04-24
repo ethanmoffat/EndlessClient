@@ -109,7 +109,7 @@ namespace EOBot.Interpreter
             configRepo.Host = host;
             configRepo.Port = port;
 
-            configRepo.VersionBuild = (byte)((IntVariable)_state.SymbolTable[PredefinedIdentifiers.VERSION].Identifiable).Value;
+            configRepo.VersionBuild = ((IntVariable)_state.SymbolTable[PredefinedIdentifiers.VERSION].Identifiable).Value;
 
             var connectionActions = c.Resolve<INetworkConnectionActions>();
             var connectResult = await connectionActions.ConnectToServer();
@@ -128,8 +128,8 @@ namespace EOBot.Interpreter
 
             packetProcessActions.SetInitialSequenceNumber(handshakeResult[InitializationDataKey.SequenceByte1],
                 handshakeResult[InitializationDataKey.SequenceByte2]);
-            packetProcessActions.SetEncodeMultiples((byte)handshakeResult[InitializationDataKey.ReceiveMultiple],
-                (byte)handshakeResult[InitializationDataKey.SendMultiple]);
+            packetProcessActions.SetEncodeMultiples(handshakeResult[InitializationDataKey.ReceiveMultiple],
+                handshakeResult[InitializationDataKey.SendMultiple]);
 
             connectionActions.CompleteHandshake(handshakeResult);
         }
@@ -188,7 +188,7 @@ namespace EOBot.Interpreter
         private void JoinParty(int characterId)
         {
             var c = DependencyMaster.TypeRegistry[_botIndex];
-            c.Resolve<IPartyActions>().RequestParty(PartyRequestType.Join, (short)characterId);
+            c.Resolve<IPartyActions>().RequestParty(PartyRequestType.Join, characterId);
         }
 
         private void Chat(string chatText)

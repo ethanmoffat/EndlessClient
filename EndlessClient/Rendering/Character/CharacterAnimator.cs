@@ -198,13 +198,13 @@ namespace EndlessClient.Rendering.Character
             _spellSlotDataRepository.SpellIsPrepared = false;
         }
 
-        public void StartOtherCharacterWalkAnimation(int characterID, byte destinationX, byte destinationY, EODirection direction)
+        public void StartOtherCharacterWalkAnimation(int characterID, MapCoordinate destination, EODirection direction)
         {
             if (_otherPlayerStartWalkingTimes.ContainsKey(characterID))
             {
                 _otherPlayerStartWalkingTimes[characterID].Replay = true;
                 _queuedDirections[characterID] = direction;
-                _queuedPositions[characterID] = new MapCoordinate(destinationX, destinationY);
+                _queuedPositions[characterID] = destination;
                 return;
             }
 
@@ -261,7 +261,7 @@ namespace EndlessClient.Rendering.Character
             }
             else
             {
-                _currentMapStateRepository.UnknownPlayerIDs.Add((short)characterID);
+                _currentMapStateRepository.UnknownPlayerIDs.Add(characterID);
             }
 
             _startEmoteTimes[characterID] = startEmoteTime;
@@ -606,7 +606,7 @@ namespace EndlessClient.Rendering.Character
 
         void MainCharacterCancelSpellPrep();
 
-        void StartOtherCharacterWalkAnimation(int characterID, byte targetX, byte targetY, EODirection direction);
+        void StartOtherCharacterWalkAnimation(int characterID, MapCoordinate destination, EODirection direction);
 
         void StartOtherCharacterAttackAnimation(int characterID, Action sfxCallback);
 

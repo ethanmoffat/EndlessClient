@@ -269,7 +269,7 @@ namespace EndlessClient.Rendering
             }
 
             _lastPartyRequestTime = DateTime.Now;
-            _partyActions.RequestParty(PartyRequestType.Join, (short)_characterRenderer.Character.ID);
+            _partyActions.RequestParty(PartyRequestType.Join, _characterRenderer.Character.ID);
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_PARTY_REQUESTED_TO_JOIN);
         }
 
@@ -288,7 +288,7 @@ namespace EndlessClient.Rendering
             }
 
             _lastPartyRequestTime = DateTime.Now;
-            _partyActions.RequestParty(PartyRequestType.Invite, (short)_characterRenderer.Character.ID);
+            _partyActions.RequestParty(PartyRequestType.Invite, _characterRenderer.Character.ID);
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, _characterRenderer.Character.Name, EOResourceID.STATUS_LABEL_PARTY_IS_INVITED);
         }
 
@@ -309,7 +309,7 @@ namespace EndlessClient.Rendering
 
             _lastTradeRequestedTime = DateTime.Now;
 
-            _tradeActions.RequestTrade((short)_characterRenderer.Character.ID);
+            _tradeActions.RequestTrade(_characterRenderer.Character.ID);
 
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_TRADE_REQUESTED_TO_TRADE);
         }

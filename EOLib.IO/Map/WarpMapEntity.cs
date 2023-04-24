@@ -8,26 +8,26 @@
 
         public int Y { get; private set; }
 
-        public short DestinationMapID { get; private set; }
+        public int DestinationMapID { get; private set; }
 
-        public byte DestinationMapX { get; private set; }
+        public int DestinationMapX { get; private set; }
 
-        public byte DestinationMapY { get; private set; }
+        public int DestinationMapY { get; private set; }
 
-        public byte LevelRequirement { get; private set; }
+        public int LevelRequirement { get; private set; }
 
         public DoorSpec DoorType { get; private set; }
 
         public WarpMapEntity()
-            : this(-1, -1, -1, 0, 0, 0, DoorSpec.NoDoor)
+            : this(-1, -1, -1, -1, -1, -1, DoorSpec.NoDoor)
         { }
 
         private WarpMapEntity(int x,
                               int y,
-                              short destinationMapID,
-                              byte destinationMapX,
-                              byte destinationMapY,
-                              byte levelRequirement,
+                              int destinationMapID,
+                              int destinationMapX,
+                              int destinationMapY,
+                              int levelRequirement,
                               DoorSpec doorType)
         {
             X = x;
@@ -53,28 +53,28 @@
             return newEntity;
         }
 
-        public WarpMapEntity WithDestinationMapID(short destinationMapID)
+        public WarpMapEntity WithDestinationMapID(int destinationMapID)
         {
             var newEntity = MakeCopy(this);
             newEntity.DestinationMapID = destinationMapID;
             return newEntity;
         }
 
-        public WarpMapEntity WithDestinationMapX(byte destinationMapX)
+        public WarpMapEntity WithDestinationMapX(int destinationMapX)
         {
             var newEntity = MakeCopy(this);
             newEntity.DestinationMapX = destinationMapX;
             return newEntity;
         }
 
-        public WarpMapEntity WithDestinationMapY(byte destinationMapY)
+        public WarpMapEntity WithDestinationMapY(int destinationMapY)
         {
             var newEntity = MakeCopy(this);
             newEntity.DestinationMapY = destinationMapY;
             return newEntity;
         }
 
-        public WarpMapEntity WithLevelRequirement(byte levelRequirement)
+        public WarpMapEntity WithLevelRequirement(int levelRequirement)
         {
             var newEntity = MakeCopy(this);
             newEntity.LevelRequirement = levelRequirement;

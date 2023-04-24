@@ -94,7 +94,7 @@ namespace EOLib.Net.Translators
                 .WithNewStat(CharacterStat.Constituion, dispCon)
                 .WithNewStat(CharacterStat.Charisma, dispCha);
 
-            var paperDoll = new Dictionary<EquipLocation, short>();
+            var paperDoll = new Dictionary<EquipLocation, int>();
             for (var equipLocation = (EquipLocation)0; equipLocation < EquipLocation.PAPERDOLL_MAX; ++equipLocation)
             {
                 paperDoll[equipLocation] = packet.ReadShort();

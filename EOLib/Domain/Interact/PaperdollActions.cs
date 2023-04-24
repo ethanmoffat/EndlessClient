@@ -17,7 +17,7 @@ namespace EOLib.Domain.Interact
         public void RequestPaperdoll(int characterId)
         {
             var packet = new PacketBuilder(PacketFamily.PaperDoll, PacketAction.Request)
-                .AddShort((short)characterId)
+                .AddShort(characterId)
                 .Build();
             _packetSendService.SendPacket(packet);
         }

@@ -125,9 +125,9 @@ namespace EOLib.IO.Test.Map
             ret.AddRange(fullName);
 
             ret.AddRange(numberEncoderService.EncodeNumber(props.PKAvailable ? 3 : 0, 1));
-            ret.AddRange(numberEncoderService.EncodeNumber((byte)props.Effect, 1));
+            ret.AddRange(numberEncoderService.EncodeNumber((int)props.Effect, 1));
             ret.AddRange(numberEncoderService.EncodeNumber(props.Music, 1));
-            ret.AddRange(numberEncoderService.EncodeNumber((byte)props.Control, 1));
+            ret.AddRange(numberEncoderService.EncodeNumber((int)props.Control, 1));
             ret.AddRange(numberEncoderService.EncodeNumber(props.AmbientNoise, 2));
             ret.AddRange(numberEncoderService.EncodeNumber(props.Width, 1));
             ret.AddRange(numberEncoderService.EncodeNumber(props.Height, 1));

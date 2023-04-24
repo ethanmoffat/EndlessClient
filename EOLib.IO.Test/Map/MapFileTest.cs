@@ -146,7 +146,7 @@ namespace EOLib.IO.Test.Map
             ret.AddRange(nes.EncodeNumber(1, 1)); //y
             ret.AddRange(nes.EncodeNumber(1, 1)); //count (cols)
             ret.AddRange(nes.EncodeNumber(1, 1)); //x
-            ret.AddRange(nes.EncodeNumber((byte)spec, 1)); //tilespec
+            ret.AddRange(nes.EncodeNumber((int)spec, 1)); //tilespec
             ret.AddRange(nes.EncodeNumber(0, 1)); //y
             ret.AddRange(nes.EncodeNumber(0, 1)); //count (cols) (empty row)
 

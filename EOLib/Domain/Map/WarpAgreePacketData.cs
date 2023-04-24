@@ -7,7 +7,7 @@ namespace EOLib.Domain.Map
     [Record]
     public sealed partial class WarpAgreePacketData : ITranslatedData
     {
-        public short MapID { get; }
+        public int MapID { get; }
 
         public WarpAnimation WarpAnimation { get; }
 

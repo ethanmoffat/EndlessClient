@@ -52,7 +52,6 @@ namespace EOLib.Test.Net.FileTransfer
         public void RequestFile_ResponsePacketInvalidExtraByte_ThrowsMalformedPacketException()
         {
             Mock.Get(_packetSendService).SetupReceivedPacketHasHeader(PacketFamily.Init, PacketAction.Init, (byte)InitReply.ItemFile, 33);
-
             Assert.ThrowsAsync<MalformedPacketException>(async () => await _fileRequestService.RequestFile<EIFRecord>(InitFileType.Item, 1));
         }
 

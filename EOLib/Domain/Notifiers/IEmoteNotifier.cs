@@ -5,7 +5,7 @@ namespace EOLib.Domain.Notifiers
 {
     public interface IEmoteNotifier
     {
-        void NotifyEmote(short playerId, Emote emote);
+        void NotifyEmote(int playerId, Emote emote);
 
         void MakeMainPlayerDrunk();
     }
@@ -13,7 +13,7 @@ namespace EOLib.Domain.Notifiers
     [AutoMappedType]
     public class NoOpEmoteNotifier : IEmoteNotifier
     {
-        public void NotifyEmote(short playerId, Emote emote) { }
+        public void NotifyEmote(int playerId, Emote emote) { }
 
         public void MakeMainPlayerDrunk() { }
     }

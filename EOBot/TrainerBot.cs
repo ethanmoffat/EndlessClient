@@ -360,7 +360,7 @@ namespace EOBot
 
             ConsoleHelper.WriteMessage(ConsoleHelper.Type.UseItem, $"{itemToUse.Name} - {itemToUse.HP} HP - inventory: {amount - 1} - (other heal item types: {healItems.Count() - 1})");
 
-            await TrySend(() => _itemActions.UseItem((short)itemToUse.ID));
+            await TrySend(() => _itemActions.UseItem(itemToUse.ID));
 
             await Task.Delay(ATTACK_BACKOFF_MS);
         }

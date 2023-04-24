@@ -8,7 +8,7 @@ namespace EOLib.Domain.Login
 
         string PlayerPassword { get; set; }
 
-        short PlayerID { get; set; }
+        int PlayerID { get; set; }
 
         bool IsFirstTimePlayer { get; set; }
 
@@ -21,7 +21,7 @@ namespace EOLib.Domain.Login
 
         string PlayerPassword { get; }
 
-        short PlayerID { get; }
+        int PlayerID { get; }
 
         bool IsFirstTimePlayer { get; }
 
@@ -35,7 +35,7 @@ namespace EOLib.Domain.Login
 
         public string PlayerPassword { get; set; }
 
-        public short PlayerID { get; set; }
+        public int PlayerID { get; set; }
 
         public bool IsFirstTimePlayer { get; set; }
 

@@ -46,7 +46,7 @@ namespace EOLib.Net.FileTransfer
             _playerInfoProvider = playerInfoProvider;
         }
 
-        public bool NeedsFileForLogin(InitFileType fileType, short optionalID = 0)
+        public bool NeedsFileForLogin(InitFileType fileType, int optionalID = 0)
         {
             var expectedChecksum = _numberEncoderService.DecodeNumber(_loginFileChecksumProvider.MapChecksum);
             var expectedLength = _loginFileChecksumProvider.MapLength;
@@ -56,20 +56,20 @@ namespace EOLib.Net.FileTransfer
                 : NeedPub(fileType);
         }
 
-        public bool NeedsMapForWarp(short mapID, byte[] mapRid, int fileSize)
+        public bool NeedsMapForWarp(int mapID, byte[] mapRid, int fileSize)
         {
             var expectedChecksum = _numberEncoderService.DecodeNumber(mapRid);
             return NeedMap(mapID, expectedChecksum, fileSize);
         }
 
-        public void RequestMapForWarp(short mapID, short sessionID)
+        public void RequestMapForWarp(int mapID, int sessionID)
         {
             _fileRequestService.RequestMapFileForWarp(mapID, sessionID);
             _currentMapStateRepository.MapWarpSession = Option.Some(sessionID);
             _currentMapStateRepository.MapWarpID = Option.Some(mapID);
         }
 
-        public async Task GetMapFromServer(short mapID, short sessionID)
+        public async Task GetMapFromServer(int mapID, int sessionID)
         {
             var mapFile = await _fileRequestService.RequestMapFile(mapID, sessionID);
             _mapFileSaveService.SaveFileToDefaultDirectory(mapFile, rewriteChecksum: false);
@@ -80,35 +80,35 @@ namespace EOLib.Net.FileTransfer
                 _mapFileRepository.MapFiles.Add(mapID, mapFile);
         }
 
-        public async Task GetItemFileFromServer(short sessionID)
+        public async Task GetItemFileFromServer(int sessionID)
         {
             var itemFile = await _fileRequestService.RequestFile<EIFRecord>(InitFileType.Item, sessionID);
             _pubFileSaveService.SaveFile(PubFileNameConstants.PathToEIFFile, itemFile, rewriteChecksum: false);
             _pubFileRepository.EIFFile = (EIFFile)itemFile;
         }
 
-        public async Task GetNPCFileFromServer(short sessionID)
+        public async Task GetNPCFileFromServer(int sessionID)
         {
             var npcFile = await _fileRequestService.RequestFile<ENFRecord>(InitFileType.Npc, sessionID);
             _pubFileSaveService.SaveFile(PubFileNameConstants.PathToENFFile, npcFile, rewriteChecksum: false);
             _pubFileRepository.ENFFile = (ENFFile)npcFile;
         }
 
-        public async Task GetSpellFileFromServer(short sessionID)
+        public async Task GetSpellFileFromServer(int sessionID)
         {
             var spellFile = await _fileRequestService.RequestFile<ESFRecord>(InitFileType.Spell, sessionID);
             _pubFileSaveService.SaveFile(PubFileNameConstants.PathToESFFile, spellFile, rewriteChecksum: false);
             _pubFileRepository.ESFFile = (ESFFile)spellFile;
         }
 
-        public async Task GetClassFileFromServer(short sessionID)
+        public async Task GetClassFileFromServer(int sessionID)
         {
             var classFile = await _fileRequestService.RequestFile<ECFRecord>(InitFileType.Class, sessionID);
             _pubFileSaveService.SaveFile(PubFileNameConstants.PathToECFFile, classFile, rewriteChecksum: false);
             _pubFileRepository.ECFFile = (ECFFile)classFile;
         }
 
-        private bool NeedMap(short mapID, int expectedChecksum, int expectedLength)
+        private bool NeedMap(int mapID, int expectedChecksum, int expectedLength)
         {
             if (!_mapFileRepository.MapFiles.ContainsKey(mapID))
                 return true; //map with that ID is not in the cache, need to get it from the server
@@ -147,20 +147,20 @@ namespace EOLib.Net.FileTransfer
 
     public interface IFileRequestActions
     {
-        bool NeedsFileForLogin(InitFileType fileType, short optionalID = 0);
+        bool NeedsFileForLogin(InitFileType fileType, int optionalID = 0);
 
-        bool NeedsMapForWarp(short mapID, byte[] mapRid, int fileSize);
+        bool NeedsMapForWarp(int mapID, byte[] mapRid, int fileSize);
 
-        void RequestMapForWarp(short mapID, short sessionID);
+        void RequestMapForWarp(int mapID, int sessionID);
 
-        Task GetMapFromServer(short mapID, short sessionID);
+        Task GetMapFromServer(int mapID, int sessionID);
 
-        Task GetItemFileFromServer(short sessionID);
+        Task GetItemFileFromServer(int sessionID);
 
-        Task GetNPCFileFromServer(short sessionID);
+        Task GetNPCFileFromServer(int sessionID);
 
-        Task GetSpellFileFromServer(short sessionID);
+        Task GetSpellFileFromServer(int sessionID);
 
-        Task GetClassFileFromServer(short sessionID);
+        Task GetClassFileFromServer(int sessionID);
     }
 }

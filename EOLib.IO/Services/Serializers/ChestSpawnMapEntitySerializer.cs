@@ -22,7 +22,7 @@ namespace EOLib.IO.Services.Serializers
 
             retBytes.AddRange(_numberEncoderService.EncodeNumber(mapEntity.X, 1));
             retBytes.AddRange(_numberEncoderService.EncodeNumber(mapEntity.Y, 1));
-            retBytes.AddRange(_numberEncoderService.EncodeNumber((short) mapEntity.Key, 2));
+            retBytes.AddRange(_numberEncoderService.EncodeNumber((int)mapEntity.Key, 2));
             retBytes.AddRange(_numberEncoderService.EncodeNumber(mapEntity.Slot, 1));
             retBytes.AddRange(_numberEncoderService.EncodeNumber(mapEntity.ItemID, 2));
             retBytes.AddRange(_numberEncoderService.EncodeNumber(mapEntity.RespawnTime, 2));
@@ -40,9 +40,9 @@ namespace EOLib.IO.Services.Serializers
                 .WithX(_numberEncoderService.DecodeNumber(data[0]))
                 .WithY(_numberEncoderService.DecodeNumber(data[1]))
                 .WithKey((ChestKey) _numberEncoderService.DecodeNumber(data[2], data[3]))
-                .WithSlot((byte) _numberEncoderService.DecodeNumber(data[4]))
-                .WithItemID((short) _numberEncoderService.DecodeNumber(data[5], data[6]))
-                .WithRespawnTime((short) _numberEncoderService.DecodeNumber(data[7], data[8]))
+                .WithSlot(_numberEncoderService.DecodeNumber(data[4]))
+                .WithItemID(_numberEncoderService.DecodeNumber(data[5], data[6]))
+                .WithRespawnTime(_numberEncoderService.DecodeNumber(data[7], data[8]))
                 .WithAmount(_numberEncoderService.DecodeNumber(data[9], data[10], data[11]));
         }
     }

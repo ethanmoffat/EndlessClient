@@ -1,7 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Net;
 using EOLib.Net.Communication;
-using System;
 
 namespace EOLib.Domain.Trade
 {
@@ -15,7 +14,7 @@ namespace EOLib.Domain.Trade
             _packetSendService = packetSendService;
         }
 
-        public void RequestTrade(short characterID)
+        public void RequestTrade(int characterID)
         {
             var packet = new PacketBuilder(PacketFamily.Trade, PacketAction.Request)
                 .AddChar(6)
@@ -24,7 +23,7 @@ namespace EOLib.Domain.Trade
             _packetSendService.SendPacket(packet);
         }
 
-        public void AcceptTradeRequest(short characterID)
+        public void AcceptTradeRequest(int characterID)
         {
             var packet = new PacketBuilder(PacketFamily.Trade, PacketAction.Accept)
                 .AddChar(6)
@@ -33,7 +32,7 @@ namespace EOLib.Domain.Trade
             _packetSendService.SendPacket(packet);
         }
 
-        public void RemoveItemFromOffer(short itemID)
+        public void RemoveItemFromOffer(int itemID)
         {
             var packet = new PacketBuilder(PacketFamily.Trade, PacketAction.Remove)
                 .AddShort(itemID)
@@ -41,7 +40,7 @@ namespace EOLib.Domain.Trade
             _packetSendService.SendPacket(packet);
         }
 
-        public void AddItemToOffer(short itemID, int amount)
+        public void AddItemToOffer(int itemID, int amount)
         {
             var packet = new PacketBuilder(PacketFamily.Trade, PacketAction.Add)
                 .AddShort(itemID)
@@ -53,7 +52,7 @@ namespace EOLib.Domain.Trade
         public void AgreeToTrade(bool agree)
         {
             var packet = new PacketBuilder(PacketFamily.Trade, PacketAction.Agree)
-                .AddChar((byte)(agree ? 1 : 0))
+                .AddChar(agree ? 1 : 0)
                 .Build();
             _packetSendService.SendPacket(packet);
         }
@@ -69,13 +68,13 @@ namespace EOLib.Domain.Trade
 
     public interface ITradeActions
     {
-        void RequestTrade(short characterID);
+        void RequestTrade(int characterID);
 
-        void AcceptTradeRequest(short characterID);
+        void AcceptTradeRequest(int characterID);
 
-        void RemoveItemFromOffer(short itemID);
+        void RemoveItemFromOffer(int itemID);
 
-        void AddItemToOffer(short itemID, int amount);
+        void AddItemToOffer(int itemID, int amount);
 
         void AgreeToTrade(bool agree);
 

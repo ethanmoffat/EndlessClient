@@ -33,10 +33,10 @@ namespace EndlessClient.Dialogs
         public string Name => _inputBox.Text.Trim();
 
         private CharacterRenderProperties RenderProperties => _characterControl.RenderProperties;
-        public byte Gender => RenderProperties.Gender;
-        public byte HairStyle => RenderProperties.HairStyle;
-        public byte HairColor => RenderProperties.HairColor;
-        public byte Race => RenderProperties.Race;
+        public int Gender => RenderProperties.Gender;
+        public int HairStyle => RenderProperties.HairStyle;
+        public int HairColor => RenderProperties.HairColor;
+        public int Race => RenderProperties.Race;
 
         public CreateCharacterDialog(
             INativeGraphicsManager nativeGraphicsManager,

@@ -88,7 +88,7 @@ namespace EOLib.Domain.Account
             return reply;
         }
 
-        public async Task<AccountReply> CreateAccount(ICreateAccountParameters parameters, short sessionID)
+        public async Task<AccountReply> CreateAccount(ICreateAccountParameters parameters, int sessionID)
         {
             var createAccountPacket = new PacketBuilder(PacketFamily.Account, PacketAction.Create)
                 .AddShort(sessionID)
@@ -149,7 +149,7 @@ namespace EOLib.Domain.Account
 
         Task<AccountReply> CheckAccountNameWithServer(string accountName);
 
-        Task<AccountReply> CreateAccount(ICreateAccountParameters parameters, short sessionID);
+        Task<AccountReply> CreateAccount(ICreateAccountParameters parameters, int sessionID);
 
         Task<AccountReply> ChangePassword(IChangePasswordParameters parameters);
     }

@@ -11,11 +11,11 @@ namespace EndlessClient.Rendering.Map
 
         void StartMapTransition();
 
-        void StartEarthquake(byte strength);
+        void StartEarthquake(int strength);
 
         void RedrawGroundLayer();
 
-        void RenderEffect(byte x, byte y, short effectId);
+        void RenderEffect(MapCoordinate location, int effectId);
 
         void ClearTransientRenderables();
     }

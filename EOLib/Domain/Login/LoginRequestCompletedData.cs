@@ -11,9 +11,9 @@ namespace EOLib.Domain.Login
     {
         public IReadOnlyList<string> News { get; }
 
-        public byte CharacterWeight { get; }
+        public int CharacterWeight { get; }
 
-        public byte CharacterMaxWeight { get; }
+        public int CharacterMaxWeight { get; }
 
         public IReadOnlyList<InventoryItem> CharacterItemInventory { get; }
 

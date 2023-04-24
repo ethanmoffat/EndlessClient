@@ -42,12 +42,12 @@ namespace EndlessClient.Dialogs.Actions
             }
         }
 
-        public void NotifySkillLearnSuccess(short spellId, int characterGold)
+        public void NotifySkillLearnSuccess(int spellId, int characterGold)
         {
             _sfxPlayer.PlaySfx(SoundEffectID.LearnNewSpell);
         }
 
-        public void NotifySkillLearnFail(SkillmasterReply skillmasterReply, short classId)
+        public void NotifySkillLearnFail(SkillmasterReply skillmasterReply, int classId)
         {
             switch (skillmasterReply)
             {

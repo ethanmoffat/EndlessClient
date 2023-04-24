@@ -6,27 +6,27 @@ namespace EOLib.Domain.Interact.Skill
     [Record]
     public sealed partial class Skill
     {
-        public short Id { get; }
+        public int Id { get; }
 
-        public byte LevelRequirement { get; }
+        public int LevelRequirement { get; }
 
-        public byte ClassRequirement { get; }
+        public int ClassRequirement { get; }
 
         public int GoldRequirement { get; }
 
-        public IReadOnlyList<short> SkillRequirements { get; }
+        public IReadOnlyList<int> SkillRequirements { get; }
 
-        public short StrRequirement { get; }
+        public int StrRequirement { get; }
 
-        public short IntRequirement { get; }
+        public int IntRequirement { get; }
 
-        public short WisRequirement { get; }
+        public int WisRequirement { get; }
 
-        public short AgiRequirement { get; }
+        public int AgiRequirement { get; }
 
-        public short ConRequirement { get; }
+        public int ConRequirement { get; }
 
-        public short ChaRequirement { get; }
+        public int ChaRequirement { get; }
     }
 
 }

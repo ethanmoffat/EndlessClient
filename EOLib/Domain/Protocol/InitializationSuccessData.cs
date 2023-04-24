@@ -8,15 +8,15 @@ namespace EOLib.Domain.Protocol
 
         public int this[InitializationDataKey key] => GetValueHelper(key);
 
-        private readonly byte _seq1, _seq2, _sendMulti, _recvMulti;
-        private readonly short _playerID;
+        private readonly int _seq1, _seq2, _sendMulti, _recvMulti;
+        private readonly int _playerID;
         private readonly int _hashResponse;
 
-        public InitializationSuccessData(byte sequence1,
-                                         byte sequence2,
-                                         byte receiveMultiple,
-                                         byte sendMultiple,
-                                         short playerID,
+        public InitializationSuccessData(int sequence1,
+                                         int sequence2,
+                                         int receiveMultiple,
+                                         int sendMultiple,
+                                         int playerID,
                                          int hashResponse)
         {
             _seq1 = sequence1;
