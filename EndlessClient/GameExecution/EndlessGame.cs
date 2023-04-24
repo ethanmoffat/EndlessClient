@@ -235,7 +235,7 @@ namespace EndlessClient.GameExecution
             }
             catch (IOException ioe)
             {
-                _loggerProvider.Logger.Log(PUB_LOG_MSG, PubFileNameConstants.PathToEIFFile, ioe.Message);
+                _loggerProvider.Logger.Log(PUB_LOG_MSG, string.Format(PubFileNameConstants.EIFFormat, 1), ioe.Message);
             }
 
             try
@@ -244,7 +244,7 @@ namespace EndlessClient.GameExecution
             }
             catch (IOException ioe)
             {
-                _loggerProvider.Logger.Log(PUB_LOG_MSG, PubFileNameConstants.PathToENFFile, ioe.Message);
+                _loggerProvider.Logger.Log(PUB_LOG_MSG, string.Format(PubFileNameConstants.ENFFormat, 1), ioe.Message);
             }
 
             try
@@ -253,7 +253,7 @@ namespace EndlessClient.GameExecution
             }
             catch (IOException ioe)
             {
-                _loggerProvider.Logger.Log(PUB_LOG_MSG, PubFileNameConstants.PathToESFFile, ioe.Message);
+                _loggerProvider.Logger.Log(PUB_LOG_MSG, string.Format(PubFileNameConstants.ESFFormat, 1), ioe.Message);
             }
 
             try
@@ -262,7 +262,7 @@ namespace EndlessClient.GameExecution
             }
             catch (IOException ioe)
             {
-                _loggerProvider.Logger.Log(PUB_LOG_MSG, PubFileNameConstants.PathToECFFile, ioe.Message);
+                _loggerProvider.Logger.Log(PUB_LOG_MSG, string.Format(PubFileNameConstants.ECFFormat, 1), ioe.Message);
             }
         }
 

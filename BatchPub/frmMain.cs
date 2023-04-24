@@ -260,8 +260,8 @@ namespace BatchPub
             _fname = "";
             try
             {
-                var fileBytes = File.ReadAllBytes(_fname = string.IsNullOrEmpty(txtFileName.Text) ? PubFileNameConstants.PathToEIFFile : txtFileName.Text);
-                eif = deserializer.DeserializeFromByteArray(fileBytes, () => new EIFFile());
+                var fileBytes = File.ReadAllBytes(_fname = string.IsNullOrEmpty(txtFileName.Text) ? string.Format(PubFileNameConstants.EIFFormat, 1) : txtFileName.Text);
+                eif = deserializer.DeserializeFromByteArray(1, fileBytes, () => new EIFFile());
                 lblFileName.Text = "Loaded file: " + _fname;
                 grpStepTwo.Enabled = true;
                 btnReset.Enabled = true;

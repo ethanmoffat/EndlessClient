@@ -3,6 +3,7 @@ using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Protocol;
 using EOLib.IO;
+using EOLib.IO.Extensions;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
@@ -82,30 +83,38 @@ namespace EOLib.Net.FileTransfer
 
         public async Task GetItemFileFromServer(int sessionID)
         {
-            var itemFile = await _fileRequestService.RequestFile<EIFRecord>(InitFileType.Item, sessionID);
-            _pubFileSaveService.SaveFile(PubFileNameConstants.PathToEIFFile, itemFile, rewriteChecksum: false);
-            _pubFileRepository.EIFFile = (EIFFile)itemFile;
+            var itemFiles = await _fileRequestService.RequestFile<EIFRecord>(InitFileType.Item, sessionID);
+            foreach (var file in itemFiles)
+                _pubFileSaveService.SaveFile(string.Format(PubFileNameConstants.EIFFormat, file.ID), file, rewriteChecksum: false);
+            _pubFileRepository.EIFFiles = itemFiles;
+            _pubFileRepository.EIFFile = PubFileExtensions.Merge(itemFiles);
         }
 
         public async Task GetNPCFileFromServer(int sessionID)
         {
-            var npcFile = await _fileRequestService.RequestFile<ENFRecord>(InitFileType.Npc, sessionID);
-            _pubFileSaveService.SaveFile(PubFileNameConstants.PathToENFFile, npcFile, rewriteChecksum: false);
-            _pubFileRepository.ENFFile = (ENFFile)npcFile;
+            var npcFiles = await _fileRequestService.RequestFile<ENFRecord>(InitFileType.Npc, sessionID);
+            foreach (var file in npcFiles)
+                _pubFileSaveService.SaveFile(string.Format(PubFileNameConstants.ENFFormat, file.ID), file, rewriteChecksum: false);
+            _pubFileRepository.ENFFiles = npcFiles;
+            _pubFileRepository.ENFFile = PubFileExtensions.Merge(npcFiles);
         }
 
         public async Task GetSpellFileFromServer(int sessionID)
         {
-            var spellFile = await _fileRequestService.RequestFile<ESFRecord>(InitFileType.Spell, sessionID);
-            _pubFileSaveService.SaveFile(PubFileNameConstants.PathToESFFile, spellFile, rewriteChecksum: false);
-            _pubFileRepository.ESFFile = (ESFFile)spellFile;
+            var spellFiles = await _fileRequestService.RequestFile<ESFRecord>(InitFileType.Spell, sessionID);
+            foreach (var file in spellFiles)
+                _pubFileSaveService.SaveFile(string.Format(PubFileNameConstants.ESFFormat, file.ID), file, rewriteChecksum: false);
+            _pubFileRepository.ESFFiles = spellFiles;
+            _pubFileRepository.ESFFile = PubFileExtensions.Merge(spellFiles);
         }
 
         public async Task GetClassFileFromServer(int sessionID)
         {
-            var classFile = await _fileRequestService.RequestFile<ECFRecord>(InitFileType.Class, sessionID);
-            _pubFileSaveService.SaveFile(PubFileNameConstants.PathToECFFile, classFile, rewriteChecksum: false);
-            _pubFileRepository.ECFFile = (ECFFile)classFile;
+            var classFiles = await _fileRequestService.RequestFile<ECFRecord>(InitFileType.Class, sessionID);
+            foreach (var file in classFiles)
+                _pubFileSaveService.SaveFile(string.Format(PubFileNameConstants.ECFFormat, file.ID), file, rewriteChecksum: false);
+            _pubFileRepository.ECFFiles = classFiles;
+            _pubFileRepository.ECFFile = PubFileExtensions.Merge(classFiles);
         }
 
         private bool NeedMap(int mapID, int expectedChecksum, int expectedLength)

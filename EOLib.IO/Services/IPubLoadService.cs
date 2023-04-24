@@ -1,12 +1,13 @@
 ﻿using EOLib.IO.Pub;
+using System.Collections.Generic;
 
 namespace EOLib.IO.Services
 {
     public interface IPubLoadService<T>
         where T : class, IPubRecord, new()
     {
-        IPubFile<T> LoadPubFromDefaultFile();
+        IEnumerable<IPubFile<T>> LoadPubFromDefaultFile();
 
-        IPubFile<T> LoadPubFromExplicitFile(string fileName);
+        IEnumerable<IPubFile<T>> LoadPubFromExplicitFile(string directory, string fileName);
     }
 }

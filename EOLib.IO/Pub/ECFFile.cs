@@ -10,14 +10,14 @@ namespace EOLib.IO.Pub
         {
         }
 
-        public ECFFile(int checksum, List<ECFRecord> data)
-            : base(checksum, data)
+        public ECFFile(int id, int checksum, int totalLength, List<ECFRecord> data)
+            : base(id, checksum, totalLength, data)
         {
         }
 
         protected override BasePubFile<ECFRecord> MakeCopy()
         {
-            return new ECFFile(CheckSum, new List<ECFRecord>(this));
+            return new ECFFile(ID, CheckSum, TotalLength, new List<ECFRecord>(this));
         }
     }
 }
