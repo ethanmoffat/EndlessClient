@@ -19,7 +19,7 @@ namespace EOLib.IO.Services.Serializers
             _pubRecordSerializer = pubRecordSerializer;
         }
 
-        public IPubFile<TRecord> DeserializeFromByteArray<TRecord>(byte[] data, Func<IPubFile<TRecord>> fileFactory)
+        public IPubFile<TRecord> DeserializeFromByteArray<TRecord>(int id, byte[] data, Func<IPubFile<TRecord>> fileFactory)
             where TRecord : class, IPubRecord, new()
         {
             using (var mem = new MemoryStream(data))
@@ -30,18 +30,20 @@ namespace EOLib.IO.Services.Serializers
                 mem.Read(checksumBytes, 0, 4);
                 var checksum = _numberEncoderService.DecodeNumber(checksumBytes);
 
-                var file = (IPubFile<TRecord>)fileFactory().WithCheckSum(checksum);
-
                 var lenBytes = new byte[2];
                 mem.Read(lenBytes, 0, 2);
-                var recordsInFile = _numberEncoderService.DecodeNumber(lenBytes);
+
+                var file = (IPubFile<TRecord>)fileFactory()
+                    .WithID(id)
+                    .WithCheckSum(checksum)
+                    .WithTotalLength(_numberEncoderService.DecodeNumber(lenBytes));
 
                 mem.Seek(1, SeekOrigin.Current);
 
                 var dummyRecord = new TRecord();
                 var dataSize = dummyRecord.DataSize;
                 var numberOfNames = dummyRecord.NumberOfNames;
-                for (int i = 1; i <= recordsInFile && mem.Position < mem.Length; ++i)
+                for (int i = 1; i <= file.TotalLength && mem.Position < mem.Length; ++i)
                 {
                     int nameLength = 0;
                     for (int nameNdx = 0; nameNdx < numberOfNames; nameNdx++)
@@ -55,8 +57,8 @@ namespace EOLib.IO.Services.Serializers
                     file = file.WithAddedRecord((TRecord)record);
                 }
 
-                if (recordsInFile != file.Length || mem.Position < mem.Length)
-                    throw new IOException("Mismatch between expected length and actual length!");
+                if (mem.Position < mem.Length)
+                    throw new IOException($"Mismatch between expected length ({mem.Length}) and actual length ({mem.Position})!");
 
                 return file;
             }

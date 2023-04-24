@@ -41,11 +41,8 @@ namespace EOLib.IO.Test.Services.Serializers
                 new U().WithID(4).WithName("Rec_4"),
             };
 
-            var pubBytesLong = MakePubFileBytes(ExpectedChecksum, ExpectedLength + 1, records);
             var pubBytesShort = MakePubFileBytes(ExpectedChecksum, ExpectedLength - 1, records);
-
-            Assert.That(() => CreateSerializer().DeserializeFromByteArray(pubBytesLong, () => new T()), Throws.InstanceOf<IOException>());
-            Assert.That(() => CreateSerializer().DeserializeFromByteArray(pubBytesShort, () => new T()), Throws.InstanceOf<IOException>());
+            Assert.That(() => CreateSerializer().DeserializeFromByteArray(1, pubBytesShort, () => new T()), Throws.InstanceOf<IOException>());
         }
 
         [Test]
@@ -63,7 +60,7 @@ namespace EOLib.IO.Test.Services.Serializers
             };
 
             var pubBytes = MakePubFileBytes(ExpectedChecksum, ExpectedLength, records);
-            var file = CreateSerializer().DeserializeFromByteArray(pubBytes, () => new T());
+            var file = CreateSerializer().DeserializeFromByteArray(1, pubBytes, () => new T());
 
             Assert.That(file.CheckSum, Is.EqualTo(ExpectedChecksum));
             Assert.That(file.Length, Is.EqualTo(ExpectedLength));
@@ -85,7 +82,7 @@ namespace EOLib.IO.Test.Services.Serializers
                 new U().WithID(9).WithName("eof"));
 
             var serializer = CreateSerializer();
-            var file = serializer.DeserializeFromByteArray(expectedBytes, () => new T());
+            var file = serializer.DeserializeFromByteArray(1, expectedBytes, () => new T());
 
             var actualBytes = serializer.SerializeToByteArray(file, rewriteChecksum: false);
 
@@ -110,7 +107,7 @@ namespace EOLib.IO.Test.Services.Serializers
             var bytes = MakePubFileBytes(55565554, 9, records);
 
             var serializer = CreateSerializer();
-            var file = serializer.DeserializeFromByteArray(bytes, () => new T());
+            var file = serializer.DeserializeFromByteArray(1, bytes, () => new T());
 
             CollectionAssert.AreEqual(records.Select(x => new { x.ID, x.Name }).ToList(),
                                       file.Select(x => new { x.ID, x.Name }).ToList());

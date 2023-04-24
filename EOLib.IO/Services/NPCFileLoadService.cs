@@ -1,11 +1,13 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System;
+using System.IO;
 using AutomaticTypeMapper;
 using EOLib.IO.Pub;
 using EOLib.IO.Services.Serializers;
 
 namespace EOLib.IO.Services
 {
-    [MappedType(BaseType = typeof(IPubLoadService<ENFRecord>))]
+    [AutoMappedType]
     public class NPCFileLoadService : IPubLoadService<ENFRecord>
     {
         private readonly IPubFileDeserializer _pubFileDeserializer;
@@ -15,15 +17,25 @@ namespace EOLib.IO.Services
             _pubFileDeserializer = pubFileDeserializer;
         }
 
-        public IPubFile<ENFRecord> LoadPubFromDefaultFile()
+        public IEnumerable<IPubFile<ENFRecord>> LoadPubFromDefaultFile()
         {
-            return LoadPubFromExplicitFile(PubFileNameConstants.PathToENFFile);
+            return LoadPubFromExplicitFile(PubFileNameConstants.PubDirectory, PubFileNameConstants.ENFFilter);
         }
 
-        public IPubFile<ENFRecord> LoadPubFromExplicitFile(string fileName)
+        public IEnumerable<IPubFile<ENFRecord>> LoadPubFromExplicitFile(string directory, string searchPattern)
         {
-            var fileBytes = File.ReadAllBytes(fileName);
-            return _pubFileDeserializer.DeserializeFromByteArray(fileBytes, () => new ENFFile());
+            var files = Directory.GetFiles(directory, searchPattern, SearchOption.TopDirectoryOnly);
+            if (files.Length == 0)
+                throw new ArgumentException($"No pub files matching {searchPattern} were found in {directory}", nameof(searchPattern));
+
+            Array.Sort(files);
+
+            int fileId = 1;
+            foreach (var file in files)
+            {
+                var fileBytes = File.ReadAllBytes(file);
+                yield return _pubFileDeserializer.DeserializeFromByteArray(fileId++, fileBytes, () => new ENFFile());
+            }
         }
     }
 }
