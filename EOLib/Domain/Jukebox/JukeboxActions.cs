@@ -35,8 +35,8 @@ namespace EOLib.Domain.Jukebox
                 .MatchSome(rec =>
                 {
                     var packet = new PacketBuilder(PacketFamily.JukeBox, PacketAction.Use)
-                        .AddChar((byte)rec.DollGraphic) // todo: determine what GameServer expects; eoserv sends DollGraphic as a response in Character::PlayBard
-                        .AddChar((byte)(noteIndex + 1))
+                        .AddChar(rec.DollGraphic) // todo: determine what GameServer expects; eoserv sends DollGraphic as a response in Character::PlayBard
+                        .AddChar(noteIndex + 1)
                         .Build();
 
                     _packetSendService.SendPacket(packet);

@@ -14,7 +14,7 @@ namespace EOLib.Domain.Interact.Shop
             _packetSendService = packetSendService;
         }
 
-        public void BuyItem(short itemId, int amount)
+        public void BuyItem(int itemId, int amount)
         {
             var packet = new PacketBuilder(PacketFamily.Shop, PacketAction.Buy)
                 .AddShort(itemId)
@@ -24,7 +24,7 @@ namespace EOLib.Domain.Interact.Shop
             _packetSendService.SendPacket(packet);
         }
 
-        public void SellItem(short itemId, int amount)
+        public void SellItem(int itemId, int amount)
         {
             var packet = new PacketBuilder(PacketFamily.Shop, PacketAction.Sell)
                 .AddShort(itemId)
@@ -34,7 +34,7 @@ namespace EOLib.Domain.Interact.Shop
             _packetSendService.SendPacket(packet);
         }
 
-        public void CraftItem(short itemId)
+        public void CraftItem(int itemId)
         {
             var packet = new PacketBuilder(PacketFamily.Shop, PacketAction.Create)
                 .AddShort(itemId)
@@ -46,10 +46,10 @@ namespace EOLib.Domain.Interact.Shop
 
     public interface IShopActions
     {
-        void BuyItem(short itemId, int amount);
+        void BuyItem(int itemId, int amount);
 
-        void SellItem(short itemId, int amount);
+        void SellItem(int itemId, int amount);
 
-        void CraftItem(short itemId);
+        void CraftItem(int itemId);
     }
 }

@@ -25,7 +25,7 @@ namespace EOLib.IO.Services.Serializers
             retBytes.AddRange(_numberEncoderService.EncodeNumber(mapEntity.DestinationMapX, 1));
             retBytes.AddRange(_numberEncoderService.EncodeNumber(mapEntity.DestinationMapY, 1));
             retBytes.AddRange(_numberEncoderService.EncodeNumber(mapEntity.LevelRequirement, 1));
-            retBytes.AddRange(_numberEncoderService.EncodeNumber((short)mapEntity.DoorType, 2));
+            retBytes.AddRange(_numberEncoderService.EncodeNumber((int)mapEntity.DoorType, 2));
 
             return retBytes.ToArray();
         }
@@ -37,10 +37,10 @@ namespace EOLib.IO.Services.Serializers
 
             return new WarpMapEntity()
                 .WithX(_numberEncoderService.DecodeNumber(data[0]))
-                .WithDestinationMapID((short) _numberEncoderService.DecodeNumber(data[1], data[2]))
-                .WithDestinationMapX((byte) _numberEncoderService.DecodeNumber(data[3]))
-                .WithDestinationMapY((byte) _numberEncoderService.DecodeNumber(data[4]))
-                .WithLevelRequirement((byte) _numberEncoderService.DecodeNumber(data[5]))
+                .WithDestinationMapID(_numberEncoderService.DecodeNumber(data[1], data[2]))
+                .WithDestinationMapX(_numberEncoderService.DecodeNumber(data[3]))
+                .WithDestinationMapY(_numberEncoderService.DecodeNumber(data[4]))
+                .WithLevelRequirement(_numberEncoderService.DecodeNumber(data[5]))
                 .WithDoorType((DoorSpec) _numberEncoderService.DecodeNumber(data[6], data[7]));
         }
     }

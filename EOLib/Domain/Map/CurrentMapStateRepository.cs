@@ -7,11 +7,11 @@ namespace EOLib.Domain.Map
 {
     public interface ICurrentMapStateRepository
     {
-        short CurrentMapID { get; set; }
+        int CurrentMapID { get; set; }
 
         bool ShowMiniMap { get; set; }
 
-        short JailMapID { get; set; }
+        int JailMapID { get; set; }
 
         bool IsJail { get; }
 
@@ -29,24 +29,24 @@ namespace EOLib.Domain.Map
 
         WarpState MapWarpState { get; set; }
 
-        Option<short> MapWarpSession { get; set; }
+        Option<int> MapWarpSession { get; set; }
 
-        Option<short> MapWarpID { get; set; }
+        Option<int> MapWarpID { get; set; }
 
         Option<DateTime> MapWarpTime { get; set; }
 
-        HashSet<short> UnknownPlayerIDs { get; set; }
+        HashSet<int> UnknownPlayerIDs { get; set; }
 
-        HashSet<byte> UnknownNPCIndexes { get; set; }
+        HashSet<int> UnknownNPCIndexes { get; set; }
     }
 
     public interface ICurrentMapStateProvider
     {
-        short CurrentMapID { get; }
+        int CurrentMapID { get; }
 
         bool ShowMiniMap { get; }
 
-        short JailMapID { get; }
+        int JailMapID { get; }
 
         bool IsJail { get; }
 
@@ -64,25 +64,25 @@ namespace EOLib.Domain.Map
 
         WarpState MapWarpState { get; }
 
-        Option<short> MapWarpSession { get; }
+        Option<int> MapWarpSession { get; }
 
-        Option<short> MapWarpID { get; }
+        Option<int> MapWarpID { get; }
 
         Option<DateTime> MapWarpTime { get; }
 
-        HashSet<short> UnknownPlayerIDs { get; }
+        HashSet<int> UnknownPlayerIDs { get; }
 
-        HashSet<byte> UnknownNPCIndexes { get; }
+        HashSet<int> UnknownNPCIndexes { get; }
     }
 
     [AutoMappedType(IsSingleton = true)]
     public class CurrentMapStateRepository : ICurrentMapStateRepository, ICurrentMapStateProvider, IResettable
     {
-        public short CurrentMapID { get; set; }
+        public int CurrentMapID { get; set; }
 
         public bool ShowMiniMap { get; set; }
 
-        public short JailMapID { get; set; }
+        public int JailMapID { get; set; }
 
         public bool IsJail => JailMapID == CurrentMapID;
 
@@ -100,15 +100,15 @@ namespace EOLib.Domain.Map
 
         public WarpState MapWarpState { get; set; }
 
-        public Option<short> MapWarpSession { get; set; }
+        public Option<int> MapWarpSession { get; set; }
 
-        public Option<short> MapWarpID { get; set; }
+        public Option<int> MapWarpID { get; set; }
 
         public Option<DateTime> MapWarpTime { get; set; }
 
-        public HashSet<short> UnknownPlayerIDs { get; set; }
+        public HashSet<int> UnknownPlayerIDs { get; set; }
 
-        public HashSet<byte> UnknownNPCIndexes { get; set; }
+        public HashSet<int> UnknownNPCIndexes { get; set; }
 
         IReadOnlyDictionary<int, Character.Character> ICurrentMapStateProvider.Characters => Characters;
 
@@ -139,12 +139,12 @@ namespace EOLib.Domain.Map
             OpenDoors = new HashSet<Warp>();
             PendingDoors = new HashSet<Warp>();
             VisibleSpikeTraps = new HashSet<MapCoordinate>();
-            UnknownPlayerIDs = new HashSet<short>();
-            UnknownNPCIndexes = new HashSet<byte>();
+            UnknownPlayerIDs = new HashSet<int>();
+            UnknownNPCIndexes = new HashSet<int>();
 
             MapWarpState = WarpState.None;
-            MapWarpSession = Option.None<short>();
-            MapWarpID = Option.None<short>();
+            MapWarpSession = Option.None<int>();
+            MapWarpID = Option.None<int>();
         }
     }
 }

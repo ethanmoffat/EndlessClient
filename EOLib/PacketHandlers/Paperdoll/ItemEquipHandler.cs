@@ -64,7 +64,7 @@ namespace EOLib.PacketHandlers.Paperdoll
                 var paperdollSlot = itemRec.GetEquipLocation() + subLoc;
 
                 var paperdollEquipData = paperdollData.Paperdoll.ToDictionary(k => k.Key, v => v.Value);
-                paperdollEquipData[paperdollSlot] = itemUnequipped ? (short)0 : itemId;
+                paperdollEquipData[paperdollSlot] = itemUnequipped ? 0 : itemId;
 
                 _paperdollRepository.VisibleCharacterPaperdolls[playerId] = paperdollData.WithPaperdoll(paperdollEquipData);
             }

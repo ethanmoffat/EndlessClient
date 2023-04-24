@@ -1,16 +1,15 @@
 ﻿using AutomaticTypeMapper;
-using EOLib.Domain.Map;
 
 namespace EOLib.Domain.Notifiers
 {
     public interface ISoundNotifier
     {
-        void NotifySoundEffect(byte soundEffectId);
+        void NotifySoundEffect(int soundEffectId);
     }
 
     [AutoMappedType]
     public class NoOpSoundNotifier : ISoundNotifier
     {
-        public void NotifySoundEffect(byte soundEffectId) { }
+        public void NotifySoundEffect(int soundEffectId) { }
     }
 }

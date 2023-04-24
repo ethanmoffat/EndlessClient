@@ -21,8 +21,8 @@ namespace EOLib.Domain.Character
                 return;
 
             var packet = new PacketBuilder(PacketFamily.StatSkill, PacketAction.Add)
-                .AddChar((byte) TrainType.Stat)
-                .AddShort((byte) GetStatIndex(whichStat))
+                .AddChar((int) TrainType.Stat)
+                .AddShort(GetStatIndex(whichStat))
                 .Build();
 
             _packetSendService.SendPacket(packet);
@@ -31,8 +31,8 @@ namespace EOLib.Domain.Character
         public void LevelUpSkill(int spellId)
         {
             var packet = new PacketBuilder(PacketFamily.StatSkill, PacketAction.Add)
-                .AddChar((byte)TrainType.Skill)
-                .AddShort((short)spellId)
+                .AddChar((int)TrainType.Skill)
+                .AddShort(spellId)
                 .Build();
 
             _packetSendService.SendPacket(packet);
@@ -52,7 +52,7 @@ namespace EOLib.Domain.Character
             }
         }
 
-        private static short GetStatIndex(CharacterStat whichStat)
+        private static int GetStatIndex(CharacterStat whichStat)
         {
             switch (whichStat)
             {

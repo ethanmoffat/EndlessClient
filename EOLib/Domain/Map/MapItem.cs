@@ -7,13 +7,13 @@ namespace EOLib.Domain.Map
     [Record]
     public sealed partial class MapItem
     {
-        public short UniqueID { get; }
+        public int UniqueID { get; }
 
-        public short ItemID { get; }
+        public int ItemID { get; }
 
-        public byte X { get; }
+        public int X { get; }
 
-        public byte Y { get; }
+        public int Y { get; }
 
         public int Amount { get; }
 
@@ -25,7 +25,7 @@ namespace EOLib.Domain.Map
 
         public static MapItem None => new MapItem();
 
-        public MapItem(short uid, short id, byte x, byte y, int amount)
+        public MapItem(int uid, int id, int x, int y, int amount)
         {
             UniqueID = uid;
             ItemID = id;

@@ -33,9 +33,9 @@ namespace EOLib.Domain.Interact.Quest
             }
         }
 
-        public short Progress { get; }
+        public int Progress { get; }
 
-        public short Target { get; }
+        public int Target { get; }
 
     }
 }

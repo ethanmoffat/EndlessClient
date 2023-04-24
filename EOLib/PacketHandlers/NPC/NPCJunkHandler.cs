@@ -47,7 +47,7 @@ namespace EOLib.PacketHandlers.NPC
                 {
                     notifier.RemoveNPCFromView(index,
                         _characterProvider.MainCharacter.ID,
-                        spellId: Option.None<short>(),
+                        spellId: Option.None<int>(),
                         damage: Option.None<int>(),
                         showDeathAnimation: true);
                 }

@@ -146,7 +146,7 @@ namespace EndlessClient.Controllers
                         case TileSpec.Chest:
                             if (unwalkableAction == UnwalkableTileAction.Chest)
                             {
-                                _mapActions.OpenChest((byte)cellState.Coordinate.X, (byte)cellState.Coordinate.Y);
+                                _mapActions.OpenChest(cellState.Coordinate);
                                 _inGameDialogActions.ShowChestDialog();
 
                                 _userInputRepository.ClickHandled = true;
@@ -155,7 +155,7 @@ namespace EndlessClient.Controllers
                         case TileSpec.BankVault:
                             if (unwalkableAction == UnwalkableTileAction.Locker)
                             {
-                                _mapActions.OpenLocker((byte)cellState.Coordinate.X, (byte)cellState.Coordinate.Y);
+                                _mapActions.OpenLocker(cellState.Coordinate);
                                 _inGameDialogActions.ShowLockerDialog();
 
                                 _userInputRepository.ClickHandled = true;

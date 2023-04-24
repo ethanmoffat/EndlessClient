@@ -88,7 +88,7 @@ namespace EOLib.Domain.Login
             return data.Response;
         }
 
-        public async Task<short> RequestCharacterLogin(Character.Character character)
+        public async Task<int> RequestCharacterLogin(Character.Character character)
         {
             var packet = new PacketBuilder(PacketFamily.Welcome, PacketAction.Request)
                 .AddInt(character.ID)
@@ -139,10 +139,10 @@ namespace EOLib.Domain.Login
             return data.SessionID;
         }
 
-        public async Task<CharacterLoginReply> CompleteCharacterLogin(short sessionID)
+        public async Task<CharacterLoginReply> CompleteCharacterLogin(int sessionID)
         {
             var packet = new PacketBuilder(PacketFamily.Welcome, PacketAction.Message)
-                .AddThree((ushort)sessionID)
+                .AddThree(sessionID)
                 .AddInt(_characterRepository.MainCharacter.ID)
                 .Build();
 
@@ -211,8 +211,8 @@ namespace EOLib.Domain.Login
 
         Task<LoginReply> LoginToServer(ILoginParameters parameters);
 
-        Task<short> RequestCharacterLogin(Character.Character character);
+        Task<int> RequestCharacterLogin(Character.Character character);
 
-        Task<CharacterLoginReply> CompleteCharacterLogin(short sessionID);
+        Task<CharacterLoginReply> CompleteCharacterLogin(int sessionID);
     }
 }

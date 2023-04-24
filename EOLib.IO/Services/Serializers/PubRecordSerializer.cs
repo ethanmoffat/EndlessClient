@@ -21,9 +21,9 @@ namespace EOLib.IO.Services.Serializers
         {
             var record = recordFactory();
 
-            var nameLengths = new List<byte>();
+            var nameLengths = new List<int>();
             for (int i = 0; i < record.NumberOfNames; i++)
-                nameLengths.Add((byte)_numberEncoderService.DecodeNumber(data[i]));
+                nameLengths.Add(_numberEncoderService.DecodeNumber(data[i]));
 
             int offset = nameLengths.Count;
             var names = new List<string>(nameLengths.Count);

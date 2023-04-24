@@ -96,7 +96,7 @@ namespace EOLib.PacketHandlers.Warp
             return true;
         }
 
-        private void SendWarpAcceptToServer(short mapID, short sessionID)
+        private void SendWarpAcceptToServer(int mapID, int sessionID)
         {
             var response = new PacketBuilder(PacketFamily.Warp, PacketAction.Accept)
                 .AddShort(mapID)

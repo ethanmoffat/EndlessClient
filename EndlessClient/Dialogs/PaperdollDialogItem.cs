@@ -24,7 +24,7 @@ namespace EndlessClient.Dialogs
 
         public EquipLocation EquipLocation { get; }
 
-        public short ItemID => (short)_itemInfo.Match(r => r.ID, () => 0);
+        public int ItemID => _itemInfo.Match(r => r.ID, () => 0);
 
         public event EventHandler<EIFRecord> RightClick;
 

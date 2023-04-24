@@ -38,10 +38,10 @@ namespace EOLib.IO.Services.Serializers
             return new NPCSpawnMapEntity()
                 .WithX(_numberEncoderService.DecodeNumber(data[0]))
                 .WithY(_numberEncoderService.DecodeNumber(data[1]))
-                .WithID((short) _numberEncoderService.DecodeNumber(data[2], data[3]))
-                .WithSpawnType((byte) _numberEncoderService.DecodeNumber(data[4]))
-                .WithRespawnTime((short) _numberEncoderService.DecodeNumber(data[5], data[6]))
-                .WithAmount((byte) _numberEncoderService.DecodeNumber(data[7]));
+                .WithID(_numberEncoderService.DecodeNumber(data[2], data[3]))
+                .WithSpawnType(_numberEncoderService.DecodeNumber(data[4]))
+                .WithRespawnTime(_numberEncoderService.DecodeNumber(data[5], data[6]))
+                .WithAmount(_numberEncoderService.DecodeNumber(data[7]));
         }
     }
 }

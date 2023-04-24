@@ -67,17 +67,17 @@ namespace EOLib.IO.Services.Serializers
                 .WithPKAvailable(_numberEncoderService.DecodeNumber(data[31]) == 3 ||
                                  (mapNameArray[0] == 0xFF && mapNameArray[1] == 0x01))
                 .WithEffect((MapEffect) _numberEncoderService.DecodeNumber(data[32]))
-                .WithMusic((byte) _numberEncoderService.DecodeNumber(data[33]))
+                .WithMusic(_numberEncoderService.DecodeNumber(data[33]))
                 .WithControl((MusicControl)_numberEncoderService.DecodeNumber(data[34]))
-                .WithAmbientNoise((short) _numberEncoderService.DecodeNumber(data[35], data[36]))
-                .WithWidth((byte) _numberEncoderService.DecodeNumber(data[37]))
-                .WithHeight((byte) _numberEncoderService.DecodeNumber(data[38]))
-                .WithFillTile((short) _numberEncoderService.DecodeNumber(data[39], data[40]))
+                .WithAmbientNoise(_numberEncoderService.DecodeNumber(data[35], data[36]))
+                .WithWidth(_numberEncoderService.DecodeNumber(data[37]))
+                .WithHeight(_numberEncoderService.DecodeNumber(data[38]))
+                .WithFillTile(_numberEncoderService.DecodeNumber(data[39], data[40]))
                 .WithMapAvailable(_numberEncoderService.DecodeNumber(data[41]) == 1)
                 .WithScrollAvailable(_numberEncoderService.DecodeNumber(data[42]) == 1)
-                .WithRelogX((byte) _numberEncoderService.DecodeNumber(data[43]))
-                .WithRelogY((byte) _numberEncoderService.DecodeNumber(data[44]))
-                .WithUnknown2((byte) _numberEncoderService.DecodeNumber(data[45]));
+                .WithRelogX(_numberEncoderService.DecodeNumber(data[43]))
+                .WithRelogY(_numberEncoderService.DecodeNumber(data[44]))
+                .WithUnknown2(_numberEncoderService.DecodeNumber(data[45]));
 
             return properties;
         }

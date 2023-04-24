@@ -31,16 +31,16 @@ namespace EOLib.PacketHandlers.Spell
 
         public override bool HandlePacket(IPacket packet)
         {
-            short fromPlayerID = packet.ReadShort();
-            short spellID = packet.ReadShort();
-            int spellHP = packet.ReadInt();
-            byte percentHealth = packet.ReadChar();
+            var fromPlayerID = packet.ReadShort();
+            var spellID = packet.ReadShort();
+            var spellHP = packet.ReadInt();
+            var percentHealth = packet.ReadChar();
 
             if (packet.ReadPosition != packet.Length)
             {
                 //main player was source of this packet (otherwise, other player was source)
-                short characterHP = packet.ReadShort();
-                short characterTP = packet.ReadShort();
+                var characterHP = packet.ReadShort();
+                var characterTP = packet.ReadShort();
                 if (packet.ReadShort() != 1) //malformed packet! eoserv sends '1' here
                     return false;
 

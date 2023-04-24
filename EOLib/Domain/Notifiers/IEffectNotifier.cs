@@ -6,28 +6,28 @@ namespace EOLib.Domain.Notifiers
 {
     public interface IEffectNotifier
     {
-        void NotifyWarpLeaveEffect(short characterId, WarpAnimation anim);
+        void NotifyWarpLeaveEffect(int characterId, WarpAnimation anim);
 
-        void NotifyWarpEnterEffect(short characterId, WarpAnimation anim);
+        void NotifyWarpEnterEffect(int characterId, WarpAnimation anim);
 
-        void NotifyPotionEffect(short playerId, int effectId);
+        void NotifyPotionEffect(int playerId, int effectId);
 
-        void NotifyMapEffect(MapEffect effect, byte strength = 0);
+        void NotifyMapEffect(MapEffect effect, int strength = 0);
 
-        void NotifyEffectAtLocation(byte x, byte y, short effectId);
+        void NotifyEffectAtLocation(MapCoordinate location, int effectId);
     }
 
     [AutoMappedType]
     public class NoOpEffectNotifier : IEffectNotifier
     {
-        public void NotifyWarpLeaveEffect(short characterId, WarpAnimation anim) { }
+        public void NotifyWarpLeaveEffect(int characterId, WarpAnimation anim) { }
 
-        public void NotifyWarpEnterEffect(short characterId, WarpAnimation anim) { }
+        public void NotifyWarpEnterEffect(int characterId, WarpAnimation anim) { }
 
-        public void NotifyPotionEffect(short playerId, int effectId) { }
+        public void NotifyPotionEffect(int playerId, int effectId) { }
 
-        public void NotifyMapEffect(MapEffect effect, byte strength = 0) { }
+        public void NotifyMapEffect(MapEffect effect, int strength = 0) { }
 
-        public void NotifyEffectAtLocation(byte x, byte y, short effectId) { }
+        public void NotifyEffectAtLocation(MapCoordinate location, int effectId) { }
     }
 }

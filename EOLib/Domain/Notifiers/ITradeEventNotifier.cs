@@ -4,7 +4,7 @@ namespace EOLib.Domain.Notifiers
 {
     public interface ITradeEventNotifier
     {
-        void NotifyTradeRequest(short playerId, string name);
+        void NotifyTradeRequest(int playerId, string name);
 
         void NotifyTradeAccepted();
 
@@ -14,7 +14,7 @@ namespace EOLib.Domain.Notifiers
     [AutoMappedType]
     public class NoopTradeEventNotifier : ITradeEventNotifier
     {
-        public void NotifyTradeRequest(short playerId, string name) { }
+        public void NotifyTradeRequest(int playerId, string name) { }
 
         public void NotifyTradeAccepted() { }
 

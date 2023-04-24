@@ -37,7 +37,7 @@ namespace EOLib.Domain.Extensions
         public static Character.Character WithDamage(this Character.Character original, int damageTaken, bool isDead)
         {
             var stats = original.Stats;
-            stats = stats.WithNewStat(CharacterStat.HP, (short)Math.Max(stats[CharacterStat.HP] - damageTaken, 0));
+            stats = stats.WithNewStat(CharacterStat.HP, Math.Max(stats[CharacterStat.HP] - damageTaken, 0));
 
             var props = original.RenderProperties
                 .WithIsDead(isDead);

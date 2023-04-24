@@ -28,7 +28,7 @@ namespace EOLib.Domain.Character
 
         public string GuildTag { get; }
 
-        public byte ClassID { get; }
+        public int ClassID { get; }
 
         public AdminLevel AdminLevel { get; }
 

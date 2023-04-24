@@ -160,7 +160,7 @@ namespace EndlessClient.Rendering.Map
             _mapTransitionState = new MapTransitionState(Option.Some(DateTime.Now), 1);
         }
 
-        public void StartEarthquake(byte strength)
+        public void StartEarthquake(int strength)
         {
             _quakeState = Option.Some(new MapQuakeState(strength));
         }
@@ -171,10 +171,8 @@ namespace EndlessClient.Rendering.Map
             _mapTransitionState = new MapTransitionState(Option.Some(DateTime.Now - new TimeSpan(0, 5, 0)), 255);
         }
 
-        public void RenderEffect(byte x, byte y, short effectId)
+        public void RenderEffect(MapCoordinate coordinate, int effectId)
         {
-            var coordinate = new MapCoordinate(x, y);
-
             if (!_mapGridEffectRenderers.ContainsKey(coordinate))
             {
                 var renderer = _effectRendererFactory.Create();

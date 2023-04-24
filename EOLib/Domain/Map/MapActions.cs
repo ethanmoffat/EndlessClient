@@ -55,29 +55,29 @@ namespace EOLib.Domain.Map
                 return;
 
             var packet = new PacketBuilder(PacketFamily.Door, PacketAction.Open)
-                .AddChar((byte)warp.X)
-                .AddChar((byte)warp.Y)
+                .AddChar(warp.X)
+                .AddChar(warp.Y)
                 .Build();
 
             _packetSendService.SendPacket(packet);
             _currentMapStateRepository.PendingDoors.Add(warp);
         }
 
-        public void OpenChest(byte x, byte y)
+        public void OpenChest(MapCoordinate location)
         {
             var packet = new PacketBuilder(PacketFamily.Chest, PacketAction.Open)
-                .AddChar(x)
-                .AddChar(y)
+                .AddChar(location.X)
+                .AddChar(location.Y)
                 .Build();
 
             _packetSendService.SendPacket(packet);
         }
 
-        public void OpenLocker(byte x, byte y)
+        public void OpenLocker(MapCoordinate location)
         {
             var packet = new PacketBuilder(PacketFamily.Locker, PacketAction.Open)
-                .AddChar(x)
-                .AddChar(y)
+                .AddChar(location.X)
+                .AddChar(location.Y)
                 .Build();
 
             _packetSendService.SendPacket(packet);
@@ -92,8 +92,8 @@ namespace EOLib.Domain.Map
 
         void OpenDoor(Warp warp);
 
-        void OpenChest(byte x, byte y);
+        void OpenChest(MapCoordinate location);
 
-        void OpenLocker(byte x, byte y);
+        void OpenLocker(MapCoordinate location);
     }
 }

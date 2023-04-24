@@ -1,5 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Login;
+using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.Net;
 using EOLib.Net.Handlers;
@@ -29,7 +30,7 @@ namespace EOLib.PacketHandlers.Effects
             var effectId = packet.ReadShort();
 
             foreach (var notifier in _effectNotifiers)
-                notifier.NotifyEffectAtLocation(x, y, effectId);
+                notifier.NotifyEffectAtLocation(new MapCoordinate(x, y), effectId);
 
             return true;
         }

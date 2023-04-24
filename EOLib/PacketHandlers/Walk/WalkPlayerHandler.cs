@@ -53,7 +53,7 @@ namespace EOLib.PacketHandlers.Walk
                 }
 
                 foreach (var notifier in _otherCharacterAnimationNotifiers)
-                    notifier.StartOtherCharacterWalkAnimation(characterID, x, y, dir);
+                    notifier.StartOtherCharacterWalkAnimation(characterID, new MapCoordinate(x, y), dir);
             }
             else
             {
@@ -63,7 +63,7 @@ namespace EOLib.PacketHandlers.Walk
             return true;
         }
 
-        private static CharacterRenderProperties EnsureCorrectXAndY(CharacterRenderProperties renderProperties, byte x, byte y)
+        private static CharacterRenderProperties EnsureCorrectXAndY(CharacterRenderProperties renderProperties, int x, int y)
         {
             var opposite = renderProperties.Direction.Opposite();
             var tempRenderProperties = renderProperties

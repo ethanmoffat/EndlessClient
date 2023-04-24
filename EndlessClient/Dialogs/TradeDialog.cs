@@ -260,7 +260,7 @@ namespace EndlessClient.Dialogs
                     };
 
                     if (actualOffer.PlayerID == _characterProvider.MainCharacter.ID)
-                        newListItem.RightClick += (_, _) => _tradeActions.RemoveItemFromOffer((short)itemRec.ID);
+                        newListItem.RightClick += (_, _) => _tradeActions.RemoveItemFromOffer(itemRec.ID);
 
                     newListItem.SetParentControl(this);
                     listItems.Add(newListItem);

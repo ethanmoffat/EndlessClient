@@ -8,9 +8,9 @@ namespace EOLib.Domain.Interact
     {
         void NotifyInteractionFromNPC(NPCType npcType);
 
-        void NotifySkillLearnSuccess(short spellId, int characterGold);
+        void NotifySkillLearnSuccess(int spellId, int characterGold);
 
-        void NotifySkillLearnFail(SkillmasterReply skillmasterReply, short classId);
+        void NotifySkillLearnFail(SkillmasterReply skillmasterReply, int classId);
 
         void NotifySkillForget();
 
@@ -22,9 +22,9 @@ namespace EOLib.Domain.Interact
     {
         public void NotifyInteractionFromNPC(NPCType npcType) { }
 
-        public void NotifySkillLearnSuccess(short spellId, int characterGold) { }
+        public void NotifySkillLearnSuccess(int spellId, int characterGold) { }
 
-        public void NotifySkillLearnFail(SkillmasterReply skillmasterReply, short classId) { }
+        public void NotifySkillLearnFail(SkillmasterReply skillmasterReply, int classId) { }
 
         public void NotifySkillForget() { }
 

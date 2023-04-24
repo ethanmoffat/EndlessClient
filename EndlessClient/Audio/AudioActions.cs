@@ -55,7 +55,7 @@ namespace EndlessClient.Audio
                 _sfxPlayer.StopLoopingSfx();
         }
 
-        public void NotifySoundEffect(byte soundEffectId)
+        public void NotifySoundEffect(int soundEffectId)
         {
             _sfxPlayer.PlaySfx((SoundEffectID)soundEffectId);
         }

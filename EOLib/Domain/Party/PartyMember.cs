@@ -5,13 +5,13 @@ namespace EOLib.Domain.Party
     [Record(Features.ObjectEquals | Features.Withers | Features.Builder | Features.Constructor | Features.ToString)]
     public sealed partial class PartyMember
     {
-        public short CharacterID { get; }
+        public int CharacterID { get; }
 
         public bool IsLeader { get; }
 
-        public byte Level { get; }
+        public int Level { get; }
 
-        public byte PercentHealth { get; }
+        public int PercentHealth { get; }
 
         public string Name { get; }
     }

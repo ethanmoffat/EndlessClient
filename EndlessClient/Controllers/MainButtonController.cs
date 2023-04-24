@@ -128,8 +128,7 @@ namespace EndlessClient.Controllers
 
                 _packetProcessActions.SetInitialSequenceNumber(initData[InitializationDataKey.SequenceByte1],
                     initData[InitializationDataKey.SequenceByte2]);
-                _packetProcessActions.SetEncodeMultiples((byte) initData[InitializationDataKey.ReceiveMultiple],
-                    (byte) initData[InitializationDataKey.SendMultiple]);
+                _packetProcessActions.SetEncodeMultiples(initData[InitializationDataKey.ReceiveMultiple], initData[InitializationDataKey.SendMultiple]);
 
                 _networkConnectionActions.CompleteHandshake(initData);
                 return true;
