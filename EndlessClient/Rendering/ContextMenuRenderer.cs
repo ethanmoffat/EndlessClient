@@ -207,7 +207,7 @@ namespace EndlessClient.Rendering
             }
         }
 
-        protected override void HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
         {
             if (eventArgs.Button == MouseButton.Left && !_userInputRepository.ClickHandled)
             {
@@ -225,6 +225,8 @@ namespace EndlessClient.Rendering
             Dispose();
 
             _contextMenuRepository.ContextMenu = Option.None<IContextMenuRenderer>();
+
+            return true;
         }
 
         /* Helper maps MenuAction enum value to a member method for easy initialization */

@@ -41,6 +41,8 @@ namespace EndlessClient.HUD.Controls
             OldOffset = ImmediateParent.DrawPositionWithParentOffset;
             DrawPosition = MouseExtended.GetState().Position.ToVector2();
 
+            SetControlUnparented();
+            Game.Components.Add(this);
             DrawOrder = 1000;
 
             DraggingStarted?.Invoke(this, EventArgs.Empty);
@@ -56,22 +58,25 @@ namespace EndlessClient.HUD.Controls
             base.OnUpdateControl(gameTime);
         }
 
-        protected override void HandleDragStart(IXNAControl control, MouseEventArgs eventArgs)
+        protected override bool HandleDragStart(IXNAControl control, MouseEventArgs eventArgs)
         {
             StartDragging(isChainedDrag: false);
+            return true;
         }
 
-        protected override void HandleDrag(IXNAControl control, MouseEventArgs eventArgs)
+        protected override bool HandleDrag(IXNAControl control, MouseEventArgs eventArgs)
         {
             DrawPosition = eventArgs.Position.ToVector2() - new Vector2(DrawArea.Width / 2, DrawArea.Height / 2);
+            return true;
         }
 
-        protected override void HandleDragEnd(IXNAControl control, MouseEventArgs eventArgs)
+        protected override bool HandleDragEnd(IXNAControl control, MouseEventArgs eventArgs)
         {
             StopDragging();
+            return true;
         }
 
-        protected override void HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
         {
             if (_followMouse)
             {
@@ -82,6 +87,8 @@ namespace EndlessClient.HUD.Controls
                 StartDragging(isChainedDrag: false);
                 _followMouse = true;
             }
+
+            return true;
         }
 
         /// <summary>
@@ -103,6 +110,9 @@ namespace EndlessClient.HUD.Controls
                 IsDragging = false;
                 OldOffset = Vector2.Zero;
                 _followMouse = false;
+
+                Game.Components.Remove(this);
+                SetParentControl(_parentContainer);
             }
             else
             {

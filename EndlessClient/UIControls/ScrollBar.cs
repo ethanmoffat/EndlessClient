@@ -55,24 +55,15 @@ namespace EndlessClient.UIControls
             downArrows[1] = new Rectangle(0, vertOff + 15 * 2, 16, 15);
             var scrollBox = new Rectangle(0, vertOff, 16, 15);
 
-            _upButton = new XNAButton(scrollSpriteSheet, Vector2.Zero, upArrows[0], upArrows[1])
-            {
-                HandlesEvents = EventType.All ^ EventType.MouseWheelMoved
-            };
+            _upButton = new XNAButton(scrollSpriteSheet, Vector2.Zero, upArrows[0], upArrows[1]);
             _upButton.OnClick += arrowClicked;
             _upButton.SetParentControl(this);
 
-            _downButton = new XNAButton(scrollSpriteSheet, new Vector2(0, size.Y - 15), downArrows[0], downArrows[1])
-            {
-                HandlesEvents = EventType.All ^ EventType.MouseWheelMoved
-            };
+            _downButton = new XNAButton(scrollSpriteSheet, new Vector2(0, size.Y - 15), downArrows[0], downArrows[1]);
             _downButton.OnClick += arrowClicked;
             _downButton.SetParentControl(this);
 
-            _scrollButton = new XNAButton(scrollSpriteSheet, new Vector2(0, 15), scrollBox, scrollBox)
-            {
-                HandlesEvents = EventType.All ^ EventType.MouseWheelMoved
-            };
+            _scrollButton = new XNAButton(scrollSpriteSheet, new Vector2(0, 15), scrollBox, scrollBox);
             _scrollButton.OnClickDrag += OnScrollButtonDragged;
             _scrollButton.SetParentControl(this);
 

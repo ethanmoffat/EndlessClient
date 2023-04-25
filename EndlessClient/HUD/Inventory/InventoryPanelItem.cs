@@ -158,9 +158,10 @@ namespace EndlessClient.HUD.Inventory
             _highlightDrawPosition = Option.Some(GetPosition(currentSlot) + (IsDragging ? OldOffset : ImmediateParent.DrawPositionWithParentOffset));
         }
 
-        protected override void HandleDoubleClick(IXNAControl control, MouseEventArgs eventArgs)
+        protected override bool HandleDoubleClick(IXNAControl control, MouseEventArgs eventArgs)
         {
             DoubleClick?.Invoke(control, Data);
+            return true;
         }
 
         protected override void Dispose(bool disposing)
@@ -192,7 +193,7 @@ namespace EndlessClient.HUD.Inventory
                 _nameLabel.DrawPosition = new Vector2(actualPosition.X + DrawArea.Width, actualPosition.Y);
             }
 
-            DrawOrder = 110;
+            DrawOrder = _parentContainer.DrawOrder + 2;
             _nameLabel.DrawOrder = 200;
         }
 

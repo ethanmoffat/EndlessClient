@@ -63,7 +63,7 @@ namespace EndlessClient.Dialogs
             });
         }
 
-        protected override void HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
         {
             if (eventArgs.Button == MouseButton.Left && _currentTick > 8)
             {
@@ -75,6 +75,8 @@ namespace EndlessClient.Dialogs
                     _currentTick = 0;
                 });
             }
+
+            return true;
         }
 
         private void HandleMouseOver(object sender, MouseStateExtended eventArgs)

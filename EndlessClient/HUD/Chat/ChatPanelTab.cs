@@ -187,7 +187,7 @@ namespace EndlessClient.HUD.Chat
             base.OnDrawControl(gameTime);
         }
 
-        protected override void HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
         {
             if (eventArgs.Button == MouseButton.Right)
             {
@@ -199,7 +199,11 @@ namespace EndlessClient.HUD.Chat
                     var who = _chatProvider.AllChat[Tab][_scrollBar.ScrollOffset + clickedChatRow].Who;
                     _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox).Text = $"!{who} ";
                 }
+
+                return true;
             }
+
+            return false;
         }
 
         private void SelectThisTab()

@@ -50,7 +50,7 @@ namespace EndlessClient.Dialogs
             StretchMode = StretchMode.CenterInFrame;
         }
 
-        protected override void HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
         {
             if (eventArgs.Button == MouseButton.Left)
             {
@@ -67,12 +67,14 @@ namespace EndlessClient.Dialogs
                 else
                     _itemInfo.MatchSome(itemInfo => RightClick?.Invoke(this, itemInfo));
             }
+
+            return true;
         }
 
-        protected override void HandleDragStart(IXNAControl control, MouseEventArgs eventArgs)
+        protected override bool HandleDragStart(IXNAControl control, MouseEventArgs eventArgs)
         {
             if (!_isMainCharacter || !_itemInfo.HasValue)
-                return;
+                return false;
 
             _beingDragged = true;
             SetControlUnparented();
@@ -81,22 +83,27 @@ namespace EndlessClient.Dialogs
             _sfxPlayer.PlaySfx(SoundEffectID.InventoryPickup);
 
             DrawOrder = 1000;
+            return true;
         }
 
-        protected override void HandleDrag(IXNAControl control, MouseEventArgs eventArgs)
+        protected override bool HandleDrag(IXNAControl control, MouseEventArgs eventArgs)
         {
             if (!_isMainCharacter || !_itemInfo.HasValue)
-                return;
+                return false;
 
             DrawPosition = new Vector2(eventArgs.Position.X - (DrawArea.Width / 2), eventArgs.Position.Y - (DrawArea.Height / 2));
+
+            return true;
         }
 
-        protected override void HandleDragEnd(IXNAControl control, MouseEventArgs eventArgs)
+        protected override bool HandleDragEnd(IXNAControl control, MouseEventArgs eventArgs)
         {
             if (!_isMainCharacter || !_itemInfo.HasValue)
-                return;
+                return false;
 
             StopDragging();
+
+            return true;
         }
 
         private void StopDragging()

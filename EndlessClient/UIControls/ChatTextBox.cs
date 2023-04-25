@@ -55,15 +55,17 @@ namespace EndlessClient.UIControls
             base.OnUpdateControl(gameTime);
         }
 
-        protected override void HandleTextInput(KeyboardEventArgs eventArgs)
+        protected override bool HandleTextInput(KeyboardEventArgs eventArgs)
         {
             if (_ignoreAllInput)
-                return;
+                return false;
 
             if (IsSpecialInput(eventArgs.Key))
                 HandleSpecialInput(eventArgs.Key);
             else
                 base.HandleTextInput(eventArgs);
+
+            return true;
         }
 
         private void HandleSpecialInput(Keys key)

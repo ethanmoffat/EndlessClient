@@ -51,7 +51,7 @@ namespace EndlessClient.HUD.Panels
             _numMembers = new XNALabel(Constants.FontSize09)
             {
                 AutoSize = false,
-                DrawArea = new Rectangle(455, 2, 27, 14),
+                DrawArea = new Rectangle(455, 0, 27, 14),
                 ForeColor = ColorConstants.LightGrayText,
                 TextAlign = LabelAlignment.MiddleRight
             };

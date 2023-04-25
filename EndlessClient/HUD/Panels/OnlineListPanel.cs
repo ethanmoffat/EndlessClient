@@ -178,10 +178,10 @@ namespace EndlessClient.HUD.Panels
             _spriteBatch.End();
         }
 
-        protected override void HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
         {
             if (eventArgs.Button != MouseButton.Right)
-                return;
+                return false;
 
             var mousePos = eventArgs.Position;
             if (mousePos.X >= DrawAreaWithParentOffset.X + DRAW_NAME_X && mousePos.X <= _scrollBar.DrawAreaWithParentOffset.X &&
@@ -194,6 +194,8 @@ namespace EndlessClient.HUD.Panels
                     _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox).Text = $"!{name} ";
                 }
             }
+
+            return true;
         }
 
         private void FilterClickArea_Click(object sender, EventArgs e)

@@ -7,7 +7,11 @@ namespace EndlessClient.UIControls
 {
     public class ClickableArea : XNAControl, IXNAButton
     {
-        public Rectangle ClickArea { get; set; }
+        public Rectangle ClickArea
+        {
+            get => DrawArea;
+            set => DrawArea = value;
+        }
 
         public int? FlashSpeed
         {
@@ -25,13 +29,13 @@ namespace EndlessClient.UIControls
 
         public ClickableArea(Rectangle area)
         {
-            DrawArea = area;
             ClickArea = area;
         }
 
-        protected override void HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
         {
             OnClick?.Invoke(control, eventArgs);
+            return true;
         }
     }
 }

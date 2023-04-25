@@ -245,7 +245,7 @@ namespace EndlessClient.Dialogs
             _spriteBatch.End();
         }
 
-        protected override void HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
         {
             if (eventArgs.Button == MouseButton.Left)
             {
@@ -255,6 +255,8 @@ namespace EndlessClient.Dialogs
             {
                 RightClick?.Invoke(this, eventArgs);
             }
+
+            return true;
         }
 
         private static Vector2 GetCoordsFromGraphic(Rectangle sourceTextureArea)

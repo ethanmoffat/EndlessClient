@@ -73,10 +73,15 @@ namespace EndlessClient.HUD.Spells
             base.OnDrawControl(gameTime);
         }
 
-        protected override void HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
         {
             if (!_parentPanel.AnySpellsDragging())
+            {
                 Clicked?.Invoke(this, EventArgs.Empty);
+                return true;
+            }
+
+            return false;
         }
 
         protected override void Dispose(bool disposing)

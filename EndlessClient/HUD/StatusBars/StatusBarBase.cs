@@ -96,7 +96,7 @@ namespace EndlessClient.HUD.StatusBars
             base.OnDrawControl(gameTime);
         }
 
-        protected override void HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
         {
             // eat this mouse click so that other game elements don't attempt to use it
             _userInputRepository.PreviousMouseState = _userInputRepository.CurrentMouseState;
@@ -105,6 +105,8 @@ namespace EndlessClient.HUD.StatusBars
             _labelShowTime = _label.SomeWhen(x => x.Visible).Map(_ => DateTime.Now);
 
             StatusBarClicked?.Invoke();
+
+            return true;
         }
 
         /// <summary>
