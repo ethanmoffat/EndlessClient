@@ -8,24 +8,24 @@
 
         public int Y { get; private set; }
 
-        public short ID { get; private set; }
+        public int ID { get; private set; }
 
-        public byte SpawnType { get; private set; }
+        public int SpawnType { get; private set; }
 
-        public short RespawnTime { get; private set; }
+        public int RespawnTime { get; private set; }
 
-        public byte Amount { get; private set; }
+        public int Amount { get; private set; }
 
         public NPCSpawnMapEntity()
-            : this(-1, -1, -1, 0, -1, 0)
+            : this(-1, -1, -1, -1, -1, -1)
         { }
 
         private NPCSpawnMapEntity(int x,
                                   int y,
-                                  short id,
-                                  byte spawnType,
-                                  short respawnTime,
-                                  byte amount)
+                                  int id,
+                                  int spawnType,
+                                  int respawnTime,
+                                  int amount)
         {
             X = x;
             Y = y;
@@ -49,28 +49,28 @@
             return newEntity;
         }
 
-        public NPCSpawnMapEntity WithID(short id)
+        public NPCSpawnMapEntity WithID(int id)
         {
             var newEntity = MakeCopy(this);
             newEntity.ID = id;
             return newEntity;
         }
 
-        public NPCSpawnMapEntity WithSpawnType(byte spawnType)
+        public NPCSpawnMapEntity WithSpawnType(int spawnType)
         {
             var newEntity = MakeCopy(this);
             newEntity.SpawnType = spawnType;
             return newEntity;
         }
 
-        public NPCSpawnMapEntity WithRespawnTime(short respawnTime)
+        public NPCSpawnMapEntity WithRespawnTime(int respawnTime)
         {
             var newEntity = MakeCopy(this);
             newEntity.RespawnTime = respawnTime;
             return newEntity;
         }
 
-        public NPCSpawnMapEntity WithAmount(byte amount)
+        public NPCSpawnMapEntity WithAmount(int amount)
         {
             var newEntity = MakeCopy(this);
             newEntity.Amount = amount;

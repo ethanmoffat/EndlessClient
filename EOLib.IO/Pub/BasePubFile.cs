@@ -14,10 +14,16 @@ namespace EOLib.IO.Pub
         public abstract string FileType { get; }
 
         /// <inheritdoc />
+        public int ID { get; private set; }
+
+        /// <inheritdoc />
         public int CheckSum { get; private set; }
 
         /// <inheritdoc />
         public int Length => _data.Count;
+
+        /// <inheritdoc />
+        public int TotalLength { get; private set; }
 
         /// <inheritdoc />
         public TRecord this[int id] => _data[id - 1];
@@ -27,10 +33,19 @@ namespace EOLib.IO.Pub
             _data = new List<TRecord>();
         }
 
-        protected BasePubFile(int checksum, List<TRecord> data)
+        protected BasePubFile(int id, int checksum, int totalLength, List<TRecord> data)
         {
+            ID = id;
             CheckSum = checksum;
+            TotalLength = totalLength;
             _data = data;
+        }
+
+        public IPubFile WithID(int id)
+        {
+            var copy = MakeCopy();
+            copy.ID = id;
+            return copy;
         }
 
         /// <inheritdoc />
@@ -38,6 +53,14 @@ namespace EOLib.IO.Pub
         {
             var copy = MakeCopy();
             copy.CheckSum = checksum;
+            return copy;
+        }
+
+        /// <inheritdoc />
+        public IPubFile WithTotalLength(int totalLength)
+        {
+            var copy = MakeCopy();
+            copy.TotalLength = totalLength;
             return copy;
         }
 
@@ -99,6 +122,11 @@ namespace EOLib.IO.Pub
         IEnumerator IEnumerable.GetEnumerator()
         {
             return _data.GetEnumerator();
+        }
+
+        public object Clone()
+        {
+            return MakeCopy();
         }
 
         protected abstract BasePubFile<TRecord> MakeCopy();

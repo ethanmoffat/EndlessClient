@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EOLib.Domain.Map;
 using EOLib.Domain.Spells;
 using System.Collections.Generic;
 
@@ -6,36 +7,36 @@ namespace EOLib.Domain.Notifiers
 {
     public interface IOtherCharacterAnimationNotifier
     {
-        void StartOtherCharacterWalkAnimation(int characterID, byte destinationX, byte destinationY, EODirection direction);
+        void StartOtherCharacterWalkAnimation(int characterID, MapCoordinate destination, EODirection direction);
 
         void StartOtherCharacterAttackAnimation(int characterID, int noteIndex = -1);
 
-        void NotifyStartSpellCast(short playerId, short spellId);
+        void NotifyStartSpellCast(int playerId, int spellId);
 
-        void NotifyTargetNpcSpellCast(short playerId);
+        void NotifyTargetNpcSpellCast(int playerId);
 
-        void NotifySelfSpellCast(short playerId, short spellId, int spellHp, byte percentHealth);
+        void NotifySelfSpellCast(int playerId, int spellId, int spellHp, int percentHealth);
 
-        void NotifyTargetOtherSpellCast(short sourcePlayerID, short targetPlayerID, short spellId, int recoveredHP, byte targetPercentHealth);
+        void NotifyTargetOtherSpellCast(int sourcePlayerID, int targetPlayerID, int spellId, int recoveredHP, int targetPercentHealth);
 
-        void NotifyGroupSpellCast(short playerId, short spellId, short spellHp, List<GroupSpellTarget> spellTargets);
+        void NotifyGroupSpellCast(int playerId, int spellId, int spellHp, List<GroupSpellTarget> spellTargets);
     }
 
     [AutoMappedType]
     public class NoOpOtherCharacterAnimationNotifier : IOtherCharacterAnimationNotifier
     {
-        public void StartOtherCharacterWalkAnimation(int characterID, byte destinationX, byte destinationY, EODirection direction) { }
+        public void StartOtherCharacterWalkAnimation(int characterID, MapCoordinate destination, EODirection direction) { }
 
         public void StartOtherCharacterAttackAnimation(int characterID, int noteIndex = -1) { }
 
-        public void NotifyStartSpellCast(short playerId, short spellId) { }
+        public void NotifyStartSpellCast(int playerId, int spellId) { }
 
-        public void NotifyTargetNpcSpellCast(short playerId) { }
+        public void NotifyTargetNpcSpellCast(int playerId) { }
 
-        public void NotifySelfSpellCast(short playerId, short spellId, int spellHp, byte percentHealth) { }
+        public void NotifySelfSpellCast(int playerId, int spellId, int spellHp, int percentHealth) { }
 
-        public void NotifyTargetOtherSpellCast(short sourcePlayerID, short targetPlayerID, short spellId, int recoveredHP, byte targetPercentHealth) { }
+        public void NotifyTargetOtherSpellCast(int sourcePlayerID, int targetPlayerID, int spellId, int recoveredHP, int targetPercentHealth) { }
 
-        public void NotifyGroupSpellCast(short playerId, short spellId, short spellHp, List<GroupSpellTarget> spellTargets) { }
+        public void NotifyGroupSpellCast(int playerId, int spellId, int spellHp, List<GroupSpellTarget> spellTargets) { }
     }
 }

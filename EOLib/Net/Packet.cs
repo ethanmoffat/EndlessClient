@@ -58,18 +58,18 @@ namespace EOLib.Net
             return RawData[ReadPosition];
         }
 
-        public byte PeekChar()
+        public int PeekChar()
         {
             ThrowIfOutOfBounds(0);
-            return (byte) _encoderService.DecodeNumber(RawData[ReadPosition]);
+            return _encoderService.DecodeNumber(RawData[ReadPosition]);
         }
 
-        public short PeekShort()
+        public int PeekShort()
         {
             ThrowIfOutOfBounds(1);
 
             var bytes = new[] {RawData[ReadPosition], RawData[ReadPosition + 1]};
-            return (short) _encoderService.DecodeNumber(bytes);
+            return _encoderService.DecodeNumber(bytes);
         }
 
         public int PeekThree()
@@ -140,14 +140,14 @@ namespace EOLib.Net
             return ret;
         }
 
-        public byte ReadChar()
+        public int ReadChar()
         {
             var ret = PeekChar();
             ReadPosition += 1;
             return ret;
         }
 
-        public short ReadShort()
+        public int ReadShort()
         {
             var ret = PeekShort();
             ReadPosition += 2;

@@ -44,7 +44,7 @@ namespace EOLib.PacketHandlers.StatSkill
                     LevelRequirement = packet.ReadChar(),
                     ClassRequirement = packet.ReadChar(),
                     GoldRequirement = packet.ReadInt(),
-                    SkillRequirements = new List<short>
+                    SkillRequirements = new List<int>
                     {
                         packet.ReadShort(),
                         packet.ReadShort(),

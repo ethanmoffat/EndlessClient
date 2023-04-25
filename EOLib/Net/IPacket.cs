@@ -19,9 +19,9 @@ namespace EOLib.Net
 
         byte PeekByte();
 
-        byte PeekChar();
+        int PeekChar();
 
-        short PeekShort();
+        int PeekShort();
 
         int PeekThree();
 
@@ -37,9 +37,9 @@ namespace EOLib.Net
 
         byte ReadByte();
 
-        byte ReadChar();
+        int ReadChar();
 
-        short ReadShort();
+        int ReadShort();
 
         int ReadThree();
 

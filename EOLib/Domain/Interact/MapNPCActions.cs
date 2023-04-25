@@ -26,7 +26,7 @@ namespace EOLib.Domain.Interact
         public void RequestShop(NPC.NPC npc)
         {
             var packet = new PacketBuilder(PacketFamily.Shop, PacketAction.Open)
-                .AddShort((short)npc.Index)
+                .AddShort(npc.Index)
                 .Build();
 
             _packetSendService.SendPacket(packet);
@@ -39,7 +39,7 @@ namespace EOLib.Domain.Interact
             var data = _enfFileProvider.ENFFile[npc.ID];
 
             var packet = new PacketBuilder(PacketFamily.Quest, PacketAction.Use)
-                .AddShort((short)npc.Index)
+                .AddShort(npc.Index)
                 .AddShort(data.VendorID)
                 .Build();
 
@@ -49,7 +49,7 @@ namespace EOLib.Domain.Interact
         public void RequestBank(NPC.NPC npc)
         {
             var packet = new PacketBuilder(PacketFamily.Bank, PacketAction.Open)
-                .AddShort((short)npc.Index)
+                .AddShort(npc.Index)
                 .Build();
 
             _packetSendService.SendPacket(packet);
@@ -58,7 +58,7 @@ namespace EOLib.Domain.Interact
         public void RequestSkillmaster(NPC.NPC npc)
         {
             var packet = new PacketBuilder(PacketFamily.StatSkill, PacketAction.Open)
-                .AddShort((short)npc.Index)
+                .AddShort(npc.Index)
                 .Build();
 
             _packetSendService.SendPacket(packet);

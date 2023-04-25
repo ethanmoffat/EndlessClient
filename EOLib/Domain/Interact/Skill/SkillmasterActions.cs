@@ -17,7 +17,7 @@ namespace EOLib.Domain.Interact.Skill
             _skillDataProvider = skillDataProvider;
         }
 
-        public void LearnSkill(short spellId)
+        public void LearnSkill(int spellId)
         {
             var packet = new PacketBuilder(PacketFamily.StatSkill, PacketAction.Take)
                 .AddInt(_skillDataProvider.ID)
@@ -27,7 +27,7 @@ namespace EOLib.Domain.Interact.Skill
             _packetSendService.SendPacket(packet);
         }
 
-        public void ForgetSkill(short spellId)
+        public void ForgetSkill(int spellId)
         {
             var packet = new PacketBuilder(PacketFamily.StatSkill, PacketAction.Remove)
                 .AddInt(_skillDataProvider.ID)
@@ -49,9 +49,9 @@ namespace EOLib.Domain.Interact.Skill
 
     public interface ISkillmasterActions
     {
-        void LearnSkill(short spellId);
+        void LearnSkill(int spellId);
 
-        void ForgetSkill(short spellId);
+        void ForgetSkill(int spellId);
 
         void ResetCharacter();
     }

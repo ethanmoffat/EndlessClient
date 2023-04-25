@@ -9,7 +9,7 @@ namespace EOLib.Domain.Trade
     {
         public bool Agrees { get; }
 
-        public short PlayerID { get; }
+        public int PlayerID { get; }
 
         public string PlayerName { get; }
 

@@ -25,7 +25,7 @@ namespace EOLib.Domain.Character
             _characterSelectorRepository = characterSelectorRepository;
         }
 
-        public async Task<short> RequestCharacterCreation()
+        public async Task<int> RequestCharacterCreation()
         {
             var packet = new PacketBuilder(PacketFamily.Character, PacketAction.Request)
                 .AddBreakString("NEW")
@@ -34,14 +34,14 @@ namespace EOLib.Domain.Character
             return responsePacket.ReadShort();
         }
 
-        public async Task<CharacterReply> CreateCharacter(ICharacterCreateParameters parameters, short createID)
+        public async Task<CharacterReply> CreateCharacter(ICharacterCreateParameters parameters, int createID)
         {
             var packet = new PacketBuilder(PacketFamily.Character, PacketAction.Create)
                 .AddShort(createID)
-                .AddShort((short)parameters.Gender)
-                .AddShort((short)parameters.HairStyle)
-                .AddShort((short)parameters.HairColor)
-                .AddShort((short)parameters.Race)
+                .AddShort(parameters.Gender)
+                .AddShort(parameters.HairStyle)
+                .AddShort(parameters.HairColor)
+                .AddShort(parameters.Race)
                 .AddByte(255)
                 .AddBreakString(parameters.Name)
                 .Build();
@@ -53,7 +53,7 @@ namespace EOLib.Domain.Character
             return translatedData.Response;
         }
 
-        public async Task<short> RequestCharacterDelete()
+        public async Task<int> RequestCharacterDelete()
         {
             var packet = _characterSelectorRepository.CharacterForDelete.Match(
                 some: c => new PacketBuilder(PacketFamily.Character, PacketAction.Take).AddInt(c.ID).Build(),
@@ -65,7 +65,7 @@ namespace EOLib.Domain.Character
             return deleteRequestId;
         }
 
-        public async Task<CharacterReply> DeleteCharacter(short deleteRequestID)
+        public async Task<CharacterReply> DeleteCharacter(int deleteRequestID)
         {
             var packet = _characterSelectorRepository.CharacterForDelete.Match(
                 some: c => new PacketBuilder(PacketFamily.Character, PacketAction.Remove).AddShort(deleteRequestID).AddInt(c.ID).Build(),
@@ -81,12 +81,12 @@ namespace EOLib.Domain.Character
 
     public interface ICharacterManagementActions
     {
-        Task<short> RequestCharacterCreation();
+        Task<int> RequestCharacterCreation();
 
-        Task<CharacterReply> CreateCharacter(ICharacterCreateParameters parameters, short createID);
+        Task<CharacterReply> CreateCharacter(ICharacterCreateParameters parameters, int createID);
 
-        Task<short> RequestCharacterDelete();
+        Task<int> RequestCharacterDelete();
 
-        Task<CharacterReply> DeleteCharacter(short deleteRequestID);
+        Task<CharacterReply> DeleteCharacter(int deleteRequestID);
     }
 }

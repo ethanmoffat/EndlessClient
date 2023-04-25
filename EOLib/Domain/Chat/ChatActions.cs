@@ -1,5 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
+using EOLib.Domain.Map;
 using EOLib.Domain.Party;
 using EOLib.Net;
 using EOLib.Net.Builders;
@@ -17,6 +18,7 @@ namespace EOLib.Domain.Chat
         Command,
         AdminAnnounce,
         HideAll,
+        JailProtection
     }
 
     [AutoMappedType]
@@ -29,6 +31,7 @@ namespace EOLib.Domain.Chat
         private readonly IPacketSendService _packetSendService;
         private readonly ILocalCommandHandler _localCommandHandler;
         private readonly IChatProcessor _chatProcessor;
+        private readonly ICurrentMapStateProvider _currentMapStateProvider;
 
         public ChatActions(IChatRepository chatRepository,
                            ICharacterProvider characterProvider,
@@ -36,7 +39,8 @@ namespace EOLib.Domain.Chat
                            IChatPacketBuilder chatPacketBuilder,
                            IPacketSendService packetSendService,
                            ILocalCommandHandler localCommandHandler,
-                           IChatProcessor chatProcessor)
+                           IChatProcessor chatProcessor,
+                           ICurrentMapStateProvider currentMapStateProvider)
         {
             _chatRepository = chatRepository;
             _characterProvider = characterProvider;
@@ -45,6 +49,7 @@ namespace EOLib.Domain.Chat
             _packetSendService = packetSendService;
             _localCommandHandler = localCommandHandler;
             _chatProcessor = chatProcessor;
+            _currentMapStateProvider = currentMapStateProvider;
         }
 
         public (ChatResult, string) SendChatToServer(string chat, string targetCharacter, ChatType chatType)
@@ -67,6 +72,10 @@ namespace EOLib.Domain.Chat
             else if (chatType == ChatType.Party && !_partyDataProvider.Members.Any())
             {
                 return (ChatResult.HideAll, String.Empty);
+            }
+            else if (chatType == ChatType.Global && _currentMapStateProvider.IsJail)
+            {
+                return (ChatResult.JailProtection, String.Empty);
             }
 
             chat = _chatProcessor.RemoveFirstCharacterIfNeeded(chat, chatType, targetCharacter);
@@ -100,7 +109,7 @@ namespace EOLib.Domain.Chat
         {
             // GLOBAL_REMOVE with 'n' enables whispers...? 
             var packet = new PacketBuilder(PacketFamily.Global, whispersEnabled ? PacketAction.Remove : PacketAction.Player)
-                .AddChar((byte)(whispersEnabled ? 'n' : 'y'))
+                .AddChar(whispersEnabled ? 'n' : 'y')
                 .Build();
             _packetSendService.SendPacket(packet);
         }
@@ -108,7 +117,7 @@ namespace EOLib.Domain.Chat
         public void SetGlobalActive(bool active)
         {
             var packet = new PacketBuilder(PacketFamily.Global, active ? PacketAction.Open : PacketAction.Close)
-                .AddChar((byte)(active ? 'y' : 'n'))
+                .AddChar(active ? 'y' : 'n')
                 .Build();
             _packetSendService.SendPacket(packet);
         }

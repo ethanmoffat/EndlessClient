@@ -107,7 +107,7 @@ namespace EOLib.PacketHandlers.NPC
             return true;
         }
 
-        private void RemoveNPCFromView(short deadNPCIndex, int playerId, Option<short> spellId, Option<int> damage, bool showDeathAnimation)
+        private void RemoveNPCFromView(int deadNPCIndex, int playerId, Option<int> spellId, Option<int> damage, bool showDeathAnimation)
         {
             foreach (var notifier in _npcActionNotifiers)
                 notifier.RemoveNPCFromView(deadNPCIndex, playerId, spellId, damage, showDeathAnimation);
@@ -115,7 +115,7 @@ namespace EOLib.PacketHandlers.NPC
             _currentMapStateRepository.NPCs.RemoveWhere(npc => npc.Index == deadNPCIndex);
         }
 
-        private void UpdatePlayerDirection(short playerID, EODirection playerDirection)
+        private void UpdatePlayerDirection(int playerID, EODirection playerDirection)
         {
             if (playerID == _characterRepository.MainCharacter.ID)
             {
@@ -145,12 +145,12 @@ namespace EOLib.PacketHandlers.NPC
             _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);
         }
 
-        private void ShowDroppedItem(short playerID, short droppedItemUID, short droppedItemID, byte x, byte y, int droppedAmount)
+        private void ShowDroppedItem(int playerID, int droppedItemUID, int droppedItemID, int x, int y, int droppedAmount)
         {
             var mapItem = new MapItem(droppedItemUID, droppedItemID, x, y, droppedAmount)
                 .WithIsNPCDrop(true)
                 .WithDropTime(Option.Some(DateTime.Now))
-                .WithOwningPlayerID(Option.Some<int>(playerID));
+                .WithOwningPlayerID(Option.Some(playerID));
 
             _currentMapStateRepository.MapItems.RemoveWhere(item => item.UniqueID == droppedItemUID);
             _currentMapStateRepository.MapItems.Add(mapItem);

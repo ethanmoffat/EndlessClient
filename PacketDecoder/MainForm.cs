@@ -109,7 +109,7 @@ namespace PacketDecoder
 
             if (txt == txtDMulti)
             {
-                _packetProcessActions.SetEncodeMultiples((byte)param, _packetEncoderRepository.SendMultiplier);
+                _packetProcessActions.SetEncodeMultiples(param, _packetEncoderRepository.SendMultiplier);
                 if (param < 6 || param > 12)
                 {
                     txtDMulti.BackColor = Color.FromArgb(255, 255, 128, 128);
@@ -121,7 +121,7 @@ namespace PacketDecoder
             }
             else if (txt == txtEMulti)
             {
-                _packetProcessActions.SetEncodeMultiples(_packetEncoderRepository.ReceiveMultiplier, (byte)param);
+                _packetProcessActions.SetEncodeMultiples(_packetEncoderRepository.ReceiveMultiplier, param);
                 if (param < 6 || param > 12)
                 {
                     txtEMulti.BackColor = Color.FromArgb(255, 255, 128, 128);

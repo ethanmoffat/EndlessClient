@@ -51,7 +51,7 @@ namespace EndlessClient.Test
         private KeyboardState _previousState, _currentState;
 
         private bool _isBowEquipped;
-        private short _lastGraphic;
+        private int _lastGraphic;
 
         private DateTime _lastWalk, _lastAttack, _lastSpell;
 
@@ -116,7 +116,7 @@ namespace EndlessClient.Test
             var update = false;
             if (KeyPressed(Keys.D1))
             {
-                _baseProperties = _baseProperties.WithGender((byte)((_baseProperties.Gender + increment) % 2));
+                _baseProperties = _baseProperties.WithGender((_baseProperties.Gender + increment) % 2);
                 update = true;
             }
             else if (KeyPressed(Keys.D2))
@@ -125,13 +125,13 @@ namespace EndlessClient.Test
                 {
                     const int NUM_HAIR_COLORS = 10;
                     if (_baseProperties.HairColor + increment < 0) _baseProperties = _baseProperties.WithHairColor(NUM_HAIR_COLORS);
-                    _baseProperties = _baseProperties.WithHairColor((byte)((_baseProperties.HairColor + increment) % NUM_HAIR_COLORS));
+                    _baseProperties = _baseProperties.WithHairColor((_baseProperties.HairColor + increment) % NUM_HAIR_COLORS);
                 }
                 else
                 {
                     const int NUM_HAIR_STYLES = 21;
                     if (_baseProperties.HairStyle + increment < 0) _baseProperties = _baseProperties.WithHairColor(NUM_HAIR_STYLES);
-                    _baseProperties = _baseProperties.WithHairStyle((byte)((_baseProperties.HairStyle + increment) % NUM_HAIR_STYLES));
+                    _baseProperties = _baseProperties.WithHairStyle((_baseProperties.HairStyle + increment) % NUM_HAIR_STYLES);
                 }
                 update = true;
             }
@@ -173,7 +173,7 @@ namespace EndlessClient.Test
                 {
                     _lastGraphic = _baseProperties.WeaponGraphic;
                     var firstBowWeapon = EIFFile.First(x => x.Type == ItemType.Weapon && x.SubType == ItemSubType.Ranged);
-                    _baseProperties = _baseProperties.WithWeaponGraphic((short)firstBowWeapon.DollGraphic).WithIsRangedWeapon(true);
+                    _baseProperties = _baseProperties.WithWeaponGraphic(firstBowWeapon.DollGraphic).WithIsRangedWeapon(true);
                 }
                 else
                 {
@@ -271,7 +271,7 @@ namespace EndlessClient.Test
 
         private bool CtrlPressed => _previousState.IsKeyDown(Keys.LeftControl) || _previousState.IsKeyDown(Keys.RightControl);
 
-        private short GetNextItemGraphicMatching(ItemType type, short currentGraphic)
+        private int GetNextItemGraphicMatching(ItemType type, int currentGraphic)
         {
             var increment = ShiftPressed ? -1 : 1;
             var matchingItems = EIFFile.Where(x => x.Type == type).OrderBy(x => x.ID).ToList();
@@ -283,7 +283,7 @@ namespace EndlessClient.Test
                 return 0;
             }
 
-            return (short)matchingItems[_itemIndices[type]].DollGraphic;
+            return matchingItems[_itemIndices[type]].DollGraphic;
         }
 
         private IPubFile<EIFRecord> EIFFile => _eifFileProvider.EIFFile;

@@ -1,29 +1,19 @@
-﻿using System.IO;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.IO.Pub;
 using EOLib.IO.Services.Serializers;
 
 namespace EOLib.IO.Services
 {
-    [MappedType(BaseType = typeof(IPubLoadService<EIFRecord>))]
-    public class ItemFileLoadService : IPubLoadService<EIFRecord>
+    [AutoMappedType]
+    public class ItemFileLoadService : BasePubLoadService<EIFRecord>
     {
-        private readonly IPubFileDeserializer _pubFileDeserializer;
+        protected override string FileFilter => PubFileNameConstants.EIFFilter;
 
         public ItemFileLoadService(IPubFileDeserializer pubFileDeserializer)
+            : base(pubFileDeserializer)
         {
-            _pubFileDeserializer = pubFileDeserializer;
         }
 
-        public IPubFile<EIFRecord> LoadPubFromDefaultFile()
-        {
-            return LoadPubFromExplicitFile(PubFileNameConstants.PathToEIFFile);
-        }
-
-        public IPubFile<EIFRecord> LoadPubFromExplicitFile(string fileName)
-        {
-            var fileBytes = File.ReadAllBytes(fileName);
-            return _pubFileDeserializer.DeserializeFromByteArray(fileBytes, () => new EIFFile());
-        }
+        protected override IPubFile<EIFRecord> Factory() => new EIFFile();
     }
 }

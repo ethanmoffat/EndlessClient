@@ -56,7 +56,7 @@ namespace EOLib.PacketHandlers.Players
                 var anim = (WarpAnimation)packet.ReadChar();
 
                 foreach (var notifier in _effectNotifiers)
-                    notifier.NotifyWarpEnterEffect((short)character.ID, anim);
+                    notifier.NotifyWarpEnterEffect(character.ID, anim);
             }
 
             if (packet.ReadByte() != 255)

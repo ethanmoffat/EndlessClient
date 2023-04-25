@@ -90,7 +90,7 @@ namespace EOLib.PacketHandlers.NPC
             }
             catch (InvalidOperationException)
             {
-                _currentMapStateRepository.UnknownNPCIndexes.Add((byte)npcIndex);
+                _currentMapStateRepository.UnknownNPCIndexes.Add(npcIndex);
                 return true;
             }
 

@@ -10,14 +10,14 @@ namespace EOLib.IO.Pub
         {
         }
 
-        public EIFFile(int checksum, List<EIFRecord> data)
-            : base (checksum, data)
+        public EIFFile(int id, int checksum, int totalLength, List<EIFRecord> data)
+            : base (id, checksum, totalLength, data)
         {
         }
 
         protected override BasePubFile<EIFRecord> MakeCopy()
         {
-            return new EIFFile(CheckSum, new List<EIFRecord>(this));
+            return new EIFFile(ID, CheckSum, TotalLength, new List<EIFRecord>(this));
         }
     }
 }

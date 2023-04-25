@@ -63,8 +63,8 @@ namespace EOLib.Net.Translators
             var evade = packet.ReadShort();
             var armor = packet.ReadShort();
             var dispStr = packet.ReadShort();
-            var dispInt = packet.ReadShort();
             var dispWis = packet.ReadShort();
+            var dispInt = packet.ReadShort();
             var dispAgi = packet.ReadShort();
             var dispCon = packet.ReadShort();
             var dispCha = packet.ReadShort();
@@ -94,7 +94,7 @@ namespace EOLib.Net.Translators
                 .WithNewStat(CharacterStat.Constituion, dispCon)
                 .WithNewStat(CharacterStat.Charisma, dispCha);
 
-            var paperDoll = new Dictionary<EquipLocation, short>();
+            var paperDoll = new Dictionary<EquipLocation, int>();
             for (var equipLocation = (EquipLocation)0; equipLocation < EquipLocation.PAPERDOLL_MAX; ++equipLocation)
             {
                 paperDoll[equipLocation] = packet.ReadShort();

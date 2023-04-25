@@ -44,6 +44,7 @@ namespace EndlessClient.HUD.Panels
         private readonly IESFFileProvider _esfFileProvider;
         private readonly ISpellSlotDataRepository _spellSlotDataRepository;
         private readonly ISfxPlayer _sfxPlayer;
+        private readonly IConfigurationProvider _configProvider;
 
         private readonly Dictionary<int, int> _spellSlotMap;
         private readonly List<ISpellPanelItem> _childItems;
@@ -74,7 +75,8 @@ namespace EndlessClient.HUD.Panels
                                  ICharacterInventoryProvider characterInventoryProvider,
                                  IESFFileProvider esfFileProvider,
                                  ISpellSlotDataRepository spellSlotDataRepository,
-                                 ISfxPlayer sfxPlayer)
+                                 ISfxPlayer sfxPlayer,
+                                 IConfigurationProvider configProvider)
         {
             NativeGraphicsManager = nativeGraphicsManager;
             _trainingController = trainingController;
@@ -86,8 +88,9 @@ namespace EndlessClient.HUD.Panels
             _esfFileProvider = esfFileProvider;
             _spellSlotDataRepository = spellSlotDataRepository;
             _sfxPlayer = sfxPlayer;
+            _configProvider = configProvider;
 
-            _spellSlotMap = GetSpellSlotMap(_playerInfoProvider.LoggedInAccountName, _characterProvider.MainCharacter.Name);
+            _spellSlotMap = GetSpellSlotMap(_playerInfoProvider.LoggedInAccountName, _characterProvider.MainCharacter.Name, _configProvider.Host);
             _childItems = new List<ISpellPanelItem>();
             ResetChildItems();
 
@@ -521,27 +524,28 @@ namespace EndlessClient.HUD.Panels
 
         #region Slot loading
 
-        private static Dictionary<int, int> GetSpellSlotMap(string accountName, string characterName)
+        private static Dictionary<int, int> GetSpellSlotMap(string accountName, string characterName, string host)
         {
             var map = new Dictionary<int, int>();
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !File.Exists(Constants.SpellsFile))
             {
-                using var spellsKey = TryGetCharacterRegistryKey(accountName, characterName);
-                if (spellsKey != null)
+                using var registrySpellsKey = TryGetCharacterRegistryKey(accountName, characterName);
+                if (registrySpellsKey != null)
                 {
                     for (int i = 0; i < SpellRowLength * SpellRows; ++i)
                     {
-                        if (int.TryParse(spellsKey.GetValue($"item{i}")?.ToString() ?? string.Empty, out var id))
+                        if (int.TryParse(registrySpellsKey.GetValue($"item{i}")?.ToString() ?? string.Empty, out var id))
                             map[i] = id;
                     }
                 }
             }
 
             var spells = new IniReader(Constants.SpellsFile);
-            if (spells.Load() && spells.Sections.ContainsKey(accountName))
+            var spellsKey = $"{host}:{accountName}";
+            if (spells.Load() && spells.Sections.ContainsKey(spellsKey))
             {
-                var section = spells.Sections[accountName];
+                var section = spells.Sections[spellsKey];
                 foreach (var key in section.Keys.Where(x => x.Contains(characterName, StringComparison.OrdinalIgnoreCase)))
                 {
                     if (!key.Contains("."))

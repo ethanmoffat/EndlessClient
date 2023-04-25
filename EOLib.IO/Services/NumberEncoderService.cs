@@ -50,11 +50,11 @@ namespace EOLib.IO.Services
 
             var retNum = 0;
             if (b.Length > 3)
-                retNum += b[3]*NumericConstants.THREE_BYTE_MAX;
+                retNum += b[3]*(int)NumericConstants.THREE_BYTE_MAX;
             if (b.Length > 2)
-                retNum += b[2]*NumericConstants.TWO_BYTE_MAX;
+                retNum += b[2]*(int)NumericConstants.TWO_BYTE_MAX;
             if (b.Length > 1)
-                retNum += b[1]*NumericConstants.ONE_BYTE_MAX;
+                retNum += b[1]*(int)NumericConstants.ONE_BYTE_MAX;
 
             return retNum + b[0];
         }

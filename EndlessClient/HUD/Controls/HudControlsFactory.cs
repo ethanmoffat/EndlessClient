@@ -416,6 +416,7 @@ namespace EndlessClient.HUD.Controls
             };
             chatTextBox.OnEnterPressed += (_, _) => _chatController.SendChatAndClearTextBox();
             chatTextBox.OnClicked += (_, _) => _chatController.SelectChatTextBox();
+            chatTextBox.OnTextChanged += (_, _) => _chatController.ClearAndWarnIfJailAndGlobal();
 
             return chatTextBox;
         }
