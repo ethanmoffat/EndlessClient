@@ -387,12 +387,14 @@ namespace EndlessClient.HUD.Panels
             {
                 e.RestoreOriginalSlot = true;
                 _inventoryController.DropItem(item.Data, item.InventoryItem);
+                _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);
                 return;
             }
             else if (_junk.MouseOver)
             {
                 e.RestoreOriginalSlot = true;
                 _inventoryController.JunkItem(item.Data, item.InventoryItem);
+                _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);
                 return;
             }
 
