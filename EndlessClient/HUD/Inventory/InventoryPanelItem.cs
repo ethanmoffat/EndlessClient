@@ -13,7 +13,6 @@ using MonoGame.Extended.Input;
 using MonoGame.Extended.Input.InputListeners;
 using Optional;
 using System;
-using System.Diagnostics.Tracing;
 using XNAControls;
 
 namespace EndlessClient.HUD.Inventory

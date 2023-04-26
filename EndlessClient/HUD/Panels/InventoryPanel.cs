@@ -133,7 +133,7 @@ namespace EndlessClient.HUD.Panels
             Game.Exiting += SaveInventoryFile;
         }
 
-        public bool NoItemsDragging() => !_childItems.Any(x => x.IsDragging);
+        public bool NoItemsDragging() => _childItems.All(x => !x.IsDragging);
 
         public override void Initialize()
         {
