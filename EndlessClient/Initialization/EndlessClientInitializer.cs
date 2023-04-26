@@ -8,6 +8,7 @@ using EndlessClient.HUD.Controls;
 using EndlessClient.Network;
 using EndlessClient.UIControls;
 using Microsoft.Xna.Framework;
+using MonoGame.Extended.Input.InputListeners;
 using XNAControls;
 using XNAControls.Input;
 
@@ -71,7 +72,13 @@ namespace EndlessClient.Initialization
             GameRepository.SetGame(_game as Game);
 
             _game.Components.Add(_packetHandlerGameComponent);
-            _game.Components.Add(new InputManager());
+
+            var mouseListenerSettings = new MouseListenerSettings
+            {
+                DoubleClickMilliseconds = 150,
+                DragThreshold = 1
+            };
+            _game.Components.Add(new InputManager(GameRepository.GetGame(), mouseListenerSettings));
 
             _endlessGameRepository.Game = _game;
 

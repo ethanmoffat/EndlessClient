@@ -159,7 +159,14 @@ namespace EndlessClient.HUD.Inventory
 
         protected override bool HandleDoubleClick(IXNAControl control, MouseEventArgs eventArgs)
         {
+            if (IsDragging)
+            {
+                // roll back the first click in the double click
+                base.HandleClick(control, eventArgs);
+            }
+
             DoubleClick?.Invoke(control, Data);
+
             return true;
         }
 
