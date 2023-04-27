@@ -52,6 +52,9 @@ namespace EndlessClient.Dialogs
 
         protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
         {
+            if (!_isMainCharacter || !_itemInfo.HasValue)
+                return false;
+
             if (eventArgs.Button == MouseButton.Left)
             {
                 if (_inventoryPanel.MouseOver && _inventoryPanel.MouseOverPreviously)
