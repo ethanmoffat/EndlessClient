@@ -195,10 +195,11 @@ namespace EndlessClient.Rendering.Map
         {
             switch (button)
             {
-                case MouseButton.Left: _mapInteractionController.LeftClick(c); break;
+                case MouseButton.Left: return _mapInteractionController.LeftClick(c);
                 case MouseButton.Right: _mapInteractionController.RightClick(c); break;
                 default: return false;
             }
+
             return true;
         }
 

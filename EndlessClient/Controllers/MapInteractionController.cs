@@ -179,42 +179,44 @@ namespace EndlessClient.Controllers
             _userInputTimeRepository.LastInputTime = DateTime.Now;
         }
 
-        public void LeftClick(ISpellTargetable spellTarget)
+        public bool LeftClick(ISpellTargetable target)
         {
-            if (_spellSlotDataRepository.SpellIsPrepared)
-            {
-                _spellSlotDataRepository.SelectedSpellInfo.MatchSome(si =>
-                {
-                    var result = _spellCastValidationActions.ValidateSpellCast(si.ID, spellTarget);
-                    if (result == SpellCastValidationResult.Ok && _characterAnimationActions.PrepareMainCharacterSpell(si.ID, spellTarget))
-                        _characterActions.PrepareCastSpell(si.ID);
-                    else if (result == SpellCastValidationResult.CannotAttackNPC)
-                        _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.YOU_CANNOT_ATTACK_THIS_NPC);
-                    else if (result == SpellCastValidationResult.ExhaustedNoTp)
-                        _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.ATTACK_YOU_ARE_EXHAUSTED_TP);
-                    else if (result == SpellCastValidationResult.ExhaustedNoSp)
-                        _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.ATTACK_YOU_ARE_EXHAUSTED_SP);
-                });
-
-                _spellSlotDataRepository.SpellIsPrepared = false;
-                _spellSlotDataRepository.SelectedSpellSlot = Option.None<int>();
-            }
-
             _userInputTimeRepository.LastInputTime = DateTime.Now;
+
+            if (!_spellSlotDataRepository.SpellIsPrepared)
+                return false;
+
+            _spellSlotDataRepository.SelectedSpellInfo.MatchSome(si =>
+            {
+                var result = _spellCastValidationActions.ValidateSpellCast(si.ID, target);
+                if (result == SpellCastValidationResult.Ok && _characterAnimationActions.PrepareMainCharacterSpell(si.ID, target))
+                    _characterActions.PrepareCastSpell(si.ID);
+                else if (result == SpellCastValidationResult.CannotAttackNPC)
+                    _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.YOU_CANNOT_ATTACK_THIS_NPC);
+                else if (result == SpellCastValidationResult.ExhaustedNoTp)
+                    _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.ATTACK_YOU_ARE_EXHAUSTED_TP);
+                else if (result == SpellCastValidationResult.ExhaustedNoSp)
+                    _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.ATTACK_YOU_ARE_EXHAUSTED_SP);
+            });
+
+            _spellSlotDataRepository.SpellIsPrepared = false;
+            _spellSlotDataRepository.SelectedSpellSlot = Option.None<int>();
+
+            return true;
         }
 
-        public void RightClick(Character character)
+        public void RightClick(ISpellTargetable target)
         {
             if (_activeDialogProvider.ActiveDialogs.Any(x => x.HasValue))
                 return;
 
-            if (character == _characterProvider.MainCharacter)
+            if (target == _characterProvider.MainCharacter)
             {
                 _paperdollActions.RequestPaperdoll(_characterProvider.MainCharacter.ID);
                 _inGameDialogActions.ShowPaperdollDialog(_characterProvider.MainCharacter, isMainCharacter: true);
                 _userInputTimeRepository.LastInputTime = DateTime.Now;
             }
-            else if (_characterRendererProvider.CharacterRenderers.ContainsKey(character.ID))
+            else if (target is Character character && _characterRendererProvider.CharacterRenderers.ContainsKey(character.ID))
             {
                 _contextMenuRepository.ContextMenu = _contextMenuRepository.ContextMenu.Match(
                     some: cmr =>
@@ -308,8 +310,8 @@ namespace EndlessClient.Controllers
     {
         void LeftClick(IMapCellState cellState);
 
-        void LeftClick(ISpellTargetable spellTarget);
+        bool LeftClick(ISpellTargetable target);
 
-        void RightClick(Character character);
+        void RightClick(ISpellTargetable target);
     }
 }
