@@ -26,7 +26,6 @@ namespace EndlessClient.Rendering.Factories
         private readonly IFriendIgnoreListService _friendIgnoreListService;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly IContextMenuRepository _contextMenuRepository;
-        private readonly IUserInputRepository _userInputRepository;
         private readonly IPartyDataProvider _partyDataProvider;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
@@ -40,7 +39,6 @@ namespace EndlessClient.Rendering.Factories
             IFriendIgnoreListService friendIgnoreListService,
             IHudControlProvider hudControlProvider,
             IContextMenuRepository contextMenuRepository,
-            IUserInputRepository userInputRepository,
             IPartyDataProvider partyDataProvider,
             ICurrentMapStateProvider currentMapStateProvider, 
             IEOMessageBoxFactory messageBoxFactory)
@@ -54,7 +52,6 @@ namespace EndlessClient.Rendering.Factories
             _friendIgnoreListService = friendIgnoreListService;
             _hudControlProvider = hudControlProvider;
             _contextMenuRepository = contextMenuRepository;
-            _userInputRepository = userInputRepository;
             _partyDataProvider = partyDataProvider;
             _currentMapStateProvider = currentMapStateProvider;
             _messageBoxFactory = messageBoxFactory;
@@ -71,7 +68,6 @@ namespace EndlessClient.Rendering.Factories
                 _friendIgnoreListService,
                 _hudControlProvider,
                 _contextMenuRepository,
-                _userInputRepository,
                 _partyDataProvider,
                 characterRenderer, 
                 _currentMapStateProvider,

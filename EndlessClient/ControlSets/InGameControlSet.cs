@@ -6,10 +6,8 @@ using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Controls;
-using EndlessClient.Input;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
-using Optional;
 using XNAControls;
 
 namespace EndlessClient.ControlSets
@@ -19,7 +17,6 @@ namespace EndlessClient.ControlSets
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly IHudControlsFactory _hudControlsFactory;
         private readonly IActiveDialogRepository _activeDialogRepository;
-        private readonly IUserInputRepository _userInputRepository;
         private IReadOnlyDictionary<HudControlIdentifier, IGameComponent> _controls;
 
         public override GameStates GameState => GameStates.PlayingTheGame;
@@ -27,14 +24,12 @@ namespace EndlessClient.ControlSets
         public InGameControlSet(IMainButtonController mainButtonController,
                                 IEOMessageBoxFactory messageBoxFactory,
                                 IHudControlsFactory hudControlsFactory,
-                                IActiveDialogRepository activeDialogRepository,
-                                IUserInputRepository userInputRepository)
+                                IActiveDialogRepository activeDialogRepository)
             : base(mainButtonController)
         {
             _messageBoxFactory = messageBoxFactory;
             _hudControlsFactory = hudControlsFactory;
             _activeDialogRepository = activeDialogRepository;
-            _userInputRepository = userInputRepository;
             _controls = new Dictionary<HudControlIdentifier, IGameComponent>();
         }
 
@@ -54,8 +49,6 @@ namespace EndlessClient.ControlSets
 
         protected override async void DoBackButtonClick(object sender, EventArgs e)
         {
-            _userInputRepository.ClickHandled = true;
-
             var messageBox = _messageBoxFactory.CreateMessageBox(
                 DialogResourceID.EXIT_GAME_ARE_YOU_SURE,
                 EODialogButtons.OkCancel);

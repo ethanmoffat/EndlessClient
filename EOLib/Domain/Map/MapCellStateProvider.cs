@@ -26,6 +26,8 @@ namespace EOLib.Domain.Map
             _mapFileProvider = mapFileProvider;
         }
 
+        public IMapCellState GetCellStateAt(MapCoordinate mapCoordinate) => GetCellStateAt(mapCoordinate.X, mapCoordinate.Y);
+
         public IMapCellState GetCellStateAt(int x, int y)
         {
             if (x < 0 || y < 0 || x > CurrentMap.Properties.Width || y > CurrentMap.Properties.Height)
@@ -77,6 +79,8 @@ namespace EOLib.Domain.Map
 
     public interface IMapCellStateProvider
     {
+        IMapCellState GetCellStateAt(MapCoordinate mapCoordinate);
+
         IMapCellState GetCellStateAt(int x, int y);
     }
 }

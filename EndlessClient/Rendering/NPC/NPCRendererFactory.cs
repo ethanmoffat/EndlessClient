@@ -12,10 +12,9 @@ using EOLib.IO.Repositories;
 
 namespace EndlessClient.Rendering.NPC
 {
-    [MappedType(BaseType = typeof(INPCRendererFactory))]
+    [AutoMappedType]
     public class NPCRendererFactory : INPCRendererFactory
     {
-        private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IEndlessGameProvider _endlessGameProvider;
         private readonly IENFFileProvider _enfFileProvider;
         private readonly INPCSpriteSheet _npcSpriteSheet;
@@ -29,8 +28,7 @@ namespace EndlessClient.Rendering.NPC
         private readonly ISpellSlotDataProvider _spellSlotDataProvider;
         private readonly IEffectRendererFactory _effectRendererFactory;
 
-        public NPCRendererFactory(INativeGraphicsManager nativeGraphicsManager,
-                                  IEndlessGameProvider endlessGameProvider,
+        public NPCRendererFactory(IEndlessGameProvider endlessGameProvider,
                                   IENFFileProvider enfFileProvider,
                                   INPCSpriteSheet npcSpriteSheet,
                                   IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
@@ -43,7 +41,6 @@ namespace EndlessClient.Rendering.NPC
                                   ISpellSlotDataProvider spellSlotDataProvider,
                                   IEffectRendererFactory effectRendererFactory)
         {
-            _nativeGraphicsManager = nativeGraphicsManager;
             _endlessGameProvider = endlessGameProvider;
             _enfFileProvider = enfFileProvider;
             _npcSpriteSheet = npcSpriteSheet;

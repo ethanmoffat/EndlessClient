@@ -189,6 +189,8 @@ namespace EndlessClient.Rendering.Map
             }
         }
 
+        public void AnimateMouseClick() => _mouseCursorRenderer.AnimateClick();
+
         public void ClearTransientRenderables()
         {
             _mapGridEffectRenderers.Clear();

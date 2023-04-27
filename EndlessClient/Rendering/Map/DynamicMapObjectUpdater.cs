@@ -1,7 +1,5 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Audio;
-using EndlessClient.Controllers;
-using EndlessClient.HUD.Spells;
 using EndlessClient.Input;
 using EndlessClient.Rendering.Character;
 using EOLib.Config;
@@ -10,8 +8,6 @@ using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
-using Optional;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,50 +19,35 @@ namespace EndlessClient.Rendering.Map
     {
         private const int DOOR_CLOSE_TIME_MS = 3000;
 
-        private class DoorTimePair
-        {
-            public Warp Door { get; set; }
-            public DateTime OpenTime { get; set; }
-        }
-
         private readonly ICharacterProvider _characterProvider;
         private readonly ICharacterRendererProvider _characterRendererProvider;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
-        private readonly IUserInputRepository _userInputRepository;
         private readonly ICurrentMapProvider _currentMapProvider;
-        private readonly IMapObjectBoundsCalculator _mapObjectBoundsCalculator;
-        private readonly IMapInteractionController _mapInteractionController;
         private readonly IConfigurationProvider _configurationProvider;
-        private readonly ISpellSlotDataRepository _spellSlotDataRepository;
+        private readonly IUserInputProvider _userInputProvider;
         private readonly ISfxPlayer _sfxPlayer;
 
-        private readonly List<DoorTimePair> _cachedDoorState;
+        private readonly List<(Warp Door, DateTime OpenTime)> _cachedDoorState;
         private IMapFile _cachedMap;
         private List<MapCoordinate> _ambientSounds;
 
         public DynamicMapObjectUpdater(ICharacterProvider characterProvider,
                                        ICharacterRendererProvider characterRendererProvider,
                                        ICurrentMapStateRepository currentMapStateRepository,
-                                       IUserInputRepository userInputRepository,
                                        ICurrentMapProvider currentMapProvider,
-                                       IMapObjectBoundsCalculator mapObjectBoundsCalculator,
-                                       IMapInteractionController mapInteractionController,
                                        IConfigurationProvider configurationProvider,
-                                       ISpellSlotDataRepository spellSlotDataRepository,
+                                       IUserInputProvider userInputProvider,
                                        ISfxPlayer sfxPlayer)
         {
             _characterProvider = characterProvider;
             _characterRendererProvider = characterRendererProvider;
             _currentMapStateRepository = currentMapStateRepository;
-            _userInputRepository = userInputRepository;
             _currentMapProvider = currentMapProvider;
-            _mapObjectBoundsCalculator = mapObjectBoundsCalculator;
-            _mapInteractionController = mapInteractionController;
             _configurationProvider = configurationProvider;
-            _spellSlotDataRepository = spellSlotDataRepository;
+            _userInputProvider = userInputProvider;
             _sfxPlayer = sfxPlayer;
 
-            _cachedDoorState = new List<DoorTimePair>();
+            _cachedDoorState = new List<(Warp Door, DateTime OpenTime)>();
             _ambientSounds = new List<MapCoordinate>();
         }
 
@@ -86,7 +67,6 @@ namespace EndlessClient.Rendering.Map
             RemoveStaleSpikeTraps();
             UpdateAmbientNoiseVolume();
 
-            CheckForObjectClicks();
             HideStackedCharacterNames();
         }
 
@@ -95,7 +75,7 @@ namespace EndlessClient.Rendering.Map
             var newDoors = _currentMapStateRepository.OpenDoors.Where(x => _cachedDoorState.All(d => d.Door != x));
             foreach (var door in newDoors)
             {
-                _cachedDoorState.Add(new DoorTimePair { Door = door, OpenTime = now });
+                _cachedDoorState.Add((door, now));
                 _sfxPlayer.PlaySfx(SoundEffectID.DoorOpen);
             }
         }
@@ -154,47 +134,10 @@ namespace EndlessClient.Rendering.Map
             _sfxPlayer.SetLoopingSfxVolume(Math.Max((25 - shortestDistance) / 25f, 0));
         }
 
-        private void CheckForObjectClicks()
-        {
-            if (_userInputRepository.ClickHandled)
-                return;
-
-            var mouseClicked = _userInputRepository.PreviousMouseState.LeftButton == ButtonState.Pressed &&
-                _userInputRepository.CurrentMouseState.LeftButton == ButtonState.Released;
-
-            if (mouseClicked)
-            {
-                foreach (var sign in _cachedMap.Signs)
-                {
-                    var gfx = _cachedMap.GFX[MapLayer.Objects][sign.Y, sign.X];
-                    if (gfx > 0)
-                    {
-                        var bounds = _mapObjectBoundsCalculator.GetMapObjectBounds(sign.X, sign.Y, gfx);
-                        if (bounds.Contains(_userInputRepository.CurrentMouseState.Position))
-                        {
-                            var cellState = new MapCellState
-                            {
-                                Sign = Option.Some(new Sign(sign)),
-                                Coordinate = new MapCoordinate(sign.X, sign.Y)
-                            };
-                            _mapInteractionController.LeftClick(cellState, Option.None<IMouseCursorRenderer>());
-                            _userInputRepository.ClickHandled = true;
-                            break;
-                        }
-                    }
-                }
-
-                // todo: check for board object clicks
-
-                if (_userInputRepository.ClickHandled)
-                    _spellSlotDataRepository.SelectedSpellSlot = Option.None<int>();
-            }
-        }
-
         private void HideStackedCharacterNames()
         {
             var characters = _characterRendererProvider.CharacterRenderers.Values
-                .Where(x => x.MouseOver)
+                .Where(x => x.DrawArea.Contains(_userInputProvider.CurrentMouseState.Position))
                 .GroupBy(x => x.Character.RenderProperties.Coordinates());
 
             foreach (var grouping in characters)

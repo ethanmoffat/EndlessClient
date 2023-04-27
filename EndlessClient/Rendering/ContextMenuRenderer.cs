@@ -54,7 +54,6 @@ namespace EndlessClient.Rendering
         private readonly IFriendIgnoreListService _friendIgnoreListService;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly IContextMenuRepository _contextMenuRepository;
-        private readonly IUserInputRepository _userInputRepository;
         private readonly IPartyDataProvider _partyDataProvider;
         private readonly ICharacterRenderer _characterRenderer;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
@@ -72,7 +71,6 @@ namespace EndlessClient.Rendering
                                    IFriendIgnoreListService friendIgnoreListService,
                                    IHudControlProvider hudControlProvider,
                                    IContextMenuRepository contextMenuRepository,
-                                   IUserInputRepository userInputRepository,
                                    IPartyDataProvider partyDataProvider,
                                    ICharacterRenderer characterRenderer,
                                    ICurrentMapStateProvider currentMapStateProvider, 
@@ -87,7 +85,6 @@ namespace EndlessClient.Rendering
             _friendIgnoreListService = friendIgnoreListService;
             _hudControlProvider = hudControlProvider;
             _contextMenuRepository = contextMenuRepository;
-            _userInputRepository = userInputRepository;
             _partyDataProvider = partyDataProvider;
             _characterRenderer = characterRenderer;
             _currentMapStateProvider = currentMapStateProvider;
@@ -209,7 +206,7 @@ namespace EndlessClient.Rendering
 
         protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
         {
-            if (eventArgs.Button == MouseButton.Left && !_userInputRepository.ClickHandled)
+            if (eventArgs.Button == MouseButton.Left)
             {
                 _overRect.MatchSome(sourceRect =>
                 {
@@ -217,7 +214,6 @@ namespace EndlessClient.Rendering
 
                     var menuAction = _menuActions[sourceRect];
                     menuAction();
-                    _userInputRepository.ClickHandled = true;
                 });
             }
 

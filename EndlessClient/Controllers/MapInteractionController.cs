@@ -13,6 +13,7 @@ using EndlessClient.Input;
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
+using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Interact;
@@ -50,7 +51,6 @@ namespace EndlessClient.Controllers
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly IContextMenuRendererFactory _contextMenuRendererFactory;
         private readonly IActiveDialogProvider _activeDialogProvider;
-        private readonly IUserInputRepository _userInputRepository;
         private readonly ISpellSlotDataRepository _spellSlotDataRepository;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly ISfxPlayer _sfxPlayer;
@@ -74,7 +74,6 @@ namespace EndlessClient.Controllers
                                         IEOMessageBoxFactory messageBoxFactory,
                                         IContextMenuRendererFactory contextMenuRendererFactory,
                                         IActiveDialogProvider activeDialogProvider,
-                                        IUserInputRepository userInputRepository,
                                         ISpellSlotDataRepository spellSlotDataRepository,
                                         ICurrentMapProvider currentMapProvider,
                                         ISfxPlayer sfxPlayer)
@@ -98,13 +97,12 @@ namespace EndlessClient.Controllers
             _messageBoxFactory = messageBoxFactory;
             _contextMenuRendererFactory = contextMenuRendererFactory;
             _activeDialogProvider = activeDialogProvider;
-            _userInputRepository = userInputRepository;
             _spellSlotDataRepository = spellSlotDataRepository;
             _currentMapProvider = currentMapProvider;
             _sfxPlayer = sfxPlayer;
         }
 
-        public void LeftClick(IMapCellState cellState, Option<IMouseCursorRenderer> mouseRenderer)
+        public void LeftClick(IMapCellState cellState)
         {
             if (!InventoryPanel.NoItemsDragging() || _activeDialogProvider.ActiveDialogs.Any(x => x.HasValue))
                 return;
@@ -117,22 +115,16 @@ namespace EndlessClient.Controllers
                     _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
                 else
                     HandlePickupResult(_mapActions.PickUpItem(item), item);
-
-                _userInputRepository.ClickHandled = true;
             }
             else if (cellState.Sign.HasValue)
             {
                 var sign = cellState.Sign.ValueOr(Sign.None);
                 var messageBox = _messageBoxFactory.CreateMessageBox(sign.Message, sign.Title);
                 messageBox.ShowDialog();
-
-                _userInputRepository.ClickHandled = true;
             }
             else if (_characterProvider.MainCharacter.RenderProperties.SitState != SitState.Standing)
             {
                 _characterActions.ToggleSit();
-
-                _userInputRepository.ClickHandled = true;
             }
             else if (InteractableTileSpec(cellState.TileSpec) && CharacterIsCloseEnough(cellState.Coordinate))
             {
@@ -148,8 +140,6 @@ namespace EndlessClient.Controllers
                             {
                                 _mapActions.OpenChest(cellState.Coordinate);
                                 _inGameDialogActions.ShowChestDialog();
-
-                                _userInputRepository.ClickHandled = true;
                             }
                             break;
                         case TileSpec.BankVault:
@@ -157,8 +147,6 @@ namespace EndlessClient.Controllers
                             {
                                 _mapActions.OpenLocker(cellState.Coordinate);
                                 _inGameDialogActions.ShowLockerDialog();
-
-                                _userInputRepository.ClickHandled = true;
                             }
                             break;
                     }
@@ -169,11 +157,9 @@ namespace EndlessClient.Controllers
                 && !_characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Attacking)
                 && !_spellSlotDataRepository.SelectedSpellSlot.HasValue)
             {
-                mouseRenderer.MatchSome(r => r.AnimateClick());
                 _characterAnimationActions.StartWalking(Option.Some(cellState.Coordinate));
-
-                _userInputRepository.ClickHandled = true;
-                _userInputRepository.WalkClickHandled = true;
+                _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer)
+                    .AnimateMouseClick();
             }
 
             cellState.Warp.MatchSome(w =>
@@ -185,8 +171,6 @@ namespace EndlessClient.Controllers
                         {
                             _mapActions.OpenDoor(d);
                         }
-
-                        _userInputRepository.ClickHandled = true;
                     });
             });
 
@@ -214,8 +198,6 @@ namespace EndlessClient.Controllers
 
                 _spellSlotDataRepository.SpellIsPrepared = false;
                 _spellSlotDataRepository.SelectedSpellSlot = Option.None<int>();
-
-                _userInputRepository.ClickHandled = true;
             }
 
             _userInputTimeRepository.LastInputTime = DateTime.Now;
@@ -231,8 +213,6 @@ namespace EndlessClient.Controllers
                 _paperdollActions.RequestPaperdoll(_characterProvider.MainCharacter.ID);
                 _inGameDialogActions.ShowPaperdollDialog(_characterProvider.MainCharacter, isMainCharacter: true);
                 _userInputTimeRepository.LastInputTime = DateTime.Now;
-
-                _userInputRepository.ClickHandled = true;
             }
             else if (_characterRendererProvider.CharacterRenderers.ContainsKey(character.ID))
             {
@@ -244,8 +224,6 @@ namespace EndlessClient.Controllers
                     },
                     none: () => Option.Some(_contextMenuRendererFactory.CreateContextMenuRenderer(_characterRendererProvider.CharacterRenderers[character.ID])));
                 _contextMenuRepository.ContextMenu.MatchSome(r => r.Initialize());
-
-                _userInputRepository.ClickHandled = true;
             }
         }
 
@@ -328,7 +306,7 @@ namespace EndlessClient.Controllers
 
     public interface IMapInteractionController
     {
-        void LeftClick(IMapCellState cellState, Option<IMouseCursorRenderer> mouseRenderer);
+        void LeftClick(IMapCellState cellState);
 
         void LeftClick(ISpellTargetable spellTarget);
 

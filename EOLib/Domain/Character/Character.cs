@@ -18,6 +18,10 @@ namespace EOLib.Domain.Character
 
         public int Index => ID;
 
+        public int X => RenderProperties.MapX;
+
+        public int Y => RenderProperties.MapY;
+
         public string Name { get; }
 
         public string Title { get; }

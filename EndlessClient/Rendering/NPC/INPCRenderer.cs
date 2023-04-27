@@ -10,6 +10,8 @@ namespace EndlessClient.Rendering.NPC
 
         bool IsDead { get; }
 
+        bool IsClickablePixel(Point currentMousePosition);
+
         void DrawToSpriteBatch(SpriteBatch spriteBatch);
 
         void StartDying();
