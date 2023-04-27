@@ -9,9 +9,8 @@ namespace EndlessClient.HUD.StatusBars
     public class SPStatusBar : StatusBarBase
     {
         public SPStatusBar(INativeGraphicsManager nativeGraphicsManager,
-                           ICharacterProvider characterProvider,
-                           IUserInputRepository userInputRepository)
-            : base(nativeGraphicsManager, characterProvider, userInputRepository)
+                           ICharacterProvider characterProvider)
+            : base(nativeGraphicsManager, characterProvider)
         {
             DrawArea = new Rectangle(320, 0, _sourceRectangleArea.Width, _sourceRectangleArea.Height);
             _sourceRectangleArea.Offset(_sourceRectangleArea.Width * 2, 0);

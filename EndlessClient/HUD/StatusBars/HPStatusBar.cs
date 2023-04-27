@@ -9,9 +9,8 @@ namespace EndlessClient.HUD.StatusBars
     public class HPStatusBar : StatusBarBase
     {
         public HPStatusBar(INativeGraphicsManager nativeGraphicsManager,
-                           ICharacterProvider characterProvider,
-                           IUserInputRepository userInputRepository)
-            : base(nativeGraphicsManager, characterProvider, userInputRepository)
+                           ICharacterProvider characterProvider)
+            : base(nativeGraphicsManager, characterProvider)
         {
             DrawArea = new Rectangle(100, 0, _sourceRectangleArea.Width, _sourceRectangleArea.Height);
         }

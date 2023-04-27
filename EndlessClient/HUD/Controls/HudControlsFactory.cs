@@ -379,28 +379,28 @@ namespace EndlessClient.HUD.Controls
 
         private IGameComponent CreateHPStatusBar()
         {
-            var statusBar = new HPStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, _userInputRepository) { DrawOrder = HUD_CONTROL_LAYER };
+            var statusBar = new HPStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository) { DrawOrder = HUD_CONTROL_LAYER };
             statusBar.StatusBarClicked += () => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
             return statusBar;
         }
 
         private IGameComponent CreateTPStatusBar()
         {
-            var statusBar = new TPStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, _userInputRepository) { DrawOrder = HUD_CONTROL_LAYER };
+            var statusBar = new TPStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository) { DrawOrder = HUD_CONTROL_LAYER };
             statusBar.StatusBarClicked += () => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
             return statusBar;
         }
 
         private IGameComponent CreateSPStatusBar()
         {
-            var statusBar = new SPStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, _userInputRepository) { DrawOrder = HUD_CONTROL_LAYER };
+            var statusBar = new SPStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository) { DrawOrder = HUD_CONTROL_LAYER };
             statusBar.StatusBarClicked += () => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
             return statusBar;
         }
 
         private IGameComponent CreateTNLStatusBar()
         {
-            var statusBar = new TNLStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, _userInputRepository, _experienceTableProvider) { DrawOrder = HUD_CONTROL_LAYER };
+            var statusBar = new TNLStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, _experienceTableProvider) { DrawOrder = HUD_CONTROL_LAYER };
             statusBar.StatusBarClicked += () => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
             return statusBar;
         }
