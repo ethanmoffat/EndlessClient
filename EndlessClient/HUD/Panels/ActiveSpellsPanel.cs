@@ -184,7 +184,7 @@ namespace EndlessClient.HUD.Panels
             base.Initialize();
         }
 
-        protected override void OnUpdateControl(GameTime gameTime)
+        protected override void OnUnconditionalUpdateControl(GameTime gameTime)
         {
             if (!_cachedSpells.SetEquals(_characterInventoryProvider.SpellInventory))
             {
@@ -258,6 +258,11 @@ namespace EndlessClient.HUD.Panels
                 _cachedSpells = _characterInventoryProvider.SpellInventory.ToHashSet();
             }
 
+            base.OnUnconditionalUpdateControl(gameTime);
+        }
+
+        protected override void OnUpdateControl(GameTime gameTime)
+        {
             var kbd = KeyboardExtended.GetState();
             if (kbd.WasKeyJustUp(Keys.RightShift) || kbd.WasKeyJustDown(Keys.RightShift) ||
                 kbd.WasKeyJustUp(Keys.LeftShift) || kbd.WasKeyJustDown(Keys.LeftShift))
