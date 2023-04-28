@@ -140,7 +140,7 @@ namespace EndlessClient.Rendering.Character
             {
                 if (_otherPlayerStartWalkingTimes.ContainsKey(_characterRepository.MainCharacter.ID))
                 {
-                    _otherPlayerStartWalkingTimes[_characterRepository.MainCharacter.ID].Replay = true;
+                    _otherPlayerStartWalkingTimes[_characterRepository.MainCharacter.ID].SetReplay(sfxCallback);
                     return;
                 }
 
@@ -161,7 +161,7 @@ namespace EndlessClient.Rendering.Character
         {
             if (_otherPlayerStartAttackingTimes.ContainsKey(_characterRepository.MainCharacter.ID))
             {
-                _otherPlayerStartAttackingTimes[_characterRepository.MainCharacter.ID].Replay = true;
+                _otherPlayerStartAttackingTimes[_characterRepository.MainCharacter.ID].SetReplay(sfxCallback);
                 return;
             }
 
@@ -194,7 +194,7 @@ namespace EndlessClient.Rendering.Character
         {
             if (_otherPlayerStartWalkingTimes.ContainsKey(characterID))
             {
-                _otherPlayerStartWalkingTimes[characterID].Replay = true;
+                _otherPlayerStartWalkingTimes[characterID].SetReplay();
                 _queuedDirections[characterID] = direction;
                 _queuedPositions[characterID] = destination;
                 return;
@@ -208,7 +208,7 @@ namespace EndlessClient.Rendering.Character
         {
             if (_otherPlayerStartAttackingTimes.ContainsKey(characterID))
             {
-                _otherPlayerStartAttackingTimes[characterID].Replay = true;
+                _otherPlayerStartAttackingTimes[characterID].SetReplay(sfxCallback);
                 return;
             }
 
@@ -316,7 +316,7 @@ namespace EndlessClient.Rendering.Character
                                         sendWalk = isMainCharacter;
 
                                         var extraFrameProps = AnimateOneWalkFrame(nextFramePropertiesWithDirection.ResetAnimationFrames());
-                                        pair.Replay = false;
+                                        pair.ClearReplay();
 
                                         nextFrameRenderProperties = extraFrameProps;
                                         pair.SoundEffect();
@@ -454,7 +454,7 @@ namespace EndlessClient.Rendering.Character
                                 {
                                     nextFrameRenderProperties = renderProperties.ResetAnimationFrames()
                                         .WithNextAttackFrame();
-                                    pair.Replay = false;
+                                    pair.ClearReplay();
                                 }
                                 else
                                 {
