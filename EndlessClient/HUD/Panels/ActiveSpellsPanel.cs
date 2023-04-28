@@ -431,12 +431,18 @@ namespace EndlessClient.HUD.Panels
             if (item == null)
                 return;
 
+            if (e.DragOutOfBounds)
+            {
+                e.RestoreOriginalSlot = true;
+                return;
+            }
+
             var oldSlot = item.Slot;
             var newSlot = item.GetCurrentSlotBasedOnPosition(_scrollBar.ScrollOffset);
 
             if (oldSlot != newSlot &&
                 newSlot < (_scrollBar.ScrollOffset + _scrollBar.LinesToRender) * SpellRowLength &&
-                newSlot > _scrollBar.ScrollOffset * SpellRowLength)
+                newSlot >= _scrollBar.ScrollOffset * SpellRowLength)
             {
                 _childItems.SingleOrNone(x => x.Slot == newSlot)
                     .Match(child =>

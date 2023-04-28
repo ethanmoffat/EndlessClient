@@ -440,7 +440,7 @@ namespace EndlessClient.HUD.Panels
                 }
             });
 
-            if (dialogDrop)
+            if (e.DragOutOfBounds || dialogDrop)
             {
                 e.RestoreOriginalSlot = true;
                 _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);

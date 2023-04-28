@@ -25,6 +25,9 @@ namespace EndlessClient.HUD.Controls
         public event EventHandler DraggingStarted;
         public event EventHandler<DragCompletedEventArgs<TRecord>> DraggingFinished;
 
+        // assumes absolute coordinates (not based on parent position)
+        protected abstract Rectangle GridArea { get; }
+
         protected DraggablePanelItem(IDraggableItemContainer parentContainer)
         {
             _parentContainer = parentContainer;
@@ -72,7 +75,7 @@ namespace EndlessClient.HUD.Controls
 
         protected override bool HandleDragEnd(IXNAControl control, MouseEventArgs eventArgs)
         {
-            StopDragging();
+            StopDragging(eventArgs);
             return true;
         }
 
@@ -80,7 +83,7 @@ namespace EndlessClient.HUD.Controls
         {
             if (_followMouse)
             {
-                StopDragging();
+                StopDragging(eventArgs);
             }
             else
             {
@@ -98,11 +101,14 @@ namespace EndlessClient.HUD.Controls
         {
         }
 
-        private void StopDragging()
+        private void StopDragging(MouseEventArgs mouseEventArgs)
         {
-            var args = new DragCompletedEventArgs<TRecord>(Data);
-            DraggingFinished?.Invoke(this, args);
+            var args = new DragCompletedEventArgs<TRecord>(Data)
+            {
+                DragOutOfBounds = !GridArea.Contains(mouseEventArgs.Position)
+            };
 
+            DraggingFinished?.Invoke(this, args);
             OnDraggingFinished(args);
 
             if (!args.ContinueDrag)

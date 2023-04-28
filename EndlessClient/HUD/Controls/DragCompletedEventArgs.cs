@@ -8,6 +8,8 @@ namespace EndlessClient.HUD.Controls
 
         public bool RestoreOriginalSlot { get; set; } = false;
 
+        public bool DragOutOfBounds { get; set; } = false;
+
         public TRecord Data { get; }
 
         public DragCompletedEventArgs(TRecord data) => Data = data;

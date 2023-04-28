@@ -19,9 +19,6 @@ namespace EndlessClient.HUD.Inventory
 {
     public class InventoryPanelItem : DraggablePanelItem<EIFRecord>
     {
-        // uses absolute coordinates
-        private static readonly Rectangle InventoryGridArea = new Rectangle(114, 338, 363, 102);
-
         private readonly IActiveDialogProvider _activeDialogProvider;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly Texture2D _itemGraphic;
@@ -59,6 +56,9 @@ namespace EndlessClient.HUD.Inventory
         public event EventHandler<EIFRecord> DoubleClick;
 
         public override Rectangle EventArea => IsDragging ? DrawArea : DrawAreaWithParentOffset;
+        
+        // uses absolute coordinates
+        protected override Rectangle GridArea => new Rectangle(114, 338, 363, 102);
 
         public InventoryPanelItem(IItemNameColorService itemNameColorService,
                                   InventoryPanel inventoryPanel,
@@ -131,7 +131,7 @@ namespace EndlessClient.HUD.Inventory
 
             _highlightDrawPosition.MatchSome(drawPosition =>
             {
-                if (InventoryGridArea.Contains(DrawArea.WithPosition(drawPosition)))
+                if (GridArea.Contains(DrawArea.WithPosition(drawPosition)))
                     _spriteBatch.Draw(_highlightBackground, DrawArea.WithPosition(drawPosition), Color.White);
             });
 
@@ -150,7 +150,7 @@ namespace EndlessClient.HUD.Inventory
 
         private void InventoryPanelItem_OnMouseOver(object sender, MouseStateExtended e)
         {
-            if (!InventoryGridArea.Contains(e.Position))
+            if (!GridArea.Contains(e.Position))
                 return;
 
             var currentSlot = GetCurrentSlotBasedOnPosition();
@@ -190,7 +190,7 @@ namespace EndlessClient.HUD.Inventory
             // the actual position of the name label needs to be set to this control's draw position
             var actualPosition = DrawPosition;
 
-            if (actualPosition.X + _nameLabel.DrawAreaWithParentOffset.Width + DrawArea.Width > InventoryGridArea.Width)
+            if (actualPosition.X + _nameLabel.DrawAreaWithParentOffset.Width + DrawArea.Width > GridArea.Width)
             {
                 _nameLabel.DrawPosition = new Vector2(actualPosition.X - _nameLabel.DrawArea.Width, actualPosition.Y);
             }
@@ -216,6 +216,7 @@ namespace EndlessClient.HUD.Inventory
                 DrawPosition = GetPosition(Slot);
 
             _nameLabel.Visible = false;
+            UpdateNameLabelPosition();
         }
 
         private static Vector2 GetPosition(int slot)

@@ -41,6 +41,9 @@ namespace EndlessClient.HUD.Spells
 
         public override Rectangle EventArea => IsDragging ? DrawArea : DrawAreaWithParentOffset;
 
+        // uses absolute coordinates
+        protected override Rectangle GridArea => new Rectangle(200, 336, 365, 109);
+
         public event EventHandler<MouseEventArgs> Click;
 
         public SpellPanelItem(ActiveSpellsPanel spellPanel,
