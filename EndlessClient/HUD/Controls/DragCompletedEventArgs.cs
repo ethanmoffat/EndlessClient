@@ -12,6 +12,12 @@ namespace EndlessClient.HUD.Controls
 
         public TRecord Data { get; }
 
-        public DragCompletedEventArgs(TRecord data) => Data = data;
+        public bool IsChainedDrag { get; }
+
+        public DragCompletedEventArgs(TRecord data, bool isChainedDrag)
+        {
+            Data = data;
+            IsChainedDrag = isChainedDrag;
+        }
     }
 }

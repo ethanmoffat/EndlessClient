@@ -210,6 +210,8 @@ namespace EndlessClient.HUD.Inventory
             if (args.ContinueDrag)
                 return;
 
+            _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);
+
             if (!args.RestoreOriginalSlot)
                 Slot = GetCurrentSlotBasedOnPosition();
             else

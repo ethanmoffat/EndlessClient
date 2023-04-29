@@ -245,7 +245,7 @@ namespace EndlessClient.HUD.Panels
 
                         newChild.Click += (sender, _) => _spellSlotDataRepository.SelectedSpellSlot = Option.Some(((SpellPanelItem)sender).Slot);
                         newChild.OnMouseOver += SetSpellStatusLabelHover;
-                        newChild.DraggingFinished += HandleItemDoneDragging;
+                        newChild.DraggingFinishing += HandleItemDoneDragging;
 
                         _childItems.Add(newChild);
                         _spellSlotDataRepository.SpellSlots[slot] = Option.Some(spell);

@@ -14,6 +14,9 @@ namespace EndlessClient.HUD.Controls
         //    otherwise, drag event handles following the mouse
         private bool _followMouse;
 
+        // true when dragging and the drag was chained from another item
+        private bool _isChainedDrag;
+
         // the top-left of the parent inventory panel when the drag started
         protected Vector2 OldOffset { get; private set; }
 
@@ -23,6 +26,7 @@ namespace EndlessClient.HUD.Controls
         public TRecord Data { get; protected set; }
 
         public event EventHandler DraggingStarted;
+        public event EventHandler<DragCompletedEventArgs<TRecord>> DraggingFinishing;
         public event EventHandler<DragCompletedEventArgs<TRecord>> DraggingFinished;
 
         // assumes absolute coordinates (not based on parent position)
@@ -39,7 +43,7 @@ namespace EndlessClient.HUD.Controls
                 return;
 
             IsDragging = true;
-            _followMouse = isChainedDrag;
+            _followMouse = _isChainedDrag = isChainedDrag;
 
             OldOffset = ImmediateParent.DrawPositionWithParentOffset;
             DrawPosition = MouseExtended.GetState().Position.ToVector2();
@@ -103,12 +107,12 @@ namespace EndlessClient.HUD.Controls
 
         private void StopDragging(MouseEventArgs mouseEventArgs)
         {
-            var args = new DragCompletedEventArgs<TRecord>(Data)
+            var args = new DragCompletedEventArgs<TRecord>(Data, _isChainedDrag)
             {
                 DragOutOfBounds = !GridArea.Contains(mouseEventArgs.Position)
             };
 
-            DraggingFinished?.Invoke(this, args);
+            DraggingFinishing?.Invoke(this, args);
             OnDraggingFinished(args);
 
             if (!args.ContinueDrag)
@@ -119,6 +123,8 @@ namespace EndlessClient.HUD.Controls
 
                 Game.Components.Remove(this);
                 SetParentControl(_parentContainer);
+
+                DraggingFinished?.Invoke(this, args);
             }
             else
             {
