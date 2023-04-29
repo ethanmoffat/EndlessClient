@@ -29,10 +29,8 @@ namespace EndlessClient.HUD.Party
             set
             {
                 _displayIndex = value;
-                _removeButton.DrawPosition = new Vector2(_removeButton.DrawPosition.X, 20 + _displayIndex * 13);
-                _nameLabel.DrawPosition = new Vector2(_nameLabel.DrawPosition.X, 20 + _displayIndex * 13);
-                _levelLabel.DrawPosition = new Vector2(_levelLabel.DrawPosition.X, 20 + _displayIndex * 13);
-                _hpLabel.DrawPosition = new Vector2(_hpLabel.DrawPosition.X, 20 + _displayIndex * 13);
+
+                DrawArea = new Rectangle(0, 20 + _displayIndex * 13, ImmediateParent?.DrawArea.Width ?? 0, 13);
             }
         }
 
@@ -64,7 +62,7 @@ namespace EndlessClient.HUD.Party
             var removeTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 43);
             var delta = removeTexture.Height / 3;
             _removeButton = new XNAButton(removeTexture,
-                new Vector2(337, 20),
+                new Vector2(337, 0),
                 isRemovable
                     ? new Rectangle(0, 0, removeTexture.Width, delta)
                     : new Rectangle(0, delta, removeTexture.Width, delta),
@@ -78,7 +76,7 @@ namespace EndlessClient.HUD.Party
 
             _nameLabel = new XNALabel(Constants.FontSize08)
             {
-                DrawPosition = new Vector2(23, 20),
+                DrawPosition = new Vector2(23, 0),
                 AutoSize = true,
                 ForeColor = Color.Black
             };
@@ -86,7 +84,7 @@ namespace EndlessClient.HUD.Party
 
             _levelLabel = new XNALabel(Constants.FontSize08)
             {
-                DrawPosition = new Vector2(138, 20),
+                DrawPosition = new Vector2(138, 0),
                 AutoSize = true,
                 ForeColor = Color.Black
             };
@@ -94,7 +92,7 @@ namespace EndlessClient.HUD.Party
 
             _hpLabel = new XNALabel(Constants.FontSize08)
             {
-                DrawPosition = new Vector2(205, 20),
+                DrawPosition = new Vector2(205, 0),
                 AutoSize = true,
                 ForeColor= Color.Black,
                 Text = "HP"
@@ -114,9 +112,8 @@ namespace EndlessClient.HUD.Party
 
         protected override void OnDrawControl(GameTime gameTime)
         {
-            var drawYCoordinate = 21 + DisplayIndex * 13;
-            var iconDrawPosition = DrawPositionWithParentOffset + new Vector2(5, drawYCoordinate);
-            var healthBarDrawPosition = DrawPositionWithParentOffset + new Vector2(228, drawYCoordinate);
+            var iconDrawPosition = DrawPositionWithParentOffset + new Vector2(5, 1);
+            var healthBarDrawPosition = DrawPositionWithParentOffset + new Vector2(228, 1);
 
             var barTexture = _partyMember.PercentHealth > 50
                 ? _contentProvider.Textures[ContentProvider.HPGreen]

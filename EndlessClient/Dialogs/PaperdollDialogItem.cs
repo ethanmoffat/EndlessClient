@@ -5,7 +5,8 @@ using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.IO.Pub;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.Input;
+using MonoGame.Extended.Input.InputListeners;
 using Optional;
 using System;
 using XNAControls;
@@ -30,12 +31,6 @@ namespace EndlessClient.Dialogs
 
         public bool IsBeingDragged => _beingDragged;
 
-        private bool LeftButtonReleased => CurrentMouseState.LeftButton == ButtonState.Released && PreviousMouseState.LeftButton == ButtonState.Pressed;
-
-        private bool RightButtonReleased => CurrentMouseState.RightButton == ButtonState.Released && PreviousMouseState.RightButton == ButtonState.Pressed;
-
-        private bool LeftButtonHeld => CurrentMouseState.LeftButton == ButtonState.Pressed && PreviousMouseState.LeftButton == ButtonState.Pressed;
-
         public PaperdollDialogItem(INativeGraphicsManager nativeGraphicsManager,
                                    ISfxPlayer sfxPlayer,
                                    InventoryPanel inventoryPanel,
@@ -55,8 +50,35 @@ namespace EndlessClient.Dialogs
             StretchMode = StretchMode.CenterInFrame;
         }
 
-        public void StartDragging()
+        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
         {
+            if (!_isMainCharacter || !_itemInfo.HasValue)
+                return false;
+
+            if (eventArgs.Button == MouseButton.Left)
+            {
+                if (_inventoryPanel.MouseOver && _inventoryPanel.MouseOverPreviously)
+                {
+                    StopDragging();
+                    _itemInfo.MatchSome(itemInfo => RightClick?.Invoke(this, itemInfo));
+                }
+            }
+            else if (eventArgs.Button == MouseButton.Right)
+            {
+                if (_beingDragged)
+                    StopDragging();
+                else
+                    _itemInfo.MatchSome(itemInfo => RightClick?.Invoke(this, itemInfo));
+            }
+
+            return true;
+        }
+
+        protected override bool HandleDragStart(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            if (!_isMainCharacter || !_itemInfo.HasValue)
+                return false;
+
             _beingDragged = true;
             SetControlUnparented();
             Game.Components.Add(this);
@@ -64,46 +86,27 @@ namespace EndlessClient.Dialogs
             _sfxPlayer.PlaySfx(SoundEffectID.InventoryPickup);
 
             DrawOrder = 1000;
+            return true;
         }
 
-        protected override void OnUpdateControl(GameTime gameTime)
+        protected override bool HandleDrag(IXNAControl control, MouseEventArgs eventArgs)
         {
-            if (_isMainCharacter)
-            {
-                _itemInfo.MatchSome(itemInfo =>
-                {
-                    if (!_beingDragged && MouseOver && MouseOverPreviously && LeftButtonHeld)
-                    {
-                        if (_inventoryPanel.NoItemsDragging() && _paperdollDialog.NoItemsDragging())
-                        {
-                            StartDragging();
-                        }
-                    }
-                    else if (_beingDragged)
-                    {
-                        DrawPosition = new Vector2(CurrentMouseState.X - (DrawArea.Width / 2), CurrentMouseState.Y - (DrawArea.Height / 2));
+            if (!_isMainCharacter || !_itemInfo.HasValue)
+                return false;
 
-                        if (LeftButtonReleased)
-                        {
-                            if (_inventoryPanel.MouseOver && _inventoryPanel.MouseOverPreviously)
-                            {
-                                StopDragging();
-                                RightClick?.Invoke(this, itemInfo);
-                            }
-                        }
-                        else if (RightButtonReleased)
-                        {
-                            StopDragging();
-                        }
-                    }
-                    else if (!_beingDragged && MouseOver && RightButtonReleased)
-                    {
-                        RightClick?.Invoke(this, itemInfo);
-                    }
-                });
-            }
+            DrawPosition = new Vector2(eventArgs.Position.X - (DrawArea.Width / 2), eventArgs.Position.Y - (DrawArea.Height / 2));
 
-            base.OnUpdateControl(gameTime);
+            return true;
+        }
+
+        protected override bool HandleDragEnd(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            if (!_isMainCharacter || !_itemInfo.HasValue)
+                return false;
+
+            StopDragging();
+
+            return true;
         }
 
         private void StopDragging()

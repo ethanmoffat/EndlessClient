@@ -38,7 +38,7 @@ namespace EOLib.IO.Map
                     _arr[row, col] = other[row, col];
         }
 
-        private void Fill(T value)
+        public void Fill(T value)
         {
             for (int row = 0; row < Rows; ++row)
                 for (int col = 0; col < Cols; ++col)

@@ -13,9 +13,8 @@ namespace EndlessClient.HUD.StatusBars
 
         public TNLStatusBar(INativeGraphicsManager nativeGraphicsManager,
                             ICharacterProvider characterProvider,
-                            IUserInputRepository userInputRepository,
                             IExperienceTableProvider experienceTableProvider)
-            : base(nativeGraphicsManager, characterProvider, userInputRepository)
+            : base(nativeGraphicsManager, characterProvider)
         {
             _experienceTableProvider = experienceTableProvider;
             DrawArea = new Rectangle(430, 0, _sourceRectangleArea.Width, _sourceRectangleArea.Height);

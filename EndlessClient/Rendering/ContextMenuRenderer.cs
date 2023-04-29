@@ -16,7 +16,8 @@ using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.Input;
+using MonoGame.Extended.Input.InputListeners;
 using Optional;
 using System;
 using System.Collections.Generic;
@@ -53,7 +54,6 @@ namespace EndlessClient.Rendering
         private readonly IFriendIgnoreListService _friendIgnoreListService;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly IContextMenuRepository _contextMenuRepository;
-        private readonly IUserInputRepository _userInputRepository;
         private readonly IPartyDataProvider _partyDataProvider;
         private readonly ICharacterRenderer _characterRenderer;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
@@ -71,7 +71,6 @@ namespace EndlessClient.Rendering
                                    IFriendIgnoreListService friendIgnoreListService,
                                    IHudControlProvider hudControlProvider,
                                    IContextMenuRepository contextMenuRepository,
-                                   IUserInputRepository userInputRepository,
                                    IPartyDataProvider partyDataProvider,
                                    ICharacterRenderer characterRenderer,
                                    ICurrentMapStateProvider currentMapStateProvider, 
@@ -86,7 +85,6 @@ namespace EndlessClient.Rendering
             _friendIgnoreListService = friendIgnoreListService;
             _hudControlProvider = hudControlProvider;
             _contextMenuRepository = contextMenuRepository;
-            _userInputRepository = userInputRepository;
             _partyDataProvider = partyDataProvider;
             _characterRenderer = characterRenderer;
             _currentMapStateProvider = currentMapStateProvider;
@@ -114,6 +112,8 @@ namespace EndlessClient.Rendering
 
             SetPositionBasedOnCharacterRenderer(_characterRenderer);
             SetSize(W, H);
+
+            OnMouseOver += ContextMenuRenderer_OnMouseOver;
 
             // Update this before map renderer so that clicks are handled first
             UpdateOrder = -20;
@@ -165,48 +165,6 @@ namespace EndlessClient.Rendering
             return base.ShouldUpdate();
         }
 
-        protected override void OnUpdateControl(GameTime gameTime)
-        {
-            int checkX = CurrentMouseState.X - DrawAreaWithParentOffset.X;
-            int checkY = CurrentMouseState.Y - DrawAreaWithParentOffset.Y;
-
-            var leftClicked = CurrentMouseState.LeftButton == ButtonState.Released && PreviousMouseState.LeftButton == ButtonState.Pressed;
-            var rightClicked = CurrentMouseState.RightButton == ButtonState.Released && PreviousMouseState.RightButton == ButtonState.Pressed;
-
-            bool found = false;
-            foreach (var (sourceRect, menuAction) in _menuActions)
-            {
-                if (sourceRect.Contains(checkX, checkY))
-                {
-                    _overRect = Option.Some(sourceRect);
-                    found = true;
-
-                    if (leftClicked && !_userInputRepository.ClickHandled)
-                    {
-                        menuAction();
-                        _userInputRepository.ClickHandled = true;
-                    }
-
-                    break;
-                }
-            }
-
-            if (!found)
-            {
-                _overRect = Option.None<Rectangle>();
-            }
-
-            if (leftClicked || rightClicked)
-            {
-                Game.Components.Remove(this);
-                Dispose();
-
-                _contextMenuRepository.ContextMenu = Option.None<IContextMenuRenderer>();
-            }
-
-            base.OnUpdateControl(gameTime);
-        }
-
         protected override void OnDrawControl(GameTime gameTime)
         {
             _spriteBatch.Begin();
@@ -225,6 +183,46 @@ namespace EndlessClient.Rendering
             _spriteBatch.End();
 
             base.OnDrawControl(gameTime);
+        }
+
+        private void ContextMenuRenderer_OnMouseOver(object sender, MouseStateExtended e)
+        {
+            bool found = false;
+            foreach (var (sourceRect, menuAction) in _menuActions)
+            {
+                if (sourceRect.Contains(e.Position - DrawAreaWithParentOffset.Location))
+                {
+                    _overRect = Option.Some(sourceRect);
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                _overRect = Option.None<Rectangle>();
+            }
+        }
+
+        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            if (eventArgs.Button == MouseButton.Left)
+            {
+                _overRect.MatchSome(sourceRect =>
+                {
+                    if (!_menuActions.ContainsKey(sourceRect)) return;
+
+                    var menuAction = _menuActions[sourceRect];
+                    menuAction();
+                });
+            }
+
+            Game.Components.Remove(this);
+            Dispose();
+
+            _contextMenuRepository.ContextMenu = Option.None<IContextMenuRenderer>();
+
+            return true;
         }
 
         /* Helper maps MenuAction enum value to a member method for easy initialization */

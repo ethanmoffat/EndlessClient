@@ -18,7 +18,6 @@ namespace EndlessClient.Rendering.Factories
     public class CharacterRendererFactory : ICharacterRendererFactory
     {
         private readonly IEndlessGameProvider _gameProvider;
-        private readonly IMapInteractionController _mapInteractionController;
         private readonly IRenderTargetFactory _renderTargetFactory;
         private readonly IHealthBarRendererFactory _healthBarRendererFactory;
         private readonly IChatBubbleFactory _chatBubbleFactory;
@@ -35,7 +34,6 @@ namespace EndlessClient.Rendering.Factories
         private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
 
         public CharacterRendererFactory(IEndlessGameProvider gameProvider,
-                                        IMapInteractionController mapInteractionController,
                                         IRenderTargetFactory renderTargetFactory,
                                         IHealthBarRendererFactory healthBarRendererFactory,
                                         IChatBubbleFactory chatBubbleFactory,
@@ -52,7 +50,6 @@ namespace EndlessClient.Rendering.Factories
                                         IFixedTimeStepRepository fixedTimeStepRepository)
         {
             _gameProvider = gameProvider;
-            _mapInteractionController = mapInteractionController;
             _renderTargetFactory = renderTargetFactory;
             _healthBarRendererFactory = healthBarRendererFactory;
             _chatBubbleFactory = chatBubbleFactory;
@@ -73,7 +70,6 @@ namespace EndlessClient.Rendering.Factories
         {
             return new CharacterRenderer(
                 (Game) _gameProvider.Game,
-                _mapInteractionController,
                 _renderTargetFactory,
                 _healthBarRendererFactory,
                 _chatBubbleFactory,

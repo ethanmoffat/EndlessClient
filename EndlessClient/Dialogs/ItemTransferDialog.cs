@@ -1,11 +1,12 @@
 ﻿using EndlessClient.Content;
 using EndlessClient.Dialogs.Services;
-using EndlessClient.Input;
+using EndlessClient.HUD.Chat;
 using EOLib;
 using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended.Input.InputListeners;
 using System;
 using XNAControls;
 
@@ -36,15 +37,13 @@ namespace EndlessClient.Dialogs
 
         public int SelectedAmount => int.Parse(_amount.Text);
 
-        private readonly IKeyboardSubscriber _prevSubscriber;
-
         private bool _sliderDragging;
 
         public ItemTransferDialog(INativeGraphicsManager nativeGraphicsManager,
+                                  IChatTextBoxActions chatTextBoxActions,
                                   IEODialogButtonService eoDialogButtonService,
                                   ILocalizedStringFinder localizedStringFinder,
                                   IContentProvider contentProvider,
-                                  IKeyboardDispatcherRepository keyboardDispatcherRepository,
                                   string itemName,
                                   TransferType transferType,
                                   int totalAmount,
@@ -94,21 +93,18 @@ namespace EndlessClient.Dialogs
                 Text = $"{localizedStringFinder.GetString(EOResourceID.DIALOG_TRANSFER_HOW_MUCH)} {itemName} {localizedStringFinder.GetString(message)}"
             };
 
-            //set the text box here
-            //starting coords are 163, 97
             _amount = new XNATextBox(new Rectangle(163, 95, 77, 19), Constants.FontSize08, caretTexture: contentProvider.Textures[ContentProvider.Cursor])
             {
                 Visible = true,
                 Enabled = true,
                 MaxChars = 8, //max drop/junk at a time will be 99,999,999
                 TextColor = ColorConstants.LightBeigeText,
-                Text = "1"
+                Text = "1",
+                Selected = true,
             };
             _amount.OnTextChanged += AmountTextChanged;
 
-            _prevSubscriber = keyboardDispatcherRepository.Dispatcher.Subscriber;
-            keyboardDispatcherRepository.Dispatcher.Subscriber = _amount;
-            DialogClosed += (_, _) => keyboardDispatcherRepository.Dispatcher.Subscriber = _prevSubscriber;
+            DialogClosed += (_, _) => chatTextBoxActions.FocusChatTextBox();
 
             _totalAmount = totalAmount;
 
@@ -168,13 +164,13 @@ namespace EndlessClient.Dialogs
             base.Dispose(disposing);
         }
 
-        private void SliderClickDrag(object sender, EventArgs e)
+        private void SliderClickDrag(object sender, MouseEventArgs e)
         {
             _sliderDragging = true; //ignores updates to slider location during text change
 
             //range rectangle is 122, 15
             var sliderArea = new Rectangle(25, 96, 122 - _slider.DrawArea.Width, 15);
-            var newX = CurrentMouseState.X - PreviousMouseState.X + (int)_slider.DrawPosition.X;
+            var newX = e.DistanceMoved.X + (int)_slider.DrawPosition.X;
 
             if (newX < sliderArea.X)
                 newX = sliderArea.X;

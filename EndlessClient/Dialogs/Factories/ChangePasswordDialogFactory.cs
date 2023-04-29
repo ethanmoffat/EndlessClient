@@ -16,7 +16,6 @@ namespace EndlessClient.Dialogs.Factories
         private readonly IGameStateProvider _gameStateProvider;
         private readonly IContentProvider _contentProvider;
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
-        private readonly IKeyboardDispatcherProvider _keyboardDispatcherProvider;
         private readonly IPlayerInfoProvider _playerInfoProvider;
         private readonly IEODialogButtonService _eoDialogButtonService;
         private readonly IXnaControlSoundMapper _xnaControlSoundMapper;
@@ -25,7 +24,6 @@ namespace EndlessClient.Dialogs.Factories
                                            IGameStateProvider gameStateProvider,
                                            IContentProvider contentProvider,
                                            IEOMessageBoxFactory eoMessageBoxFactory,
-                                           IKeyboardDispatcherProvider keyboardDispatcherProvider,
                                            IPlayerInfoProvider playerInfoProvider,
                                            IEODialogButtonService eoDialogButtonService,
                                            IXnaControlSoundMapper xnaControlSoundMapper)
@@ -34,7 +32,6 @@ namespace EndlessClient.Dialogs.Factories
             _gameStateProvider = gameStateProvider;
             _contentProvider = contentProvider;
             _eoMessageBoxFactory = eoMessageBoxFactory;
-            _keyboardDispatcherProvider = keyboardDispatcherProvider;
             _playerInfoProvider = playerInfoProvider;
             _eoDialogButtonService = eoDialogButtonService;
             _xnaControlSoundMapper = xnaControlSoundMapper;
@@ -46,7 +43,6 @@ namespace EndlessClient.Dialogs.Factories
                                             _gameStateProvider,
                                             _contentProvider,
                                             _eoMessageBoxFactory,
-                                            _keyboardDispatcherProvider,
                                             _playerInfoProvider,
                                             _eoDialogButtonService,
                                             _xnaControlSoundMapper);

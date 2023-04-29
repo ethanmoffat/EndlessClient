@@ -121,8 +121,6 @@ namespace EndlessClient.Rendering
 
             var cellState = _mapCellStateProvider.GetCellStateAt(_gridX, _gridY);
             UpdateCursorSourceRectangle(cellState);
-
-            CheckForClicks(cellState);
         }
 
         private void UpdateDrawPostionBasedOnGridPosition()
@@ -247,20 +245,6 @@ namespace EndlessClient.Rendering
                 default:
                     _cursorIndex = CursorIndex.HoverNormal;
                     break;
-            }
-        }
-
-        private void CheckForClicks(IMapCellState cellState)
-        {
-            if (_userInputProvider.ClickHandled)
-                return;
-
-            var currentMouseState = _userInputProvider.CurrentMouseState;
-            var previousMouseState = _userInputProvider.PreviousMouseState;
-
-            if (currentMouseState.LeftButton == ButtonState.Released && previousMouseState.LeftButton == ButtonState.Pressed)
-            {
-                _mapInteractionController.LeftClick(cellState, Option.Some<IMouseCursorRenderer>(this));
             }
         }
 

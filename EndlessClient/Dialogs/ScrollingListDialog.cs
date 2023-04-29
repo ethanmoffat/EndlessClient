@@ -186,6 +186,7 @@ namespace EndlessClient.Dialogs
                 Visible = DialogSize != ScrollingListDialogSize.LargeNoScroll && DialogSize != ScrollingListDialogSize.SmallNoScroll,
             };
             _scrollBar.SetParentControl(this);
+            SetScrollWheelHandler(_scrollBar);
 
             BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, GetBackgroundTexture(DialogSize));
             BackgroundTextureSource = GetBackgroundSourceRectangle(BackgroundTexture, DialogSize);

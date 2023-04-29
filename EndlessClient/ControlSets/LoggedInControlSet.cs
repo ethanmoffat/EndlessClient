@@ -29,8 +29,7 @@ namespace EndlessClient.ControlSets
 
         public override GameStates GameState => GameStates.LoggedIn;
 
-        public LoggedInControlSet(KeyboardDispatcher dispatcher,
-                                  IMainButtonController mainButtonController,
+        public LoggedInControlSet(IMainButtonController mainButtonController,
                                   ICharacterInfoPanelFactory characterInfoPanelFactory,
                                   ICharacterSelectorProvider characterSelectorProvider,
                                   ICharacterManagementController characterManagementController,
@@ -38,7 +37,7 @@ namespace EndlessClient.ControlSets
                                   IEndlessGameProvider endlessGameProvider,
                                   IUserInputRepository userInputRepository,
                                   IFixedTimeStepRepository fixedTimeStepRepository)
-            : base(dispatcher, mainButtonController)
+            : base(mainButtonController)
         {
             _characterInfoPanelFactory = characterInfoPanelFactory;
             _characterSelectorProvider = characterSelectorProvider;

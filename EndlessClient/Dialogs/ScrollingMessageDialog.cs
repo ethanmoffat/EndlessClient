@@ -22,6 +22,8 @@ namespace EndlessClient.Dialogs
         private readonly TextSplitter _textSplitter;
         private readonly BitmapFont _font;
 
+        private static readonly Rectangle TextArea = new Rectangle(27, 69, 300, 110);
+
         public string MessageText
         {
             set
@@ -77,6 +79,7 @@ namespace EndlessClient.Dialogs
             _scrollBar = new ScrollBar(new Vector2(320, 66), new Vector2(16, 119),
                 ScrollBarColors.LightOnMed, GraphicsManager);
             _scrollBar.SetParentControl(this);
+            SetScrollWheelHandler(_scrollBar);
 
             MessageText = "";
 

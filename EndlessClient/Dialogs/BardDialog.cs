@@ -3,7 +3,8 @@ using EndlessClient.Dialogs.Services;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.Input;
+using MonoGame.Extended.Input.InputListeners;
 using Optional;
 using System;
 using XNAControls;
@@ -39,33 +40,13 @@ namespace EndlessClient.Dialogs
             cancel.OnClick += (_, _) => Close(XNADialogResult.Cancel);
 
             CenterInGameView();
+
+            OnMouseOver += HandleMouseOver;
         }
 
         protected override void OnUpdateControl(GameTime gameTime)
         {
             _currentTick++;
-
-            var relativeMousePosition = CurrentMouseState.Position.ToVector2() - DrawPositionWithParentOffset;
-            if (_noteRectangleArea.Contains(relativeMousePosition))
-            {
-                var relativePosition = relativeMousePosition - _noteRectangleArea.Location.ToVector2();
-                var highlightDrawPosition =  new Vector2(
-                    relativePosition.X - (relativePosition.X % 20),
-                    relativePosition.Y - (relativePosition.Y % 20));
-                _highlightDrawPosition = highlightDrawPosition + DrawPositionWithParentOffset + _noteRectangleArea.Location.ToVector2();
-                _highlightSource = Option.Some(new Rectangle(highlightDrawPosition.ToPoint(), new Point(20, 20)));
-
-                if (PreviousMouseState.LeftButton == ButtonState.Pressed && CurrentMouseState.LeftButton == ButtonState.Released && _currentTick > 8)
-                {
-                    var noteIndex = (int)Math.Floor(highlightDrawPosition.X / 20 + (12 * (highlightDrawPosition.Y / 20)));
-                    _bardController.PlayInstrumentNote(noteIndex);
-                    _currentTick = 0;
-                }
-            }
-            else
-            {
-                _highlightSource = Option.None<Rectangle>();
-            }
 
             base.OnUpdateControl(gameTime);
         }
@@ -80,6 +61,51 @@ namespace EndlessClient.Dialogs
                 _spriteBatch.Draw(_noteHighlight, _highlightDrawPosition, src, Color.White);
                 _spriteBatch.End();
             });
+        }
+
+        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            if (eventArgs.Button == MouseButton.Left && _currentTick > 8)
+            {
+                _highlightSource.MatchSome(highlightSource =>
+                {
+                    var highlightDrawPosition = highlightSource.Location.ToVector2();
+                    var noteIndex = (int)Math.Floor(highlightDrawPosition.X / 20 + (12 * (highlightDrawPosition.Y / 20)));
+                    _bardController.PlayInstrumentNote(noteIndex);
+                    _currentTick = 0;
+                });
+            }
+
+            return true;
+        }
+
+        private void HandleMouseOver(object sender, MouseStateExtended eventArgs)
+        {
+            var relativeMousePosition = eventArgs.Position - DrawAreaWithParentOffset.Location;
+
+            if (_noteRectangleArea.Contains(relativeMousePosition))
+            {
+                var relativePosition = relativeMousePosition - _noteRectangleArea.Location;
+                var highlightDrawPosition = new Vector2(
+                    relativePosition.X - (relativePosition.X % 20),
+                    relativePosition.Y - (relativePosition.Y % 20));
+                _highlightDrawPosition = highlightDrawPosition + DrawPositionWithParentOffset + _noteRectangleArea.Location.ToVector2();
+                _highlightSource = Option.Some(new Rectangle(highlightDrawPosition.ToPoint(), new Point(20, 20)));
+            }
+            else
+            {
+                _highlightSource = Option.None<Rectangle>();
+            }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                OnMouseOver -= HandleMouseOver;
+            }
+
+            base.Dispose(disposing);
         }
     }
 }

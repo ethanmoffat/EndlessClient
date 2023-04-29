@@ -15,6 +15,7 @@ using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.Input;
 using Optional;
 using System;
 using XNAControls;
@@ -53,10 +54,6 @@ namespace EndlessClient.Rendering.NPC
         public bool IsAlive => !_isDying && !IsDead;
 
         public Rectangle DrawArea { get; private set; }
-
-        public bool MouseOver => DrawArea.Contains(_userInputProvider.CurrentMouseState.Position);
-
-        public bool MouseOverPreviously => DrawArea.Contains(_userInputProvider.PreviousMouseState.Position);
 
         public EOLib.Domain.NPC.NPC NPC { get; set; }
 
@@ -141,37 +138,12 @@ namespace EndlessClient.Rendering.NPC
             DrawToRenderTarget();
 
             var currentMousePosition = _userInputProvider.CurrentMouseState.Position;
-            var currentFrame = _npcSpriteSheet.GetNPCTexture(_enfFileProvider.ENFFile[NPC.ID].Graphic, NPC.Frame, NPC.Direction);
 
             if (DrawArea.Contains(currentMousePosition))
             {
-                var colorData = new Color[] { Color.FromNonPremultiplied(0, 0, 0, 255) };
-                if (currentFrame != null && !_isBlankSprite)
-                {
-                    if (_npcRenderTarget.Bounds.Contains(currentMousePosition))
-                        _npcRenderTarget.GetData(0, new Rectangle(currentMousePosition.X, currentMousePosition.Y, 1, 1), colorData, 0, 1);
-                }
-
                 var chatBubbleIsVisible = _chatBubble != null && _chatBubble.Visible;
-                _nameLabel.Visible = !_healthBarRenderer.Visible && !chatBubbleIsVisible && !_isDying && (_isBlankSprite || colorData[0].A > 0);
+                _nameLabel.Visible = !_healthBarRenderer.Visible && !chatBubbleIsVisible && !_isDying && IsClickablePixel(currentMousePosition);
                 _nameLabel.DrawPosition = GetNameLabelPosition();
-
-                if (!_userInputProvider.ClickHandled &&
-                    _userInputProvider.CurrentMouseState.LeftButton == ButtonState.Released &&
-                    _userInputProvider.PreviousMouseState.LeftButton == ButtonState.Pressed)
-                {
-                    if (_spellSlotDataProvider.SpellIsPrepared)
-                    {
-                        _mapInteractionController.LeftClick(NPC);
-                    }
-                    else
-                    {
-                        if (_isBlankSprite || colorData[0].A > 0)
-                        {
-                            _npcInteractionController.ShowNPCDialog(NPC);
-                        }
-                    }
-                }
             }
             else
             {
@@ -182,6 +154,20 @@ namespace EndlessClient.Rendering.NPC
             _healthBarRenderer.Update(gameTime);
 
             base.Update(gameTime);
+        }
+
+        public bool IsClickablePixel(Point currentMousePosition)
+        {
+            var currentFrame = _npcSpriteSheet.GetNPCTexture(_enfFileProvider.ENFFile[NPC.ID].Graphic, NPC.Frame, NPC.Direction);
+
+            var colorData = new Color[] { Color.FromNonPremultiplied(0, 0, 0, 255) };
+            if (currentFrame != null && !_isBlankSprite)
+            {
+                if (_npcRenderTarget.Bounds.Contains(currentMousePosition))
+                    _npcRenderTarget.GetData(0, new Rectangle(currentMousePosition.X, currentMousePosition.Y, 1, 1), colorData, 0, 1);
+            }
+
+            return _isBlankSprite || colorData[0].A > 0;
         }
 
         public void DrawToSpriteBatch(SpriteBatch spriteBatch)

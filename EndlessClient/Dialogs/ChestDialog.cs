@@ -79,8 +79,6 @@ namespace EndlessClient.Dialogs
                 RefreshItemList();
             }
 
-            SuppressClickDragEvent(!_inventoryPanel.NoItemsDragging());
-
             base.OnUpdateControl(gameTime);
         }
 

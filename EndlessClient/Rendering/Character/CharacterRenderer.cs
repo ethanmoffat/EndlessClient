@@ -1,5 +1,4 @@
 ﻿using EndlessClient.Audio;
-using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
 using EndlessClient.Rendering.CharacterProperties;
@@ -17,7 +16,6 @@ using EOLib.Graphics;
 using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Optional;
 using System;
 using System.Linq;
@@ -27,7 +25,6 @@ namespace EndlessClient.Rendering.Character
 {
     public class CharacterRenderer : DrawableGameComponent, ICharacterRenderer
     {
-        private readonly IMapInteractionController _mapInteractionController;
         private readonly IRenderTargetFactory _renderTargetFactory;
         private readonly IHealthBarRendererFactory _healthBarRendererFactory;
         private readonly IChatBubbleFactory _chatBubbleFactory;
@@ -83,15 +80,7 @@ namespace EndlessClient.Rendering.Character
 
         public bool IsAlive => !Character.RenderProperties.IsDead;
 
-        public bool MouseOver => DrawArea.Contains(_userInputProvider.CurrentMouseState.Position);
-
-        public bool MouseOverPreviously => DrawArea.Contains(_userInputProvider.PreviousMouseState.Position);
-
-        public Rectangle EffectTargetArea
-            => DrawArea.WithPosition(new Vector2(DrawArea.X, DrawArea.Y - 8));
-
         public CharacterRenderer(Game game,
-                                 IMapInteractionController mapInteractionController,
                                  IRenderTargetFactory renderTargetFactory,
                                  IHealthBarRendererFactory healthBarRendererFactory,
                                  IChatBubbleFactory chatBubbleFactory,
@@ -109,7 +98,6 @@ namespace EndlessClient.Rendering.Character
                                  IFixedTimeStepRepository fixedTimeStepRepository)
             : base(game)
         {
-            _mapInteractionController = mapInteractionController;
             _renderTargetFactory = renderTargetFactory;
             _healthBarRendererFactory = healthBarRendererFactory;
             _chatBubbleFactory = chatBubbleFactory;
@@ -197,21 +185,6 @@ namespace EndlessClient.Rendering.Character
             if (_gameStateProvider.CurrentState == GameStates.PlayingTheGame)
             {
                 UpdateNameLabel();
-
-                if (MouseOver)
-                {
-                    if (_userInputProvider.CurrentMouseState.RightButton == ButtonState.Released &&
-                        _userInputProvider.PreviousMouseState.RightButton == ButtonState.Pressed)
-                    {
-                        _mapInteractionController.RightClick(Character);
-                    }
-                    else if (_userInputProvider.CurrentMouseState.LeftButton == ButtonState.Released &&
-                             _userInputProvider.PreviousMouseState.LeftButton == ButtonState.Pressed &&
-                             !_userInputProvider.ClickHandled)
-                    {
-                        _mapInteractionController.LeftClick(Character);
-                    }
-                }
 
                 _healthBarRenderer?.Update(gameTime);
 

@@ -8,6 +8,7 @@ using EndlessClient.Network;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using Microsoft.Xna.Framework;
+using XNAControls.Input;
 
 namespace EndlessClient.GameExecution
 {
@@ -98,7 +99,7 @@ namespace EndlessClient.GameExecution
         {
             var componentsToRemove = FindUnusedComponents(currentSet, nextSet);
             var disposableComponents = componentsToRemove
-                .Where(x => !(x is PacketHandlerGameComponent))
+                .Where(x => x is not PacketHandlerGameComponent && x is not InputManager)
                 .OfType<IDisposable>();
 
             foreach (var component in disposableComponents)

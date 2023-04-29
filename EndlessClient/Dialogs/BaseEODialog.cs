@@ -10,8 +10,6 @@ namespace EndlessClient.Dialogs
     {
         private readonly Func<bool> _isInGame;
 
-        public bool ChildControlClickHandled { get; set; }
-
         public INativeGraphicsManager GraphicsManager { get; }
 
         protected BaseEODialog(INativeGraphicsManager graphicsManager,
@@ -33,13 +31,6 @@ namespace EndlessClient.Dialogs
 
             if (_isInGame())
                 DrawPosition = new Vector2(DrawPosition.X, (330 - DrawArea.Height)/2f);
-        }
-
-        protected override void OnUpdateControl(GameTime gameTime)
-        {
-            ChildControlClickHandled = false;
-
-            base.OnUpdateControl(gameTime);
         }
     }
 }
