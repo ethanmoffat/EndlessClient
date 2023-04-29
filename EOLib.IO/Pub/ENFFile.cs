@@ -10,14 +10,14 @@ namespace EOLib.IO.Pub
         {
         }
 
-        public ENFFile(int checksum, List<ENFRecord> data)
-            : base(checksum, data)
+        public ENFFile(int id, int checksum, int totalLength, List<ENFRecord> data)
+            : base(id, checksum, totalLength, data)
         {
         }
 
         protected override BasePubFile<ENFRecord> MakeCopy()
         {
-            return new ENFFile(CheckSum, new List<ENFRecord>(this));
+            return new ENFFile(ID, CheckSum, TotalLength, new List<ENFRecord>(this));
         }
     }
 }

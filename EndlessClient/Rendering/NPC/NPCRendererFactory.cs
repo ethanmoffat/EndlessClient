@@ -1,83 +1,63 @@
 ﻿using AutomaticTypeMapper;
-using EndlessClient.Audio;
-using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
-using EndlessClient.HUD.Spells;
 using EndlessClient.Input;
-using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Chat;
+using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
-using EOLib.Graphics;
 using EOLib.IO.Repositories;
 
 namespace EndlessClient.Rendering.NPC
 {
-    [MappedType(BaseType = typeof(INPCRendererFactory))]
+    [AutoMappedType]
     public class NPCRendererFactory : INPCRendererFactory
     {
-        private readonly INativeGraphicsManager _nativeGraphicsManager;
-        private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
         private readonly IEndlessGameProvider _endlessGameProvider;
-        private readonly ICharacterRendererProvider _characterRendererProvider;
+        private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
         private readonly IENFFileProvider _enfFileProvider;
         private readonly INPCSpriteSheet _npcSpriteSheet;
-        private readonly IRenderOffsetCalculator _renderOffsetCalculator;
+        private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
         private readonly IHealthBarRendererFactory _healthBarRendererFactory;
         private readonly IChatBubbleFactory _chatBubbleFactory;
-        private readonly INPCInteractionController _npcInteractionController;
-        private readonly IMapInteractionController _mapInteractionController;
+        private readonly IRenderTargetFactory _renderTargetFactory;
         private readonly IUserInputProvider _userInputProvider;
-        private readonly ISpellSlotDataProvider _spellSlotDataProvider;
-        private readonly ISfxPlayer _sfxPlayer;
+        private readonly IEffectRendererFactory _effectRendererFactory;
 
-        public NPCRendererFactory(INativeGraphicsManager nativeGraphicsManager,
+        public NPCRendererFactory(IEndlessGameProvider endlessGameProvider,
                                   IClientWindowSizeProvider clientWindowSizeProvider,
-                                  IEndlessGameProvider endlessGameProvider,
-                                  ICharacterRendererProvider characterRendererProvider,
                                   IENFFileProvider enfFileProvider,
                                   INPCSpriteSheet npcSpriteSheet,
-                                  IRenderOffsetCalculator renderOffsetCalculator,
+                                  IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
                                   IHealthBarRendererFactory healthBarRendererFactory,
                                   IChatBubbleFactory chatBubbleFactory,
-                                  INPCInteractionController npcInteractionController,
-                                  IMapInteractionController mapInteractionController,
+                                  IRenderTargetFactory renderTargetFactory,
                                   IUserInputProvider userInputProvider,
-                                  ISpellSlotDataProvider spellSlotDataProvider,
-                                  ISfxPlayer sfxPlayer)
+                                  IEffectRendererFactory effectRendererFactory)
         {
-            _nativeGraphicsManager = nativeGraphicsManager;
-            _clientWindowSizeProvider = clientWindowSizeProvider;
             _endlessGameProvider = endlessGameProvider;
-            _characterRendererProvider = characterRendererProvider;
+            _clientWindowSizeProvider = clientWindowSizeProvider;
             _enfFileProvider = enfFileProvider;
             _npcSpriteSheet = npcSpriteSheet;
-            _renderOffsetCalculator = renderOffsetCalculator;
+            _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
             _healthBarRendererFactory = healthBarRendererFactory;
             _chatBubbleFactory = chatBubbleFactory;
-            _npcInteractionController = npcInteractionController;
-            _mapInteractionController = mapInteractionController;
+            _renderTargetFactory = renderTargetFactory;
             _userInputProvider = userInputProvider;
-            _spellSlotDataProvider = spellSlotDataProvider;
-            _sfxPlayer = sfxPlayer;
+            _effectRendererFactory = effectRendererFactory;
         }
 
         public INPCRenderer CreateRendererFor(EOLib.Domain.NPC.NPC npc)
         {
-            return new NPCRenderer(_nativeGraphicsManager,
+            return new NPCRenderer(_endlessGameProvider,
                                    _clientWindowSizeProvider,
-                                   _endlessGameProvider,
-                                   _characterRendererProvider,
                                    _enfFileProvider,
                                    _npcSpriteSheet,
-                                   _renderOffsetCalculator,
+                                   _gridDrawCoordinateCalculator,
                                    _healthBarRendererFactory,
                                    _chatBubbleFactory,
-                                   _npcInteractionController,
-                                   _mapInteractionController,
+                                   _renderTargetFactory,
                                    _userInputProvider,
-                                   _spellSlotDataProvider,
-                                   _sfxPlayer,
+                                   _effectRendererFactory,
                                    npc);
         }
     }

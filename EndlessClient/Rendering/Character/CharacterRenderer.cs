@@ -1,5 +1,4 @@
 ﻿using EndlessClient.Audio;
-using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
 using EndlessClient.Rendering.CharacterProperties;
@@ -9,18 +8,16 @@ using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
 using EndlessClient.UIControls;
 using EOLib;
-using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
+using EOLib.Domain.Spells;
 using EOLib.Graphics;
 using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Optional;
 using System;
-using System.Diagnostics;
 using System.Linq;
 using XNAControls;
 
@@ -30,7 +27,6 @@ namespace EndlessClient.Rendering.Character
     {
         private readonly object _rt_locker_ = new object();
 
-        private readonly IMapInteractionController _mapInteractionController;
         private readonly IRenderTargetFactory _renderTargetFactory;
         private readonly IHealthBarRendererFactory _healthBarRendererFactory;
         private readonly IChatBubbleFactory _chatBubbleFactory;
@@ -79,23 +75,15 @@ namespace EndlessClient.Rendering.Character
 
         public Rectangle DrawArea { get; private set; }
 
-        public Rectangle MapProjectedDrawArea => DrawArea;
+        public ISpellTargetable SpellTarget => Character;
 
-        private int? _topPixel;
-        public int TopPixel => _topPixel.HasValue ? _topPixel.Value : 0;
+        public int NameLabelY { get; private set; }
 
-        public int TopPixelWithOffset => TopPixel + DrawArea.Y;
+        public int HorizontalCenter { get; private set; }
 
-        public bool MouseOver => DrawArea.Contains(_userInputProvider.CurrentMouseState.Position);
+        public bool IsAlive => !Character.RenderProperties.IsDead;
 
-        public bool MouseOverPreviously => DrawArea.Contains(_userInputProvider.PreviousMouseState.Position);
-
-        public Rectangle EffectTargetArea
-            => DrawArea.WithPosition(new Vector2(DrawArea.X, DrawArea.Y - 8));
-
-        public CharacterRenderer(INativeGraphicsManager nativeGraphicsmanager,
-                                 Game game,
-                                 IMapInteractionController mapInteractionController,
+        public CharacterRenderer(Game game,
                                  IRenderTargetFactory renderTargetFactory,
                                  IHealthBarRendererFactory healthBarRendererFactory,
                                  IChatBubbleFactory chatBubbleFactory,
@@ -108,12 +96,12 @@ namespace EndlessClient.Rendering.Character
                                  IGameStateProvider gameStateProvider,
                                  ICurrentMapProvider currentMapProvider,
                                  IUserInputProvider userInputProvider,
+                                 IEffectRendererFactory effectRendererFactory,
                                  ISfxPlayer sfxPlayer,
                                  IClientWindowSizeRepository clientWindowSizeRepository,
                                  IFixedTimeStepRepository fixedTimeStepRepository)
             : base(game)
         {
-            _mapInteractionController = mapInteractionController;
             _renderTargetFactory = renderTargetFactory;
             _healthBarRendererFactory = healthBarRendererFactory;
             _chatBubbleFactory = chatBubbleFactory;
@@ -126,11 +114,11 @@ namespace EndlessClient.Rendering.Character
             _gameStateProvider = gameStateProvider;
             _currentMapProvider = currentMapProvider;
             _userInputProvider = userInputProvider;
+            _effectRenderer = effectRendererFactory.Create();
             _sfxPlayer = sfxPlayer;
             _clientWindowSizeRepository = clientWindowSizeRepository;
             _fixedTimeStepRepository = fixedTimeStepRepository;
 
-            _effectRenderer = new EffectRenderer(nativeGraphicsmanager, _sfxPlayer, this);
             _chatBubble = new Lazy<IChatBubble>(() => _chatBubbleFactory.CreateChatBubble(this));
 
             _clientWindowSizeRepository.GameWindowSizeChanged += (_, _) =>
@@ -194,8 +182,6 @@ namespace EndlessClient.Rendering.Character
 
         public override void Update(GameTime gameTime)
         {
-            _topPixel = _topPixel ?? FigureOutTopPixel(_characterSpriteCalculator, _character.RenderProperties);
-
             // Effects can be rendered when character is not visible (leaving map)
             _effectRenderer.Update();
 
@@ -220,21 +206,6 @@ namespace EndlessClient.Rendering.Character
             {
                 UpdateNameLabel();
 
-                if (MouseOver)
-                {
-                    if (_userInputProvider.CurrentMouseState.RightButton == ButtonState.Released &&
-                        _userInputProvider.PreviousMouseState.RightButton == ButtonState.Pressed)
-                    {
-                        _mapInteractionController.RightClick(Character);
-                    }
-                    else if (_userInputProvider.CurrentMouseState.LeftButton == ButtonState.Released &&
-                             _userInputProvider.PreviousMouseState.LeftButton == ButtonState.Pressed &&
-                             !_userInputProvider.ClickHandled)
-                    {
-                        _mapInteractionController.LeftClick(Character);
-                    }
-                }
-
                 _healthBarRenderer?.Update(gameTime);
 
                 CheckForDead();
@@ -245,7 +216,8 @@ namespace EndlessClient.Rendering.Character
 
         public override void Draw(GameTime gameTime)
         {
-            if (!Visible || _sb.IsDisposed)
+            if (!Visible || _sb.IsDisposed ||
+                (Character == _characterProvider.MainCharacter && !_characterProvider.HasAvatar))
                 return;
 
             if (!Character.RenderProperties.IsHidden || _characterProvider.MainCharacter.AdminLevel > 0)
@@ -275,8 +247,12 @@ namespace EndlessClient.Rendering.Character
         {
             var skinRect = _characterTextures.Skin.SourceRectangle;
 
-            var xCoord = (_clientWindowSizeRepository.Width - skinRect.Width) / 2;
-            var yCoord = (_clientWindowSizeRepository.Height - skinRect.Height) / 2 - (_clientWindowSizeRepository.Resizable ? 11 : 0);
+            var xCoord = _clientWindowSizeRepository.Resizable
+                ? (_clientWindowSizeRepository.Width - skinRect.Width) / 2
+                : 310;
+            var yCoord = _clientWindowSizeRepository.Resizable
+                ? (_clientWindowSizeRepository.Height - skinRect.Height) / 2 - 11
+                : (298 - skinRect.Height) / 2 - skinRect.Height/4 - 3;
 
             SetAbsoluteScreenPosition(xCoord, yCoord);
         }
@@ -305,21 +281,6 @@ namespace EndlessClient.Rendering.Character
 
         #endregion
 
-        #region Texture Loading Helpers
-
-        private static int FigureOutTopPixel(ICharacterSpriteCalculator spriteCalculator, CharacterRenderProperties renderProperties)
-        {
-            var spriteForSkin = spriteCalculator.GetSkinTexture(renderProperties);
-            var skinData = spriteForSkin.GetSourceTextureData<Color>();
-
-            int i = 0;
-            while (i < skinData.Length && skinData[i].A == 0) i++;
-
-            return i == skinData.Length - 1 ? 0 : i/spriteForSkin.SourceRectangle.Height;
-        }
-
-        #endregion
-
         #region Update/Drawing Helpers
 
         private void DrawToRenderTarget()
@@ -343,9 +304,8 @@ namespace EndlessClient.Rendering.Character
                     _sb.Draw(_outline, DrawArea.WithPosition(new Vector2(DrawArea.X, DrawArea.Y + DrawArea.Height)).WithSize(DrawArea.Width, 1), Color.Black);
                     _sb.Draw(_outline, DrawArea.WithSize(1, DrawArea.Height), Color.Black);
 
-                    _sb.Draw(_outline, DrawArea, Color.FromNonPremultiplied(255, 0, 0, 64));
-                    _sb.Draw(_outline, MapProjectedDrawArea, Color.FromNonPremultiplied(0, 255, 0, 64));
-                }
+                _sb.Draw(_outline, DrawArea, Color.FromNonPremultiplied(255, 0, 0, 64));
+            }
 
                 _sb.End();
                 GraphicsDevice.SetRenderTarget(null);
@@ -366,10 +326,10 @@ namespace EndlessClient.Rendering.Character
 
         private void SetGridCoordinatePosition()
         {
-            var centerX = _clientWindowSizeRepository.Width / 2;
-            var centerY = _clientWindowSizeRepository.Height * 45 / 100;
+            var centerX = _clientWindowSizeRepository.Resizable ? _clientWindowSizeRepository.Width / 2 - 8 : 310;
+            var centerY = _clientWindowSizeRepository.Resizable ? _clientWindowSizeRepository.Height * 45 / 100 : 104;
 
-            var screenX = _renderOffsetCalculator.CalculateOffsetX(_character.RenderProperties) + centerX - GetMainCharacterOffsetX() - (_clientWindowSizeRepository.Resizable ? 8 : 0);
+            var screenX = _renderOffsetCalculator.CalculateOffsetX(_character.RenderProperties) + centerX - GetMainCharacterOffsetX();
             var screenY = _renderOffsetCalculator.CalculateOffsetY(_character.RenderProperties) + centerY - GetMainCharacterOffsetY();
 
             SetScreenCoordinates(screenX, screenY);
@@ -381,6 +341,8 @@ namespace EndlessClient.Rendering.Character
             {
                 // size of standing still skin texture
                 DrawArea = new Rectangle(xPosition, yPosition, 18, 58);
+                HorizontalCenter = xPosition + 9;
+                NameLabelY = DrawArea.Y - 12 - (int)(_nameLabel?.ActualHeight ?? 0);
                 _textureUpdateRequired = true;
             }
         }
@@ -410,7 +372,7 @@ namespace EndlessClient.Rendering.Character
             {
                 _nameLabel.Visible = true;
                 _nameLabel.BlinkRate = null;
-                _nameLabel.Text = _character.Name;
+                _nameLabel.Text = !string.IsNullOrWhiteSpace(_character.GuildTag) ? $"{_character.Name} {_character.GuildTag}" : _character.Name;
             }
             else if (_shoutName != string.Empty && _nameLabel.Text != _shoutName)
             {
@@ -433,8 +395,7 @@ namespace EndlessClient.Rendering.Character
 
         private Vector2 GetNameLabelPosition()
         {
-            return new Vector2(DrawArea.X - Math.Abs(DrawArea.Width - _nameLabel.ActualWidth) / 2,
-                               TopPixelWithOffset - 8 - _nameLabel.ActualHeight);
+            return new Vector2(HorizontalCenter - (_nameLabel.ActualWidth / 2f), NameLabelY);
         }
 
         private bool GetIsSteppingStone(CharacterRenderProperties renderProps)
@@ -478,43 +439,18 @@ namespace EndlessClient.Rendering.Character
 
         #endregion
 
-        #region Effects
-
         public bool EffectIsPlaying()
         {
             return _effectRenderer.State == EffectState.Playing;
         }
 
-        public void ShowWaterSplashies()
+        public void PlayEffect(int graphic)
         {
-            if (_effectRenderer.EffectType == EffectType.WaterSplashies &&
-                _effectRenderer.State == EffectState.Playing)
+            if (_effectRenderer.EffectID == graphic && _effectRenderer.State == EffectState.Playing)
                 _effectRenderer.Restart();
 
-            _effectRenderer.PlayEffect(EffectType.WaterSplashies, 0);
+            _effectRenderer.PlayEffect(graphic, this);
         }
-
-        public void ShowWarpArrive()
-        {
-            _effectRenderer.PlayEffect(EffectType.WarpDestination, 0);
-        }
-
-        public void ShowWarpLeave()
-        {
-            _effectRenderer.PlayEffect(EffectType.WarpOriginal, 0);
-        }
-
-        public void ShowPotionAnimation(int potionId)
-        {
-            _effectRenderer.PlayEffect(EffectType.Potion, potionId);
-        }
-
-        public void ShowSpellAnimation(int spellGraphic)
-        {
-            _effectRenderer.PlayEffect(EffectType.Spell, spellGraphic);
-        }
-
-        #endregion
 
         // Called when the spell cast begins
         public void ShoutSpellPrep(string spellName)
@@ -544,9 +480,11 @@ namespace EndlessClient.Rendering.Character
         public void ShowDamageCounter(int damage, int percentHealth, bool isHeal)
         {
             if (isHeal)
-                _healthBarRenderer.SetHealth(damage, percentHealth);
+                _healthBarRenderer.SetHealth(damage, percentHealth, () => _chatBubble.Value.Show());
             else
-                _healthBarRenderer.SetDamage(damage.SomeWhen(d => d > 0), percentHealth);
+                _healthBarRenderer.SetDamage(damage.SomeWhen(d => d > 0), percentHealth, () => _chatBubble.Value.Show());
+
+            _chatBubble.Value.Hide();
         }
 
         public void ShowChatBubble(string message, bool isGroupChat)

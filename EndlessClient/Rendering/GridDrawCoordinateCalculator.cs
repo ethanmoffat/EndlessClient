@@ -1,9 +1,10 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
-using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
 using System;
+
+using DomainNPC = EOLib.Domain.NPC.NPC;
 
 namespace EndlessClient.Rendering
 {
@@ -31,13 +32,13 @@ namespace EndlessClient.Rendering
 
         public Vector2 CalculateDrawCoordinatesFromGridUnits(int gridX, int gridY)
         {
-            var widthFactor = _clientWindowSizeProvider.Width / 2; // 640 * (1/2)
+            var widthFactor = _clientWindowSizeProvider.Width / 2; // 640 * (1/2) - 1
             var heightFactor = _clientWindowSizeProvider.Resizable
                 ? _clientWindowSizeProvider.Height / 2
-                : _clientWindowSizeProvider.Height * 3 / 10; // 480 * (3/10)
+                : _clientWindowSizeProvider.Height * 3 / 10 - 2; // 480 * (3/10) - 2
 
             return new Vector2(widthFactor + (gridX * 32) - (gridY * 32),
-                               heightFactor + (gridY * 16) + (gridX * 16)) - CalculateCharacterOffsets();
+                               heightFactor + (gridY * 16) + (gridX * 16)) - GetMainCharacterOffsets();
         }
 
         public Vector2 CalculateDrawCoordinatesFromGridUnits(MapCoordinate mapCoordinate)
@@ -47,17 +48,13 @@ namespace EndlessClient.Rendering
 
         public Vector2 CalculateBaseLayerDrawCoordinatesFromGridUnits(int gridX, int gridY)
         {
-            // todo: this might need some hax...see GroundLayerRenderer in the stash
-
-            var widthFactor = _clientWindowSizeProvider.Resizable
-                ? (_clientWindowSizeProvider.Width - GridSpaceWidth) / 2 // 288 = (640 - 64) / 2
-                : _clientWindowSizeProvider.Width * 45 / 100;
+            var widthFactor = (_clientWindowSizeProvider.Width - GridSpaceWidth) / 2; // 288 = (640 - 64) / 2
             var heightFactor = _clientWindowSizeProvider.Resizable
                 ? _clientWindowSizeProvider.Height / 2
-                : _clientWindowSizeProvider.Height * 3 / 10; // 144 = 480 * (3/10)
+                : _clientWindowSizeProvider.Height * 3 / 10 - 2; // 144 = 480 * (3/10)
 
             return new Vector2(widthFactor + (gridX * 32) - (gridY * 32),
-                               heightFactor + (gridY * 16) + (gridX * 16)) - CalculateBaseLayerOffsets();
+                               heightFactor + (gridY * 16) + (gridX * 16)) - GetMainCharacterOffsets();
         }
 
         public Vector2 CalculateBaseLayerDrawCoordinatesFromGridUnits(MapCoordinate mapCoordinate)
@@ -67,10 +64,10 @@ namespace EndlessClient.Rendering
 
         public Vector2 CalculateGroundLayerDrawCoordinatesFromGridUnits()
         {
-            var ViewportWidthFactor = _clientWindowSizeProvider.Width / 2; // 640 * (1/2)
+            var ViewportWidthFactor = _clientWindowSizeProvider.Width / 2 - 1; // 640 * (1/2) - 1
             var ViewportHeightFactor = _clientWindowSizeProvider.Resizable
                 ? _clientWindowSizeProvider.Height / 2
-                : _clientWindowSizeProvider.Height * 3 / 10; // 480 * (3/10)
+                : _clientWindowSizeProvider.Height * 3 / 10 - 2; // 480 * (3/10) - 2
 
             var props = _characterProvider.MainCharacter.RenderProperties;
 
@@ -78,7 +75,24 @@ namespace EndlessClient.Rendering
 
             // opposite of the algorithm for rendering the base layers
             return new Vector2(ViewportWidthFactor - (mapHeightPlusOne * 32) + (props.MapY * 32) - (props.MapX * 32),
-                               ViewportHeightFactor - (props.MapY * 16) - (props.MapX * 16)) - CalculateGroundLayerCharacterOffsets();
+                               ViewportHeightFactor - (props.MapY * 16) - (props.MapX * 16)) - GetMainCharacterWalkAdjustOffsets();
+        }
+
+        public Vector2 CalculateDrawCoordinates(DomainNPC npc)
+        {
+            var ViewportWidthFactor = _clientWindowSizeProvider.Width / 2 - 1; // 640 * (1/2) - 1
+            var ViewportHeightFactor = _clientWindowSizeProvider.Resizable
+                ? _clientWindowSizeProvider.Height / 2
+                : _clientWindowSizeProvider.Height * 3 / 10 - 2; // 480 * (3/10) - 1 // ???
+
+            var npcOffsetX = _renderOffsetCalculator.CalculateOffsetX(npc);
+            var npcOffsetY = _renderOffsetCalculator.CalculateOffsetY(npc);
+
+            var mainOffsetX = _renderOffsetCalculator.CalculateOffsetX(_characterProvider.MainCharacter.RenderProperties);
+            var mainOffsetY = _renderOffsetCalculator.CalculateOffsetY(_characterProvider.MainCharacter.RenderProperties);
+
+            return new Vector2(ViewportWidthFactor + npcOffsetX - mainOffsetX,
+                               ViewportHeightFactor + npcOffsetY - mainOffsetY + 16);
         }
 
         public MapCoordinate CalculateGridCoordinatesFromDrawLocation(Vector2 drawLocation)
@@ -114,6 +128,9 @@ namespace EndlessClient.Rendering
             }
             else
             {
+                const int ViewportWidthFactor = 288; // 640 * (1/2) - 32
+                const int ViewportHeightFactor = 142; // 480 * (3/10) - 2
+
                 var msX = drawLocation.X - GridSpaceWidth / 2;
                 var msY = drawLocation.Y - GridSpaceHeight / 2;
 
@@ -123,41 +140,23 @@ namespace EndlessClient.Rendering
                 var offsetX = _renderOffsetCalculator.CalculateOffsetX(_characterProvider.MainCharacter.RenderProperties);
                 var offsetY = _renderOffsetCalculator.CalculateOffsetY(_characterProvider.MainCharacter.RenderProperties);
 
-                var gridX = (int)Math.Round((msX + 2 * msY - widthFactor + offsetX + 2 * offsetY) / 64.0);
-                var gridY = (int)Math.Round((msY - gridX * 16 - heightFactor + offsetY) / 16.0);
+                var gridX = (int)Math.Round((msX + 2 * msY - (ViewportWidthFactor*2) + offsetX + 2 * offsetY) / 64.0);
+                var gridY = (int)Math.Round((msY - gridX * 16 - ViewportHeightFactor + offsetY) / 16.0);
 
                 return new MapCoordinate(gridX, gridY);
             }
         }
 
-        private Vector2 CalculateCharacterOffsets()
+        private Vector2 GetMainCharacterOffsets()
         {
             var props = _characterProvider.MainCharacter.RenderProperties;
             return new Vector2(_renderOffsetCalculator.CalculateOffsetX(props),
                                _renderOffsetCalculator.CalculateOffsetY(props));
         }
 
-        private Vector2 CalculateBaseLayerOffsets()
+        private Vector2 GetMainCharacterWalkAdjustOffsets()
         {
             var props = _characterProvider.MainCharacter.RenderProperties;
-            props = props.IsActing(CharacterActionState.Walking)
-                ? props.WithActualWalkFrame(props.ActualWalkFrame - 1)
-                : props;
-
-            return new Vector2(_renderOffsetCalculator.CalculateOffsetX(props),
-                               _renderOffsetCalculator.CalculateOffsetY(props));
-        }
-
-        private Vector2 CalculateGroundLayerCharacterOffsets()
-        {
-            // todo: WTF
-            // this fixes the weird shifting issue with the base layers
-            // not sure why they're weirdly offset in the first place
-            var props = _characterProvider.MainCharacter.RenderProperties;
-            props = props.IsActing(CharacterActionState.Walking)
-                ? props.WithActualWalkFrame(props.ActualWalkFrame - 1)
-                : props;
-
             return new Vector2(_renderOffsetCalculator.CalculateWalkAdjustX(props),
                                _renderOffsetCalculator.CalculateWalkAdjustY(props));
         }
@@ -174,6 +173,8 @@ namespace EndlessClient.Rendering
         Vector2 CalculateBaseLayerDrawCoordinatesFromGridUnits(MapCoordinate mapCoordinate);
 
         Vector2 CalculateGroundLayerDrawCoordinatesFromGridUnits();
+
+        Vector2 CalculateDrawCoordinates(DomainNPC npc);
 
         MapCoordinate CalculateGridCoordinatesFromDrawLocation(Vector2 drawLocation);
     }

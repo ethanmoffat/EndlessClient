@@ -1,10 +1,9 @@
-﻿using System;
-using EndlessClient.Dialogs.Services;
+﻿using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
 using EOLib;
 using EOLib.Graphics;
-using EOLib.Localization;
 using Microsoft.Xna.Framework;
+using System;
 using XNAControls;
 
 namespace EndlessClient.Dialogs
@@ -46,10 +45,10 @@ namespace EndlessClient.Dialogs
             _messageLabel = new XNALabel(Constants.FontSize10)
             {
                 AutoSize = true,
-                ForeColor = ColorConstants.LightYellowText,
+                ForeColor = ColorConstants.LightGrayDialogMessage,
                 Text = message,
-                TextWidth = 240,
-                DrawPosition = new Vector2(21, useSmallHeader ? 40 : 62),
+                TextWidth = 254,
+                DrawPosition = new Vector2(19, useSmallHeader ? 40 : 62),
                 WrapBehavior = WrapBehavior.WrapToNewLine,
             };
 
@@ -126,33 +125,5 @@ namespace EndlessClient.Dialogs
 
             base.Initialize();
         }
-
-        #region Deprecated
-
-        public static void Show(string message, string caption = "", EODialogButtons buttons = EODialogButtons.Ok,
-            EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogLargeHeader, XNAControls.Old.XNADialog.OnDialogClose closingEvent = null)
-        {
-            throw new NotImplementedException("Static message box display is deprecated and will be removed in the future");
-        }
-
-        public static void Show(DialogResourceID resource, EODialogButtons whichButtons = EODialogButtons.Ok,
-            EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogLargeHeader, XNAControls.Old.XNADialog.OnDialogClose closingEvent = null)
-        {
-            throw new NotImplementedException("Static message box display is deprecated and will be removed in the future");
-        }
-
-        public static void Show(string prependData, DialogResourceID resource, EODialogButtons whichButtons = EODialogButtons.Ok,
-            EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogLargeHeader, XNAControls.Old.XNADialog.OnDialogClose closingEvent = null)
-        {
-            throw new NotImplementedException("Static message box display is deprecated and will be removed in the future");
-        }
-
-        public static void Show(DialogResourceID resource, string extraData, EODialogButtons whichButtons = EODialogButtons.Ok,
-            EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogLargeHeader, XNAControls.Old.XNADialog.OnDialogClose closingEvent = null)
-        {
-            throw new NotImplementedException("Static message box display is deprecated and will be removed in the future");
-        }
-
-        #endregion
     }
 }

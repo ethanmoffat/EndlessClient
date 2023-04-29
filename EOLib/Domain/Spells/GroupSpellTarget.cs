@@ -5,10 +5,10 @@ namespace EOLib.Domain.Spells
     [Record]
     public sealed partial class GroupSpellTarget
     {
-        public short TargetId { get; }
+        public int TargetId { get; }
 
-        public byte PercentHealth { get; }
+        public int PercentHealth { get; }
 
-        public short TargetHp { get; }
+        public int TargetHp { get; }
     }
 }

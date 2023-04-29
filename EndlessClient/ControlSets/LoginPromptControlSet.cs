@@ -17,7 +17,6 @@ namespace EndlessClient.ControlSets
 {
     public class LoginPromptControlSet : InitialControlSet
     {
-        private readonly KeyboardDispatcher _dispatcher;
         private readonly IMainButtonController _mainButtonController;
         private readonly ILoginController _loginController;
 
@@ -25,21 +24,17 @@ namespace EndlessClient.ControlSets
         private XNAButton _btnLogin, _btnCancel;
         private IXNAPictureBox _loginPanelBackground;
 
-        private TextBoxClickEventHandler _clickHandler;
-        private TextBoxTabEventHandler _tabHandler;
         private Texture2D _loginBackgroundTexture;
 
         private Task _loginTask;
 
         public override GameStates GameState => GameStates.Login;
 
-        public LoginPromptControlSet(KeyboardDispatcher dispatcher,
-                                     IConfigurationProvider configProvider,
+        public LoginPromptControlSet(IConfigurationProvider configProvider,
                                      IMainButtonController mainButtonController,
                                      ILoginController loginController)
             : base(configProvider, mainButtonController)
         {
-            _dispatcher = dispatcher;
             _mainButtonController = mainButtonController;
             _loginController = loginController;
         }
@@ -67,13 +62,7 @@ namespace EndlessClient.ControlSets
             _allComponents.Add(_btnLogin);
             _allComponents.Add(_btnCancel);
 
-            _clickHandler = new TextBoxClickEventHandler(_dispatcher, _allComponents.OfType<IXNATextBox>().ToArray());
-            _tabHandler = new TextBoxTabEventHandler(_dispatcher, _allComponents.OfType<IXNATextBox>().ToArray());
-
-            if (_dispatcher.Subscriber != null)
-                _dispatcher.Subscriber.Selected = false;
-            _dispatcher.Subscriber = _tbUsername;
-            _dispatcher.Subscriber.Selected = true;
+            _tbUsername.Selected = true;
         }
 
         public override IGameComponent FindComponentByControlIdentifier(GameControlIdentifier control)
@@ -110,11 +99,12 @@ namespace EndlessClient.ControlSets
                 _textBoxCursor)
             {
                 MaxChars = 16,
-                DefaultText = "Username",
+                DefaultText = "",
                 LeftPadding = 4,
                 DrawOrder = _personPicture.DrawOrder + 2,
                 DefaultTextColor = Color.FromNonPremultiplied(80, 80, 80, 0xff),
-                TextColor = Color.Black
+                TextColor = Color.Black,
+                TabOrder = 1,
             };
             textBox.OnEnterPressed += DoLogin;
             return textBox;
@@ -133,10 +123,11 @@ namespace EndlessClient.ControlSets
                 MaxChars = 12,
                 PasswordBox = true,
                 LeftPadding = 4,
-                DefaultText = "Password",
+                DefaultText = "",
                 DrawOrder = _personPicture.DrawOrder + 2,
                 DefaultTextColor = Color.FromNonPremultiplied(80, 80, 80, 0xff),
-                TextColor = Color.Black
+                TextColor = Color.Black,
+                TabOrder = 2,
             };
             textBox.OnEnterPressed += DoLogin;
             return textBox;
@@ -170,17 +161,6 @@ namespace EndlessClient.ControlSets
             };
             button.OnClick += (o, e) => _mainButtonController.GoToInitialState();
             return button;
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                _clickHandler.Dispose();
-                _tabHandler.Dispose();
-            }
-
-            base.Dispose(disposing);
         }
     }
 }

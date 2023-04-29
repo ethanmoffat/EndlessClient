@@ -1,10 +1,7 @@
-﻿using System;
-using System.Linq;
-using EndlessClient.Content;
+﻿using EndlessClient.Content;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
-using EndlessClient.Input;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Account;
@@ -13,6 +10,8 @@ using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Optional;
+using System;
+using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Dialogs
@@ -25,9 +24,6 @@ namespace EndlessClient.Dialogs
         private readonly IXNATextBox[] _inputBoxes;
         private readonly IXNAButton _ok, _cancel;
 
-        private readonly TextBoxClickEventHandler _clickEventHandler;
-        private readonly TextBoxTabEventHandler _tabEventHandler;
-
         private string Username => _inputBoxes[0].Text;
         private string OldPassword => _inputBoxes[1].Text;
         private string NewPassword => _inputBoxes[2].Text;
@@ -39,7 +35,6 @@ namespace EndlessClient.Dialogs
                                     IGameStateProvider gameStateProvider,
                                     IContentProvider contentProvider,
                                     IEOMessageBoxFactory eoMessageBoxFactory,
-                                    IKeyboardDispatcherProvider keyboardDispatcherProvider,
                                     IPlayerInfoProvider playerInfoProvider,
                                     IEODialogButtonService dialogButtonService,
                                     IXnaControlSoundMapper xnaControlSoundMapper)
@@ -48,8 +43,6 @@ namespace EndlessClient.Dialogs
             _eoMessageBoxFactory = eoMessageBoxFactory;
             _playerInfoProvider = playerInfoProvider;
             _xnaControlSoundMapper = xnaControlSoundMapper;
-
-            var dispatcher = keyboardDispatcherProvider.Dispatcher;
 
             BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 21);
 
@@ -64,15 +57,13 @@ namespace EndlessClient.Dialogs
                     DefaultText = " ",
                     MaxChars = i == 0 ? 16 : 12,
                     PasswordBox = i > 1,
-                    TextColor = ColorConstants.LightBeigeText
+                    TextColor = ColorConstants.LightBeigeText,
+                    TabOrder = i + 1,
                 };
                 _inputBoxes[i] = tb;
             }
 
-            _clickEventHandler = new TextBoxClickEventHandler(dispatcher, _inputBoxes);
-            _tabEventHandler = new TextBoxTabEventHandler(dispatcher, _inputBoxes);
-
-            dispatcher.Subscriber = _inputBoxes[0];
+            _inputBoxes[0].Selected = true;
 
             _ok = new XNAButton(
                 dialogButtonService.SmallButtonSheet,
@@ -147,17 +138,6 @@ namespace EndlessClient.Dialogs
             }
 
             Close(XNADialogResult.OK);
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                _clickEventHandler.Dispose();
-                _tabEventHandler.Dispose();
-            }
-
-            base.Dispose(disposing);
         }
     }
 }

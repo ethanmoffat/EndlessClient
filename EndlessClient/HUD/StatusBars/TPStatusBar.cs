@@ -13,9 +13,8 @@ namespace EndlessClient.HUD.StatusBars
 
         public TPStatusBar(INativeGraphicsManager nativeGraphicsManager,
                            IClientWindowSizeProvider clientWindowSizeProvider,
-                           ICharacterProvider characterProvider,
-                           IUserInputRepository userInputRepository)
-            : base(nativeGraphicsManager, clientWindowSizeProvider, characterProvider, userInputRepository)
+                           ICharacterProvider characterProvider)
+            : base(nativeGraphicsManager, clientWindowSizeProvider, characterProvider)
         {
             DrawArea = new Rectangle(210, 0, _sourceRectangleArea.Width, _sourceRectangleArea.Height);
             _sourceRectangleArea.Offset(_sourceRectangleArea.Width, 0);

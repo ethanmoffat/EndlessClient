@@ -37,7 +37,7 @@ namespace EOLib.Net.PacketProcessing
             return new Packet(byteList.ToList());
         }
 
-        public byte[] Encode(IPacket original, byte encodeMultiplier)
+        public byte[] Encode(IPacket original, int encodeMultiplier)
         {
             if (encodeMultiplier == 0 || !PacketValidForEncode(original))
                 return original.RawData.ToArray();
@@ -50,7 +50,7 @@ namespace EOLib.Net.PacketProcessing
             return byteList.ToArray();
         }
 
-        public IPacket Decode(IEnumerable<byte> original, byte decodeMultiplier)
+        public IPacket Decode(IEnumerable<byte> original, int decodeMultiplier)
         {
             var originalBytes = original.ToArray();
             if (decodeMultiplier == 0 || !PacketValidForDecode(originalBytes))
@@ -126,8 +126,8 @@ namespace EOLib.Net.PacketProcessing
 
         IPacket AddSequenceNumber(IPacket pkt, int sequenceNumber);
 
-        byte[] Encode(IPacket original, byte encodeMultiplier);
+        byte[] Encode(IPacket original, int encodeMultiplier);
 
-        IPacket Decode(IEnumerable<byte> original, byte decodeMultiplier);
+        IPacket Decode(IEnumerable<byte> original, int decodeMultiplier);
     }
 }

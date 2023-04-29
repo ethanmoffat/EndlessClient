@@ -82,7 +82,7 @@ namespace EndlessClient.Network
         private IPacket CreateRequestForNPCs()
         {
             IPacketBuilder builder = new PacketBuilder(PacketFamily.NPCMapInfo, PacketAction.Request)
-                .AddChar((byte)_currentMapStateRepository.UnknownNPCIndexes.Count)
+                .AddChar(_currentMapStateRepository.UnknownNPCIndexes.Count)
                 .AddByte(0xFF);
 
             foreach (var index in _currentMapStateRepository.UnknownNPCIndexes)

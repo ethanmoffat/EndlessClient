@@ -33,17 +33,16 @@ namespace EndlessClient.Dialogs
         public string Name => _inputBox.Text.Trim();
 
         private CharacterRenderProperties RenderProperties => _characterControl.RenderProperties;
-        public byte Gender => RenderProperties.Gender;
-        public byte HairStyle => RenderProperties.HairStyle;
-        public byte HairColor => RenderProperties.HairColor;
-        public byte Race => RenderProperties.Race;
+        public int Gender => RenderProperties.Gender;
+        public int HairStyle => RenderProperties.HairStyle;
+        public int HairColor => RenderProperties.HairColor;
+        public int Race => RenderProperties.Race;
 
         public CreateCharacterDialog(
             INativeGraphicsManager nativeGraphicsManager,
             IGameStateProvider gameStateProvider,
             ICharacterRendererFactory rendererFactory,
             IContentProvider contentProvider,
-            KeyboardDispatcher dispatcher,
             IEOMessageBoxFactory messageBoxFactory,
             IEODialogButtonService eoDialogButtonService,
             IXnaControlSoundMapper xnaControlSoundMapper)
@@ -67,7 +66,7 @@ namespace EndlessClient.Dialogs
                 Visible = true
             };
             _inputBox.SetParentControl(this);
-            dispatcher.Subscriber = _inputBox;
+            _inputBox.Selected = true;
 
             for (int i = 0; i < _arrowButtons.Length; ++i)
             {

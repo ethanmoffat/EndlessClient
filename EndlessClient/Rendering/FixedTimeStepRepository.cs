@@ -6,22 +6,22 @@ namespace EndlessClient.Rendering
     [AutoMappedType(IsSingleton = true)]
     public class FixedTimeStepRepository : IFixedTimeStepRepository
     {
-        private const int FIXED_UPDATE_TIME_MS = 51; // ~19 FPS
+        private const int FIXED_UPDATE_TIME_MS = 24; // 40 FPS (walk updates at 10 FPS)
 
-        private bool _isWalkUpdate;
+        private int _isWalkUpdate;
 
         public Stopwatch FixedUpdateTimer { get; set; }
 
         public bool IsUpdateFrame => FixedUpdateTimer.ElapsedMilliseconds > FIXED_UPDATE_TIME_MS;
 
-        public bool IsWalkUpdateFrame => IsUpdateFrame && _isWalkUpdate;
+        public bool IsWalkUpdateFrame => IsUpdateFrame && _isWalkUpdate == 3;
 
         public FixedTimeStepRepository() => FixedUpdateTimer = Stopwatch.StartNew();
 
         public void RestartTimer()
         {
             FixedUpdateTimer.Restart();
-            _isWalkUpdate = !_isWalkUpdate;
+            _isWalkUpdate = ++_isWalkUpdate % 4;
         }
     }
 

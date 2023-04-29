@@ -3,6 +3,7 @@ using EOBot.Interpreter.Variables;
 using EOLib.Config;
 using EOLib.Domain.Account;
 using EOLib.Domain.Character;
+using EOLib.Domain.Chat;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
@@ -50,6 +51,7 @@ namespace EOBot.Interpreter
             _state.SymbolTable[PredefinedIdentifiers.UPPER_FUNC] = Readonly(new Function<string, string>(PredefinedIdentifiers.UPPER_FUNC, s => s.ToUpper()));
 
             BotDependencySetup();
+            // pre-game flow
             _state.SymbolTable[PredefinedIdentifiers.CONNECT_FUNC] = Readonly(new AsyncVoidFunction<string, int>(PredefinedIdentifiers.CONNECT_FUNC, ConnectAsync));
             _state.SymbolTable[PredefinedIdentifiers.DISCONNECT_FUNC] = Readonly(new VoidFunction(PredefinedIdentifiers.DISCONNECT_FUNC, Disconnect));
             _state.SymbolTable[PredefinedIdentifiers.CREATE_ACCOUNT_FUNC] = Readonly(new AsyncFunction<string, string, int>(PredefinedIdentifiers.CREATE_ACCOUNT_FUNC, CreateAccountAsync));
@@ -59,7 +61,10 @@ namespace EOBot.Interpreter
             _state.SymbolTable[PredefinedIdentifiers.CREATE_CHARACTER_FUNC] = Readonly(new AsyncFunction<string, int>(PredefinedIdentifiers.CREATE_CHARACTER_FUNC, CreateCharacterAsync));
             _state.SymbolTable[PredefinedIdentifiers.DELETE_CHARACTER_FUNC] = Readonly(new AsyncFunction<string, bool, int>(PredefinedIdentifiers.DELETE_CHARACTER_FUNC, DeleteCharacterAsync));
             _state.SymbolTable[PredefinedIdentifiers.LOGIN_CHARACTER_FUNC] = Readonly(new AsyncVoidFunction<string>(PredefinedIdentifiers.LOGIN_CHARACTER_FUNC, LoginToCharacterAsync));
+
+            // in-game stuff
             _state.SymbolTable[PredefinedIdentifiers.JOIN_PARTY] = Readonly(new VoidFunction<int>(PredefinedIdentifiers.JOIN_PARTY, JoinParty));
+            _state.SymbolTable[PredefinedIdentifiers.CHAT] = Readonly(new VoidFunction<string>(PredefinedIdentifiers.CHAT, Chat));
         }
 
         public void SetupBuiltInVariables()
@@ -104,7 +109,7 @@ namespace EOBot.Interpreter
             configRepo.Host = host;
             configRepo.Port = port;
 
-            configRepo.VersionBuild = (byte)((IntVariable)_state.SymbolTable[PredefinedIdentifiers.VERSION].Identifiable).Value;
+            configRepo.VersionBuild = ((IntVariable)_state.SymbolTable[PredefinedIdentifiers.VERSION].Identifiable).Value;
 
             var connectionActions = c.Resolve<INetworkConnectionActions>();
             var connectResult = await connectionActions.ConnectToServer();
@@ -123,8 +128,8 @@ namespace EOBot.Interpreter
 
             packetProcessActions.SetInitialSequenceNumber(handshakeResult[InitializationDataKey.SequenceByte1],
                 handshakeResult[InitializationDataKey.SequenceByte2]);
-            packetProcessActions.SetEncodeMultiples((byte)handshakeResult[InitializationDataKey.ReceiveMultiple],
-                (byte)handshakeResult[InitializationDataKey.SendMultiple]);
+            packetProcessActions.SetEncodeMultiples(handshakeResult[InitializationDataKey.ReceiveMultiple],
+                handshakeResult[InitializationDataKey.SendMultiple]);
 
             connectionActions.CompleteHandshake(handshakeResult);
         }
@@ -183,7 +188,13 @@ namespace EOBot.Interpreter
         private void JoinParty(int characterId)
         {
             var c = DependencyMaster.TypeRegistry[_botIndex];
-            c.Resolve<IPartyActions>().RequestParty(PartyRequestType.Join, (short)characterId);
+            c.Resolve<IPartyActions>().RequestParty(PartyRequestType.Join, characterId);
+        }
+
+        private void Chat(string chatText)
+        {
+            var c = DependencyMaster.TypeRegistry[_botIndex];
+            c.Resolve<IChatActions>().SendChatToServer(chatText, string.Empty, ChatType.Local);
         }
 
         private (bool, IIdentifiable) SetupAccountObject()
@@ -218,6 +229,7 @@ namespace EOBot.Interpreter
             charObj.SymbolTable["x"] = (true, () => new IntVariable(cp.MainCharacter.RenderProperties.MapX));
             charObj.SymbolTable["y"] = (true, () => new IntVariable(cp.MainCharacter.RenderProperties.MapY));
             charObj.SymbolTable["direction"] = (true, () => new IntVariable((int)cp.MainCharacter.RenderProperties.Direction));
+            charObj.SymbolTable["admin"] = (true, () => new IntVariable((int)cp.MainCharacter.AdminLevel));
             charObj.SymbolTable["inventory"] = (true,
                 () => new ArrayVariable(
                     inventoryProvider.ItemInventory.Select(x =>

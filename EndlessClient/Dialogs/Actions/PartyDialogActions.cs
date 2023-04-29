@@ -39,13 +39,13 @@ namespace EndlessClient.Dialogs.Actions
             _configurationProvider = configurationProvider;
         }
 
-        public void NotifyPartyRequest(PartyRequestType type, short playerId, string name)
+        public void NotifyPartyRequest(PartyRequestType type, int playerId, string name)
         {
             if (!_configurationProvider.Interaction)
                 return;
 
             var dlg = _messageBoxFactory.CreateMessageBox(
-                char.ToUpper(name[0]) + name[1..],
+                $"{char.ToUpper(name[0])}{name[1..]} ",
                 type == PartyRequestType.Join
                     ? DialogResourceID.PARTY_GROUP_REQUEST_TO_JOIN
                     : DialogResourceID.PARTY_GROUP_SEND_INVITATION,

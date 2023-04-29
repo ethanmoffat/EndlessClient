@@ -171,7 +171,7 @@ namespace EndlessClient.Dialogs
 
             _listItems = new List<ListDialogItem>();
 
-            _titleText = new XNALabel(Constants.FontSize09)
+            _titleText = new XNALabel(Constants.FontSize08pt5)
             {
                 DrawArea = GetTitleDrawArea(DialogSize),
                 AutoSize = false,
@@ -186,6 +186,7 @@ namespace EndlessClient.Dialogs
                 Visible = DialogSize != ScrollingListDialogSize.LargeNoScroll && DialogSize != ScrollingListDialogSize.SmallNoScroll,
             };
             _scrollBar.SetParentControl(this);
+            SetScrollWheelHandler(_scrollBar);
 
             BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, GetBackgroundTexture(DialogSize));
             BackgroundTextureSource = GetBackgroundSourceRectangle(BackgroundTexture, DialogSize);

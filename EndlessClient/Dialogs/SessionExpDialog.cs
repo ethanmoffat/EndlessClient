@@ -43,9 +43,9 @@ namespace EndlessClient.Dialogs
             okButton.SetParentControl(this);
             okButton.Initialize();
 
-            var title = new XNALabel(Constants.FontSize09)
+            var title = new XNALabel(Constants.FontSize08pt5)
             {
-                DrawPosition = new Vector2(20, 17),
+                DrawPosition = new Vector2(20, 16),
                 AutoSize = false,
                 Text = localizedStringFinder.GetString(EOResourceID.DIALOG_TITLE_PERFORMANCE),
                 ForeColor = ColorConstants.LightGrayText
@@ -56,18 +56,18 @@ namespace EndlessClient.Dialogs
             XNALabel[] leftSide = new XNALabel[8], rightSide = new XNALabel[8];
             for (int i = 0; i < leftSide.Length; i++)
             {
-                leftSide[i] = new XNALabel(Constants.FontSize09)
+                leftSide[i] = new XNALabel(Constants.FontSize08pt5)
                 {
-                    DrawPosition = new Vector2(38, 48 + 18 * i),
+                    DrawPosition = new Vector2(38, 48 + 16 * i),
                     AutoSize = false,
                     ForeColor = ColorConstants.LightGrayText
                 };
                 leftSide[i].SetParentControl(this);
                 leftSide[i].Initialize();
 
-                rightSide[i] = new XNALabel(Constants.FontSize09)
+                rightSide[i] = new XNALabel(Constants.FontSize08pt5)
                 {
-                    DrawPosition = new Vector2(158, 48 + 18 * i),
+                    DrawPosition = new Vector2(158, 48 + 16 * i),
                     AutoSize = false,
                     ForeColor = ColorConstants.LightGrayText
                 };
@@ -113,10 +113,10 @@ namespace EndlessClient.Dialogs
             _spriteBatch.Begin();
 
             for (int i = 0; i < 8; i++)
-                _spriteBatch.Draw(_icons, new Vector2(DrawPositionWithParentOffset.X + 18, DrawPositionWithParentOffset.Y + 47 + 18 * i), _iconSource, Color.White);
+                _spriteBatch.Draw(_icons, new Vector2(DrawPositionWithParentOffset.X + 18, DrawPositionWithParentOffset.Y + 47 + 16 * i), _iconSource, Color.White);
 
             for(int i = 0; i < 3; i++)
-                _spriteBatch.Draw(_icons, new Vector2(DrawPositionWithParentOffset.X + 142, DrawPositionWithParentOffset.Y + 48 + 18 * i), _signalSource, Color.White);
+                _spriteBatch.Draw(_icons, new Vector2(DrawPositionWithParentOffset.X + 142, DrawPositionWithParentOffset.Y + 48 + 16 * i), _signalSource, Color.White);
 
             _spriteBatch.End();
         }

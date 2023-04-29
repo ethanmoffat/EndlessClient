@@ -10,11 +10,11 @@ namespace EOLib.Domain.Notifiers
 
         void StartNPCAttackAnimation(int npcIndex);
 
-        void RemoveNPCFromView(int npcIndex, int playerId, Option<short> spellId, Option<int> damage, bool showDeathAnimation);
+        void RemoveNPCFromView(int npcIndex, int playerId, Option<int> spellId, Option<int> damage, bool showDeathAnimation);
 
         void ShowNPCSpeechBubble(int npcIndex, string message);
 
-        void NPCTakeDamage(short npcIndex, int fromPlayerId, int damageToNpc, short npcPctHealth, Option<int> spellId);
+        void NPCTakeDamage(int npcIndex, int fromPlayerId, int damageToNpc, int npcPctHealth, Option<int> spellId);
 
         void NPCDropItem(MapItem item);
     }
@@ -26,11 +26,11 @@ namespace EOLib.Domain.Notifiers
 
         public void StartNPCAttackAnimation(int npcIndex) { }
 
-        public void RemoveNPCFromView(int npcIndex, int playerId, Option<short> spellId, Option<int> damage, bool showDeathAnimation) { }
+        public void RemoveNPCFromView(int npcIndex, int playerId, Option<int> spellId, Option<int> damage, bool showDeathAnimation) { }
 
         public void ShowNPCSpeechBubble(int npcIndex, string message) { }
 
-        public void NPCTakeDamage(short npcIndex, int fromPlayerId, int damageToNpc, short npcPctHealth, Option<int> spellId) { }
+        public void NPCTakeDamage(int npcIndex, int fromPlayerId, int damageToNpc, int npcPctHealth, Option<int> spellId) { }
 
         public void NPCDropItem(MapItem item) { }
     }

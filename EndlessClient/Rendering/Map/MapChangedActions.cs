@@ -1,8 +1,10 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Audio;
+using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Rendering.Character;
+using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.NPC;
 using EOLib.Config;
 using EOLib.Domain.Chat;
@@ -29,6 +31,7 @@ namespace EndlessClient.Rendering.Map
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IMfxPlayer _mfxPlayer;
         private readonly ISfxPlayer _sfxPlayer;
+        private readonly IChatController _chatController;
 
         public MapChangedActions(ICharacterStateCache characterStateCache,
                                  INPCStateCache npcStateCache,
@@ -41,7 +44,8 @@ namespace EndlessClient.Rendering.Map
                                  ICurrentMapStateRepository currentMapStateRepository,
                                  IConfigurationProvider configurationProvider,
                                  IMfxPlayer mfxPlayer,
-                                 ISfxPlayer sfxPlayer)
+                                 ISfxPlayer sfxPlayer,
+                                 IChatController chatController)
         {
             _characterStateCache = characterStateCache;
             _npcStateCache = npcStateCache;
@@ -55,6 +59,7 @@ namespace EndlessClient.Rendering.Map
             _configurationProvider = configurationProvider;
             _mfxPlayer = mfxPlayer;
             _sfxPlayer = sfxPlayer;
+            _chatController = chatController;
         }
 
         public void ActiveCharacterEnterMapForLogin()
@@ -82,6 +87,8 @@ namespace EndlessClient.Rendering.Map
 
             if (!differentMapID)
                 RedrawGroundLayer();
+
+            _chatController.ClearAndWarnIfJailAndGlobal();
         }
 
         public void NotifyMapMutation()
@@ -176,7 +183,7 @@ namespace EndlessClient.Rendering.Map
             _characterRendererRepository.MainCharacterRenderer.MatchSome(r =>
             {
                 if (animation == WarpAnimation.Admin)
-                    r.ShowWarpArrive();
+                    r.PlayEffect((int)HardCodedEffect.WarpArrive);
             });
         }
 
@@ -206,7 +213,10 @@ namespace EndlessClient.Rendering.Map
 
             var noise = _currentMapProvider.CurrentMap.Properties.AmbientNoise;
             if (noise > 0)
-                _sfxPlayer.PlayLoopingSfx((SoundEffectID)noise - 1);
+            {
+                _sfxPlayer.StopLoopingSfx();
+                _sfxPlayer.PlayLoopingSfx((SoundEffectID)noise);
+            }
             else
                 _sfxPlayer.StopLoopingSfx();
         }

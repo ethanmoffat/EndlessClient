@@ -4,7 +4,7 @@ namespace EOLib.Domain.Protocol
 {
     public class InitializationOutOfDateData : IInitializationData
     {
-        private readonly byte _requiredVersionNumber;
+        private readonly int _requiredVersionNumber;
         public InitReply Response => InitReply.ClientOutOfDate;
 
         public int this[InitializationDataKey key]
@@ -17,7 +17,7 @@ namespace EOLib.Domain.Protocol
             }
         }
 
-        public InitializationOutOfDateData(byte requiredVersionNumber)
+        public InitializationOutOfDateData(int requiredVersionNumber)
         {
             _requiredVersionNumber = requiredVersionNumber;
         }

@@ -88,7 +88,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         public virtual void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
         {
-            if ((DateTime.Now - _lastFrameTime).TotalMilliseconds > 500)
+            if ((DateTime.Now - _lastFrameTime).TotalMilliseconds > 600)
             {
                 _lastFrameTime = DateTime.Now;
                 _frameIndex = (_frameIndex + 1) % 4;

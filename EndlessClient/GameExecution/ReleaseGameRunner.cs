@@ -1,10 +1,11 @@
 ﻿using System;
-using System.Runtime.InteropServices;
+using AutomaticTypeMapper;
+
 using System.Runtime.Versioning;
-#if !LINUX
+
+#if !LINUX && !OSX
 using System.Windows.Forms;
 #endif
-using AutomaticTypeMapper;
 
 namespace EndlessClient.GameExecution
 {
@@ -24,15 +25,11 @@ namespace EndlessClient.GameExecution
             }
             catch (Exception ex)
             {
-#if !LINUX
-                MessageBox.Show(
-                    $"Error setting up dependencies for the game! Error message is:\n\n{ex.Message}",
-                    "Dependency setup error!",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
-#else
-                throw;
-#endif
+                if (OperatingSystem.IsWindows())
+                    ShowExceptionDialog(ex);
+                else
+                    Console.WriteLine($"Exception thrown during dependency setup: {ex.Message}\n\n{ex.StackTrace}");
+
                 return false;
             }
         }
@@ -45,21 +42,17 @@ namespace EndlessClient.GameExecution
             }
             catch (Exception ex)
             {
-#if !LINUX
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                if (OperatingSystem.IsWindows())
                     ShowExceptionDialog(ex);
                 else
-                    throw;
-#else
-                throw;
-#endif
+                    Console.WriteLine($"Exception thrown during game execution: {ex.Message}\n\n{ex.StackTrace}");
             }
         }
 
-#if !LINUX
         [SupportedOSPlatform("Windows")]
         private static void ShowExceptionDialog(Exception ex)
         {
+#if !LINUX && !OSX
             Application.EnableVisualStyles();
 
             var exForm = new Form
@@ -115,7 +108,7 @@ namespace EndlessClient.GameExecution
             exForm.Controls.Add(exLabel2);
             exForm.Controls.Add(exLabel1);
             exForm.ShowDialog();
-        }
 #endif
+        }
     }
 }

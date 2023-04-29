@@ -26,7 +26,7 @@ namespace EndlessClient.Audio
             if (!_configurationProvider.SoundEnabled)
                 return;
 
-            _contentProvider.SFX[id].Play();
+            _contentProvider.SFX[id - 1].Play();
         }
 
         public void PlayHarpNote(int index)
@@ -52,7 +52,7 @@ namespace EndlessClient.Audio
 
             StopLoopingSfx();
 
-            _loopingSfx = _contentProvider.SFX[id].CreateInstance();
+            _loopingSfx = _contentProvider.SFX[id - 1].CreateInstance();
             _loopingSfx.IsLooped = true;
             _loopingSfx.Volume = 0.5f;
             _loopingSfx.Play();

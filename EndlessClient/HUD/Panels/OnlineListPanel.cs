@@ -10,7 +10,9 @@ using EOLib.Extensions;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.BitmapFonts;
+using MonoGame.Extended.Input;
+using MonoGame.Extended.Input.InputListeners;
 using Optional.Unsafe;
 using System;
 using System.Collections.Generic;
@@ -40,12 +42,12 @@ namespace EndlessClient.HUD.Panels
         private readonly IFriendIgnoreListService _friendIgnoreListService;
         private readonly ISfxPlayer _sfxPlayer;
 
-        private readonly SpriteFont _chatFont;
+        private readonly BitmapFont _chatFont;
 
         private readonly List<OnlinePlayerInfo> _onlineList;
         private readonly IXNALabel _totalNumberOfPlayers;
         private readonly ScrollBar _scrollBar;
-        private readonly Rectangle _filterClickArea;
+        private readonly ClickableArea _filterClickArea;
 
         private readonly Texture2D _weirdOffsetTextureSheet, _chatIconsTexture;
         private readonly Rectangle[] _filterTextureSources;
@@ -62,7 +64,7 @@ namespace EndlessClient.HUD.Panels
                                IPartyDataProvider partyDataProvider,
                                IFriendIgnoreListService friendIgnoreListService,
                                ISfxPlayer sfxPlayer,
-                               SpriteFont chatFont)
+                               BitmapFont chatFont)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _hudControlProvider = hudControlProvider;
@@ -92,8 +94,11 @@ namespace EndlessClient.HUD.Panels
                 Visible = true
             };
             _scrollBar.SetParentControl(this);
+            SetScrollWheelHandler(_scrollBar);
 
-            _filterClickArea = new Rectangle(2 + DrawAreaWithParentOffset.X, 2 + DrawAreaWithParentOffset.Y, 14, 14);
+            _filterClickArea = new ClickableArea(new Rectangle(2, 2, 14, 14));
+            _filterClickArea.SetParentControl(this);
+            _filterClickArea.OnClick += FilterClickArea_Click;
 
             _weirdOffsetTextureSheet = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 27, true);
             _chatIconsTexture = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 32, true);
@@ -111,12 +116,9 @@ namespace EndlessClient.HUD.Panels
         {
             _totalNumberOfPlayers.Initialize();
             _scrollBar.Initialize();
+            _filterClickArea.Initialize();
 
             base.Initialize();
-        }
-
-        public void UpdateOnlinePlayers(IReadOnlyList<OnlinePlayerInfo> onlinePlayers)
-        {
         }
 
         protected override void OnUpdateControl(GameTime gameTime)
@@ -142,32 +144,6 @@ namespace EndlessClient.HUD.Panels
                     _friendList = _friendIgnoreListService.LoadList(Constants.FriendListFile);
 
                     ApplyFilter();
-                }
-            }
-
-            if (_filterClickArea.ContainsPoint(CurrentMouseState.X, CurrentMouseState.Y) &&
-                CurrentMouseState.LeftButton == ButtonState.Released &&
-                PreviousMouseState.LeftButton == ButtonState.Pressed)
-            {
-                _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
-                _filter = (Filter)(((int)_filter + 1) % (int)Filter.Max);
-                _scrollBar.ScrollToTop();
-
-                ApplyFilter();
-            }
-            else if (CurrentMouseState.RightButton == ButtonState.Released &&
-                PreviousMouseState.RightButton == ButtonState.Pressed)
-            {
-                var mousePos = CurrentMouseState.Position;
-                if (mousePos.X >= DrawAreaWithParentOffset.X + DRAW_NAME_X && mousePos.X <= _scrollBar.DrawAreaWithParentOffset.X &&
-                    mousePos.Y >= DrawAreaWithParentOffset.Y + DRAW_OFFSET_Y && mousePos.Y <= DrawAreaWithParentOffset.Y + DrawAreaWithParentOffset.Height)
-                {
-                    var index = (mousePos.Y - (DrawAreaWithParentOffset.Y + DRAW_OFFSET_Y)) / 13;
-                    if (index >= 0 && index <= _filteredList.Count)
-                    {
-                        var name = _filteredList[_scrollBar.ScrollOffset + index].Name;
-                        _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox).Text = $"!{name} ";
-                    }
                 }
             }
 
@@ -200,6 +176,35 @@ namespace EndlessClient.HUD.Panels
             }
 
             _spriteBatch.End();
+        }
+
+        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            if (eventArgs.Button != MouseButton.Right)
+                return false;
+
+            var mousePos = eventArgs.Position;
+            if (mousePos.X >= DrawAreaWithParentOffset.X + DRAW_NAME_X && mousePos.X <= _scrollBar.DrawAreaWithParentOffset.X &&
+                mousePos.Y >= DrawAreaWithParentOffset.Y + DRAW_OFFSET_Y && mousePos.Y <= DrawAreaWithParentOffset.Y + DrawAreaWithParentOffset.Height)
+            {
+                var index = (mousePos.Y - (DrawAreaWithParentOffset.Y + DRAW_OFFSET_Y)) / 13;
+                if (index >= 0 && index <= _filteredList.Count)
+                {
+                    var name = _filteredList[_scrollBar.ScrollOffset + index].Name;
+                    _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox).Text = $"!{name} ";
+                }
+            }
+
+            return true;
+        }
+
+        private void FilterClickArea_Click(object sender, EventArgs e)
+        {
+            _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
+            _filter = (Filter)(((int)_filter + 1) % (int)Filter.Max);
+            _scrollBar.ScrollToTop();
+
+            ApplyFilter();
         }
 
         private void ApplyFilter()

@@ -36,7 +36,7 @@ namespace EOLib.Domain.Item
             if (itemData.Special == ItemSpecial.Lore)
                 return ItemDropResult.Lore;
 
-            if (_currentMapStateProvider.JailMapID == _currentMapStateProvider.CurrentMapID)
+            if (_currentMapStateProvider.IsJail)
                 return ItemDropResult.Jail;
 
             var rp = mainCharacter.RenderProperties;

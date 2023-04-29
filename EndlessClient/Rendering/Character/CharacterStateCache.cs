@@ -11,7 +11,7 @@ namespace EndlessClient.Rendering.Character
     [AutoMappedType(IsSingleton = true)]
     public class CharacterStateCache : ICharacterStateCache
     {
-        public Option<EOLib.Domain.Character.Character> MainCharacter { get; private set; }
+        public Option<DomainCharacter> MainCharacter { get; private set; }
 
         private readonly Dictionary<int, DomainCharacter> _otherCharacters;
         private readonly List<RenderFrameActionTime> _deathStartTimes;

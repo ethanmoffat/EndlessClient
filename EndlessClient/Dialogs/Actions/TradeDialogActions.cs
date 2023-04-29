@@ -41,7 +41,7 @@ namespace EndlessClient.Dialogs.Actions
             _configurationProvider = configurationProvider;
         }
 
-        public void NotifyTradeRequest(short playerId, string name)
+        public void NotifyTradeRequest(int playerId, string name)
         {
             if (!_configurationProvider.Interaction)
                 return;

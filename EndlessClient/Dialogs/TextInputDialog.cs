@@ -1,6 +1,6 @@
 ﻿using EndlessClient.Content;
 using EndlessClient.Dialogs.Services;
-using EndlessClient.Input;
+using EndlessClient.HUD.Chat;
 using EOLib;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
@@ -10,32 +10,27 @@ namespace EndlessClient.Dialogs
 {
     public class TextInputDialog : BaseEODialog
     {
-        private readonly IKeyboardDispatcherRepository _keyboardDispatcherRepository;
-
         private readonly IXNATextBox _inputBox;
-        private readonly IKeyboardSubscriber _previousSubscriber;
 
         public string ResponseText => _inputBox.Text;
 
         public TextInputDialog(INativeGraphicsManager nativeGraphicsManager,
+                               IChatTextBoxActions chatTextBoxActions,
                                IEODialogButtonService eoDialogButtonService,
-                               IKeyboardDispatcherRepository keyboardDispatcherRepository,
                                IContentProvider contentProvider,
                                string prompt,
                                int maxInputChars = 12)
             : base(nativeGraphicsManager, isInGame: true)
         {
-            _keyboardDispatcherRepository = keyboardDispatcherRepository;
-
             BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 54);
             SetSize(BackgroundTexture.Width, BackgroundTexture.Height);
 
             var lblPrompt = new XNALabel(Constants.FontSize10)
             {
                 AutoSize = false,
-                DrawArea = new Rectangle(16, 20, 235, 49),
+                DrawArea = new Rectangle(21, 19, 230, 49),
                 ForeColor = ColorConstants.LightGrayDialogMessage,
-                TextWidth = 230,
+                TextWidth = 225,
                 Text = prompt
             };
             lblPrompt.Initialize();
@@ -45,13 +40,11 @@ namespace EndlessClient.Dialogs
             {
                 MaxChars = maxInputChars,
                 LeftPadding = 4,
-                TextColor = ColorConstants.LightBeigeText
+                TextColor = ColorConstants.LightBeigeText,
+                Selected = true,
             };
             _inputBox.Initialize();
             _inputBox.SetParentControl(this);
-
-            _previousSubscriber = _keyboardDispatcherRepository.Dispatcher.Subscriber;
-            _keyboardDispatcherRepository.Dispatcher.Subscriber = _inputBox;
 
             var ok = new XNAButton(eoDialogButtonService.SmallButtonSheet,
                 new Vector2(41, 103),
@@ -67,7 +60,7 @@ namespace EndlessClient.Dialogs
             cancel.OnClick += (_, _) => Close(XNADialogResult.Cancel);
             cancel.SetParentControl(this);
 
-            DialogClosed += (_, _) => _keyboardDispatcherRepository.Dispatcher.Subscriber = _previousSubscriber;
+            DialogClosed += (_, _) => chatTextBoxActions.FocusChatTextBox();
 
             CenterInGameView();
             DrawPosition += new Vector2(0, 17);

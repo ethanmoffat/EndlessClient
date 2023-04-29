@@ -1,9 +1,8 @@
-﻿using System;
-using EndlessClient.Input;
-using EndlessClient.Rendering;
+﻿using EndlessClient.Rendering;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
+using System;
 
 namespace EndlessClient.HUD.StatusBars
 {
@@ -13,9 +12,8 @@ namespace EndlessClient.HUD.StatusBars
 
         public HPStatusBar(INativeGraphicsManager nativeGraphicsManager,
                            IClientWindowSizeProvider clientWindowSizeProvider,
-                           ICharacterProvider characterProvider,
-                           IUserInputRepository userInputRepository)
-            : base(nativeGraphicsManager, clientWindowSizeProvider, characterProvider, userInputRepository)
+                           ICharacterProvider characterProvider)
+            : base(nativeGraphicsManager, clientWindowSizeProvider, characterProvider)
         {
             DrawArea = new Rectangle(100, 0, _sourceRectangleArea.Width, _sourceRectangleArea.Height);
             ChangeStatusBarPosition();

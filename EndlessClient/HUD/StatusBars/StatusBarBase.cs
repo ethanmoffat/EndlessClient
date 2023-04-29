@@ -1,13 +1,12 @@
-﻿using System;
-using EndlessClient.Input;
-using EndlessClient.Rendering;
+﻿using EndlessClient.Rendering;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.Input.InputListeners;
 using Optional;
+using System;
 using XNAControls;
 
 namespace EndlessClient.HUD.StatusBars
@@ -17,7 +16,6 @@ namespace EndlessClient.HUD.StatusBars
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
         private readonly ICharacterProvider _characterProvider;
-        private readonly IUserInputRepository _userInputRepository;
 
         protected readonly XNALabel _label;
         protected readonly Texture2D _texture;
@@ -34,13 +32,11 @@ namespace EndlessClient.HUD.StatusBars
 
         protected StatusBarBase(INativeGraphicsManager nativeGraphicsManager,
                                 IClientWindowSizeProvider clientWindowSizeProvider,
-                                ICharacterProvider characterProvider,
-                                IUserInputRepository userInputRepository)
+                                ICharacterProvider characterProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _clientWindowSizeProvider = clientWindowSizeProvider;
             _characterProvider = characterProvider;
-            _userInputRepository = userInputRepository;
 
             _texture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 58, true);
 
@@ -71,19 +67,6 @@ namespace EndlessClient.HUD.StatusBars
 
         protected override void OnUpdateControl(GameTime gameTime)
         {
-            if (MouseOver &&
-                CurrentMouseState.LeftButton == ButtonState.Released &&
-                PreviousMouseState.LeftButton == ButtonState.Pressed)
-            {
-                // eat this mouse click so that other game elements don't attempt to use it
-                _userInputRepository.PreviousMouseState = _userInputRepository.CurrentMouseState;
-
-                _label.Visible = !_label.Visible;
-                _labelShowTime = _label.SomeWhen(x => x.Visible).Map(_ => DateTime.Now);
-
-                StatusBarClicked?.Invoke();
-            }
-
             _labelShowTime.MatchSome(x =>
             {
                 UpdateLabelText();
@@ -115,6 +98,16 @@ namespace EndlessClient.HUD.StatusBars
             }
 
             base.OnDrawControl(gameTime);
+        }
+
+        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            _label.Visible = !_label.Visible;
+            _labelShowTime = _label.SomeWhen(x => x.Visible).Map(_ => DateTime.Now);
+
+            StatusBarClicked?.Invoke();
+
+            return true;
         }
 
         protected void ChangeStatusBarPosition()

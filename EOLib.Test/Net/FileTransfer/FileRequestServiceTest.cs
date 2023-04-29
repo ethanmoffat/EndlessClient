@@ -52,7 +52,6 @@ namespace EOLib.Test.Net.FileTransfer
         public void RequestFile_ResponsePacketInvalidExtraByte_ThrowsMalformedPacketException()
         {
             Mock.Get(_packetSendService).SetupReceivedPacketHasHeader(PacketFamily.Init, PacketAction.Init, (byte)InitReply.ItemFile, 33);
-
             Assert.ThrowsAsync<MalformedPacketException>(async () => await _fileRequestService.RequestFile<EIFRecord>(InitFileType.Item, 1));
         }
 
@@ -84,10 +83,30 @@ namespace EOLib.Test.Net.FileTransfer
                 AggregateException aggEx = null;
                 switch (type)
                 {
-                    case InitFileType.Item: aggEx = _fileRequestService.RequestFile<EIFRecord>(type, 1).Exception; break;
-                    case InitFileType.Npc: aggEx = _fileRequestService.RequestFile<ENFRecord>(type, 1).Exception; break;
-                    case InitFileType.Spell: aggEx = _fileRequestService.RequestFile<ESFRecord>(type, 1).Exception; break;
-                    case InitFileType.Class: aggEx = _fileRequestService.RequestFile<ECFRecord>(type, 1).Exception; break;
+                    case InitFileType.Item:
+                        Mock.Get(_pubFileDeserializer)
+                            .Setup(x => x.DeserializeFromByteArray(1, It.IsAny<byte[]>(), It.IsAny<Func<IPubFile<EIFRecord>>>()))
+                            .Returns(new EIFFile());
+                        aggEx = _fileRequestService.RequestFile<EIFRecord>(type, 1).Exception;
+                        break;
+                    case InitFileType.Npc:
+                        Mock.Get(_pubFileDeserializer)
+                            .Setup(x => x.DeserializeFromByteArray(1, It.IsAny<byte[]>(), It.IsAny<Func<IPubFile<ENFRecord>>>()))
+                            .Returns(new ENFFile());
+                        aggEx = _fileRequestService.RequestFile<ENFRecord>(type, 1).Exception;
+                        break;
+                    case InitFileType.Spell:
+                        Mock.Get(_pubFileDeserializer)
+                            .Setup(x => x.DeserializeFromByteArray(1, It.IsAny<byte[]>(), It.IsAny<Func<IPubFile<ESFRecord>>>()))
+                            .Returns(new ESFFile());
+                        aggEx = _fileRequestService.RequestFile<ESFRecord>(type, 1).Exception;
+                        break;
+                    case InitFileType.Class:
+                        Mock.Get(_pubFileDeserializer)
+                            .Setup(x => x.DeserializeFromByteArray(1, It.IsAny<byte[]>(), It.IsAny<Func<IPubFile<ECFRecord>>>()))
+                            .Returns(new ECFFile());
+                        aggEx = _fileRequestService.RequestFile<ECFRecord>(type, 1).Exception;
+                        break;
                 }
 
                 if (aggEx != null)

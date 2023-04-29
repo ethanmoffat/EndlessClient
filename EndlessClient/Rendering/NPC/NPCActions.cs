@@ -68,7 +68,7 @@ namespace EndlessClient.Rendering.NPC
             _sfxPlayer.PlaySfx(SoundEffectID.PunchAttack);
         }
 
-        public void RemoveNPCFromView(int npcIndex, int playerId, Option<short> spellId, Option<int> damage, bool showDeathAnimation)
+        public void RemoveNPCFromView(int npcIndex, int playerId, Option<int> spellId, Option<int> damage, bool showDeathAnimation)
         {
             //possible that the server might send a packet for the npc to be removed by the map switch is completed
             if (!_hudControlProvider.IsInGame || !_npcRendererRepository.NPCRenderers.ContainsKey(npcIndex))
@@ -88,7 +88,7 @@ namespace EndlessClient.Rendering.NPC
                 spellId.MatchSome(spell =>
                 {
                     var graphic = _esfFileProvider.ESFFile[spell].Graphic;
-                    _npcRendererRepository.NPCRenderers[npcIndex].ShowSpellAnimation(graphic);
+                    _npcRendererRepository.NPCRenderers[npcIndex].PlayEffect(graphic);
                     ShoutSpellCast(playerId);
                 });
 
@@ -101,7 +101,7 @@ namespace EndlessClient.Rendering.NPC
             _chatBubbleActions.ShowChatBubbleForNPC(npcIndex, message);
         }
 
-        public void NPCTakeDamage(short npcIndex, int fromPlayerId, int damageToNpc, short npcPctHealth, Option<int> spellId)
+        public void NPCTakeDamage(int npcIndex, int fromPlayerId, int damageToNpc, int npcPctHealth, Option<int> spellId)
         {
             if (_npcRendererRepository.NPCRenderers.ContainsKey(npcIndex))
                 _npcRendererRepository.NPCRenderers[npcIndex].ShowDamageCounter(damageToNpc, npcPctHealth, isHeal: false);
@@ -111,7 +111,7 @@ namespace EndlessClient.Rendering.NPC
                 var renderer = _npcRendererRepository.NPCRenderers[npcIndex];
 
                 var graphic = _esfFileProvider.ESFFile[spell].Graphic;
-                renderer.ShowSpellAnimation(graphic);
+                renderer.PlayEffect(graphic);
                 ShoutSpellCast(fromPlayerId);
             });
         }

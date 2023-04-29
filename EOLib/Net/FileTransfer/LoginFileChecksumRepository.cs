@@ -15,13 +15,13 @@ namespace EOLib.Net.FileTransfer
 
         int ECFChecksum { get; set; }
 
-        short EIFLength { get; set; }
+        int EIFLength { get; set; }
 
-        short ENFLength { get; set; }
+        int ENFLength { get; set; }
 
-        short ESFLength { get; set; }
+        int ESFLength { get; set; }
 
-        short ECFLength { get; set; }
+        int ECFLength { get; set; }
 
         byte[] MapChecksum { get; set; }
 
@@ -41,13 +41,13 @@ namespace EOLib.Net.FileTransfer
 
         int ECFChecksum { get; }
 
-        short EIFLength { get; }
+        int EIFLength { get; }
 
-        short ENFLength { get; }
+        int ENFLength { get; }
 
-        short ESFLength { get; }
+        int ESFLength { get; }
 
-        short ECFLength { get; }
+        int ECFLength { get; }
 
         byte[] MapChecksum { get; }
 
@@ -68,13 +68,13 @@ namespace EOLib.Net.FileTransfer
 
         public int ECFChecksum { get; set; }
 
-        public short EIFLength { get; set; }
+        public int EIFLength { get; set; }
 
-        public short ENFLength { get; set; }
+        public int ENFLength { get; set; }
 
-        public short ESFLength { get; set; }
+        public int ESFLength { get; set; }
 
-        public short ECFLength { get; set; }
+        public int ECFLength { get; set; }
 
         public byte[] MapChecksum { get; set; }
 

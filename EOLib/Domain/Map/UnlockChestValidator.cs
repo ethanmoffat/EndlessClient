@@ -4,6 +4,7 @@ using EOLib.Domain.Character;
 using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 using Optional;
+using Optional.Collections;
 
 namespace EOLib.Domain.Map
 {
@@ -22,25 +23,16 @@ namespace EOLib.Domain.Map
 
         public bool CanMainCharacterOpenChest(ChestKey requiredKey)
         {
-            return GetRequiredKeyName(requiredKey).Match(
-                some: keyName => _characterInventoryProvider
+            return requiredKey == ChestKey.None ||
+                _characterInventoryProvider
                     .ItemInventory
-                    .Where(x => _eifFileProvider.EIFFile[x.ItemID].Type == IO.ItemType.Key)
-                    .Select(x => _eifFileProvider.EIFFile[x.ItemID].Name)
-                    .Any(keyName.Equals),
-                none: () => true);
+                    .Any(x => _eifFileProvider.EIFFile[x.ItemID].Type == IO.ItemType.Key &&
+                              _eifFileProvider.EIFFile[x.ItemID].Key == (int)requiredKey);
         }
 
         public Option<string> GetRequiredKeyName(ChestKey requiredKey)
         {
-            switch (requiredKey)
-            {
-                case ChestKey.Normal: return Option.Some("Normal Key");
-                case ChestKey.Silver: return Option.Some("Silver Key");
-                case ChestKey.Crystal: return Option.Some("Crystal Key");
-                case ChestKey.Wraith: return Option.Some("Wraith Key");
-                default: return Option.None<string>();
-            }
+            return _eifFileProvider.EIFFile.SingleOrNone(x => x.Type == IO.ItemType.Key && x.Key == (int)requiredKey).Map(x => x.Name);
         }
     }
 

@@ -11,9 +11,9 @@ namespace EOLib.Domain.Extensions
         public static int GetDistanceToClosestTileSpec(this IMapFile map, TileSpec spec, MapCoordinate source)
         {
             var shortestDistance = int.MaxValue;
-            for (int row = 0; row < map.Properties.Height; row++)
+            for (int row = 0; row <= map.Properties.Height; row++)
             {
-                for (int col = 0; col < map.Properties.Width; col++)
+                for (int col = 0; col <= map.Properties.Width; col++)
                 {
                     if (map.Tiles[row, col] != spec)
                         continue;
@@ -33,9 +33,9 @@ namespace EOLib.Domain.Extensions
                 ? new Func<TileSpec, bool>(s => specs[0] == s)
                 : new Func<TileSpec, bool>(s => specs.Any(x => x == s));
 
-            for (int row = 0; row < map.Properties.Height; row++)
+            for (int row = 0; row <= map.Properties.Height; row++)
             {
-                for (int col = 0; col < map.Properties.Width; col++)
+                for (int col = 0; col <= map.Properties.Width; col++)
                 {
                     if (contains(map.Tiles[row, col]))
                     {

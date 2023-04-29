@@ -1,6 +1,6 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Factories;
-using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
@@ -12,7 +12,7 @@ using System.Linq;
 
 namespace EndlessClient.Rendering.Character
 {
-    [MappedType(BaseType = typeof(ICharacterRendererUpdater))]
+    [AutoMappedType]
     public class CharacterRendererUpdater : ICharacterRendererUpdater
     {
         private readonly ICharacterProvider _characterProvider;
@@ -104,7 +104,7 @@ namespace EndlessClient.Rendering.Character
                 if (_characterRendererRepository.NeedsWarpArriveAnimation.Contains(id) &&
                     _characterRendererRepository.CharacterRenderers.ContainsKey(id))
                 {
-                    _characterRendererRepository.CharacterRenderers[id].ShowWarpArrive();
+                    _characterRendererRepository.CharacterRenderers[id].PlayEffect((int)HardCodedEffect.WarpArrive);
                     _characterRendererRepository.NeedsWarpArriveAnimation.Remove(id);
                 }
             }
@@ -180,6 +180,7 @@ namespace EndlessClient.Rendering.Character
 
         public void Dispose()
         {
+            _characterStateCache.Reset();
             _characterRendererRepository.Dispose();
         }
     }

@@ -5,8 +5,11 @@ using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.ControlSets;
 using EndlessClient.Network;
+using EOLib.Domain.Character;
+using EOLib.Domain.Login;
 using EndlessClient.Rendering;
 using Microsoft.Xna.Framework;
+using XNAControls.Input;
 
 namespace EndlessClient.GameExecution
 {
@@ -17,6 +20,7 @@ namespace EndlessClient.GameExecution
         private readonly IControlSetRepository _controlSetRepository;
         private readonly IControlSetFactory _controlSetFactory;
         private readonly IEndlessGameProvider _endlessGameProvider;
+        private readonly IPlayerInfoRepository _playerInfoRepository;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IMfxPlayer _mfxPlayer;
 
@@ -24,6 +28,7 @@ namespace EndlessClient.GameExecution
                                 IControlSetRepository controlSetRepository,
                                 IControlSetFactory controlSetFactory,
                                 IEndlessGameProvider endlessGameProvider,
+                                IPlayerInfoRepository playerInfoRepository,
                                 ISfxPlayer sfxPlayer,
                                 IMfxPlayer mfxPlayer)
         {
@@ -31,6 +36,7 @@ namespace EndlessClient.GameExecution
             _controlSetRepository = controlSetRepository;
             _controlSetFactory = controlSetFactory;
             _endlessGameProvider = endlessGameProvider;
+            _playerInfoRepository = playerInfoRepository;
             _sfxPlayer = sfxPlayer;
             _mfxPlayer = mfxPlayer;
         }
@@ -39,6 +45,9 @@ namespace EndlessClient.GameExecution
         {
             if (newState == _gameStateRepository.CurrentState)
                 return;
+
+            if (_gameStateRepository.CurrentState == GameStates.PlayingTheGame)
+                _playerInfoRepository.PlayerIsInGame = false;
 
             var currentSet = _controlSetRepository.CurrentControlSet;
             var nextSet = _controlSetFactory.CreateControlsForState(newState, currentSet);
@@ -91,9 +100,8 @@ namespace EndlessClient.GameExecution
         {
             var componentsToRemove = FindUnusedComponents(currentSet, nextSet);
             var disposableComponents = componentsToRemove
-                .Where(x => !(x is PacketHandlerGameComponent) && !(x is DispatcherGameComponent))
-                .OfType<IDisposable>()
-                .ToList();
+                .Where(x => x is not PacketHandlerGameComponent && x is not InputManager && x is not DispatcherGameComponent)
+                .OfType<IDisposable>();
 
             foreach (var component in disposableComponents)
                 component.Dispose();

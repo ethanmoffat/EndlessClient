@@ -57,6 +57,7 @@ namespace EndlessClient.HUD.Panels
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IPartyActions _partyActions;
         private readonly IPartyDataProvider _partyDataProvider;
+        private readonly IConfigurationProvider _configurationProvider;
 
         public HudPanelFactory(INativeGraphicsManager nativeGraphicsManager,
                                IInventoryController inventoryController,
@@ -86,7 +87,8 @@ namespace EndlessClient.HUD.Panels
                                IAudioActions audioActions,
                                ISfxPlayer sfxPlayer,
                                IPartyActions partyActions,
-                               IPartyDataProvider partyDataProvider)
+                               IPartyDataProvider partyDataProvider,
+                               IConfigurationProvider configurationProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _inventoryController = inventoryController;
@@ -117,6 +119,7 @@ namespace EndlessClient.HUD.Panels
             _sfxPlayer = sfxPlayer;
             _partyActions = partyActions;
             _partyDataProvider = partyDataProvider;
+            _configurationProvider = configurationProvider;
         }
 
         public NewsPanel CreateNewsPanel()
@@ -144,7 +147,8 @@ namespace EndlessClient.HUD.Panels
                 _pubFileProvider,
                 _hudControlProvider,
                 _activeDialogProvider,
-                _sfxPlayer) { DrawOrder = HUD_CONTROL_LAYER };
+                _sfxPlayer,
+                _configurationProvider) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public ActiveSpellsPanel CreateActiveSpellsPanel()
@@ -159,7 +163,8 @@ namespace EndlessClient.HUD.Panels
                 _pubFileProvider,
                 _spellSlotDataRepository,
                 _hudControlProvider,
-                _sfxPlayer) { DrawOrder = HUD_CONTROL_LAYER };
+                _sfxPlayer,
+                _configurationProvider) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public PassiveSpellsPanel CreatePassiveSpellsPanel()

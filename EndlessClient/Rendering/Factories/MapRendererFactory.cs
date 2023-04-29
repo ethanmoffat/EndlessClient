@@ -1,6 +1,7 @@
 using AutomaticTypeMapper;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Character;
+using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Map;
 using EndlessClient.Rendering.MapEntityRenderers;
 using EndlessClient.Rendering.NPC;
@@ -15,6 +16,7 @@ namespace EndlessClient.Rendering.Factories
     {
         private readonly IEndlessGameProvider _endlessGameProvider;
         private readonly IRenderTargetFactory _renderTargetFactory;
+        private readonly IEffectRendererFactory _effectRendererFactory;
         private readonly IMapEntityRendererProvider _mapEntityRendererProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
@@ -25,12 +27,12 @@ namespace EndlessClient.Rendering.Factories
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IMouseCursorRendererFactory _mouseCursorRendererFactory;
         private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
-        private readonly IMapGridEffectTargetFactory _mapGridEffectTargetFactory;
         private readonly IClientWindowSizeRepository _clientWindowSizeRepository;
         private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
 
         public MapRendererFactory(IEndlessGameProvider endlessGameProvider,
             IRenderTargetFactory renderTargetFactory,
+            IEffectRendererFactory effectRendererFactory,
             IMapEntityRendererProvider mapEntityRendererProvider,
             ICharacterProvider characterProvider,
             ICurrentMapProvider currentMapProvider,
@@ -42,12 +44,12 @@ namespace EndlessClient.Rendering.Factories
             IMouseCursorRendererFactory mouseCursorRendererFactory,
             IRenderOffsetCalculator renderOffsetCalculator,
             IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
-            IMapGridEffectTargetFactory mapGridEffectTargetFactory,
             IClientWindowSizeRepository clientWindowSizeRepository,
             IFixedTimeStepRepository fixedTimeStepRepository)
         {
             _endlessGameProvider = endlessGameProvider;
             _renderTargetFactory = renderTargetFactory;
+            _effectRendererFactory = effectRendererFactory;
             _mapEntityRendererProvider = mapEntityRendererProvider;
             _characterProvider = characterProvider;
             _currentMapProvider = currentMapProvider;
@@ -58,7 +60,6 @@ namespace EndlessClient.Rendering.Factories
             _configurationProvider = configurationProvider;
             _mouseCursorRendererFactory = mouseCursorRendererFactory;
             _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
-            _mapGridEffectTargetFactory = mapGridEffectTargetFactory;
             _clientWindowSizeRepository = clientWindowSizeRepository;
             _fixedTimeStepRepository = fixedTimeStepRepository;
         }
@@ -67,6 +68,7 @@ namespace EndlessClient.Rendering.Factories
         {
             return new MapRenderer(_endlessGameProvider.Game,
                                    _renderTargetFactory,
+                                   _effectRendererFactory,
                                    _mapEntityRendererProvider,
                                    _characterProvider,
                                    _currentMapProvider,
@@ -77,7 +79,6 @@ namespace EndlessClient.Rendering.Factories
                                    _configurationProvider,
                                    _mouseCursorRendererFactory.Create(),
                                    _gridDrawCoordinateCalculator,
-                                   _mapGridEffectTargetFactory,
                                    _clientWindowSizeRepository,
                                    _fixedTimeStepRepository);
         }

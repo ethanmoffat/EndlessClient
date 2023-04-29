@@ -153,8 +153,6 @@ namespace EndlessClient.Dialogs
                     }
                 });
 
-            SuppressClickDragEvent(!NoItemsDragging() || !_inventoryPanel.NoItemsDragging());
-
             base.OnUpdateControl(gameTime);
         }
 

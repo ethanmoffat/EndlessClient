@@ -1,15 +1,15 @@
-﻿using System;
-using EndlessClient.GameExecution;
+﻿using EndlessClient.GameExecution;
 using EOLib;
 using EOLib.Config;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Optional;
+using System;
+using System.Diagnostics;
 using XNAControls;
 
 namespace EndlessClient.Rendering.Chat
 {
-    //todo: clear message when IHaveChatBubble dies
     public class ChatBubble : DrawableGameComponent, IChatBubble
     {
         private readonly IMapActor _parent;
@@ -21,7 +21,7 @@ namespace EndlessClient.Rendering.Chat
 
         private bool _isGroupChat;
         private Vector2 _drawLocation;
-        private Option<DateTime> _startTime;
+        private Option<Stopwatch> _startTime;
 
         public ChatBubble(IMapActor referenceRenderer,
                           IChatBubbleTextureProvider chatBubbleTextureProvider,
@@ -37,7 +37,9 @@ namespace EndlessClient.Rendering.Chat
             _textLabel = new XNALabel(Constants.FontSize08pt5)
             {
                 Visible = false,
-                TextWidth = 150,
+                TextWidth = 102,
+                HardBreak = 150,
+                Hyphen = "-",
                 ForeColor = Color.Black,
                 AutoSize = true,
                 Text = string.Empty,
@@ -46,7 +48,7 @@ namespace EndlessClient.Rendering.Chat
             };
 
             _drawLocation = Vector2.Zero;
-            _startTime = Option.None<DateTime>();
+            _startTime = Option.None<Stopwatch>();
 
             DrawOrder = 29;
             Visible = false;
@@ -64,7 +66,7 @@ namespace EndlessClient.Rendering.Chat
 
         public void SetMessage(string message, bool isGroupChat)
         {
-            if (!_configurationProvider.ShowChatBubbles)
+            if (!_configurationProvider.ShowChatBubbles || !_parent.IsAlive)
                 return;
 
             _isGroupChat = isGroupChat;
@@ -72,7 +74,17 @@ namespace EndlessClient.Rendering.Chat
             Visible = true;
             _textLabel.Visible = true;
 
-            _startTime = Option.Some(DateTime.Now);
+            _startTime = Option.Some(Stopwatch.StartNew());
+        }
+
+        public void Hide()
+        {
+            Visible = _textLabel.Visible = false;
+        }
+
+        public void Show()
+        {
+            Visible = _textLabel.Visible = _parent.IsAlive && _startTime.HasValue;
         }
 
         public override void Update(GameTime gameTime)
@@ -84,11 +96,11 @@ namespace EndlessClient.Rendering.Chat
 
             _startTime.MatchSome(st =>
             {
-                if ((DateTime.Now - st).TotalMilliseconds > Constants.ChatBubbleTimeout)
+                if (st.ElapsedMilliseconds > (24 + _textLabel.Text.Length / 3)*120)
                 {
                     _textLabel.Visible = false;
                     Visible = false;
-                    _startTime = Option.None<DateTime>();
+                    _startTime = Option.None<Stopwatch>();
                 }
             });
 
@@ -111,7 +123,7 @@ namespace EndlessClient.Rendering.Chat
             var xCov = TL.Width;
             var yCov = TL.Height;
             
-            var color = _isGroupChat ? Color.Tan : Color.FromNonPremultiplied(255, 255, 255, 232);
+            var color = _isGroupChat ? Color.FromNonPremultiplied(247, 234, 164, 232) : Color.FromNonPremultiplied(255, 255, 255, 232);
 
             _spriteBatch.Begin();
 
@@ -155,8 +167,8 @@ namespace EndlessClient.Rendering.Chat
         private void SetLabelDrawPosition()
         {
             _textLabel.DrawPosition = new Vector2(
-                _parent.DrawArea.X + _parent.DrawArea.Width / 2.0f - _textLabel.ActualWidth / 2.0f,
-                _parent.TopPixelWithOffset - _textLabel.ActualHeight - (GetTexture(ChatBubbleTexture.TopMiddle).Height * 5));
+                _parent.HorizontalCenter - _textLabel.ActualWidth / 2.0f,
+                _parent.NameLabelY - _textLabel.ActualHeight);
         }
 
         protected override void Dispose(bool disposing)
@@ -176,6 +188,12 @@ namespace EndlessClient.Rendering.Chat
 
     public interface IChatBubble : IDisposable
     {
+        bool Visible { get; }
+
         void SetMessage(string message, bool isGroupChat);
+
+        void Hide();
+
+        void Show();
     }
 }

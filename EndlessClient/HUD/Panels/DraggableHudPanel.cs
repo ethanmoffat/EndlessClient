@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.Input.InputListeners;
 using Optional;
 using System;
 using XNAControls;
@@ -14,32 +15,25 @@ namespace EndlessClient.HUD.Panels
 
         public bool IsBeingDragged => _dragging.HasValue;
 
-        protected override void OnUpdateControl(GameTime gameTime)
+        protected override bool HandleDrag(IXNAControl control, MouseEventArgs eventArgs)
         {
-            if (PreviousMouseState.LeftButton == ButtonState.Pressed &&
-                CurrentMouseState.LeftButton == ButtonState.Pressed &&
-                DrawAreaWithParentOffset.Contains(CurrentMouseState.X, CurrentMouseState.Y) && ShouldClickDrag)
-            {
-                _dragging
-                    .FlatMap(p => p.NoneWhen(q => p == this))
-                    .MatchNone(() =>
-                    {
-                        _dragging = Option.Some(this);
+            _dragging
+                .FlatMap(p => p.NoneWhen(q => p == this))
+                .MatchNone(() =>
+                {
+                    _dragging = Option.Some(this);
+                    DrawPosition = DrawPositionWithParentOffset + eventArgs.DistanceMoved;
+                });
 
-                        DrawPosition = new Vector2(
-                            DrawPositionWithParentOffset.X + (CurrentMouseState.X - PreviousMouseState.X),
-                            DrawPositionWithParentOffset.Y + (CurrentMouseState.Y - PreviousMouseState.Y));
-                    });
-            }
-            else if (PreviousMouseState.LeftButton == ButtonState.Pressed
-                && CurrentMouseState.LeftButton == ButtonState.Released &&
-                DrawAreaWithParentOffset.Contains(CurrentMouseState.X, CurrentMouseState.Y) && ShouldClickDrag)
-            {
-                _dragging = Option.None<DraggableHudPanel>();
-                DragCompleted?.Invoke();
-            }
+            return true;
+        }
 
-            base.OnUpdateControl(gameTime);
+        protected override bool HandleDragEnd(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            _dragging = Option.None<DraggableHudPanel>();
+            DragCompleted?.Invoke();
+
+            return true;
         }
     }
 }

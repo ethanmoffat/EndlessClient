@@ -3,6 +3,8 @@ using EndlessClient.UIControls;
 using EOLib.Domain.Login;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
+using MonoGame.Extended.BitmapFonts;
+using XNAControls;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +18,7 @@ namespace EndlessClient.HUD.Panels
         private readonly INewsProvider _newsProvider;
         private readonly ScrollBar _scrollBar;
         private readonly List<IChatRenderable> _chatRenderables;
-        private readonly SpriteFont _chatFont;
+        private readonly BitmapFont _chatFont;
 
         //cached data fields
         private readonly List<string> _cachedNewsStrings;
@@ -28,7 +30,7 @@ namespace EndlessClient.HUD.Panels
         public NewsPanel(INativeGraphicsManager nativeGraphicsManager,
                          IChatRenderableGenerator chatRenderableGenerator,
                          INewsProvider newsProvider,
-                         SpriteFont chatFont)
+                         BitmapFont chatFont)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _chatRenderableGenerator = chatRenderableGenerator;
@@ -41,6 +43,7 @@ namespace EndlessClient.HUD.Panels
                 Visible = true
             };
             _scrollBar.SetParentControl(this);
+            SetScrollWheelHandler(_scrollBar);
 
             _chatRenderables = new List<IChatRenderable>();
             _chatFont = chatFont;

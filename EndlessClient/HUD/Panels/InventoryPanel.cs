@@ -19,6 +19,8 @@ using EOLib.IO.Repositories;
 using EOLib.Localization;
 using Microsoft.Win32;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended.Input;
 using Optional;
 using Optional.Collections;
 using System;
@@ -31,7 +33,7 @@ using XNAControls;
 
 namespace EndlessClient.HUD.Panels
 {
-    public class InventoryPanel : DraggableHudPanel
+    public class InventoryPanel : DraggableHudPanel, IHudPanel, IDraggableItemContainer
     {
         public const int InventoryRows = 4;
         public const int InventoryRowSlots = 14;
@@ -49,6 +51,7 @@ namespace EndlessClient.HUD.Panels
         private readonly IHudControlProvider _hudControlProvider;
         private readonly IActiveDialogProvider _activeDialogProvider;
         private readonly ISfxPlayer _sfxPlayer;
+        private readonly IConfigurationProvider _configProvider;
 
         private readonly List<InventoryPanelItem> _childItems = new List<InventoryPanelItem>();
 
@@ -58,6 +61,8 @@ namespace EndlessClient.HUD.Panels
 
         private Option<CharacterStats> _cachedStats;
         private HashSet<InventoryItem> _cachedInventory;
+
+        private Texture2D _whitePixel;
 
         public INativeGraphicsManager NativeGraphicsManager { get; }
 
@@ -74,7 +79,8 @@ namespace EndlessClient.HUD.Panels
                               IPubFileProvider pubFileProvider,
                               IHudControlProvider hudControlProvider,
                               IActiveDialogProvider activeDialogProvider,
-                              ISfxPlayer sfxPlayer)
+                              ISfxPlayer sfxPlayer,
+                              IConfigurationProvider configProvider)
         {
             NativeGraphicsManager = nativeGraphicsManager;
             _inventoryController = inventoryController;
@@ -90,6 +96,7 @@ namespace EndlessClient.HUD.Panels
             _hudControlProvider = hudControlProvider;
             _activeDialogProvider = activeDialogProvider;
             _sfxPlayer = sfxPlayer;
+            _configProvider = configProvider;
 
             _weightLabel = new XNALabel(Constants.FontSize08pt5)
             {
@@ -100,7 +107,7 @@ namespace EndlessClient.HUD.Panels
                 AutoSize = false
             };
 
-            _inventorySlotRepository.SlotMap = GetItemSlotMap(_playerInfoProvider.LoggedInAccountName, _characterProvider.MainCharacter.Name);
+            _inventorySlotRepository.SlotMap = GetItemSlotMap(_playerInfoProvider.LoggedInAccountName, _characterProvider.MainCharacter.Name, _configProvider.Host);
 
             var weirdOffsetSheet = NativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 27);
 
@@ -127,9 +134,12 @@ namespace EndlessClient.HUD.Panels
             DrawArea = new Rectangle(102, 330, BackgroundImage.Width, BackgroundImage.Height);
 
             Game.Exiting += SaveInventoryFile;
+
+            _whitePixel = new Texture2D(Game.GraphicsDevice, 1, 1);
+            _whitePixel.SetData(new[] { Color.White });
         }
 
-        public bool NoItemsDragging() => !_childItems.Any(x => x.IsDragging);
+        public bool NoItemsDragging() => _childItems.All(x => !x.IsDragging);
 
         public bool AnyPanelsDragging => _hudControlProvider.AnyPanelsDragging;
 
@@ -146,6 +156,9 @@ namespace EndlessClient.HUD.Panels
 
             _junk.Initialize();
             _junk.SetParentControl(this);
+
+            OnUpdateControl(new GameTime());
+            _inventorySlotRepository.SlotMap.Clear();
 
             base.Initialize();
         }
@@ -221,7 +234,8 @@ namespace EndlessClient.HUD.Panels
 
                         newItem.OnMouseEnter += (_, _) => _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ITEM, newItem.Text);
                         newItem.DoubleClick += HandleItemDoubleClick;
-                        newItem.DoneDragging += HandleItemDoneDragging;
+                        newItem.DraggingFinishing += HandleItemDoneDragging;
+                        newItem.DraggingFinished += (_, _) => ResetSlotMap(_childItems.Where(x => !x.IsDragging));
 
                         // side-effect of calling newItem.SetParentControl(this) is that the draw order gets reset
                         // setting the slot manually here resets it so the item labels render appropriately
@@ -235,8 +249,24 @@ namespace EndlessClient.HUD.Panels
             }
 
             base.OnUpdateControl(gameTime);
+        }
 
-            SuppressClickDragEvent(!NoItemsDragging());
+        protected override void OnDrawControl(GameTime gameTime)
+        {
+            base.OnDrawControl(gameTime);
+
+            _spriteBatch.Begin();
+            for (int i = 0; i < _inventorySlotRepository.FilledSlots.Rows; i++)
+            {
+                for (int j = 0; j < _inventorySlotRepository.FilledSlots.Cols; j++)
+                {
+                    if (!_inventorySlotRepository.FilledSlots[i, j]) continue;
+
+                    var offset = new Point(j * 26, i * 26);
+                    _spriteBatch.Draw(_whitePixel, new Rectangle(new Point(114, 338) + offset, new Point(26, 26)), Color.FromNonPremultiplied(255, 0, 0, 60));
+                }
+            }
+            _spriteBatch.End();
         }
 
         protected override void Dispose(bool disposing)
@@ -257,7 +287,7 @@ namespace EndlessClient.HUD.Panels
             base.Dispose(disposing);
         }
 
-        private void MouseOverButton(object sender, EventArgs e)
+        private void MouseOverButton(object sender, MouseStateExtended e)
         {
             var id = sender == _paperdoll
                 ? EOResourceID.STATUS_LABEL_INVENTORY_SHOW_YOUR_PAPERDOLL
@@ -267,27 +297,28 @@ namespace EndlessClient.HUD.Panels
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_BUTTON, id);
         }
 
-        private static Dictionary<int, int> GetItemSlotMap(string accountName, string characterName)
+        private static Dictionary<int, int> GetItemSlotMap(string accountName, string characterName, string host)
         {
             var map = new Dictionary<int, int>();
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !File.Exists(Constants.InventoryFile))
             {
-                using var inventoryKey = TryGetCharacterRegistryKey(accountName, characterName);
-                if (inventoryKey != null)
+                using var registryInventoryKey = TryGetCharacterRegistryKey(accountName, characterName);
+                if (registryInventoryKey != null)
                 {
                     for (int i = 0; i < InventoryRowSlots * 4; ++i)
                     {
-                        if (int.TryParse(inventoryKey.GetValue($"item{i}")?.ToString() ?? string.Empty, out var id))
+                        if (int.TryParse(registryInventoryKey.GetValue($"item{i}")?.ToString() ?? string.Empty, out var id))
                             map[i] = id;
                     }
                 }
             }
 
             var inventory = new IniReader(Constants.InventoryFile);
-            if (inventory.Load() && inventory.Sections.ContainsKey(accountName))
+            var inventoryKey = $"{host}:{accountName}";
+            if (inventory.Load() && inventory.Sections.ContainsKey(inventoryKey))
             {
-                var section = inventory.Sections[accountName];
+                var section = inventory.Sections[inventoryKey];
                 foreach (var key in section.Keys.Where(x => x.Contains(characterName, StringComparison.OrdinalIgnoreCase)))
                 {
                     if (!key.Contains("."))
@@ -328,9 +359,10 @@ namespace EndlessClient.HUD.Panels
         private void SaveInventoryFile(object sender, EventArgs e)
         {
             var inventory = new IniReader(Constants.InventoryFile);
+            var inventoryKey = $"{_configProvider.Host}:{_playerInfoProvider.LoggedInAccountName}";
 
-            var section = inventory.Load() && inventory.Sections.ContainsKey(_playerInfoProvider.LoggedInAccountName)
-                ? inventory.Sections[_playerInfoProvider.LoggedInAccountName]
+            var section = inventory.Load() && inventory.Sections.ContainsKey(inventoryKey)
+                ? inventory.Sections[inventoryKey]
                 : new SortedList<string, string>();
 
             var existing = section.Where(x => x.Key.Contains(_characterProvider.MainCharacter.Name)).Select(x => x.Key).ToList();
@@ -340,7 +372,7 @@ namespace EndlessClient.HUD.Panels
             foreach (var item in _childItems)
                 section[$"{_characterProvider.MainCharacter.Name}.{item.Slot}"] = $"{item.InventoryItem.ItemID}";
 
-            inventory.Sections[_playerInfoProvider.LoggedInAccountName] = section;
+            inventory.Sections[inventoryKey] = section;
 
             inventory.Save();
         }
@@ -359,96 +391,89 @@ namespace EndlessClient.HUD.Panels
             _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);
         }
 
-        private void HandleItemDoneDragging(object sender, InventoryPanelItem.ItemDragCompletedEventArgs e)
+        private void HandleItemDoneDragging(object sender, DragCompletedEventArgs<EIFRecord> e)
         {
             var item = sender as InventoryPanelItem;
             if (item == null)
                 return;
 
+            ResetSlotMap(_childItems.Where(x => !x.IsDragging));
+
             var oldSlot = item.Slot;
+            var fitsInOldSlot = _inventoryService.FitsInSlot(_inventorySlotRepository.FilledSlots, oldSlot, e.Data.Size);
 
             if (_activeDialogProvider.ActiveDialogs.All(x => !x.HasValue))
             {
-                // todo: if this is a chained drag, restoring the original slot could overlap with another item
                 var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
                 if (mapRenderer.MouseOver)
                 {
-                    e.RestoreOriginalSlot = true;
+                    e.ContinueDrag = !fitsInOldSlot;
+                    e.RestoreOriginalSlot = fitsInOldSlot;
+
                     _inventoryController.DropItem(item.Data, item.InventoryItem);
-                    _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);
                     return;
                 }
             }
 
-            // todo: if this is a chained drag, restoring the original slot could overlap with another item
             if (_drop.MouseOver)
             {
-                e.RestoreOriginalSlot = true;
+                e.ContinueDrag = !fitsInOldSlot;
+                e.RestoreOriginalSlot = fitsInOldSlot;
+
                 _inventoryController.DropItem(item.Data, item.InventoryItem);
                 return;
             }
             else if (_junk.MouseOver)
             {
-                e.RestoreOriginalSlot = true;
+                e.ContinueDrag = !fitsInOldSlot;
+                e.RestoreOriginalSlot = fitsInOldSlot;
+
                 _inventoryController.JunkItem(item.Data, item.InventoryItem);
                 return;
             }
 
             var dialogDrop = false;
-            _activeDialogProvider.PaperdollDialog.MatchSome(x =>
+            foreach (var dlg in _activeDialogProvider.ActiveDialogs)
             {
-                if (x.MouseOver && x.MouseOverPreviously && item.Data.GetEquipLocation() != EquipLocation.PAPERDOLL_MAX)
-                {
-                    dialogDrop = true;
-                    _inventoryController.EquipItem(item.Data);
-                }
-            });
-            _activeDialogProvider.ChestDialog.MatchSome(x =>
-            {
-                if (x.MouseOver && x.MouseOverPreviously)
-                {
-                    dialogDrop = true;
-                    _inventoryController.DropItemInChest(item.Data, item.InventoryItem);
-                }
-            });
-            _activeDialogProvider.LockerDialog.MatchSome(x =>
-            {
-                if (x.MouseOver && x.MouseOverPreviously)
-                {
-                    dialogDrop = true;
-                    _inventoryController.DropItemInLocker(item.Data, item.InventoryItem);
-                }
-            });
-            _activeDialogProvider.BankAccountDialog.MatchSome(x =>
-            {
-                if (x.MouseOver && x.MouseOverPreviously && item.Data.ID == 1)
-                {
-                    dialogDrop = true;
-                    _inventoryController.DropItemInBank(item.Data, item.InventoryItem);
-                }
-            });
-            _activeDialogProvider.TradeDialog.MatchSome(x =>
-            {
-                if (x.MouseOver && x.MouseOverPreviously)
-                {
-                    dialogDrop = true;
-                    _inventoryController.TradeItem(item.Data, item.InventoryItem);
-                }
-            });
+                dialogDrop |= dlg.Match(
+                    activeDialog =>
+                    {
+                        if (!activeDialog.MouseOver && !activeDialog.MouseOverPreviously)
+                            return false;
 
-            if (dialogDrop)
+                        switch (activeDialog)
+                        {
+                            case PaperdollDialog:
+                                if (item.Data.GetEquipLocation() != EquipLocation.PAPERDOLL_MAX)
+                                    _inventoryController.EquipItem(item.Data);
+                                break;
+                            case ChestDialog: _inventoryController.DropItemInChest(item.Data, item.InventoryItem); break;
+                            case LockerDialog: _inventoryController.DropItemInLocker(item.Data, item.InventoryItem); break;
+                            case BankAccountDialog:
+                                if (item.Data.ID == 1)
+                                    _inventoryController.DropItemInBank(item.Data, item.InventoryItem);
+                                break;
+                            case TradeDialog: _inventoryController.TradeItem(item.Data, item.InventoryItem); break;
+                            default: return false;
+                        };
+
+                        return true;
+                    },
+                    () => false);
+            }
+
+            if (e.DragOutOfBounds || dialogDrop)
             {
-                e.RestoreOriginalSlot = true;
-                _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);
+                e.ContinueDrag = !fitsInOldSlot;
+                e.RestoreOriginalSlot = fitsInOldSlot;
                 return;
             }
 
-            var fitsInOldSlot = _inventoryService.FitsInSlot(_inventorySlotRepository.FilledSlots, oldSlot, e.Data.Size);
             var newSlot = item.GetCurrentSlotBasedOnPosition();
 
             // check overlapping items:
-            //   1. If there's multiple items under it, snap it back to the original slot
-            //   2. If there's only one item under it, start dragging that item
+            //   1. If there's multiple items under it, snap it back to the original slot if iti fits, otherwise continue dragging
+            //   2. If there's only one item under it, "chain" the drag operation to that item
             //   3. If there's nothing under it, make sure it fits in the inventory, otherwise snap back to original slot
 
             var overlapped = GetOverlappingTakenSlots(newSlot, e.Data.Size, _childItems.Except(new[] { item }).Select(x => (x.Slot, x.Data.Size)))
@@ -460,16 +485,12 @@ namespace EndlessClient.HUD.Panels
 
                 if (!fitsInOldSlot)
                     e.ContinueDrag = true;
-                else
-                    _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);
             }
             else if (overlapped.Count == 1)
             {
-                _inventoryService.ClearSlots(_inventorySlotRepository.FilledSlots, oldSlot, e.Data.Size);
-                _inventoryService.SetSlots(_inventorySlotRepository.FilledSlots, newSlot, e.Data.Size);
-
-                // start a chained drag on another item (see below comment)
-                _childItems.Single(x => x.Slot == overlapped[0]).StartDragging();
+                var nextItem = _childItems.Single(x => x.Slot == overlapped[0] && !x.IsDragging);
+                nextItem.Slot = oldSlot;
+                nextItem.StartDragging(isChainedDrag: true);
             }
             else if (oldSlot != newSlot)
             {
@@ -477,24 +498,24 @@ namespace EndlessClient.HUD.Panels
                 {
                     // if the original slot no longer fits (because this is a chained drag), don't stop dragging this item
                     if (!fitsInOldSlot)
+                    {
                         e.ContinueDrag = true;
+                    }
                     else
                     {
                         e.RestoreOriginalSlot = true;
-                        _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);
                     }
                 }
-                else
-                {
-                    _inventoryService.ClearSlots(_inventorySlotRepository.FilledSlots, oldSlot, e.Data.Size);
-                    _inventoryService.SetSlots(_inventorySlotRepository.FilledSlots, newSlot, e.Data.Size);
-                    _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);
-                }
             }
-            else
-            {
-                _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);
-            }
+        }
+
+        private void ResetSlotMap(IEnumerable<InventoryPanelItem> childItems)
+        {
+            // reset the slot map based on the current state of the inventory
+            // avoids issues due to chained drags + variable item sizes
+            _inventorySlotRepository.FilledSlots.Fill(false);
+            foreach (var childItem in childItems)
+                _inventoryService.SetSlots(_inventorySlotRepository.FilledSlots, childItem.Slot, childItem.Data.Size);
         }
 
         private static IEnumerable<int> GetOverlappingTakenSlots(int newSlot, ItemSize size, IEnumerable<(int Slot, ItemSize Size)> items)

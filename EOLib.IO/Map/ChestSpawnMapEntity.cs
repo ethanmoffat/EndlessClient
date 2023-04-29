@@ -10,24 +10,24 @@
 
         public ChestKey Key { get; private set; }
 
-        public byte Slot { get; private set; }
+        public int Slot { get; private set; }
 
-        public short ItemID { get; private set; }
+        public int ItemID { get; private set; }
 
-        public short RespawnTime { get; private set; }
+        public int RespawnTime { get; private set; }
 
         public int Amount { get; private set; }
 
         public ChestSpawnMapEntity()
-            : this(-1, -1, ChestKey.None, 0, -1, -1, -1)
+            : this(-1, -1, ChestKey.None, -1, -1, -1, -1)
         { }
 
         private ChestSpawnMapEntity(int x,
             int y,
             ChestKey key,
-            byte slot,
-            short itemID,
-            short respawnTime,
+            int slot,
+            int itemID,
+            int respawnTime,
             int amount)
         {
             X = x;
@@ -60,21 +60,21 @@
             return newEntity;
         }
 
-        public ChestSpawnMapEntity WithSlot(byte slot)
+        public ChestSpawnMapEntity WithSlot(int slot)
         {
             var newEntity = MakeCopy(this);
             newEntity.Slot = slot;
             return newEntity;
         }
 
-        public ChestSpawnMapEntity WithItemID(short itemID)
+        public ChestSpawnMapEntity WithItemID(int itemID)
         {
             var newEntity = MakeCopy(this);
             newEntity.ItemID = itemID;
             return newEntity;
         }
 
-        public ChestSpawnMapEntity WithRespawnTime(short respawnTime)
+        public ChestSpawnMapEntity WithRespawnTime(int respawnTime)
         {
             var newEntity = MakeCopy(this);
             newEntity.RespawnTime = respawnTime;

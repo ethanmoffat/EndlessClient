@@ -12,42 +12,27 @@ namespace EndlessClient.HUD.Chat
     [AutoMappedType]
     public class ChatBubbleActions : IChatBubbleActions
     {
-        private readonly IChatProcessor _chatProcessor;
-        private readonly IChatTypeCalculator _chatTypeCalculator;
         private readonly ICharacterRendererProvider _characterRendererProvider;
         private readonly INPCRendererProvider _npcRendererProvider;
         private readonly IPartyDataProvider _partyDataProvider;
-        private readonly IChatBubbleFactory _chatBubbleFactory;
 
-        public ChatBubbleActions(IChatProcessor chatProcessor,
-                                 IChatTypeCalculator chatTypeCalculator,
-                                 ICharacterRendererProvider characterRendererProvider,
+        public ChatBubbleActions(ICharacterRendererProvider characterRendererProvider,
                                  INPCRendererProvider npcRendererProvider,
-                                 IPartyDataProvider partyDataProvider,
-                                 IChatBubbleFactory chatBubbleFactory)
+                                 IPartyDataProvider partyDataProvider)
         {
-            _chatProcessor = chatProcessor;
-            _chatTypeCalculator = chatTypeCalculator;
             _characterRendererProvider = characterRendererProvider;
             _npcRendererProvider = npcRendererProvider;
             _partyDataProvider = partyDataProvider;
-            _chatBubbleFactory = chatBubbleFactory;
         }
 
-        public void ShowChatBubbleForMainCharacter(string input)
+        public void ShowChatBubbleForMainCharacter(string text, bool isPartyChat = false)
         {
             _characterRendererProvider.MainCharacterRenderer.MatchSome(r =>
             {
-                _chatTypeCalculator.CalculateChatType(input)
-                    .SomeWhen(x => x == ChatType.Local || x == ChatType.Party || x == ChatType.Announce)
-                    .MatchSome(chatType =>
-                    {
-                        if (!_partyDataProvider.Members.Any() && chatType == ChatType.Party)
-                            return;
+                if (!_partyDataProvider.Members.Any() && isPartyChat)
+                    return;
 
-                        var text = _chatProcessor.RemoveFirstCharacterIfNeeded(input, chatType, string.Empty);
-                        r.ShowChatBubble(text, chatType == ChatType.Party);
-                    });
+                r.ShowChatBubble(text, isPartyChat);
             });
         }
 
@@ -62,7 +47,7 @@ namespace EndlessClient.HUD.Chat
 
     public interface IChatBubbleActions
     {
-        void ShowChatBubbleForMainCharacter(string input);
+        void ShowChatBubbleForMainCharacter(string input, bool isPartyChat = false);
 
         void ShowChatBubbleForNPC(int index, string input);
     }

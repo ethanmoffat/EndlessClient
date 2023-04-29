@@ -9,7 +9,7 @@ using EndlessClient.UIControls;
 using EOLib.Domain.Chat;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended.BitmapFonts;
 using XNAControls;
 
 namespace EndlessClient.HUD.Panels
@@ -32,7 +32,7 @@ namespace EndlessClient.HUD.Panels
                          IChatRenderableGenerator chatRenderableGenerator,
                          IChatProvider chatProvider,
                          IHudControlProvider hudControlProvider,
-                         SpriteFont chatFont)
+                         BitmapFont chatFont)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _chatActions = chatActions;
@@ -47,6 +47,7 @@ namespace EndlessClient.HUD.Panels
                 Visible = true
             };
             _scrollBar.SetParentControl(this);
+            SetScrollWheelHandler(_scrollBar);
 
             var tabTexture = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 35);
             var smallSelected = new SpriteSheet(tabTexture, new Rectangle(307, 16, 43, 16));

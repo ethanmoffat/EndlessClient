@@ -65,6 +65,7 @@ namespace EndlessClient.HUD.Controls
         private readonly IMiniMapRendererFactory _miniMapRendererFactory;
         private readonly INewsProvider _newsProvider;
         private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
+        private readonly IClickDispatcherFactory _clickDispatcherFactory;
         private IChatController _chatController;
 
         public HudControlsFactory(IHudButtonController hudButtonController,
@@ -94,7 +95,8 @@ namespace EndlessClient.HUD.Controls
                                   ISfxPlayer sfxPlayer,
                                   IMiniMapRendererFactory miniMapRendererFactory,
                                   INewsProvider newsProvider,
-                                  IFixedTimeStepRepository fixedTimeStepRepository)
+                                  IFixedTimeStepRepository fixedTimeStepRepository,
+                                  IClickDispatcherFactory clickDispatcherFactory)
         {
             _hudButtonController = hudButtonController;
             _hudPanelFactory = hudPanelFactory;
@@ -124,6 +126,7 @@ namespace EndlessClient.HUD.Controls
             _miniMapRendererFactory = miniMapRendererFactory;
             _newsProvider = newsProvider;
             _fixedTimeStepRepository = fixedTimeStepRepository;
+            _clickDispatcherFactory = clickDispatcherFactory;
         }
 
         public void InjectChatController(IChatController chatController)
@@ -134,14 +137,19 @@ namespace EndlessClient.HUD.Controls
         public IReadOnlyDictionary<HudControlIdentifier, IGameComponent> CreateHud()
         {
             var characterAnimator = CreateCharacterAnimator();
+            var mapRenderer = _mapRendererFactory.CreateMapRenderer();
 
             var controls = new Dictionary<HudControlIdentifier, IGameComponent>
             {
                 {HudControlIdentifier.CurrentUserInputTracker, CreateCurrentUserInputTracker()},
 
-                {HudControlIdentifier.MapRenderer, _mapRendererFactory.CreateMapRenderer()},
+                {HudControlIdentifier.CharacterAnimator, characterAnimator},
+                {HudControlIdentifier.NPCAnimator, CreateNPCAnimator()},
+                {HudControlIdentifier.MapRenderer, mapRenderer},
                 {HudControlIdentifier.StatusIcons, CreatePlayerStatusIconRenderer()},
                 {HudControlIdentifier.MiniMapRenderer, _miniMapRendererFactory.Create()},
+
+                {HudControlIdentifier.ClickDispatcher, CreateClickDispatcher(mapRenderer)},
 
                 {HudControlIdentifier.HudBackground, CreateHudBackground()},
 
@@ -187,8 +195,6 @@ namespace EndlessClient.HUD.Controls
 
                 {HudControlIdentifier.PeriodicStatUpdater, CreatePeriodicStatUpdater()},
                 {HudControlIdentifier.UserInputHandler, CreateUserInputHandler()},
-                {HudControlIdentifier.CharacterAnimator, characterAnimator},
-                {HudControlIdentifier.NPCAnimator, CreateNPCAnimator()},
                 {HudControlIdentifier.UnknownEntitiesRequester, CreateUnknownEntitiesRequester()},
                 {HudControlIdentifier.PeriodicEmoteHandler, CreatePeriodicEmoteHandler(characterAnimator)},
 
@@ -205,6 +211,13 @@ namespace EndlessClient.HUD.Controls
                 (ICharacterProvider)_characterRepository,
                 (ISpellSlotDataProvider)_spellSlotDataRepository,
                 _currentMapProvider, _clientWindowSizeRepository);
+        }
+
+        private IClickDispatcher CreateClickDispatcher(IMapRenderer mapRenderer)
+        {
+            var dispatcher = _clickDispatcherFactory.Create();
+            dispatcher.DrawOrder = mapRenderer.DrawOrder;
+            return dispatcher;
         }
 
         private HudBackgroundFrame CreateHudBackground()
@@ -348,7 +361,6 @@ namespace EndlessClient.HUD.Controls
                 default: throw new ArgumentOutOfRangeException(nameof(whichState), whichState, null);
             }
 
-            _userInputRepository.ClickHandled = true;
             _sfxPlayer.PlaySfx(SoundEffectID.ButtonClick);
         }
 
@@ -385,8 +397,6 @@ namespace EndlessClient.HUD.Controls
 
                 updateDrawArea();
                 _clientWindowSizeRepository.GameWindowSizeChanged += (_, _) => updateDrawArea();
-
-                retPanel.DragCompleted += () => _userInputRepository.ClickHandled = true;
             }
 
             return retPanel;
@@ -424,28 +434,28 @@ namespace EndlessClient.HUD.Controls
 
         private IGameComponent CreateHPStatusBar()
         {
-            var statusBar = new HPStatusBar(_nativeGraphicsManager, _clientWindowSizeRepository, (ICharacterProvider)_characterRepository, _userInputRepository) { DrawOrder = HUD_CONTROL_LAYER };
+            var statusBar = new HPStatusBar(_nativeGraphicsManager, _clientWindowSizeRepository, (ICharacterProvider)_characterRepository) { DrawOrder = HUD_CONTROL_LAYER };
             statusBar.StatusBarClicked += () => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
             return statusBar;
         }
 
         private IGameComponent CreateTPStatusBar()
         {
-            var statusBar = new TPStatusBar(_nativeGraphicsManager, _clientWindowSizeRepository, (ICharacterProvider)_characterRepository, _userInputRepository) { DrawOrder = HUD_CONTROL_LAYER };
+            var statusBar = new TPStatusBar(_nativeGraphicsManager, _clientWindowSizeRepository, (ICharacterProvider)_characterRepository) { DrawOrder = HUD_CONTROL_LAYER };
             statusBar.StatusBarClicked += () => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
             return statusBar;
         }
 
         private IGameComponent CreateSPStatusBar()
         {
-            var statusBar = new SPStatusBar(_nativeGraphicsManager, _clientWindowSizeRepository, (ICharacterProvider)_characterRepository, _userInputRepository) { DrawOrder = HUD_CONTROL_LAYER };
+            var statusBar = new SPStatusBar(_nativeGraphicsManager, _clientWindowSizeRepository, (ICharacterProvider)_characterRepository) { DrawOrder = HUD_CONTROL_LAYER };
             statusBar.StatusBarClicked += () => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
             return statusBar;
         }
 
         private IGameComponent CreateTNLStatusBar()
         {
-            var statusBar = new TNLStatusBar(_nativeGraphicsManager, _clientWindowSizeRepository, (ICharacterProvider)_characterRepository, _userInputRepository, _experienceTableProvider) { DrawOrder = HUD_CONTROL_LAYER };
+            var statusBar = new TNLStatusBar(_nativeGraphicsManager, _clientWindowSizeRepository, (ICharacterProvider)_characterRepository, _experienceTableProvider) { DrawOrder = HUD_CONTROL_LAYER };
             statusBar.StatusBarClicked += () => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
             return statusBar;
         }
@@ -469,6 +479,7 @@ namespace EndlessClient.HUD.Controls
             };
             chatTextBox.OnEnterPressed += (_, _) => _chatController.SendChatAndClearTextBox();
             chatTextBox.OnClicked += (_, _) => _chatController.SelectChatTextBox();
+            chatTextBox.OnTextChanged += (_, _) => _chatController.ClearAndWarnIfJailAndGlobal();
 
             return chatTextBox;
         }
@@ -509,7 +520,7 @@ namespace EndlessClient.HUD.Controls
 
         private ICharacterAnimator CreateCharacterAnimator()
         {
-            return new CharacterAnimator(_endlessGameProvider, _characterRepository, _currentMapStateRepository, _currentMapProvider, _spellSlotDataRepository, _userInputRepository, _characterActions, _walkValidationActions, _pathFinder, _fixedTimeStepRepository);
+            return new CharacterAnimator(_endlessGameProvider, _characterRepository, _currentMapStateRepository, _currentMapProvider, _spellSlotDataRepository, _characterActions, _walkValidationActions, _pathFinder, _fixedTimeStepRepository);
         }
 
         private INPCAnimator CreateNPCAnimator()

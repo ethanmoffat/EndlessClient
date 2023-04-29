@@ -35,6 +35,7 @@ namespace EndlessClient.Dialogs
         private readonly IMapItemGraphicProvider _mapItemGraphicProvider;
         private readonly InventoryPanel _inventoryPanel;
 
+        private readonly IXNAPanel _leftPanel, _rightPanel;
         private readonly IXNALabel _leftPlayerName, _rightPlayerName;
         private readonly IXNALabel _leftPlayerStatus, _rightPlayerStatus;
         private readonly ScrollBar _leftScroll, _rightScroll;
@@ -78,6 +79,18 @@ namespace EndlessClient.Dialogs
             _inventoryPanel = inventoryPanel;
             BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 50);
 
+            _leftPanel = new XNAPanel
+            {
+                DrawArea = new Rectangle(0, 0, BackgroundTexture.Width / 2, BackgroundTexture.Height),
+            };
+            _leftPanel.SetParentControl(this);
+
+            _rightPanel = new XNAPanel
+            {
+                DrawArea = new Rectangle(BackgroundTexture.Width / 2, 0, BackgroundTexture.Width / 2, BackgroundTexture.Height),
+            };
+            _rightPanel.SetParentControl(this);
+
             _leftPlayerName = new XNALabel(Constants.FontSize08pt5)
             {
                 DrawArea = new Rectangle(20, 14, 166, 20),
@@ -85,16 +98,16 @@ namespace EndlessClient.Dialogs
                 TextAlign = LabelAlignment.MiddleLeft,
                 ForeColor = ColorConstants.LightGrayText
             };
-            _leftPlayerName.SetParentControl(this);
+            _leftPlayerName.SetParentControl(_leftPanel);
 
             _rightPlayerName = new XNALabel(Constants.FontSize08pt5)
             {
-                DrawArea = new Rectangle(285, 14, 166, 20),
+                DrawArea = new Rectangle(11, 14, 166, 20),
                 AutoSize = false,
                 TextAlign = LabelAlignment.MiddleLeft,
                 ForeColor = ColorConstants.LightGrayText
             };
-            _rightPlayerName.SetParentControl(this);
+            _rightPlayerName.SetParentControl(_rightPanel);
 
             _leftPlayerStatus = new XNALabel(Constants.FontSize08pt5)
             {
@@ -104,22 +117,25 @@ namespace EndlessClient.Dialogs
                 ForeColor = ColorConstants.LightGrayText,
                 Text = _localizedStringFinder.GetString(EOResourceID.DIALOG_TRADE_WORD_TRADING)
             };
-            _leftPlayerStatus.SetParentControl(this);
+            _leftPlayerStatus.SetParentControl(_leftPanel);
 
             _rightPlayerStatus = new XNALabel(Constants.FontSize08pt5)
             {
-                DrawArea = new Rectangle(462, 14, 79, 20),
+                DrawArea = new Rectangle(185, 14, 79, 20),
                 AutoSize = false,
                 TextAlign = LabelAlignment.MiddleLeft,
                 ForeColor = ColorConstants.LightGrayText,
                 Text = _localizedStringFinder.GetString(EOResourceID.DIALOG_TRADE_WORD_TRADING)
             };
-            _rightPlayerStatus.SetParentControl(this);
+            _rightPlayerStatus.SetParentControl(_rightPanel);
 
             _leftScroll = new ScrollBar(new Vector2(252, 44), new Vector2(16, 199), ScrollBarColors.LightOnMed, GraphicsManager) { LinesToRender = 5 };
-            _leftScroll.SetParentControl(this);
-            _rightScroll = new ScrollBar(new Vector2(518, 44), new Vector2(16, 199), ScrollBarColors.LightOnMed, GraphicsManager) { LinesToRender = 5 };
-            _rightScroll.SetParentControl(this);
+            _leftScroll.SetParentControl(_leftPanel);
+            _leftPanel.SetScrollWheelHandler(_leftScroll);
+
+            _rightScroll = new ScrollBar(new Vector2(243, 44), new Vector2(16, 199), ScrollBarColors.LightOnMed, GraphicsManager) { LinesToRender = 5 };
+            _rightScroll.SetParentControl(_rightPanel);
+            _rightPanel.SetScrollWheelHandler(_rightScroll);
 
             _ok = new XNAButton(dialogButtonService.SmallButtonSheet, new Vector2(356, 252),
                 dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Ok),
@@ -143,6 +159,9 @@ namespace EndlessClient.Dialogs
         {
             base.Initialize();
 
+            _leftPanel.Initialize();
+            _rightPanel.Initialize();
+
             _leftPlayerName.Initialize();
             _rightPlayerName.Initialize();
 
@@ -165,7 +184,7 @@ namespace EndlessClient.Dialogs
             // player one offer will always be on the left; player two always on the right
             if (_tradeProvider.PlayerOneOffer != null && !_tradeProvider.PlayerOneOffer.Equals(_leftOffer))
             {
-                UpdateOffer(_tradeProvider.PlayerOneOffer, _leftOffer, _leftPlayerName, _leftPlayerStatus, _leftItems, -3);
+                UpdateOffer(_tradeProvider.PlayerOneOffer, _leftOffer, _leftPlayerName, _leftPlayerStatus, _leftPanel, _leftItems, -3);
                 _leftOffer = _tradeProvider.PlayerOneOffer;
                 _leftScroll.UpdateDimensions(_leftOffer.Items.Count);
                 updateItemVisibility = true;
@@ -173,7 +192,7 @@ namespace EndlessClient.Dialogs
 
             if (_tradeProvider.PlayerTwoOffer != null && !_tradeProvider.PlayerTwoOffer.Equals(_rightOffer))
             {
-                UpdateOffer(_tradeProvider.PlayerTwoOffer, _rightOffer, _rightPlayerName, _rightPlayerStatus, _rightItems, 263);
+                UpdateOffer(_tradeProvider.PlayerTwoOffer, _rightOffer, _rightPlayerName, _rightPlayerStatus, _rightPanel, _rightItems, -10);
                 _rightOffer = _tradeProvider.PlayerTwoOffer;
                 _rightScroll.UpdateDimensions(_rightOffer.Items.Count);
                 updateItemVisibility = true;
@@ -200,18 +219,13 @@ namespace EndlessClient.Dialogs
             base.OnUnconditionalUpdateControl(gameTime);
         }
 
-        protected override void OnUpdateControl(GameTime gameTime)
-        {
-            SuppressClickDragEvent(!_inventoryPanel.NoItemsDragging());
-            base.OnUpdateControl(gameTime);
-        }
-
         private void UpdateOffer(TradeOffer actualOffer, TradeOffer cachedOffer,
             IXNALabel playerNameLabel, IXNALabel playerStatusLabel,
+            IXNAPanel parentPanel,
             List<ListDialogItem> listItems,
             int listitemOffset)
         {
-            if (actualOffer.PlayerName != cachedOffer.PlayerName || actualOffer.Items.Count != cachedOffer.Items.Count)
+            if ((actualOffer.PlayerName != cachedOffer.PlayerName && !string.IsNullOrEmpty(actualOffer.PlayerName)) || actualOffer.Items.Count != cachedOffer.Items.Count)
             {
                 playerNameLabel.Text = $"{char.ToUpper(actualOffer.PlayerName[0]) + actualOffer.PlayerName[1..]}{(actualOffer.Items.Any() ? $"[{actualOffer.Items.Count}]" : "")}";
             }
@@ -260,9 +274,9 @@ namespace EndlessClient.Dialogs
                     };
 
                     if (actualOffer.PlayerID == _characterProvider.MainCharacter.ID)
-                        newListItem.RightClick += (_, _) => _tradeActions.RemoveItemFromOffer((short)itemRec.ID);
+                        newListItem.RightClick += (_, _) => _tradeActions.RemoveItemFromOffer(itemRec.ID);
 
-                    newListItem.SetParentControl(this);
+                    newListItem.SetParentControl(parentPanel);
                     listItems.Add(newListItem);
                 }
 
@@ -306,7 +320,7 @@ namespace EndlessClient.Dialogs
 
             for (int i = 0; i < items.Count; i++)
             {
-                items[i].Visible = i >= scrollOffset && i <= scrollBar.LinesToRender + scrollOffset;
+                items[i].Visible = i >= scrollOffset && i < scrollBar.LinesToRender + scrollOffset;
                 items[i].Index = i - scrollOffset;
             }
         }

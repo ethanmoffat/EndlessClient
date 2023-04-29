@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Rendering.Map
 {
-    public interface IMapRenderer : IGameComponent
+    public interface IMapRenderer : IGameComponent, IDrawable
     {
         MapCoordinate GridCoordinates { get; }
 
@@ -11,11 +11,13 @@ namespace EndlessClient.Rendering.Map
 
         void StartMapTransition();
 
-        void StartEarthquake(byte strength);
+        void StartEarthquake(int strength);
 
         void RedrawGroundLayer();
 
-        void RenderEffect(byte x, byte y, short effectId);
+        void RenderEffect(MapCoordinate location, int effectId);
+
+        void AnimateMouseClick();
 
         void ClearTransientRenderables();
     }

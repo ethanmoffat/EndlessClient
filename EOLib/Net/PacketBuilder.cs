@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using EOLib.IO;
 using EOLib.IO.Services;
 
 namespace EOLib.Net
@@ -60,23 +62,27 @@ namespace EOLib.Net
             return AddBytes(new[] { b });
         }
 
-        public IPacketBuilder AddChar(byte b)
+        public IPacketBuilder AddChar(int b)
         {
+            ThrowIfOutOfBounds(b, NumericConstants.ONE_BYTE_MAX);
             return AddBytes(_encoderService.EncodeNumber(b, 1));
         }
 
-        public IPacketBuilder AddShort(short s)
+        public IPacketBuilder AddShort(int s)
         {
-            return AddBytes(_encoderService.EncodeNumber((ushort)s, 2));
+            ThrowIfOutOfBounds(s, NumericConstants.TWO_BYTE_MAX);
+            return AddBytes(_encoderService.EncodeNumber(s, 2));
         }
 
         public IPacketBuilder AddThree(int t)
         {
+            ThrowIfOutOfBounds(t, NumericConstants.THREE_BYTE_MAX);
             return AddBytes(_encoderService.EncodeNumber(t, 3));
         }
 
         public IPacketBuilder AddInt(int i)
         {
+            ThrowIfOutOfBounds(i, NumericConstants.FOUR_BYTE_MAX);
             return AddBytes(_encoderService.EncodeNumber(i, 4));
         }
 
@@ -103,6 +109,14 @@ namespace EOLib.Net
         public IPacket Build()
         {
             return new Packet(_data.ToList());
+        }
+
+        private static void ThrowIfOutOfBounds(int input, uint maximum)
+        {
+            if ((uint)input > maximum)
+            {
+                throw new ArgumentException($"Input value is out of bounds (value={input}, bounds={maximum})", nameof(input));
+            }
         }
     }
 }

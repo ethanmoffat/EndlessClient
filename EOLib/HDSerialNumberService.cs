@@ -16,6 +16,8 @@ namespace EOLib
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 return GetHDSerialNumberLinux();
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                return GetHDSerialNumberOSX();
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 return GetHDSerialNumberWindows();
 
@@ -72,6 +74,52 @@ namespace EOLib
 
                 // remove non-numeric characters so eoserv can handle it
                 serialNumber = Regex.Replace(serialNumber, @"\D", string.Empty);
+
+                // make the serial number shorted so eoserv can handle it
+                while (ulong.TryParse(serialNumber, out var sn) && sn > uint.MaxValue)
+                    serialNumber = serialNumber.Substring(0, serialNumber.Length - 1);
+
+                return serialNumber;
+            }
+            catch
+            {
+                // if this fails for ANY reason, just give a dummy value.
+                // this isn't important enough to be worth crashing or notifying the user.
+
+                return "12345"; // Just like my luggage
+            }
+        }
+
+        private static string GetHDSerialNumberOSX()
+        {
+            try
+            {
+                var serialNumber = "";
+
+                var p = new ProcessStartInfo
+                {
+                    Arguments = "-c IOPlatformExpertDevice -d 2",
+                    CreateNoWindow = true,
+                    FileName = "ioreg",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false
+                };
+
+                using (var process = Process.Start(p))
+                {
+                    process.WaitForExit();
+                    if (process.ExitCode == 0)
+                    {
+                        var output = process.StandardOutput.ReadToEnd();
+                        serialNumber = output.Split('\n').Where(x => x.Contains("IOPlatformSerialNumber")).First();
+                        var matches = Regex.Matches(serialNumber, "\"([^\"]*)\"");
+                        serialNumber = matches[1].Value;
+                        serialNumber = serialNumber.Substring(1, serialNumber.Length - 2);
+                    }
+                }
+
+                // replace letters with their corresponding numbers
+                serialNumber = Regex.Replace(serialNumber, "[A-Z]", m => ((int) m.Value[0] - 55).ToString());
 
                 // make the serial number shorted so eoserv can handle it
                 while (ulong.TryParse(serialNumber, out var sn) && sn > uint.MaxValue)

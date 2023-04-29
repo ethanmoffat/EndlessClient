@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using EndlessClient.ControlSets;
+﻿using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Actions;
+using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Input;
@@ -10,16 +8,20 @@ using EndlessClient.Rendering.Character;
 using EndlessClient.Services;
 using EndlessClient.UIControls;
 using EOLib;
-using EOLib.Domain.Chat;
 using EOLib.Domain.Interact;
+using EOLib.Domain.Map;
 using EOLib.Domain.Party;
 using EOLib.Domain.Trade;
 using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.Input;
+using MonoGame.Extended.Input.InputListeners;
 using Optional;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Rendering
@@ -52,9 +54,10 @@ namespace EndlessClient.Rendering
         private readonly IFriendIgnoreListService _friendIgnoreListService;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly IContextMenuRepository _contextMenuRepository;
-        private readonly IUserInputRepository _userInputRepository;
         private readonly IPartyDataProvider _partyDataProvider;
         private readonly ICharacterRenderer _characterRenderer;
+        private readonly ICurrentMapStateProvider _currentMapStateProvider;
+        private readonly IEOMessageBoxFactory _messageBoxFactory;
 
         private static DateTime? _lastTradeRequestedTime;
         private static DateTime? _lastPartyRequestTime;
@@ -68,9 +71,10 @@ namespace EndlessClient.Rendering
                                    IFriendIgnoreListService friendIgnoreListService,
                                    IHudControlProvider hudControlProvider,
                                    IContextMenuRepository contextMenuRepository,
-                                   IUserInputRepository userInputRepository,
                                    IPartyDataProvider partyDataProvider,
-                                   ICharacterRenderer characterRenderer)
+                                   ICharacterRenderer characterRenderer,
+                                   ICurrentMapStateProvider currentMapStateProvider, 
+                                   IEOMessageBoxFactory messageBoxFactory)
         {
             _menuActions = new Dictionary<Rectangle, Action>();
             _inGameDialogActions = inGameDialogActions;
@@ -81,9 +85,10 @@ namespace EndlessClient.Rendering
             _friendIgnoreListService = friendIgnoreListService;
             _hudControlProvider = hudControlProvider;
             _contextMenuRepository = contextMenuRepository;
-            _userInputRepository = userInputRepository;
             _partyDataProvider = partyDataProvider;
             _characterRenderer = characterRenderer;
+            _currentMapStateProvider = currentMapStateProvider;
+            _messageBoxFactory = messageBoxFactory;
 
             //first, load up the images. split in half: the right half is the 'over' text
             _backgroundTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 41, true);
@@ -95,18 +100,20 @@ namespace EndlessClient.Rendering
             //this GFX is stupid. a bunch of white space throws off coordinates so I have to use hard-coded values
             //define regions for clicking and their associated actions
             //6,11,86,14
-            for (int i = 0; i < (int) MenuAction.NUM_MENU_ACTIONS; ++i)
+            for (int i = 0; i < (int)MenuAction.NUM_MENU_ACTIONS; ++i)
             {
-                Rectangle region = new Rectangle(6, (i < 5 ? 11 : 13)+ 14*i, 86, 14);
+                Rectangle region = new Rectangle(6, (i < 5 ? 11 : 13) + 14 * i, 86, 14);
                 _menuActions.Add(region, GetActionFromMenuAction((MenuAction)i));
             }
 
             //set the fill color
             _bgfill = new Texture2D(GraphicsDevice, 1, 1);
-            _bgfill.SetData(new [] { Color.White });
+            _bgfill.SetData(new[] { Color.White });
 
             SetPositionBasedOnCharacterRenderer(_characterRenderer);
             SetSize(W, H);
+
+            OnMouseOver += ContextMenuRenderer_OnMouseOver;
 
             // Update this before map renderer so that clicks are handled first
             UpdateOrder = -20;
@@ -130,7 +137,7 @@ namespace EndlessClient.Rendering
 
             Rectangle rendRect = renderer.DrawArea;
 
-            DrawPosition = new Vector2(rendRect.Right + 20, rendRect.Y + renderer.TopPixel);
+            DrawPosition = new Vector2(rendRect.Right + 20, rendRect.Y);
 
             if (DrawArea.Right > Game.GraphicsDevice.PresentationParameters.BackBufferWidth - 15)
             {
@@ -158,48 +165,6 @@ namespace EndlessClient.Rendering
             return base.ShouldUpdate();
         }
 
-        protected override void OnUpdateControl(GameTime gameTime)
-        {
-            int checkX = CurrentMouseState.X - DrawAreaWithParentOffset.X;
-            int checkY = CurrentMouseState.Y - DrawAreaWithParentOffset.Y;
-
-            var leftClicked = CurrentMouseState.LeftButton == ButtonState.Released && PreviousMouseState.LeftButton == ButtonState.Pressed;
-            var rightClicked = CurrentMouseState.RightButton == ButtonState.Released && PreviousMouseState.RightButton == ButtonState.Pressed;
-
-            bool found = false;
-            foreach (var (sourceRect, menuAction) in _menuActions)
-            {
-                if (sourceRect.Contains(checkX, checkY))
-                {
-                    _overRect = Option.Some(sourceRect);
-                    found = true;
-
-                    if (leftClicked && !_userInputRepository.ClickHandled)
-                    {
-                        menuAction();
-                        _userInputRepository.ClickHandled = true;
-                    }
-
-                    break;
-                }
-            }
-
-            if (!found)
-            {
-                _overRect = Option.None<Rectangle>();
-            }
-
-            if (leftClicked || rightClicked)
-            {
-                Game.Components.Remove(this);
-                Dispose();
-
-                _contextMenuRepository.ContextMenu = Option.None<IContextMenuRenderer>();
-            }
-
-            base.OnUpdateControl(gameTime);
-        }
-
         protected override void OnDrawControl(GameTime gameTime)
         {
             _spriteBatch.Begin();
@@ -218,6 +183,46 @@ namespace EndlessClient.Rendering
             _spriteBatch.End();
 
             base.OnDrawControl(gameTime);
+        }
+
+        private void ContextMenuRenderer_OnMouseOver(object sender, MouseStateExtended e)
+        {
+            bool found = false;
+            foreach (var (sourceRect, menuAction) in _menuActions)
+            {
+                if (sourceRect.Contains(e.Position - DrawAreaWithParentOffset.Location))
+                {
+                    _overRect = Option.Some(sourceRect);
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                _overRect = Option.None<Rectangle>();
+            }
+        }
+
+        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            if (eventArgs.Button == MouseButton.Left)
+            {
+                _overRect.MatchSome(sourceRect =>
+                {
+                    if (!_menuActions.ContainsKey(sourceRect)) return;
+
+                    var menuAction = _menuActions[sourceRect];
+                    menuAction();
+                });
+            }
+
+            Game.Components.Remove(this);
+            Dispose();
+
+            _contextMenuRepository.ContextMenu = Option.None<IContextMenuRenderer>();
+
+            return true;
         }
 
         /* Helper maps MenuAction enum value to a member method for easy initialization */
@@ -262,7 +267,7 @@ namespace EndlessClient.Rendering
             }
 
             _lastPartyRequestTime = DateTime.Now;
-            _partyActions.RequestParty(PartyRequestType.Join, (short)_characterRenderer.Character.ID);
+            _partyActions.RequestParty(PartyRequestType.Join, _characterRenderer.Character.ID);
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_PARTY_REQUESTED_TO_JOIN);
         }
 
@@ -281,17 +286,18 @@ namespace EndlessClient.Rendering
             }
 
             _lastPartyRequestTime = DateTime.Now;
-            _partyActions.RequestParty(PartyRequestType.Invite, (short)_characterRenderer.Character.ID);
+            _partyActions.RequestParty(PartyRequestType.Invite, _characterRenderer.Character.ID);
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, _characterRenderer.Character.Name, EOResourceID.STATUS_LABEL_PARTY_IS_INVITED);
         }
 
         private void Trade()
         {
-            // see: https://github.com/ethanmoffat/EndlessClient/issues/193
-            //if (OldWorld.Instance.MainPlayer.ActiveCharacter.CurrentMap == OldWorld.Instance.JailMap)
-            //    EOMessageBox.Show(OldWorld.GetString(EOResourceID.JAIL_WARNING_CANNOT_TRADE),
-            //        OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
-            //        EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+            if (_currentMapStateProvider.IsJail)
+            {
+                _messageBoxFactory.CreateMessageBox(EOResourceID.JAIL_WARNING_CANNOT_TRADE, EOResourceID.STATUS_LABEL_TYPE_WARNING).ShowDialog();
+                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.JAIL_WARNING_CANNOT_TRADE);
+                return;
+            }
 
             if (_lastTradeRequestedTime != null && (DateTime.Now - _lastTradeRequestedTime.Value).TotalSeconds < Constants.TradeRequestTimeoutSeconds)
             {
@@ -300,8 +306,8 @@ namespace EndlessClient.Rendering
             }
 
             _lastTradeRequestedTime = DateTime.Now;
-            
-            _tradeActions.RequestTrade((short)_characterRenderer.Character.ID);
+
+            _tradeActions.RequestTrade(_characterRenderer.Character.ID);
 
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_TRADE_REQUESTED_TO_TRADE);
         }

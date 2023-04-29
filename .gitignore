@@ -261,3 +261,6 @@ fabric.properties
 
 .vs/
 launchSettings.json
+
+# Monogame stats file
+.mgstats

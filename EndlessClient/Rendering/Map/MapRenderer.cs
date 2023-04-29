@@ -1,5 +1,6 @@
 ﻿using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Character;
+using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.MapEntityRenderers;
 using EndlessClient.Rendering.NPC;
@@ -22,6 +23,7 @@ namespace EndlessClient.Rendering.Map
         private readonly object _rt_locker_ = new object();
 
         private readonly IRenderTargetFactory _renderTargetFactory;
+        private readonly IEffectRendererFactory _effectRendererFactory;
         private readonly IMapEntityRendererProvider _mapEntityRendererProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
@@ -32,7 +34,6 @@ namespace EndlessClient.Rendering.Map
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IMouseCursorRenderer _mouseCursorRenderer;
         private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
-        private readonly IMapGridEffectTargetFactory _mapGridEffectTargetFactory;
         private readonly IClientWindowSizeRepository _clientWindowSizeRepository;
         private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
 
@@ -40,10 +41,11 @@ namespace EndlessClient.Rendering.Map
         private SpriteBatch _sb;
         private MapTransitionState _mapTransitionState = MapTransitionState.Default;
         private int? _lastMapChecksum;
+        private bool _groundDrawn;
 
         private Option<MapQuakeState> _quakeState;
 
-        private IDictionary<MapCoordinate, IMapGridEffectTarget> _mapGridEffectTargets;
+        private IDictionary<MapCoordinate, IEffectRenderer> _mapGridEffectRenderers;
 
         public bool MouseOver
         {
@@ -60,6 +62,7 @@ namespace EndlessClient.Rendering.Map
 
         public MapRenderer(IEndlessGame endlessGame,
                            IRenderTargetFactory renderTargetFactory,
+                           IEffectRendererFactory effectRendererFactory,
                            IMapEntityRendererProvider mapEntityRendererProvider,
                            ICharacterProvider characterProvider,
                            ICurrentMapProvider currentMapProvider,
@@ -70,12 +73,12 @@ namespace EndlessClient.Rendering.Map
                            IConfigurationProvider configurationProvider,
                            IMouseCursorRenderer mouseCursorRenderer,
                            IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
-                           IMapGridEffectTargetFactory mapGridEffectTargetFactory,
                            IClientWindowSizeRepository clientWindowSizeRepository,
                            IFixedTimeStepRepository fixedTimeStepRepository)
             : base((Game)endlessGame)
         {
             _renderTargetFactory = renderTargetFactory;
+            _effectRendererFactory = effectRendererFactory;
             _mapEntityRendererProvider = mapEntityRendererProvider;
             _characterProvider = characterProvider;
             _currentMapProvider = currentMapProvider;
@@ -86,11 +89,9 @@ namespace EndlessClient.Rendering.Map
             _configurationProvider = configurationProvider;
             _mouseCursorRenderer = mouseCursorRenderer;
             _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
-            _mapGridEffectTargetFactory = mapGridEffectTargetFactory;
             _clientWindowSizeRepository = clientWindowSizeRepository;
             _fixedTimeStepRepository = fixedTimeStepRepository;
-
-            _mapGridEffectTargets = new Dictionary<MapCoordinate, IMapGridEffectTarget>();
+            _mapGridEffectRenderers = new Dictionary<MapCoordinate, IEffectRenderer>();
         }
 
         public override void Initialize()
@@ -122,16 +123,12 @@ namespace EndlessClient.Rendering.Map
                     _mapBaseTarget = _renderTargetFactory.CreateRenderTarget(
                         (widthPlus1 + heightPlus1) * 32,
                         (widthPlus1 + heightPlus1) * 16);
+                    _groundDrawn = false;
                 }
             }
 
             if (Visible)
             {
-                DrawGroundLayerToRenderTarget();
-
-                if (_fixedTimeStepRepository.IsWalkUpdateFrame)
-                    DrawMapToRenderTarget();
-
                 _characterRendererUpdater.UpdateCharacters(gameTime);
                 _npcRendererUpdater.UpdateNPCs(gameTime);
                 _dynamicMapObjectUpdater.UpdateMapObjects(gameTime);
@@ -141,8 +138,18 @@ namespace EndlessClient.Rendering.Map
 
                 UpdateQuakeState();
 
-                foreach (var target in _mapGridEffectTargets.Values)
+                foreach (var target in _mapGridEffectRenderers.Values)
                     target.Update();
+
+                if (_fixedTimeStepRepository.IsWalkUpdateFrame || _mapTransitionState.StartTime.HasValue)
+                {
+                    DrawGroundLayerToRenderTarget();
+
+                    if (_fixedTimeStepRepository.IsWalkUpdateFrame)
+                    {
+                        DrawMapToRenderTarget();
+                    }
+                }
             }
 
             _lastMapChecksum = _currentMapProvider.CurrentMap.Properties.ChecksumInt;
@@ -165,7 +172,7 @@ namespace EndlessClient.Rendering.Map
             _mapTransitionState = new MapTransitionState(Option.Some(DateTime.Now), 1);
         }
 
-        public void StartEarthquake(byte strength)
+        public void StartEarthquake(int strength)
         {
             _quakeState = Option.Some(new MapQuakeState(strength));
         }
@@ -176,24 +183,29 @@ namespace EndlessClient.Rendering.Map
             _mapTransitionState = new MapTransitionState(Option.Some(DateTime.Now - new TimeSpan(0, 5, 0)), 255);
         }
 
-        public void RenderEffect(byte x, byte y, short effectId)
+        public void RenderEffect(MapCoordinate coordinate, int effectId)
         {
-            if (_mapGridEffectTargets.TryGetValue(new MapCoordinate(x, y), out var target) && !target.EffectIsPlaying())
+            if (!_mapGridEffectRenderers.ContainsKey(coordinate))
             {
-                target.ShowSpellAnimation(effectId);
+                var renderer = _effectRendererFactory.Create();
+                _mapGridEffectRenderers[coordinate] = renderer;
+            }
+
+            if (_mapGridEffectRenderers[coordinate].State == EffectState.Stopped)
+            {
+                _mapGridEffectRenderers[coordinate].PlayEffect(effectId + 1, coordinate);
             }
             else
             {
-                var renderer = _mapGridEffectTargetFactory.Create(x, y);
-                renderer.ShowSpellAnimation(effectId);
-
-                _mapGridEffectTargets[new MapCoordinate(x, y)] = renderer;
+                _mapGridEffectRenderers[coordinate].QueueEffect(effectId + 1, coordinate);
             }
         }
 
+        public void AnimateMouseClick() => _mouseCursorRenderer.AnimateClick();
+
         public void ClearTransientRenderables()
         {
-            _mapGridEffectTargets.Clear();
+            _mapGridEffectRenderers.Clear();
             _mouseCursorRenderer.ClearTransientRenderables();
         }
 
@@ -221,8 +233,10 @@ namespace EndlessClient.Rendering.Map
 
         private void DrawGroundLayerToRenderTarget()
         {
-            if (!_mapTransitionState.StartTime.HasValue && _lastMapChecksum == _currentMapProvider.CurrentMap.Properties.ChecksumInt)
+            if (_groundDrawn && (!_mapTransitionState.StartTime.HasValue && _lastMapChecksum == _currentMapProvider.CurrentMap.Properties.ChecksumInt))
                 return;
+
+            _groundDrawn = true;
 
             lock (_rt_locker_)
             {
@@ -356,8 +370,11 @@ namespace EndlessClient.Rendering.Map
 
                 spriteBatch.Draw(_mapObjectTarget, new Vector2(offset, 0), Color.White);
 
-                foreach (var target in _mapGridEffectTargets.Values)
-                    target.Draw(spriteBatch);
+            foreach (var target in _mapGridEffectRenderers.Values)
+            {
+                target.DrawBehindTarget(spriteBatch);
+                target.DrawInFrontOfTarget(spriteBatch);
+            }
 
                 spriteBatch.End();
             }

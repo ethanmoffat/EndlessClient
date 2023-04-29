@@ -3,7 +3,6 @@ using EndlessClient.Dialogs;
 using EndlessClient.HUD;
 using EndlessClient.Input;
 using EOLib;
-using EOLib.Domain.Character;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
@@ -14,6 +13,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Optional;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using XNAControls;
 
@@ -34,7 +34,6 @@ namespace EndlessClient.Rendering
         private readonly Rectangle SingleCursorFrameArea;
 
         private readonly Texture2D _mouseCursorTexture;
-        private readonly ICharacterProvider _characterProvider;
         private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
         private readonly IMapCellStateProvider _mapCellStateProvider;
         private readonly IItemStringService _itemStringService;
@@ -53,7 +52,7 @@ namespace EndlessClient.Rendering
         private CursorIndex _cursorIndex;
         private bool _shouldDrawCursor;
 
-        private Option<DateTime> _startClickTime;
+        private Option<Stopwatch> _startClickTime;
         private CursorIndex _clickFrame;
         private int _clickAlpha;
         private Option<MapCoordinate> _clickCoordinate;
@@ -61,7 +60,6 @@ namespace EndlessClient.Rendering
         public MapCoordinate GridCoordinates => new MapCoordinate(_gridX, _gridY);
 
         public MouseCursorRenderer(INativeGraphicsManager nativeGraphicsManager,
-                                   ICharacterProvider characterProvider,
                                    IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
                                    IMapCellStateProvider mapCellStateProvider,
                                    IItemStringService itemStringService,
@@ -75,7 +73,6 @@ namespace EndlessClient.Rendering
                                    IClientWindowSizeProvider clientWindowSizeProvider)
         {
             _mouseCursorTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 24, true);
-            _characterProvider = characterProvider;
             _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
             _mapCellStateProvider = mapCellStateProvider;
             _itemStringService = itemStringService;
@@ -127,8 +124,6 @@ namespace EndlessClient.Rendering
 
             var cellState = _mapCellStateProvider.GetCellStateAt(_gridX, _gridY);
             UpdateCursorSourceRectangle(cellState);
-
-            CheckForClicks(cellState);
         }
 
         private void UpdateDrawPostionBasedOnGridPosition()
@@ -168,15 +163,18 @@ namespace EndlessClient.Rendering
 
             _startClickTime.MatchSome(st =>
                 {
-                    if ((DateTime.Now - st).TotalMilliseconds > 350)
+                    _clickAlpha -= 5;
+
+                    if (st.ElapsedMilliseconds > 350)
                     {
-                        _startClickTime = Option.Some(DateTime.Now);
-                        _clickFrame = _clickFrame + 1;
+                        _startClickTime = Option.Some(Stopwatch.StartNew());
+                        _clickFrame++;
 
                         if (_clickFrame != CursorIndex.ClickFirstFrame && _clickFrame != CursorIndex.ClickSecondFrame)
                         {
                             _clickFrame = CursorIndex.Standard;
-                            _startClickTime = Option.None<DateTime>();
+                            _startClickTime = Option.None<Stopwatch>();
+                            _clickCoordinate = Option.None<MapCoordinate>();
                         }
                     }
                 });
@@ -253,20 +251,6 @@ namespace EndlessClient.Rendering
             }
         }
 
-        private void CheckForClicks(IMapCellState cellState)
-        {
-            if (_userInputProvider.ClickHandled)
-                return;
-
-            var currentMouseState = _userInputProvider.CurrentMouseState;
-            var previousMouseState = _userInputProvider.PreviousMouseState;
-
-            if (currentMouseState.LeftButton == ButtonState.Released && previousMouseState.LeftButton == ButtonState.Pressed)
-            {
-                _mapInteractionController.LeftClick(cellState, Option.Some<IMouseCursorRenderer>(this));
-            }
-        }
-
         #endregion
 
         public void Draw(SpriteBatch spriteBatch, Vector2 additionalOffset)
@@ -285,18 +269,18 @@ namespace EndlessClient.Rendering
                                                SingleCursorFrameArea.Width,
                                                SingleCursorFrameArea.Height),
                                  Color.White);
+            }
 
-                if (_startClickTime.HasValue)
+            if (_startClickTime.HasValue)
+            {
+                _clickCoordinate.MatchSome(c =>
                 {
-                    _clickCoordinate.MatchSome(c =>
-                    {
-                        var position = _gridDrawCoordinateCalculator.CalculateBaseLayerDrawCoordinatesFromGridUnits(c);
-                        spriteBatch.Draw(_mouseCursorTexture,
-                                         position + additionalOffset,
-                                         SingleCursorFrameArea.WithPosition(new Vector2(SingleCursorFrameArea.Width * (int)_clickFrame, 0)),
-                                         Color.FromNonPremultiplied(255, 255, 255, _clickAlpha -= 5));
-                    });
-                }
+                    var position = _gridDrawCoordinateCalculator.CalculateBaseLayerDrawCoordinatesFromGridUnits(c);
+                    spriteBatch.Draw(_mouseCursorTexture,
+                                     position + additionalOffset,
+                                     SingleCursorFrameArea.WithPosition(new Vector2(SingleCursorFrameArea.Width * (int)_clickFrame, 0)),
+                                     Color.FromNonPremultiplied(255, 255, 255, _clickAlpha));
+                });
             }
         }
 
@@ -305,7 +289,7 @@ namespace EndlessClient.Rendering
             if (_startClickTime.HasValue)
                 return;
 
-            _startClickTime = Option.Some(DateTime.Now);
+            _startClickTime = Option.Some(Stopwatch.StartNew());
             _clickFrame = CursorIndex.ClickFirstFrame;
             _clickAlpha = 200;
             _clickCoordinate = Option.Some(new MapCoordinate(_gridX, _gridY));
@@ -314,7 +298,7 @@ namespace EndlessClient.Rendering
         public void ClearTransientRenderables()
         {
             _mapItemText.Visible = false;
-            _startClickTime = Option.None<DateTime>();
+            _startClickTime = Option.None<Stopwatch>();
         }
 
         protected override void Dispose(bool disposing)

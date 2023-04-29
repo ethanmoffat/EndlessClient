@@ -1,11 +1,13 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Actions;
+using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD;
 using EndlessClient.Input;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Services;
 using EOLib.Domain.Interact;
+using EOLib.Domain.Map;
 using EOLib.Domain.Party;
 using EOLib.Domain.Trade;
 using EOLib.Graphics;
@@ -24,8 +26,9 @@ namespace EndlessClient.Rendering.Factories
         private readonly IFriendIgnoreListService _friendIgnoreListService;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly IContextMenuRepository _contextMenuRepository;
-        private readonly IUserInputRepository _userInputRepository;
         private readonly IPartyDataProvider _partyDataProvider;
+        private readonly ICurrentMapStateProvider _currentMapStateProvider;
+        private readonly IEOMessageBoxFactory _messageBoxFactory;
 
         public ContextMenuRendererFactory(INativeGraphicsManager nativeGraphicsManager,
             IInGameDialogActions inGameDialogActions,
@@ -36,8 +39,9 @@ namespace EndlessClient.Rendering.Factories
             IFriendIgnoreListService friendIgnoreListService,
             IHudControlProvider hudControlProvider,
             IContextMenuRepository contextMenuRepository,
-            IUserInputRepository userInputRepository,
-            IPartyDataProvider partyDataProvider)
+            IPartyDataProvider partyDataProvider,
+            ICurrentMapStateProvider currentMapStateProvider, 
+            IEOMessageBoxFactory messageBoxFactory)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _inGameDialogActions = inGameDialogActions;
@@ -48,8 +52,9 @@ namespace EndlessClient.Rendering.Factories
             _friendIgnoreListService = friendIgnoreListService;
             _hudControlProvider = hudControlProvider;
             _contextMenuRepository = contextMenuRepository;
-            _userInputRepository = userInputRepository;
             _partyDataProvider = partyDataProvider;
+            _currentMapStateProvider = currentMapStateProvider;
+            _messageBoxFactory = messageBoxFactory;
         }
 
         public IContextMenuRenderer CreateContextMenuRenderer(ICharacterRenderer characterRenderer)
@@ -63,9 +68,10 @@ namespace EndlessClient.Rendering.Factories
                 _friendIgnoreListService,
                 _hudControlProvider,
                 _contextMenuRepository,
-                _userInputRepository,
                 _partyDataProvider,
-                characterRenderer);
+                characterRenderer, 
+                _currentMapStateProvider,
+                _messageBoxFactory);
         }
     }
 

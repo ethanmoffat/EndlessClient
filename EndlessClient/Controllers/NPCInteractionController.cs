@@ -19,21 +19,18 @@ namespace EndlessClient.Controllers
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IENFFileProvider _enfFileProvider;
         private readonly IActiveDialogProvider _activeDialogProvider;
-        private readonly IUserInputRepository _userInputRepository;
 
         public NPCInteractionController(IMapNPCActions mapNpcActions,
                                         IInGameDialogActions inGameDialogActions,
                                         IStatusLabelSetter statusLabelSetter,
                                         IENFFileProvider enfFileProvider,
-                                        IActiveDialogProvider activeDialogProvider,
-                                        IUserInputRepository userInputRepository)
+                                        IActiveDialogProvider activeDialogProvider)
         {
             _mapNpcActions = mapNpcActions;
             _inGameDialogActions = inGameDialogActions;
             _statusLabelSetter = statusLabelSetter;
             _enfFileProvider = enfFileProvider;
             _activeDialogProvider = activeDialogProvider;
-            _userInputRepository = userInputRepository;
         }
 
         public void ShowNPCDialog(NPC npc)
@@ -50,11 +47,9 @@ namespace EndlessClient.Controllers
             {
                 case EOLib.IO.NPCType.Shop:
                     _mapNpcActions.RequestShop(npc);
-                    _userInputRepository.ClickHandled = true;
                     break;
                 case EOLib.IO.NPCType.Quest:
                     _mapNpcActions.RequestQuest(npc);
-                    _userInputRepository.ClickHandled = true;
                     break;
                 case EOLib.IO.NPCType.Bank:
                     _mapNpcActions.RequestBank(npc);
@@ -62,11 +57,9 @@ namespace EndlessClient.Controllers
                     //       by config data on the server. Bank account dialog does not have this restriction;
                     //       interaction with the NPC should *always* show the dialog
                     _inGameDialogActions.ShowBankAccountDialog();
-                    _userInputRepository.ClickHandled = true;
                     break;
                 case EOLib.IO.NPCType.Skills:
                     _mapNpcActions.RequestSkillmaster(npc);
-                    _userInputRepository.ClickHandled = true;
                     break;
             }
         }

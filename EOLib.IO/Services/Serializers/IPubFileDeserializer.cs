@@ -5,7 +5,7 @@ namespace EOLib.IO.Services.Serializers
 {
     public interface IPubFileDeserializer
     {
-        IPubFile<TRecord> DeserializeFromByteArray<TRecord>(byte[] data, Func<IPubFile<TRecord>> fileFactory)
+        IPubFile<TRecord> DeserializeFromByteArray<TRecord>(int id, byte[] data, Func<IPubFile<TRecord>> fileFactory)
             where TRecord : class, IPubRecord, new();
     }
 

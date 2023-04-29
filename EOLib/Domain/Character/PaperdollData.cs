@@ -20,19 +20,19 @@ namespace EOLib.Domain.Character
 
         public string Rank { get; }
 
-        public short PlayerID { get; }
+        public int PlayerID { get; }
 
-        public byte Class { get; }
+        public int Class { get; }
 
-        public byte Gender { get; }
+        public int Gender { get; }
 
-        public IReadOnlyDictionary<EquipLocation, short> Paperdoll { get; }
+        public IReadOnlyDictionary<EquipLocation, int> Paperdoll { get; }
 
         public OnlineIcon Icon { get; }
 
         public PaperdollData()
         {
-            Paperdoll = new Dictionary<EquipLocation, short>();
+            Paperdoll = new Dictionary<EquipLocation, int>();
         }
     }
 }

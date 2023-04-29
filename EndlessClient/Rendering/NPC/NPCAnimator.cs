@@ -123,8 +123,8 @@ namespace EndlessClient.Rendering.NPC
             if (nextFrameNPC.IsActing(NPCActionState.Standing))
             {
                 nextFrameNPC = nextFrameNPC
-                    .WithX((byte)nextFrameNPC.GetDestinationX())
-                    .WithY((byte)nextFrameNPC.GetDestinationY());
+                    .WithX(nextFrameNPC.GetDestinationX())
+                    .WithY(nextFrameNPC.GetDestinationY());
             }
 
             return nextFrameNPC;

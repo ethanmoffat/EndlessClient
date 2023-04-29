@@ -3,6 +3,7 @@ using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Factories;
+using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Spells;
 using EndlessClient.UIControls;
 using EOLib;
@@ -10,12 +11,14 @@ using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Graphics;
+using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
 using Microsoft.Win32;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.Input;
 using Optional;
 using Optional.Collections;
 using System;
@@ -30,7 +33,7 @@ using static EndlessClient.HUD.Spells.SpellPanelItem;
 
 namespace EndlessClient.HUD.Panels
 {
-    public class ActiveSpellsPanel : DraggableHudPanel
+    public class ActiveSpellsPanel : DraggableHudPanel, IHudPanel, IDraggableItemContainer
     {
         public const int SpellRows = 4;
         public const int SpellRowLength = 8;
@@ -45,9 +48,10 @@ namespace EndlessClient.HUD.Panels
         private readonly ISpellSlotDataRepository _spellSlotDataRepository;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly ISfxPlayer _sfxPlayer;
+        private readonly IConfigurationProvider _configProvider;
 
         private readonly Dictionary<int, int> _spellSlotMap;
-        private readonly List<ISpellPanelItem> _childItems;
+        private readonly List<SpellPanelItem> _childItems;
 
         private readonly Texture2D _functionKeyLabelSheet;
         private Rectangle _functionKeyRow1Source, _functionKeyRow2Source;
@@ -76,7 +80,8 @@ namespace EndlessClient.HUD.Panels
                                  IESFFileProvider esfFileProvider,
                                  ISpellSlotDataRepository spellSlotDataRepository,
                                  IHudControlProvider hudControlProvider,
-                                 ISfxPlayer sfxPlayer)
+                                 ISfxPlayer sfxPlayer,
+                                 IConfigurationProvider configProvider)
         {
             NativeGraphicsManager = nativeGraphicsManager;
             _trainingController = trainingController;
@@ -89,10 +94,10 @@ namespace EndlessClient.HUD.Panels
             _spellSlotDataRepository = spellSlotDataRepository;
             _hudControlProvider = hudControlProvider;
             _sfxPlayer = sfxPlayer;
+            _configProvider = configProvider;
 
-            _spellSlotMap = GetSpellSlotMap(_playerInfoProvider.LoggedInAccountName, _characterProvider.MainCharacter.Name);
-            _childItems = new List<ISpellPanelItem>();
-            ResetChildItems();
+            _spellSlotMap = GetSpellSlotMap(_playerInfoProvider.LoggedInAccountName, _characterProvider.MainCharacter.Name, _configProvider.Host);
+            _childItems = new List<SpellPanelItem>();
 
             _cachedSpells = new HashSet<InventorySpell>();
 
@@ -150,12 +155,15 @@ namespace EndlessClient.HUD.Panels
                 LinesToRender = 2
             };
             _scrollBar.UpdateDimensions(4);
+            SetScrollWheelHandler(_scrollBar);
 
             BackgroundImage = NativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 62);
             DrawArea = new Rectangle(102, 330, BackgroundImage.Width, BackgroundImage.Height);
 
             Game.Exiting += SaveSpellsFile;
         }
+
+        public bool NoItemsDragging() => _childItems.All(x => !x.IsDragging);
 
         public override void Initialize()
         {
@@ -180,11 +188,7 @@ namespace EndlessClient.HUD.Panels
             base.Initialize();
         }
 
-        public bool AnySpellsDragging() => _childItems.Any(x => x.IsBeingDragged);
-
-        public bool AnyPanelsDragging => _hudControlProvider.AnyPanelsDragging;
-
-        protected override void OnUpdateControl(GameTime gameTime)
+        protected override void OnUnconditionalUpdateControl(GameTime gameTime)
         {
             if (!_cachedSpells.SetEquals(_characterInventoryProvider.SpellInventory))
             {
@@ -202,7 +206,6 @@ namespace EndlessClient.HUD.Panels
                         childControl.Dispose();
                         _childItems.Remove(childControl);
 
-                        _childItems.Add(CreateEmptySpell(childControl.Slot));
                         _spellSlotDataRepository.SpellSlots[childControl.Slot] = Option.None<InventorySpell>();
                     });
                 }
@@ -237,20 +240,16 @@ namespace EndlessClient.HUD.Panels
 
                     actualSlot.MatchSome(slot =>
                     {
-                        _childItems.SingleOrNone(ci => ci.Slot == slot)
-                            .MatchSome(ci =>
-                            {
-                                ci.SetControlUnparented();
-                                ci.Dispose();
-                                _childItems.Remove(ci);
-                            });
-
                         var newChild = new SpellPanelItem(this, _sfxPlayer, slot, spell, spellData);
                         newChild.Initialize();
+                        newChild.SetParentControl(this);
 
-                        newChild.Clicked += (sender, _) => _spellSlotDataRepository.SelectedSpellSlot = Option.Some(((SpellPanelItem)sender).Slot);
+                        // this is required so scroll works while click+dragging when the control becomes unparented
+                        newChild.SetScrollWheelHandler(_scrollBar);
+
+                        newChild.Click += (sender, _) => _spellSlotDataRepository.SelectedSpellSlot = Option.Some(((SpellPanelItem)sender).Slot);
                         newChild.OnMouseOver += SetSpellStatusLabelHover;
-                        newChild.DoneDragging += ItemDraggingCompleted;
+                        newChild.DraggingFinishing += HandleItemDoneDragging;
 
                         _childItems.Add(newChild);
                         _spellSlotDataRepository.SpellSlots[slot] = Option.Some(spell);
@@ -263,10 +262,14 @@ namespace EndlessClient.HUD.Panels
                 _cachedSpells = _characterInventoryProvider.SpellInventory.ToHashSet();
             }
 
-            if ((CurrentKeyState.IsKeyDown(Keys.RightShift) && PreviousKeyState.IsKeyUp(Keys.RightShift)) ||
-                (CurrentKeyState.IsKeyDown(Keys.LeftShift) && PreviousKeyState.IsKeyUp(Keys.LeftShift)) ||
-                (CurrentKeyState.IsKeyUp(Keys.RightShift) && PreviousKeyState.IsKeyDown(Keys.RightShift)) ||
-                (CurrentKeyState.IsKeyUp(Keys.LeftShift) && PreviousKeyState.IsKeyDown(Keys.LeftShift)))
+            base.OnUnconditionalUpdateControl(gameTime);
+        }
+
+        protected override void OnUpdateControl(GameTime gameTime)
+        {
+            var kbd = KeyboardExtended.GetState();
+            if (kbd.WasKeyJustUp(Keys.RightShift) || kbd.WasKeyJustDown(Keys.RightShift) ||
+                kbd.WasKeyJustUp(Keys.LeftShift) || kbd.WasKeyJustDown(Keys.LeftShift))
             {
                 SwapFunctionKeySourceRectangles();
             }
@@ -309,8 +312,6 @@ namespace EndlessClient.HUD.Panels
                     }));
 
             base.OnUpdateControl(gameTime);
-
-            SuppressClickDragEvent(AnySpellsDragging());
         }
 
         protected override void OnDrawControl(GameTime gameTime)
@@ -384,7 +385,7 @@ namespace EndlessClient.HUD.Panels
                 _cachedSelectedSpell.MatchSome(slot =>
                 {
                     _childItems.SingleOrNone(x => x.Slot == slot)
-                        .MatchSome(x => _trainingController.AddSkillPoint(x.SpellData.ID));
+                        .MatchSome(x => _trainingController.AddSkillPoint(x.Data.ID));
                 });
             }
         }
@@ -394,7 +395,7 @@ namespace EndlessClient.HUD.Panels
             _childItems.OfType<SpellPanelItem>().SingleOrNone(x => x.Slot == slot)
                 .MatchSome(spell =>
                 {
-                    var spellData = spell.SpellData;
+                    var spellData = spell.Data;
 
                     _activeSpellIcon = NativeGraphicsManager.TextureFromResource(GFXTypes.SpellIcons, spellData.Icon);
 
@@ -419,25 +420,38 @@ namespace EndlessClient.HUD.Panels
             _levelUpButton1.Visible = _levelUpButton2.Visible = false;
         }
 
-        private void SetSpellStatusLabelHover(object sender, EventArgs e)
+        private void SetSpellStatusLabelHover(object sender, MouseStateExtended e)
         {
-            var spell = ((SpellPanelItem)sender).SpellData;
-            _statusLabelSetter.SetStatusLabel(EOResourceID.SKILLMASTER_WORD_SPELL, spell.Name);
+            var spellPanelItem = sender as SpellPanelItem;
+            if (spellPanelItem == null || spellPanelItem.IsDragging)
+                return;
+
+            _statusLabelSetter.SetStatusLabel(EOResourceID.SKILLMASTER_WORD_SPELL, spellPanelItem.Data.Name);
         }
 
-        private void ItemDraggingCompleted(object sender, SpellDragCompletedEventArgs e)
+        private void HandleItemDoneDragging(object sender, DragCompletedEventArgs<ESFRecord> e)
         {
-            var item = (SpellPanelItem)sender;
+            var item = sender as SpellPanelItem;
+            if (item == null)
+                return;
 
-            _childItems.SingleOrNone(x => x.MouseOver)
-                .Match(child =>
-                {
-                    if (child != item)
+            if (e.DragOutOfBounds)
+            {
+                e.RestoreOriginalSlot = true;
+                return;
+            }
+
+            var oldSlot = item.Slot;
+            var newSlot = item.GetCurrentSlotBasedOnPosition(_scrollBar.ScrollOffset);
+
+            if (oldSlot != newSlot &&
+                newSlot < (_scrollBar.ScrollOffset + _scrollBar.LinesToRender) * SpellRowLength &&
+                newSlot >= _scrollBar.ScrollOffset * SpellRowLength)
+            {
+                _childItems.SingleOrNone(x => x.Slot == newSlot)
+                    .Match(child =>
                     {
-                        var oldSlot = item.Slot;
                         var oldDisplaySlot = item.DisplaySlot;
-
-                        var newSlot = child.Slot;
                         var newDisplaySlot = child.DisplaySlot;
 
                         item.Slot = newSlot;
@@ -446,37 +460,33 @@ namespace EndlessClient.HUD.Panels
                         child.Slot = oldSlot;
                         child.DisplaySlot = oldDisplaySlot;
 
+                        _spellSlotDataRepository.SpellSlots[oldSlot] = Option.Some(child.InventorySpell);
+                        _spellSlotDataRepository.SpellSlots[newSlot] = Option.Some(item.InventorySpell);
+                        _spellSlotDataRepository.SelectedSpellSlot = Option.Some(newSlot);
+                        _spellSlotDataRepository.SpellIsPrepared = false;
+                    },
+                    () =>
+                    {
+                        item.Slot = newSlot;
+                        item.DisplaySlot = newSlot - (SpellRowLength * _scrollBar.ScrollOffset);
+
                         _spellSlotDataRepository.SpellSlots[oldSlot] = Option.None<InventorySpell>();
                         _spellSlotDataRepository.SpellSlots[newSlot] = Option.Some(item.InventorySpell);
                         _spellSlotDataRepository.SelectedSpellSlot = Option.Some(newSlot);
                         _spellSlotDataRepository.SpellIsPrepared = false;
-                    }
-                },
-                () => e.ContinueDragging = true);
-        }
+                    });
 
-        private static Option<int> GetNextOpenSlot(IEnumerable<ISpellPanelItem> childItems)
-        {
-            // get the minimum slot when there is an Empty space
-            return childItems.OfType<EmptySpellPanelItem>()
-                .SomeWhen(x => x.Any())
-                .Map(x => x.Min(y => y.Slot));
-        }
-
-        private void ResetChildItems()
-        {
-            for (int slot = 0; slot < SpellRows * SpellRowLength; slot++)
-            {
-                _childItems.Add(CreateEmptySpell(slot));
+                UpdateSpellItemsForScroll();
             }
         }
 
-        private ISpellPanelItem CreateEmptySpell(int slot)
+        private Option<int> GetNextOpenSlot(IEnumerable<SpellPanelItem> childItems)
         {
-            var emptyItem = new EmptySpellPanelItem(this, slot);
-            emptyItem.Clicked += (_, _) => _spellSlotDataRepository.SelectedSpellSlot = Option.None<int>();
-            emptyItem.Initialize();
-            return emptyItem;
+            return _spellSlotDataRepository.SpellSlots
+                .Select((spellItem, slot) => (SpellItem: spellItem, Slot: slot))
+                .Where(pair => !pair.SpellItem.HasValue && childItems.All(x => x.Slot != pair.Slot))
+                .FirstOrNone()
+                .Map(x => x.Slot);
         }
 
         private void SwapFunctionKeySourceRectangles()
@@ -494,15 +504,15 @@ namespace EndlessClient.HUD.Panels
             var itemsToHide = _childItems.Where(x => x.Slot < firstValidSlot || x.Slot >= lastValidSlot).ToList();
             foreach (var item in itemsToHide)
             {
-                if (!item.IsBeingDragged)
-                    ((XNAControl)item).Visible = false;
+                if (!item.IsDragging)
+                    item.Visible = false;
 
                 item.DisplaySlot = GetDisplaySlotFromSlot(item.Slot);
             }
 
             foreach (var item in _childItems.Except(itemsToHide))
             {
-                ((XNAControl)item).Visible = true;
+                item.Visible = true;
                 item.DisplaySlot = item.Slot - firstValidSlot;
             }
 
@@ -528,27 +538,28 @@ namespace EndlessClient.HUD.Panels
 
         #region Slot loading
 
-        private static Dictionary<int, int> GetSpellSlotMap(string accountName, string characterName)
+        private static Dictionary<int, int> GetSpellSlotMap(string accountName, string characterName, string host)
         {
             var map = new Dictionary<int, int>();
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !File.Exists(Constants.SpellsFile))
             {
-                using var spellsKey = TryGetCharacterRegistryKey(accountName, characterName);
-                if (spellsKey != null)
+                using var registrySpellsKey = TryGetCharacterRegistryKey(accountName, characterName);
+                if (registrySpellsKey != null)
                 {
                     for (int i = 0; i < SpellRowLength * SpellRows; ++i)
                     {
-                        if (int.TryParse(spellsKey.GetValue($"item{i}")?.ToString() ?? string.Empty, out var id))
+                        if (int.TryParse(registrySpellsKey.GetValue($"item{i}")?.ToString() ?? string.Empty, out var id))
                             map[i] = id;
                     }
                 }
             }
 
             var spells = new IniReader(Constants.SpellsFile);
-            if (spells.Load() && spells.Sections.ContainsKey(accountName))
+            var spellsKey = $"{host}:{accountName}";
+            if (spells.Load() && spells.Sections.ContainsKey(spellsKey))
             {
-                var section = spells.Sections[accountName];
+                var section = spells.Sections[spellsKey];
                 foreach (var key in section.Keys.Where(x => x.Contains(characterName, StringComparison.OrdinalIgnoreCase)))
                 {
                     if (!key.Contains("."))

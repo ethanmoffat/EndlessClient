@@ -1,15 +1,13 @@
-﻿using System;
-using System.Linq;
-using AutomaticTypeMapper;
-using EOLib;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Map;
-using EOLib.Domain.NPC;
 using Microsoft.Xna.Framework;
 using Optional;
+using System;
+using System.Linq;
 
 namespace EndlessClient.Rendering.NPC
 {
-    [MappedType(BaseType = typeof(INPCRendererUpdater))]
+    [AutoMappedType]
     public class NPCRendererUpdater : INPCRendererUpdater
     {
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
@@ -87,8 +85,11 @@ namespace EndlessClient.Rendering.NPC
 
         private void UpdateCachedNPC(EOLib.Domain.NPC.NPC npc)
         {
-            _npcRendererRepository.NPCRenderers[npc.Index].NPC = npc;
-            _npcStateCache.UpdateNPCState(npc.Index, npc);
+            if (_npcRendererRepository.NPCRenderers.ContainsKey(npc.Index))
+            {
+                _npcRendererRepository.NPCRenderers[npc.Index].NPC = npc;
+                _npcStateCache.UpdateNPCState(npc.Index, npc);
+            }
         }
 
         private void UpdateNPCRenderers(GameTime gameTime)
@@ -99,6 +100,7 @@ namespace EndlessClient.Rendering.NPC
 
         public void Dispose()
         {
+            _npcStateCache.Reset();
             _npcRendererRepository.Dispose();
         }
     }

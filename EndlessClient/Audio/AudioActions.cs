@@ -50,15 +50,14 @@ namespace EndlessClient.Audio
 
             var noise = _currentMapProvider.CurrentMap.Properties.AmbientNoise;
             if (noise > 0)
-                _sfxPlayer.PlayLoopingSfx((SoundEffectID)noise - 1);
+                _sfxPlayer.PlayLoopingSfx((SoundEffectID)noise);
             else
                 _sfxPlayer.StopLoopingSfx();
         }
 
-        public void NotifySoundEffect(byte soundEffectId)
+        public void NotifySoundEffect(int soundEffectId)
         {
-            var zeroBasedSfxId = (SoundEffectID)soundEffectId - 1;
-            _sfxPlayer.PlaySfx(zeroBasedSfxId);
+            _sfxPlayer.PlaySfx((SoundEffectID)soundEffectId);
         }
     }
 

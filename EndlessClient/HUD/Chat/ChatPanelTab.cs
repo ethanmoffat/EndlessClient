@@ -7,8 +7,10 @@ using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Chat;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.BitmapFonts;
+using MonoGame.Extended.Input;
+using MonoGame.Extended.Input.InputListeners;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +27,7 @@ namespace EndlessClient.HUD.Chat
         private readonly ChatPanel _parentPanel;
         private readonly ScrollBar _scrollBar;
         private readonly ISpriteSheet _tabSheetSelected, _tabSheetUnselected;
-        private readonly SpriteFont _chatFont;
+        private readonly BitmapFont _chatFont;
 
         private readonly IXNAButton _closeButton, _tab;
         private readonly IXNALabel _label;
@@ -68,7 +70,7 @@ namespace EndlessClient.HUD.Chat
                             ChatTab whichTab,
                             ISpriteSheet tabSheetSelected,
                             ISpriteSheet tabSheetUnselected,
-                            SpriteFont chatFont)
+                            BitmapFont chatFont)
         {
             _chatProvider = chatProvider;
             _hudControlProvider = hudControlProvider;
@@ -147,27 +149,13 @@ namespace EndlessClient.HUD.Chat
 
                 if (Active)
                 {
-                    _scrollBar.UpdateDimensions(_cachedChat.Count);
+                    _scrollBar.UpdateDimensions(_renderables.Count);
                     _scrollBar.ScrollToEnd();
                 }
                 else
                 {
                     _cachedScrollOffset = Math.Max(0, _renderables.Count - 7);
                     _label.ForeColor = Color.White;
-                }
-            }
-
-            if (Active && MouseOver &&
-                CurrentMouseState.RightButton == ButtonState.Released &&
-                PreviousMouseState.RightButton == ButtonState.Pressed)
-            {
-                var clickedYRelativeToTopOfPanel = CurrentMouseState.Y - DrawAreaWithParentOffset.Y;
-                var clickedChatRow = (int)Math.Round(clickedYRelativeToTopOfPanel / 13.0) - 1;
-
-                if (clickedChatRow >= 0 && _scrollBar.ScrollOffset + clickedChatRow < _cachedChat.Count)
-                {
-                    var who = _chatProvider.AllChat[Tab][_scrollBar.ScrollOffset + clickedChatRow].Who;
-                    _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox).Text = $"!{who} ";
                 }
             }
 
@@ -197,6 +185,25 @@ namespace EndlessClient.HUD.Chat
             _spriteBatch.End();
 
             base.OnDrawControl(gameTime);
+        }
+
+        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            if (eventArgs.Button == MouseButton.Right)
+            {
+                var clickedYRelativeToTopOfPanel = eventArgs.Position.Y - DrawAreaWithParentOffset.Y;
+                var clickedChatRow = (int)Math.Round(clickedYRelativeToTopOfPanel / 13.0) - 1;
+
+                if (clickedChatRow >= 0 && _scrollBar.ScrollOffset + clickedChatRow < _cachedChat.Count)
+                {
+                    var who = _chatProvider.AllChat[Tab][_scrollBar.ScrollOffset + clickedChatRow].Who;
+                    _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox).Text = $"!{who} ";
+                }
+
+                return true;
+            }
+
+            return false;
         }
 
         private void SelectThisTab()

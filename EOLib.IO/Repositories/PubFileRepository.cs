@@ -1,5 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.IO.Pub;
+using System.Collections.Generic;
 
 namespace EOLib.IO.Repositories
 {
@@ -16,11 +17,15 @@ namespace EOLib.IO.Repositories
     public class PubFileRepository : IPubFileRepository, IPubFileProvider
     {
         public IPubFile<EIFRecord> EIFFile { get; set; }
+        public List<IPubFile<EIFRecord>> EIFFiles { get; set; }
 
         public IPubFile<ENFRecord> ENFFile { get; set; }
+        public List<IPubFile<ENFRecord>> ENFFiles { get; set; }
 
         public IPubFile<ESFRecord> ESFFile { get; set; }
+        public List<IPubFile<ESFRecord>> ESFFiles { get; set; }
 
         public IPubFile<ECFRecord> ECFFile { get; set; }
+        public List<IPubFile<ECFRecord>> ECFFiles { get; set; }
     }
 }

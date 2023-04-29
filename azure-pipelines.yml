@@ -2,12 +2,14 @@ name: 1.0.$(rev:rrr)
 
 trigger:
 - master
+- release/*
 
 schedules:
 - cron: 0 5 * * 6
   branches:
     include:
     - master
+    - release/*
   always: true
 
 strategy:
@@ -85,11 +87,6 @@ steps:
     command: 'restore'
     verbosityRestore: 'minimal'
     projects: '$(Build.SourcesDirectory)/$(solutionName)'
-- script: |
-    echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections
-    sudo apt-get install -y ttf-mscorefonts-installer && sudo fc-cache -f
-  displayName: 'Linux - install windows fonts'
-  condition: eq(variables['friendlyPlatform'], 'Linux')
 - task: DotNetCoreCLI@2
   displayName: 'dotnet build'
   inputs:

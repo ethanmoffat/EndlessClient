@@ -126,7 +126,7 @@ namespace EndlessClient.Controllers
                         {
                             if (e.Result == XNADialogResult.OK)
                             {
-                                _itemActions.UseItem((short)record.ID);
+                                _itemActions.UseItem(record.ID);
                             }
                         };
                         msgBox.ShowDialog();
@@ -149,7 +149,7 @@ namespace EndlessClient.Controllers
 
             if (useItem)
             {
-                _itemActions.UseItem((short)record.ID);
+                _itemActions.UseItem(record.ID);
 
                 if (record.Type == ItemType.Beer)
                 {
@@ -184,7 +184,7 @@ namespace EndlessClient.Controllers
                         EOResourceID.STATUS_LABEL_ITEM_EQUIP_CAN_ONLY_BE_USED_BY, detail);
                     break;
                 case ItemEquipResult.Ok:
-                    _itemActions.EquipItem((short)itemData.ID, isAlternateEquipLocation);
+                    _itemActions.EquipItem(itemData.ID, isAlternateEquipLocation);
                     break;
             }
         }

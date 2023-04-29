@@ -21,15 +21,15 @@ namespace EOLib.Config
 
             int tempInt;
             _configRepository.VersionMajor = configFile.GetValue(ConfigStrings.Version, ConfigStrings.Major, out tempInt)
-                ? (byte)tempInt
+                ? tempInt
                 : ConfigDefaults.MajorVersion;
 
             _configRepository.VersionMinor = configFile.GetValue(ConfigStrings.Version, ConfigStrings.Minor, out tempInt)
-                ? (byte)tempInt
+                ? tempInt
                 : ConfigDefaults.MinorVersion;
 
             _configRepository.VersionBuild = configFile.GetValue(ConfigStrings.Version, ConfigStrings.Client, out tempInt)
-                ? (byte)tempInt
+                ? tempInt
                 : ConfigDefaults.ClientVersion;
 
             _configRepository.Language = configFile.GetValue(ConfigStrings.LANGUAGE, ConfigStrings.Language, out tempInt)

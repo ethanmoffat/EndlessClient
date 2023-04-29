@@ -5,13 +5,13 @@ namespace EndlessClient.Rendering
 {
     public class RenderFrameActionTime
     {
-        private readonly Action _sfxCallback;
+        private Action _sfxCallback;
 
         public int UniqueID { get; private set; }
 
         public Stopwatch ActionTimer { get; private set; }
 
-        public bool Replay { get; set; }
+        public bool Replay { get; private set; }
 
         public RenderFrameActionTime(int uniqueID, Action sfxCallback = null)
         {
@@ -23,6 +23,17 @@ namespace EndlessClient.Rendering
         public void UpdateActionStartTime()
         {
             ActionTimer = Stopwatch.StartNew();
+        }
+
+        public void SetReplay(Action sfxCallback = null)
+        {
+            _sfxCallback = sfxCallback;
+            Replay = true;
+        }
+
+        public void ClearReplay()
+        {
+            Replay = false;
         }
 
         public void SoundEffect() => _sfxCallback?.Invoke();

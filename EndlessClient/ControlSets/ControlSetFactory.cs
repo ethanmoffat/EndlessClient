@@ -1,5 +1,4 @@
-﻿using System;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.Dialogs;
@@ -12,6 +11,7 @@ using EndlessClient.UIControls;
 using EOLib.Config;
 using EOLib.Domain.Login;
 using EOLib.Graphics;
+using System;
 
 namespace EndlessClient.ControlSets
 {
@@ -22,7 +22,6 @@ namespace EndlessClient.ControlSets
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly IHudControlsFactory _hudControlsFactory;
         private readonly IContentProvider _contentProvider;
-        private readonly IKeyboardDispatcherProvider _keyboardDispatcherProvider;
         private readonly IConfigurationProvider _configProvider;
         private readonly ICharacterInfoPanelFactory _characterInfoPanelFactory;
         private readonly ICharacterSelectorProvider _characterSelectorProvider;
@@ -41,7 +40,6 @@ namespace EndlessClient.ControlSets
                                  IEOMessageBoxFactory messageBoxFactory,
                                  IHudControlsFactory hudControlsFactory,
                                  IContentProvider contentProvider,
-                                 IKeyboardDispatcherProvider keyboardDispatcherProvider,
                                  IConfigurationProvider configProvider,
                                  ICharacterInfoPanelFactory characterInfoPanelFactory,
                                  ICharacterSelectorProvider characterSelectorProvider,
@@ -55,7 +53,6 @@ namespace EndlessClient.ControlSets
             _messageBoxFactory = messageBoxFactory;
             _hudControlsFactory = hudControlsFactory;
             _contentProvider = contentProvider;
-            _keyboardDispatcherProvider = keyboardDispatcherProvider;
             _configProvider = configProvider;
             _characterInfoPanelFactory = characterInfoPanelFactory;
             _characterSelectorProvider = characterSelectorProvider;
@@ -95,32 +92,23 @@ namespace EndlessClient.ControlSets
             {
                 case GameStates.Initial: return new InitialControlSet(_configProvider, _mainButtonController);
                 case GameStates.CreateAccount:
-                    return new CreateAccountControlSet(
-                        _keyboardDispatcherProvider.Dispatcher,
-                        _mainButtonController,
-                        _clientWindowSizeRepository,
-                        _accountController);
+                    return new CreateAccountControlSet(_mainButtonController, _accountController, _clientWindowSizeRepository);
                 case GameStates.Login:
-                    return new LoginPromptControlSet(
-                        _keyboardDispatcherProvider.Dispatcher,
-                        _configProvider,
-                        _mainButtonController,
-                        _loginController);
+                    return new LoginPromptControlSet(_configProvider, _mainButtonController, _loginController);
                 case GameStates.ViewCredits: return new ViewCreditsControlSet(_configProvider, _mainButtonController);
                 case GameStates.LoggedIn:
                     return new LoggedInControlSet(
-                        _keyboardDispatcherProvider.Dispatcher,
                         _mainButtonController,
-                        _clientWindowSizeRepository,
                         _characterInfoPanelFactory,
                         _characterSelectorProvider,
                         _characterManagementController,
                         _accountController,
                         _endlessGameProvider,
                         _userInputRepository,
-                        _fixedTimeStepRepository);
+                        _fixedTimeStepRepository,
+                        _clientWindowSizeRepository);
                 case GameStates.PlayingTheGame:
-                    return new InGameControlSet(_mainButtonController, _clientWindowSizeRepository, _messageBoxFactory, _hudControlsFactory, _activeDialogRepository, _userInputRepository);
+                    return new InGameControlSet(_mainButtonController, _messageBoxFactory, _hudControlsFactory, _activeDialogRepository, _clientWindowSizeRepository);
                 default: throw new ArgumentOutOfRangeException(nameof(newState), newState, null);
             }
         }

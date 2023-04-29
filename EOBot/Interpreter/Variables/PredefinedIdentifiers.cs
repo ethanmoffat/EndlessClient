@@ -46,5 +46,6 @@
         public const string DELETE_CHARACTER_FUNC = "DeleteCharacter";
 
         public const string JOIN_PARTY = "JoinParty";
+        public const string CHAT = "Chat";
     }
 }

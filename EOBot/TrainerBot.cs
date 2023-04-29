@@ -344,10 +344,10 @@ namespace EOBot
             ConsoleHelper.WriteMessage(ConsoleHelper.Type.Cast, $"{spellToUse.HP,4} HP - {spellToUse.Name} - TP {stats[CharacterStat.TP]}/{stats[CharacterStat.MaxTP]}");
 
             await TrySend(() => _characterActions.PrepareCastSpell(spellToUse.ID));
-            await Task.Delay((int)Math.Round(spellToUse.CastTime / 2.0 * 950)); // ?
+            await Task.Delay((spellToUse.CastTime - 1) * 480 + 350);
 
             await TrySend(() => _characterActions.CastSpell(spellToUse.ID, _characterRepository.MainCharacter));
-            await Task.Delay((int)Math.Round(spellToUse.CastTime / 2.0 * 950)); // ?
+            await Task.Delay(600); // 600ms cooldown between spell casts
         }
 
         private async Task UseHealItem(IEnumerable<InventoryItem> healItems)
@@ -360,7 +360,7 @@ namespace EOBot
 
             ConsoleHelper.WriteMessage(ConsoleHelper.Type.UseItem, $"{itemToUse.Name} - {itemToUse.HP} HP - inventory: {amount - 1} - (other heal item types: {healItems.Count() - 1})");
 
-            await TrySend(() => _itemActions.UseItem((short)itemToUse.ID));
+            await TrySend(() => _itemActions.UseItem(itemToUse.ID));
 
             await Task.Delay(ATTACK_BACKOFF_MS);
         }

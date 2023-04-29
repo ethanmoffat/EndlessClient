@@ -37,7 +37,7 @@ namespace EndlessClient.UIControls
             }
             else
             {
-                DrawArea = new Rectangle(97, _clientWindowSizeProvider.Height - 24, 1, 1);
+                DrawArea = new Rectangle(97, _clientWindowSizeProvider.Height - 26, 1, 1);
             }
         }
 

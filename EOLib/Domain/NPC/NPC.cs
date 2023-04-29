@@ -11,14 +11,16 @@ namespace EOLib.Domain.NPC
 
         public int Index { get; }
 
-        public byte X { get; }
+        public int X { get; }
 
-        public byte Y { get; }
+        public int Y { get; }
 
         public EODirection Direction { get; }
 
         public NPCFrame Frame { get; }
 
-        public Option<short> OpponentID { get; }
+        public int ActualAttackFrame { get; }
+
+        public Option<int> OpponentID { get; }
     }
 }

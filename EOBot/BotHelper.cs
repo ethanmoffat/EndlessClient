@@ -29,7 +29,9 @@ namespace EOBot
             var accountActions = DependencyMaster.TypeRegistry[_botIndex].Resolve<IAccountActions>();
             var accParams = new CreateAccountParameters(name, password, password, name, name, name + "@eobot.net");
             var nameResult = await accountActions.CheckAccountNameWithServer(name);
-            return await accountActions.CreateAccount(accParams, (short)nameResult);
+            return nameResult >= AccountReply.OK_CodeRange
+                ? await accountActions.CreateAccount(accParams, (int)nameResult)
+                : nameResult;
         }
 
         public async Task<LoginReply> LoginToAccountAsync(string name, string password)

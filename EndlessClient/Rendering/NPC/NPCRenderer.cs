@@ -1,9 +1,7 @@
-﻿using EndlessClient.Audio;
-using EndlessClient.Controllers;
+﻿using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Spells;
 using EndlessClient.Input;
-using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Factories;
@@ -11,40 +9,34 @@ using EndlessClient.Rendering.Sprites;
 using EOLib;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.NPC;
+using EOLib.Domain.Spells;
 using EOLib.Graphics;
 using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Optional;
 using System;
-using System.Linq;
-using System.Windows.Markup;
 using XNAControls;
 
 namespace EndlessClient.Rendering.NPC
 {
     public class NPCRenderer : DrawableGameComponent, INPCRenderer
     {
-        // todo: load this from a config or find a better way
-        // list: Reaper, Royal Guard, Elite Captain, Horse, Unicorn, Anundo Leader, Apozen
-        private static readonly int[] _npcsThatAreNotCentered = new[] { 9, 57, 58, 66, 67, 120, 142 };
+        private static readonly object _rt_locker_ = new object();
+
         private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
-        private readonly ICharacterRendererProvider _characterRendererProvider;
         private readonly IENFFileProvider _enfFileProvider;
         private readonly INPCSpriteSheet _npcSpriteSheet;
-        private readonly IRenderOffsetCalculator _renderOffsetCalculator;
+        private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
         private readonly IHealthBarRendererFactory _healthBarRendererFactory;
         private readonly IChatBubbleFactory _chatBubbleFactory;
-        private readonly INPCInteractionController _npcInteractionController;
-        private readonly IMapInteractionController _mapInteractionController;
+        private readonly IRenderTargetFactory _renderTargetFactory;
         private readonly IUserInputProvider _userInputProvider;
-        private readonly ISpellSlotDataProvider _spellSlotDataProvider;
-        private readonly ISfxPlayer _sfxPlayer;
-        private readonly int _readonlyTopPixel, _readonlyBottomPixel;
-        private readonly bool _hasStandingAnimation;
         private readonly IEffectRenderer _effectRenderer;
         private readonly IHealthBarRenderer _healthBarRenderer;
+
+        private RenderTarget2D _npcRenderTarget;
+        private SpriteBatch _spriteBatch;
 
         private DateTime _lastStandingAnimation;
         private int _fadeAwayAlpha;
@@ -53,68 +45,60 @@ namespace EndlessClient.Rendering.NPC
         private XNALabel _nameLabel;
         private IChatBubble _chatBubble;
 
-        public int TopPixel => _readonlyTopPixel;
+        public int NameLabelY { get; private set; }
 
-        public int BottomPixel => _readonlyBottomPixel;
+        public int HorizontalCenter { get; private set; }
 
-        public int TopPixelWithOffset => _readonlyTopPixel + DrawArea.Y;
-
-        public int BottomPixelWithOffset => _readonlyBottomPixel + DrawArea.Y;
+        public bool IsAlive => !_isDying && !IsDead;
 
         public Rectangle DrawArea { get; private set; }
 
-        public Rectangle MapProjectedDrawArea { get; private set; }
-
-        public bool MouseOver => DrawArea.Contains(_userInputProvider.CurrentMouseState.Position);
-
-        public bool MouseOverPreviously => DrawArea.Contains(_userInputProvider.PreviousMouseState.Position);
-
         public EOLib.Domain.NPC.NPC NPC { get; set; }
+
+        public ISpellTargetable SpellTarget => NPC;
 
         public bool IsDead { get; private set; }
 
-        public Rectangle EffectTargetArea => DrawArea;
+        public Rectangle EffectTargetArea { get; private set; }
 
-        public NPCRenderer(INativeGraphicsManager nativeGraphicsManager,
+        public NPCRenderer(IEndlessGameProvider endlessGameProvider,
                            IClientWindowSizeProvider clientWindowSizeProvider,
-                           IEndlessGameProvider endlessGameProvider,
-                           ICharacterRendererProvider characterRendererProvider,
                            IENFFileProvider enfFileProvider,
                            INPCSpriteSheet npcSpriteSheet,
-                           IRenderOffsetCalculator renderOffsetCalculator,
+                           IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
                            IHealthBarRendererFactory healthBarRendererFactory,
                            IChatBubbleFactory chatBubbleFactory,
-                           INPCInteractionController npcInteractionController,
-                           IMapInteractionController mapInteractionController,
+                           IRenderTargetFactory renderTargetFactory,
                            IUserInputProvider userInputProvider,
-                           ISpellSlotDataProvider spellSlotDataProvider,
-                           ISfxPlayer sfxPlayer,
+                           IEffectRendererFactory effectRendererFactory,
                            EOLib.Domain.NPC.NPC initialNPC)
             : base((Game)endlessGameProvider.Game)
         {
             NPC = initialNPC;
             _clientWindowSizeProvider = clientWindowSizeProvider;
-            _characterRendererProvider = characterRendererProvider;
             _enfFileProvider = enfFileProvider;
             _npcSpriteSheet = npcSpriteSheet;
-            _renderOffsetCalculator = renderOffsetCalculator;
+            _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
             _healthBarRendererFactory = healthBarRendererFactory;
             _chatBubbleFactory = chatBubbleFactory;
-            _npcInteractionController = npcInteractionController;
-            _mapInteractionController = mapInteractionController;
+            _renderTargetFactory = renderTargetFactory;
             _userInputProvider = userInputProvider;
-            _spellSlotDataProvider = spellSlotDataProvider;
-            _sfxPlayer = sfxPlayer;
+            _effectRenderer = effectRendererFactory.Create();
 
             DrawArea = GetStandingFrameRectangle();
-            _readonlyTopPixel = GetTopPixel();
-            _readonlyBottomPixel = GetBottomPixel();
 
-            _hasStandingAnimation = GetHasStandingAnimation();
             _lastStandingAnimation = DateTime.Now;
             _fadeAwayAlpha = 255;
 
-            _effectRenderer = new EffectRenderer(nativeGraphicsManager, _sfxPlayer, this);
+            _clientWindowSizeProvider.GameWindowSizeChanged += (_, _) =>
+            {
+                lock (_rt_locker_)
+                {
+                    _npcRenderTarget.Dispose();
+                    _npcRenderTarget = _renderTargetFactory.CreateRenderTarget();
+                }
+            };
+
             _healthBarRenderer = _healthBarRendererFactory.CreateHealthBarRenderer(this);
         }
 
@@ -140,6 +124,11 @@ namespace EndlessClient.Rendering.NPC
 
             _nameLabel.DrawPosition = GetNameLabelPosition();
 
+            lock (_rt_locker_)
+                _npcRenderTarget = _renderTargetFactory.CreateRenderTarget();
+
+            _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
+
             base.Initialize();
         }
 
@@ -150,34 +139,15 @@ namespace EndlessClient.Rendering.NPC
             UpdateDrawAreas();
             UpdateStandingFrameAnimation();
             UpdateDeadState();
+            DrawToRenderTarget();
 
-            var currentMousePosition = _userInputProvider.CurrentMouseState.Position - DrawArea.Location;
-            var currentFrame = _npcSpriteSheet.GetNPCTexture(_enfFileProvider.ENFFile[NPC.ID].Graphic, NPC.Frame, NPC.Direction);
+            var currentMousePosition = _userInputProvider.CurrentMouseState.Position;
 
-            if (currentFrame != null && currentFrame.Bounds.Contains(currentMousePosition))
+            if (DrawArea.Contains(currentMousePosition))
             {
-                var colorData = new Color[1];
-                currentFrame.GetData(0, new Rectangle(currentMousePosition.X, currentMousePosition.Y, 1, 1), colorData, 0, 1);
-
-                _nameLabel.Visible = !_healthBarRenderer.Visible && !_isDying && (_isBlankSprite || colorData[0].A > 0);
+                var chatBubbleIsVisible = _chatBubble != null && _chatBubble.Visible;
+                _nameLabel.Visible = !_healthBarRenderer.Visible && !chatBubbleIsVisible && !_isDying && IsClickablePixel(currentMousePosition);
                 _nameLabel.DrawPosition = GetNameLabelPosition();
-
-                if (!_userInputProvider.ClickHandled &&
-                    _userInputProvider.CurrentMouseState.LeftButton == ButtonState.Released &&
-                    _userInputProvider.PreviousMouseState.LeftButton == ButtonState.Pressed)
-                {
-                    if (_spellSlotDataProvider.SpellIsPrepared)
-                    {
-                        _mapInteractionController.LeftClick(NPC);
-                    }
-                    else
-                    {
-                        if (_isBlankSprite || colorData[0].A > 0)
-                        {
-                            _npcInteractionController.ShowNPCDialog(NPC);
-                        }
-                    }
-                }
             }
             else
             {
@@ -190,23 +160,27 @@ namespace EndlessClient.Rendering.NPC
             base.Update(gameTime);
         }
 
+        public bool IsClickablePixel(Point currentMousePosition)
+        {
+            var currentFrame = _npcSpriteSheet.GetNPCTexture(_enfFileProvider.ENFFile[NPC.ID].Graphic, NPC.Frame, NPC.Direction);
+
+            var colorData = new Color[] { Color.FromNonPremultiplied(0, 0, 0, 255) };
+            if (currentFrame != null && !_isBlankSprite)
+            {
+                if (_npcRenderTarget.Bounds.Contains(currentMousePosition))
+                    _npcRenderTarget.GetData(0, new Rectangle(currentMousePosition.X, currentMousePosition.Y, 1, 1), colorData, 0, 1);
+            }
+
+            return _isBlankSprite || colorData[0].A > 0;
+        }
+
         public void DrawToSpriteBatch(SpriteBatch spriteBatch)
         {
             if (!Visible) return;
 
-            var data = _enfFileProvider.ENFFile[NPC.ID];
-
-            var color = Color.FromNonPremultiplied(255, 255, 255, _fadeAwayAlpha);
-            var effects = NPC.IsFacing(EODirection.Left, EODirection.Down) ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
-
             _effectRenderer.DrawBehindTarget(spriteBatch);
-
-            var texture = _npcSpriteSheet.GetNPCTexture(data.Graphic, NPC.Frame, NPC.Direction);
-            if (texture != null)
-            {
-                spriteBatch.Draw(texture, DrawArea, null, color, 0f, Vector2.Zero, effects, 1f);
-            }
-
+            if (_npcRenderTarget != null)
+                spriteBatch.Draw(_npcRenderTarget, Vector2.Zero, Color.White);
             _effectRenderer.DrawInFrontOfTarget(spriteBatch);
 
             _healthBarRenderer.DrawToSpriteBatch(spriteBatch);
@@ -220,7 +194,8 @@ namespace EndlessClient.Rendering.NPC
         public void ShowDamageCounter(int damage, int percentHealth, bool isHeal)
         {
             var optionalDamage = damage.SomeWhen(d => d > 0);
-            _healthBarRenderer.SetDamage(optionalDamage, percentHealth);
+            _healthBarRenderer.SetDamage(optionalDamage, percentHealth, () => _chatBubble?.Show());
+            _chatBubble?.Hide();
         }
 
         public void ShowChatBubble(string message, bool isGroupChat)
@@ -237,17 +212,9 @@ namespace EndlessClient.Rendering.NPC
             return _effectRenderer.State == EffectState.Playing;
         }
 
-        public void ShowWaterSplashies() { }
-
-        public void ShowWarpArrive() { }
-
-        public void ShowWarpLeave() { }
-
-        public void ShowPotionAnimation(int potionId) { }
-
-        public void ShowSpellAnimation(int spellGraphic)
+        public void PlayEffect(int graphic)
         {
-            _effectRenderer.PlayEffect(EffectType.Spell, spellGraphic);
+            _effectRenderer.PlayEffect(graphic, this);
         }
 
         #endregion
@@ -259,88 +226,47 @@ namespace EndlessClient.Rendering.NPC
             return new Rectangle(0, 0, baseFrame.Width, baseFrame.Height);
         }
 
-        private int GetTopPixel()
-        {
-            var data = _enfFileProvider.ENFFile[NPC.ID];
-            var frameTexture = _npcSpriteSheet.GetNPCTexture(data.Graphic, NPCFrame.Standing, EODirection.Down);
-            var frameData = new Color[frameTexture.Width * frameTexture.Height];
-            frameTexture.GetData(frameData);
-
-            int i = 0;
-            while (i < frameData.Length && frameData[i].A == 0) i++;
-
-            return (_isBlankSprite = i == frameData.Length) ? 0 : i / frameTexture.Height;
-        }
-
-        private int GetBottomPixel()
-        {
-            var data = _enfFileProvider.ENFFile[NPC.ID];
-            var frameTexture = _npcSpriteSheet.GetNPCTexture(data.Graphic, NPCFrame.Standing, EODirection.Down);
-            var frameData = new Color[frameTexture.Width * frameTexture.Height];
-            frameTexture.GetData(frameData);
-
-            int i = frameData.Length - 1;
-            while (i >= 0 && frameData[i].A == 0) i--;
-
-            return (_isBlankSprite = i < 0) ? frameTexture.Height : i / frameTexture.Height;
-        }
-
-        private bool GetHasStandingAnimation()
-        {
-            var data = _enfFileProvider.ENFFile[NPC.ID];
-
-            var frameTexture = _npcSpriteSheet.GetNPCTexture(data.Graphic, NPCFrame.StandingFrame1, NPC.Direction);
-            var textureData = new Color[frameTexture.Width * frameTexture.Height];
-            frameTexture.GetData(textureData);
-
-            return textureData.Any(color => ((color.R > 0 && color.R != 8) || (color.G > 0 && color.G != 8) || (color.B > 0 && color.B != 8)) && color.A > 0);
-        }
-
         private void UpdateDrawAreas()
         {
-            var offsetX = _renderOffsetCalculator.CalculateOffsetX(NPC);
-            var offsetY = _renderOffsetCalculator.CalculateOffsetY(NPC);
+            var data = _enfFileProvider.ENFFile[NPC.ID];
+            var frameTexture = _npcSpriteSheet.GetNPCTexture(data.Graphic, NPC.Frame, NPC.Direction);
+            var metaData = _npcSpriteSheet.GetNPCMetadata(data.Graphic);
 
-            _characterRendererProvider.MainCharacterRenderer
-                .MatchSome(mainRenderer =>
-                {
-                    var mainOffsetX = _renderOffsetCalculator.CalculateOffsetX(mainRenderer.Character.RenderProperties);
-                    var mainOffsetY = _renderOffsetCalculator.CalculateOffsetY(mainRenderer.Character.RenderProperties);
+            var isUpOrRight = NPC.IsFacing(EODirection.Up, EODirection.Right) ? -1 : 1;
+            var isDownOrRight = NPC.IsFacing(EODirection.Down, EODirection.Right) ? -1 : 1;
 
-                    var data = _enfFileProvider.ENFFile[NPC.ID];
-                    var frameTexture = _npcSpriteSheet.GetNPCTexture(data.Graphic, NPCFrame.StandingFrame1, NPC.Direction);
+            int metaDataOffsetX, metaDataOffsetY;
+            if (NPC.Frame == NPCFrame.Attack2)
+            {
+                metaDataOffsetX = metaData.AttackOffsetX * isUpOrRight + (metaData.OffsetX * isUpOrRight);
+                metaDataOffsetY = metaData.AttackOffsetY * isDownOrRight - metaData.OffsetY;
+            }
+            else
+            {
+                metaDataOffsetX = metaData.OffsetX * isUpOrRight;
+                metaDataOffsetY = -metaData.OffsetY;
+            }
 
-                    // Some NPCs have an off-center sprite that needs to be divided by 3 (normal sprites are centered properly)
-                    // If e.g. Apozen is facing Down or Left it needs to be offset by 2/3 the sprite width instead of 1/3 the sprite width
-                    var widthFactor = _npcsThatAreNotCentered.Contains(NPC.ID)
-                        ? NPC.IsFacing(EODirection.Down, EODirection.Left)
-                            ? (frameTexture.Width * 2) / 3
-                            : frameTexture.Width / 3
-                        : frameTexture.Width / 2;
+            var renderCoordinates = _gridDrawCoordinateCalculator.CalculateDrawCoordinates(NPC) +
+                new Vector2(metaDataOffsetX - frameTexture.Width / 2, metaDataOffsetY - (frameTexture.Height - 23));
+            DrawArea = frameTexture.Bounds.WithPosition(renderCoordinates);
 
-                    var heightFactor = _clientWindowSizeProvider.Resizable
-                        ? (_clientWindowSizeProvider.Height / 2) + 16
-                        : 168;
+            var horizontalOffset = _npcSpriteSheet.GetNPCMetadata(data.Graphic).OffsetX * (NPC.IsFacing(EODirection.Down, EODirection.Left) ? -1 : 1);
+            HorizontalCenter = DrawArea.X + (DrawArea.Width / 2) + horizontalOffset;
 
-                    var xCoord = offsetX + (_clientWindowSizeProvider.Width / 2) - mainOffsetX - widthFactor;
-                    var yCoord = (Math.Min(41, frameTexture.Width - 23) / 4) + offsetY + heightFactor - mainOffsetY - frameTexture.Height;
-                    DrawArea = frameTexture.Bounds.WithPosition(new Vector2(xCoord, yCoord));
+            NameLabelY = DrawArea.Y - (int)(_nameLabel?.ActualHeight + 4 ?? 0);
 
-                    var oneGridSize = new Vector2(mainRenderer.DrawArea.Width,
-                                                  mainRenderer.DrawArea.Height);
-                    MapProjectedDrawArea = new Rectangle(
-                        xCoord + widthFactor - 8,
-                        BottomPixelWithOffset - (int)oneGridSize.Y,
-                        (int)oneGridSize.X,
-                        (int)oneGridSize.Y);
-                });
+            EffectTargetArea = DrawArea.WithSize(DrawArea.Width + horizontalOffset * 2, DrawArea.Height);
         }
 
         private void UpdateStandingFrameAnimation()
         {
             var now = DateTime.Now;
 
-            if (!_hasStandingAnimation
+            var data = _enfFileProvider.ENFFile[NPC.ID];
+            var metaData = _npcSpriteSheet.GetNPCMetadata(data.Graphic);
+
+            if (!metaData.HasStandingFrameAnimation
                 || !NPC.IsActing(NPCActionState.Standing)
                 || (now - _lastStandingAnimation).TotalMilliseconds < 250)
                 return;
@@ -358,11 +284,33 @@ namespace EndlessClient.Rendering.NPC
             IsDead = _fadeAwayAlpha <= 0 && !EffectIsPlaying();
         }
 
+        private void DrawToRenderTarget()
+        {
+            if (_npcRenderTarget == null)
+                return;
+
+            var data = _enfFileProvider.ENFFile[NPC.ID];
+            var texture = _npcSpriteSheet.GetNPCTexture(data.Graphic, NPC.Frame, NPC.Direction);
+
+            var color = Color.FromNonPremultiplied(255, 255, 255, _fadeAwayAlpha);
+            var effects = NPC.IsFacing(EODirection.Left, EODirection.Down) ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
+
+            lock (_rt_locker_)
+            {
+                GraphicsDevice.SetRenderTarget(_npcRenderTarget);
+                GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 1, 0);
+
+                _spriteBatch.Begin();
+                _spriteBatch.Draw(texture, DrawArea, null, color, 0, Vector2.Zero, effects, 1);
+                _spriteBatch.End();
+
+                GraphicsDevice.SetRenderTarget(null);
+            }
+        }
+
         private Vector2 GetNameLabelPosition()
         {
-            return new Vector2(MapProjectedDrawArea.X + (MapProjectedDrawArea.Width - _nameLabel.ActualWidth) / 2f,
-                               TopPixelWithOffset - _nameLabel.ActualHeight - 8);
-
+            return new Vector2(HorizontalCenter - (_nameLabel.ActualWidth / 2f), NameLabelY);
         }
 
         protected override void Dispose(bool disposing)
@@ -371,6 +319,10 @@ namespace EndlessClient.Rendering.NPC
             {
                 _nameLabel.Dispose();
                 _chatBubble?.Dispose();
+                _spriteBatch?.Dispose();
+
+                lock (_rt_locker_)
+                    _npcRenderTarget?.Dispose();
             }
 
             base.Dispose(disposing);

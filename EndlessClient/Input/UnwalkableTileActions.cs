@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD;
 using EOLib.Domain.Character;
@@ -31,6 +32,7 @@ namespace EndlessClient.Input
         private readonly IUnlockChestValidator _unlockChestValidator;
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
+        private readonly ISfxPlayer _sfxPlayer;
 
         public UnwalkableTileActions(IMapCellStateProvider mapCellStateProvider,
                                      ICharacterProvider characterProvider,
@@ -39,7 +41,8 @@ namespace EndlessClient.Input
                                      IUnlockDoorValidator unlockDoorValidator,
                                      IUnlockChestValidator unlockChestValidator,
                                      IEOMessageBoxFactory eoMessageBoxFactory,
-                                     IEOMessageBoxFactory messageBoxFactory)
+                                     IEOMessageBoxFactory messageBoxFactory,
+                                     ISfxPlayer sfxPlayer)
         {
             _mapCellStateProvider = mapCellStateProvider;
             _characterProvider = characterProvider;
@@ -49,6 +52,7 @@ namespace EndlessClient.Input
             _unlockChestValidator = unlockChestValidator;
             _eoMessageBoxFactory = eoMessageBoxFactory;
             _messageBoxFactory = messageBoxFactory;
+            _sfxPlayer = sfxPlayer;
         }
 
         public (IReadOnlyList<UnwalkableTileAction>, IMapCellState) GetUnwalkableTileActions()
@@ -98,13 +102,15 @@ namespace EndlessClient.Input
             {
                 if (!_unlockDoorValidator.CanMainCharacterOpenDoor(warp))
                 {
-                    var requiredKey = _unlockDoorValidator.GetRequiredKey(warp);
-
                     var messageBox = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.DOOR_LOCKED);
                     messageBox.ShowDialog();
+
+                    var requiredKey = _unlockDoorValidator.GetRequiredKey(warp);
                     _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING,
                         EOResourceID.STATUS_LABEL_THE_DOOR_IS_LOCKED_EXCLAMATION,
-                        " - " + requiredKey);
+                        requiredKey.Match(x => $" - {x}", () => string.Empty));
+
+                    _sfxPlayer.PlaySfx(SoundEffectID.DoorOrChestLocked);
                 }
                 else if (!_currentMapStateRepository.OpenDoors.Contains(warp) &&
                          !_currentMapStateRepository.PendingDoors.Contains(warp))
@@ -145,6 +151,9 @@ namespace EndlessClient.Input
 
                                 var requiredKey = _unlockChestValidator.GetRequiredKeyName(key);
                                 _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION, requiredKey.Match(x => $" - {x}", () => string.Empty));
+
+                                _sfxPlayer.PlaySfx(SoundEffectID.DoorOrChestLocked);
+
                                 return UnwalkableTileAction.None;
                             }
                             else

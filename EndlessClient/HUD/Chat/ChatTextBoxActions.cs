@@ -1,22 +1,17 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
-using EndlessClient.Input;
 using EndlessClient.UIControls;
-using XNAControls;
 
 namespace EndlessClient.HUD.Chat
 {
     [AutoMappedType]
     public class ChatTextBoxActions : IChatTextBoxActions
     {
-        private readonly IKeyboardDispatcherProvider _keyboardDispatcherProvider;
         private readonly IHudControlProvider _hudControlProvider;
 
-        public ChatTextBoxActions(IKeyboardDispatcherProvider keyboardDispatcherProvider,
-                                  IHudControlProvider hudControlProvider)
+        public ChatTextBoxActions(IHudControlProvider hudControlProvider)
         {
-            _keyboardDispatcherProvider = keyboardDispatcherProvider;
             _hudControlProvider = hudControlProvider;
         }
 
@@ -28,14 +23,8 @@ namespace EndlessClient.HUD.Chat
 
         public void FocusChatTextBox()
         {
-            if (KeyboardDispatcher.Subscriber != null)
-                KeyboardDispatcher.Subscriber.Selected = false;
-
-            KeyboardDispatcher.Subscriber = GetChatTextBox();
-            KeyboardDispatcher.Subscriber.Selected = true;
+            GetChatTextBox().Selected = true;
         }
-
-        private KeyboardDispatcher KeyboardDispatcher => _keyboardDispatcherProvider.Dispatcher;
 
         private ChatTextBox GetChatTextBox()
         {
