@@ -62,8 +62,6 @@ namespace EndlessClient.HUD.Panels
         private Option<CharacterStats> _cachedStats;
         private HashSet<InventoryItem> _cachedInventory;
 
-        private Texture2D _whitePixel;
-
         public INativeGraphicsManager NativeGraphicsManager { get; }
 
         public InventoryPanel(INativeGraphicsManager nativeGraphicsManager,
@@ -134,9 +132,6 @@ namespace EndlessClient.HUD.Panels
             DrawArea = new Rectangle(102, 330, BackgroundImage.Width, BackgroundImage.Height);
 
             Game.Exiting += SaveInventoryFile;
-
-            _whitePixel = new Texture2D(Game.GraphicsDevice, 1, 1);
-            _whitePixel.SetData(new[] { Color.White });
         }
 
         public bool NoItemsDragging() => _childItems.All(x => !x.IsDragging);
@@ -249,24 +244,6 @@ namespace EndlessClient.HUD.Panels
             }
 
             base.OnUpdateControl(gameTime);
-        }
-
-        protected override void OnDrawControl(GameTime gameTime)
-        {
-            base.OnDrawControl(gameTime);
-
-            _spriteBatch.Begin();
-            for (int i = 0; i < _inventorySlotRepository.FilledSlots.Rows; i++)
-            {
-                for (int j = 0; j < _inventorySlotRepository.FilledSlots.Cols; j++)
-                {
-                    if (!_inventorySlotRepository.FilledSlots[i, j]) continue;
-
-                    var offset = new Point(j * 26, i * 26);
-                    _spriteBatch.Draw(_whitePixel, new Rectangle(new Point(114, 338) + offset, new Point(26, 26)), Color.FromNonPremultiplied(255, 0, 0, 60));
-                }
-            }
-            _spriteBatch.End();
         }
 
         protected override void Dispose(bool disposing)
