@@ -6,6 +6,8 @@ namespace EndlessClient.GameExecution
 {
     public interface IEndlessGame : IDisposable
     {
+        event EventHandler<EventArgs> Exiting;
+
         GameComponentCollection Components { get; }
 
         ContentManager Content { get; }

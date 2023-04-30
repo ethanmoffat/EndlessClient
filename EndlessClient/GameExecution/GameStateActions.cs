@@ -10,6 +10,8 @@ using EOLib.Domain.Login;
 using EndlessClient.Rendering;
 using Microsoft.Xna.Framework;
 using XNAControls.Input;
+using EndlessClient.HUD.Panels;
+using EOLib;
 
 namespace EndlessClient.GameExecution
 {
@@ -21,6 +23,7 @@ namespace EndlessClient.GameExecution
         private readonly IControlSetFactory _controlSetFactory;
         private readonly IEndlessGameProvider _endlessGameProvider;
         private readonly IPlayerInfoRepository _playerInfoRepository;
+        private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IMfxPlayer _mfxPlayer;
 
@@ -29,6 +32,7 @@ namespace EndlessClient.GameExecution
                                 IControlSetFactory controlSetFactory,
                                 IEndlessGameProvider endlessGameProvider,
                                 IPlayerInfoRepository playerInfoRepository,
+                                IClientWindowSizeProvider clientWindowSizeProvider,
                                 ISfxPlayer sfxPlayer,
                                 IMfxPlayer mfxPlayer)
         {
@@ -37,6 +41,7 @@ namespace EndlessClient.GameExecution
             _controlSetFactory = controlSetFactory;
             _endlessGameProvider = endlessGameProvider;
             _playerInfoRepository = playerInfoRepository;
+            _clientWindowSizeProvider = clientWindowSizeProvider;
             _sfxPlayer = sfxPlayer;
             _mfxPlayer = mfxPlayer;
         }
@@ -47,7 +52,12 @@ namespace EndlessClient.GameExecution
                 return;
 
             if (_gameStateRepository.CurrentState == GameStates.PlayingTheGame)
+            {
                 _playerInfoRepository.PlayerIsInGame = false;
+
+                StorePanelLayout(Game, EventArgs.Empty);
+                Game.Exiting -= StorePanelLayout;
+            }
 
             var currentSet = _controlSetRepository.CurrentControlSet;
             var nextSet = _controlSetFactory.CreateControlsForState(newState, currentSet);
@@ -70,6 +80,11 @@ namespace EndlessClient.GameExecution
                     }
                     break;
                 case GameStates.LoggedIn: _sfxPlayer.PlaySfx(SoundEffectID.Login); break;
+                case GameStates.PlayingTheGame:
+                    {
+                        Game.Exiting += StorePanelLayout;
+                    }
+                    break;
             }
         }
 
@@ -116,6 +131,24 @@ namespace EndlessClient.GameExecution
             return current.AllComponents
                 .Where(component => !next.AllComponents.Contains(component))
                 .ToList();
+        }
+
+        private void StorePanelLayout(object sender, EventArgs e)
+        {
+            if (!_clientWindowSizeProvider.Resizable) return;
+
+            var panelConfig = new EOLib.Config.IniReader(Constants.PanelLayoutFile);
+            panelConfig.Sections["PANELS"] = new SortedList<string, string>();
+
+            var panels = _controlSetRepository.CurrentControlSet.AllComponents.OfType<DraggableHudPanel>();
+            foreach (var panel in panels)
+            {
+                panelConfig.Sections["PANELS"][$"{panel.GetType().Name}:X"] = ((int)panel.DrawPositionWithParentOffset.X).ToString();
+                panelConfig.Sections["PANELS"][$"{panel.GetType().Name}:Y"] = ((int)panel.DrawPositionWithParentOffset.Y).ToString();
+                panelConfig.Sections["PANELS"][$"{panel.GetType().Name}:Visible"] = panel.Visible.ToString();
+            }
+
+            panelConfig.Save();
         }
 
         private IEndlessGame Game => _endlessGameProvider.Game;

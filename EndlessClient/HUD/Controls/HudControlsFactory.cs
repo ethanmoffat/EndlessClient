@@ -19,6 +19,8 @@ using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Map;
 using EndlessClient.Rendering.NPC;
 using EndlessClient.UIControls;
+using EOLib;
+using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
@@ -30,7 +32,6 @@ using XNAControls;
 
 namespace EndlessClient.HUD.Controls
 {
-    //todo: this class is doing a lot. Might be a good idea to split it into multiple factories.
     [AutoMappedType(IsSingleton = true)]
     public class HudControlsFactory : IHudControlsFactory
     {
@@ -399,6 +400,20 @@ namespace EndlessClient.HUD.Controls
 
                 updateDrawArea();
                 _clientWindowSizeRepository.GameWindowSizeChanged += (_, _) => updateDrawArea();
+
+                var panelConfig = new IniReader(Constants.PanelLayoutFile);
+                if (panelConfig.Load())
+                {
+                    if (panelConfig.GetValue("PANELS", $"{retPanel.GetType().Name}:X", out int x) &&
+                        panelConfig.GetValue("PANELS", $"{retPanel.GetType().Name}:Y", out int y))
+                    {
+                        retPanel.DrawPosition = new Vector2(x, y);
+                    }
+                    if (panelConfig.GetValue("PANELS", $"{retPanel.GetType().Name}:Visible", out bool visible))
+                    {
+                        retPanel.Visible = visible;
+                    }
+                }
             }
 
             return retPanel;
