@@ -42,11 +42,7 @@ namespace EndlessClient.HUD
             targetPanel.Visible = !targetPanel.Visible;
 
             if (targetPanel.Visible)
-            {
-                var visiblePanels = _hudControlProvider.HudPanels.Count(x => x.Visible) + 1;
-                //targetPanel.UpdateOrder = HUD_CONTROL_LAYER - visiblePanels;
-                targetPanel.DrawOrder = HUD_CONTROL_LAYER + visiblePanels;
-            }
+                targetPanel.DrawOrder = _hudControlProvider.HudPanels.Select(x => x.DrawOrder).Max() + 1;
         }
 
         public void ToggleMapView()

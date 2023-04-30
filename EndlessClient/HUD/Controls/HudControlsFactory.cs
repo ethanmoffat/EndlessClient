@@ -366,7 +366,7 @@ namespace EndlessClient.HUD.Controls
 
         private IGameComponent CreateStatePanel(InGameStates whichState)
         {
-            IHudPanel retPanel;
+            DraggableHudPanel retPanel;
 
             switch (whichState)
             {
@@ -382,6 +382,8 @@ namespace EndlessClient.HUD.Controls
                 case InGameStates.News: retPanel = _hudPanelFactory.CreateNewsPanel(); break;
                 default: throw new ArgumentOutOfRangeException(nameof(whichState), whichState, "Panel specification is out of range.");
             }
+
+            retPanel.Activated += () => retPanel.DrawOrder = _hudControlProvider.HudPanels.Select(x => x.DrawOrder).Max() + 1;
 
             //news is visible by default when loading the game if news text is set
             retPanel.Visible = (_newsProvider.NewsText.Any() && whichState == InGameStates.News) ||

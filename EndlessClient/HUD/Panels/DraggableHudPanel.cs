@@ -7,11 +7,24 @@ namespace EndlessClient.HUD.Panels
 {
     public class DraggableHudPanel : XNAPanel, IHudPanel
     {
+        public event Action Activated;
         public event Action DragCompleted;
 
         private static Option<DraggableHudPanel> _dragging;
 
         public bool IsBeingDragged => _dragging.HasValue;
+
+        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            Activated?.Invoke();
+            return true;
+        }
+
+        protected override bool HandleDragStart(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            Activated?.Invoke();
+            return true;
+        }
 
         protected override bool HandleDrag(IXNAControl control, MouseEventArgs eventArgs)
         {
