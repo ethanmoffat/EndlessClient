@@ -42,7 +42,9 @@ namespace EndlessClient.HUD.Spells
         public override Rectangle EventArea => IsDragging ? DrawArea : DrawAreaWithParentOffset;
 
         // uses absolute coordinates
-        protected override Rectangle GridArea => new Rectangle(200, 336, 365, 109);
+        protected override Rectangle GridArea => new Rectangle(
+            _parentContainer.DrawPositionWithParentOffset.ToPoint() + new Point(98, 6),
+            new Point(363, 102));
 
         public event EventHandler<MouseEventArgs> Click;
 

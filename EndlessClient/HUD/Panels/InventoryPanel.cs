@@ -382,7 +382,7 @@ namespace EndlessClient.HUD.Panels
             if (_activeDialogProvider.ActiveDialogs.All(x => !x.HasValue))
             {
                 var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
-                if (mapRenderer.MouseOver)
+                if (mapRenderer.MouseOver && !MouseOver)
                 {
                     e.ContinueDrag = !fitsInOldSlot;
                     e.RestoreOriginalSlot = fitsInOldSlot;

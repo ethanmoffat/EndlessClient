@@ -9,7 +9,7 @@ using EOLib.Localization;
 
 namespace EndlessClient.HUD
 {
-    [MappedType(BaseType = typeof(IHudStateActions))]
+    [AutoMappedType]
     public class HudStateActions : IHudStateActions
     {
         private const int HUD_CONTROL_LAYER = 130;
@@ -40,13 +40,12 @@ namespace EndlessClient.HUD
             var targetPanel = _hudControlProvider.HudPanels.Single(x => IsPanelForRequestedState(x, newState));
             targetPanel.Visible = !targetPanel.Visible;
 
-            foreach (var panel in _hudControlProvider.HudPanels)
+            if (targetPanel.Visible)
             {
-                panel.UpdateOrder = panel.DrawOrder = HUD_CONTROL_LAYER;
+                var visiblePanels = _hudControlProvider.HudPanels.Count(x => x.Visible) + 1;
+                //targetPanel.UpdateOrder = HUD_CONTROL_LAYER - visiblePanels;
+                targetPanel.DrawOrder = HUD_CONTROL_LAYER + visiblePanels;
             }
-
-            targetPanel.UpdateOrder = HUD_CONTROL_LAYER - 1;
-            targetPanel.DrawOrder = HUD_CONTROL_LAYER + 1;
         }
 
         public void ToggleMapView()

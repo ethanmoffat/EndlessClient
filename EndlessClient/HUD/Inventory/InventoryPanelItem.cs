@@ -58,7 +58,9 @@ namespace EndlessClient.HUD.Inventory
         public override Rectangle EventArea => IsDragging ? DrawArea : DrawAreaWithParentOffset;
         
         // uses absolute coordinates
-        protected override Rectangle GridArea => new Rectangle(114, 338, 363, 102);
+        protected override Rectangle GridArea => new Rectangle(
+            _parentContainer.DrawPositionWithParentOffset.ToPoint() + new Point(12, 8),
+            new Point(363, 102));
 
         public InventoryPanelItem(IItemNameColorService itemNameColorService,
                                   InventoryPanel inventoryPanel,
