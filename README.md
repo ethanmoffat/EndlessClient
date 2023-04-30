@@ -112,6 +112,22 @@ A [configuration file](EndlessClient/ContentPipeline/HairClipTypes.ini) is inclu
 
 Item ID 186 will render as a facemask (below hair), 187 will render over hair, and 188 will hide hair entirely.
 
+#### Resizable Game Display (experimental)
+
+The in-game experience can be modified for larger displays by setting the following configuration options in `config/settings.ini`:
+
+```ini
+[SETTINGS]
+InGameWidth=1280
+InGameHeight=720
+```
+
+This enables "resizable" mode, using the default window size specified. The game window can be further resized. The minimum window size is 640*480.
+
+While resizable mode is enabled, hud panels may be toggled on/off. Multiple hud panels may be visible on-screen at once. Hud panels may also be rearranged by dragging and dropping the panel itself to a different area of the screen. Additionally pressing the keyboard shortcut `alt`+`{num}` will toggle the appropriate panel, with inventory = 1, minimap = 2, etc. `alt`+`~` will bring the news panel back up, but this panel is subsequently hidden whenever another panel is toggled.
+
+Removing either of these configuration options or setting them to zero will disable resizable mode and the in-game experience will remain unchanged.
+
 <a name="Utility" />Included Utility Projects
 -------------
 
