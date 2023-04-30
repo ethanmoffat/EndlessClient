@@ -87,7 +87,22 @@ namespace EndlessClient.Rendering.Map
                 _contextMenuRepository.ContextMenu = Option.None<IContextMenuRenderer>();
             });
 
-            return CheckForEntityClicks(eventArgs) || CheckForTileClicks(eventArgs);
+            var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
+            var cellState = _mapCellStateProvider.GetCellStateAt(mapRenderer.GridCoordinates);
+
+            // map items should always get click priority so they can be picked up even when under a character/npc/other object
+            var mapItemPickupResult = CheckForMapItemClicks(cellState, eventArgs);
+            return CheckForEntityClicks(eventArgs) || CheckForTileClicks(cellState, eventArgs) || mapItemPickupResult;
+        }
+
+        private bool CheckForMapItemClicks(IMapCellState cellState, MouseEventArgs eventArgs)
+        {
+            if (eventArgs.Button != MouseButton.Left) return false;
+
+            if (cellState.Items.Any())
+                _mapInteractionController.LeftClick(cellState);
+
+            return cellState.Items.Any();
         }
 
         private bool CheckForEntityClicks(MouseEventArgs eventArgs)
@@ -125,12 +140,10 @@ namespace EndlessClient.Rendering.Map
             return false;
         }
 
-        private bool CheckForTileClicks(MouseEventArgs eventArgs)
+        private bool CheckForTileClicks(IMapCellState cellState, MouseEventArgs eventArgs)
         {
             if (eventArgs.Button == MouseButton.Left)
             {
-                var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
-                var cellState = _mapCellStateProvider.GetCellStateAt(mapRenderer.GridCoordinates);
                 _mapInteractionController.LeftClick(cellState);
                 return true;
             }
