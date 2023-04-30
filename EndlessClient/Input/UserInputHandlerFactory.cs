@@ -2,6 +2,8 @@
 using EndlessClient.Controllers;
 using EndlessClient.Dialogs;
 using EndlessClient.GameExecution;
+using EndlessClient.HUD;
+using EndlessClient.Rendering;
 using EOLib.Domain.Map;
 
 namespace EndlessClient.Input
@@ -16,8 +18,10 @@ namespace EndlessClient.Input
         private readonly IControlKeyController _controlKeyController;
         private readonly IFunctionKeyController _functionKeyController;
         private readonly INumPadController _numPadController;
+        private readonly IHudButtonController _hudButtonController;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IActiveDialogProvider _activeDialogProvider;
+        private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
 
         public UserInputHandlerFactory(IEndlessGameProvider endlessGameProvider,
                                        IUserInputProvider userInputProvider,
@@ -26,8 +30,10 @@ namespace EndlessClient.Input
                                        IControlKeyController controlKeyController,
                                        IFunctionKeyController functionKeyController,
                                        INumPadController numPadController,
+                                       IHudButtonController hudButtonController,
                                        ICurrentMapStateRepository currentMapStateRepository,
-                                       IActiveDialogProvider activeDialogProvider)
+                                       IActiveDialogProvider activeDialogProvider,
+                                       IClientWindowSizeProvider clientWindowSizeProvider)
         {
             _endlessGameProvider = endlessGameProvider;
             _userInputProvider = userInputProvider;
@@ -36,8 +42,10 @@ namespace EndlessClient.Input
             _controlKeyController = controlKeyController;
             _functionKeyController = functionKeyController;
             _numPadController = numPadController;
+            _hudButtonController = hudButtonController;
             _currentMapStateRepository = currentMapStateRepository;
             _activeDialogProvider = activeDialogProvider;
+            _clientWindowSizeProvider = clientWindowSizeProvider;
         }
 
         public IUserInputHandler CreateUserInputHandler()
@@ -49,8 +57,10 @@ namespace EndlessClient.Input
                                         _controlKeyController,
                                         _functionKeyController,
                                         _numPadController,
+                                        _hudButtonController,
                                         _currentMapStateRepository,
-                                        _activeDialogProvider);
+                                        _activeDialogProvider,
+                                        _clientWindowSizeProvider);
         }
     }
 

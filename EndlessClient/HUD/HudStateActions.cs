@@ -35,7 +35,8 @@ namespace EndlessClient.HUD
             if (!_hudControlProvider.IsInGame)
                 return;
 
-            _hudControlProvider.GetComponent<IHudPanel>(Controls.HudControlIdentifier.NewsPanel).Visible = false;
+            if (newState != InGameStates.News)
+                _hudControlProvider.GetComponent<IHudPanel>(Controls.HudControlIdentifier.NewsPanel).Visible = false;
 
             var targetPanel = _hudControlProvider.HudPanels.Single(x => IsPanelForRequestedState(x, newState));
             targetPanel.Visible = !targetPanel.Visible;
@@ -64,6 +65,7 @@ namespace EndlessClient.HUD
         {
             switch (newState)
             {
+                case InGameStates.News: return hudPanel is NewsPanel;
                 case InGameStates.Inventory: return hudPanel is InventoryPanel;
                 case InGameStates.ActiveSpells: return hudPanel is ActiveSpellsPanel;
                 case InGameStates.PassiveSpells: return hudPanel is PassiveSpellsPanel;

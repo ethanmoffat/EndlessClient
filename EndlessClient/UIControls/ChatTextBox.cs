@@ -114,7 +114,7 @@ namespace EndlessClient.UIControls
             if (_ignoreAllInput)
                 return false;
 
-            if (IsSpecialInput(eventArgs.Key))
+            if (IsSpecialInput(eventArgs.Key, eventArgs.Modifiers))
                 HandleSpecialInput(eventArgs.Key);
             else
                 base.HandleTextInput(eventArgs);
@@ -128,10 +128,11 @@ namespace EndlessClient.UIControls
                 Text = "";
         }
 
-        private bool IsSpecialInput(Keys k)
+        private bool IsSpecialInput(Keys k, KeyboardModifiers modifiers)
         {
             return k == Keys.Escape || k == Keys.Decimal ||
-                   (k >= Keys.NumPad0 && k <= Keys.NumPad9);
+                   (k >= Keys.NumPad0 && k <= Keys.NumPad9) ||
+                   modifiers == KeyboardModifiers.Alt;
         }
     }
 }
