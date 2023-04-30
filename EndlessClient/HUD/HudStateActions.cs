@@ -48,7 +48,7 @@ namespace EndlessClient.HUD
             var targetPanel = _hudControlProvider.HudPanels.Single(x => IsPanelForRequestedState(x, newState));
             targetPanel.Visible = !targetPanel.Visible;
 
-            if (targetPanel.Visible)
+            if (targetPanel.Visible && _clientWindowSizeProvider.Resizable)
                 targetPanel.DrawOrder = _hudControlProvider.HudPanels.Select(x => x.DrawOrder).Max() + 1;
         }
 

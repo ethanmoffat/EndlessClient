@@ -53,7 +53,7 @@ namespace EndlessClient.HUD.Panels
         private readonly IActiveDialogProvider _activeDialogProvider;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IConfigurationProvider _configProvider;
-
+        private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
         private readonly List<InventoryPanelItem> _childItems = new List<InventoryPanelItem>();
 
         private readonly IXNALabel _weightLabel;
@@ -98,6 +98,7 @@ namespace EndlessClient.HUD.Panels
             _activeDialogProvider = activeDialogProvider;
             _sfxPlayer = sfxPlayer;
             _configProvider = configProvider;
+            _clientWindowSizeProvider = clientWindowSizeProvider;
 
             _weightLabel = new XNALabel(Constants.FontSize08pt5)
             {
@@ -159,6 +160,19 @@ namespace EndlessClient.HUD.Panels
             _inventorySlotRepository.SlotMap.Clear();
 
             base.Initialize();
+        }
+
+        protected override void OnDrawOrderChanged(object sender, EventArgs args)
+        {
+            base.OnDrawOrderChanged(sender, args);
+
+            if (_clientWindowSizeProvider.Resizable)
+            {
+                // ensure labels have a high enough draw order when in resizable mode
+                // this is because draw order is updated when panels are opened in resizable mode
+                foreach (var label in ChildControls.OfType<XNALabel>())
+                    label.DrawOrder = DrawOrder + 70;
+            }
         }
 
         protected override void OnUpdateControl(GameTime gameTime)
