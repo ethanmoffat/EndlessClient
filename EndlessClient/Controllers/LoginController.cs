@@ -210,12 +210,15 @@ namespace EndlessClient.Controllers
                 gameLoadingDialog?.CloseDialog();
             }
 
-            await DispatcherGameComponent.Invoke(() =>
+            if (_configurationProvider.InGameWidth != 0 && _configurationProvider.InGameHeight != 0)
             {
-                _clientWindowSizeRepository.Width = _configurationProvider.InGameWidth;
-                _clientWindowSizeRepository.Height = _configurationProvider.InGameHeight;
-            });
-            _clientWindowSizeRepository.Resizable = true;
+                await DispatcherGameComponent.Invoke(() =>
+                {
+                    _clientWindowSizeRepository.Width = _configurationProvider.InGameWidth;
+                    _clientWindowSizeRepository.Height = _configurationProvider.InGameHeight;
+                });
+                _clientWindowSizeRepository.Resizable = true;
+            }
 
             _gameStateActions.ChangeToState(GameStates.PlayingTheGame);
             _chatTextBoxActions.FocusChatTextBox();
