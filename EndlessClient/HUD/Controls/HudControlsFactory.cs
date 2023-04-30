@@ -294,7 +294,7 @@ namespace EndlessClient.HUD.Controls
                 new Rectangle(0, 260, 17, 15),
                 new Rectangle(0, 276, 17, 15))
             {
-                DrawOrder = HUD_CONTROL_LAYER + 1
+                DrawOrder = HUD_CONTROL_LAYER + 10
             };
             button.OnClick += (_, _) => _hudButtonController.ClickFriendList();
             button.OnClick += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.ButtonClick);
@@ -317,7 +317,7 @@ namespace EndlessClient.HUD.Controls
                 new Rectangle(17, 260, 17, 15),
                 new Rectangle(17, 276, 17, 15))
             {
-                DrawOrder = HUD_CONTROL_LAYER + 1
+                DrawOrder = HUD_CONTROL_LAYER + 10
             };
             button.OnClick += (_, _) => _hudButtonController.ClickIgnoreList();
             button.OnClick += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.ButtonClick);
