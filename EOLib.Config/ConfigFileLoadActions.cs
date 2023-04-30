@@ -70,8 +70,8 @@ namespace EOLib.Config
             _configRepository.Host = configFile.GetValue(ConfigStrings.Connection, ConfigStrings.Host, out host) ? host : ConfigDefaults.Host;
             _configRepository.Port = configFile.GetValue(ConfigStrings.Connection, ConfigStrings.Port, out tempInt) ? tempInt : ConfigDefaults.Port;
 
-            _configRepository.InGameWidth = configFile.GetValue(ConfigStrings.Settings, ConfigStrings.InGameWidth, out tempInt) ? tempInt : ConfigDefaults.InGameWidth;
-            _configRepository.InGameHeight = configFile.GetValue(ConfigStrings.Settings, ConfigStrings.InGameHeight, out tempInt) ? tempInt : ConfigDefaults.InGameHeight;
+            _configRepository.InGameWidth = configFile.GetValue(ConfigStrings.Settings, ConfigStrings.InGameWidth, out tempInt) ? tempInt : 0;
+            _configRepository.InGameHeight = configFile.GetValue(ConfigStrings.Settings, ConfigStrings.InGameHeight, out tempInt) ? tempInt : 0;
         }
     }
 }
