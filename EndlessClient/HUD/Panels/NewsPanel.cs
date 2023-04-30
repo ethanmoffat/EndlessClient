@@ -8,6 +8,7 @@ using XNAControls;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using System.Linq;
+using EndlessClient.Rendering;
 
 namespace EndlessClient.HUD.Panels
 {
@@ -30,7 +31,9 @@ namespace EndlessClient.HUD.Panels
         public NewsPanel(INativeGraphicsManager nativeGraphicsManager,
                          IChatRenderableGenerator chatRenderableGenerator,
                          INewsProvider newsProvider,
-                         BitmapFont chatFont)
+                         BitmapFont chatFont,
+                         IClientWindowSizeProvider clientWindowSizeProvider)
+            : base(clientWindowSizeProvider.Resizable)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _chatRenderableGenerator = chatRenderableGenerator;

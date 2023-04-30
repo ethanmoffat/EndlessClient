@@ -1,5 +1,6 @@
 ﻿using EndlessClient.Content;
 using EndlessClient.HUD.Party;
+using EndlessClient.Rendering;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Character;
@@ -32,7 +33,9 @@ namespace EndlessClient.HUD.Panels
                           IPartyActions partyActions,
                           IContentProvider contentProvider,
                           IPartyDataProvider partyDataProvider,
-                          ICharacterProvider characterProvider)
+                          ICharacterProvider characterProvider,
+                          IClientWindowSizeProvider clientWindowSizeProvider)
+            : base(clientWindowSizeProvider.Resizable)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _partyActions = partyActions;

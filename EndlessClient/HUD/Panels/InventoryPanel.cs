@@ -4,6 +4,7 @@ using EndlessClient.ControlSets;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Inventory;
+using EndlessClient.Rendering;
 using EndlessClient.Rendering.Map;
 using EOLib;
 using EOLib.Config;
@@ -78,7 +79,9 @@ namespace EndlessClient.HUD.Panels
                               IHudControlProvider hudControlProvider,
                               IActiveDialogProvider activeDialogProvider,
                               ISfxPlayer sfxPlayer,
-                              IConfigurationProvider configProvider)
+                              IConfigurationProvider configProvider,
+                              IClientWindowSizeProvider clientWindowSizeProvider)
+            : base(clientWindowSizeProvider.Resizable)
         {
             NativeGraphicsManager = nativeGraphicsManager;
             _inventoryController = inventoryController;

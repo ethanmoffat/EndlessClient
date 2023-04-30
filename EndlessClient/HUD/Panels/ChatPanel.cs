@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Chat;
+using EndlessClient.Rendering;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Sprites;
 using EndlessClient.UIControls;
@@ -32,7 +33,9 @@ namespace EndlessClient.HUD.Panels
                          IChatRenderableGenerator chatRenderableGenerator,
                          IChatProvider chatProvider,
                          IHudControlProvider hudControlProvider,
-                         BitmapFont chatFont)
+                         BitmapFont chatFont,
+                         IClientWindowSizeProvider clientWindowSizeProvider)
+            : base(clientWindowSizeProvider.Resizable)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _chatActions = chatActions;

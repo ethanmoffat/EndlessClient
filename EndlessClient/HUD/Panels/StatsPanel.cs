@@ -3,6 +3,7 @@ using System.Linq;
 using EndlessClient.Controllers;
 using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Factories;
+using EndlessClient.Rendering;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
@@ -42,7 +43,9 @@ namespace EndlessClient.HUD.Panels
                           ICharacterInventoryProvider characterInventoryProvider,
                           IExperienceTableProvider experienceTableProvider,
                           IEOMessageBoxFactory messageBoxFactory,
-                          ITrainingController trainingController)
+                          ITrainingController trainingController,
+                          IClientWindowSizeProvider clientWindowSizeProvider)
+            : base(clientWindowSizeProvider.Resizable)
         {
             _characterProvider = characterProvider;
             _characterInventoryProvider = characterInventoryProvider;

@@ -1,6 +1,7 @@
 ﻿using EndlessClient.Audio;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
+using EndlessClient.Rendering;
 using EndlessClient.Services;
 using EndlessClient.UIControls;
 using EOLib;
@@ -64,7 +65,9 @@ namespace EndlessClient.HUD.Panels
                                IPartyDataProvider partyDataProvider,
                                IFriendIgnoreListService friendIgnoreListService,
                                ISfxPlayer sfxPlayer,
-                               BitmapFont chatFont)
+                               BitmapFont chatFont,
+                               IClientWindowSizeProvider clientWindowSizeProvider)
+            : base(clientWindowSizeProvider.Resizable)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _hudControlProvider = hudControlProvider;

@@ -3,6 +3,7 @@ using System.Linq;
 using AutomaticTypeMapper;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Panels;
+using EndlessClient.Rendering;
 using EOLib.Domain.Map;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
@@ -18,16 +19,19 @@ namespace EndlessClient.HUD
         private readonly IHudControlProvider _hudControlProvider;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IMapFileProvider _mapFileProvider;
+        private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
 
         public HudStateActions(IStatusLabelSetter statusLabelSetter,
                                IHudControlProvider hudControlProvider,
                                ICurrentMapStateRepository currentMapStateRepository,
-                               IMapFileProvider mapFileProvider)
+                               IMapFileProvider mapFileProvider,
+                               IClientWindowSizeProvider clientWindowSizeProvider)
         {
             _statusLabelSetter = statusLabelSetter;
             _hudControlProvider = hudControlProvider;
             _currentMapStateRepository = currentMapStateRepository;
             _mapFileProvider = mapFileProvider;
+            _clientWindowSizeProvider = clientWindowSizeProvider;
         }
 
         public void SwitchToState(InGameStates newState)
@@ -37,6 +41,9 @@ namespace EndlessClient.HUD
 
             if (newState != InGameStates.News)
                 _hudControlProvider.GetComponent<IHudPanel>(Controls.HudControlIdentifier.NewsPanel).Visible = false;
+
+            foreach (var panel in _hudControlProvider.HudPanels.Where(x => x.Visible))
+                panel.Visible = _clientWindowSizeProvider.Resizable;
 
             var targetPanel = _hudControlProvider.HudPanels.Single(x => IsPanelForRequestedState(x, newState));
             targetPanel.Visible = !targetPanel.Visible;

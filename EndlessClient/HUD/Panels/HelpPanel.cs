@@ -1,4 +1,5 @@
-﻿using EOLib.Graphics;
+﻿using EndlessClient.Rendering;
+using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using XNAControls;
 
@@ -8,7 +9,9 @@ namespace EndlessClient.HUD.Panels
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
 
-        public HelpPanel(INativeGraphicsManager nativeGraphicsManager)
+        public HelpPanel(INativeGraphicsManager nativeGraphicsManager,
+                         IClientWindowSizeProvider clientWindowSizeProvider)
+            : base(clientWindowSizeProvider.Resizable)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
 

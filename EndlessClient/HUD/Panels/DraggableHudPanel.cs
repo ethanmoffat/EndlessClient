@@ -1,4 +1,5 @@
-﻿using MonoGame.Extended.Input.InputListeners;
+﻿using EndlessClient.Rendering;
+using MonoGame.Extended.Input.InputListeners;
 using Optional;
 using System;
 using XNAControls;
@@ -11,8 +12,14 @@ namespace EndlessClient.HUD.Panels
         public event Action DragCompleted;
 
         private static Option<DraggableHudPanel> _dragging;
+        private bool _enableDragging;
 
         public bool IsBeingDragged => _dragging.HasValue;
+
+        public DraggableHudPanel(bool enableDragging)
+        {
+            _enableDragging = enableDragging;
+        }
 
         protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
         {
@@ -22,12 +29,18 @@ namespace EndlessClient.HUD.Panels
 
         protected override bool HandleDragStart(IXNAControl control, MouseEventArgs eventArgs)
         {
+            if (!_enableDragging)
+                return false;
+
             Activated?.Invoke();
             return true;
         }
 
         protected override bool HandleDrag(IXNAControl control, MouseEventArgs eventArgs)
         {
+            if (!_enableDragging)
+                return false;
+
             _dragging
                 .FlatMap(p => p.NoneWhen(q => p == this))
                 .MatchNone(() =>
@@ -41,6 +54,9 @@ namespace EndlessClient.HUD.Panels
 
         protected override bool HandleDragEnd(IXNAControl control, MouseEventArgs eventArgs)
         {
+            if (!_enableDragging)
+                return false;
+
             _dragging = Option.None<DraggableHudPanel>();
             DragCompleted?.Invoke();
 

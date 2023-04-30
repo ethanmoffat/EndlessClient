@@ -1,6 +1,7 @@
 ﻿using EndlessClient.Audio;
 using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Factories;
+using EndlessClient.Rendering;
 using EOLib;
 using EOLib.Config;
 using EOLib.Domain.Chat;
@@ -60,7 +61,9 @@ namespace EndlessClient.HUD.Panels
                              ILocalizedStringFinder localizedStringFinder,
                              IEOMessageBoxFactory messageBoxFactory,
                              IConfigurationRepository configurationRepository,
-                             ISfxPlayer sfxPlayer)
+                             ISfxPlayer sfxPlayer,
+                             IClientWindowSizeProvider clientWindowSizeProvider)
+            : base(clientWindowSizeProvider.Resizable)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _chatActions = chatActions;

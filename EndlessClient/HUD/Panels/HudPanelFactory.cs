@@ -7,6 +7,7 @@ using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD.Inventory;
 using EndlessClient.HUD.Spells;
+using EndlessClient.Rendering;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Services;
 using EOLib;
@@ -58,6 +59,7 @@ namespace EndlessClient.HUD.Panels
         private readonly IPartyActions _partyActions;
         private readonly IPartyDataProvider _partyDataProvider;
         private readonly IConfigurationProvider _configurationProvider;
+        private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
 
         public HudPanelFactory(INativeGraphicsManager nativeGraphicsManager,
                                IInventoryController inventoryController,
@@ -88,7 +90,8 @@ namespace EndlessClient.HUD.Panels
                                ISfxPlayer sfxPlayer,
                                IPartyActions partyActions,
                                IPartyDataProvider partyDataProvider,
-                               IConfigurationProvider configurationProvider)
+                               IConfigurationProvider configurationProvider,
+                               IClientWindowSizeProvider clientWindowSizeProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _inventoryController = inventoryController;
@@ -120,6 +123,7 @@ namespace EndlessClient.HUD.Panels
             _partyActions = partyActions;
             _partyDataProvider = partyDataProvider;
             _configurationProvider = configurationProvider;
+            _clientWindowSizeProvider = clientWindowSizeProvider;
         }
 
         public NewsPanel CreateNewsPanel()
@@ -129,7 +133,8 @@ namespace EndlessClient.HUD.Panels
             return new NewsPanel(_nativeGraphicsManager,
                                  new ChatRenderableGenerator(_nativeGraphicsManager, _friendIgnoreListService, chatFont),
                                  _newsProvider,
-                                 chatFont) { DrawOrder = HUD_CONTROL_LAYER };
+                                 chatFont,
+                                 _clientWindowSizeProvider) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public InventoryPanel CreateInventoryPanel()
@@ -148,7 +153,8 @@ namespace EndlessClient.HUD.Panels
                 _hudControlProvider,
                 _activeDialogProvider,
                 _sfxPlayer,
-                _configurationProvider) { DrawOrder = HUD_CONTROL_LAYER };
+                _configurationProvider,
+                _clientWindowSizeProvider) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public ActiveSpellsPanel CreateActiveSpellsPanel()
@@ -164,12 +170,13 @@ namespace EndlessClient.HUD.Panels
                 _spellSlotDataRepository,
                 _hudControlProvider,
                 _sfxPlayer,
-                _configurationProvider) { DrawOrder = HUD_CONTROL_LAYER };
+                _configurationProvider,
+                _clientWindowSizeProvider) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public PassiveSpellsPanel CreatePassiveSpellsPanel()
         {
-            return new PassiveSpellsPanel(_nativeGraphicsManager) { DrawOrder = HUD_CONTROL_LAYER };
+            return new PassiveSpellsPanel(_nativeGraphicsManager, _clientWindowSizeProvider) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public ChatPanel CreateChatPanel()
@@ -181,7 +188,8 @@ namespace EndlessClient.HUD.Panels
                                  new ChatRenderableGenerator(_nativeGraphicsManager, _friendIgnoreListService, chatFont),
                                  _chatProvider,
                                  _hudControlProvider,
-                                 chatFont) { DrawOrder = HUD_CONTROL_LAYER };
+                                 chatFont,
+                                 _clientWindowSizeProvider) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public StatsPanel CreateStatsPanel()
@@ -191,18 +199,19 @@ namespace EndlessClient.HUD.Panels
                                   _characterInventoryProvider,
                                   _experienceTableProvider,
                                   _messageBoxFactory,
-                                  _trainingController) { DrawOrder = HUD_CONTROL_LAYER };
+                                  _trainingController,
+                                  _clientWindowSizeProvider) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public OnlineListPanel CreateOnlineListPanel()
         {
             var chatFont = _contentProvider.Fonts[Constants.FontSize08];
-            return new OnlineListPanel(_nativeGraphicsManager, _hudControlProvider, _onlinePlayerProvider, _partyDataProvider, _friendIgnoreListService, _sfxPlayer, chatFont) { DrawOrder = HUD_CONTROL_LAYER };
+            return new OnlineListPanel(_nativeGraphicsManager, _hudControlProvider, _onlinePlayerProvider, _partyDataProvider, _friendIgnoreListService, _sfxPlayer, chatFont, _clientWindowSizeProvider) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public PartyPanel CreatePartyPanel()
         {
-            return new PartyPanel(_nativeGraphicsManager, _partyActions, _contentProvider, _partyDataProvider, _characterProvider) { DrawOrder = HUD_CONTROL_LAYER };
+            return new PartyPanel(_nativeGraphicsManager, _partyActions, _contentProvider, _partyDataProvider, _characterProvider, _clientWindowSizeProvider) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public SettingsPanel CreateSettingsPanel()
@@ -214,12 +223,13 @@ namespace EndlessClient.HUD.Panels
                 _localizedStringFinder,
                 _messageBoxFactory,
                 _configurationRepository,
-                _sfxPlayer) { DrawOrder = HUD_CONTROL_LAYER };
+                _sfxPlayer,
+                _clientWindowSizeProvider) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public HelpPanel CreateHelpPanel()
         {
-            return new HelpPanel(_nativeGraphicsManager) { DrawOrder = HUD_CONTROL_LAYER };
+            return new HelpPanel(_nativeGraphicsManager, _clientWindowSizeProvider) { DrawOrder = HUD_CONTROL_LAYER };
         }
     }
 }

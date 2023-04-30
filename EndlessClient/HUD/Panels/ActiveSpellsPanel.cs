@@ -5,6 +5,7 @@ using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Spells;
+using EndlessClient.Rendering;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Config;
@@ -81,7 +82,9 @@ namespace EndlessClient.HUD.Panels
                                  ISpellSlotDataRepository spellSlotDataRepository,
                                  IHudControlProvider hudControlProvider,
                                  ISfxPlayer sfxPlayer,
-                                 IConfigurationProvider configProvider)
+                                 IConfigurationProvider configProvider,
+                                 IClientWindowSizeProvider clientWindowSizeProvider)
+            : base(clientWindowSizeProvider.Resizable)
         {
             NativeGraphicsManager = nativeGraphicsManager;
             _trainingController = trainingController;
