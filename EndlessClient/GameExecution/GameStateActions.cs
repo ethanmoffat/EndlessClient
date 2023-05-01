@@ -12,6 +12,7 @@ using Microsoft.Xna.Framework;
 using XNAControls.Input;
 using EndlessClient.HUD.Panels;
 using EOLib;
+using EOLib.Config;
 
 namespace EndlessClient.GameExecution
 {
@@ -137,7 +138,7 @@ namespace EndlessClient.GameExecution
         {
             if (!_clientWindowSizeProvider.Resizable) return;
 
-            var panelConfig = new EOLib.Config.IniReader(Constants.PanelLayoutFile);
+            var panelConfig = new IniReader(Constants.PanelLayoutFile);
             panelConfig.Sections["PANELS"] = new SortedList<string, string>();
 
             var panels = _controlSetRepository.CurrentControlSet.AllComponents.OfType<DraggableHudPanel>();
@@ -146,7 +147,12 @@ namespace EndlessClient.GameExecution
                 panelConfig.Sections["PANELS"][$"{panel.GetType().Name}:X"] = ((int)panel.DrawPositionWithParentOffset.X).ToString();
                 panelConfig.Sections["PANELS"][$"{panel.GetType().Name}:Y"] = ((int)panel.DrawPositionWithParentOffset.Y).ToString();
                 panelConfig.Sections["PANELS"][$"{panel.GetType().Name}:Visible"] = panel.Visible.ToString();
+                panelConfig.Sections["PANELS"][$"{panel.GetType().Name}:DrawOrder"] = panel.DrawOrder.ToString();
             }
+
+            panelConfig.Sections["DISPLAY"] = new SortedList<string, string>();
+            panelConfig.Sections["DISPLAY"]["Width"] = _clientWindowSizeProvider.Width.ToString();
+            panelConfig.Sections["DISPLAY"]["Height"] = _clientWindowSizeProvider.Height.ToString();
 
             panelConfig.Save();
         }

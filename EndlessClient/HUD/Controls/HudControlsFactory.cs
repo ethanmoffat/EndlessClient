@@ -409,9 +409,15 @@ namespace EndlessClient.HUD.Controls
                     {
                         retPanel.DrawPosition = new Vector2(x, y);
                     }
+
                     if (panelConfig.GetValue("PANELS", $"{retPanel.GetType().Name}:Visible", out bool visible))
                     {
                         retPanel.Visible = visible;
+                    }
+
+                    if (panelConfig.GetValue("PANELS", $"{retPanel.GetType().Name}:DrawOrder", out int drawOrder))
+                    {
+                        retPanel.DrawOrder = drawOrder;
                     }
                 }
             }

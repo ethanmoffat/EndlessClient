@@ -8,6 +8,7 @@ using EndlessClient.HUD.Chat;
 using EndlessClient.Input;
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Map;
+using EOLib;
 using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
@@ -212,10 +213,16 @@ namespace EndlessClient.Controllers
 
             if (_configurationProvider.InGameWidth != 0 && _configurationProvider.InGameHeight != 0)
             {
+                var layoutConfig = new IniReader(Constants.PanelLayoutFile);
+
+                int width = _configurationProvider.InGameWidth;
+                int height = _configurationProvider.InGameHeight;
+                var loaded = layoutConfig.Load() && layoutConfig.GetValue("DISPLAY", "Width", out width) && layoutConfig.GetValue("DISPLAY", "Height", out height);
+
                 await DispatcherGameComponent.Invoke(() =>
                 {
-                    _clientWindowSizeRepository.Width = _configurationProvider.InGameWidth;
-                    _clientWindowSizeRepository.Height = _configurationProvider.InGameHeight;
+                    _clientWindowSizeRepository.Width = loaded ? width : _configurationProvider.InGameWidth;
+                    _clientWindowSizeRepository.Height = loaded ? height : _configurationProvider.InGameHeight;
                 });
                 _clientWindowSizeRepository.Resizable = true;
             }
