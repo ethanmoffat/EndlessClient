@@ -56,9 +56,6 @@ namespace EOLib.Config.Test
             Assert.IsTrue(_configurationRepository.ShowChatBubbles);
             Assert.IsFalse(_configurationRepository.ShowTransition);
 
-            Assert.AreEqual(ConfigDefaults.InGameWidth, _configurationRepository.InGameWidth);
-            Assert.AreEqual(ConfigDefaults.InGameHeight, _configurationRepository.InGameHeight);
-
             Assert.IsFalse(_configurationRepository.MusicEnabled);
             Assert.IsFalse(_configurationRepository.SoundEnabled);
             

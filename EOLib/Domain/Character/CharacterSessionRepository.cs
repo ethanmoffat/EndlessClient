@@ -11,7 +11,7 @@ namespace EOLib.Domain.Character
 
         int LastKillExp { get; set; }
 
-        int TodayTotalExp { get; set; }
+        ulong TodayTotalExp { get; set; }
     }
 
     public interface ICharacterSessionProvider : IResettable
@@ -22,7 +22,7 @@ namespace EOLib.Domain.Character
 
         int LastKillExp { get; }
 
-        int TodayTotalExp { get; }
+        ulong TodayTotalExp { get; }
     }
 
     [AutoMappedType(IsSingleton = true)]
@@ -34,7 +34,7 @@ namespace EOLib.Domain.Character
 
         public int LastKillExp { get; set; }
 
-        public int TodayTotalExp { get; set; }
+        public ulong TodayTotalExp { get; set; }
 
         public CharacterSessionRepository()
         {
