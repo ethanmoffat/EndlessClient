@@ -16,6 +16,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Optional;
 using System;
+using System.Linq;
+using System.Windows.Markup;
 using XNAControls;
 
 namespace EndlessClient.Rendering.NPC
@@ -128,6 +130,11 @@ namespace EndlessClient.Rendering.NPC
                 _npcRenderTarget = _renderTargetFactory.CreateRenderTarget();
 
             _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
+
+            var frameTexture = _npcSpriteSheet.GetNPCTexture(_enfFileProvider.ENFFile[NPC.ID].Graphic, NPC.Frame, NPC.Direction);
+            var data = new Color[frameTexture.Width * frameTexture.Height];
+            frameTexture.GetData(data);
+            _isBlankSprite = data.All(x => x.A == 0);
 
             base.Initialize();
         }
