@@ -86,7 +86,7 @@ namespace EndlessClient.HUD.Panels
                 AutoSize = false,
                 ForeColor = ColorConstants.LightGrayText,
                 TextAlign = LabelAlignment.MiddleRight,
-                DrawArea = new Rectangle(454, 3, 27, 14),
+                DrawArea = new Rectangle(454, 1, 27, 14),
                 BackColor = Color.Transparent,
             };
             _totalNumberOfPlayers.SetParentControl(this);
