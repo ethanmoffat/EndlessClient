@@ -304,8 +304,8 @@ namespace EndlessClient.Rendering.Character
                     _sb.Draw(_outline, DrawArea.WithPosition(new Vector2(DrawArea.X, DrawArea.Y + DrawArea.Height)).WithSize(DrawArea.Width, 1), Color.Black);
                     _sb.Draw(_outline, DrawArea.WithSize(1, DrawArea.Height), Color.Black);
 
-                _sb.Draw(_outline, DrawArea, Color.FromNonPremultiplied(255, 0, 0, 64));
-            }
+                    _sb.Draw(_outline, DrawArea, Color.FromNonPremultiplied(255, 0, 0, 64));
+                }
 
                 _sb.End();
                 GraphicsDevice.SetRenderTarget(null);
@@ -327,7 +327,7 @@ namespace EndlessClient.Rendering.Character
         private void SetGridCoordinatePosition()
         {
             var centerX = _clientWindowSizeRepository.Resizable ? _clientWindowSizeRepository.Width / 2 - 8 : 310;
-            var centerY = _clientWindowSizeRepository.Resizable ? _clientWindowSizeRepository.Height * 45 / 100 : 104;
+            var centerY = _clientWindowSizeRepository.Resizable ? _clientWindowSizeRepository.Height * 45 / 100 + 16 : 104;
 
             var screenX = _renderOffsetCalculator.CalculateOffsetX(_character.RenderProperties) + centerX - GetMainCharacterOffsetX();
             var screenY = _renderOffsetCalculator.CalculateOffsetY(_character.RenderProperties) + centerY - GetMainCharacterOffsetY();
