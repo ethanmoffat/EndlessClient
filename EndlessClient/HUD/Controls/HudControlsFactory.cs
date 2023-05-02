@@ -394,12 +394,8 @@ namespace EndlessClient.HUD.Controls
             {
                 retPanel.UpdateOrder = -1;
 
-                Action updateDrawArea = () => retPanel.DrawArea = retPanel.DrawArea.WithPosition(new Vector2(
-                    (_clientWindowSizeRepository.Width - retPanel.DrawArea.Width) / 2,
-                    _clientWindowSizeRepository.Height - 45 - retPanel.DrawArea.Height));
-
-                updateDrawArea();
-                _clientWindowSizeRepository.GameWindowSizeChanged += (_, _) => updateDrawArea();
+                UpdatePanelDrawPosition(initialPosition: true);
+                _clientWindowSizeRepository.GameWindowSizeChanged += (_, _) => UpdatePanelDrawPosition(initialPosition: false);
 
                 var panelConfig = new IniReader(Constants.PanelLayoutFile);
                 if (panelConfig.Load())
@@ -423,6 +419,24 @@ namespace EndlessClient.HUD.Controls
             }
 
             return retPanel;
+
+            void UpdatePanelDrawPosition(bool initialPosition)
+            {
+                if (initialPosition)
+                {
+                    retPanel.DrawArea = retPanel.DrawArea.WithPosition(new Vector2(
+                        (_clientWindowSizeRepository.Width - retPanel.DrawArea.Width) / 2,
+                        _clientWindowSizeRepository.Height - 45 - retPanel.DrawArea.Height));
+                }
+                else
+                {
+                    if (_clientWindowSizeRepository.Width < retPanel.DrawPosition.X + retPanel.DrawArea.Width)
+                        retPanel.DrawPosition = new Vector2(_clientWindowSizeRepository.Width - retPanel.DrawArea.Width, retPanel.DrawPosition.Y);
+
+                    if (_clientWindowSizeRepository.Height < retPanel.DrawPosition.Y + retPanel.DrawArea.Height)
+                        retPanel.DrawPosition = new Vector2(retPanel.DrawPosition.X, _clientWindowSizeRepository.Height - retPanel.DrawArea.Height);
+                }
+            }
         }
 
         private IGameComponent CreateSessionExpButton()
