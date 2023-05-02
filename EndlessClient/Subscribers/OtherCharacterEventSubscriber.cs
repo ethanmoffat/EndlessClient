@@ -25,12 +25,10 @@ namespace EndlessClient.Subscribers
             _friendIgnoreListService = friendIgnoreListService;
         }
 
-        public void OtherCharacterTakeDamage(int characterID,
-                                             int playerPercentHealth,
-                                             int damageTaken,
-                                             bool isHeal)
+        public void OtherCharacterTakeDamage(int characterID, int playerPercentHealth, int damageTaken, bool isHeal)
         {
-            if (!_characterRendererProvider.CharacterRenderers.ContainsKey(characterID))
+            if (!_characterRendererProvider.CharacterRenderers.ContainsKey(characterID) ||
+                (isHeal && damageTaken == 0))
                 return;
 
             _characterRendererProvider.CharacterRenderers[characterID].ShowDamageCounter(damageTaken, playerPercentHealth, isHeal);
