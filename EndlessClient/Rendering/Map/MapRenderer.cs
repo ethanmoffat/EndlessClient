@@ -358,7 +358,7 @@ namespace EndlessClient.Rendering.Map
         {
             spriteBatch.Begin();
 
-            var drawLoc = _gridDrawCoordinateCalculator.CalculateGroundLayerDrawCoordinatesFromGridUnits();
+            var drawLoc = _gridDrawCoordinateCalculator.CalculateGroundLayerRenderTargetDrawCoordinates();
             var offset = _quakeState.Map(qs => qs.Offset).Match(some: o => o, none: () => 0);
 
             lock (_rt_locker_)
@@ -370,11 +370,11 @@ namespace EndlessClient.Rendering.Map
 
                 spriteBatch.Draw(_mapObjectTarget, new Vector2(offset, 0), Color.White);
 
-            foreach (var target in _mapGridEffectRenderers.Values)
-            {
-                target.DrawBehindTarget(spriteBatch);
-                target.DrawInFrontOfTarget(spriteBatch);
-            }
+                foreach (var target in _mapGridEffectRenderers.Values)
+                {
+                    target.DrawBehindTarget(spriteBatch);
+                    target.DrawInFrontOfTarget(spriteBatch);
+                }
 
                 spriteBatch.End();
             }
