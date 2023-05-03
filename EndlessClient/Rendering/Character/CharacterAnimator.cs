@@ -254,6 +254,7 @@ namespace EndlessClient.Rendering.Character
             else
             {
                 _currentMapStateRepository.UnknownPlayerIDs.Add(characterID);
+                return false;
             }
 
             _startEmoteTimes[characterID] = startEmoteTime;
@@ -536,7 +537,7 @@ namespace EndlessClient.Rendering.Character
                             var nextFrameRenderProperties = renderProperties.WithNextEmoteFrame();
 
                             pair.UpdateActionStartTime();
-                            if (nextFrameRenderProperties.IsActing(CharacterActionState.Standing))
+                            if (nextFrameRenderProperties.IsActing(CharacterActionState.Standing, CharacterActionState.Sitting))
                                 playersDoneEmoting.Add(pair.UniqueID);
 
                             var nextFrameCharacter = currentCharacter.WithRenderProperties(nextFrameRenderProperties);
