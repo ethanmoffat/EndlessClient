@@ -18,7 +18,7 @@ namespace EndlessClient.Rendering.Map
 {
     public class MapRenderer : DrawableGameComponent, IMapRenderer
     {
-        private const double TRANSITION_TIME_MS = 125.0;
+        private const double TRANSITION_TIME_MS = 60.0;
 
         private readonly object _rt_locker_ = new object();
 
