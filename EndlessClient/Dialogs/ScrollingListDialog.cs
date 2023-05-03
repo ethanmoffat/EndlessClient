@@ -273,7 +273,9 @@ namespace EndlessClient.Dialogs
             Buttons = ScrollingListDialogButtons.AddCancel;
 
             CenterInGameView();
-            DrawPosition = new Vector2(DrawPosition.X, 15);
+
+            if (!Game.Window.AllowUserResizing)
+                DrawPosition = new Vector2(DrawPosition.X, 15);
         }
 
         public void SetItemList(List<ListDialogItem> itemList)

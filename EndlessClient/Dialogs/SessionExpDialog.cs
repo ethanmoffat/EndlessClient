@@ -103,7 +103,9 @@ namespace EndlessClient.Dialogs
             Array.ForEach(rightSide, lbl => lbl.ResizeBasedOnText());
 
             CenterInGameView();
-            DrawPosition = new Vector2(DrawPosition.X, 15);
+
+            if (!Game.Window.AllowUserResizing)
+                DrawPosition = new Vector2(DrawPosition.X, 15);
         }
 
         protected override void OnDrawControl(GameTime gameTime)

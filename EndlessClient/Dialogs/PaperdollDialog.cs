@@ -130,7 +130,9 @@ namespace EndlessClient.Dialogs
             _rank.SetParentControl(this);
 
             CenterInGameView();
-            DrawPosition = new Vector2(DrawPosition.X, 15);
+
+            if (!Game.Window.AllowUserResizing)
+                DrawPosition = new Vector2(DrawPosition.X, 15);
 
             _paperdollData = Option.None<PaperdollData>();
         }
