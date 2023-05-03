@@ -58,6 +58,7 @@ namespace EndlessClient.Rendering
         private readonly ICharacterRenderer _characterRenderer;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
+        private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
 
         private static DateTime? _lastTradeRequestedTime;
         private static DateTime? _lastPartyRequestTime;
@@ -74,7 +75,8 @@ namespace EndlessClient.Rendering
                                    IPartyDataProvider partyDataProvider,
                                    ICharacterRenderer characterRenderer,
                                    ICurrentMapStateProvider currentMapStateProvider, 
-                                   IEOMessageBoxFactory messageBoxFactory)
+                                   IEOMessageBoxFactory messageBoxFactory,
+                                   IClientWindowSizeProvider clientWindowSizeProvider)
         {
             _menuActions = new Dictionary<Rectangle, Action>();
             _inGameDialogActions = inGameDialogActions;
@@ -89,6 +91,7 @@ namespace EndlessClient.Rendering
             _characterRenderer = characterRenderer;
             _currentMapStateProvider = currentMapStateProvider;
             _messageBoxFactory = messageBoxFactory;
+            _clientWindowSizeProvider = clientWindowSizeProvider;
 
             //first, load up the images. split in half: the right half is the 'over' text
             _backgroundTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 41, true);
@@ -139,14 +142,14 @@ namespace EndlessClient.Rendering
 
             DrawPosition = new Vector2(rendRect.Right + 20, rendRect.Y);
 
-            if (DrawArea.Right > Game.GraphicsDevice.PresentationParameters.BackBufferWidth - 15)
+            if (DrawArea.Right > _clientWindowSizeProvider.Width - 15)
             {
                 // case: goes off the right side of the screen, show on the left
                 DrawPosition = new Vector2(rendRect.X - DrawArea.Width - 20, DrawPosition.Y);
             }
 
             // 308px is the bottom of the display area for map stuff
-            if (DrawArea.Bottom > 308)
+            if (DrawArea.Bottom > (_clientWindowSizeProvider.Resizable ? _clientWindowSizeProvider.Height : 308))
             {
                 //case: goes off bottom of the screen, adjust new rectangle so it is above 308
                 DrawPosition = new Vector2(DrawPosition.X, 298 - DrawArea.Height);
