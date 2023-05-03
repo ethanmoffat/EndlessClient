@@ -137,7 +137,7 @@ namespace EndlessClient.Dialogs
             _paperdollData = Option.None<PaperdollData>();
         }
 
-        public bool NoItemsDragging() => !_childItems.Any(x => x.IsBeingDragged) && !_hudControlProvider.AnyPanelsDragging;
+        public bool NoItemsDragging() => !_childItems.Any(x => x.IsBeingDragged);
 
         protected override void OnUpdateControl(GameTime gameTime)
         {

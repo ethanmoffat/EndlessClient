@@ -40,11 +40,9 @@ namespace EndlessClient.Rendering
         private readonly IItemNameColorService _itemNameColorService;
         private readonly IEIFFileProvider _eifFileProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
-        private readonly IMapInteractionController _mapInteractionController;
         private readonly IUserInputProvider _userInputProvider;
         private readonly IActiveDialogProvider _activeDialogProvider;
         private readonly IContextMenuProvider _contextMenuProvider;
-        private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
 
         private readonly XNALabel _mapItemText;
 
@@ -66,11 +64,9 @@ namespace EndlessClient.Rendering
                                    IItemNameColorService itemNameColorService,
                                    IEIFFileProvider eifFileProvider,
                                    ICurrentMapProvider currentMapProvider,
-                                   IMapInteractionController mapInteractionController,
                                    IUserInputProvider userInputProvider,
                                    IActiveDialogProvider activeDialogProvider,
-                                   IContextMenuProvider contextMenuProvider,
-                                   IClientWindowSizeProvider clientWindowSizeProvider)
+                                   IContextMenuProvider contextMenuProvider)
         {
             _mouseCursorTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 24, true);
             _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
@@ -79,11 +75,9 @@ namespace EndlessClient.Rendering
             _itemNameColorService = itemNameColorService;
             _eifFileProvider = eifFileProvider;
             _currentMapProvider = currentMapProvider;
-            _mapInteractionController = mapInteractionController;
             _userInputProvider = userInputProvider;
             _activeDialogProvider = activeDialogProvider;
             _contextMenuProvider = contextMenuProvider;
-            _clientWindowSizeProvider = clientWindowSizeProvider;
 
             SingleCursorFrameArea = new Rectangle(0, 0,
                                                   _mouseCursorTexture.Width/(int) CursorIndex.NumberOfFramesInSheet,

@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Panels;
 using Microsoft.Xna.Framework;
+using System;
+using System.Collections.Generic;
 
 namespace EndlessClient.ControlSets
 {
@@ -16,8 +15,6 @@ namespace EndlessClient.ControlSets
         InGameControlSet ControlSet { get; }
 
         IReadOnlyList<IHudPanel> HudPanels { get; }
-
-        bool AnyPanelsDragging { get; }
 
         T GetComponent<T>(HudControlIdentifier identifier) where T : IGameComponent;
     }
@@ -57,8 +54,6 @@ namespace EndlessClient.ControlSets
             GetComponent<IHudPanel>(HudControlIdentifier.SettingsPanel),
             GetComponent<IHudPanel>(HudControlIdentifier.HelpPanel)
         };
-
-        public bool AnyPanelsDragging => IsInGame && HudPanels.Any(x => x.IsBeingDragged);
 
         public HudControlProvider(IGameStateProvider gameStateProvider,
                                   IControlSetProvider controlSetProvider)

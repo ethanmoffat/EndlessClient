@@ -20,12 +20,9 @@ namespace EndlessClient.Rendering.Factories
         private readonly IItemNameColorService _itemNameColorService;
         private readonly IEIFFileProvider _eifFileProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
-        private readonly IMapInteractionController _mapInteractionController;
         private readonly IUserInputProvider _userInputProvider;
         private readonly IActiveDialogProvider _activeDialogProvider;
         private readonly IContextMenuProvider _contextMenuProvider;
-        private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
-
         public MouseCursorRendererFactory(INativeGraphicsManager nativeGraphicsManager,
                                           IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
                                           IMapCellStateProvider mapCellStateProvider,
@@ -33,11 +30,9 @@ namespace EndlessClient.Rendering.Factories
                                           IItemNameColorService itemNameColorService,
                                           IEIFFileProvider eifFileProvider,
                                           ICurrentMapProvider currentMapProvider,
-                                          IMapInteractionController mapInteractionController,
                                           IUserInputProvider userInputProvider,
                                           IActiveDialogProvider activeDialogProvider,
-                                          IContextMenuProvider contextMenuProvider,
-                                          IClientWindowSizeProvider clientWindowSizeProvider)
+                                          IContextMenuProvider contextMenuProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
@@ -46,11 +41,9 @@ namespace EndlessClient.Rendering.Factories
             _itemNameColorService = itemNameColorService;
             _eifFileProvider = eifFileProvider;
             _currentMapProvider = currentMapProvider;
-            _mapInteractionController = mapInteractionController;
             _userInputProvider = userInputProvider;
             _activeDialogProvider = activeDialogProvider;
             _contextMenuProvider = contextMenuProvider;
-            _clientWindowSizeProvider = clientWindowSizeProvider;
         }
 
         public IMouseCursorRenderer Create()
@@ -62,11 +55,9 @@ namespace EndlessClient.Rendering.Factories
                                            _itemNameColorService,
                                            _eifFileProvider,
                                            _currentMapProvider,
-                                           _mapInteractionController,
                                            _userInputProvider,
                                            _activeDialogProvider,
-                                           _contextMenuProvider,
-                                           _clientWindowSizeProvider);
+                                           _contextMenuProvider);
         }
     }
 
