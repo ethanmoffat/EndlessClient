@@ -61,23 +61,6 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             var rowDelta = Math.Abs(props.MapY - row);
             var colDelta = Math.Abs(props.MapX - col);
 
-            // todo list:
-            // 0. Uninject ClientWindowSizeProvider from places its not needed. MapRenderer, EntityRenderers
-            // 10. configurable option for resizable client or not (and ensure old fixed size works still)
-            // 11. clicking through hud panels to map (drag+drop inventory)
-
-            // done list:
-            // 1. fix the scaled render distance thing here
-            // 2. mouse cursor renderer
-            // 3. minimap renderer
-            // 4. npc rendering coordinates
-            // 5. minimum window size
-            // 6. right side hud buttons not adjusting on bigger size
-            // 7. persist hud panels instead of just one at a time
-            // 8. character renderer slight offset
-            // 9. other character renderers
-            // 11. animated ground tiles
-
             var renderDistanceScaledX = (int)Math.Ceiling(_clientWindowSizeProvider.Width / 640.0 * RenderDistance);
             var renderDistanceScaledY = (int)Math.Ceiling(_clientWindowSizeProvider.Height / 480.0 * RenderDistance);
 
