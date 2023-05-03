@@ -326,8 +326,8 @@ namespace EndlessClient.Rendering.Character
 
         private void SetGridCoordinatePosition()
         {
-            var centerX = _clientWindowSizeRepository.Resizable ? _clientWindowSizeRepository.Width / 2 - 8 : 310;
-            var centerY = _clientWindowSizeRepository.Resizable ? _clientWindowSizeRepository.Height * 45 / 100 + 16 : 104;
+            var centerX = _clientWindowSizeRepository.Resizable ? (_clientWindowSizeRepository.Width - DrawArea.Width) / 2 : 310;
+            var centerY = _clientWindowSizeRepository.Resizable ? (_clientWindowSizeRepository.Height - DrawArea.Height) / 2 - 8 : 104;
 
             var screenX = _renderOffsetCalculator.CalculateOffsetX(_character.RenderProperties) + centerX - GetMainCharacterOffsetX();
             var screenY = _renderOffsetCalculator.CalculateOffsetY(_character.RenderProperties) + centerY - GetMainCharacterOffsetY();
