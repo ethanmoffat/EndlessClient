@@ -342,7 +342,6 @@ namespace EndlessClient.Rendering.Character
                 // size of standing still skin texture
                 DrawArea = new Rectangle(xPosition, yPosition, 18, 58);
                 HorizontalCenter = xPosition + 9;
-                NameLabelY = DrawArea.Y - 12 - (int)(_nameLabel?.ActualHeight ?? 0);
                 _textureUpdateRequired = true;
             }
         }
@@ -395,6 +394,7 @@ namespace EndlessClient.Rendering.Character
 
         private Vector2 GetNameLabelPosition()
         {
+            NameLabelY = DrawArea.Y - 12 - (int)(_nameLabel?.ActualHeight ?? 0) + ((int)Character.RenderProperties.SitState)*10;
             return new Vector2(HorizontalCenter - (_nameLabel.ActualWidth / 2f), NameLabelY);
         }
 
