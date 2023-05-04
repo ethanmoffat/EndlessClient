@@ -93,6 +93,9 @@ namespace EndlessClient.Controllers
 
         public bool Sit()
         {
+            if (_characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Walking, CharacterActionState.Attacking, CharacterActionState.SpellCast))
+                return false;
+
             _characterActions.ToggleSit();
             return true;
         }

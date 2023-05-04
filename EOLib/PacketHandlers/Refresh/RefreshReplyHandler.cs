@@ -52,18 +52,19 @@ namespace EOLib.PacketHandlers.Refresh
                 .WithMapY(updatedMainCharacter.RenderProperties.MapY);
 
             var withoutMainCharacter = data.Characters.Where(x => !IDMatches(x));
-            data = data.WithCharacters(withoutMainCharacter.ToList());
 
             _characterRepository.MainCharacter = _characterRepository.MainCharacter
                 .WithRenderProperties(updatedRenderProperties);
 
-            _currentMapStateRepository.Characters = data.Characters.ToDictionary(k => k.ID, v => v);
+            _currentMapStateRepository.Characters = withoutMainCharacter.ToDictionary(k => k.ID, v => v);
             _currentMapStateRepository.NPCs = new HashSet<DomainNPC>(data.NPCs);
             _currentMapStateRepository.MapItems = new HashSet<MapItem>(data.Items);
 
             _currentMapStateRepository.OpenDoors.Clear();
             _currentMapStateRepository.PendingDoors.Clear();
             _currentMapStateRepository.VisibleSpikeTraps.Clear();
+
+            _currentMapStateRepository.MapWarpTime = Optional.Option.Some(System.DateTime.Now.AddMilliseconds(-100));
 
             foreach (var notifier in _mapChangedNotifiers)
                 notifier.NotifyMapChanged(differentMapID: false, warpAnimation: WarpAnimation.None);
