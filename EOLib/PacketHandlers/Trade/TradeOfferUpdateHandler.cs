@@ -57,6 +57,9 @@ namespace EOLib.PacketHandlers.Trade
                         x.PlayerTwoOffer = x.PlayerTwoOffer.WithItems(player1Items);
                     });
 
+            _tradeRepository.PlayerOneOffer = _tradeRepository.PlayerOneOffer.WithAgrees(false);
+            _tradeRepository.PlayerTwoOffer = _tradeRepository.PlayerTwoOffer.WithAgrees(false);
+
             return true;
         }
     }
