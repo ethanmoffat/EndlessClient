@@ -87,8 +87,10 @@ namespace EOLib.Domain.Extensions
         {
             var props = rp.ToBuilder();
             props.EmoteFrame = (props.EmoteFrame + 1) % CharacterRenderProperties.MAX_NUMBER_OF_EMOTE_FRAMES;
+
+            var resetAction = props.SitState == SitState.Standing ? CharacterActionState.Standing : CharacterActionState.Sitting;
             props.CurrentAction = props.EmoteFrame == 0
-                ? CharacterActionState.Standing
+                ? resetAction
                 : props.CurrentAction == CharacterActionState.Attacking // when using an instrument keep the current state as "Attacking"
                     ? CharacterActionState.Attacking
                     : CharacterActionState.Emote;

@@ -9,6 +9,7 @@ using EOLib.IO.Repositories;
 using EOLib.IO.Services;
 using Optional;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace EOLib.Net.FileTransfer
@@ -83,15 +84,20 @@ namespace EOLib.Net.FileTransfer
 
         public async Task GetItemFileFromServer(int sessionID)
         {
+            DeleteExisting(PubFileNameConstants.EIFFilter);
+
             var itemFiles = await _fileRequestService.RequestFile<EIFRecord>(InitFileType.Item, sessionID);
             foreach (var file in itemFiles)
                 _pubFileSaveService.SaveFile(string.Format(PubFileNameConstants.EIFFormat, file.ID), file, rewriteChecksum: false);
+
             _pubFileRepository.EIFFiles = itemFiles;
             _pubFileRepository.EIFFile = PubFileExtensions.Merge(itemFiles);
         }
 
         public async Task GetNPCFileFromServer(int sessionID)
         {
+            DeleteExisting(PubFileNameConstants.ENFFilter);
+
             var npcFiles = await _fileRequestService.RequestFile<ENFRecord>(InitFileType.Npc, sessionID);
             foreach (var file in npcFiles)
                 _pubFileSaveService.SaveFile(string.Format(PubFileNameConstants.ENFFormat, file.ID), file, rewriteChecksum: false);
@@ -101,6 +107,8 @@ namespace EOLib.Net.FileTransfer
 
         public async Task GetSpellFileFromServer(int sessionID)
         {
+            DeleteExisting(PubFileNameConstants.ESFFilter);
+
             var spellFiles = await _fileRequestService.RequestFile<ESFRecord>(InitFileType.Spell, sessionID);
             foreach (var file in spellFiles)
                 _pubFileSaveService.SaveFile(string.Format(PubFileNameConstants.ESFFormat, file.ID), file, rewriteChecksum: false);
@@ -110,6 +118,8 @@ namespace EOLib.Net.FileTransfer
 
         public async Task GetClassFileFromServer(int sessionID)
         {
+            DeleteExisting(PubFileNameConstants.ECFFilter);
+
             var classFiles = await _fileRequestService.RequestFile<ECFRecord>(InitFileType.Class, sessionID);
             foreach (var file in classFiles)
                 _pubFileSaveService.SaveFile(string.Format(PubFileNameConstants.ECFFormat, file.ID), file, rewriteChecksum: false);
@@ -151,6 +161,16 @@ namespace EOLib.Net.FileTransfer
                 default:
                     throw new ArgumentOutOfRangeException(nameof(fileType), fileType, null);
             }
+        }
+
+        private static void DeleteExisting(string filter)
+        {
+            try
+            {
+                foreach (var file in Directory.GetFiles("pub", filter))
+                    File.Delete(file);
+            }
+            catch (IOException) { }
         }
     }
 

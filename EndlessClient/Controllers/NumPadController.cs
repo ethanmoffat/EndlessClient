@@ -23,7 +23,7 @@ namespace EndlessClient.Controllers
 
         public void Emote(Emote whichEmote)
         {
-            if (!_characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Standing))
+            if (!_characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Standing, CharacterActionState.Sitting))
                 return;
 
             _characterActions.Emote(whichEmote);

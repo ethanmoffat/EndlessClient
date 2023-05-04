@@ -23,7 +23,8 @@ namespace EndlessClient.Rendering.CharacterProperties
 
         public override void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
         {
-            if (_renderProperties.IsActing(CharacterActionState.Sitting, CharacterActionState.SpellCast))
+            if (_renderProperties.IsActing(CharacterActionState.Sitting, CharacterActionState.SpellCast) ||
+                (_renderProperties.CurrentAction == CharacterActionState.Emote && _renderProperties.SitState != SitState.Standing))
                 return;
 
             var offsets = GetOffsets(parentCharacterDrawArea);

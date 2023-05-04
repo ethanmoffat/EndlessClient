@@ -153,6 +153,11 @@ namespace EndlessClient.Dialogs
             _rightItems = new List<ListDialogItem>();
             _leftOffer = new TradeOffer.Builder().ToImmutable();
             _rightOffer = new TradeOffer.Builder().ToImmutable();
+
+            CenterInGameView();
+
+            if (!Game.Window.AllowUserResizing)
+                DrawPosition = new Vector2(DrawPosition.X, 15);
         }
 
         public override void Initialize()

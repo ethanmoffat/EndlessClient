@@ -31,7 +31,11 @@ namespace EndlessClient.Rendering.Sprites
                 return new EmptySpriteSheet();
 
             var type = BootsSpriteType.Standing;
-            switch (characterRenderProperties.CurrentAction)
+            var currentAction = characterRenderProperties.CurrentAction;
+            if (currentAction == CharacterActionState.Emote && characterRenderProperties.SitState != SitState.Standing)
+                currentAction = CharacterActionState.Sitting;
+
+            switch (currentAction)
             {
                 case CharacterActionState.Walking:
                     switch (characterRenderProperties.RenderWalkFrame)
@@ -71,7 +75,11 @@ namespace EndlessClient.Rendering.Sprites
                 return new EmptySpriteSheet();
 
             var type = ArmorShieldSpriteType.Standing;
-            switch (characterRenderProperties.CurrentAction)
+            var currentAction = characterRenderProperties.CurrentAction;
+            if (currentAction == CharacterActionState.Emote && characterRenderProperties.SitState != SitState.Standing)
+                currentAction = CharacterActionState.Sitting;
+
+            switch (currentAction)
             {
                 case CharacterActionState.Walking:
                     switch (characterRenderProperties.RenderWalkFrame)
@@ -172,7 +180,7 @@ namespace EndlessClient.Rendering.Sprites
                 {
                     type = ArmorShieldSpriteType.SpellCast;
                 }
-                else if(characterRenderProperties.CurrentAction == CharacterActionState.Sitting)
+                else if(characterRenderProperties.SitState != SitState.Standing)
                 {
                     return new EmptySpriteSheet();
                 }
@@ -298,7 +306,7 @@ namespace EndlessClient.Rendering.Sprites
             {
                 gfxNum = 4;
             }
-            else if (characterRenderProperties.CurrentAction == CharacterActionState.Sitting)
+            else if (characterRenderProperties.SitState != SitState.Standing)
             {
                 if (characterRenderProperties.SitState == SitState.Floor) gfxNum = 6;
                 else if (characterRenderProperties.SitState == SitState.Chair) gfxNum = 5;

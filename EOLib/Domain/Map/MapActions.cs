@@ -30,7 +30,9 @@ namespace EOLib.Domain.Map
 
         public void RequestRefresh()
         {
-            var packet = new PacketBuilder(PacketFamily.Refresh, PacketAction.Request).Build();
+            var packet = new PacketBuilder(PacketFamily.Refresh, PacketAction.Request)
+                .AddByte(255)
+                .Build();
             _packetSendService.SendPacket(packet);
         }
 

@@ -256,6 +256,11 @@ namespace EndlessClient.HUD.Panels
                 }
 
                 _cachedInventory = _characterInventoryProvider.ItemInventory.ToHashSet();
+
+                if (removed.Any())
+                {
+                    RemoveHiddenItemsFromCachedInventory();
+                }
             }
 
             base.OnUpdateControl(gameTime);
@@ -498,6 +503,10 @@ namespace EndlessClient.HUD.Panels
                         e.RestoreOriginalSlot = true;
                     }
                 }
+                else
+                {
+                    RemoveHiddenItemsFromCachedInventory();
+                }
             }
         }
 
@@ -508,6 +517,16 @@ namespace EndlessClient.HUD.Panels
             _inventorySlotRepository.FilledSlots.Fill(false);
             foreach (var childItem in childItems)
                 _inventoryService.SetSlots(_inventorySlotRepository.FilledSlots, childItem.Slot, childItem.Data.Size);
+        }
+
+        private void RemoveHiddenItemsFromCachedInventory()
+        {
+            // the item fits in the new slot, and there is no chained drag, snapback, or continued drag
+            // under these conditions, check if there are any items that don't have a matching childItem and remove them from the cached list
+            // the next update loop will detect these items as 'added' and attempt to show them in the empty space
+
+            var notDisplayedItems = _cachedInventory.Where(x => _childItems.All(ci => x != ci.InventoryItem));
+            _cachedInventory.RemoveWhere(notDisplayedItems.Contains);
         }
 
         private static IEnumerable<int> GetOverlappingTakenSlots(int newSlot, ItemSize size, IEnumerable<(int Slot, ItemSize Size)> items)

@@ -35,8 +35,12 @@ namespace EndlessClient.Rendering.CharacterProperties
                 return;
 
             var skinLoc = _skinRenderLocationCalculator.CalculateDrawLocationOfCharacterSkin(_skinSheet.SourceRectangle, parentCharacterDrawArea);
-            var facePos = new Vector2(skinLoc.X + (_renderProperties.IsFacing(EODirection.Down) ? 2 : 3),
-                                      skinLoc.Y + (_renderProperties.Gender == 0 ? 2 : 0));
+
+            var adjustX = _renderProperties.IsFacing(EODirection.Down)
+                ? _renderProperties.SitState == SitState.Standing ? 2 : 8
+                : 3;
+
+            var facePos = new Vector2(skinLoc.X + adjustX, skinLoc.Y + (_renderProperties.Gender == 0 ? 2 : 0));
 
             Render(spriteBatch, _faceSheet, facePos);
         }

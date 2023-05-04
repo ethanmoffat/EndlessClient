@@ -168,7 +168,7 @@ namespace EndlessClient.Rendering.Chat
         {
             _textLabel.DrawPosition = new Vector2(
                 _parent.HorizontalCenter - _textLabel.ActualWidth / 2.0f,
-                _parent.NameLabelY - _textLabel.ActualHeight);
+                _parent.NameLabelY - _textLabel.ActualHeight + 10);
         }
 
         protected override void Dispose(bool disposing)

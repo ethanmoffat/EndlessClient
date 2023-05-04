@@ -45,6 +45,8 @@ namespace EndlessClient.Subscribers
 
         public void NotifyTakeDamage(int damageTaken, int playerPercentHealth, bool isHeal)
         {
+            if (isHeal && damageTaken == 0) return;
+
             _characterRendererProvider.MainCharacterRenderer.MatchSome(r => r.ShowDamageCounter(damageTaken, playerPercentHealth, isHeal));
         }
 

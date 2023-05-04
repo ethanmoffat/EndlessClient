@@ -123,6 +123,10 @@ namespace EndlessClient.HUD.Inventory
             _nameLabel.Initialize();
             _nameLabel.SetParentControl(_parentContainer);
             _nameLabel.ResizeBasedOnText(16, 9);
+            //_nameLabel.DrawOrderChanged += (_, e) =>
+            //{
+            //    _nameLabel.DrawOrder = _parentContainer.DrawOrder + 200
+            //};
 
             base.Initialize();
         }
@@ -202,7 +206,7 @@ namespace EndlessClient.HUD.Inventory
             }
 
             DrawOrder = _parentContainer.DrawOrder + 2;
-            _nameLabel.DrawOrder = 200;
+            _nameLabel.DrawOrder = _parentContainer.DrawOrder + 200;
         }
 
         protected override void OnDraggingFinished(DragCompletedEventArgs<EIFRecord> args)
