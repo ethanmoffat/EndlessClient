@@ -1,4 +1,5 @@
-﻿using EndlessClient.Controllers;
+﻿using AutomaticTypeMapper;
+using EndlessClient.Controllers;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.GameExecution;
 using EOLib.Net.Communication;
@@ -7,6 +8,7 @@ using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Network
 {
+    [MappedType(BaseType = typeof(IGameComponent), IsSingleton = true)]
     public class PacketHandlerGameComponent : GameComponent
     {
         private readonly IOutOfBandPacketHandler _packetHandler;

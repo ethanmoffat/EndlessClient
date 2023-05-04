@@ -22,12 +22,13 @@ namespace EndlessClient.Rendering.Factories
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IMapRenderDistanceCalculator _mapRenderDistanceCalculator;
         private readonly ICharacterRendererUpdater _characterRendererUpdater;
+        private readonly INPCRendererUpdater _npcRendererUpdater;
+        private readonly IDynamicMapObjectUpdater _dynamicMapObjectUpdater;
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IMouseCursorRendererFactory _mouseCursorRendererFactory;
         private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
+        private readonly IClientWindowSizeRepository _clientWindowSizeRepository;
         private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
-        private readonly INPCRendererUpdater _npcRendererUpdater;
-        private readonly IDynamicMapObjectUpdater _dynamicMapObjectUpdater;
 
         public MapRendererFactory(IEndlessGameProvider endlessGameProvider,
             IRenderTargetFactory renderTargetFactory,
@@ -41,7 +42,9 @@ namespace EndlessClient.Rendering.Factories
             IDynamicMapObjectUpdater dynamicMapObjectUpdater,
             IConfigurationProvider configurationProvider,
             IMouseCursorRendererFactory mouseCursorRendererFactory,
+            IRenderOffsetCalculator renderOffsetCalculator,
             IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
+            IClientWindowSizeRepository clientWindowSizeRepository,
             IFixedTimeStepRepository fixedTimeStepRepository)
         {
             _endlessGameProvider = endlessGameProvider;
@@ -57,6 +60,7 @@ namespace EndlessClient.Rendering.Factories
             _configurationProvider = configurationProvider;
             _mouseCursorRendererFactory = mouseCursorRendererFactory;
             _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
+            _clientWindowSizeRepository = clientWindowSizeRepository;
             _fixedTimeStepRepository = fixedTimeStepRepository;
         }
 
@@ -75,6 +79,7 @@ namespace EndlessClient.Rendering.Factories
                                    _configurationProvider,
                                    _mouseCursorRendererFactory.Create(),
                                    _gridDrawCoordinateCalculator,
+                                   _clientWindowSizeRepository,
                                    _fixedTimeStepRepository);
         }
     }

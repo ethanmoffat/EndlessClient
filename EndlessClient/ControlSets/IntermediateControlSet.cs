@@ -2,6 +2,7 @@ using System;
 using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
+using EndlessClient.Rendering;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -17,8 +18,9 @@ namespace EndlessClient.ControlSets
         private IXNAButton _btnCreate;
         private IXNAPictureBox _person2Picture;
 
-        protected IntermediateControlSet(IMainButtonController mainButtonController)
-            : base(mainButtonController)
+        protected IntermediateControlSet(IMainButtonController mainButtonController,
+                                         IClientWindowSizeRepository clientWindowSizeRepository)
+            : base(mainButtonController, clientWindowSizeRepository)
         {
             _personSet2 = new Texture2D[8];
             _randomGen = new Random();

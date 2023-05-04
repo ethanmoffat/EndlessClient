@@ -1,9 +1,11 @@
 ﻿using EndlessClient.Audio;
 using EndlessClient.Controllers;
+using EndlessClient.ControlSets;
 using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Spells;
+using EndlessClient.Rendering;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Config;
@@ -32,7 +34,7 @@ using static EndlessClient.HUD.Spells.SpellPanelItem;
 
 namespace EndlessClient.HUD.Panels
 {
-    public class ActiveSpellsPanel : XNAPanel, IHudPanel, IDraggableItemContainer
+    public class ActiveSpellsPanel : DraggableHudPanel, IHudPanel, IDraggableItemContainer
     {
         public const int SpellRows = 4;
         public const int SpellRowLength = 8;
@@ -45,6 +47,7 @@ namespace EndlessClient.HUD.Panels
         private readonly ICharacterInventoryProvider _characterInventoryProvider;
         private readonly IESFFileProvider _esfFileProvider;
         private readonly ISpellSlotDataRepository _spellSlotDataRepository;
+        private readonly IHudControlProvider _hudControlProvider;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IConfigurationProvider _configProvider;
 
@@ -77,8 +80,11 @@ namespace EndlessClient.HUD.Panels
                                  ICharacterInventoryProvider characterInventoryProvider,
                                  IESFFileProvider esfFileProvider,
                                  ISpellSlotDataRepository spellSlotDataRepository,
+                                 IHudControlProvider hudControlProvider,
                                  ISfxPlayer sfxPlayer,
-                                 IConfigurationProvider configProvider)
+                                 IConfigurationProvider configProvider,
+                                 IClientWindowSizeProvider clientWindowSizeProvider)
+            : base(clientWindowSizeProvider.Resizable)
         {
             NativeGraphicsManager = nativeGraphicsManager;
             _trainingController = trainingController;
@@ -89,6 +95,7 @@ namespace EndlessClient.HUD.Panels
             _characterInventoryProvider = characterInventoryProvider;
             _esfFileProvider = esfFileProvider;
             _spellSlotDataRepository = spellSlotDataRepository;
+            _hudControlProvider = hudControlProvider;
             _sfxPlayer = sfxPlayer;
             _configProvider = configProvider;
 
@@ -334,16 +341,16 @@ namespace EndlessClient.HUD.Panels
                 if (_scrollBar.ScrollOffset == 0)
                 {
                     _spriteBatch.Draw(_functionKeyLabelSheet,
-                        new Vector2(202 + 45 * i, 338),
+                        DrawPosition + new Vector2(100 + 45 * i, 8),
                         _functionKeyRow1Source.WithPosition((_functionKeyRow1Source.Location + new Point(offset, 0)).ToVector2()),
                         Color.White);
                 }
 
                 if (_scrollBar.ScrollOffset < 2)
                 {
-                    var yCoord = _scrollBar.ScrollOffset == 0 ? 390 : 338;
+                    var yCoord = _scrollBar.ScrollOffset == 0 ? 90 : 38;
                     _spriteBatch.Draw(_functionKeyLabelSheet,
-                        new Vector2(202 + 45 * i, yCoord),
+                        DrawPosition + new Vector2(100 + 45 * i, yCoord),
                         _functionKeyRow2Source.WithPosition((_functionKeyRow2Source.Location + new Point(offset, 0)).ToVector2()),
                         Color.White);
                 }

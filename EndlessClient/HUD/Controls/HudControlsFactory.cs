@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Content;
@@ -20,6 +19,8 @@ using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Map;
 using EndlessClient.Rendering.NPC;
 using EndlessClient.UIControls;
+using EOLib;
+using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
@@ -31,8 +32,7 @@ using XNAControls;
 
 namespace EndlessClient.HUD.Controls
 {
-    //todo: this class is doing a lot. Might be a good idea to split it into multiple factories.
-    [MappedType(BaseType = typeof(IHudControlsFactory), IsSingleton = true)]
+    [AutoMappedType(IsSingleton = true)]
     public class HudControlsFactory : IHudControlsFactory
     {
         private const int HUD_BASE_LAYER = 100;
@@ -44,7 +44,7 @@ namespace EndlessClient.HUD.Controls
         private readonly IUserInputHandlerFactory _userInputHandlerFactory;
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IGraphicsDeviceProvider _graphicsDeviceProvider;
-        private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
+        private readonly IClientWindowSizeRepository _clientWindowSizeRepository;
         private readonly IEndlessGameProvider _endlessGameProvider;
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
@@ -75,7 +75,7 @@ namespace EndlessClient.HUD.Controls
                                   IUserInputHandlerFactory userInputHandlerFactory,
                                   INativeGraphicsManager nativeGraphicsManager,
                                   IGraphicsDeviceProvider graphicsDeviceProvider,
-                                  IClientWindowSizeProvider clientWindowSizeProvider,
+                                  IClientWindowSizeRepository clientWindowSizeRepository,
                                   IEndlessGameProvider endlessGameProvider,
                                   ICharacterRepository characterRepository,
                                   ICurrentMapStateRepository currentMapStateRepository,
@@ -105,7 +105,7 @@ namespace EndlessClient.HUD.Controls
             _userInputHandlerFactory = userInputHandlerFactory;
             _nativeGraphicsManager = nativeGraphicsManager;
             _graphicsDeviceProvider = graphicsDeviceProvider;
-            _clientWindowSizeProvider = clientWindowSizeProvider;
+            _clientWindowSizeRepository = clientWindowSizeRepository;
             _endlessGameProvider = endlessGameProvider;
             _characterRepository = characterRepository;
             _currentMapStateRepository = currentMapStateRepository;
@@ -207,7 +207,11 @@ namespace EndlessClient.HUD.Controls
 
         private PlayerStatusIconRenderer CreatePlayerStatusIconRenderer()
         {
-            return new PlayerStatusIconRenderer(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, (ISpellSlotDataProvider)_spellSlotDataRepository, _currentMapProvider);
+            return new PlayerStatusIconRenderer(
+                _nativeGraphicsManager,
+                (ICharacterProvider)_characterRepository,
+                (ISpellSlotDataProvider)_spellSlotDataRepository,
+                _currentMapProvider, _clientWindowSizeRepository);
         }
 
         private IClickDispatcher CreateClickDispatcher(IMapRenderer mapRenderer)
@@ -221,7 +225,8 @@ namespace EndlessClient.HUD.Controls
         {
             return new HudBackgroundFrame(_nativeGraphicsManager, _graphicsDeviceProvider)
             {
-                DrawOrder = HUD_BASE_LAYER
+                DrawOrder = HUD_BASE_LAYER,
+                Visible = !_clientWindowSizeRepository.Resizable,
             };
         }
 
@@ -235,17 +240,45 @@ namespace EndlessClient.HUD.Controls
             var widthDelta = mainButtonTexture.Width/2;
             var heightDelta = mainButtonTexture.Height/11;
 
-            var xPosition = buttonIndex < 6 ? 62 : 590;
-            var yPosition = (buttonIndex < 6 ? 330 : 350) + (buttonIndex < 6 ? buttonIndex : buttonIndex - 6)*20;
-
-            var retButton = new XNAButton(
-                mainButtonTexture,
-                new Vector2(xPosition, yPosition),
-                new Rectangle(0, heightDelta * buttonIndex, widthDelta, heightDelta),
-                new Rectangle(widthDelta, heightDelta * buttonIndex, widthDelta, heightDelta))
+            IXNAButton retButton;
+            if (!_clientWindowSizeRepository.Resizable)
             {
-                DrawOrder = HUD_CONTROL_LAYER
-            };
+                var xPosition = buttonIndex < 6 ? 62 : 590;
+                var yPosition = (buttonIndex < 6 ? 330 : 350) + (buttonIndex < 6 ? buttonIndex : buttonIndex - 6) * 20;
+
+                retButton = new XNAButton(
+                    mainButtonTexture,
+                    new Vector2(xPosition, yPosition),
+                    new Rectangle(0, heightDelta * buttonIndex, widthDelta, heightDelta),
+                    new Rectangle(widthDelta, heightDelta * buttonIndex, widthDelta, heightDelta))
+                {
+                    DrawOrder = HUD_CONTROL_LAYER
+                };
+            }
+            else
+            {
+                var yIndex = buttonIndex % 6 - 3;
+
+                var xPosition = buttonIndex < 6 ? 0 : _clientWindowSizeRepository.Width - widthDelta;
+                var yPosition = (_clientWindowSizeRepository.Height / 2 + heightDelta * yIndex);
+
+                retButton = new XNAButton(
+                    mainButtonTexture,
+                    new Vector2(xPosition, yPosition),
+                    new Rectangle(0, heightDelta * buttonIndex, widthDelta, heightDelta),
+                    new Rectangle(widthDelta, heightDelta * buttonIndex, widthDelta, heightDelta))
+                {
+                    DrawOrder = HUD_CONTROL_LAYER
+                };
+
+                _clientWindowSizeRepository.GameWindowSizeChanged += (_, _) =>
+                {
+                    var capturedXPos = buttonIndex < 6 ? 0 : _clientWindowSizeRepository.Width - widthDelta;
+                    var capturedYPos = (_clientWindowSizeRepository.Height / 2 + heightDelta * yIndex);
+                    retButton.DrawPosition = new Vector2(capturedXPos, capturedYPos);
+                };
+            }
+
             retButton.OnClick += (_, _) => DoHudStateChangeClick(whichState);
             retButton.OnMouseEnter += (_, _) => _statusLabelSetter.SetStatusLabel(
                 EOResourceID.STATUS_LABEL_TYPE_BUTTON,
@@ -255,34 +288,46 @@ namespace EndlessClient.HUD.Controls
 
         private IXNAButton CreateFriendListButton()
         {
+            Func<Vector2> getFriendListDrawPosition = () => new Vector2(_clientWindowSizeRepository.Width - 48, _clientWindowSizeRepository.Height - 37);
             var button = new XNAButton(
                 _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 27, false),
-                new Vector2(592, 312),
+                _clientWindowSizeRepository.Resizable ? getFriendListDrawPosition() : new Vector2(592, 312),
                 new Rectangle(0, 260, 17, 15),
                 new Rectangle(0, 276, 17, 15))
             {
-                DrawOrder = HUD_CONTROL_LAYER
+                DrawOrder = HUD_CONTROL_LAYER + 10
             };
             button.OnClick += (_, _) => _hudButtonController.ClickFriendList();
             button.OnClick += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.ButtonClick);
             button.OnMouseOver += (o, e) => _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_BUTTON, EOResourceID.STATUS_LABEL_FRIEND_LIST);
+
+            if (_clientWindowSizeRepository.Resizable)
+            {
+                _clientWindowSizeRepository.GameWindowSizeChanged += (_, _) => button.DrawPosition = getFriendListDrawPosition();
+            }
 
             return button;
         }
 
         private IXNAButton CreateIgnoreListButton()
         {
+            Func<Vector2> getIgnoreListDrawPosition = () => new Vector2(_clientWindowSizeRepository.Width - 31, _clientWindowSizeRepository.Height - 37);
             var button = new XNAButton(
                 _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 27, false),
-                new Vector2(609, 312),
+                _clientWindowSizeRepository.Resizable ? getIgnoreListDrawPosition() : new Vector2(609, 312),
                 new Rectangle(17, 260, 17, 15),
                 new Rectangle(17, 276, 17, 15))
             {
-                DrawOrder = HUD_CONTROL_LAYER
+                DrawOrder = HUD_CONTROL_LAYER + 10
             };
             button.OnClick += (_, _) => _hudButtonController.ClickIgnoreList();
             button.OnClick += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.ButtonClick);
             button.OnMouseOver += (o, e) => _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_BUTTON, EOResourceID.STATUS_LABEL_IGNORE_LIST);
+
+            if (_clientWindowSizeRepository.Resizable)
+            {
+                _clientWindowSizeRepository.GameWindowSizeChanged += (_, _) => button.DrawPosition = getIgnoreListDrawPosition();
+            }
 
             return button;
         }
@@ -322,7 +367,7 @@ namespace EndlessClient.HUD.Controls
 
         private IGameComponent CreateStatePanel(InGameStates whichState)
         {
-            IHudPanel retPanel;
+            DraggableHudPanel retPanel;
 
             switch (whichState)
             {
@@ -339,11 +384,59 @@ namespace EndlessClient.HUD.Controls
                 default: throw new ArgumentOutOfRangeException(nameof(whichState), whichState, "Panel specification is out of range.");
             }
 
+            retPanel.Activated += () => retPanel.DrawOrder = _hudControlProvider.HudPanels.Select(x => x.DrawOrder).Max() + 1;
+
             //news is visible by default when loading the game if news text is set
             retPanel.Visible = (_newsProvider.NewsText.Any() && whichState == InGameStates.News) ||
                                (!_newsProvider.NewsText.Any() && whichState == InGameStates.Chat);
 
+            if (_clientWindowSizeRepository.Resizable)
+            {
+                retPanel.UpdateOrder = -1;
+
+                UpdatePanelDrawPosition(initialPosition: true);
+                _clientWindowSizeRepository.GameWindowSizeChanged += (_, _) => UpdatePanelDrawPosition(initialPosition: false);
+
+                var panelConfig = new IniReader(Constants.PanelLayoutFile);
+                if (panelConfig.Load())
+                {
+                    if (panelConfig.GetValue("PANELS", $"{retPanel.GetType().Name}:X", out int x) &&
+                        panelConfig.GetValue("PANELS", $"{retPanel.GetType().Name}:Y", out int y))
+                    {
+                        retPanel.DrawPosition = new Vector2(x, y);
+                    }
+
+                    if (panelConfig.GetValue("PANELS", $"{retPanel.GetType().Name}:Visible", out bool visible))
+                    {
+                        retPanel.Visible = visible;
+                    }
+
+                    if (panelConfig.GetValue("PANELS", $"{retPanel.GetType().Name}:DrawOrder", out int drawOrder))
+                    {
+                        retPanel.DrawOrder = drawOrder;
+                    }
+                }
+            }
+
             return retPanel;
+
+            void UpdatePanelDrawPosition(bool initialPosition)
+            {
+                if (initialPosition)
+                {
+                    retPanel.DrawArea = retPanel.DrawArea.WithPosition(new Vector2(
+                        (_clientWindowSizeRepository.Width - retPanel.DrawArea.Width) / 2,
+                        _clientWindowSizeRepository.Height - 45 - retPanel.DrawArea.Height));
+                }
+                else
+                {
+                    if (_clientWindowSizeRepository.Width < retPanel.DrawPosition.X + retPanel.DrawArea.Width)
+                        retPanel.DrawPosition = new Vector2(_clientWindowSizeRepository.Width - retPanel.DrawArea.Width, retPanel.DrawPosition.Y);
+
+                    if (_clientWindowSizeRepository.Height < retPanel.DrawPosition.Y + retPanel.DrawArea.Height)
+                        retPanel.DrawPosition = new Vector2(retPanel.DrawPosition.X, _clientWindowSizeRepository.Height - retPanel.DrawArea.Height);
+                }
+            }
         }
 
         private IGameComponent CreateSessionExpButton()
@@ -359,7 +452,6 @@ namespace EndlessClient.HUD.Controls
             btn.OnClick += (_, _) => _hudButtonController.ClickSessionExp();
             btn.OnClick += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
             return btn;
-
         }
 
         private IGameComponent CreateQuestButton()
@@ -379,53 +471,48 @@ namespace EndlessClient.HUD.Controls
 
         private IGameComponent CreateHPStatusBar()
         {
-            var statusBar = new HPStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository) { DrawOrder = HUD_CONTROL_LAYER };
+            var statusBar = new HPStatusBar(_nativeGraphicsManager, _clientWindowSizeRepository, (ICharacterProvider)_characterRepository) { DrawOrder = HUD_CONTROL_LAYER };
             statusBar.StatusBarClicked += () => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
             return statusBar;
         }
 
         private IGameComponent CreateTPStatusBar()
         {
-            var statusBar = new TPStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository) { DrawOrder = HUD_CONTROL_LAYER };
+            var statusBar = new TPStatusBar(_nativeGraphicsManager, _clientWindowSizeRepository, (ICharacterProvider)_characterRepository) { DrawOrder = HUD_CONTROL_LAYER };
             statusBar.StatusBarClicked += () => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
             return statusBar;
         }
 
         private IGameComponent CreateSPStatusBar()
         {
-            var statusBar = new SPStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository) { DrawOrder = HUD_CONTROL_LAYER };
+            var statusBar = new SPStatusBar(_nativeGraphicsManager, _clientWindowSizeRepository, (ICharacterProvider)_characterRepository) { DrawOrder = HUD_CONTROL_LAYER };
             statusBar.StatusBarClicked += () => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
             return statusBar;
         }
 
         private IGameComponent CreateTNLStatusBar()
         {
-            var statusBar = new TNLStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, _experienceTableProvider) { DrawOrder = HUD_CONTROL_LAYER };
+            var statusBar = new TNLStatusBar(_nativeGraphicsManager, _clientWindowSizeRepository, (ICharacterProvider)_characterRepository, _experienceTableProvider) { DrawOrder = HUD_CONTROL_LAYER };
             statusBar.StatusBarClicked += () => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
             return statusBar;
         }
 
         private ChatModePictureBox CreateChatModePictureBox()
         {
-            var chatModesTexture = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 31);
-            var pictureBox = new ChatModePictureBox(_chatModeCalculator, _hudControlProvider, chatModesTexture)
+            return new ChatModePictureBox(_nativeGraphicsManager, _clientWindowSizeRepository, _chatModeCalculator, _hudControlProvider)
             {
-                DrawArea = new Rectangle(16, 309, chatModesTexture.Width, chatModesTexture.Height / 8),
-                SourceRectangle = new Rectangle(0, 0, chatModesTexture.Width, chatModesTexture.Height / 8),
-                DrawOrder = HUD_CONTROL_LAYER
+                DrawOrder = HUD_CONTROL_LAYER + 1
             };
-
-            return pictureBox;
         }
 
         private ChatTextBox CreateChatTextBox()
         {
-            var chatTextBox = new ChatTextBox(_contentProvider)
+            var chatTextBox = new ChatTextBox(_nativeGraphicsManager, _clientWindowSizeRepository, _contentProvider)
             {
                 Text = "",
                 Selected = true,
                 Visible = true,
-                DrawOrder = HUD_CONTROL_LAYER
+                DrawOrder = HUD_CONTROL_LAYER,
             };
             chatTextBox.OnEnterPressed += (_, _) => _chatController.SendChatAndClearTextBox();
             chatTextBox.OnClicked += (_, _) => _chatController.SelectChatTextBox();
@@ -436,7 +523,7 @@ namespace EndlessClient.HUD.Controls
 
         private TimeLabel CreateClockLabel()
         {
-            return new TimeLabel(_clientWindowSizeProvider) { DrawOrder = HUD_CONTROL_LAYER };
+            return new TimeLabel(_clientWindowSizeRepository) { DrawOrder = HUD_CONTROL_LAYER + 1 };
         }
 
         private PeriodicStatUpdaterComponent CreatePeriodicStatUpdater()
@@ -451,7 +538,11 @@ namespace EndlessClient.HUD.Controls
 
         private StatusBarLabel CreateStatusLabel()
         {
-            return new StatusBarLabel(_clientWindowSizeProvider, _statusLabelTextProvider) { DrawOrder = HUD_CONTROL_LAYER };
+            return new StatusBarLabel(_nativeGraphicsManager, _clientWindowSizeRepository, _statusLabelTextProvider)
+            {
+                Visible = true,
+                DrawOrder = HUD_CONTROL_LAYER,
+            };
         }
 
         private CurrentUserInputTracker CreateCurrentUserInputTracker()

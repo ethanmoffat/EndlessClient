@@ -50,6 +50,7 @@ namespace EOLib
 
         public const string InventoryFile = "config/inventory.ini";
         public const string SpellsFile = "config/spells.ini";
+        public const string PanelLayoutFile = "config/layout.ini";
         public const string ChatLogFile = "chatlog.txt";
 
         //Should be easily customizable between different clients (based on graphics)

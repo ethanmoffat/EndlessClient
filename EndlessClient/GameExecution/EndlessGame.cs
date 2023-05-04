@@ -7,14 +7,12 @@ using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Content;
 using EndlessClient.ControlSets;
-using EndlessClient.Network;
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Test;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Config;
-using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.IO.Actions;
@@ -29,9 +27,10 @@ namespace EndlessClient.GameExecution
     [MappedType(BaseType = typeof(IEndlessGame), IsSingleton = true)]
     public class EndlessGame : Game, IEndlessGame
     {
-        private readonly IClientWindowSizeProvider _windowSizeProvider;
+        private readonly IClientWindowSizeRepository _windowSizeRepository;
         private readonly IContentProvider _contentProvider;
         private readonly IGraphicsDeviceRepository _graphicsDeviceRepository;
+        private readonly IGameWindowRepository _gameWindowRepository;
         private readonly IControlSetRepository _controlSetRepository;
         private readonly IControlSetFactory _controlSetFactory;
         private readonly ITestModeLauncher _testModeLauncher;
@@ -54,9 +53,10 @@ namespace EndlessClient.GameExecution
         private Texture2D _black;
 #endif
 
-        public EndlessGame(IClientWindowSizeProvider windowSizeProvider,
+        public EndlessGame(IClientWindowSizeRepository windowSizeRepository,
                            IContentProvider contentProvider,
                            IGraphicsDeviceRepository graphicsDeviceRepository,
+                           IGameWindowRepository gameWindowRepository,
                            IControlSetRepository controlSetRepository,
                            IControlSetFactory controlSetFactory,
                            ITestModeLauncher testModeLauncher,
@@ -68,9 +68,10 @@ namespace EndlessClient.GameExecution
                            IMfxPlayer mfxPlayer,
                            IXnaControlSoundMapper soundMapper)
         {
-            _windowSizeProvider = windowSizeProvider;
+            _windowSizeRepository = windowSizeRepository;
             _contentProvider = contentProvider;
             _graphicsDeviceRepository = graphicsDeviceRepository;
+            _gameWindowRepository = gameWindowRepository;
             _controlSetRepository = controlSetRepository;
             _controlSetFactory = controlSetFactory;
             _testModeLauncher = testModeLauncher;
@@ -81,7 +82,11 @@ namespace EndlessClient.GameExecution
             _configurationProvider = configurationProvider;
             _mfxPlayer = mfxPlayer;
             _soundMapper = soundMapper;
-            _graphicsDeviceManager = new GraphicsDeviceManager(this);
+            _graphicsDeviceManager = new GraphicsDeviceManager(this)
+            {
+                PreferredBackBufferWidth = ClientWindowSizeRepository.DEFAULT_BACKBUFFER_WIDTH,
+                PreferredBackBufferHeight = ClientWindowSizeRepository.DEFAULT_BACKBUFFER_HEIGHT
+            };
 
             Content.RootDirectory = "Content";
         }
@@ -102,27 +107,26 @@ namespace EndlessClient.GameExecution
                 }
             };
 
-            Components.ComponentRemoved += (o, e) =>
-            {
-                //if (e.GameComponent is PacketHandlerGameComponent)
-                //{
-                //    throw new InvalidOperationException("Packet handler game component should never be removed from Game components");
-                //}
-            };
-
             base.Initialize();
-
-            AttemptToLoadPubFiles();
 
             IsMouseVisible = true;
             IsFixedTimeStep = false;
             _previousKeyState = Keyboard.GetState();
 
+            // setting Width/Height in window size repository applies the change to disable vsync
             _graphicsDeviceManager.SynchronizeWithVerticalRetrace = false;
             _graphicsDeviceManager.IsFullScreen = false;
-            _graphicsDeviceManager.PreferredBackBufferWidth = _windowSizeProvider.Width;
-            _graphicsDeviceManager.PreferredBackBufferHeight = _windowSizeProvider.Height;
-            _graphicsDeviceManager.ApplyChanges();
+            _windowSizeRepository.Width = ClientWindowSizeRepository.DEFAULT_BACKBUFFER_WIDTH;
+            _windowSizeRepository.Height = ClientWindowSizeRepository.DEFAULT_BACKBUFFER_HEIGHT;
+
+            _windowSizeRepository.GameWindowSizeChanged += (_, _) =>
+            {
+                if (_windowSizeRepository.Width < ClientWindowSizeRepository.DEFAULT_BACKBUFFER_HEIGHT)
+                    _windowSizeRepository.Width = ClientWindowSizeRepository.DEFAULT_BACKBUFFER_WIDTH;
+
+                if (_windowSizeRepository.Height < ClientWindowSizeRepository.DEFAULT_BACKBUFFER_HEIGHT)
+                    _windowSizeRepository.Height = ClientWindowSizeRepository.DEFAULT_BACKBUFFER_HEIGHT;
+            };
 
             Exiting += (_, _) => _mfxPlayer.StopBackgroundMusic();
         }
@@ -140,9 +144,11 @@ namespace EndlessClient.GameExecution
             //todo: all the things that should load stuff as part of game's load/initialize should be broken into a pattern
             _chatBubbleTextureProvider.LoadContent();
 
-            //the GraphicsDevice doesn't exist until Initialize() is called by the framework
+            //the GraphicsDevice/Window don't exist until Initialize() is called by the framework
             //Ideally, this would be set in a DependencyContainer, but I'm not sure of a way to do that now
             _graphicsDeviceRepository.GraphicsDevice = GraphicsDevice;
+            _graphicsDeviceRepository.GraphicsDeviceManager = _graphicsDeviceManager;
+            _gameWindowRepository.Window = Window;
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
@@ -161,6 +167,8 @@ namespace EndlessClient.GameExecution
             {
                 _mfxPlayer.PlayBackgroundMusic(1, EOLib.IO.Map.MusicControl.InterruptPlayRepeat);
             }
+
+            AttemptToLoadPubFiles();
 
             base.LoadContent();
         }

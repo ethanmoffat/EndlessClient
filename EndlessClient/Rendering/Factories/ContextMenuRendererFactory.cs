@@ -29,6 +29,7 @@ namespace EndlessClient.Rendering.Factories
         private readonly IPartyDataProvider _partyDataProvider;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
+        private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
 
         public ContextMenuRendererFactory(INativeGraphicsManager nativeGraphicsManager,
             IInGameDialogActions inGameDialogActions,
@@ -41,7 +42,8 @@ namespace EndlessClient.Rendering.Factories
             IContextMenuRepository contextMenuRepository,
             IPartyDataProvider partyDataProvider,
             ICurrentMapStateProvider currentMapStateProvider, 
-            IEOMessageBoxFactory messageBoxFactory)
+            IEOMessageBoxFactory messageBoxFactory,
+            IClientWindowSizeProvider clientWindowSizeProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _inGameDialogActions = inGameDialogActions;
@@ -55,6 +57,7 @@ namespace EndlessClient.Rendering.Factories
             _partyDataProvider = partyDataProvider;
             _currentMapStateProvider = currentMapStateProvider;
             _messageBoxFactory = messageBoxFactory;
+            _clientWindowSizeProvider = clientWindowSizeProvider;
         }
 
         public IContextMenuRenderer CreateContextMenuRenderer(ICharacterRenderer characterRenderer)
@@ -71,7 +74,8 @@ namespace EndlessClient.Rendering.Factories
                 _partyDataProvider,
                 characterRenderer, 
                 _currentMapStateProvider,
-                _messageBoxFactory);
+                _messageBoxFactory,
+                _clientWindowSizeProvider);
         }
     }
 

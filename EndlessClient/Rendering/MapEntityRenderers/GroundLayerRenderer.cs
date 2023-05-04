@@ -22,8 +22,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         public GroundLayerRenderer(INativeGraphicsManager nativeGraphicsManager,
                                    ICurrentMapProvider currentMapProvider,
                                    ICharacterProvider characterProvider,
-                                   IGridDrawCoordinateCalculator gridDrawCoordinateCalculator)
-            : base(characterProvider, gridDrawCoordinateCalculator)
+                                   IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
+                                   IClientWindowSizeProvider clientWindowSizeProvider)
+            : base(characterProvider, gridDrawCoordinateCalculator, clientWindowSizeProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _currentMapProvider = currentMapProvider;
@@ -33,8 +34,10 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         {
             // the height is used to offset the 0 point of the grid, which is 32 units per tile in the height of the map
             var height = CurrentMap.Properties.Height;
-            return new Vector2((gridX * 32) - (gridY * 32) + (32*height),
-                               (gridY * 16) + (gridX * 16));
+            var offset = new Vector2(32 * height, 0);
+
+            var basePosition = _gridDrawCoordinateCalculator.CalculateRawRenderCoordinatesFromGridUnits(gridX, gridY);
+            return basePosition + offset;
         }
 
         public override bool CanRender(int row, int col) => ElementExistsAt(row, col);
@@ -80,8 +83,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         public AnimatedGroundLayerRenderer(INativeGraphicsManager nativeGraphicsManager,
                                            ICurrentMapProvider currentMapProvider,
                                            ICharacterProvider characterProvider,
-                                           IGridDrawCoordinateCalculator gridDrawCoordinateCalculator)
-            : base(nativeGraphicsManager, currentMapProvider, characterProvider, gridDrawCoordinateCalculator)
+                                           IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
+                                           IClientWindowSizeProvider clientWindowSizeProvider)
+            : base(nativeGraphicsManager, currentMapProvider, characterProvider, gridDrawCoordinateCalculator, clientWindowSizeProvider)
         {
         }
 

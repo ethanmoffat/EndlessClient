@@ -1,5 +1,4 @@
-﻿using System;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.Dialogs;
@@ -12,6 +11,7 @@ using EndlessClient.UIControls;
 using EOLib.Config;
 using EOLib.Domain.Login;
 using EOLib.Graphics;
+using System;
 
 namespace EndlessClient.ControlSets
 {
@@ -28,7 +28,9 @@ namespace EndlessClient.ControlSets
         private readonly IEndlessGameProvider _endlessGameProvider;
         private readonly IUserInputRepository _userInputRepository;
         private readonly IActiveDialogRepository _activeDialogRepository;
+        private readonly IClientWindowSizeRepository _clientWindowSizeRepository;
         private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
+
         private IMainButtonController _mainButtonController;
         private IAccountController _accountController;
         private ILoginController _loginController;
@@ -44,6 +46,7 @@ namespace EndlessClient.ControlSets
                                  IEndlessGameProvider endlessGameProvider,
                                  IUserInputRepository userInputRepository,
                                  IActiveDialogRepository activeDialogRepository,
+                                 IClientWindowSizeRepository clientWindowSizeRepository,
                                  IFixedTimeStepRepository fixedTimeStepRepository)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
@@ -56,6 +59,7 @@ namespace EndlessClient.ControlSets
             _endlessGameProvider = endlessGameProvider;
             _userInputRepository = userInputRepository;
             _activeDialogRepository = activeDialogRepository;
+            _clientWindowSizeRepository = clientWindowSizeRepository;
             _fixedTimeStepRepository = fixedTimeStepRepository;
         }
 
@@ -88,7 +92,7 @@ namespace EndlessClient.ControlSets
             {
                 case GameStates.Initial: return new InitialControlSet(_configProvider, _mainButtonController);
                 case GameStates.CreateAccount:
-                    return new CreateAccountControlSet(_mainButtonController, _accountController);
+                    return new CreateAccountControlSet(_mainButtonController, _accountController, _clientWindowSizeRepository);
                 case GameStates.Login:
                     return new LoginPromptControlSet(_configProvider, _mainButtonController, _loginController);
                 case GameStates.ViewCredits: return new ViewCreditsControlSet(_configProvider, _mainButtonController);
@@ -101,9 +105,10 @@ namespace EndlessClient.ControlSets
                         _accountController,
                         _endlessGameProvider,
                         _userInputRepository,
-                        _fixedTimeStepRepository);
+                        _fixedTimeStepRepository,
+                        _clientWindowSizeRepository);
                 case GameStates.PlayingTheGame:
-                    return new InGameControlSet(_mainButtonController, _messageBoxFactory, _hudControlsFactory, _activeDialogRepository);
+                    return new InGameControlSet(_mainButtonController, _messageBoxFactory, _hudControlsFactory, _activeDialogRepository, _clientWindowSizeRepository);
                 default: throw new ArgumentOutOfRangeException(nameof(newState), newState, null);
             }
         }

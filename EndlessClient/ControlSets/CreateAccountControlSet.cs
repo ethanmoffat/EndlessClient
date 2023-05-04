@@ -1,6 +1,8 @@
 ﻿using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
+using EndlessClient.Input;
+using EndlessClient.Rendering;
 using EOLib;
 using EOLib.Domain.Account;
 using EOLib.Graphics;
@@ -33,8 +35,9 @@ namespace EndlessClient.ControlSets
         public override GameStates GameState => GameStates.CreateAccount;
 
         public CreateAccountControlSet(IMainButtonController mainButtonController,
-                                       IAccountController accountController)
-            : base(mainButtonController)
+                                       IAccountController accountController,
+                                       IClientWindowSizeRepository clientWindowSizeRepository)
+            : base(mainButtonController, clientWindowSizeRepository)
         {
             _accountController = accountController;
         }

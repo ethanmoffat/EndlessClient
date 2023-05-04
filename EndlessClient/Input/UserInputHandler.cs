@@ -1,6 +1,8 @@
 ﻿using EndlessClient.Controllers;
 using EndlessClient.Dialogs;
 using EndlessClient.GameExecution;
+using EndlessClient.HUD;
+using EndlessClient.Rendering;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
 using System;
@@ -22,8 +24,10 @@ namespace EndlessClient.Input
                                 IControlKeyController controlKeyController,
                                 IFunctionKeyController functionKeyController,
                                 INumPadController numPadController,
+                                IHudButtonController hudButtonController,
                                 ICurrentMapStateRepository currentMapStateRepository,
-                                IActiveDialogProvider activeDialogProvider)
+                                IActiveDialogProvider activeDialogProvider,
+                                IClientWindowSizeProvider clientWindowSizeProvider)
         {
             _handlers = new List<IInputHandler>
             {
@@ -48,6 +52,12 @@ namespace EndlessClient.Input
                     currentMapStateRepository,
                     numPadController),
             };
+
+            if (clientWindowSizeProvider.Resizable)
+            {
+                _handlers.Add(new PanelShortcutHandler(endlessGameProvider, userInputProvider, userInputTimeRepository, currentMapStateRepository, hudButtonController));
+            }
+
             _activeDialogProvider = activeDialogProvider;
         }
 

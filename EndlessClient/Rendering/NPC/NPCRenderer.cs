@@ -14,26 +14,26 @@ using EOLib.Graphics;
 using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using MonoGame.Extended.Input;
 using Optional;
 using System;
+using System.Linq;
+using System.Windows.Markup;
 using XNAControls;
 
 namespace EndlessClient.Rendering.NPC
 {
     public class NPCRenderer : DrawableGameComponent, INPCRenderer
     {
+        private static readonly object _rt_locker_ = new object();
+
+        private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
         private readonly IENFFileProvider _enfFileProvider;
         private readonly INPCSpriteSheet _npcSpriteSheet;
         private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
         private readonly IHealthBarRendererFactory _healthBarRendererFactory;
         private readonly IChatBubbleFactory _chatBubbleFactory;
         private readonly IRenderTargetFactory _renderTargetFactory;
-        private readonly INPCInteractionController _npcInteractionController;
-        private readonly IMapInteractionController _mapInteractionController;
         private readonly IUserInputProvider _userInputProvider;
-        private readonly ISpellSlotDataProvider _spellSlotDataProvider;
         private readonly IEffectRenderer _effectRenderer;
         private readonly IHealthBarRenderer _healthBarRenderer;
 
@@ -64,38 +64,42 @@ namespace EndlessClient.Rendering.NPC
         public Rectangle EffectTargetArea { get; private set; }
 
         public NPCRenderer(IEndlessGameProvider endlessGameProvider,
+                           IClientWindowSizeProvider clientWindowSizeProvider,
                            IENFFileProvider enfFileProvider,
                            INPCSpriteSheet npcSpriteSheet,
                            IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
                            IHealthBarRendererFactory healthBarRendererFactory,
                            IChatBubbleFactory chatBubbleFactory,
                            IRenderTargetFactory renderTargetFactory,
-                           INPCInteractionController npcInteractionController,
-                           IMapInteractionController mapInteractionController,
                            IUserInputProvider userInputProvider,
-                           ISpellSlotDataProvider spellSlotDataProvider,
                            IEffectRendererFactory effectRendererFactory,
                            EOLib.Domain.NPC.NPC initialNPC)
             : base((Game)endlessGameProvider.Game)
         {
             NPC = initialNPC;
-
+            _clientWindowSizeProvider = clientWindowSizeProvider;
             _enfFileProvider = enfFileProvider;
             _npcSpriteSheet = npcSpriteSheet;
             _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
             _healthBarRendererFactory = healthBarRendererFactory;
             _chatBubbleFactory = chatBubbleFactory;
             _renderTargetFactory = renderTargetFactory;
-            _npcInteractionController = npcInteractionController;
-            _mapInteractionController = mapInteractionController;
             _userInputProvider = userInputProvider;
-            _spellSlotDataProvider = spellSlotDataProvider;
             _effectRenderer = effectRendererFactory.Create();
 
             DrawArea = GetStandingFrameRectangle();
 
             _lastStandingAnimation = DateTime.Now;
             _fadeAwayAlpha = 255;
+
+            _clientWindowSizeProvider.GameWindowSizeChanged += (_, _) =>
+            {
+                lock (_rt_locker_)
+                {
+                    _npcRenderTarget.Dispose();
+                    _npcRenderTarget = _renderTargetFactory.CreateRenderTarget();
+                }
+            };
 
             _healthBarRenderer = _healthBarRendererFactory.CreateHealthBarRenderer(this);
         }
@@ -122,8 +126,15 @@ namespace EndlessClient.Rendering.NPC
 
             _nameLabel.DrawPosition = GetNameLabelPosition();
 
-            _npcRenderTarget = _renderTargetFactory.CreateRenderTarget(640, 480);
+            lock (_rt_locker_)
+                _npcRenderTarget = _renderTargetFactory.CreateRenderTarget();
+
             _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
+
+            var frameTexture = _npcSpriteSheet.GetNPCTexture(_enfFileProvider.ENFFile[NPC.ID].Graphic, NPC.Frame, NPC.Direction);
+            var data = new Color[frameTexture.Width * frameTexture.Height];
+            frameTexture.GetData(data);
+            _isBlankSprite = data.All(x => x.A == 0);
 
             base.Initialize();
         }
@@ -291,14 +302,17 @@ namespace EndlessClient.Rendering.NPC
             var color = Color.FromNonPremultiplied(255, 255, 255, _fadeAwayAlpha);
             var effects = NPC.IsFacing(EODirection.Left, EODirection.Down) ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
 
-            GraphicsDevice.SetRenderTarget(_npcRenderTarget);
-            GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 1, 0);
+            lock (_rt_locker_)
+            {
+                GraphicsDevice.SetRenderTarget(_npcRenderTarget);
+                GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 1, 0);
 
-            _spriteBatch.Begin();
-            _spriteBatch.Draw(texture, DrawArea, null, color, 0, Vector2.Zero, effects, 1);
-            _spriteBatch.End();
+                _spriteBatch.Begin();
+                _spriteBatch.Draw(texture, DrawArea, null, color, 0, Vector2.Zero, effects, 1);
+                _spriteBatch.End();
 
-            GraphicsDevice.SetRenderTarget(null);
+                GraphicsDevice.SetRenderTarget(null);
+            }
         }
 
         private Vector2 GetNameLabelPosition()
@@ -313,7 +327,9 @@ namespace EndlessClient.Rendering.NPC
                 _nameLabel.Dispose();
                 _chatBubble?.Dispose();
                 _spriteBatch?.Dispose();
-                _npcRenderTarget?.Dispose();
+
+                lock (_rt_locker_)
+                    _npcRenderTarget?.Dispose();
             }
 
             base.Dispose(disposing);

@@ -15,8 +15,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         public MainCharacterEntityRenderer(ICharacterProvider characterProvider,
                                            ICharacterRendererProvider characterRendererProvider,
                                            IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
+                                           IClientWindowSizeProvider clientWindowSizeProvider,
                                            bool transparent)
-            : base(characterProvider, gridDrawCoordinateCalculator)
+            : base(characterProvider, gridDrawCoordinateCalculator, clientWindowSizeProvider)
         {
             _characterRendererProvider = characterRendererProvider;
             _transparent = transparent;

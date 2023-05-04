@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using EndlessClient.Controllers;
+﻿using EndlessClient.Controllers;
 using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Controls;
+using EndlessClient.Rendering;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.ControlSets
@@ -24,8 +25,9 @@ namespace EndlessClient.ControlSets
         public InGameControlSet(IMainButtonController mainButtonController,
                                 IEOMessageBoxFactory messageBoxFactory,
                                 IHudControlsFactory hudControlsFactory,
-                                IActiveDialogRepository activeDialogRepository)
-            : base(mainButtonController)
+                                IActiveDialogRepository activeDialogRepository,
+                                IClientWindowSizeRepository clientWindowSizeRepository)
+            : base(mainButtonController, clientWindowSizeRepository)
         {
             _messageBoxFactory = messageBoxFactory;
             _hudControlsFactory = hudControlsFactory;

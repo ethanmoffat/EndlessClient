@@ -31,6 +31,11 @@ namespace EndlessClient.HUD
             _localizedStringFinder = localizedStringFinder;
         }
 
+        public void ShowNews()
+        {
+            _hudStateActions.SwitchToState(InGameStates.News);
+        }
+
         public void ClickInventory()
         {
             _hudStateActions.SwitchToState(InGameStates.Inventory);

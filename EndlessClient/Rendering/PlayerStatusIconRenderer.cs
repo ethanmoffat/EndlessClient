@@ -39,7 +39,8 @@ namespace EndlessClient.Rendering
         public PlayerStatusIconRenderer(INativeGraphicsManager nativeGraphicsManager,
                                         ICharacterProvider characterProvider,
                                         ISpellSlotDataProvider spellSlotDataProvider,
-                                        ICurrentMapProvider currentMapProvider)
+                                        ICurrentMapProvider currentMapProvider,
+                                        IClientWindowSizeProvider clientWindowSizeProvider)
         {
             _characterProvider = characterProvider;
             _spellSlotDataProvider = spellSlotDataProvider;
@@ -47,7 +48,8 @@ namespace EndlessClient.Rendering
 
             _statusIcons = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 46, true);
 
-            DrawPosition = new Vector2(14, 285);
+            DrawPosition = new Vector2(14, clientWindowSizeProvider.Height - _statusIcons.Height - 3);
+            clientWindowSizeProvider.GameWindowSizeChanged += (o, e) => DrawPosition = new Vector2(14, clientWindowSizeProvider.Height - _statusIcons.Height - 3);
         }
 
         protected override void OnUpdateControl(GameTime gameTime)

@@ -4,6 +4,7 @@ using EndlessClient.ControlSets;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Inventory;
+using EndlessClient.Rendering;
 using EndlessClient.Rendering.Map;
 using EOLib;
 using EOLib.Config;
@@ -33,7 +34,7 @@ using XNAControls;
 
 namespace EndlessClient.HUD.Panels
 {
-    public class InventoryPanel : XNAPanel, IHudPanel, IDraggableItemContainer
+    public class InventoryPanel : DraggableHudPanel, IHudPanel, IDraggableItemContainer
     {
         public const int InventoryRows = 4;
         public const int InventoryRowSlots = 14;
@@ -52,7 +53,7 @@ namespace EndlessClient.HUD.Panels
         private readonly IActiveDialogProvider _activeDialogProvider;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IConfigurationProvider _configProvider;
-
+        private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
         private readonly List<InventoryPanelItem> _childItems = new List<InventoryPanelItem>();
 
         private readonly IXNALabel _weightLabel;
@@ -78,7 +79,9 @@ namespace EndlessClient.HUD.Panels
                               IHudControlProvider hudControlProvider,
                               IActiveDialogProvider activeDialogProvider,
                               ISfxPlayer sfxPlayer,
-                              IConfigurationProvider configProvider)
+                              IConfigurationProvider configProvider,
+                              IClientWindowSizeProvider clientWindowSizeProvider)
+            : base(clientWindowSizeProvider.Resizable)
         {
             NativeGraphicsManager = nativeGraphicsManager;
             _inventoryController = inventoryController;
@@ -95,6 +98,7 @@ namespace EndlessClient.HUD.Panels
             _activeDialogProvider = activeDialogProvider;
             _sfxPlayer = sfxPlayer;
             _configProvider = configProvider;
+            _clientWindowSizeProvider = clientWindowSizeProvider;
 
             _weightLabel = new XNALabel(Constants.FontSize08pt5)
             {
@@ -154,6 +158,19 @@ namespace EndlessClient.HUD.Panels
             _inventorySlotRepository.SlotMap.Clear();
 
             base.Initialize();
+        }
+
+        protected override void OnDrawOrderChanged(object sender, EventArgs args)
+        {
+            base.OnDrawOrderChanged(sender, args);
+
+            if (_clientWindowSizeProvider.Resizable)
+            {
+                // ensure labels have a high enough draw order when in resizable mode
+                // this is because draw order is updated when panels are opened in resizable mode
+                foreach (var label in ChildControls.OfType<XNALabel>())
+                    label.DrawOrder = DrawOrder + 70;
+            }
         }
 
         protected override void OnUpdateControl(GameTime gameTime)
@@ -380,7 +397,7 @@ namespace EndlessClient.HUD.Panels
             if (_activeDialogProvider.ActiveDialogs.All(x => !x.HasValue))
             {
                 var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
-                if (mapRenderer.MouseOver)
+                if (mapRenderer.MouseOver && !MouseOver)
                 {
                     e.ContinueDrag = !fitsInOldSlot;
                     e.RestoreOriginalSlot = fitsInOldSlot;

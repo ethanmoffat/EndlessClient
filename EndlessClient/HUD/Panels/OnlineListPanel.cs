@@ -1,6 +1,7 @@
 ﻿using EndlessClient.Audio;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
+using EndlessClient.Rendering;
 using EndlessClient.Services;
 using EndlessClient.UIControls;
 using EOLib;
@@ -21,7 +22,7 @@ using XNAControls;
 
 namespace EndlessClient.HUD.Panels
 {
-    public class OnlineListPanel : XNAPanel, IHudPanel
+    public class OnlineListPanel : DraggableHudPanel
     {
         private enum Filter
         {
@@ -64,7 +65,9 @@ namespace EndlessClient.HUD.Panels
                                IPartyDataProvider partyDataProvider,
                                IFriendIgnoreListService friendIgnoreListService,
                                ISfxPlayer sfxPlayer,
-                               BitmapFont chatFont)
+                               BitmapFont chatFont,
+                               IClientWindowSizeProvider clientWindowSizeProvider)
+            : base(clientWindowSizeProvider.Resizable)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _hudControlProvider = hudControlProvider;
@@ -83,7 +86,7 @@ namespace EndlessClient.HUD.Panels
                 AutoSize = false,
                 ForeColor = ColorConstants.LightGrayText,
                 TextAlign = LabelAlignment.MiddleRight,
-                DrawArea = new Rectangle(454, 3, 27, 14),
+                DrawArea = new Rectangle(454, 1, 27, 14),
                 BackColor = Color.Transparent,
             };
             _totalNumberOfPlayers.SetParentControl(this);

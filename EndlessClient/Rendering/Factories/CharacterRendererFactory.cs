@@ -31,6 +31,7 @@ namespace EndlessClient.Rendering.Factories
         private readonly IUserInputProvider _userInputProvider;
         private readonly IEffectRendererFactory _effectRendererFactory;
         private readonly ISfxPlayer _sfxPlayer;
+        private readonly IClientWindowSizeRepository _clientWindowSizeRepository;
         private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
 
         public CharacterRendererFactory(IEndlessGameProvider gameProvider,
@@ -47,6 +48,7 @@ namespace EndlessClient.Rendering.Factories
                                         IUserInputProvider userInputProvider,
                                         IEffectRendererFactory effectRendererFactory,
                                         ISfxPlayer sfxPlayer,
+                                        IClientWindowSizeRepository clientWindowSizeRepository,
                                         IFixedTimeStepRepository fixedTimeStepRepository)
         {
             _gameProvider = gameProvider;
@@ -63,6 +65,7 @@ namespace EndlessClient.Rendering.Factories
             _userInputProvider = userInputProvider;
             _effectRendererFactory = effectRendererFactory;
             _sfxPlayer = sfxPlayer;
+            _clientWindowSizeRepository = clientWindowSizeRepository;
             _fixedTimeStepRepository = fixedTimeStepRepository;
         }
 
@@ -84,6 +87,7 @@ namespace EndlessClient.Rendering.Factories
                 _userInputProvider,
                 _effectRendererFactory,
                 _sfxPlayer,
+                _clientWindowSizeRepository,
                 _fixedTimeStepRepository);
         }
     }

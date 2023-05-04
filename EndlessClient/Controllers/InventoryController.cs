@@ -5,6 +5,7 @@ using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Controls;
+using EndlessClient.HUD.Panels;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Map;
 using EOLib;
@@ -199,11 +200,12 @@ namespace EndlessClient.Controllers
         public void DropItem(EIFRecord itemData, InventoryItem inventoryItem)
         {
             var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
+            var inventoryPanel = _hudControlProvider.GetComponent<InventoryPanel>(HudControlIdentifier.InventoryPanel);
             if (_activeDialogProvider.ActiveDialogs.Any(x => x.HasValue) && mapRenderer.MouseOver)
                 return;
 
             var rp = _characterProvider.MainCharacter.RenderProperties;
-            var dropPoint = mapRenderer.MouseOver
+            var dropPoint = mapRenderer.MouseOver && !inventoryPanel.MouseOver
                 ? mapRenderer.GridCoordinates
                 : new MapCoordinate(rp.MapX, rp.MapY);
 

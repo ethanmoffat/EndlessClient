@@ -36,8 +36,9 @@ namespace EndlessClient.ControlSets
                                   IAccountController accountController,
                                   IEndlessGameProvider endlessGameProvider,
                                   IUserInputRepository userInputRepository,
-                                  IFixedTimeStepRepository fixedTimeStepRepository)
-            : base(mainButtonController)
+                                  IFixedTimeStepRepository fixedTimeStepRepository,
+                                  IClientWindowSizeRepository clientWindowSizeRepository)
+            : base(mainButtonController, clientWindowSizeRepository)
         {
             _characterInfoPanelFactory = characterInfoPanelFactory;
             _characterSelectorProvider = characterSelectorProvider;

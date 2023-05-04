@@ -1,4 +1,5 @@
 using Amadevus.RecordGenerator;
+using EOLib.Domain.Extensions;
 using EOLib.Domain.Spells;
 
 namespace EOLib.Domain.Character
@@ -18,9 +19,13 @@ namespace EOLib.Domain.Character
 
         public int Index => ID;
 
-        public int X => RenderProperties.MapX;
+        public int X => RenderProperties.IsActing(CharacterActionState.Walking)
+            ? RenderProperties.GetDestinationX()
+            : RenderProperties.MapX;
 
-        public int Y => RenderProperties.MapY;
+        public int Y => RenderProperties.IsActing(CharacterActionState.Walking)
+            ? RenderProperties.GetDestinationY()
+            : RenderProperties.MapY;
 
         public string Name { get; }
 

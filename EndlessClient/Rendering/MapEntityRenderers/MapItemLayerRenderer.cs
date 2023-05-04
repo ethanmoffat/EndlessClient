@@ -21,9 +21,10 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         public MapItemLayerRenderer(ICharacterProvider characterProvider,
                                     IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
+                                    IClientWindowSizeProvider clientWindowSizeProvider,
                                     ICurrentMapStateProvider currentMapStateProvider,
                                     IMapItemGraphicProvider mapItemGraphicProvider)
-            : base(characterProvider, gridDrawCoordinateCalculator)
+            : base(characterProvider, gridDrawCoordinateCalculator, clientWindowSizeProvider)
         {
             _currentMapStateProvider = currentMapStateProvider;
             _mapItemGraphicProvider = mapItemGraphicProvider;

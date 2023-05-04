@@ -1,5 +1,5 @@
-﻿using EOLib.Domain.Character;
-using EOLib.Domain.Extensions;
+﻿using EndlessClient.Rendering.Factories;
+using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.IO;
@@ -7,13 +7,16 @@ using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
+using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Rendering.Map
 {
     public class MiniMapRenderer : XNAControl
     {
+        private const int TileWidth = 28;
+        private const int TileHeight = 14;
+
         private enum MiniMapGfx
         {
             UpLine = 0,
@@ -28,25 +31,35 @@ namespace EndlessClient.Rendering.Map
             NUM_GRIDS = 9,
         }
 
+        private readonly object _rt_locker_ = new object();
+        private readonly IRenderTargetFactory _renderTargetFactory;
+        private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly ICharacterProvider _characterProvider;
-        private readonly IMapCellStateProvider _mapCellStateProvider;
         private readonly IENFFileProvider _enfFileProvider;
+        private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
         private readonly Texture2D _miniMapTexture;
 
+        private RenderTarget2D _miniMapTarget;
+        private int? _lastMapChecksum;
+
         public MiniMapRenderer(INativeGraphicsManager nativeGraphicsManager,
+                               IRenderTargetFactory renderTargetFactory,
+                               IClientWindowSizeProvider clientWindowSizeProvider,
                                ICurrentMapProvider currentMapProvider,
                                ICurrentMapStateProvider currentMapStateProvider,
                                ICharacterProvider characterProvider,
-                               IMapCellStateProvider mapCellStateProvider,
-                               IENFFileProvider enfFileProvider)
+                               IENFFileProvider enfFileProvider,
+                               IGridDrawCoordinateCalculator gridDrawCoordinateCalculator)
         {
+            _renderTargetFactory = renderTargetFactory;
+            _clientWindowSizeProvider = clientWindowSizeProvider;
             _currentMapProvider = currentMapProvider;
             _currentMapStateProvider = currentMapStateProvider;
             _characterProvider = characterProvider;
-            _mapCellStateProvider = mapCellStateProvider;
             _enfFileProvider = enfFileProvider;
+            _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
             _miniMapTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 45, true);
         }
 
@@ -60,93 +73,103 @@ namespace EndlessClient.Rendering.Map
 
         protected override bool ShouldDraw()
         {
-            return base.ShouldDraw() && _currentMapStateProvider.ShowMiniMap;
+            return _currentMapStateProvider.ShowMiniMap && base.ShouldDraw();
+        }
+
+        protected override void OnUpdateControl(GameTime gameTime)
+        {
+            if (_lastMapChecksum == null || _lastMapChecksum != _currentMapProvider.CurrentMap.Properties.ChecksumInt)
+            {
+                // The dimensions of the map are 0-based in the properties. Adjust to 1-based for RT creation
+                var widthPlus1 = _currentMapProvider.CurrentMap.Properties.Width + 1;
+                var heightPlus1 = _currentMapProvider.CurrentMap.Properties.Height + 1;
+
+                lock (_rt_locker_)
+                {
+                    _miniMapTarget?.Dispose();
+                    _miniMapTarget = _renderTargetFactory.CreateRenderTarget(
+                        (widthPlus1 + heightPlus1) * TileWidth,
+                        (widthPlus1 + heightPlus1) * TileHeight);
+                }
+
+                DrawFixedMapElementsToRenderTarget();
+            }
+
+            _lastMapChecksum = _currentMapProvider.CurrentMap.Properties.ChecksumInt;
+
+            base.OnUpdateControl(gameTime);
         }
 
         protected override void OnDrawControl(GameTime gameTime)
         {
-            _spriteBatch.Begin();
-
-            var (cx, cy) = GetCharacterPos();
-            for (int row = Math.Max(cy - 30, 0); row <= Math.Min(cy + 30, _currentMapProvider.CurrentMap.Properties.Height); ++row)
+            lock (_rt_locker_)
             {
-                for (int col = Math.Max(cx - 30, 0); col <= Math.Min(cx + 30, _currentMapProvider.CurrentMap.Properties.Width); ++col)
-                {
-                    var loc = GetMiniMapDrawCoordinates(col, row);
-                    var (edgeGfx, miniMapRectSrc) = GetSourceRectangleForGridSpace(col, row);
-                    DrawGridBox(loc, edgeGfx, miniMapRectSrc);
-                }
-            }
+                _spriteBatch.Begin();
 
-            _spriteBatch.End();
+                var baseTargetDrawLoc = _gridDrawCoordinateCalculator.CalculateGroundLayerRenderTargetDrawCoordinates(isMiniMap: true, TileWidth, TileHeight);
+                _spriteBatch.Draw(_miniMapTarget, baseTargetDrawLoc, Color.White);
+
+                var entities = new IMapEntity[] { _characterProvider.MainCharacter }
+                    .Concat(_currentMapStateProvider.Characters.Values)
+                    .Concat(_currentMapStateProvider.NPCs);
+
+                foreach (var entity in entities)
+                {
+                    var loc = GetMiniMapDrawCoordinates(entity.X, entity.Y);
+                    var miniMapRectSrc = GetSourceRectangleForEntity(entity);
+                    DrawGridBox(loc, null, miniMapRectSrc);
+                }
+
+                _spriteBatch.End();
+            }
 
             base.OnDrawControl(gameTime);
         }
 
         private (MiniMapGfx? EdgeGfx, Rectangle SourceRect) GetSourceRectangleForGridSpace(int col, int row)
         {
-            var info = _mapCellStateProvider.GetCellStateAt(col, row);
+            var tileSpec = _currentMapProvider.CurrentMap.Tiles[row, col];
 
-            var (cx, cy) = GetCharacterPos();
-            if (cx == col && cy == row)
+            switch (tileSpec)
             {
-                return (GetEdge(), GetSourceRect(MiniMapGfx.Orange));
+                case TileSpec.Wall:
+                case TileSpec.FakeWall:
+                    return (GetEdge(), GetSourceRect(MiniMapGfx.Solid));
+                case TileSpec.BankVault:
+                case TileSpec.ChairAll:
+                case TileSpec.ChairDown:
+                case TileSpec.ChairLeft:
+                case TileSpec.ChairRight:
+                case TileSpec.ChairUp:
+                case TileSpec.ChairDownRight:
+                case TileSpec.ChairUpLeft:
+                case TileSpec.Chest:
+                case TileSpec.JammedDoor:
+                    // Unknown TileSpecs 10-15 have been confirmed in the vanilla client to show a Blue ! on the minimap
+                case (TileSpec)10:
+                case (TileSpec)11:
+                case (TileSpec)12:
+                case (TileSpec)13:
+                case (TileSpec)14:
+                case (TileSpec)15:
+                    return (GetEdge(), GetSourceRect(MiniMapGfx.Blue));
+                case TileSpec.MapEdge:
+                    return (null, Rectangle.Empty);
             }
 
-            if (info.NPC.HasValue)
+            if (_currentMapProvider.CurrentMap.Warps[row, col] != null)
             {
-                return info.NPC.Map(x => _enfFileProvider.ENFFile[x.ID].Type)
-                    .Map(x => x == NPCType.Aggressive || x == NPCType.Passive ? MiniMapGfx.Red : MiniMapGfx.Purple)
-                    .Match(x => (GetEdge(), GetSourceRect(x)), () => (GetEdge(), Rectangle.Empty));
-            }
-            else if (info.Character.HasValue)
-            {
-                return (GetEdge(), GetSourceRect(MiniMapGfx.Green));
-            }
-            else if (info.Warp.HasValue)
-            {
-                return info.Warp.Map(x => x.DoorType)
-                    .Match(x => (GetEdge(), GetSourceRect(x != DoorSpec.NoDoor ? MiniMapGfx.Blue : MiniMapGfx.UpLine)), () => (GetEdge(), Rectangle.Empty));
-            }
-            else
-            {
-                switch (info.TileSpec)
-                {
-                    case TileSpec.Wall:
-                    case TileSpec.FakeWall:
-                        return (GetEdge(), GetSourceRect(MiniMapGfx.Solid));
-                    case TileSpec.BankVault:
-                    case TileSpec.ChairAll:
-                    case TileSpec.ChairDown:
-                    case TileSpec.ChairLeft:
-                    case TileSpec.ChairRight:
-                    case TileSpec.ChairUp:
-                    case TileSpec.ChairDownRight:
-                    case TileSpec.ChairUpLeft:
-                    case TileSpec.Chest:
-                    case TileSpec.JammedDoor:
-                        // Unknown TileSpecs 10-15 have been confirmed in the vanilla client to show a Blue ! on the minimap
-                    case (TileSpec)10:
-                    case (TileSpec)11:
-                    case (TileSpec)12:
-                    case (TileSpec)13:
-                    case (TileSpec)14:
-                    case (TileSpec)15:
-                        return (GetEdge(), GetSourceRect(MiniMapGfx.Blue));
-                    case TileSpec.MapEdge:
-                        return (null, Rectangle.Empty);
-                }
+                var doorType = _currentMapProvider.CurrentMap.Warps[row, col].DoorType;
+                return (GetEdge(), GetSourceRect(doorType != DoorSpec.NoDoor ? MiniMapGfx.Blue : MiniMapGfx.UpLine));
             }
 
             return (GetEdge(), Rectangle.Empty);
 
             MiniMapGfx? GetEdge()
             {
-                if (info.TileSpec == TileSpec.MapEdge)
+                if (tileSpec == TileSpec.MapEdge)
                     return null;
 
-                var w = _currentMapProvider.CurrentMap.Properties.Width;
-                var h = _currentMapProvider.CurrentMap.Properties.Height;
                 var tiles = _currentMapProvider.CurrentMap.Tiles;
 
                 if (col - 1 >= 0 && tiles[row, col - 1] == TileSpec.MapEdge &&
@@ -159,6 +182,53 @@ namespace EndlessClient.Rendering.Map
                 else
                     return MiniMapGfx.Corner;
             }
+        }
+
+        private Rectangle GetSourceRectangleForEntity(IMapEntity mapEntity)
+        {
+            if (_characterProvider.MainCharacter == mapEntity)
+            {
+                return GetSourceRect(MiniMapGfx.Orange);
+            }
+
+            return mapEntity switch
+            {
+                EOLib.Domain.NPC.NPC n => GetNPCSourceRectangle(n),
+                EOLib.Domain.Character.Character c => GetSourceRect(MiniMapGfx.Green),
+                _ => Rectangle.Empty
+            };
+
+            Rectangle GetNPCSourceRectangle(EOLib.Domain.NPC.NPC npc)
+            {
+                var npcType = _enfFileProvider.ENFFile[npc.ID].Type;
+                return GetSourceRect(npcType == NPCType.Aggressive || npcType == NPCType.Passive ? MiniMapGfx.Red : MiniMapGfx.Purple);
+            }
+        }
+
+        private void DrawFixedMapElementsToRenderTarget()
+        {
+            if (_lastMapChecksum.HasValue && _lastMapChecksum == _currentMapProvider.CurrentMap.Properties.ChecksumInt)
+                return;
+
+            GraphicsDevice.SetRenderTarget(_miniMapTarget);
+            GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
+            _spriteBatch.Begin();
+
+            // the height is used to offset the 0 point of the grid, which is TileHeight units per tile in the height of the map
+            var height = _currentMapProvider.CurrentMap.Properties.Height + 1;
+
+            for (int row = 0; row <= _currentMapProvider.CurrentMap.Properties.Height; ++row)
+            {
+                for (int col = 0; col <= _currentMapProvider.CurrentMap.Properties.Width; ++col)
+                {
+                    var drawLoc = _gridDrawCoordinateCalculator.CalculateRawRenderCoordinatesFromGridUnits(col, row, TileWidth, TileHeight) + new Vector2(TileHeight * height, 0);
+                    var (edgeGfx, miniMapRectSrc) = GetSourceRectangleForGridSpace(col, row);
+                    DrawGridBox(drawLoc, edgeGfx, miniMapRectSrc);
+                }
+            }
+
+            _spriteBatch.End();
+            GraphicsDevice.SetRenderTarget(null);
         }
 
         private void DrawGridBox(Vector2 loc, MiniMapGfx? edgeGfx, Rectangle gridSpaceSourceRect)
@@ -174,15 +244,27 @@ namespace EndlessClient.Rendering.Map
                     Color.FromNonPremultiplied(255, 255, 255, 128));
             }
 
-            _spriteBatch.Draw(_miniMapTexture, loc, gridSpaceSourceRect, Color.FromNonPremultiplied(255, 255, 255, 128));
+            if (!gridSpaceSourceRect.IsEmpty)
+            {
+                _spriteBatch.Draw(_miniMapTexture, loc, gridSpaceSourceRect, Color.FromNonPremultiplied(255, 255, 255, 128));
+            }
         }
 
         private Vector2 GetMiniMapDrawCoordinates(int x, int y)
         {
-            // holy magic numbers batman
-            // TODO - make this not gross
-            var (cx, cy) = GetCharacterPos();
-            return new Vector2(x * 13 - y * 13 + 288 - (cx * 13 - cy * 13), y * 7 + x * 7 + 144 - (cx * 7 + cy * 7));
+            // these are the same as in MouseCursorRenderer
+            var widthFactor = _clientWindowSizeProvider.Resizable
+                ? _clientWindowSizeProvider.Width / 2 // 288 = 640 * .45, viewport width factor
+                : _clientWindowSizeProvider.Width * 9 / 10; // 288 = 640 * .45, 576 = 640 * .9
+            var heightFactor = _clientWindowSizeProvider.Resizable
+                ? _clientWindowSizeProvider.Height / 2 // 144 = 480 * .45, viewport height factor
+                : _clientWindowSizeProvider.Height * 3 / 10;
+
+            var tileWidthFactor = TileWidth / 2;
+            var tileHeightFactor = TileHeight / 2;
+
+            return new Vector2(x * tileWidthFactor - y * tileWidthFactor + widthFactor,
+                               y * tileHeightFactor + x * tileHeightFactor + heightFactor) - GetCharacterOffset();
         }
 
         private Rectangle GetSourceRect(MiniMapGfx gfx)
@@ -191,13 +273,13 @@ namespace EndlessClient.Rendering.Map
             return new Rectangle((int)gfx * delta, 0, delta, _miniMapTexture.Height);
         }
 
-        private (int X, int Y) GetCharacterPos()
+        private Vector2 GetCharacterOffset()
         {
-            var rp = _characterProvider.MainCharacter.RenderProperties;
-            if (rp.CurrentAction == CharacterActionState.Walking)
-                return (rp.GetDestinationX(), rp.GetDestinationY());
-            else
-                return (rp.MapX, rp.MapY);
+            var tileWidthFactor = TileWidth/2;
+            var tileHeightFactor = TileHeight/2;
+
+            var (cx, cy) = (_characterProvider.MainCharacter.X, _characterProvider.MainCharacter.Y);
+            return new Vector2(cx * tileWidthFactor - cy * tileWidthFactor, cx * tileHeightFactor + cy * tileHeightFactor);
         }
     }
 }

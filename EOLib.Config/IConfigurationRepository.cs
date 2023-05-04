@@ -33,6 +33,9 @@ namespace EOLib.Config
         TimeSpan AccountCreateTimeout { get; set; }
 
         bool EnableLog { get; set; }
+
+        int InGameWidth { get; set; }
+        int InGameHeight { get; set; }
     }
 
     public interface IConfigurationProvider
@@ -65,6 +68,9 @@ namespace EOLib.Config
         TimeSpan AccountCreateTimeout { get; }
 
         bool EnableLog { get; }
+
+        int InGameWidth { get; }
+        int InGameHeight { get; }
     }
 
     [AutoMappedType(IsSingleton = true)]
@@ -98,5 +104,8 @@ namespace EOLib.Config
         public TimeSpan AccountCreateTimeout { get; set; }
 
         public bool EnableLog { get; set; }
+
+        public int InGameWidth { get; set; }
+        public int InGameHeight { get; set; }
     }
 }
