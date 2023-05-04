@@ -29,6 +29,7 @@ namespace EndlessClient.Rendering.NPC
         public void UpdateNPCs(GameTime gameTime)
         {
             CleanUpDeadNPCs();
+            CleanUpRemovedNPCs();
             CreateAndCacheNPCRenderers();
             UpdateNPCRenderers(gameTime);
         }
@@ -44,6 +45,25 @@ namespace EndlessClient.Rendering.NPC
                 npc.Dispose();
                 _npcRendererRepository.NPCRenderers.Remove(npc.NPC.Index);
                 _npcStateCache.RemoveStateByIndex(npc.NPC.Index);
+            }
+        }
+
+        private void CleanUpRemovedNPCs()
+        {
+            var removedNPCs = _npcRendererRepository.NPCRenderers.Values
+                .Where(x => x.IsAlive)
+                .Select(x => x.NPC.Index)
+                .Where(x => !_currentMapStateProvider.NPCs.Select(y => y.Index).Any(y => y == x))
+                .ToList();
+
+            foreach (var index in removedNPCs)
+            {
+                if (!_npcRendererRepository.NPCRenderers.TryGetValue(index, out var renderer))
+                    continue;
+
+                renderer.Dispose();
+                _npcRendererRepository.NPCRenderers.Remove(index);
+                _npcStateCache.RemoveStateByIndex(index);
             }
         }
 
