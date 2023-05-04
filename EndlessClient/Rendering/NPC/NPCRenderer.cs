@@ -261,7 +261,8 @@ namespace EndlessClient.Rendering.NPC
             var horizontalOffset = _npcSpriteSheet.GetNPCMetadata(data.Graphic).OffsetX * (NPC.IsFacing(EODirection.Down, EODirection.Left) ? -1 : 1);
             HorizontalCenter = DrawArea.X + (DrawArea.Width / 2) + horizontalOffset;
 
-            NameLabelY = DrawArea.Y - (int)(_nameLabel?.ActualHeight + 4 ?? 0);
+            var nameLabelGridCoordinates = _gridDrawCoordinateCalculator.CalculateDrawCoordinates(NPC.WithX(NPC.X - 1).WithY(NPC.Y - 1));
+            NameLabelY = (int)nameLabelGridCoordinates.Y - metaData.NameLabelOffset;
 
             EffectTargetArea = DrawArea.WithSize(DrawArea.Width + horizontalOffset * 2, DrawArea.Height);
         }
