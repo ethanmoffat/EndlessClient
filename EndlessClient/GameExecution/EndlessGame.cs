@@ -241,36 +241,36 @@ namespace EndlessClient.GameExecution
             {
                 _pubFileLoadActions.LoadItemFile(rangedWeaponIds: Constants.RangedWeaponIDs.Concat(Constants.InstrumentIDs));
             }
-            catch (IOException ioe)
+            catch (Exception ex) when (ex is IOException || ex is ArgumentException)
             {
-                _loggerProvider.Logger.Log(PUB_LOG_MSG, string.Format(PubFileNameConstants.EIFFormat, 1), ioe.Message);
+                _loggerProvider.Logger.Log(PUB_LOG_MSG, string.Format(PubFileNameConstants.EIFFormat, 1), ex.Message);
             }
 
             try
             {
                 _pubFileLoadActions.LoadNPCFile();
             }
-            catch (IOException ioe)
+            catch (Exception ex) when (ex is IOException || ex is ArgumentException)
             {
-                _loggerProvider.Logger.Log(PUB_LOG_MSG, string.Format(PubFileNameConstants.ENFFormat, 1), ioe.Message);
+                _loggerProvider.Logger.Log(PUB_LOG_MSG, string.Format(PubFileNameConstants.ENFFormat, 1), ex.Message);
             }
 
             try
             {
                 _pubFileLoadActions.LoadSpellFile();
             }
-            catch (IOException ioe)
+            catch (Exception ex) when (ex is IOException || ex is ArgumentException)
             {
-                _loggerProvider.Logger.Log(PUB_LOG_MSG, string.Format(PubFileNameConstants.ESFFormat, 1), ioe.Message);
+                _loggerProvider.Logger.Log(PUB_LOG_MSG, string.Format(PubFileNameConstants.ESFFormat, 1), ex.Message);
             }
 
             try
             {
                 _pubFileLoadActions.LoadClassFile();
             }
-            catch (IOException ioe)
+            catch (Exception ex) when (ex is IOException || ex is ArgumentException)
             {
-                _loggerProvider.Logger.Log(PUB_LOG_MSG, string.Format(PubFileNameConstants.ECFFormat, 1), ioe.Message);
+                _loggerProvider.Logger.Log(PUB_LOG_MSG, string.Format(PubFileNameConstants.ECFFormat, 1), ex.Message);
             }
         }
 
