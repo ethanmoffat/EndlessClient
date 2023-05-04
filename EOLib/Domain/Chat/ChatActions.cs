@@ -71,11 +71,11 @@ namespace EOLib.Domain.Chat
             }
             else if (chatType == ChatType.Party && !_partyDataProvider.Members.Any())
             {
-                return (ChatResult.HideAll, String.Empty);
+                return (ChatResult.HideAll, string.Empty);
             }
             else if (chatType == ChatType.Global && _currentMapStateProvider.IsJail)
             {
-                return (ChatResult.JailProtection, String.Empty);
+                return (ChatResult.JailProtection, string.Empty);
             }
 
             chat = _chatProcessor.RemoveFirstCharacterIfNeeded(chat, chatType, targetCharacter);
