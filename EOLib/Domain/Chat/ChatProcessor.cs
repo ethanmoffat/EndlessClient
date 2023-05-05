@@ -53,36 +53,35 @@ namespace EOLib.Domain.Chat
         public string MakeDrunk(string input)
         {
             // algorithm from: https://discord.com/channels/723989119503696013/787685796055482368/945700924536553544
-            var ret = new StringBuilder();
+            var ret = new StringBuilder(input);
 
             //Pass 1:
             //If E or A: 70 % chance to insert a j
             //if U or O: 70 % chance to insert a w
             //if i(lowercase only): 40 % chance to insert a u
             //if not a space: 40 % chance to double the letter
-            foreach (var c in input)
+            for (int i = 0; i < ret.Length; i++)
             {
-                ret.Append(c);
+                var c = ret[i];
 
                 if (char.ToLower(c) == 'e' || char.ToLower(c) == 'a')
                 {
                     if (_random.Next(100) < 70)
-                        ret.Append('j');
+                        ret.Insert(i+1, 'j');
                 }
                 else if (char.ToLower(c) == 'u' || char.ToLower(c) == 'o')
                 {
                     if (_random.Next(100) < 70)
-                        ret.Append('w');
+                        ret.Insert(i+1, 'w');
                 }
                 else if (c == 'i')
                 {
                     if (_random.Next(100) < 40)
-                        ret.Append('u');
+                        ret.Insert(i+1, 'u');
                 }
-
-                if (c != ' ' && _random.Next(100) < 40)
+                else if (c != ' ' && _random.Next(100) < 40)
                 {
-                    ret.Append(c);
+                    ret.Insert(i+1, c);
                 }
             }
 
@@ -106,7 +105,8 @@ namespace EOLib.Domain.Chat
             {
                 if (ret[i] == ' ' && _random.Next(100) < 30)
                 {
-                    ret.Insert(i, "*hic*");
+                    ret.Insert(i+1, "*hic* ");
+                    i += 6;
                 }
             }
 
