@@ -52,25 +52,69 @@ namespace EOLib.Domain.Chat
 
         public string MakeDrunk(string input)
         {
-            // implementation from Phorophor::notepad (thanks Blo)
-            // https://discord.com/channels/723989119503696013/785190349026492437/791376941822246953
+            // algorithm from: https://discord.com/channels/723989119503696013/787685796055482368/945700924536553544
+            var ret = new StringBuilder(input);
 
-            // todo: make this use the authentic algorithm here: https://discord.com/channels/723989119503696013/787685796055482368/945700924536553544
-            var ret = new StringBuilder();
-
-            foreach (var c in input)
+            //Pass 1:
+            //If E or A: 70 % chance to insert a j
+            //if U or O: 70 % chance to insert a w
+            //if i(lowercase only): 40 % chance to insert a u
+            //if not a space: 40 % chance to double the letter
+            for (int i = 0; i < ret.Length; i++)
             {
-                var repeats = _random.Next(0, 8) < 6 ? 1 : 2;
-                ret.Append(c, repeats);
+                var c = ret[i];
 
-                if ((c == 'a' || c == 'e') && _random.NextDouble() / 1.0 < 0.555)
-                    ret.Append('j');
+                if (char.ToLower(c) == 'e' || char.ToLower(c) == 'a')
+                {
+                    if (_random.Next(100) < 70)
+                        ret.Insert(i+1, 'j');
+                }
+                else if (char.ToLower(c) == 'u' || char.ToLower(c) == 'o')
+                {
+                    if (_random.Next(100) < 70)
+                        ret.Insert(i+1, 'w');
+                }
+                else if (c == 'i')
+                {
+                    if (_random.Next(100) < 40)
+                        ret.Insert(i+1, 'u');
+                }
+                else if (c != ' ' && _random.Next(100) < 40)
+                {
+                    ret.Insert(i+1, c);
+                }
+            }
 
-                if ((c == 'u' || c == 'o') && _random.NextDouble() / 1.0 < 0.444)
-                    ret.Append('w');
 
-                if ((c == ' ') && _random.NextDouble() / 1.0 < 0.333)
-                    ret.Append(" *hic*");
+            //Pass 2:
+            //if vowel: 1 in 12 chance to replace with *
+            for (int i = 0; i < ret.Length; i++)
+            {
+                var c = char.ToLower(ret[i]);
+
+                if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u')
+                {
+                    if (_random.Next(12) == 6)
+                        ret[i] = '*';
+                }
+            }
+
+            //Pass 3:
+            //if space, 30 % chance to insert "hic"
+            for (int i = 0; i < ret.Length; i++)
+            {
+                if (ret[i] == ' ' && _random.Next(100) < 30)
+                {
+                    ret.Insert(i+1, "*hic* ");
+                    i += 6;
+                }
+            }
+
+            // If string length > 128: trim to 126 bytes and add ".."
+            if (ret.Length > 128)
+            {
+                ret = ret.Remove(126, ret.Length - 126);
+                ret.Append("..");
             }
 
             return ret.ToString();

@@ -6,7 +6,7 @@ namespace EndlessClient.HUD.Controls
 {
     public interface IHudControlsFactory
     {
-        void InjectChatController(IChatController chatController);
+        void InjectChatController(IChatController chatController, IMainButtonController mainButtonController);
 
         IReadOnlyDictionary<HudControlIdentifier, IGameComponent> CreateHud();
     }

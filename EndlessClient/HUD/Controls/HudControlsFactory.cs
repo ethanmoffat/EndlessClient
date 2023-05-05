@@ -67,7 +67,9 @@ namespace EndlessClient.HUD.Controls
         private readonly INewsProvider _newsProvider;
         private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
         private readonly IClickDispatcherFactory _clickDispatcherFactory;
+
         private IChatController _chatController;
+        private IMainButtonController _mainButtonController;
 
         public HudControlsFactory(IHudButtonController hudButtonController,
                                   IHudPanelFactory hudPanelFactory,
@@ -130,9 +132,11 @@ namespace EndlessClient.HUD.Controls
             _clickDispatcherFactory = clickDispatcherFactory;
         }
 
-        public void InjectChatController(IChatController chatController)
+        public void InjectChatController(IChatController chatController,
+                                         IMainButtonController mainButtonController)
         {
             _chatController = chatController;
+            _mainButtonController = mainButtonController;
         }
 
         public IReadOnlyDictionary<HudControlIdentifier, IGameComponent> CreateHud()
@@ -567,7 +571,7 @@ namespace EndlessClient.HUD.Controls
 
         private IPeriodicEmoteHandler CreatePeriodicEmoteHandler(ICharacterAnimator characterAnimator)
         {
-            return new PeriodicEmoteHandler(_endlessGameProvider, _characterActions, _userInputTimeProvider, _characterRepository, characterAnimator);
+            return new PeriodicEmoteHandler(_endlessGameProvider, _characterActions, _userInputTimeProvider, _characterRepository, characterAnimator, _statusLabelSetter, _mainButtonController);
         }
 
         private PreviousUserInputTracker CreatePreviousUserInputTracker()
