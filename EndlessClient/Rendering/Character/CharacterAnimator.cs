@@ -1,7 +1,6 @@
 ﻿using EndlessClient.GameExecution;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Spells;
-using EndlessClient.Input;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
@@ -20,9 +19,9 @@ namespace EndlessClient.Rendering.Character
 {
     public class CharacterAnimator : GameComponent, ICharacterAnimator
     {
-        public const int WALK_FRAME_TIME_MS = 125;
-        public const int ATTACK_FRAME_TIME_MS = 125;
-        public const int EMOTE_FRAME_TIME_MS = 250;
+        public const int WALK_FRAME_TIME_MS = 96;
+        public const int ATTACK_FRAME_TIME_MS = 108;
+        public const int FRAME_TIME_MS = 120;
 
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
@@ -481,7 +480,7 @@ namespace EndlessClient.Rendering.Character
         {
             _mainPlayerStartShoutTime.MatchSome(t =>
             {
-                if (t.ElapsedMilliseconds >= (_shoutSpellData.CastTime - 1) * 480 + 350)
+                if (t.ElapsedMilliseconds >= _shoutSpellData.CastTime * 480)
                 {
                     _otherPlayerStartSpellCastTimes.Add(_characterRepository.MainCharacter.ID, new RenderFrameActionTime(_characterRepository.MainCharacter.ID));
                     _characterActions.CastSpell(_shoutSpellData.ID, _spellTarget);
@@ -495,7 +494,7 @@ namespace EndlessClient.Rendering.Character
             var playersDoneCasting = new HashSet<int>();
             foreach (var pair in _otherPlayerStartSpellCastTimes.Values)
             {
-                if (pair.ActionTimer.ElapsedMilliseconds >= ATTACK_FRAME_TIME_MS)
+                if (pair.ActionTimer.ElapsedMilliseconds >= FRAME_TIME_MS)
                 {
                     GetCurrentCharacterFromRepository(pair).Match(
                         none: () => playersDoneCasting.Add(pair.UniqueID),
@@ -527,7 +526,7 @@ namespace EndlessClient.Rendering.Character
             var playersDoneEmoting = new HashSet<int>();
             foreach (var pair in _startEmoteTimes.Values)
             {
-                if (pair.ActionTimer.ElapsedMilliseconds >= EMOTE_FRAME_TIME_MS)
+                if (pair.ActionTimer.ElapsedMilliseconds >= FRAME_TIME_MS * 2)
                 {
                     GetCurrentCharacterFromRepository(pair).Match(
                         none: () => playersDoneEmoting.Add(pair.UniqueID),

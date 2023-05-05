@@ -21,6 +21,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.BitmapFonts;
+using MonoGame.Extended.Input;
 
 namespace EndlessClient.GameExecution
 {
@@ -111,6 +112,9 @@ namespace EndlessClient.GameExecution
 
             IsMouseVisible = true;
             IsFixedTimeStep = false;
+
+            TargetElapsedTime = TimeSpan.FromMilliseconds(12);
+
             _previousKeyState = Keyboard.GetState();
 
             // setting Width/Height in window size repository applies the change to disable vsync
@@ -175,17 +179,15 @@ namespace EndlessClient.GameExecution
 
         protected override void Update(GameTime gameTime)
         {
-            // Force update at 60FPS
-            // Some game components rely on ~60FPS update times. See: https://github.com/ethanmoffat/EndlessClient/issues/199
+            // Force updates to wait every 12ms
+            // Some game components rely on slower update times. 60FPS was the original, but 12ms factors nicely in 120ms "ticks"
+            // See: https://github.com/ethanmoffat/EndlessClient/issues/199
             // Using IsFixedTimeStep = true with TargetUpdateTime set to 60FPS also limits the draw rate, which is not desired
-            if ((gameTime.TotalGameTime - _lastFrameUpdate).TotalMilliseconds > 1000.0 / 60)
+            if ((gameTime.TotalGameTime - _lastFrameUpdate).TotalMilliseconds >= 12.0)
             {
-
 #if DEBUG
-                //todo: this is a debug-only mode launched with the F5 key.
-                //todo: move this to be handled by some sort of key listener once function keys are handled in-game
                 var currentKeyState = Keyboard.GetState();
-                if (_previousKeyState.IsKeyDown(Keys.F5) && currentKeyState.IsKeyUp(Keys.F5))
+                if (KeyboardExtended.GetState().WasKeyJustDown(Keys.F5))
                 {
                     _testModeLauncher.LaunchTestMode();
                 }

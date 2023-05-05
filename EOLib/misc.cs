@@ -20,8 +20,9 @@ namespace EOLib
 
     public static class DateTimeExtension
     {
-        public static int ToEOTimeStamp(this DateTime dt)
+        public static int ToEOTimeStamp(this DateTime dt, long elapsedTicks)
         {
+            dt = dt.Add(TimeSpan.FromTicks(elapsedTicks));
             return dt.Hour * 360000 + dt.Minute * 6000 + dt.Second * 100 + dt.Millisecond / 10;
         }
     }
