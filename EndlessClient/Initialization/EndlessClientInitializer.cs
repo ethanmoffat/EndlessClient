@@ -92,7 +92,7 @@ namespace EndlessClient.Initialization
                                                  _characterManagementController);
             _characterInfoPanelFactory.InjectCharacterManagementController(_characterManagementController);
             _characterInfoPanelFactory.InjectLoginController(_loginController);
-            _hudControlsFactory.InjectChatController(_chatController);
+            _hudControlsFactory.InjectChatController(_chatController, _mainButtonController);
             _paperdollDialogFactory.InjectInventoryController(_inventoryController);
         }
     }
