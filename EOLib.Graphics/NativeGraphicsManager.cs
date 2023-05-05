@@ -6,21 +6,23 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace EOLib.Graphics
 {
     [MappedType(BaseType = typeof(INativeGraphicsManager), IsSingleton = true)]
     public sealed class NativeGraphicsManager : INativeGraphicsManager
     {
-        private readonly ConcurrentDictionary<LibraryGraphicPair, Texture2D> _cache;
+        private readonly ConcurrentDictionary<GFXTypes, ConcurrentDictionary<int, Texture2D>> _cache;
 
         private readonly INativeGraphicsLoader _gfxLoader;
         private readonly IGraphicsDeviceProvider _graphicsDeviceProvider;
 
         public NativeGraphicsManager(INativeGraphicsLoader gfxLoader, IGraphicsDeviceProvider graphicsDeviceProvider)
         {
-            _cache = new ConcurrentDictionary<LibraryGraphicPair, Texture2D>();
+            _cache = new ConcurrentDictionary<GFXTypes, ConcurrentDictionary<int, Texture2D>>();
             _gfxLoader = gfxLoader;
             _graphicsDeviceProvider = graphicsDeviceProvider;
         }
@@ -29,18 +31,16 @@ namespace EOLib.Graphics
         {
             Texture2D ret;
 
-            var key = new LibraryGraphicPair((int)file, 100 + resourceVal);
-
-            if (_cache.ContainsKey(key))
+            if (_cache.ContainsKey(file) && _cache[file].ContainsKey(resourceVal))
             {
                 if (reloadFromFile)
                 {
-                    _cache[key]?.Dispose();
-                    _cache.TryRemove(key, out var _);
+                    _cache[file][resourceVal]?.Dispose();
+                    _cache[file].Remove(resourceVal, out _);
                 }
                 else
                 {
-                    return _cache[key];
+                    return _cache[file][resourceVal];
                 }
             }
 
@@ -61,7 +61,12 @@ namespace EOLib.Graphics
                 }
             }
 
-            _cache.TryAdd(key, ret);
+            if (_cache.ContainsKey(file) ||
+                _cache.TryAdd(file, new ConcurrentDictionary<int, Texture2D>()))
+            {
+                _cache[file].TryAdd(resourceVal, ret);
+            }
+
             return ret;
         }
 
@@ -96,8 +101,9 @@ namespace EOLib.Graphics
 
         public void Dispose()
         {
-            foreach (var text in _cache.Values)
+            foreach (var text in _cache.SelectMany(x => x.Value.Values))
                 text.Dispose();
+
             _cache.Clear();
         }
     }
