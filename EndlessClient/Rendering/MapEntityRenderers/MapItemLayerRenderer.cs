@@ -32,14 +32,15 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         protected override bool ElementExistsAt(int row, int col)
         {
-            return _currentMapStateProvider.MapItems.Any(item => item.X == col && item.Y == row);
+            return _currentMapStateProvider.MapItems.Any(IsItemAt);
+            bool IsItemAt(MapItem item) => item.X == col && item.Y == row;
         }
 
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
         {
             var items = _currentMapStateProvider
                 .MapItems
-                .Where(item => item.X == col && item.Y == row)
+                .Where(IsItemAt)
                 .OrderBy(item => item.UniqueID);
 
             foreach (var item in items)
@@ -53,6 +54,8 @@ namespace EndlessClient.Rendering.MapEntityRenderers
                                              itemPos.Y - (int) Math.Round(itemTexture.Height/2.0)) + additionalOffset,
                                  Color.FromNonPremultiplied(255, 255, 255, alpha));
             }
+
+            bool IsItemAt(MapItem item) => item.X == col && item.Y == row;
         }
 
         protected override Vector2 GetDrawCoordinatesFromGridUnits(int gridX, int gridY)

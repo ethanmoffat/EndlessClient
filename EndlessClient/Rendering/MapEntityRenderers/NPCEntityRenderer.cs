@@ -29,14 +29,14 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         protected override bool ElementExistsAt(int row, int col)
         {
-            return _npcRendererProvider.NPCRenderers.Values
-                .Count(n => IsNpcAt(n.NPC, row, col)) > 0;
+            return _npcRendererProvider.NPCRenderers.Values.Any(IsNpcAt);
+            bool IsNpcAt(INPCRenderer rend) => NPCEntityRenderer.IsNpcAt(rend.NPC, row, col);
         }
 
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
         {
             var indicesToRender = _npcRendererProvider.NPCRenderers.Values
-                .Where(n => IsNpcAt(n.NPC, row, col))
+                .Where(IsNpcAt)
                 .Select(n => n.NPC.Index);
 
             foreach (var index in indicesToRender)
@@ -49,6 +49,8 @@ namespace EndlessClient.Rendering.MapEntityRenderers
                 var renderer = _npcRendererProvider.NPCRenderers[index];
                 renderer.DrawToSpriteBatch(spriteBatch);
             }
+
+            bool IsNpcAt(INPCRenderer rend) => NPCEntityRenderer.IsNpcAt(rend.NPC, row, col);
         }
 
         private static bool IsNpcAt(EOLib.Domain.NPC.NPC npc, int row, int col)
