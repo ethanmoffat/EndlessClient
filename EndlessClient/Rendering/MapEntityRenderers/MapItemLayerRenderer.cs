@@ -45,8 +45,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
             foreach (var item in items)
             {
-                //note: col is offset by 1. I'm not sure why this is needed. Maybe I did something wrong when translating the packets...
-                var itemPos = GetDrawCoordinatesFromGridUnits(col + 1, row);
+                var itemPos = GetDrawCoordinatesFromGridUnits(col, row);
                 var itemTexture = _mapItemGraphicProvider.GetItemGraphic(item.ItemID, item.Amount);
 
                 spriteBatch.Draw(itemTexture,
@@ -56,11 +55,6 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             }
 
             bool IsItemAt(MapItem item) => item.X == col && item.Y == row;
-        }
-
-        protected override Vector2 GetDrawCoordinatesFromGridUnits(int gridX, int gridY)
-        {
-            return _gridDrawCoordinateCalculator.CalculateBaseLayerDrawCoordinatesFromGridUnits(gridX, gridY);
         }
     }
 }
