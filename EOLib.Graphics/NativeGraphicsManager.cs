@@ -1,13 +1,10 @@
 ﻿using AutomaticTypeMapper;
+using CommunityToolkit.HighPerformance;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Drawing.Processing;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace EOLib.Graphics
@@ -29,8 +26,6 @@ namespace EOLib.Graphics
 
         public Texture2D TextureFromResource(GFXTypes file, int resourceVal, bool transparent = false, bool reloadFromFile = false)
         {
-            Texture2D ret;
-
             if (_cache.ContainsKey(file) && _cache[file].ContainsKey(resourceVal))
             {
                 if (reloadFromFile)
@@ -44,23 +39,7 @@ namespace EOLib.Graphics
                 }
             }
 
-            using (var i = BitmapFromResource(file, resourceVal, transparent))
-            {
-                if (!i.DangerousTryGetSinglePixelMemory(out var mem))
-                {
-                    using (var ms = new MemoryStream())
-                    {
-                        i.SaveAsPng(ms);
-                        ret = Texture2D.FromStream(_graphicsDeviceProvider.GraphicsDevice, ms);
-                    }
-                }
-                else
-                {
-                    ret = new Texture2D(_graphicsDeviceProvider.GraphicsDevice, i.Width, i.Height);
-                    ret.SetData(mem.ToArray());
-                }
-            }
-
+            var ret = LoadTexture(file, resourceVal, transparent);
             if (_cache.ContainsKey(file) ||
                 _cache.TryAdd(file, new ConcurrentDictionary<int, Texture2D>()))
             {
@@ -70,33 +49,49 @@ namespace EOLib.Graphics
             return ret;
         }
 
-        private Image<Rgba32> BitmapFromResource(GFXTypes file, int resourceVal, bool transparent)
+        private Texture2D LoadTexture(GFXTypes file, int resourceVal, bool transparent)
         {
-            var ret = (Image<Rgba32>)_gfxLoader.LoadGFX(file, resourceVal);
+            var rawData = _gfxLoader.LoadGFX(file, resourceVal);
+
+            if (rawData.IsEmpty)
+                return new Texture2D(_graphicsDeviceProvider.GraphicsDevice, 1, 1);
+
+            Action<byte[]> processAction = null;
 
             if (transparent)
             {
-                // TODO: 0x000000 is supposed to clip hair below it
-                //       need to figure out how to clip this
-                // if (file != GFXTypes.FemaleHat && file != GFXTypes.MaleHat)
-                CrossPlatformMakeTransparent(ret, Color.Black);
+                // for all gfx: 0x000000 is transparent
+                processAction = data => CrossPlatformMakeTransparent(data, Color.Black);
 
                 // for hats: 0x080000 is transparent
                 if (file == GFXTypes.FemaleHat || file == GFXTypes.MaleHat)
                 {
-                    CrossPlatformMakeTransparent(ret, Color.FromRgba(0x08, 0x00, 0x00, 0xFF));
-                    CrossPlatformMakeTransparent(ret, Color.FromRgba(0x00, 0x08, 0x00, 0xFF));
-                    CrossPlatformMakeTransparent(ret, Color.FromRgba(0x00, 0x00, 0x08, 0xFF));
+                    processAction = data => CrossPlatformMakeTransparent(data,
+                        // TODO: 0x000000 is supposed to clip hair below it
+                        new Color(0xff000000),
+                        new Color(0xff080000),
+                        new Color(0xff000800),
+                        new Color(0xff000008));
                 }
             }
+
+            using var ms = rawData.AsStream();
+            var ret = Texture2D.FromStream(_graphicsDeviceProvider.GraphicsDevice, ms, processAction);
 
             return ret;
         }
 
-        private static void CrossPlatformMakeTransparent(Image bmp, Color transparentColor)
+        private static unsafe void CrossPlatformMakeTransparent(byte[] data, params Color[] transparentColors)
         {
-            var brush = new RecolorBrush(transparentColor, Color.Transparent, 0.0001f);
-            bmp.Mutate(x => x.Clear(brush));
+            fixed (byte* ptr = data)
+            {
+                for (int i = 0; i < data.Length; i += 4)
+                {
+                    uint* addr = (uint*)(ptr + i);
+                    if (transparentColors.Contains(new Color(*addr)))
+                        *addr = 0;
+                }
+            }
         }
 
         public void Dispose()

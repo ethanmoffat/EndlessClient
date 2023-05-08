@@ -1,10 +1,9 @@
-﻿using PELoaderLib;
-using SixLabors.ImageSharp;
+﻿using System;
 
 namespace EOLib.Graphics
 {
     public interface INativeGraphicsLoader
     {
-        IImage LoadGFX(GFXTypes file, int resourceValue);
+        ReadOnlyMemory<byte> LoadGFX(GFXTypes file, int resourceValue);
     }
 }
