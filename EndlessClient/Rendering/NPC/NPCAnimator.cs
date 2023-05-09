@@ -12,7 +12,7 @@ namespace EndlessClient.Rendering.NPC
 {
     public class NPCAnimator : GameComponent, INPCAnimator
     {
-        private const int TICKS_PER_ACTION_FRAME = 7; // 7 x10ms ticks per action frame
+        private const int TICKS_PER_ACTION_FRAME = 8; // 8 x10ms ticks per action frame
 
         private readonly List<RenderFrameActionTime> _npcStartWalkingTimes;
         private readonly List<RenderFrameActionTime> _npcStartAttackingTimes;
