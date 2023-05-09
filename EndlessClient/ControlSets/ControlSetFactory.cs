@@ -29,7 +29,6 @@ namespace EndlessClient.ControlSets
         private readonly IUserInputRepository _userInputRepository;
         private readonly IActiveDialogRepository _activeDialogRepository;
         private readonly IClientWindowSizeRepository _clientWindowSizeRepository;
-        private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
 
         private IMainButtonController _mainButtonController;
         private IAccountController _accountController;
@@ -46,8 +45,7 @@ namespace EndlessClient.ControlSets
                                  IEndlessGameProvider endlessGameProvider,
                                  IUserInputRepository userInputRepository,
                                  IActiveDialogRepository activeDialogRepository,
-                                 IClientWindowSizeRepository clientWindowSizeRepository,
-                                 IFixedTimeStepRepository fixedTimeStepRepository)
+                                 IClientWindowSizeRepository clientWindowSizeRepository)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _messageBoxFactory = messageBoxFactory;
@@ -60,7 +58,6 @@ namespace EndlessClient.ControlSets
             _userInputRepository = userInputRepository;
             _activeDialogRepository = activeDialogRepository;
             _clientWindowSizeRepository = clientWindowSizeRepository;
-            _fixedTimeStepRepository = fixedTimeStepRepository;
         }
 
         public IControlSet CreateControlsForState(GameStates newState, IControlSet currentControlSet)
@@ -105,7 +102,6 @@ namespace EndlessClient.ControlSets
                         _accountController,
                         _endlessGameProvider,
                         _userInputRepository,
-                        _fixedTimeStepRepository,
                         _clientWindowSizeRepository);
                 case GameStates.PlayingTheGame:
                     return new InGameControlSet(_mainButtonController, _messageBoxFactory, _hudControlsFactory, _activeDialogRepository, _clientWindowSizeRepository);

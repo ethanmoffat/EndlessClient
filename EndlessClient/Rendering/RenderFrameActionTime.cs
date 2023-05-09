@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 
 namespace EndlessClient.Rendering
 {
@@ -9,20 +8,20 @@ namespace EndlessClient.Rendering
 
         public int UniqueID { get; private set; }
 
-        public Stopwatch ActionTimer { get; private set; }
+        public ulong ActionTick { get; private set; }
 
         public bool Replay { get; private set; }
 
-        public RenderFrameActionTime(int uniqueID, Action sfxCallback = null)
+        public RenderFrameActionTime(int uniqueID, ulong ticks, Action sfxCallback = null)
         {
             UniqueID = uniqueID;
             _sfxCallback = sfxCallback;
-            UpdateActionStartTime();
+            UpdateActionStartTime(ticks);
         }
 
-        public void UpdateActionStartTime()
+        public void UpdateActionStartTime(ulong ticks)
         {
-            ActionTimer = Stopwatch.StartNew();
+            ActionTick = ticks;
         }
 
         public void SetReplay(Action sfxCallback = null)

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Content;
 using EndlessClient.ControlSets;
@@ -22,6 +17,11 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.BitmapFonts;
 using MonoGame.Extended.Input;
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace EndlessClient.GameExecution
 {
@@ -42,6 +42,7 @@ namespace EndlessClient.GameExecution
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IMfxPlayer _mfxPlayer;
         private readonly IXnaControlSoundMapper _soundMapper;
+        private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
         private GraphicsDeviceManager _graphicsDeviceManager;
 
         private KeyboardState _previousKeyState;
@@ -67,7 +68,8 @@ namespace EndlessClient.GameExecution
                            IShaderRepository shaderRepository,
                            IConfigurationProvider configurationProvider,
                            IMfxPlayer mfxPlayer,
-                           IXnaControlSoundMapper soundMapper)
+                           IXnaControlSoundMapper soundMapper,
+                           IFixedTimeStepRepository fixedTimeStepRepository)
         {
             _windowSizeRepository = windowSizeRepository;
             _contentProvider = contentProvider;
@@ -83,6 +85,7 @@ namespace EndlessClient.GameExecution
             _configurationProvider = configurationProvider;
             _mfxPlayer = mfxPlayer;
             _soundMapper = soundMapper;
+            _fixedTimeStepRepository = fixedTimeStepRepository;
             _graphicsDeviceManager = new GraphicsDeviceManager(this)
             {
                 PreferredBackBufferWidth = ClientWindowSizeRepository.DEFAULT_BACKBUFFER_WIDTH,
@@ -183,7 +186,7 @@ namespace EndlessClient.GameExecution
             // Some game components rely on slower update times. 60FPS was the original, but 12ms factors nicely in 120ms "ticks"
             // See: https://github.com/ethanmoffat/EndlessClient/issues/199
             // Using IsFixedTimeStep = true with TargetUpdateTime set to 60FPS also limits the draw rate, which is not desired
-            if ((gameTime.TotalGameTime - _lastFrameUpdate).TotalMilliseconds >= 12.0)
+            if ((gameTime.TotalGameTime - _lastFrameUpdate).TotalMilliseconds >= FixedTimeStepRepository.TICK_TIME_MS)
             {
 #if DEBUG
                 var currentKeyState = Keyboard.GetState();
@@ -194,6 +197,7 @@ namespace EndlessClient.GameExecution
 
                 _previousKeyState = currentKeyState;
 #endif
+                _fixedTimeStepRepository.Tick();
 
                 try
                 {

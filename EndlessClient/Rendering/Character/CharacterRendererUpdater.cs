@@ -1,6 +1,7 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Factories;
+using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
@@ -20,18 +21,21 @@ namespace EndlessClient.Rendering.Character
         private readonly ICharacterRendererFactory _characterRendererFactory;
         private readonly ICharacterRendererRepository _characterRendererRepository;
         private readonly ICharacterStateCache _characterStateCache;
+        private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
 
         public CharacterRendererUpdater(ICharacterProvider characterProvider,
                                         ICurrentMapStateRepository currentMapStateRepository,
                                         ICharacterRendererFactory characterRendererFactory,
                                         ICharacterRendererRepository characterRendererRepository,
-                                        ICharacterStateCache characterStateCache)
+                                        ICharacterStateCache characterStateCache,
+                                        IFixedTimeStepRepository fixedTimeStepRepository)
         {
             _characterProvider = characterProvider;
             _currentMapStateRepository = currentMapStateRepository;
             _characterRendererFactory = characterRendererFactory;
             _characterRendererRepository = characterRendererRepository;
             _characterStateCache = characterStateCache;
+            _fixedTimeStepRepository = fixedTimeStepRepository;
         }
 
         public void UpdateCharacters(GameTime gameTime)
@@ -151,7 +155,7 @@ namespace EndlessClient.Rendering.Character
                         none: () => _characterStateCache.AddDeathStartTime(character.ID),
                         some: actionTime =>
                         {
-                            if (actionTime.ActionTimer.ElapsedMilliseconds >= 2)
+                            if ((_fixedTimeStepRepository.TickCount - actionTime.ActionTick) >= 1) // prior value was 2ms; ticks are 12ms
                             {
                                 _characterStateCache.RemoveDeathStartTime(character.ID);
                                 _characterStateCache.RemoveCharacterState(character.ID);

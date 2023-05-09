@@ -19,9 +19,9 @@ namespace EndlessClient.Rendering.Character
 {
     public class CharacterAnimator : GameComponent, ICharacterAnimator
     {
-        public const int WALK_FRAME_TIME_MS = 96;
-        public const int ATTACK_FRAME_TIME_MS = 108;
-        public const int FRAME_TIME_MS = 120;
+        public const int TICKS_PER_WALK_FRAME = 9; // 9 x10ms ticks per walk frame
+        public const int TICKS_PER_FRAME = 12; // 12 x10ms ticks per attack frame
+        public const int TICKS_PER_CAST_TIME = 48;
 
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
@@ -40,7 +40,7 @@ namespace EndlessClient.Rendering.Character
         private readonly Dictionary<int, RenderFrameActionTime> _otherPlayerStartSpellCastTimes;
         private readonly Dictionary<int, RenderFrameActionTime> _startEmoteTimes;
 
-        private Option<Stopwatch> _mainPlayerStartShoutTime;
+        private Option<ulong> _mainPlayerStartShoutTick;
         private ESFRecord _shoutSpellData;
         private ISpellTargetable _spellTarget;
 
@@ -79,17 +79,14 @@ namespace EndlessClient.Rendering.Character
 
         public override void Update(GameTime gameTime)
         {
-            if (_fixedTimeStepRepository.IsUpdateFrame)
+            if (_fixedTimeStepRepository.IsWalkUpdateFrame)
             {
-                if (_fixedTimeStepRepository.IsWalkUpdateFrame)
-                {
-                    AnimateCharacterWalking();
-                }
-
-                AnimateCharacterAttacking();
-                AnimateCharacterSpells();
-                AnimateCharacterEmotes();
+                AnimateCharacterWalking();
             }
+
+            AnimateCharacterAttacking();
+            AnimateCharacterSpells();
+            AnimateCharacterEmotes();
 
             base.Update(gameTime);
         }
@@ -143,7 +140,7 @@ namespace EndlessClient.Rendering.Character
                     return;
                 }
 
-                var startWalkingTime = new RenderFrameActionTime(_characterRepository.MainCharacter.ID, sfxCallback);
+                var startWalkingTime = new RenderFrameActionTime(_characterRepository.MainCharacter.ID, _fixedTimeStepRepository.TickCount, sfxCallback);
                 _otherPlayerStartWalkingTimes.Add(_characterRepository.MainCharacter.ID, startWalkingTime);
 
                 _characterActions.Walk();
@@ -164,16 +161,16 @@ namespace EndlessClient.Rendering.Character
                 return;
             }
 
-            var startAttackingTime = new RenderFrameActionTime(_characterRepository.MainCharacter.ID, sfxCallback);
+            var startAttackingTime = new RenderFrameActionTime(_characterRepository.MainCharacter.ID, _fixedTimeStepRepository.TickCount, sfxCallback);
             _otherPlayerStartAttackingTimes.Add(_characterRepository.MainCharacter.ID, startAttackingTime);
         }
 
         public bool MainCharacterShoutSpellPrep(ESFRecord spellData, ISpellTargetable target)
         {
-            if (_mainPlayerStartShoutTime.HasValue)
+            if (_mainPlayerStartShoutTick.HasValue)
                 return false;
 
-            _mainPlayerStartShoutTime = Option.Some(Stopwatch.StartNew());
+            _mainPlayerStartShoutTick = Option.Some(_fixedTimeStepRepository.TickCount);
             _shoutSpellData = spellData;
             _spellTarget = target;
             return true;
@@ -181,7 +178,7 @@ namespace EndlessClient.Rendering.Character
 
         public void MainCharacterCancelSpellPrep()
         {
-            _mainPlayerStartShoutTime = Option.None<Stopwatch>();
+            _mainPlayerStartShoutTick = Option.None<ulong>();
             _shoutSpellData = null;
             _spellTarget = null;
 
@@ -199,7 +196,7 @@ namespace EndlessClient.Rendering.Character
                 return;
             }
 
-            var startWalkingTimeAndID = new RenderFrameActionTime(characterID);
+            var startWalkingTimeAndID = new RenderFrameActionTime(characterID, _fixedTimeStepRepository.TickCount);
             _otherPlayerStartWalkingTimes.Add(characterID, startWalkingTimeAndID);
         }
 
@@ -211,7 +208,7 @@ namespace EndlessClient.Rendering.Character
                 return;
             }
 
-            var startAttackingTime = new RenderFrameActionTime(characterID, sfxCallback);
+            var startAttackingTime = new RenderFrameActionTime(characterID, _fixedTimeStepRepository.TickCount, sfxCallback);
             _otherPlayerStartAttackingTimes.Add(characterID, startAttackingTime);
         }
 
@@ -227,7 +224,7 @@ namespace EndlessClient.Rendering.Character
                 _otherPlayerStartSpellCastTimes.Remove(characterID);
             }
 
-            var startAttackingTimeAndID = new RenderFrameActionTime(characterID);
+            var startAttackingTimeAndID = new RenderFrameActionTime(characterID, _fixedTimeStepRepository.TickCount);
             _otherPlayerStartSpellCastTimes.Add(characterID, startAttackingTimeAndID);
         }
 
@@ -239,7 +236,7 @@ namespace EndlessClient.Rendering.Character
                 _startEmoteTimes.ContainsKey(characterID))
                 return false;
 
-            var startEmoteTime = new RenderFrameActionTime(characterID);
+            var startEmoteTime = new RenderFrameActionTime(characterID, _fixedTimeStepRepository.TickCount);
             if (characterID == _characterRepository.MainCharacter.ID)
             {
                 var rp = _characterRepository.MainCharacter.RenderProperties.WithEmote(whichEmote);
@@ -285,7 +282,7 @@ namespace EndlessClient.Rendering.Character
             {
                 var sendWalk = false;
 
-                if (pair.ActionTimer.ElapsedMilliseconds >= WALK_FRAME_TIME_MS)
+                if ((_fixedTimeStepRepository.TickCount - pair.ActionTick) >= TICKS_PER_WALK_FRAME)
                 {
                     GetCurrentCharacterFromRepository(pair).Match(
                         none: () => playersDoneWalking.Add(pair.UniqueID),
@@ -294,7 +291,7 @@ namespace EndlessClient.Rendering.Character
                             var renderProperties = currentCharacter.RenderProperties;
                             var nextFrameRenderProperties = AnimateOneWalkFrame(renderProperties);
 
-                            pair.UpdateActionStartTime();
+                            pair.UpdateActionStartTime(_fixedTimeStepRepository.TickCount);
                             if (nextFrameRenderProperties.IsActing(CharacterActionState.Standing))
                             {
                                 var isMainCharacter = currentCharacter == _characterRepository.MainCharacter;
@@ -435,7 +432,7 @@ namespace EndlessClient.Rendering.Character
             var playersDoneAttacking = new HashSet<int>();
             foreach (var pair in _otherPlayerStartAttackingTimes.Values)
             {
-                if (pair.ActionTimer.ElapsedMilliseconds >= ATTACK_FRAME_TIME_MS)
+                if ((_fixedTimeStepRepository.TickCount - pair.ActionTick) >= TICKS_PER_FRAME)
                 {
                     GetCurrentCharacterFromRepository(pair).Match(
                         none: () => playersDoneAttacking.Add(pair.UniqueID),
@@ -447,7 +444,7 @@ namespace EndlessClient.Rendering.Character
                             if (nextFrameRenderProperties.ActualAttackFrame == 2)
                                 pair.SoundEffect();
 
-                            pair.UpdateActionStartTime();
+                            pair.UpdateActionStartTime(_fixedTimeStepRepository.TickCount);
                             if (nextFrameRenderProperties.IsActing(CharacterActionState.Standing))
                             {
                                 if (pair.Replay)
@@ -478,11 +475,11 @@ namespace EndlessClient.Rendering.Character
 
         private void AnimateCharacterSpells()
         {
-            _mainPlayerStartShoutTime.MatchSome(t =>
+            _mainPlayerStartShoutTick.MatchSome(startTick =>
             {
-                if (t.ElapsedMilliseconds >= _shoutSpellData.CastTime * 480)
+                if (_fixedTimeStepRepository.TickCount - startTick >= (ulong)(_shoutSpellData.CastTime * TICKS_PER_CAST_TIME))
                 {
-                    _otherPlayerStartSpellCastTimes.Add(_characterRepository.MainCharacter.ID, new RenderFrameActionTime(_characterRepository.MainCharacter.ID));
+                    _otherPlayerStartSpellCastTimes.Add(_characterRepository.MainCharacter.ID, new RenderFrameActionTime(_characterRepository.MainCharacter.ID, _fixedTimeStepRepository.TickCount));
                     _characterActions.CastSpell(_shoutSpellData.ID, _spellTarget);
                     MainCharacterCancelSpellPrep();
 
@@ -494,7 +491,7 @@ namespace EndlessClient.Rendering.Character
             var playersDoneCasting = new HashSet<int>();
             foreach (var pair in _otherPlayerStartSpellCastTimes.Values)
             {
-                if (pair.ActionTimer.ElapsedMilliseconds >= FRAME_TIME_MS)
+                if ((_fixedTimeStepRepository.TickCount - pair.ActionTick) >= TICKS_PER_FRAME)
                 {
                     GetCurrentCharacterFromRepository(pair).Match(
                         none: () => playersDoneCasting.Add(pair.UniqueID),
@@ -503,7 +500,7 @@ namespace EndlessClient.Rendering.Character
                             var renderProperties = currentCharacter.RenderProperties;
                             var nextFrameRenderProperties = renderProperties.WithNextSpellCastFrame();
 
-                            pair.UpdateActionStartTime();
+                            pair.UpdateActionStartTime(_fixedTimeStepRepository.TickCount);
                             if (nextFrameRenderProperties.IsActing(CharacterActionState.Standing))
                                 playersDoneCasting.Add(pair.UniqueID);
 
@@ -526,7 +523,7 @@ namespace EndlessClient.Rendering.Character
             var playersDoneEmoting = new HashSet<int>();
             foreach (var pair in _startEmoteTimes.Values)
             {
-                if (pair.ActionTimer.ElapsedMilliseconds >= FRAME_TIME_MS * 2)
+                if ((pair.ActionTick - _fixedTimeStepRepository.TickCount) >= TICKS_PER_FRAME * 2)
                 {
                     GetCurrentCharacterFromRepository(pair).Match(
                         none: () => playersDoneEmoting.Add(pair.UniqueID),
@@ -535,7 +532,7 @@ namespace EndlessClient.Rendering.Character
                             var renderProperties = currentCharacter.RenderProperties;
                             var nextFrameRenderProperties = renderProperties.WithNextEmoteFrame();
 
-                            pair.UpdateActionStartTime();
+                            pair.UpdateActionStartTime(_fixedTimeStepRepository.TickCount);
                             if (nextFrameRenderProperties.IsActing(CharacterActionState.Standing, CharacterActionState.Sitting))
                                 playersDoneEmoting.Add(pair.UniqueID);
 

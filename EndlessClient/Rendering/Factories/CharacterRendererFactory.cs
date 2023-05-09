@@ -25,14 +25,12 @@ namespace EndlessClient.Rendering.Factories
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
         private readonly ICharacterPropertyRendererBuilder _characterPropertyRendererBuilder;
         private readonly ICharacterTextures _characterTextures;
-        private readonly ICharacterSpriteCalculator _characterSpriteCalculator;
         private readonly IGameStateProvider _gameStateProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IUserInputProvider _userInputProvider;
         private readonly IEffectRendererFactory _effectRendererFactory;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IClientWindowSizeRepository _clientWindowSizeRepository;
-        private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
 
         public CharacterRendererFactory(IEndlessGameProvider gameProvider,
                                         IRenderTargetFactory renderTargetFactory,
@@ -42,14 +40,12 @@ namespace EndlessClient.Rendering.Factories
                                         IRenderOffsetCalculator renderOffsetCalculator,
                                         ICharacterPropertyRendererBuilder characterPropertyRendererBuilder,
                                         ICharacterTextures characterTextures,
-                                        ICharacterSpriteCalculator characterSpriteCalculator,
                                         IGameStateProvider gameStateProvider,
                                         ICurrentMapProvider currentMapProvider,
                                         IUserInputProvider userInputProvider,
                                         IEffectRendererFactory effectRendererFactory,
                                         ISfxPlayer sfxPlayer,
-                                        IClientWindowSizeRepository clientWindowSizeRepository,
-                                        IFixedTimeStepRepository fixedTimeStepRepository)
+                                        IClientWindowSizeRepository clientWindowSizeRepository)
         {
             _gameProvider = gameProvider;
             _renderTargetFactory = renderTargetFactory;
@@ -59,14 +55,12 @@ namespace EndlessClient.Rendering.Factories
             _renderOffsetCalculator = renderOffsetCalculator;
             _characterPropertyRendererBuilder = characterPropertyRendererBuilder;
             _characterTextures = characterTextures;
-            _characterSpriteCalculator = characterSpriteCalculator;
             _gameStateProvider = gameStateProvider;
             _currentMapProvider = currentMapProvider;
             _userInputProvider = userInputProvider;
             _effectRendererFactory = effectRendererFactory;
             _sfxPlayer = sfxPlayer;
             _clientWindowSizeRepository = clientWindowSizeRepository;
-            _fixedTimeStepRepository = fixedTimeStepRepository;
         }
 
         public ICharacterRenderer CreateCharacterRenderer(EOLib.Domain.Character.Character character)
@@ -80,15 +74,13 @@ namespace EndlessClient.Rendering.Factories
                 _renderOffsetCalculator,
                 _characterPropertyRendererBuilder,
                 _characterTextures,
-                _characterSpriteCalculator,
                 character,
                 _gameStateProvider,
                 _currentMapProvider,
                 _userInputProvider,
                 _effectRendererFactory,
                 _sfxPlayer,
-                _clientWindowSizeRepository,
-                _fixedTimeStepRepository);
+                _clientWindowSizeRepository);
         }
     }
 }
