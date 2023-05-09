@@ -116,7 +116,7 @@ namespace EndlessClient.GameExecution
             IsMouseVisible = true;
             IsFixedTimeStep = false;
 
-            TargetElapsedTime = TimeSpan.FromMilliseconds(12);
+            TargetElapsedTime = TimeSpan.FromMilliseconds(FixedTimeStepRepository.TICK_TIME_MS);
 
             _previousKeyState = Keyboard.GetState();
 

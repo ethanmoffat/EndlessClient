@@ -1,7 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-
-namespace EOLib
+﻿namespace EOLib
 {
     public static class ArrayExtension
     {
@@ -16,15 +13,6 @@ namespace EOLib
                 ret[i - offset] = arr[i];
 
             return ret;
-        }
-    }
-
-    public static class DateTimeExtension
-    {
-        public static int ToEOTimeStamp(this Stopwatch sw)
-        {
-            var elapsedHundreths = Math.Round(sw.ElapsedTicks / (Stopwatch.Frequency / 100.0));
-            return (int)elapsedHundreths;
         }
     }
 
