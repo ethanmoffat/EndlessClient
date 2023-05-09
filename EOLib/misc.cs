@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace EOLib
 {
@@ -20,10 +21,10 @@ namespace EOLib
 
     public static class DateTimeExtension
     {
-        public static int ToEOTimeStamp(this DateTime dt, long elapsedTicks)
+        public static int ToEOTimeStamp(this Stopwatch sw)
         {
-            dt = dt.Add(TimeSpan.FromTicks(elapsedTicks));
-            return dt.Hour * 360000 + dt.Minute * 6000 + dt.Second * 100 + dt.Millisecond / 10;
+            var elapsedHundreths = Math.Round(sw.ElapsedTicks / (Stopwatch.Frequency / 100.0));
+            return (int)elapsedHundreths;
         }
     }
 
