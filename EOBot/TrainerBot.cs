@@ -6,7 +6,6 @@ using EOLib.Domain.Extensions;
 using EOLib.Domain.Item;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
-using EOLib.Domain.NPC;
 using EOLib.IO;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
@@ -23,8 +22,8 @@ namespace EOBot
     internal class TrainerBot : BotBase
     {
         private const int CONSECUTIVE_ATTACK_COUNT = 150;
-        private const int ATTACK_BACKOFF_MS = 500;
-        private const int WALK_BACKOFF_MS = 400;
+        private const int ATTACK_BACKOFF_MS = 600;
+        private const int WALK_BACKOFF_MS = 480;
         private const int FACE_BACKOFF_MS = 120;
 
         private static readonly int[] JunkItemIds = new[]
@@ -44,6 +43,7 @@ namespace EOBot
         private IItemActions _itemActions;
 
         private ICharacterRepository _characterRepository;
+        private IFixedTimeStepRepository _fixedTimeStepRepository;
 
         private IPubFile<EIFRecord> _itemData;
         private IPubFile<ENFRecord> _npcData;
@@ -96,6 +96,8 @@ namespace EOBot
 
             _chatProvider = c.Resolve<IChatProvider>();
             _cachedChat = new HashSet<ChatData>();
+
+            _fixedTimeStepRepository = c.Resolve<IFixedTimeStepRepository>();
 
             var healItems = new List<InventoryItem>();
             var healSpells = new List<InventorySpell>();
@@ -249,7 +251,8 @@ namespace EOBot
                     }
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(1.0 / 8.0));
+                await Task.Delay(TimeSpan.FromMilliseconds(120));
+                _fixedTimeStepRepository.Tick(12);
             }
         }
 
@@ -258,6 +261,7 @@ namespace EOBot
             cellState.NPC.MatchSome(npc => ConsoleHelper.WriteMessage(ConsoleHelper.Type.Attack, $"{npc.Index,7} - {_npcData.Single(x => x.ID == npc.ID).Name}"));
             await TrySend(_characterActions.Attack);
             await Task.Delay(TimeSpan.FromMilliseconds(ATTACK_BACKOFF_MS));
+            _fixedTimeStepRepository.Tick(ATTACK_BACKOFF_MS / 10);
         }
 
         private async Task Walk()
@@ -266,6 +270,7 @@ namespace EOBot
             ConsoleHelper.WriteMessage(ConsoleHelper.Type.Walk, $"{renderProps.GetDestinationX(),3},{renderProps.GetDestinationY(),3}");
             await TrySend(_characterActions.Walk);
             await Task.Delay(TimeSpan.FromMilliseconds(WALK_BACKOFF_MS));
+            _fixedTimeStepRepository.Tick(WALK_BACKOFF_MS / 10);
         }
 
         private async Task Face(EODirection direction)
@@ -279,6 +284,7 @@ namespace EOBot
                 .WithRenderProperties(_characterRepository.MainCharacter.RenderProperties.WithDirection(direction));
 
             await Task.Delay(TimeSpan.FromMilliseconds(FACE_BACKOFF_MS));
+            _fixedTimeStepRepository.Tick(FACE_BACKOFF_MS / 10);
         }
 
         private async Task FaceCoordinateIfNeeded(MapCoordinate originalCoord, MapCoordinate targetCoord)
@@ -307,6 +313,7 @@ namespace EOBot
                 if (JunkItemIds.Contains(item.ItemID))
                 {
                     await Task.Delay(TimeSpan.FromSeconds(1));
+                    _fixedTimeStepRepository.Tick(100);
                     await JunkItem(item);
                 }
             }
@@ -324,6 +331,7 @@ namespace EOBot
                     ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"Ignoring item {itemName} x{item.Amount} due to pickup error {pickupResult}", ConsoleColor.DarkYellow);
             });
             await Task.Delay(TimeSpan.FromMilliseconds(ATTACK_BACKOFF_MS));
+            _fixedTimeStepRepository.Tick(ATTACK_BACKOFF_MS / 10);
         }
 
         private async Task JunkItem(MapItem item)
@@ -331,6 +339,7 @@ namespace EOBot
             ConsoleHelper.WriteMessage(ConsoleHelper.Type.JunkItem, $"{item.Amount,7} - {_itemData.Single(x => x.ID == item.ItemID).Name}");
             await TrySend(() => _itemActions.JunkItem(item.ItemID, item.Amount));
             await Task.Delay(TimeSpan.FromMilliseconds(ATTACK_BACKOFF_MS));
+            _fixedTimeStepRepository.Tick(ATTACK_BACKOFF_MS / 10);
         }
 
         private async Task CastHealSpell(IEnumerable<InventorySpell> healSpells)
@@ -344,10 +353,12 @@ namespace EOBot
             ConsoleHelper.WriteMessage(ConsoleHelper.Type.Cast, $"{spellToUse.HP,4} HP - {spellToUse.Name} - TP {stats[CharacterStat.TP]}/{stats[CharacterStat.MaxTP]}");
 
             await TrySend(() => _characterActions.PrepareCastSpell(spellToUse.ID));
-            await Task.Delay((spellToUse.CastTime - 1) * 480 + 350);
+            await Task.Delay(spellToUse.CastTime * 480);
+            _fixedTimeStepRepository.Tick((uint)spellToUse.CastTime * 48);
 
             await TrySend(() => _characterActions.CastSpell(spellToUse.ID, _characterRepository.MainCharacter));
-            await Task.Delay(600); // 600ms cooldown between spell casts
+            await Task.Delay(ATTACK_BACKOFF_MS); // 600ms cooldown between spell casts
+            _fixedTimeStepRepository.Tick(ATTACK_BACKOFF_MS / 10);
         }
 
         private async Task UseHealItem(IEnumerable<InventoryItem> healItems)
@@ -363,6 +374,7 @@ namespace EOBot
             await TrySend(() => _itemActions.UseItem(itemToUse.ID));
 
             await Task.Delay(ATTACK_BACKOFF_MS);
+            _fixedTimeStepRepository.Tick(ATTACK_BACKOFF_MS / 10);
         }
 
         private async Task ToggleSit()
@@ -373,9 +385,9 @@ namespace EOBot
             await TrySend(_characterActions.ToggleSit);
         }
 
-        private async Task TrySend(Action action, int attempts = 3)
+        private async Task TrySend(Action action, uint attempts = 3)
         {
-            for (int i = 1; i <= attempts; i++)
+            for (uint i = 1; i <= attempts; i++)
             {
                 try
                 {
@@ -389,6 +401,7 @@ namespace EOBot
                         throw;
 
                     await Task.Delay(TimeSpan.FromSeconds(i * i));
+                    _fixedTimeStepRepository.Tick(i * i * 100);
                 }
             }
         }

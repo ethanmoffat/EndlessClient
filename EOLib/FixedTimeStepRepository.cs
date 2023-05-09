@@ -11,9 +11,9 @@ namespace EOLib
 
         public bool IsWalkUpdateFrame => TickCount % 4 == 0;
 
-        public void Tick()
+        public void Tick(uint ticks = 1)
         {
-            TickCount++;
+            TickCount += ticks;
         }
     }
 
@@ -23,6 +23,6 @@ namespace EOLib
 
         bool IsWalkUpdateFrame { get; }
 
-        void Tick();
+        void Tick(uint ticks = 1);
     }
 }
