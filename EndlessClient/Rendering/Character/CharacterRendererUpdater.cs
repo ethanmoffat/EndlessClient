@@ -155,7 +155,7 @@ namespace EndlessClient.Rendering.Character
                         none: () => _characterStateCache.AddDeathStartTime(character.ID),
                         some: actionTime =>
                         {
-                            if ((_fixedTimeStepRepository.TickCount - actionTime.ActionTick) >= 1) // prior value was 2ms; ticks are 12ms
+                            if ((_fixedTimeStepRepository.TickCount - actionTime.ActionTick) >= 200) // 200 ticks * 10ms = 2 seconds
                             {
                                 _characterStateCache.RemoveDeathStartTime(character.ID);
                                 _characterStateCache.RemoveCharacterState(character.ID);
