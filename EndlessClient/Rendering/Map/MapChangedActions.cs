@@ -6,12 +6,15 @@ using EndlessClient.HUD.Controls;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.NPC;
+using EndlessClient.Rendering.Sprites;
 using EOLib.Config;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.IO.Map;
+using EOLib.IO.Repositories;
 using EOLib.Localization;
+using System.Linq;
 
 namespace EndlessClient.Rendering.Map
 {
@@ -21,8 +24,10 @@ namespace EndlessClient.Rendering.Map
     {
         private readonly ICharacterStateCache _characterStateCache;
         private readonly INPCStateCache _npcStateCache;
+        private readonly INPCSpriteDataCache _npcSpriteDataCache;
         private readonly ICharacterRendererRepository _characterRendererRepository;
         private readonly INPCRendererRepository _npcRendererRepository;
+        private readonly IENFFileProvider _enfFileProvider;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly IChatRepository _chatRepository;
         private readonly ILocalizedStringFinder _localizedStringFinder;
@@ -35,8 +40,10 @@ namespace EndlessClient.Rendering.Map
 
         public MapChangedActions(ICharacterStateCache characterStateCache,
                                  INPCStateCache npcStateCache,
+                                 INPCSpriteDataCache npcSpriteDataCache,
                                  ICharacterRendererRepository characterRendererRepository,
                                  INPCRendererRepository npcRendererRepository,
+                                 IENFFileProvider enfFileProvider,
                                  IHudControlProvider hudControlProvider,
                                  IChatRepository chatRepository,
                                  ILocalizedStringFinder localizedStringFinder,
@@ -49,8 +56,10 @@ namespace EndlessClient.Rendering.Map
         {
             _characterStateCache = characterStateCache;
             _npcStateCache = npcStateCache;
+            _npcSpriteDataCache = npcSpriteDataCache;
             _characterRendererRepository = characterRendererRepository;
             _npcRendererRepository = npcRendererRepository;
+            _enfFileProvider = enfFileProvider;
             _hudControlProvider = hudControlProvider;
             _chatRepository = chatRepository;
             _localizedStringFinder = localizedStringFinder;
@@ -130,6 +139,15 @@ namespace EndlessClient.Rendering.Map
 
         private void ClearNPCRenderersAndCache()
         {
+            var currentMapNpcGraphics = _currentMapStateRepository.NPCs.Select(x => _enfFileProvider.ENFFile[x.ID].Graphic).ToList();
+            var priorMapNpcGraphics = _npcRendererRepository.NPCRenderers.Select(x => _enfFileProvider.ENFFile[x.Value.NPC.ID].Graphic);
+            
+            foreach (var evict in priorMapNpcGraphics.Except(currentMapNpcGraphics))
+                _npcSpriteDataCache.MarkForEviction(evict);
+
+            foreach (var unevict in currentMapNpcGraphics)
+                _npcSpriteDataCache.UnmarkForEviction(unevict);
+
             foreach (var npcRenderer in _npcRendererRepository.NPCRenderers)
                 npcRenderer.Value.Dispose();
             _npcRendererRepository.NPCRenderers.Clear();

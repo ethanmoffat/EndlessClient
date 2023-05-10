@@ -16,6 +16,7 @@ namespace EndlessClient.Rendering.NPC
         private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
         private readonly IENFFileProvider _enfFileProvider;
         private readonly INPCSpriteSheet _npcSpriteSheet;
+        private readonly INPCSpriteDataCache _npcSpriteDataCache;
         private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
         private readonly IHealthBarRendererFactory _healthBarRendererFactory;
         private readonly IChatBubbleFactory _chatBubbleFactory;
@@ -27,6 +28,7 @@ namespace EndlessClient.Rendering.NPC
                                   IClientWindowSizeProvider clientWindowSizeProvider,
                                   IENFFileProvider enfFileProvider,
                                   INPCSpriteSheet npcSpriteSheet,
+                                  INPCSpriteDataCache npcSpriteDataCache,
                                   IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
                                   IHealthBarRendererFactory healthBarRendererFactory,
                                   IChatBubbleFactory chatBubbleFactory,
@@ -38,6 +40,7 @@ namespace EndlessClient.Rendering.NPC
             _clientWindowSizeProvider = clientWindowSizeProvider;
             _enfFileProvider = enfFileProvider;
             _npcSpriteSheet = npcSpriteSheet;
+            _npcSpriteDataCache = npcSpriteDataCache;
             _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
             _healthBarRendererFactory = healthBarRendererFactory;
             _chatBubbleFactory = chatBubbleFactory;
@@ -52,6 +55,7 @@ namespace EndlessClient.Rendering.NPC
                                    _clientWindowSizeProvider,
                                    _enfFileProvider,
                                    _npcSpriteSheet,
+                                   _npcSpriteDataCache,
                                    _gridDrawCoordinateCalculator,
                                    _healthBarRendererFactory,
                                    _chatBubbleFactory,

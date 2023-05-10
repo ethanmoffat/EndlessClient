@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace EOLib
+﻿namespace EOLib
 {
     public static class ArrayExtension
     {
@@ -15,14 +13,6 @@ namespace EOLib
                 ret[i - offset] = arr[i];
 
             return ret;
-        }
-    }
-
-    public static class DateTimeExtension
-    {
-        public static int ToEOTimeStamp(this DateTime dt)
-        {
-            return dt.Hour * 360000 + dt.Minute * 6000 + dt.Second * 100 + dt.Millisecond / 10;
         }
     }
 

@@ -34,13 +34,11 @@ namespace EndlessClient.Rendering.Character
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
         private readonly ICharacterPropertyRendererBuilder _characterPropertyRendererBuilder;
         private readonly ICharacterTextures _characterTextures;
-        private readonly ICharacterSpriteCalculator _characterSpriteCalculator;
         private readonly IGameStateProvider _gameStateProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IUserInputProvider _userInputProvider;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IClientWindowSizeRepository _clientWindowSizeRepository;
-        private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
         private readonly IEffectRenderer _effectRenderer;
 
         private EOLib.Domain.Character.Character _character;
@@ -91,15 +89,13 @@ namespace EndlessClient.Rendering.Character
                                  IRenderOffsetCalculator renderOffsetCalculator,
                                  ICharacterPropertyRendererBuilder characterPropertyRendererBuilder,
                                  ICharacterTextures characterTextures,
-                                 ICharacterSpriteCalculator characterSpriteCalculator,
                                  EOLib.Domain.Character.Character character,
                                  IGameStateProvider gameStateProvider,
                                  ICurrentMapProvider currentMapProvider,
                                  IUserInputProvider userInputProvider,
                                  IEffectRendererFactory effectRendererFactory,
                                  ISfxPlayer sfxPlayer,
-                                 IClientWindowSizeRepository clientWindowSizeRepository,
-                                 IFixedTimeStepRepository fixedTimeStepRepository)
+                                 IClientWindowSizeRepository clientWindowSizeRepository)
             : base(game)
         {
             _renderTargetFactory = renderTargetFactory;
@@ -109,7 +105,6 @@ namespace EndlessClient.Rendering.Character
             _renderOffsetCalculator = renderOffsetCalculator;
             _characterPropertyRendererBuilder = characterPropertyRendererBuilder;
             _characterTextures = characterTextures;
-            _characterSpriteCalculator = characterSpriteCalculator;
             _character = character;
             _gameStateProvider = gameStateProvider;
             _currentMapProvider = currentMapProvider;
@@ -117,7 +112,6 @@ namespace EndlessClient.Rendering.Character
             _effectRenderer = effectRendererFactory.Create();
             _sfxPlayer = sfxPlayer;
             _clientWindowSizeRepository = clientWindowSizeRepository;
-            _fixedTimeStepRepository = fixedTimeStepRepository;
 
             _chatBubble = new Lazy<IChatBubble>(() => _chatBubbleFactory.CreateChatBubble(this));
 
@@ -188,18 +182,15 @@ namespace EndlessClient.Rendering.Character
             if (!Visible)
                 return;
 
-            if (_fixedTimeStepRepository.IsUpdateFrame)
+            if (_positionIsRelative)
+                SetGridCoordinatePosition();
+
+            if (_textureUpdateRequired)
             {
-                if (_positionIsRelative)
-                    SetGridCoordinatePosition();
+                _characterTextures.Refresh(_character.RenderProperties);
+                DrawToRenderTarget();
 
-                if (_textureUpdateRequired)
-                {
-                    _characterTextures.Refresh(_character.RenderProperties);
-                    DrawToRenderTarget();
-
-                    _textureUpdateRequired = false;
-                }
+                _textureUpdateRequired = false;
             }
 
             if (_gameStateProvider.CurrentState == GameStates.PlayingTheGame)

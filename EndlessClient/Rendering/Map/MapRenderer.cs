@@ -4,6 +4,7 @@ using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.MapEntityRenderers;
 using EndlessClient.Rendering.NPC;
+using EOLib;
 using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
@@ -359,7 +360,7 @@ namespace EndlessClient.Rendering.Map
             spriteBatch.Begin();
 
             var drawLoc = _gridDrawCoordinateCalculator.CalculateGroundLayerRenderTargetDrawCoordinates();
-            var offset = _quakeState.Map(qs => qs.Offset).Match(some: o => o, none: () => 0);
+            var offset = _quakeState.Map(GetOffset).ValueOr(0);
 
             lock (_rt_locker_)
             {
@@ -378,11 +379,13 @@ namespace EndlessClient.Rendering.Map
 
                 spriteBatch.End();
             }
+
+            static float GetOffset(MapQuakeState quakeState) => quakeState.Offset;
         }
 
         private void DrawBaseLayers(SpriteBatch spriteBatch)
         {
-            var offset = _quakeState.Map(qs => qs.Offset).Match(some: o => o, none: () => 0);
+            var offset = _quakeState.Map(GetOffset).ValueOr(0);
 
             var renderBounds = _mapRenderDistanceCalculator.CalculateRenderBounds(_characterProvider.MainCharacter, _currentMapProvider.CurrentMap);
 
@@ -399,6 +402,8 @@ namespace EndlessClient.Rendering.Map
                     }
                 }
             }
+
+            static float GetOffset(MapQuakeState quakeState) => quakeState.Offset;
         }
 
         private int GetAlphaForCoordinates(int objX, int objY, EOLib.Domain.Character.Character character)
@@ -422,20 +427,22 @@ namespace EndlessClient.Rendering.Map
             }
             else if (metric == _mapTransitionState.TransitionMetric)
             {
-                _mapTransitionState.StartTime
-                    .MatchSome(startTime =>
-                    {
-                        var ms = (DateTime.Now - startTime).TotalMilliseconds;
-                        alpha = (int)Math.Round(ms / TRANSITION_TIME_MS * 255);
-
-                        if (ms / TRANSITION_TIME_MS >= 1)
-                            _mapTransitionState = new MapTransitionState(Option.Some(DateTime.Now), _mapTransitionState.TransitionMetric + 1);
-                    });
+                alpha = _mapTransitionState.StartTime.Map(HandleStartTime).ValueOr(alpha);
             }
             else
                 alpha = 0;
 
             return alpha;
+
+            int HandleStartTime(DateTime startTime)
+            {
+                var ms = (DateTime.Now - startTime).TotalMilliseconds;
+
+                if (ms / TRANSITION_TIME_MS >= 1)
+                    _mapTransitionState = new MapTransitionState(Option.Some(DateTime.Now), _mapTransitionState.TransitionMetric + 1);
+
+                return (int)Math.Round(ms / TRANSITION_TIME_MS * 255);
+            }
         }
 
         private void ResizeGameWindow(object sender, EventArgs e)

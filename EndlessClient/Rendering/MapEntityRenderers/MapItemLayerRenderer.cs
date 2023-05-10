@@ -32,20 +32,20 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         protected override bool ElementExistsAt(int row, int col)
         {
-            return _currentMapStateProvider.MapItems.Any(item => item.X == col && item.Y == row);
+            return _currentMapStateProvider.MapItems.Any(IsItemAt);
+            bool IsItemAt(MapItem item) => item.X == col && item.Y == row;
         }
 
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
         {
             var items = _currentMapStateProvider
                 .MapItems
-                .Where(item => item.X == col && item.Y == row)
+                .Where(IsItemAt)
                 .OrderBy(item => item.UniqueID);
 
             foreach (var item in items)
             {
-                //note: col is offset by 1. I'm not sure why this is needed. Maybe I did something wrong when translating the packets...
-                var itemPos = GetDrawCoordinatesFromGridUnits(col + 1, row);
+                var itemPos = GetDrawCoordinatesFromGridUnits(col, row);
                 var itemTexture = _mapItemGraphicProvider.GetItemGraphic(item.ItemID, item.Amount);
 
                 spriteBatch.Draw(itemTexture,
@@ -53,11 +53,8 @@ namespace EndlessClient.Rendering.MapEntityRenderers
                                              itemPos.Y - (int) Math.Round(itemTexture.Height/2.0)) + additionalOffset,
                                  Color.FromNonPremultiplied(255, 255, 255, alpha));
             }
-        }
 
-        protected override Vector2 GetDrawCoordinatesFromGridUnits(int gridX, int gridY)
-        {
-            return _gridDrawCoordinateCalculator.CalculateBaseLayerDrawCoordinatesFromGridUnits(gridX, gridY);
+            bool IsItemAt(MapItem item) => item.X == col && item.Y == row;
         }
     }
 }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Content;
 using EndlessClient.Controllers;
@@ -28,6 +25,9 @@ using EOLib.Graphics;
 using EOLib.Localization;
 using EOLib.Net.Communication;
 using Microsoft.Xna.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.HUD.Controls
@@ -566,7 +566,7 @@ namespace EndlessClient.HUD.Controls
 
         private INPCAnimator CreateNPCAnimator()
         {
-            return new NPCAnimator(_endlessGameProvider, _currentMapStateRepository);
+            return new NPCAnimator(_endlessGameProvider, _currentMapStateRepository, _fixedTimeStepRepository);
         }
 
         private IPeriodicEmoteHandler CreatePeriodicEmoteHandler(ICharacterAnimator characterAnimator)
@@ -576,7 +576,7 @@ namespace EndlessClient.HUD.Controls
 
         private PreviousUserInputTracker CreatePreviousUserInputTracker()
         {
-            return new PreviousUserInputTracker(_endlessGameProvider, _userInputRepository, _fixedTimeStepRepository);
+            return new PreviousUserInputTracker(_endlessGameProvider, _userInputRepository);
         }
     }
 }

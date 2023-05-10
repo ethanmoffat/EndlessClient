@@ -21,6 +21,8 @@ namespace EndlessClient.UIControls
         private readonly Rectangle _background = new Rectangle(70, 451, 548, 20);
         private readonly Rectangle _rightSide = new Rectangle(618, 451, 12, 20);
 
+        private readonly Texture2D _hudBackground;
+
         public StatusBarLabel(INativeGraphicsManager nativeGraphicsManager,
                               IClientWindowSizeProvider clientWindowSizeProvider,
                               IStatusLabelTextProvider statusLabelTextProvider)
@@ -34,6 +36,8 @@ namespace EndlessClient.UIControls
             {
                 DrawArea = new Rectangle(40, _clientWindowSizeProvider.Height - 15, 1, 1);
                 _clientWindowSizeProvider.GameWindowSizeChanged += (_, _) => DrawArea = new Rectangle(40, _clientWindowSizeProvider.Height - 15, 1, 1);
+
+                _hudBackground = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 1, false, true);
             }
             else
             {
@@ -60,16 +64,15 @@ namespace EndlessClient.UIControls
         {
             if (_clientWindowSizeProvider.Resizable)
             {
-                var hudBackground = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 1, false, true);
                 var bgDrawArea = new Rectangle(0, _clientWindowSizeProvider.Height - 20, _clientWindowSizeProvider.Width, 20);
 
                 _spriteBatch.Begin(samplerState: SamplerState.LinearWrap);
-                _spriteBatch.Draw(hudBackground, bgDrawArea, _background, Color.White);
+                _spriteBatch.Draw(_hudBackground, bgDrawArea, _background, Color.White);
                 _spriteBatch.End();
 
                 _spriteBatch.Begin();
-                _spriteBatch.Draw(hudBackground, bgDrawArea.Location.ToVector2(), _leftSide, Color.White);
-                _spriteBatch.Draw(hudBackground, new Vector2(_clientWindowSizeProvider.Width - _rightSide.Width, bgDrawArea.Y), _rightSide, Color.White);
+                _spriteBatch.Draw(_hudBackground, bgDrawArea.Location.ToVector2(), _leftSide, Color.White);
+                _spriteBatch.Draw(_hudBackground, new Vector2(_clientWindowSizeProvider.Width - _rightSide.Width, bgDrawArea.Y), _rightSide, Color.White);
                 _spriteBatch.End();
             }
 

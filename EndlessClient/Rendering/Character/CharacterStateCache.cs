@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EOLib;
 using Optional;
 using System;
 using System.Collections.Generic;
@@ -15,16 +16,18 @@ namespace EndlessClient.Rendering.Character
 
         private readonly Dictionary<int, DomainCharacter> _otherCharacters;
         private readonly List<RenderFrameActionTime> _deathStartTimes;
+        private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
 
         public IReadOnlyDictionary<int, DomainCharacter> OtherCharacters => _otherCharacters;
 
         public IReadOnlyList<RenderFrameActionTime> DeathStartTimes => _deathStartTimes;
 
-        public CharacterStateCache()
+        public CharacterStateCache(IFixedTimeStepRepository fixedTimeStepRepository)
         {
             MainCharacter = Option.None<DomainCharacter>();
             _otherCharacters = new Dictionary<int, DomainCharacter>();
             _deathStartTimes = new List<RenderFrameActionTime>();
+            _fixedTimeStepRepository = fixedTimeStepRepository;
         }
 
         public bool HasCharacterWithID(int id)
@@ -52,7 +55,7 @@ namespace EndlessClient.Rendering.Character
             if (_deathStartTimes.Any(x => x.UniqueID == id))
                 throw new ArgumentException("That character already started dying...", nameof(id));
 
-            _deathStartTimes.Add(new RenderFrameActionTime(id));
+            _deathStartTimes.Add(new RenderFrameActionTime(id, _fixedTimeStepRepository.TickCount));
         }
 
         public void RemoveDeathStartTime(int id)

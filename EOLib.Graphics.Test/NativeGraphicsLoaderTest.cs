@@ -1,9 +1,8 @@
 ﻿using Moq;
 using NUnit.Framework;
 using PELoaderLib;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Bmp;
-using SixLabors.ImageSharp.PixelFormats;
+using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
@@ -29,9 +28,7 @@ namespace EOLib.Graphics.Test
         {
             var peFileMock = SetupPEFileForGFXType(GFXTypes.PreLoginUI, CreateDataArrayForBitmap());
 
-            using (var bmp = _nativeGraphicsLoader.LoadGFX(GFXTypes.PreLoginUI, 1))
-                bmp.Dispose(); //hide warning for empty using statement
-
+            var data = _nativeGraphicsLoader.LoadGFX(GFXTypes.PreLoginUI, 1);
             peFileMock.Verify(x => x.GetEmbeddedBitmapResourceByID(It.IsAny<int>(), ExpectedCulture), Times.Once());
         }
 
@@ -43,34 +40,27 @@ namespace EOLib.Graphics.Test
 
             var peFileMock = SetupPEFileForGFXType(GFXTypes.PreLoginUI, CreateDataArrayForBitmap());
 
-            using (var bmp = _nativeGraphicsLoader.LoadGFX(GFXTypes.PreLoginUI, requestedResourceID))
-                bmp.Dispose(); //hide warning for empty using statement
-
+            var data = _nativeGraphicsLoader.LoadGFX(GFXTypes.PreLoginUI, requestedResourceID);
             peFileMock.Verify(x => x.GetEmbeddedBitmapResourceByID(expectedResourceID, ExpectedCulture));
         }
 
         [Test]
-        public void WhenLoadGFX_EmptyDataArray_ThrowsException()
+        public void WhenLoadGFX_EmptyDataArray_ThrowsInDebug_EmptyInRelease()
         {
             const int requestedResourceID = 1;
 
             SetupPEFileForGFXType(GFXTypes.PreLoginUI, new byte[] { });
 
+#if DEBUG
             Assert.Throws<GFXLoadException>(() => _nativeGraphicsLoader.LoadGFX(GFXTypes.PreLoginUI, requestedResourceID));
+#else
+            Assert.That(_nativeGraphicsLoader.LoadGFX(GFXTypes.PreLoginUI, requestedResourceID), Has.Length.EqualTo(0));
+#endif
         }
 
         private byte[] CreateDataArrayForBitmap()
         {
-            byte[] array;
-            using (var retBmp = new Image<Rgb24>(10, 10))
-            {
-                using (var ms = new MemoryStream())
-                {
-                    retBmp.Save(ms, new BmpEncoder());
-                    array = ms.ToArray();
-                }
-            }
-            return array;
+            return new byte[1];
         }
 
         private Mock<IPEFile> SetupPEFileForGFXType(GFXTypes type, byte[] array)

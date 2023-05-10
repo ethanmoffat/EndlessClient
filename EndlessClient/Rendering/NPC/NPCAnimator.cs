@@ -1,27 +1,31 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using EndlessClient.GameExecution;
+﻿using EndlessClient.GameExecution;
+using EOLib;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
 using Microsoft.Xna.Framework;
 using Optional.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace EndlessClient.Rendering.NPC
 {
     public class NPCAnimator : GameComponent, INPCAnimator
     {
-        private const int ACTION_FRAME_TIME_MS = 70;
+        private const int TICKS_PER_ACTION_FRAME = 8; // 8 x10ms ticks per action frame
 
         private readonly List<RenderFrameActionTime> _npcStartWalkingTimes;
         private readonly List<RenderFrameActionTime> _npcStartAttackingTimes;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
+        private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
 
         public NPCAnimator(IEndlessGameProvider gameProvider,
-                           ICurrentMapStateRepository currentMapStateRepository)
+                           ICurrentMapStateRepository currentMapStateRepository,
+                           IFixedTimeStepRepository fixedTimeStepRepository)
             : base((Game)gameProvider.Game)
         {
             _currentMapStateRepository = currentMapStateRepository;
+            _fixedTimeStepRepository = fixedTimeStepRepository;
             _npcStartWalkingTimes = new List<RenderFrameActionTime>();
             _npcStartAttackingTimes = new List<RenderFrameActionTime>();
         }
@@ -39,7 +43,7 @@ namespace EndlessClient.Rendering.NPC
             if (_npcStartWalkingTimes.Any(x => x.UniqueID == npcIndex))
                 return;
 
-            var startWalkingTimeAndID = new RenderFrameActionTime(npcIndex);
+            var startWalkingTimeAndID = new RenderFrameActionTime(npcIndex, _fixedTimeStepRepository.TickCount);
 
             _npcStartWalkingTimes.Add(startWalkingTimeAndID);
         }
@@ -49,7 +53,7 @@ namespace EndlessClient.Rendering.NPC
             if (_npcStartAttackingTimes.Any(x => x.UniqueID == npcIndex))
                 return;
 
-            var startAttackingTimeAndID = new RenderFrameActionTime(npcIndex);
+            var startAttackingTimeAndID = new RenderFrameActionTime(npcIndex, _fixedTimeStepRepository.TickCount);
 
             _npcStartAttackingTimes.Add(startAttackingTimeAndID);
         }
@@ -64,7 +68,7 @@ namespace EndlessClient.Rendering.NPC
             var npcsDoneWalking = new List<RenderFrameActionTime>();
             foreach (var pair in _npcStartWalkingTimes)
             {
-                if (pair.ActionTimer.ElapsedMilliseconds >= ACTION_FRAME_TIME_MS)
+                if ((_fixedTimeStepRepository.TickCount - pair.ActionTick) >= TICKS_PER_ACTION_FRAME)
                 {
                     var npc = _currentMapStateRepository.NPCs.SingleOrNone(x => x.Index == pair.UniqueID);
 
@@ -72,7 +76,7 @@ namespace EndlessClient.Rendering.NPC
                         some: n =>
                         {
                             var nextFrameNPC = AnimateOneWalkFrame(n);
-                            pair.UpdateActionStartTime();
+                            pair.UpdateActionStartTime(_fixedTimeStepRepository.TickCount);
 
                             if (nextFrameNPC.Frame == NPCFrame.Standing)
                                 npcsDoneWalking.Add(pair);
@@ -92,7 +96,7 @@ namespace EndlessClient.Rendering.NPC
             var npcsDoneAttacking = new List<RenderFrameActionTime>();
             foreach (var pair in _npcStartAttackingTimes)
             {
-                if (pair.ActionTimer.ElapsedMilliseconds >= ACTION_FRAME_TIME_MS)
+                if ((_fixedTimeStepRepository.TickCount - pair.ActionTick) >= TICKS_PER_ACTION_FRAME)
                 {
                     var npc = _currentMapStateRepository.NPCs.SingleOrNone(x => x.Index == pair.UniqueID);
 
@@ -100,7 +104,7 @@ namespace EndlessClient.Rendering.NPC
                         some: n =>
                         {
                             var nextFrameNPC = n.WithNextAttackFrame();
-                            pair.UpdateActionStartTime();
+                            pair.UpdateActionStartTime(_fixedTimeStepRepository.TickCount);
 
                             if (nextFrameNPC.Frame == NPCFrame.Standing)
                                 npcsDoneAttacking.Add(pair);

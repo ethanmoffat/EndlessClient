@@ -16,14 +16,17 @@ namespace EOLib.Domain.Character
         private readonly IPacketSendService _packetSendService;
         private readonly ICharacterRepository _characterRepository;
         private readonly IESFFileProvider _spellFileProvider;
+        private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
 
         public CharacterActions(IPacketSendService packetSendService,
                                 ICharacterRepository characterRepository,
-                                IESFFileProvider spellFileProvider)
+                                IESFFileProvider spellFileProvider,
+                                IFixedTimeStepRepository fixedTimeStepRepository)
         {
             _packetSendService = packetSendService;
             _characterRepository = characterRepository;
             _spellFileProvider = spellFileProvider;
+            _fixedTimeStepRepository = fixedTimeStepRepository;
         }
 
         public void Face(EODirection direction)
@@ -43,7 +46,7 @@ namespace EOLib.Domain.Character
 
             var packet = new PacketBuilder(PacketFamily.Walk, admin ? PacketAction.Admin : PacketAction.Player)
                 .AddChar((int)renderProperties.Direction)
-                .AddThree(DateTime.Now.ToEOTimeStamp())
+                .AddThree((int)_fixedTimeStepRepository.TickCount)
                 .AddChar(renderProperties.GetDestinationX())
                 .AddChar(renderProperties.GetDestinationY())
                 .Build();
@@ -59,7 +62,7 @@ namespace EOLib.Domain.Character
 
             var packet = new PacketBuilder(PacketFamily.Attack, PacketAction.Use)
                 .AddChar((int) _characterRepository.MainCharacter.RenderProperties.Direction)
-                .AddThree(DateTime.Now.ToEOTimeStamp())
+                .AddThree((int)_fixedTimeStepRepository.TickCount)
                 .Build();
 
             _packetSendService.SendPacket(packet);
@@ -100,7 +103,7 @@ namespace EOLib.Domain.Character
         {
             var packet = new PacketBuilder(PacketFamily.Spell, PacketAction.Request)
                 .AddShort(spellId)
-                .AddThree(DateTime.Now.ToEOTimeStamp())
+                .AddThree((int)_fixedTimeStepRepository.TickCount)
                 .Build();
 
             _packetSendService.SendPacket(packet);
@@ -128,7 +131,7 @@ namespace EOLib.Domain.Character
             {
                 builder = builder
                     .AddShort(spellId)
-                    .AddThree(DateTime.Now.ToEOTimeStamp());
+                    .AddThree((int)_fixedTimeStepRepository.TickCount);
             }
             else
             {
@@ -146,13 +149,13 @@ namespace EOLib.Domain.Character
                         .AddShort(1) // unknown
                         .AddShort(spellId)
                         .AddShort(target.Index)
-                        .AddThree(DateTime.Now.ToEOTimeStamp());
+                        .AddThree((int)_fixedTimeStepRepository.TickCount);
                 }
                 else
                 {
                     builder = builder
                         .AddShort(spellId)
-                        .AddInt(DateTime.Now.ToEOTimeStamp());
+                        .AddInt((int)_fixedTimeStepRepository.TickCount);
                 }
             }
 

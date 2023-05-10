@@ -1,5 +1,4 @@
 ﻿using AutomaticTypeMapper;
-using SixLabors.ImageSharp;
 using System;
 
 namespace EOLib.Graphics
@@ -14,9 +13,9 @@ namespace EOLib.Graphics
             _modules = modules;
         }
 
-        public IImage LoadGFX(GFXTypes file, int resourceValue)
+        public ReadOnlyMemory<byte> LoadGFX(GFXTypes file, int resourceValue)
         {
-            var fileBytes = Array.Empty<byte>();
+            var fileBytes = ReadOnlyMemory<byte>.Empty;
             try
             {
                 fileBytes = _modules[file].GetEmbeddedBitmapResourceByID(resourceValue + 100);
@@ -33,11 +32,11 @@ namespace EOLib.Graphics
 #if DEBUG
                 throw new GFXLoadException(resourceValue, file);
 #else
-                return new Image<SixLabors.ImageSharp.PixelFormats.Rgba32>(1, 1);
+                return Array.Empty<byte>();
 #endif
             }
 
-            return Image.Load(fileBytes);
+            return fileBytes;
         }
     }
 }

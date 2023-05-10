@@ -5,6 +5,7 @@ using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Map;
 using EndlessClient.Rendering.MapEntityRenderers;
 using EndlessClient.Rendering.NPC;
+using EOLib;
 using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
@@ -42,7 +43,6 @@ namespace EndlessClient.Rendering.Factories
             IDynamicMapObjectUpdater dynamicMapObjectUpdater,
             IConfigurationProvider configurationProvider,
             IMouseCursorRendererFactory mouseCursorRendererFactory,
-            IRenderOffsetCalculator renderOffsetCalculator,
             IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
             IClientWindowSizeRepository clientWindowSizeRepository,
             IFixedTimeStepRepository fixedTimeStepRepository)

@@ -1,6 +1,4 @@
-﻿using EndlessClient.Controllers;
-using EndlessClient.GameExecution;
-using EndlessClient.HUD.Spells;
+﻿using EndlessClient.GameExecution;
 using EndlessClient.Input;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Effects;
@@ -16,8 +14,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Optional;
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Markup;
 using XNAControls;
 
 namespace EndlessClient.Rendering.NPC
@@ -29,6 +27,7 @@ namespace EndlessClient.Rendering.NPC
         private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
         private readonly IENFFileProvider _enfFileProvider;
         private readonly INPCSpriteSheet _npcSpriteSheet;
+        private readonly INPCSpriteDataCache _npcSpriteDataCache;
         private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
         private readonly IHealthBarRendererFactory _healthBarRendererFactory;
         private readonly IChatBubbleFactory _chatBubbleFactory;
@@ -67,6 +66,7 @@ namespace EndlessClient.Rendering.NPC
                            IClientWindowSizeProvider clientWindowSizeProvider,
                            IENFFileProvider enfFileProvider,
                            INPCSpriteSheet npcSpriteSheet,
+                           INPCSpriteDataCache npcSpriteDataCache,
                            IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
                            IHealthBarRendererFactory healthBarRendererFactory,
                            IChatBubbleFactory chatBubbleFactory,
@@ -80,6 +80,7 @@ namespace EndlessClient.Rendering.NPC
             _clientWindowSizeProvider = clientWindowSizeProvider;
             _enfFileProvider = enfFileProvider;
             _npcSpriteSheet = npcSpriteSheet;
+            _npcSpriteDataCache = npcSpriteDataCache;
             _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
             _healthBarRendererFactory = healthBarRendererFactory;
             _chatBubbleFactory = chatBubbleFactory;
@@ -131,10 +132,9 @@ namespace EndlessClient.Rendering.NPC
 
             _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
 
-            var frameTexture = _npcSpriteSheet.GetNPCTexture(_enfFileProvider.ENFFile[NPC.ID].Graphic, NPC.Frame, NPC.Direction);
-            var data = new Color[frameTexture.Width * frameTexture.Height];
-            frameTexture.GetData(data);
-            _isBlankSprite = data.All(x => x.A == 0);
+            var graphic = _enfFileProvider.ENFFile[NPC.ID].Graphic;
+            _npcSpriteDataCache.Populate(graphic);
+            _isBlankSprite = _npcSpriteDataCache.IsBlankSprite(graphic);
 
             base.Initialize();
         }
@@ -169,16 +169,18 @@ namespace EndlessClient.Rendering.NPC
 
         public bool IsClickablePixel(Point currentMousePosition)
         {
-            var currentFrame = _npcSpriteSheet.GetNPCTexture(_enfFileProvider.ENFFile[NPC.ID].Graphic, NPC.Frame, NPC.Direction);
-
-            var colorData = new Color[] { Color.FromNonPremultiplied(0, 0, 0, 255) };
-            if (currentFrame != null && !_isBlankSprite)
+            var cachedTexture = _npcSpriteDataCache.GetData(_enfFileProvider.ENFFile[NPC.ID].Graphic, NPC.Frame);
+            if (!_isBlankSprite && cachedTexture.Length > 0 && _npcRenderTarget.Bounds.Contains(currentMousePosition))
             {
-                if (_npcRenderTarget.Bounds.Contains(currentMousePosition))
-                    _npcRenderTarget.GetData(0, new Rectangle(currentMousePosition.X, currentMousePosition.Y, 1, 1), colorData, 0, 1);
+                var currentFrame = _npcSpriteSheet.GetNPCTexture(_enfFileProvider.ENFFile[NPC.ID].Graphic, NPC.Frame, NPC.Direction);
+
+                var adjustedPos = currentMousePosition - DrawArea.Location;
+                var pixel = cachedTexture[adjustedPos.Y * currentFrame.Width + adjustedPos.X];
+
+                return pixel.A > 0;
             }
 
-            return _isBlankSprite || colorData[0].A > 0;
+            return true;
         }
 
         public void DrawToSpriteBatch(SpriteBatch spriteBatch)

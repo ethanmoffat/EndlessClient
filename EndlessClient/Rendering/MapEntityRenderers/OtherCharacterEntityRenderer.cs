@@ -1,5 +1,4 @@
 ﻿using EndlessClient.Rendering.Character;
-using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
 using Microsoft.Xna.Framework;
@@ -31,16 +30,19 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         protected override bool ElementExistsAt(int row, int col)
         {
             return _characterStateCache.OtherCharacters.Values
-                .Select(x => x.RenderProperties)
-                .Any(c => c.MapY == row && c.MapX == col);
+                .Any(IsCharAt);
+
+            bool IsCharAt(EOLib.Domain.Character.Character c) => OtherCharacterEntityRenderer.IsCharAt(c, row, col);
         }
 
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
         {
-            var idsToRender = _characterStateCache.OtherCharacters.Keys.Where(k => IsAtPosition(k, row, col));
+            var toRender = _characterStateCache.OtherCharacters.Values.Where(IsCharAt);
 
-            foreach (var id in idsToRender)
+            foreach (var rend in toRender)
             {
+                var id = rend.ID;
+
                 if (!_characterRendererProvider.CharacterRenderers.ContainsKey(id) ||
                     _characterRendererProvider.CharacterRenderers[id] == null)
                     return;
@@ -48,11 +50,12 @@ namespace EndlessClient.Rendering.MapEntityRenderers
                 var renderer = _characterRendererProvider.CharacterRenderers[id];
                 renderer.DrawToSpriteBatch(spriteBatch);
             }
+
+            bool IsCharAt(EOLib.Domain.Character.Character c) => OtherCharacterEntityRenderer.IsCharAt(c, row, col);
         }
-        private bool IsAtPosition(int characterId, int row, int col)
+        private static bool IsCharAt(EOLib.Domain.Character.Character c, int row, int col)
         {
-            var rp = _characterStateCache.OtherCharacters[characterId].RenderProperties;
-            return row == rp.MapY && col == rp.MapX;
+            return row == c.Y && col == c.X;
         }
     }
 }
