@@ -523,7 +523,7 @@ namespace EndlessClient.Rendering.Character
             var playersDoneEmoting = new HashSet<int>();
             foreach (var pair in _startEmoteTimes.Values)
             {
-                if ((pair.ActionTick - _fixedTimeStepRepository.TickCount) >= TICKS_PER_FRAME * 2)
+                if ((_fixedTimeStepRepository.TickCount - pair.ActionTick) >= TICKS_PER_FRAME * 2)
                 {
                     GetCurrentCharacterFromRepository(pair).Match(
                         none: () => playersDoneEmoting.Add(pair.UniqueID),
