@@ -19,7 +19,7 @@ namespace EOLib.Domain.Map
 
         HashSet<NPC.NPC> NPCs { get; set; }
 
-        HashSet<MapItem> MapItems { get; set; }
+        MapEntityCollectionHashSet<MapItem> MapItems { get; set; }
 
         HashSet<Warp> OpenDoors { get; set;  }
 
@@ -54,7 +54,7 @@ namespace EOLib.Domain.Map
 
         IReadOnlyCollection<NPC.NPC> NPCs { get; }
 
-        IReadOnlyCollection<MapItem> MapItems { get; }
+        IReadOnlyMapEntityCollection<MapItem> MapItems { get; }
 
         IReadOnlyCollection<Warp> OpenDoors { get; }
 
@@ -90,7 +90,7 @@ namespace EOLib.Domain.Map
 
         public HashSet<NPC.NPC> NPCs { get; set; }
 
-        public HashSet<MapItem> MapItems { get; set; }
+        public MapEntityCollectionHashSet<MapItem> MapItems { get; set; }
 
         public HashSet<Warp> OpenDoors { get; set; }
 
@@ -114,7 +114,7 @@ namespace EOLib.Domain.Map
 
         IReadOnlyCollection<NPC.NPC> ICurrentMapStateProvider.NPCs => NPCs;
 
-        IReadOnlyCollection<MapItem> ICurrentMapStateProvider.MapItems => MapItems;
+        IReadOnlyMapEntityCollection<MapItem> ICurrentMapStateProvider.MapItems => MapItems;
 
         IReadOnlyCollection<Warp> ICurrentMapStateProvider.OpenDoors => OpenDoors;
 
@@ -135,7 +135,7 @@ namespace EOLib.Domain.Map
 
             Characters = new Dictionary<int, Character.Character>();
             NPCs = new HashSet<NPC.NPC>();
-            MapItems = new HashSet<MapItem>();
+            MapItems = new MapEntityCollectionHashSet<MapItem>(x => x.UniqueID, x => new MapCoordinate(x.X, x.Y));
             OpenDoors = new HashSet<Warp>();
             PendingDoors = new HashSet<Warp>();
             VisibleSpikeTraps = new HashSet<MapCoordinate>();

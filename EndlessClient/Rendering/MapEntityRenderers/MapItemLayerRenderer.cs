@@ -1,12 +1,10 @@
-﻿using System;
-using System.Linq;
-using EndlessClient.Rendering.Map;
-using EOLib;
+﻿using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
-using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
+using System.Linq;
 
 namespace EndlessClient.Rendering.MapEntityRenderers
 {
@@ -32,18 +30,14 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         protected override bool ElementExistsAt(int row, int col)
         {
-            return _currentMapStateProvider.MapItems.Any(IsItemAt);
-            bool IsItemAt(MapItem item) => item.X == col && item.Y == row;
+            return _currentMapStateProvider.MapItems.TryGetValues(new MapCoordinate(col, row), out var mapItems) && mapItems.Count > 0;
         }
 
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
         {
-            var items = _currentMapStateProvider
-                .MapItems
-                .Where(IsItemAt)
-                .OrderBy(item => item.UniqueID);
+            var items = _currentMapStateProvider.MapItems[new MapCoordinate(col, row)];
 
-            foreach (var item in items)
+            foreach (var item in items.OrderBy(item => item.UniqueID))
             {
                 var itemPos = GetDrawCoordinatesFromGridUnits(col, row);
                 var itemTexture = _mapItemGraphicProvider.GetItemGraphic(item.ItemID, item.Amount);
@@ -53,8 +47,6 @@ namespace EndlessClient.Rendering.MapEntityRenderers
                                              itemPos.Y - (int) Math.Round(itemTexture.Height/2.0)) + additionalOffset,
                                  Color.FromNonPremultiplied(255, 255, 255, alpha));
             }
-
-            bool IsItemAt(MapItem item) => item.X == col && item.Y == row;
         }
     }
 }

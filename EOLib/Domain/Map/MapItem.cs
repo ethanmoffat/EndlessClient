@@ -1,11 +1,12 @@
 ﻿using Amadevus.RecordGenerator;
+using EOLib.IO.Map;
 using Optional;
 using System;
 
 namespace EOLib.Domain.Map
 {
     [Record]
-    public sealed partial class MapItem
+    public sealed partial class MapItem : IMapEntity
     {
         public int UniqueID { get; }
 

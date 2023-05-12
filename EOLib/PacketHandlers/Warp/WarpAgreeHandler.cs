@@ -75,7 +75,7 @@ namespace EOLib.PacketHandlers.Warp
 
             _currentMapStateRepository.Characters = warpAgreePacketData.Characters.ToDictionary(k => k.ID, v => v);
             _currentMapStateRepository.NPCs = new HashSet<DomainNPC>(warpAgreePacketData.NPCs);
-            _currentMapStateRepository.MapItems = new HashSet<MapItem>(warpAgreePacketData.Items);
+            _currentMapStateRepository.MapItems = new MapEntityCollectionHashSet<MapItem>(item => item.UniqueID, item => new MapCoordinate(item.X, item.Y), warpAgreePacketData.Items);
             _currentMapStateRepository.OpenDoors.Clear();
             _currentMapStateRepository.VisibleSpikeTraps.Clear();
             _currentMapStateRepository.ShowMiniMap = _currentMapStateRepository.ShowMiniMap &&

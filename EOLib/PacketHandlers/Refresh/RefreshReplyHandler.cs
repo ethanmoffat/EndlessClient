@@ -58,7 +58,7 @@ namespace EOLib.PacketHandlers.Refresh
 
             _currentMapStateRepository.Characters = withoutMainCharacter.ToDictionary(k => k.ID, v => v);
             _currentMapStateRepository.NPCs = new HashSet<DomainNPC>(data.NPCs);
-            _currentMapStateRepository.MapItems = new HashSet<MapItem>(data.Items);
+            _currentMapStateRepository.MapItems = new MapEntityCollectionHashSet<MapItem>(item => item.UniqueID, item => new MapCoordinate(item.X, item.Y), data.Items);
 
             _currentMapStateRepository.OpenDoors.Clear();
             _currentMapStateRepository.PendingDoors.Clear();

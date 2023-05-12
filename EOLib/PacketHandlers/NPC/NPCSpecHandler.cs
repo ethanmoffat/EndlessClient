@@ -8,6 +8,7 @@ using EOLib.Net.Handlers;
 using Optional;
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 
 namespace EOLib.PacketHandlers.NPC
 {
@@ -152,7 +153,9 @@ namespace EOLib.PacketHandlers.NPC
                 .WithDropTime(Option.Some(DateTime.Now))
                 .WithOwningPlayerID(Option.Some(playerID));
 
-            _currentMapStateRepository.MapItems.RemoveWhere(item => item.UniqueID == droppedItemUID);
+            if (_currentMapStateRepository.MapItems.TryGetValue(droppedItemID, out var oldItem))
+                _currentMapStateRepository.MapItems.Remove(oldItem);
+
             _currentMapStateRepository.MapItems.Add(mapItem);
 
             foreach (var notifier in _npcActionNotifiers)

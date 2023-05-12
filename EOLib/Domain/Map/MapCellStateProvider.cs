@@ -6,6 +6,7 @@ using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 using Optional;
 using Optional.Collections;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace EOLib.Domain.Map
@@ -43,7 +44,9 @@ namespace EOLib.Domain.Map
                 .Where(c => CharacterAtCoordinates(c, x, y))
                 .ToList();
             var npc = _mapStateProvider.NPCs.FirstOrNone(n => NPCAtCoordinates(n, x, y));
-            var items = _mapStateProvider.MapItems.Where(i => i.X == x && i.Y == y).OrderByDescending(i => i.UniqueID);
+            var items = _mapStateProvider.MapItems.TryGetValues(new MapCoordinate(x, y), out var mapItems)
+                ? mapItems.OrderByDescending(i => i.UniqueID)
+                : Enumerable.Empty<MapItem>();
 
             return new MapCellState
             {
