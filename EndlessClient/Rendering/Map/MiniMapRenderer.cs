@@ -110,7 +110,7 @@ namespace EndlessClient.Rendering.Map
                 _spriteBatch.Draw(_miniMapTarget, baseTargetDrawLoc, Color.White);
 
                 var entities = new IMapEntity[] { _characterProvider.MainCharacter }
-                    .Concat(_currentMapStateProvider.Characters.Values)
+                    .Concat(_currentMapStateProvider.Characters)
                     .Concat(_currentMapStateProvider.NPCs);
 
                 foreach (var entity in entities)

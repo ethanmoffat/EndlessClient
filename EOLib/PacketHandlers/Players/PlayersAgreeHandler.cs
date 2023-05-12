@@ -73,15 +73,14 @@ namespace EOLib.PacketHandlers.Players
                 _characterRepository.MainCharacter = existingCharacter.WithAppliedData(character, isRangedWeapon);
                 _characterRepository.HasAvatar = true;
             }
-            else if (_mapStateRepository.Characters.ContainsKey(character.ID))
+            else if (_mapStateRepository.Characters.TryGetValue(character.ID, out var existingCharacter))
             {
-                var existingCharacter = _mapStateRepository.Characters[character.ID];
                 var isRangedWeapon = _eifFileProvider.EIFFile.IsRangedWeapon(character.RenderProperties.WeaponGraphic);
-                _mapStateRepository.Characters[character.ID] = existingCharacter.WithAppliedData(character, isRangedWeapon);
+                _mapStateRepository.Characters.Update(existingCharacter, existingCharacter.WithAppliedData(character, isRangedWeapon));
             }
             else
             {
-                _mapStateRepository.Characters[character.ID] = character;
+                _mapStateRepository.Characters.Add(character);
             }
 
             return true;

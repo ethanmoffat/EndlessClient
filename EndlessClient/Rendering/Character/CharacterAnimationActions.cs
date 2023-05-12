@@ -122,7 +122,7 @@ namespace EndlessClient.Rendering.Character
 
         public void StartOtherCharacterWalkAnimation(int characterID, MapCoordinate destination, EODirection direction)
         {
-            if (!_hudControlProvider.IsInGame || !_currentMapStateProvider.Characters.ContainsKey(characterID))
+            if (!_hudControlProvider.IsInGame || !_currentMapStateProvider.Characters.TryGetValue(characterID, out var character))
                 return;
 
             Animator.StartOtherCharacterWalkAnimation(characterID, destination, direction);
@@ -131,19 +131,19 @@ namespace EndlessClient.Rendering.Character
             _spikeTrapActions.HideSpikeTrap(characterID);
             _spikeTrapActions.ShowSpikeTrap(characterID);
 
-            if (IsSteppingStone(_currentMapStateProvider.Characters[characterID].RenderProperties))
+            if (IsSteppingStone(character.RenderProperties))
                 _sfxPlayer.PlaySfx(SoundEffectID.JumpStone);
         }
 
         public void StartOtherCharacterAttackAnimation(int characterID, int noteIndex = -1)
         {
-            if (!_hudControlProvider.IsInGame || !_currentMapStateProvider.Characters.ContainsKey(characterID))
+            if (!_hudControlProvider.IsInGame || !_currentMapStateProvider.Characters.TryGetValue(characterID, out var character))
                 return;
 
-            if (noteIndex >= 0 || IsInstrumentWeapon(_currentMapStateProvider.Characters[characterID].RenderProperties.WeaponGraphic))
+            if (noteIndex >= 0 || IsInstrumentWeapon(character.RenderProperties.WeaponGraphic))
                 Animator.Emote(characterID, EOLib.Domain.Character.Emote.MusicNotes);
 
-            Animator.StartOtherCharacterAttackAnimation(characterID, () => PlayWeaponSound(_currentMapStateProvider.Characters[characterID], noteIndex));
+            Animator.StartOtherCharacterAttackAnimation(characterID, () => PlayWeaponSound(character, noteIndex));
             ShowWaterSplashiesIfNeeded(CharacterActionState.Attacking, characterID);
         }
 

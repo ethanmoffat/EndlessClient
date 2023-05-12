@@ -58,7 +58,8 @@ namespace EOLib.PacketHandlers.Items
                 .WithNewStat(CharacterStat.MaxWeight, maxWeight);
             _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(newStats);
 
-            _mapStateRepository.MapItems.Remove(_mapStateRepository.MapItems[uid]);
+            if (_mapStateRepository.MapItems.ContainsKey(uid))
+                _mapStateRepository.MapItems.Remove(_mapStateRepository.MapItems[uid]);
 
             foreach (var notifier in _mainCharacterEventNotifiers)
             {

@@ -8,7 +8,6 @@ using EOLib.Net.Handlers;
 using Optional;
 using System;
 using System.Collections.Generic;
-using System.Security.Cryptography;
 
 namespace EOLib.PacketHandlers.NPC
 {
@@ -113,7 +112,8 @@ namespace EOLib.PacketHandlers.NPC
             foreach (var notifier in _npcActionNotifiers)
                 notifier.RemoveNPCFromView(deadNPCIndex, playerId, spellId, damage, showDeathAnimation);
 
-            _currentMapStateRepository.NPCs.RemoveWhere(npc => npc.Index == deadNPCIndex);
+            if (_currentMapStateRepository.NPCs.TryGetValue(deadNPCIndex, out var npc))
+                _currentMapStateRepository.NPCs.Remove(npc);
         }
 
         private void UpdatePlayerDirection(int playerID, EODirection playerDirection)
@@ -127,11 +127,11 @@ namespace EOLib.PacketHandlers.NPC
 
                 _characterRepository.MainCharacter = updatedCharacter;
             }
-            else if (_currentMapStateRepository.Characters.ContainsKey(playerID))
+            else if (_currentMapStateRepository.Characters.TryGetValue(playerID, out var character))
             {
-                var updatedRenderProps = _currentMapStateRepository.Characters[playerID].RenderProperties.WithDirection(playerDirection);
-                var updatedCharacter = _currentMapStateRepository.Characters[playerID].WithRenderProperties(updatedRenderProps);
-                _currentMapStateRepository.Characters[playerID] = updatedCharacter;
+                var updatedRenderProps = character.RenderProperties.WithDirection(playerDirection);
+                var updatedCharacter = character.WithRenderProperties(updatedRenderProps);
+                _currentMapStateRepository.Characters.Update(character, updatedCharacter);
             }
             else
             {

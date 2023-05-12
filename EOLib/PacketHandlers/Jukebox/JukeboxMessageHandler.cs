@@ -34,14 +34,12 @@ namespace EOLib.PacketHandlers.Jukebox
             var instrument = packet.ReadChar();
             var note = packet.ReadChar();
 
-            if (_currentMapStateRepository.Characters.ContainsKey(playerId))
+            if (_currentMapStateRepository.Characters.TryGetValue(playerId, out var character))
             {
-                var c = _currentMapStateRepository.Characters[playerId];
-
-                if (c.RenderProperties.WeaponGraphic == instrument)
+                if (character.RenderProperties.WeaponGraphic == instrument)
                 {
-                    c = c.WithRenderProperties(c.RenderProperties.WithDirection(direction));
-                    _currentMapStateRepository.Characters[playerId] = c;
+                    var updatedCharacter = character.WithRenderProperties(character.RenderProperties.WithDirection(direction));
+                    _currentMapStateRepository.Characters.Update(character, updatedCharacter);
 
                     foreach (var notifier in _otherCharacterAnimationNotifiers)
                         notifier.StartOtherCharacterAttackAnimation(playerId, note - 1);

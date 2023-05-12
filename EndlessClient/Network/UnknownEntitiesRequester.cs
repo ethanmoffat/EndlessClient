@@ -127,12 +127,12 @@ namespace EndlessClient.Network
         {
             var mc = _characterProvider.MainCharacter;
 
-            var entities = _currentMapStateRepository.MapItems.Cast<IMapEntity>()
+            var entities = new List<IMapEntity>(_currentMapStateRepository.Characters)
                 .Concat(_currentMapStateRepository.NPCs)
-                .Concat(_currentMapStateRepository.Characters.Values);
+                .Concat(_currentMapStateRepository.MapItems);
 
-            var seeDistanceUpper = (int)((_clientWindowSizeProvider.Height / 480.0) * UPPER_SEE_DISTANCE);
-            var seeDistanceLower = (int)((_clientWindowSizeProvider.Height / 480.0) * LOWER_SEE_DISTANCE);
+            var seeDistanceUpper = (int)(_clientWindowSizeProvider.Height / 480.0 * UPPER_SEE_DISTANCE);
+            var seeDistanceLower = (int)(_clientWindowSizeProvider.Height / 480.0 * LOWER_SEE_DISTANCE);
 
             var entitiesToRemove = new List<IMapEntity>();
             foreach (var entity in entities)
@@ -154,7 +154,7 @@ namespace EndlessClient.Network
             foreach (var entity in entitiesToRemove)
             {
                 if (entity is Character c)
-                    _currentMapStateRepository.Characters.Remove(c.ID);
+                    _currentMapStateRepository.Characters.Remove(c);
                 else if (entity is NPC n)
                     _currentMapStateRepository.NPCs.Remove(n);
                 else if (entity is MapItem i)

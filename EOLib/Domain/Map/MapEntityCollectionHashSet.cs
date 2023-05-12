@@ -56,9 +56,11 @@ namespace EOLib.Domain.Map
             _valueSet[hash] = value;
         }
 
-        public IEnumerator<TValue> GetEnumerator() => _valueSet.Values.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        public void Update(TValue oldValue, TValue newValue)
+        {
+            Remove(oldValue);
+            Add(newValue);
+        }
 
         public void Remove(TValue value)
         {
@@ -73,6 +75,10 @@ namespace EOLib.Domain.Map
 
             _valueSet.Remove(hash);
         }
+
+        public bool ContainsKey(int uniqueId) => _uniqueIdToHash.ContainsKey(uniqueId);
+
+        public bool ContainsKey(MapCoordinate coordinate) => _mapCoordinateToHashList.ContainsKey(coordinate);
 
         public bool TryGetValue(int uniqueId, out TValue value)
         {
@@ -92,7 +98,7 @@ namespace EOLib.Domain.Map
 
         public bool TryGetValues(MapCoordinate mapCoordinate, out HashSet<TValue> values)
         {
-            values = default;
+            values = new HashSet<TValue>();
 
             if (!_mapCoordinateToHashList.ContainsKey(mapCoordinate))
                 return false;
@@ -101,16 +107,23 @@ namespace EOLib.Domain.Map
             if (!_valueSet.Any(x => hashes.Contains(x.Key)))
                 return false;
 
-            values = new HashSet<TValue>(_mapCoordinateToHashList[mapCoordinate].Select(x => _valueSet[x]));
+            values = this[mapCoordinate];
 
             return true;
         }
+
+        public IEnumerator<TValue> GetEnumerator() => _valueSet.Values.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
     public interface IReadOnlyMapEntityCollection<TValue> : IEnumerable<TValue>
     {
         TValue this[int key1] { get; }
         HashSet<TValue> this[MapCoordinate key2] { get; }
+
+        bool ContainsKey(int characterID);
+        bool ContainsKey(MapCoordinate mapCoordinate);
 
         bool TryGetValue(int key1, out TValue value);
         bool TryGetValues(MapCoordinate key2, out HashSet<TValue> values);

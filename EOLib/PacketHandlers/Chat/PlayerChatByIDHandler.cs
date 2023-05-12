@@ -22,10 +22,10 @@ namespace EOLib.PacketHandlers.Chat
         public override bool HandlePacket(IPacket packet)
         {
             var fromPlayerID = packet.ReadShort();
-            if (!_currentMapStateProvider.Characters.ContainsKey(fromPlayerID))
+            if (!_currentMapStateProvider.Characters.TryGetValue(fromPlayerID, out var character))
                 return false;
 
-            DoTalk(packet, _currentMapStateProvider.Characters[fromPlayerID]);
+            DoTalk(packet, character);
 
             return true;
         }

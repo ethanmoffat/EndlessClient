@@ -31,14 +31,17 @@ namespace EOLib.PacketHandlers.Face
             var direction = (EODirection)packet.ReadChar();
 
             if (!_mapStateRepository.Characters.ContainsKey(id))
-                return false;
+            {
+                _mapStateRepository.UnknownPlayerIDs.Add(id);
+                return true;
+            }
 
             var character = _mapStateRepository.Characters[id];
 
             var newRenderProps = character.RenderProperties.WithDirection(direction);
             var newCharacter = character.WithRenderProperties(newRenderProps);
 
-            _mapStateRepository.Characters[id] = newCharacter;
+            _mapStateRepository.Characters.Update(character, newCharacter);
 
             return true;
         }

@@ -189,7 +189,7 @@ namespace EndlessClient.Rendering.Map
 
         private void AddSpikeTraps()
         {
-            foreach (var character in _currentMapStateRepository.Characters.Values)
+            foreach (var character in _currentMapStateRepository.Characters)
             {
                 if (_currentMapProvider.CurrentMap.Tiles[character.RenderProperties.MapY, character.RenderProperties.MapX] == TileSpec.SpikesTrap)
                     _currentMapStateRepository.VisibleSpikeTraps.Add(new MapCoordinate(character.RenderProperties.MapX, character.RenderProperties.MapY));

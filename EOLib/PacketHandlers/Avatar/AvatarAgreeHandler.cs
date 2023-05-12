@@ -43,11 +43,7 @@ namespace EOLib.PacketHandlers.Avatar
             {
                 currentCharacter = _characterRepository.MainCharacter;
             }
-            else if (_currentMapStateRepository.Characters.ContainsKey(playerID))
-            {
-                currentCharacter = _currentMapStateRepository.Characters[playerID];
-            }
-            else
+            else if (!_currentMapStateRepository.Characters.TryGetValue(playerID, out currentCharacter))
             {
                 _currentMapStateRepository.UnknownPlayerIDs.Add(playerID);
                 return true;
@@ -106,7 +102,7 @@ namespace EOLib.PacketHandlers.Avatar
             }
             else
             {
-                _currentMapStateRepository.Characters[playerID] = updatedCharacter;
+                _currentMapStateRepository.Characters.Update(currentCharacter, updatedCharacter);
             }
 
             return true;

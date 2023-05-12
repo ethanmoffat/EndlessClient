@@ -51,10 +51,9 @@ namespace EOLib.PacketHandlers.Avatar
                 _characterRepository.HasAvatar = false;
                 _currentMapStateRepository.VisibleSpikeTraps.Remove(_characterRepository.MainCharacter.RenderProperties.Coordinates());
             }
-            else if (_currentMapStateRepository.Characters.ContainsKey(id))
+            else if (_currentMapStateRepository.Characters.TryGetValue(id, out var character))
             {
-                var character = _currentMapStateRepository.Characters[id];
-                _currentMapStateRepository.Characters.Remove(id);
+                _currentMapStateRepository.Characters.Remove(character);
                 _currentMapStateRepository.VisibleSpikeTraps.Remove(character.RenderProperties.Coordinates());
             }
             else

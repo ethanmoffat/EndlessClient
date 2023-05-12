@@ -53,7 +53,8 @@ namespace EOLib.PacketHandlers.NPC
                 }
             }
 
-            _currentMapStateRepository.NPCs.RemoveWhere(npc => npc.ID == childNpcId);
+            foreach (var npc in _currentMapStateRepository.NPCs.Where(npc => npc.ID == childNpcId))
+                _currentMapStateRepository.NPCs.Remove(npc);
 
             return true;
         }

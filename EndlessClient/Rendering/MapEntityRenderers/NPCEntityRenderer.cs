@@ -1,11 +1,9 @@
 ﻿using EndlessClient.Rendering.Map;
 using EndlessClient.Rendering.NPC;
 using EOLib.Domain.Character;
-using EOLib.Domain.Extensions;
-using EOLib.Domain.NPC;
+using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Linq;
 
 namespace EndlessClient.Rendering.MapEntityRenderers
@@ -13,14 +11,17 @@ namespace EndlessClient.Rendering.MapEntityRenderers
     public class NPCEntityRenderer : BaseMapEntityRenderer
     {
         private readonly INPCRendererProvider _npcRendererProvider;
+        private readonly ICurrentMapStateProvider _currentMapStateProvider;
 
         public NPCEntityRenderer(ICharacterProvider characterProvider,
                                  IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
                                  IClientWindowSizeProvider clientWindowSizeProvider,
-                                 INPCRendererProvider npcRendererProvider)
+                                 INPCRendererProvider npcRendererProvider,
+                                 ICurrentMapStateProvider currentMapStateProvider)
             : base(characterProvider, gridDrawCoordinateCalculator, clientWindowSizeProvider)
         {
             _npcRendererProvider = npcRendererProvider;
+            _currentMapStateProvider = currentMapStateProvider;
         }
 
         public override MapRenderLayer RenderLayer => MapRenderLayer.Npc;
@@ -29,34 +30,21 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         protected override bool ElementExistsAt(int row, int col)
         {
-            return _npcRendererProvider.NPCRenderers.Values.Any(IsNpcAt);
-            bool IsNpcAt(INPCRenderer rend) => NPCEntityRenderer.IsNpcAt(rend.NPC, row, col);
+            return _currentMapStateProvider.NPCs.ContainsKey(new MapCoordinate(col, row));
         }
 
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
         {
-            var indicesToRender = _npcRendererProvider.NPCRenderers.Values
-                .Where(IsNpcAt)
-                .Select(n => n.NPC.Index);
+            var indicesToRender = _currentMapStateProvider.NPCs[new MapCoordinate(col, row)].Select(n => n.Index);
 
             foreach (var index in indicesToRender)
             {
                 if (!_npcRendererProvider.NPCRenderers.ContainsKey(index) ||
                     _npcRendererProvider.NPCRenderers[index] == null)
-                    throw new InvalidOperationException(
-                        $"NPC renderer for ID {index} is null or missing! Did you call MapRenderer.Update() before calling MapRenderer.Draw()?");
+                    return;
 
-                var renderer = _npcRendererProvider.NPCRenderers[index];
-                renderer.DrawToSpriteBatch(spriteBatch);
+                _npcRendererProvider.NPCRenderers[index].DrawToSpriteBatch(spriteBatch);
             }
-
-            bool IsNpcAt(INPCRenderer rend) => NPCEntityRenderer.IsNpcAt(rend.NPC, row, col);
-        }
-
-        private static bool IsNpcAt(EOLib.Domain.NPC.NPC npc, int row, int col)
-        {
-            return (npc.IsActing(NPCActionState.Walking) && npc.GetDestinationX() == col && npc.GetDestinationY() == row) ||
-                (npc.X == col && npc.Y == row);
         }
     }
 }

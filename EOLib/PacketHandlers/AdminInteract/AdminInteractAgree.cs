@@ -36,12 +36,10 @@ namespace EOLib.PacketHandlers.AdminInteract
                 _characterRepository.MainCharacter = Shown(_characterRepository.MainCharacter);
             else
             {
-                if (_currentMapStateRepository.Characters.ContainsKey(id))
+                if (_currentMapStateRepository.Characters.TryGetValue(id, out var character))
                 {
-                    var character = _currentMapStateRepository.Characters[id];
-
                     var updatedCharacter = Shown(character);
-                    _currentMapStateRepository.Characters[id] = updatedCharacter;
+                    _currentMapStateRepository.Characters.Update(character, updatedCharacter);
                 }
                 else
                 {

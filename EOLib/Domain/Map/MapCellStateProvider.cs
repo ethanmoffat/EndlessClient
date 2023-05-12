@@ -39,11 +39,14 @@ namespace EOLib.Domain.Map
             var chest = CurrentMap.Chests.Where(c => c.X == x && c.Y == y && c.Key != ChestKey.None).Select(c => c.Key).FirstOrDefault();
             var sign = CurrentMap.Signs.FirstOrDefault(s => s.X == x && s.Y == y);
 
-            var characters = _mapStateProvider.Characters.Values
-                .Concat(new[] { _characterProvider.MainCharacter })
-                .Where(c => CharacterAtCoordinates(c, x, y))
-                .ToList();
-            var npc = _mapStateProvider.NPCs.FirstOrNone(n => NPCAtCoordinates(n, x, y));
+            _mapStateProvider.Characters.TryGetValues(new MapCoordinate(x, y), out var characters);
+            if (_characterProvider.MainCharacter.X == x && _characterProvider.MainCharacter.Y == y)
+                characters.Add(_characterProvider.MainCharacter);
+
+            Option<NPC.NPC> npc = Option.None<NPC.NPC>();
+            if (_mapStateProvider.NPCs.TryGetValues(new MapCoordinate(x, y), out var npcs))
+                npc = npcs.FirstOrNone();
+
             var items = _mapStateProvider.MapItems.TryGetValues(new MapCoordinate(x, y), out var mapItems)
                 ? mapItems.OrderByDescending(i => i.UniqueID)
                 : Enumerable.Empty<MapItem>();
@@ -58,23 +61,9 @@ namespace EOLib.Domain.Map
                 ChestKey   = chest.SomeNotNull(),
                 Sign       = sign.SomeNotNull().Map(s => new Sign(s)),
                 Character  = characters.FirstOrNone(),
-                Characters = characters,
+                Characters = characters.ToList(),
                 NPC        = npc
             };
-        }
-
-        private static bool CharacterAtCoordinates(Character.Character character, int x, int y)
-        {
-            return character.RenderProperties.IsActing(CharacterActionState.Walking)
-                ? character.RenderProperties.GetDestinationX() == x && character.RenderProperties.GetDestinationY() == y
-                : character.RenderProperties.MapX == x && character.RenderProperties.MapY == y;
-        }
-
-        private static bool NPCAtCoordinates(NPC.NPC npc, int x, int y)
-        {
-            return npc.IsActing(NPCActionState.Walking)
-                ? npc.GetDestinationX() == x && npc.GetDestinationY() == y
-                : npc.X == x && npc.Y == y;
         }
 
         private IMapFile CurrentMap => _mapFileProvider.MapFiles[_mapStateProvider.CurrentMapID];
