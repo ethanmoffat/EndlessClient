@@ -303,7 +303,7 @@ namespace EndlessClient.Dialogs
                 }
             }
 
-            var needItemTransferDialog = (buying && shopItem.MaxBuy == 1) || (!buying && inventoryItem.Match(x => x.Amount != 1, () => false));
+            var needItemTransferDialog = (buying && shopItem.MaxBuy != 1) || (!buying && inventoryItem.Match(x => x.Amount != 1, () => false));
 
             if (needItemTransferDialog)
             {
