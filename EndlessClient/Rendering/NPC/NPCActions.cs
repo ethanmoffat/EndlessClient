@@ -80,15 +80,19 @@ namespace EndlessClient.Rendering.NPC
 
             if (hasRenderer)
             {
+                var renderer = _npcRendererRepository.NPCRenderers[npcIndex];
+
                 if (!showDeathAnimation)
                 {
-                    _npcRendererRepository.NPCRenderers[npcIndex].Dispose();
+                    renderer.Dispose();
                     _npcRendererRepository.NPCRenderers.Remove(npcIndex);
                 }
                 else
                 {
-                    _npcRendererRepository.NPCRenderers[npcIndex].StartDying();
-                    damage.MatchSome(d => _npcRendererRepository.NPCRenderers[npcIndex].ShowDamageCounter(d, 0, isHeal: false));
+                    renderer.StartDying();
+                    _npcRendererRepository.DyingNPCs[new MapCoordinate(renderer.NPC.X, renderer.NPC.Y)] = npcIndex;
+
+                    damage.MatchSome(d => renderer.ShowDamageCounter(d, 0, isHeal: false));
                 }
             }
 

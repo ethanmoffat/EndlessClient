@@ -30,18 +30,24 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         protected override bool ElementExistsAt(int row, int col)
         {
-            return _currentMapStateProvider.NPCs.ContainsKey(new MapCoordinate(col, row));
+            var coordinate = new MapCoordinate(col, row);
+            return _currentMapStateProvider.NPCs.ContainsKey(coordinate) || _npcRendererProvider.DyingNPCs.ContainsKey(coordinate);
         }
 
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
         {
-            var indicesToRender = _currentMapStateProvider.NPCs[new MapCoordinate(col, row)].Select(n => n.Index);
+            var coordinate = new MapCoordinate(col, row);
+            var indicesToRender = _npcRendererProvider.DyingNPCs.ContainsKey(coordinate)
+                ? _currentMapStateProvider.NPCs.ContainsKey(coordinate)
+                    ? Enumerable.Repeat(_npcRendererProvider.DyingNPCs[coordinate], 1).Concat(_currentMapStateProvider.NPCs[coordinate].Select(n => n.Index))
+                    : Enumerable.Repeat(_npcRendererProvider.DyingNPCs[coordinate], 1)
+                : _currentMapStateProvider.NPCs[coordinate].Select(n => n.Index);
 
             foreach (var index in indicesToRender)
             {
                 if (!_npcRendererProvider.NPCRenderers.ContainsKey(index) ||
                     _npcRendererProvider.NPCRenderers[index] == null)
-                    return;
+                    continue;
 
                 _npcRendererProvider.NPCRenderers[index].DrawToSpriteBatch(spriteBatch);
             }

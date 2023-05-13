@@ -44,6 +44,7 @@ namespace EndlessClient.Rendering.NPC
             {
                 npc.Dispose();
                 _npcRendererRepository.NPCRenderers.Remove(npc.NPC.Index);
+                _npcRendererRepository.DyingNPCs.Remove(new MapCoordinate(npc.NPC.X, npc.NPC.Y));
                 _npcStateCache.RemoveStateByIndex(npc.NPC.Index);
             }
         }
