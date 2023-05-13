@@ -172,8 +172,8 @@ namespace EndlessClient.HUD.Panels
                 _characterStats[TP].Text = $"{_lastCharacterStats[CharacterStat.TP]}";
                 _characterStats[DAM].Text = $"{_lastCharacterStats[CharacterStat.MinDam]} - {_lastCharacterStats[CharacterStat.MaxDam]}";
                 _characterStats[ACC].Text = $"{_lastCharacterStats[CharacterStat.Accuracy]}";
-                _characterStats[ARM].Text = $"{_lastCharacterStats[CharacterStat.Evade]}";
-                _characterStats[EVA].Text = $"{_lastCharacterStats[CharacterStat.Armor]}";
+                _characterStats[EVA].Text = $"{_lastCharacterStats[CharacterStat.Evade]}";
+                _characterStats[ARM].Text = $"{_lastCharacterStats[CharacterStat.Armor]}";
 
                 _otherInfo[WEIGHT].Text = $"{_lastCharacterStats[CharacterStat.Weight]} / {_lastCharacterStats[CharacterStat.MaxWeight]}";
                 _otherInfo[STATPTS].Text = $"{_lastCharacterStats[CharacterStat.StatPoints]}";
