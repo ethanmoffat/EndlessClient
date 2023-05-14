@@ -116,7 +116,10 @@ namespace EOBot
                         ConsoleHelper.WriteMessage(ConsoleHelper.Type.Chat, $"{message.Who}: {message.Message}", ConsoleColor.Cyan);
 
                     _cachedChat = _chatProvider.AllChat[ChatTab.Local].ToHashSet();
-                    Console.Beep(261, 1500);
+                    if (OperatingSystem.IsWindows())
+                    {
+                        Console.Beep(261, 1500);
+                    }
                 }
 
                 var character = _characterRepository.MainCharacter;
@@ -124,12 +127,13 @@ namespace EOBot
 
                 var currentPositionCellState = mapCellStateProvider.GetCellStateAt(charRenderProps.MapX, charRenderProps.MapY);
 
-                if (cachedPlayerCount != mapStateProvider.Characters.Count)
+                if (cachedPlayerCount != mapStateProvider.Characters.Count())
                 {
-                    cachedPlayerCount = mapStateProvider.Characters.Count;
-                    if (cachedPlayerCount > 0)
+                    cachedPlayerCount = mapStateProvider.Characters.Count();
+                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"{cachedPlayerCount,7} - Players on map - You may not be able to train here", ConsoleColor.DarkYellow);
+
+                    if (OperatingSystem.IsWindows())
                     {
-                        ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"{cachedPlayerCount,7} - Players on map - You may not be able to train here", ConsoleColor.DarkYellow);
                         Console.Beep(220, 500);
                         Console.Beep(247, 500);
                         Console.Beep(220, 500);
