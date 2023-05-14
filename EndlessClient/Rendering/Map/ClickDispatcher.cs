@@ -107,7 +107,7 @@ namespace EndlessClient.Rendering.Map
 
         private bool CheckForEntityClicks(MouseEventArgs eventArgs)
         {
-            var entities = new List<IMapEntity>(_currentMapStateProvider.Characters.Select(x => x.Value));
+            var entities = new List<IMapEntity>(_currentMapStateProvider.Characters);
             entities.Add(_characterProvider.MainCharacter);
             entities.AddRange(_currentMapStateProvider.NPCs);
             entities.AddRange(_currentMapProvider.CurrentMap.Signs);

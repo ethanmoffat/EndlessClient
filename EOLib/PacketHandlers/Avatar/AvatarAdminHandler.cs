@@ -49,11 +49,10 @@ namespace EOLib.PacketHandlers.Avatar
                 var renderProps = _characterRepository.MainCharacter.RenderProperties.WithDirection(sourcePlayerDirection);
                 _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithRenderProperties(renderProps);
             }
-            else if (_currentMapStateRepository.Characters.ContainsKey(sourcePlayerId))
+            else if (_currentMapStateRepository.Characters.TryGetValue(sourcePlayerId, out var sourceCharacter))
             {
-                var character = _currentMapStateRepository.Characters[sourcePlayerId];
-                var updatedCharacter = character.WithRenderProperties(character.RenderProperties.WithDirection(sourcePlayerDirection));
-                _currentMapStateRepository.Characters[sourcePlayerId] = updatedCharacter;
+                var updatedCharacter = sourceCharacter.WithRenderProperties(sourceCharacter.RenderProperties.WithDirection(sourcePlayerDirection));
+                _currentMapStateRepository.Characters.Update(sourceCharacter, updatedCharacter);
             }
             else
             {
@@ -72,16 +71,14 @@ namespace EOLib.PacketHandlers.Avatar
                     .WithStats(stats)
                     .WithRenderProperties(renderProps);
             }
-            else if (_currentMapStateRepository.Characters.ContainsKey(targetPlayerId))
+            else if (_currentMapStateRepository.Characters.TryGetValue(targetPlayerId, out var targetCharacter))
             {
-                var c = _currentMapStateRepository.Characters[targetPlayerId];
+                var renderProps = targetCharacter.RenderProperties.WithIsDead(targetIsDead);
 
-                var renderProps = c.RenderProperties.WithIsDead(targetIsDead);
-
-                var stats = c.Stats;
+                var stats = targetCharacter.Stats;
                 stats = stats.WithNewStat(CharacterStat.HP, stats[CharacterStat.HP] - damage);
 
-                _currentMapStateRepository.Characters[targetPlayerId] = c.WithStats(stats).WithRenderProperties(renderProps);
+                _currentMapStateRepository.Characters.Update(targetCharacter, targetCharacter.WithStats(stats).WithRenderProperties(renderProps));
             }
             else
             {

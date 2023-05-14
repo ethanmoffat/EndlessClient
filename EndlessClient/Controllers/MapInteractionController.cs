@@ -254,9 +254,9 @@ namespace EndlessClient.Controllers
                     item.OwningPlayerID.MatchSome(playerId =>
                     {
                         message = EOResourceID.STATUS_LABEL_ITEM_PICKUP_PROTECTED_BY;
-                        if (_currentMapStateProvider.Characters.ContainsKey(playerId))
+                        if (_currentMapStateProvider.Characters.TryGetValue(playerId, out var character))
                         {
-                            extra = $" {_currentMapStateProvider.Characters[playerId].Name}";
+                            extra = $" {character.Name}";
                         }
                     });
 

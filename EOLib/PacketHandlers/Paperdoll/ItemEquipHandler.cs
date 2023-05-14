@@ -71,8 +71,8 @@ namespace EOLib.PacketHandlers.Paperdoll
 
             var update = _characterRepository.MainCharacter.ID == playerId
                 ? Option.Some(_characterRepository.MainCharacter)
-                : _currentMapStateRepository.Characters.ContainsKey(playerId)
-                    ? Option.Some(_currentMapStateRepository.Characters[playerId])
+                : _currentMapStateRepository.Characters.TryGetValue(playerId, out var character)
+                    ? Option.Some(character)
                     : Option.None<Character>();
 
             update.MatchSome(c =>
@@ -108,7 +108,7 @@ namespace EOLib.PacketHandlers.Paperdoll
                 }
                 else
                 {
-                    _currentMapStateRepository.Characters[playerId] = c.WithStats(stats);
+                    _currentMapStateRepository.Characters.Update(c, c.WithStats(stats));
                 }
             });
 

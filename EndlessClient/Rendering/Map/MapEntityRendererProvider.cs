@@ -28,8 +28,7 @@ namespace EndlessClient.Rendering.Map
                                          IClientWindowSizeProvider clientWindowSizeProvider,
                                          IConfigurationProvider configurationProvider,
                                          ICharacterRendererProvider characterRendererProvider,
-                                         INPCRendererProvider npcRendererProvider,
-                                         ICharacterStateCache characterStateCache)
+                                         INPCRendererProvider npcRendererProvider)
         {
             GroundRenderer =
                 new GroundLayerRenderer(nativeGraphicsManager,
@@ -90,13 +89,14 @@ namespace EndlessClient.Rendering.Map
                                            currentMapStateProvider),
                 new OtherCharacterEntityRenderer(characterProvider,
                                                  characterRendererProvider,
-                                                 characterStateCache,
+                                                 currentMapStateProvider,
                                                  gridDrawCoordinateCalculator,
                                                  clientWindowSizeProvider),
                 new NPCEntityRenderer(characterProvider,
                                       gridDrawCoordinateCalculator,
                                       clientWindowSizeProvider,
-                                      npcRendererProvider),
+                                      npcRendererProvider,
+                                      currentMapStateProvider),
                 new Overlay2LayerRenderer(nativeGraphicsManager,
                                           currentMapProvider,
                                           characterProvider,

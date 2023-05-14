@@ -142,10 +142,10 @@ namespace EOLib.PacketHandlers.NPC
                     foreach (var notifier in _mainCharacterNotifiers)
                         notifier.NotifyTakeDamage(damageTaken, playerPercentHealth, isHeal: false);
                 }
-                else if (_currentMapStateRepository.Characters.ContainsKey(characterID))
+                else if (_currentMapStateRepository.Characters.TryGetValue(characterID, out var character))
                 {
-                    var updatedCharacter = _currentMapStateRepository.Characters[characterID].WithDamage(damageTaken, isDead);
-                    _currentMapStateRepository.Characters[characterID] = updatedCharacter;
+                    var updatedCharacter = character.WithDamage(damageTaken, isDead);
+                    _currentMapStateRepository.Characters.Update(character, updatedCharacter);
 
                     foreach (var notifier in _otherCharacterNotifiers)
                         notifier.OtherCharacterTakeDamage(characterID, playerPercentHealth, damageTaken, isHeal: false);

@@ -183,9 +183,9 @@ namespace EOLib.Domain.Login
             _characterInventoryRepository.ItemInventory = new HashSet<InventoryItem>(data.CharacterItemInventory);
             _characterInventoryRepository.SpellInventory = new HashSet<InventorySpell>(data.CharacterSpellInventory);
 
-            _currentMapStateRepository.Characters = data.MapCharacters.Except(new[] { mainCharacter }).ToDictionary(k => k.ID, v => v);
-            _currentMapStateRepository.NPCs = new HashSet<NPC.NPC>(data.MapNPCs);
-            _currentMapStateRepository.MapItems = new HashSet<MapItem>(data.MapItems);
+            _currentMapStateRepository.Characters = new MapEntityCollectionHashSet<Character.Character>(c => c.ID, c => new MapCoordinate(c.X, c.Y), data.MapCharacters.Except(new[] { mainCharacter }));
+            _currentMapStateRepository.NPCs = new MapEntityCollectionHashSet<NPC.NPC>(n => n.Index, n => new MapCoordinate(n.X, n.Y), data.MapNPCs);
+            _currentMapStateRepository.MapItems = new MapEntityCollectionHashSet<MapItem>(item => item.UniqueID, item => new MapCoordinate(item.X, item.Y), data.MapItems);
 
             _playerInfoRepository.PlayerIsInGame = true;
             _characterSessionRepository.ResetState();

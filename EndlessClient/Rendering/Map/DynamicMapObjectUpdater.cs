@@ -100,7 +100,7 @@ namespace EndlessClient.Rendering.Map
 
             foreach (var spikeTrap in _currentMapStateRepository.VisibleSpikeTraps)
             {
-                if (_currentMapStateRepository.Characters.Values
+                if (_currentMapStateRepository.Characters
                     .Concat(new[] { _characterProvider.MainCharacter })
                     .Select(x => x.RenderProperties)
                     .All(x => x.MapX != spikeTrap.X && x.MapY != spikeTrap.Y))

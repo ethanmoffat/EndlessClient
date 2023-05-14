@@ -245,7 +245,7 @@ namespace EndlessClient.Rendering.Character
             else if (_currentMapStateRepository.Characters.TryGetValue(characterID, out var otherCharacter))
             {
                 var rp = otherCharacter.RenderProperties.WithEmote(whichEmote);
-                _currentMapStateRepository.Characters[characterID] = otherCharacter.WithRenderProperties(rp);
+                _currentMapStateRepository.Characters.Update(otherCharacter, otherCharacter.WithRenderProperties(rp));
             }
             else
             {
@@ -268,9 +268,11 @@ namespace EndlessClient.Rendering.Character
                 _characterRepository.MainCharacter.WithRenderProperties(
                     _characterRepository.MainCharacter.RenderProperties.ResetAnimationFrames());
 
-            _currentMapStateRepository.Characters = _currentMapStateRepository.Characters.Values
-                .Select(c => c.WithRenderProperties(c.RenderProperties.ResetAnimationFrames()))
-                .ToDictionary(k => k.ID, v => v);
+            var characterPairs = _currentMapStateRepository.Characters
+                .Select(c => (Old: c, New: c.WithRenderProperties(c.RenderProperties.ResetAnimationFrames())))
+                .ToList();
+            foreach (var (Old, New) in characterPairs)
+                _currentMapStateRepository.Characters.Update(Old, New);
         }
 
         #region Walk Animation
@@ -552,8 +554,8 @@ namespace EndlessClient.Rendering.Character
         {
             return pair.UniqueID == _characterRepository.MainCharacter.ID
                 ? Option.Some(_characterRepository.MainCharacter)
-                : _currentMapStateRepository.Characters.ContainsKey(pair.UniqueID)
-                    ? Option.Some(_currentMapStateRepository.Characters[pair.UniqueID])
+                : _currentMapStateRepository.Characters.TryGetValue(pair.UniqueID, out var character)
+                    ? Option.Some(character)
                     : Option.None<EOLib.Domain.Character.Character>();
         }
 
@@ -566,7 +568,7 @@ namespace EndlessClient.Rendering.Character
             }
             else
             {
-                _currentMapStateRepository.Characters[nextFrameCharacter.ID] = nextFrameCharacter;
+                _currentMapStateRepository.Characters.Update(currentCharacter, nextFrameCharacter);
             }
         }
 
@@ -575,7 +577,7 @@ namespace EndlessClient.Rendering.Character
             var character = _currentMapStateRepository.Characters[characterID];
             var renderProps = character.RenderProperties.ResetAnimationFrames();
             var newCharacter = character.WithRenderProperties(renderProps);
-            _currentMapStateRepository.Characters[characterID] = newCharacter;
+            _currentMapStateRepository.Characters.Update(character, newCharacter);
         }
     }
 

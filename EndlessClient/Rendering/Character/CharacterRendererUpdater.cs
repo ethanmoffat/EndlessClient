@@ -74,9 +74,9 @@ namespace EndlessClient.Rendering.Character
 
         private void CreateOtherCharacterRenderersAndCacheProperties()
         {
-            foreach (var id in _currentMapStateRepository.Characters.Keys)
+            foreach (var character in _currentMapStateRepository.Characters)
             {
-                var character = _currentMapStateRepository.Characters[id];
+                var id = character.ID;
 
                 _characterStateCache.HasCharacterWithID(id)
                     .SomeWhen(b => b)
@@ -146,9 +146,9 @@ namespace EndlessClient.Rendering.Character
 
         private void UpdateDeadCharacters()
         {
-            var deadCharacters = new List<int>();
+            var deadCharacters = new List<EOLib.Domain.Character.Character>();
 
-            foreach (var character in _currentMapStateRepository.Characters.Values.Where(x => x.RenderProperties.IsDead))
+            foreach (var character in _currentMapStateRepository.Characters.Where(x => x.RenderProperties.IsDead))
             {
                 _characterStateCache.DeathStartTimes.SingleOrNone(x => x.UniqueID == character.ID)
                     .Match(
@@ -166,13 +166,13 @@ namespace EndlessClient.Rendering.Character
                                     _characterRendererRepository.CharacterRenderers.Remove(character.ID);
                                 }
 
-                                deadCharacters.Add(character.ID);
+                                deadCharacters.Add(character);
                             }
                         });
             }
 
-            foreach (var id in deadCharacters)
-                _currentMapStateRepository.Characters.Remove(id);
+            foreach (var dead in deadCharacters)
+                _currentMapStateRepository.Characters.Remove(dead);
         }
 
         private ICharacterRenderer InitializeRendererForCharacter(EOLib.Domain.Character.Character character)

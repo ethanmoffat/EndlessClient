@@ -3,16 +3,22 @@ using EndlessClient.Rendering;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
+using EOLib.IO.Map;
 using EOLib.Net;
 using EOLib.Net.Communication;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 
 namespace EndlessClient.Network
 {
     public class UnknownEntitiesRequester : GameComponent
     {
+        private const int UPPER_SEE_DISTANCE = 11;
+        private const int LOWER_SEE_DISTANCE = 14;
+
         private const double REQUEST_INTERVAL_SECONDS = 1.0;
 
         private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
@@ -119,55 +125,41 @@ namespace EndlessClient.Network
 
         private void ClearOutOfRangeActors()
         {
-            // todo: the server should communicate the "seedistance" to clients
-            // for now, disable auto remove of entities in Resizable mode
-            if (_clientWindowSizeProvider.Resizable)
-            {
-                return;
-            }
-
             var mc = _characterProvider.MainCharacter;
 
-            var idsToRemove = new List<int>();
-            foreach (var id in _currentMapStateRepository.Characters.Keys)
+            var entities = new List<IMapEntity>(_currentMapStateRepository.Characters)
+                .Concat(_currentMapStateRepository.NPCs)
+                .Concat(_currentMapStateRepository.MapItems);
+
+            var seeDistanceUpper = (int)(_clientWindowSizeProvider.Height / 480.0 * UPPER_SEE_DISTANCE);
+            var seeDistanceLower = (int)(_clientWindowSizeProvider.Height / 480.0 * LOWER_SEE_DISTANCE);
+
+            var entitiesToRemove = new List<IMapEntity>();
+            foreach (var entity in entities)
             {
-                var c = _currentMapStateRepository.Characters[id];
+                var xDiff = Math.Abs(mc.X - entity.X);
+                var yDiff = Math.Abs(mc.Y - entity.Y);
 
-                var xDiff = Math.Abs(mc.X - c.X);
-                var yDiff = Math.Abs(mc.Y - c.Y);
-
-                if (c.X < mc.X || c.Y < mc.Y)
+                if (entity.X < mc.X || entity.Y < mc.Y)
                 {
-                    if (xDiff + yDiff > 11)
-                        idsToRemove.Add(id);
+                    if (xDiff + yDiff > seeDistanceUpper)
+                        entitiesToRemove.Add(entity);
                 }
-                else if (xDiff + yDiff > 14)
+                else if (xDiff + yDiff > seeDistanceLower)
                 {
-                    idsToRemove.Add(id);
+                    entitiesToRemove.Add(entity);
                 }
             }
 
-            foreach (var id in idsToRemove)
-                _currentMapStateRepository.Characters.Remove(id);
-
-            var npcsToRemove = new List<NPC>();
-            foreach (var npc in _currentMapStateRepository.NPCs)
+            foreach (var entity in entitiesToRemove)
             {
-                var xDiff = Math.Abs(mc.X - npc.X);
-                var yDiff = Math.Abs(mc.Y - npc.Y);
-
-                if (npc.X < mc.X || npc.Y < mc.Y)
-                {
-                    if (xDiff + yDiff > 11)
-                        npcsToRemove.Add(npc);
-                }
-                else if (xDiff + yDiff > 14)
-                {
-                    npcsToRemove.Add(npc);
-                }
+                if (entity is Character c)
+                    _currentMapStateRepository.Characters.Remove(c);
+                else if (entity is NPC n)
+                    _currentMapStateRepository.NPCs.Remove(n);
+                else if (entity is MapItem i)
+                    _currentMapStateRepository.MapItems.Remove(i);
             }
-
-            _currentMapStateRepository.NPCs.RemoveWhere(npcsToRemove.Contains);
         }
     }
 }
