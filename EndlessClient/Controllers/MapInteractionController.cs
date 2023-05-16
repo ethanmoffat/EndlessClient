@@ -20,6 +20,7 @@ using EOLib.Domain.Interact;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
 using EOLib.Domain.Spells;
+using EOLib.IO.Extensions;
 using EOLib.IO.Map;
 using EOLib.Localization;
 using Optional;
@@ -121,20 +122,29 @@ namespace EndlessClient.Controllers
                 var sign = cellState.Sign.ValueOr(Sign.None);
                 var messageBox = _messageBoxFactory.CreateMessageBox(sign.Message, sign.Title);
                 messageBox.ShowDialog();
+                _sfxPlayer.PlaySfx(SoundEffectID.ChestOpen);
             }
+            // vanilla client prioritizes standing first, then board interaction
             else if (_characterProvider.MainCharacter.RenderProperties.SitState != SitState.Standing)
             {
                 _characterActions.ToggleSit();
             }
-            else if (InteractableTileSpec(cellState.TileSpec) && CharacterIsCloseEnough(cellState.Coordinate))
+            else if (InteractableTileSpec(cellState.TileSpec) && (cellState.TileSpec.IsBoard() || CharacterIsCloseEnough(cellState.Coordinate)))
             {
                 var unwalkableActions = _unwalkableTileActions.GetUnwalkableTileActions(cellState);
 
                 foreach (var unwalkableAction in unwalkableActions)
                 {
+
+                    if (cellState.TileSpec.IsBoard())
+                    {
+                        _mapActions.OpenBoard(cellState.TileSpec);
+                        _inGameDialogActions.ShowBoardDialog();
+                        continue;
+                    }
+
                     switch (cellState.TileSpec)
                     {
-                        // todo: implement for other clickable tile specs (board, jukebox, etc)
                         case TileSpec.Chest:
                             if (unwalkableAction == UnwalkableTileAction.Chest)
                             {
@@ -148,6 +158,9 @@ namespace EndlessClient.Controllers
                                 _mapActions.OpenLocker(cellState.Coordinate);
                                 _inGameDialogActions.ShowLockerDialog();
                             }
+                            break;
+                        case TileSpec.Jukebox:
+                            // todo
                             break;
                     }
                 }

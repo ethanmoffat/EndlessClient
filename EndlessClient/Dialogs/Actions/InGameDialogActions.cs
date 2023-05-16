@@ -30,6 +30,7 @@ namespace EndlessClient.Dialogs.Actions
         private readonly IBardDialogFactory _bardDialogFactory;
         private readonly IScrollingListDialogFactory _scrollingListDialogFactory;
         private readonly ITradeDialogFactory _tradeDialogFactory;
+        private readonly IBoardDialogFactory _boardDialogFactory;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IShopDialogFactory _shopDialogFactory;
         private readonly IQuestDialogFactory _questDialogFactory;
@@ -51,6 +52,7 @@ namespace EndlessClient.Dialogs.Actions
                                    IBardDialogFactory bardDialogFactory,
                                    IScrollingListDialogFactory scrollingListDialogFactory,
                                    ITradeDialogFactory tradeDialogFactory,
+                                   IBoardDialogFactory boardDialogFactory,
                                    ISfxPlayer sfxPlayer)
         {
             _friendIgnoreListDialogFactory = friendIgnoreListDialogFactory;
@@ -68,6 +70,7 @@ namespace EndlessClient.Dialogs.Actions
             _bardDialogFactory = bardDialogFactory;
             _scrollingListDialogFactory = scrollingListDialogFactory;
             _tradeDialogFactory = tradeDialogFactory;
+            _boardDialogFactory = boardDialogFactory;
             _sfxPlayer = sfxPlayer;
             _shopDialogFactory = shopDialogFactory;
             _questDialogFactory = questDialogFactory;
@@ -303,6 +306,20 @@ namespace EndlessClient.Dialogs.Actions
             _activeDialogRepository.TradeDialog.MatchSome(dlg => dlg.Close());
         }
 
+        public void ShowBoardDialog()
+        {
+            _activeDialogRepository.BoardDialog.MatchNone(() =>
+            {
+                var dlg = _boardDialogFactory.Create();
+                dlg.DialogClosed += (_, _) => _activeDialogRepository.BoardDialog = Option.None<BoardDialog>();
+                _activeDialogRepository.BoardDialog = Option.Some(dlg);
+
+                UseDefaultDialogSounds(dlg);
+
+                dlg.Show();
+            });
+        }
+
         private void UseDefaultDialogSounds(ScrollingListDialog dialog)
         {
             UseDefaultDialogSounds((BaseEODialog)dialog);
@@ -360,5 +377,7 @@ namespace EndlessClient.Dialogs.Actions
         void ShowTradeDialog();
 
         void CloseTradeDialog();
+
+        void ShowBoardDialog();
     }
 }

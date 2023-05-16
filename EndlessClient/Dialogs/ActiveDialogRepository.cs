@@ -37,6 +37,8 @@ namespace EndlessClient.Dialogs
 
         Option<EOMessageBox> MessageBox { get; }
 
+        Option<BoardDialog> BoardDialog { get; }
+
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs { get; }
     }
 
@@ -69,6 +71,8 @@ namespace EndlessClient.Dialogs
         Option<TradeDialog> TradeDialog { get; set; }
 
         Option<EOMessageBox> MessageBox { get; set; }
+
+        Option<BoardDialog> BoardDialog { get; set; }
 
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs { get; }
     }
@@ -104,27 +108,35 @@ namespace EndlessClient.Dialogs
 
         public Option<EOMessageBox> MessageBox { get; set; }
 
+        public Option<BoardDialog> BoardDialog { get; set; }
+
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs
         {
             get
             {
-                return new[]
+                return new Option<IXNADialog>[]
                 {
-                    FriendIgnoreDialog.Map(d => (IXNADialog)d),
-                    SessionExpDialog.Map(d => (IXNADialog)d),
-                    QuestStatusDialog.Map(d => (IXNADialog)d),
-                    PaperdollDialog.Map(d => (IXNADialog)d),
-                    ShopDialog.Map(d => (IXNADialog)d),
-                    QuestDialog.Map(d => (IXNADialog)d),
-                    ChestDialog.Map(d => (IXNADialog)d),
-                    LockerDialog.Map(d => (IXNADialog)d),
-                    BankAccountDialog.Map(d => (IXNADialog)d),
-                    SkillmasterDialog.Map(d => (IXNADialog)d),
-                    BardDialog.Map(d => (IXNADialog)d),
-                    MessageDialog.Map(d => (IXNADialog)d),
-                    TradeDialog.Map(d => (IXNADialog)d),
-                    MessageBox.Map(d => (IXNADialog)d),
+                    FriendIgnoreDialog.Map(Map),
+                    SessionExpDialog.Map(Map),
+                    QuestStatusDialog.Map(Map),
+                    PaperdollDialog.Map(Map),
+                    ShopDialog.Map(Map),
+                    QuestDialog.Map(Map),
+                    ChestDialog.Map(Map),
+                    LockerDialog.Map(Map),
+                    BankAccountDialog.Map(Map),
+                    SkillmasterDialog.Map(Map),
+                    BardDialog.Map(Map),
+                    MessageDialog.Map(Map),
+                    TradeDialog.Map(Map),
+                    MessageBox.Map(Map),
+                    BoardDialog.Map(Map),
                 }.ToList();
+
+                static IXNADialog Map(object d)
+                {
+                    return (IXNADialog)d;
+                }
             }
         }
 
@@ -151,6 +163,7 @@ namespace EndlessClient.Dialogs
             MessageDialog = Option.None<ScrollingListDialog>();
             TradeDialog = Option.None<TradeDialog>();
             MessageBox = Option.None<EOMessageBox>();
+            BoardDialog = Option.None<BoardDialog>();
         }
     }
 }

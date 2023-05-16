@@ -169,8 +169,7 @@ namespace EndlessClient.Rendering.Map
             {
                 DomainCharacter c => GetCharacterRendererArea(c.ID),
                 DomainNPC n => GetNPCRendererArea(n.Index),
-                SignMapEntity s => GetObjectBounds(s),
-                BoardMapEntity b => GetObjectBounds(b),
+                SignMapEntity or BoardMapEntity => GetObjectBounds(entity),
                 _ => throw new ArgumentException()
             };
         }
@@ -247,7 +246,14 @@ namespace EndlessClient.Rendering.Map
 
         private bool HandleBoardClick(BoardMapEntity b)
         {
-            // todo: check for board object clicks
+            var cellState = new MapCellState
+            {
+                Coordinate = new MapCoordinate(b.X, b.Y),
+                TileSpec = _currentMapProvider.CurrentMap.Tiles[b.Y, b.X]
+            };
+
+            _mapInteractionController.LeftClick(cellState);
+
             return false;
         }
     }

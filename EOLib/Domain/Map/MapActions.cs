@@ -1,6 +1,7 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Item;
+using EOLib.IO.Map;
 using EOLib.Net;
 using EOLib.Net.Communication;
 
@@ -13,19 +14,16 @@ namespace EOLib.Domain.Map
         private readonly IItemPickupValidator _itemPickupValidator;
         private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
-        private readonly IChestDataProvider _chestDataProvider;
 
         public MapActions(IPacketSendService packetSendService,
                           IItemPickupValidator itemPickupValidator,
                           ICharacterProvider characterProvider,
-                          ICurrentMapStateRepository currentMapStateRepository,
-                          IChestDataProvider chestDataProvider)
+                          ICurrentMapStateRepository currentMapStateRepository)
         {
             _packetSendService = packetSendService;
             _itemPickupValidator = itemPickupValidator;
             _characterProvider = characterProvider;
             _currentMapStateRepository = currentMapStateRepository;
-            _chestDataProvider = chestDataProvider;
         }
 
         public void RequestRefresh()
@@ -84,6 +82,15 @@ namespace EOLib.Domain.Map
 
             _packetSendService.SendPacket(packet);
         }
+
+        public void OpenBoard(TileSpec boardSpec)
+        {
+            var packet = new PacketBuilder(PacketFamily.Board, PacketAction.Open)
+                .AddShort(boardSpec - TileSpec.Board1)
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+        }
     }
 
     public interface IMapActions
@@ -97,5 +104,7 @@ namespace EOLib.Domain.Map
         void OpenChest(MapCoordinate location);
 
         void OpenLocker(MapCoordinate location);
+
+        void OpenBoard(TileSpec boardSpec);
     }
 }
