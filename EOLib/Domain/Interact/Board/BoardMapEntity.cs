@@ -1,7 +1,7 @@
 ﻿using Amadevus.RecordGenerator;
 using EOLib.IO.Map;
 
-namespace EOLib.Domain.Board
+namespace EOLib.Domain.Interact.Board
 {
     [Record]
     public sealed partial class BoardMapEntity : IMapEntity

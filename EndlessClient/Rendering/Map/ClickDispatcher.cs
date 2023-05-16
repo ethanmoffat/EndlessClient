@@ -1,13 +1,12 @@
-﻿using AutomaticTypeMapper;
-using EndlessClient.Controllers;
+﻿using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Spells;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.NPC;
-using EOLib.Domain.Board;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
+using EOLib.Domain.Interact.Board;
 using EOLib.Domain.Map;
 using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
@@ -18,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using XNAControls;
-
 using DomainCharacter = EOLib.Domain.Character.Character;
 using DomainNPC = EOLib.Domain.NPC.NPC;
 
