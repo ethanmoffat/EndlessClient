@@ -24,7 +24,6 @@ namespace EndlessClient.Dialogs.Factories
         private readonly IInventorySpaceValidator _inventorySpaceValidator;
         private readonly IMapItemGraphicProvider _mapItemGraphicProvider;
         private readonly IChestDataProvider _chestDataProvider;
-        private readonly IHudControlProvider _hudControlProvider;
         private readonly IEIFFileProvider _eifFileProvider;
         private readonly ICharacterProvider _characterProvider;
 
@@ -37,7 +36,6 @@ namespace EndlessClient.Dialogs.Factories
                                   IInventorySpaceValidator inventorySpaceValidator,
                                   IMapItemGraphicProvider mapItemGraphicProvider,
                                   IChestDataProvider chestDataProvider,
-                                  IHudControlProvider hudControlProvider,
                                   IEIFFileProvider eifFileProvider,
                                   ICharacterProvider characterProvider)
         {
@@ -50,7 +48,6 @@ namespace EndlessClient.Dialogs.Factories
             _inventorySpaceValidator = inventorySpaceValidator;
             _mapItemGraphicProvider = mapItemGraphicProvider;
             _chestDataProvider = chestDataProvider;
-            _hudControlProvider = hudControlProvider;
             _eifFileProvider = eifFileProvider;
             _characterProvider = characterProvider;
         }
@@ -66,7 +63,6 @@ namespace EndlessClient.Dialogs.Factories
                                    _inventorySpaceValidator,
                                    _mapItemGraphicProvider,
                                    _chestDataProvider,
-                                   _hudControlProvider,
                                    _eifFileProvider,
                                    _characterProvider);
         }

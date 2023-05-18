@@ -113,6 +113,8 @@ namespace EOLib.Domain.Login
                 .WithStats(data.CharacterStats);
 
             _playerInfoRepository.IsFirstTimePlayer = data.FirstTimePlayer;
+            _playerInfoRepository.PlayerHasAdminCharacter = _characterSelectorRepository.Characters.Any(x => x.AdminLevel > 0);
+
             _currentMapStateRepository.CurrentMapID = data.MapID;
             _currentMapStateRepository.JailMapID = data.JailMap;
 

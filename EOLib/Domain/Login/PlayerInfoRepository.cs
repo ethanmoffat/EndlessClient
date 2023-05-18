@@ -13,6 +13,8 @@ namespace EOLib.Domain.Login
         bool IsFirstTimePlayer { get; set; }
 
         bool PlayerIsInGame { get; set; }
+
+        bool PlayerHasAdminCharacter { get; set; }
     }
 
     public interface IPlayerInfoProvider
@@ -26,6 +28,8 @@ namespace EOLib.Domain.Login
         bool IsFirstTimePlayer { get; }
 
         bool PlayerIsInGame { get; }
+
+        bool PlayerHasAdminCharacter { get; }
     }
 
     [AutoMappedType(IsSingleton = true)]
@@ -41,6 +45,8 @@ namespace EOLib.Domain.Login
 
         public bool PlayerIsInGame { get; set; }
 
+        public bool PlayerHasAdminCharacter { get; set; }
+
         public void ResetState()
         {
             LoggedInAccountName = "";
@@ -48,6 +54,7 @@ namespace EOLib.Domain.Login
             PlayerID = 0;
             IsFirstTimePlayer = false;
             PlayerIsInGame = false;
+            PlayerHasAdminCharacter = false;
         }
     }
 }

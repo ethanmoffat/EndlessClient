@@ -96,6 +96,14 @@ namespace EndlessClient.Dialogs
 
         public bool ShowIconBackGround { get; set; }
 
+        public bool ShowSubtext
+        {
+            get => _subText.Visible;
+            set => ((XNAControl)_subText).Visible = value;
+        }
+
+        public bool UnderlineLinks { get; set; } = true;
+
         public object Data { get; set; }
 
         public event EventHandler RightClick;
@@ -133,7 +141,7 @@ namespace EndlessClient.Dialogs
                 AutoSize = true,
                 BackColor = _primaryText.BackColor,
                 ForeColor = _primaryText.ForeColor,
-                DrawPosition = new Vector2(56, 20),
+                DrawPosition = Style == ListItemStyle.Large ? new Vector2(56, 20) : new Vector2(100, 0),
                 Text = " ",
                 Visible = Style == ListItemStyle.Large
             };
@@ -166,7 +174,7 @@ namespace EndlessClient.Dialogs
                 ForeColor = oldText.ForeColor,
                 MouseOverColor = oldText.ForeColor,
                 Text = oldText.Text,
-                Underline = true
+                Underline = UnderlineLinks
             };
 
             ((XNAHyperLink)_primaryText).OnClick += onClickAction;
@@ -195,7 +203,7 @@ namespace EndlessClient.Dialogs
                 ForeColor = oldText.ForeColor,
                 MouseOverColor = oldText.ForeColor,
                 Text = oldText.Text,
-                Underline = true
+                Underline = UnderlineLinks
             };
 
             ((XNAHyperLink)_subText).OnClick += onClickAction;

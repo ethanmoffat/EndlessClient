@@ -1,14 +1,17 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Dialogs.Factories;
+using EndlessClient.HUD;
 using EOLib.Domain.Character;
 using EOLib.Domain.Interact.Quest;
 using EOLib.Domain.Interact.Shop;
 using EOLib.Domain.Interact.Skill;
+using EOLib.Localization;
 using Optional;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using XNAControls;
 
 namespace EndlessClient.Dialogs.Actions
 {
@@ -32,6 +35,7 @@ namespace EndlessClient.Dialogs.Actions
         private readonly ITradeDialogFactory _tradeDialogFactory;
         private readonly IBoardDialogFactory _boardDialogFactory;
         private readonly ISfxPlayer _sfxPlayer;
+        private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IShopDialogFactory _shopDialogFactory;
         private readonly IQuestDialogFactory _questDialogFactory;
 
@@ -53,7 +57,8 @@ namespace EndlessClient.Dialogs.Actions
                                    IScrollingListDialogFactory scrollingListDialogFactory,
                                    ITradeDialogFactory tradeDialogFactory,
                                    IBoardDialogFactory boardDialogFactory,
-                                   ISfxPlayer sfxPlayer)
+                                   ISfxPlayer sfxPlayer,
+                                   IStatusLabelSetter statusLabelSetter)
         {
             _friendIgnoreListDialogFactory = friendIgnoreListDialogFactory;
             _paperdollDialogFactory = paperdollDialogFactory;
@@ -72,6 +77,7 @@ namespace EndlessClient.Dialogs.Actions
             _tradeDialogFactory = tradeDialogFactory;
             _boardDialogFactory = boardDialogFactory;
             _sfxPlayer = sfxPlayer;
+            _statusLabelSetter = statusLabelSetter;
             _shopDialogFactory = shopDialogFactory;
             _questDialogFactory = questDialogFactory;
         }
@@ -314,27 +320,31 @@ namespace EndlessClient.Dialogs.Actions
                 dlg.DialogClosed += (_, _) => _activeDialogRepository.BoardDialog = Option.None<BoardDialog>();
                 _activeDialogRepository.BoardDialog = Option.Some(dlg);
 
-                UseDefaultDialogSounds(dlg);
-
                 dlg.Show();
+
+                UseDefaultDialogSounds(dlg);
             });
+
+            // the vanilla client shows the status label any time the server sends the BOARD_OPEN packet
+            _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.BOARD_TOWN_BOARD_NOW_VIEWED);
         }
 
         private void UseDefaultDialogSounds(ScrollingListDialog dialog)
         {
             UseDefaultDialogSounds((BaseEODialog)dialog);
 
-            EventHandler handler = (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
-            dialog.AddAction += handler;
-            dialog.BackAction += handler;
-            dialog.NextAction += handler;
-            dialog.HistoryAction += handler;
-            dialog.ProgressAction += handler;
+            foreach (var button in dialog.ChildControls.OfType<IXNAButton>())
+                button.OnClick += Handler;
+
+            void Handler(object sender, EventArgs e) => _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
         }
 
         private void UseDefaultDialogSounds(BaseEODialog dialog)
         {
             dialog.DialogClosing += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
+
+            foreach (var textbox in dialog.ChildControls.OfType<IXNATextBox>())
+                textbox.OnGotFocus += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.TextBoxFocus);
         }
 
         private void UseQuestDialogSounds(QuestDialog dialog)

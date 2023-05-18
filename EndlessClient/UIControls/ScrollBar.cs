@@ -1,9 +1,8 @@
-﻿using System;
-using EOLib.Graphics;
+﻿using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended.Input.InputListeners;
+using System;
 using XNAControls;
-using XNAControls.Input;
 
 namespace EndlessClient.UIControls
 {
@@ -15,7 +14,7 @@ namespace EndlessClient.UIControls
         DarkOnDark //very bottom set
     }
 
-    public class ScrollBar : XNAControl
+    public class ScrollBar : XNAControl, IScrollHandler
     {
         private Rectangle scrollArea; //area valid for scrolling: always 16 from top and 16 from bottom
         public int ScrollOffset { get; private set; }
@@ -25,12 +24,25 @@ namespace EndlessClient.UIControls
 
         private int _totalHeight;
 
+        public override Rectangle DrawArea
+        {
+            get => base.DrawArea;
+            set
+            {
+                base.DrawArea = value;
+
+                scrollArea = new Rectangle(0, 15, 0, value.Height - 15);
+
+                if (_downButton != null)
+                    _downButton.DrawPosition = new Vector2(0, value.Height - 15);
+            }
+        }
+
         public ScrollBar(Vector2 locationRelativeToParent,
                          Vector2 size,
                          ScrollBarColors palette,
                          INativeGraphicsManager nativeGraphicsManager)
         {
-            scrollArea = new Rectangle(0, 15, 0, (int)size.Y - 15);
             DrawPosition = locationRelativeToParent;
             SetSize((int)size.X, (int)size.Y);
             ScrollOffset = 0;
