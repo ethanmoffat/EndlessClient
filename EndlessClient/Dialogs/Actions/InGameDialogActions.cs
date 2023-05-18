@@ -268,7 +268,7 @@ namespace EndlessClient.Dialogs.Actions
         {
             _activeDialogRepository.MessageDialog.MatchNone(() =>
             {
-                var dlg = _scrollingListDialogFactory.Create(ScrollingListDialogSize.Large);
+                var dlg = _scrollingListDialogFactory.Create(DialogType.Message);
                 dlg.DialogClosed += (_, _) => _activeDialogRepository.MessageDialog = Option.None<ScrollingListDialog>();
 
                 dlg.ListItemType = ListDialogItem.ListItemStyle.Small;

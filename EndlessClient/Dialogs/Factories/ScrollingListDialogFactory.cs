@@ -17,7 +17,7 @@ namespace EndlessClient.Dialogs.Factories
             _dialogButtonService = dialogButtonService;
         }
 
-        public ScrollingListDialog Create(ScrollingListDialogSize size)
+        public ScrollingListDialog Create(DialogType size)
         {
             return new ScrollingListDialog(_nativeGraphicsManager, _dialogButtonService, size);
         }
@@ -25,6 +25,6 @@ namespace EndlessClient.Dialogs.Factories
 
     public interface IScrollingListDialogFactory
     {
-        ScrollingListDialog Create(ScrollingListDialogSize size);
+        ScrollingListDialog Create(DialogType size);
     }
 }

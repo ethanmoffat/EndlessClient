@@ -53,7 +53,7 @@ namespace EndlessClient.Dialogs
                            ICharacterProvider characterProvider,
                            IContentProvider contentProvider,
                            IHudControlProvider hudControlProvider)
-            : base(nativeGraphicsManager, dialogButtonService, ScrollingListDialogSize.Medium)
+            : base(nativeGraphicsManager, dialogButtonService, DialogType.Board)
         {
             _localizedStringFinder = localizedStringFinder;
             _eoMessageBoxFactory = eoMessageBoxFactory;
@@ -164,12 +164,12 @@ namespace EndlessClient.Dialogs
             _state = state;
 
             _titleText.DrawArea = _state == BoardDialogState.ViewList
-                ? GetTitleDrawArea(DialogSize)
-                : GetTitleDrawArea(DialogSize).WithPosition(new Vector2(150, _titleText.DrawArea.Y));
+                ? GetTitleDrawArea(DialogType)
+                : GetTitleDrawArea(DialogType).WithPosition(new Vector2(150, _titleText.DrawArea.Y));
 
             BackgroundTextureSource = _state == BoardDialogState.ViewList
-                ? GetBackgroundSourceRectangle(BackgroundTexture, DialogSize)
-                : GetBackgroundSourceRectangle(BackgroundTexture, DialogSize).Value.WithPosition(new Vector2(0, BackgroundTexture.Height / 2));
+                ? GetBackgroundSourceRectangle(BackgroundTexture, DialogType)
+                : GetBackgroundSourceRectangle(BackgroundTexture, DialogType).Value.WithPosition(new Vector2(0, BackgroundTexture.Height / 2));
 
             _scrollBar.LinesToRender = _state == BoardDialogState.ViewList
                 ? 12
@@ -187,7 +187,7 @@ namespace EndlessClient.Dialogs
 
                     _scrollBar.DrawArea = new Rectangle(
                         _scrollBar.DrawArea.X, 44,
-                        _scrollBar.DrawArea.Width, GetScrollBarHeight(DialogSize));
+                        _scrollBar.DrawArea.Width, GetScrollBarHeight(DialogType));
 
                     break;
 
@@ -206,7 +206,7 @@ namespace EndlessClient.Dialogs
 
                     _scrollBar.DrawArea = new Rectangle(
                         _scrollBar.DrawArea.X, 74,
-                        _scrollBar.DrawArea.Width, GetScrollBarHeight(DialogSize) - 30);
+                        _scrollBar.DrawArea.Width, GetScrollBarHeight(DialogType) - 30);
 
                     ClearItemList();
                     _cachedPostInfo.Clear();
@@ -235,7 +235,7 @@ namespace EndlessClient.Dialogs
 
                     _scrollBar.DrawArea = new Rectangle(
                         _scrollBar.DrawArea.X, 74,
-                        _scrollBar.DrawArea.Width, GetScrollBarHeight(DialogSize) - 30);
+                        _scrollBar.DrawArea.Width, GetScrollBarHeight(DialogType) - 30);
 
                     ClearItemList();
                     _cachedPostInfo.Clear();
