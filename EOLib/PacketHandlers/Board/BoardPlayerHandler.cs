@@ -11,16 +11,16 @@ namespace EOLib.PacketHandlers.Board
     /// Sent by the server to read a post on a board
     /// </summary>
     [AutoMappedType]
-    public class BoardTakeHandler : InGameOnlyPacketHandler
+    public class BoardPlayerHandler : InGameOnlyPacketHandler
     {
         private readonly IBoardRepository _boardRepository;
 
         public override PacketFamily Family => PacketFamily.Board;
 
-        public override PacketAction Action => PacketAction.Take;
+        public override PacketAction Action => PacketAction.Player;
 
-        public BoardTakeHandler(IPlayerInfoProvider playerInfoProvider,
-                                IBoardRepository boardRepository)
+        public BoardPlayerHandler(IPlayerInfoProvider playerInfoProvider,
+                                  IBoardRepository boardRepository)
             : base(playerInfoProvider)
         {
             _boardRepository = boardRepository;
@@ -35,7 +35,8 @@ namespace EOLib.PacketHandlers.Board
             {
                 if (post.PostId == postId)
                 {
-                    _boardRepository.ActivePostMessage = Option.Some(message);
+                    // EndlessClient uses \n as line split, vanilla client uses \r
+                    _boardRepository.ActivePostMessage = Option.Some(message.Replace('\r', '\n'));
                 }
             });
 

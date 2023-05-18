@@ -54,7 +54,7 @@ namespace EOLib.PacketHandlers.Board
             if (chunks.Count % 3 != 0 || chunks.Count / 3 != numPosts)
                 throw new MalformedPacketException("Unexpected number of elements in BOARD_OPEN packet", packet);
 
-            for (int i = 0; i < chunks.Count / 3; i += 3)
+            for (int i = 0; i < chunks.Count; i += 3)
             {
                 var postId = chunks[i].ReadShort();
                 var author = chunks[i + 1].ReadEndString();

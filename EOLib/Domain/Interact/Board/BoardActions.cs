@@ -25,7 +25,7 @@ namespace EOLib.Domain.Interact.Board
                     .AddShort(boardId)
                     .AddByte(255)
                     .AddBreakString(subject.Replace('y', (char)255)) // this is in EOSERV for some reason. Probably due to chunking (see Sanitization here: https://github.com/Cirras/eo-protocol/blob/master/docs/chunks.md)
-                    .AddBreakString(body)
+                    .AddBreakString(body.Replace('\n', '\r')) // original EO client uses \r as newline separator. XNAControls uses \n.
                     .Build();
 
                 _packetSendService.SendPacket(packet);
