@@ -9,10 +9,13 @@ namespace EndlessClient.Dialogs.Services
     {
         Buy = 0,
         Sell,
+        JukeboxBrowse = Sell,
         BankDeposit,
         BankWithdraw,
         Craft,
         BankLockerUpgrade,
+
+        JukeboxPlay = 8,
 
         Learn = 20,
         Forget = 21,

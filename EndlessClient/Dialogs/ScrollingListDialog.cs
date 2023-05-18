@@ -50,6 +50,9 @@ namespace EndlessClient.Dialogs
         FriendIgnore = Shop,
         Locker = Shop,
         Message = Shop,
+        Guild = Shop,
+        Inn = Shop,
+        LawBob = Shop,
 
         // large no scroll
         Chest,
@@ -63,6 +66,9 @@ namespace EndlessClient.Dialogs
 
         // small no scroll
         BankAccountDialog,
+
+        Jukebox,
+        Barber,
     }
 
     public class ScrollingListDialog : BaseEODialog

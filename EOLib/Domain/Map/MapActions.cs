@@ -91,6 +91,16 @@ namespace EOLib.Domain.Map
 
             _packetSendService.SendPacket(packet);
         }
+
+        public void OpenJukebox(MapCoordinate location)
+        {
+            var packet = new PacketBuilder(PacketFamily.JukeBox, PacketAction.Open)
+                .AddChar(location.X)
+                .AddChar(location.Y)
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+        }
     }
 
     public interface IMapActions
@@ -106,5 +116,7 @@ namespace EOLib.Domain.Map
         void OpenLocker(MapCoordinate location);
 
         void OpenBoard(TileSpec boardSpec);
+
+        void OpenJukebox(MapCoordinate location);
     }
 }

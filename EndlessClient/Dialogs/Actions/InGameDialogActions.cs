@@ -34,6 +34,7 @@ namespace EndlessClient.Dialogs.Actions
         private readonly IScrollingListDialogFactory _scrollingListDialogFactory;
         private readonly ITradeDialogFactory _tradeDialogFactory;
         private readonly IBoardDialogFactory _boardDialogFactory;
+        private readonly IJukeboxDialogFactory _jukeboxDialogFactory;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IShopDialogFactory _shopDialogFactory;
@@ -57,6 +58,7 @@ namespace EndlessClient.Dialogs.Actions
                                    IScrollingListDialogFactory scrollingListDialogFactory,
                                    ITradeDialogFactory tradeDialogFactory,
                                    IBoardDialogFactory boardDialogFactory,
+                                   IJukeboxDialogFactory jukeboxDialogFactory,
                                    ISfxPlayer sfxPlayer,
                                    IStatusLabelSetter statusLabelSetter)
         {
@@ -76,6 +78,7 @@ namespace EndlessClient.Dialogs.Actions
             _scrollingListDialogFactory = scrollingListDialogFactory;
             _tradeDialogFactory = tradeDialogFactory;
             _boardDialogFactory = boardDialogFactory;
+            _jukeboxDialogFactory = jukeboxDialogFactory;
             _sfxPlayer = sfxPlayer;
             _statusLabelSetter = statusLabelSetter;
             _shopDialogFactory = shopDialogFactory;
@@ -329,6 +332,23 @@ namespace EndlessClient.Dialogs.Actions
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.BOARD_TOWN_BOARD_NOW_VIEWED);
         }
 
+        public void ShowJukeboxDialog()
+        {
+            _activeDialogRepository.JukeboxDialog.MatchNone(() =>
+            {
+                var dlg = _jukeboxDialogFactory.Create();
+                dlg.DialogClosed += (_, _) => _activeDialogRepository.JukeboxDialog = Option.None<JukeboxDialog>();
+                _activeDialogRepository.JukeboxDialog = Option.Some(dlg);
+
+                dlg.Show();
+
+                UseDefaultDialogSounds(dlg);
+            });
+
+            // the vanilla client shows the status label any time the server sends the BOARD_OPEN packet
+            _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.JUKEBOX_NOW_VIEWED);
+        }
+
         private void UseDefaultDialogSounds(ScrollingListDialog dialog)
         {
             UseDefaultDialogSounds((BaseEODialog)dialog);
@@ -389,5 +409,7 @@ namespace EndlessClient.Dialogs.Actions
         void CloseTradeDialog();
 
         void ShowBoardDialog();
+
+        void ShowJukeboxDialog();
     }
 }

@@ -23,6 +23,7 @@ namespace EndlessClient.HUD
                 case PacketFamily.Locker: _inGameDialogActions.ShowLockerDialog(); break;
                 case PacketFamily.Chest: _inGameDialogActions.ShowChestDialog(); break;
                 case PacketFamily.Board: _inGameDialogActions.ShowBoardDialog(); break;
+                case PacketFamily.JukeBox: _inGameDialogActions.ShowJukeboxDialog(); break;
             }
         }
 

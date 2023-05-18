@@ -39,6 +39,7 @@ namespace EndlessClient.Input
                     case UnwalkableTileAction.Chair: _characterActions.SitInChair(); break;
                     case UnwalkableTileAction.Door: cellState.Warp.MatchSome(w => _mapActions.OpenDoor(w)); break;
                     case UnwalkableTileAction.Board: _mapActions.OpenBoard(cellState.TileSpec); break;
+                    case UnwalkableTileAction.Jukebox: _mapActions.OpenJukebox(cellState.Coordinate); break;
                 }
             }
         }

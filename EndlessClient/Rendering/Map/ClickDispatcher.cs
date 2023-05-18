@@ -6,7 +6,7 @@ using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.NPC;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
-using EOLib.Domain.Interact.Board;
+using EOLib.Domain.Interact;
 using EOLib.Domain.Map;
 using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
@@ -111,8 +111,9 @@ namespace EndlessClient.Rendering.Map
             entities.AddRange(_currentMapProvider.CurrentMap.Signs);
             entities.AddRange(_currentMapProvider.CurrentMap
                 .GetTileSpecs(TileSpec.Board1, TileSpec.Board2, TileSpec.Board3, TileSpec.Board4,
-                              TileSpec.Board5, TileSpec.Board6, TileSpec.Board7, TileSpec.Board8)
-                .Select(x => new BoardMapEntity(x.X, x.Y)));
+                              TileSpec.Board5, TileSpec.Board6, TileSpec.Board7, TileSpec.Board8,
+                              TileSpec.Jukebox)
+                .Select(x => new TileSpecMapEntity(x.X, x.Y)));
 
             entities.Sort((a, b) =>
             {
@@ -156,7 +157,7 @@ namespace EndlessClient.Rendering.Map
                 DomainCharacter c => HandleCharacterClick(c, eventArgs.Button),
                 DomainNPC n => eventArgs.Button == MouseButton.Left && HandleNPCClick(n, eventArgs.Position),
                 SignMapEntity s => eventArgs.Button == MouseButton.Left && HandleSignClick(s),
-                BoardMapEntity b => eventArgs.Button == MouseButton.Left && HandleBoardClick(b),
+                TileSpecMapEntity ts => eventArgs.Button == MouseButton.Left && HandleTileSpecClick(ts),
                 _ => throw new ArgumentException()
             };
         }
@@ -167,7 +168,7 @@ namespace EndlessClient.Rendering.Map
             {
                 DomainCharacter c => GetCharacterRendererArea(c.ID),
                 DomainNPC n => GetNPCRendererArea(n.Index),
-                SignMapEntity or BoardMapEntity => GetObjectBounds(entity),
+                SignMapEntity or TileSpecMapEntity => GetObjectBounds(entity),
                 _ => throw new ArgumentException()
             };
         }
@@ -242,12 +243,12 @@ namespace EndlessClient.Rendering.Map
             return true;
         }
 
-        private bool HandleBoardClick(BoardMapEntity b)
+        private bool HandleTileSpecClick(TileSpecMapEntity ts)
         {
             var cellState = new MapCellState
             {
-                Coordinate = new MapCoordinate(b.X, b.Y),
-                TileSpec = _currentMapProvider.CurrentMap.Tiles[b.Y, b.X]
+                Coordinate = new MapCoordinate(ts.X, ts.Y),
+                TileSpec = _currentMapProvider.CurrentMap.Tiles[ts.Y, ts.X]
             };
 
             _mapInteractionController.LeftClick(cellState);
