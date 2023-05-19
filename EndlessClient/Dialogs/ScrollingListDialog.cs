@@ -210,7 +210,7 @@ namespace EndlessClient.Dialogs
 
             _scrollBar = new ScrollBar(new Vector2(DialogType == DialogType.QuestProgressHistory ? 449 : 252, 44), new Vector2(16, GetScrollBarHeight(DialogType)), ScrollBarColors.LightOnMed, GraphicsManager)
             {
-                Visible = DialogType != DialogType.Chest && DialogType != DialogType.BankAccountDialog,
+                Visible = DialogType != DialogType.Chest && DialogType != DialogType.BankAccountDialog && DialogType != DialogType.Jukebox,
             };
             _scrollBar.SetParentControl(this);
             SetScrollWheelHandler(_scrollBar);
@@ -445,6 +445,7 @@ namespace EndlessClient.Dialogs
                 case DialogType.Chest: return new Rectangle(16, 13, 253, 19);
                 case DialogType.QuestProgressHistory:
                     return new Rectangle(18, 14, 452, 19);
+                case DialogType.Jukebox: return new Rectangle(24, 20, 263, 19);
                 case DialogType.NpcQuestDialog: return new Rectangle(16, 16, 255, 18);
                 case DialogType.BankAccountDialog: return new Rectangle(129, 20, 121, 16);
                 default: throw new NotImplementedException();
@@ -459,6 +460,7 @@ namespace EndlessClient.Dialogs
                 case DialogType.Chest:
                 case DialogType.QuestProgressHistory:
                     return 199;
+                case DialogType.Jukebox:
                 case DialogType.NpcQuestDialog:
                 case DialogType.BankAccountDialog: return 99;
                 default: throw new NotImplementedException();
@@ -471,8 +473,8 @@ namespace EndlessClient.Dialogs
             {
                 case DialogType.Shop: return 52;
                 case DialogType.Chest: return 51;
-                case DialogType.QuestProgressHistory:
-                    return 59;
+                case DialogType.QuestProgressHistory: return 59;
+                case DialogType.Jukebox: return 60;
                 case DialogType.NpcQuestDialog: return 67;
                 case DialogType.BankAccountDialog: return 53;
                 default: throw new NotImplementedException();
@@ -487,6 +489,7 @@ namespace EndlessClient.Dialogs
                 case DialogType.Chest: return null;
                 case DialogType.QuestProgressHistory:
                     return new Rectangle(0, 0, backgroundTexture.Width, backgroundTexture.Height / 2);
+                case DialogType.Jukebox:
                 case DialogType.NpcQuestDialog:
                 case DialogType.BankAccountDialog:  return null;
                 default: throw new NotImplementedException();
@@ -501,7 +504,8 @@ namespace EndlessClient.Dialogs
                 // buttons are centered on these dialogs
                 case DialogType.Shop: 
                 case DialogType.Chest:
-                case DialogType.BankAccountDialog: return new Vector2((int)Math.Floor((dialogArea.Width - buttonArea.Width) / 2.0) - 48, yCoord);
+                case DialogType.BankAccountDialog:
+                case DialogType.Jukebox: return new Vector2((int)Math.Floor((dialogArea.Width - buttonArea.Width) / 2.0) - 48, yCoord);
                 // buttons are offset from center on these dialogs
                 case DialogType.QuestProgressHistory:
                     return new Vector2(288, yCoord);
@@ -518,7 +522,8 @@ namespace EndlessClient.Dialogs
                 // buttons are centered on these dialogs
                 case DialogType.Shop:
                 case DialogType.Chest:
-                case DialogType.BankAccountDialog: return new Vector2((int)Math.Floor((dialogArea.Width - buttonArea.Width) / 2.0) + 48, yCoord);
+                case DialogType.BankAccountDialog:
+                case DialogType.Jukebox: return new Vector2((int)Math.Floor((dialogArea.Width - buttonArea.Width) / 2.0) + 48, yCoord);
                 // buttons are offset from center on these dialogs
                 case DialogType.QuestProgressHistory:
                     return new Vector2(380, yCoord);
@@ -536,6 +541,10 @@ namespace EndlessClient.Dialogs
             // bank dialog has a button built in to the graphic that needs to be covered up...
             if (dialogSize == DialogType.BankAccountDialog)
                 return new Vector2(92, 191);
+
+            // jukebox dialog has a button built in to the graphic that needs to be covered up...
+            if (dialogSize == DialogType.Jukebox)
+                return new Vector2(92, 158);
 
             var yCoord = GetButtonYCoordinate(dialogArea);
             return new Vector2((dialogArea.Width - buttonArea.Width) / 2, yCoord);

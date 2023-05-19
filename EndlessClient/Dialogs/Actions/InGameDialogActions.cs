@@ -6,6 +6,7 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Interact.Quest;
 using EOLib.Domain.Interact.Shop;
 using EOLib.Domain.Interact.Skill;
+using EOLib.Domain.Map;
 using EOLib.Localization;
 using Optional;
 using System;
@@ -332,11 +333,11 @@ namespace EndlessClient.Dialogs.Actions
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.BOARD_TOWN_BOARD_NOW_VIEWED);
         }
 
-        public void ShowJukeboxDialog()
+        public void ShowJukeboxDialog(MapCoordinate mapCoordinate)
         {
             _activeDialogRepository.JukeboxDialog.MatchNone(() =>
             {
-                var dlg = _jukeboxDialogFactory.Create();
+                var dlg = _jukeboxDialogFactory.Create(mapCoordinate);
                 dlg.DialogClosed += (_, _) => _activeDialogRepository.JukeboxDialog = Option.None<JukeboxDialog>();
                 _activeDialogRepository.JukeboxDialog = Option.Some(dlg);
 
@@ -346,7 +347,8 @@ namespace EndlessClient.Dialogs.Actions
             });
 
             // the vanilla client shows the status label any time the server sends the BOARD_OPEN packet
-            _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.JUKEBOX_NOW_VIEWED);
+            // the vanilla client uses [Action] for Board and [Information] for Jukebox, for some reason
+            _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.JUKEBOX_NOW_VIEWED);
         }
 
         private void UseDefaultDialogSounds(ScrollingListDialog dialog)
@@ -410,6 +412,6 @@ namespace EndlessClient.Dialogs.Actions
 
         void ShowBoardDialog();
 
-        void ShowJukeboxDialog();
+        void ShowJukeboxDialog(MapCoordinate mapCoordinate);
     }
 }

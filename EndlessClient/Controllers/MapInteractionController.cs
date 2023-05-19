@@ -163,7 +163,7 @@ namespace EndlessClient.Controllers
                             if (unwalkableAction == UnwalkableTileAction.Jukebox)
                             {
                                 _mapActions.OpenJukebox(cellState.Coordinate);
-                                _inGameDialogActions.ShowJukeboxDialog();
+                                _inGameDialogActions.ShowJukeboxDialog(cellState.Coordinate);
                             }
                             break;
                     }
