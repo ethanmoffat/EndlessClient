@@ -94,13 +94,13 @@ namespace EndlessClient.Dialogs
 
         public override void Update(GameTime gameTime)
         {
-            if ((DateTime.Now - _openedTime).TotalSeconds >= 96)
+            if ((DateTime.Now - _openedTime).TotalSeconds >= 95)
             {
                 _jukeboxRepository.PlayingRequestName = Option.None<string>();
                 _openedTime = DateTime.Now.AddMinutes(100);
             }
 
-            _jukeboxRepository.PlayingRequestName.MatchSome(
+            _jukeboxRepository.PlayingRequestName.Match(
                 requestedName =>
                 {
                     if (_lastRequestedName.Map(x => !x.Equals(requestedName)).ValueOr(true))
@@ -112,6 +112,14 @@ namespace EndlessClient.Dialogs
                             titleString += $" ({requestedName})";
 
                         Title = titleString;
+                    }
+                },
+                () =>
+                {
+                    if (_lastRequestedName.HasValue)
+                    {
+                        _lastRequestedName = Option.None<string>();
+                        Title = _localizedStringFinder.GetString(EOResourceID.JUKEBOX_IS_READY);
                     }
                 });
 
