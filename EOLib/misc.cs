@@ -34,6 +34,7 @@
 
         public const string SfxDirectory = "sfx";
         public const string MfxDirectory = "mfx";
+        public const string JboxDirectory = "jbox";
 
         public const string FriendListFile = "config/friends.ini";
         public const string IgnoreListFile = "config/ignore.ini";

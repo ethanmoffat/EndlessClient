@@ -43,10 +43,23 @@ namespace EOLib.Domain.Interact.Jukebox
                     _packetSendService.SendPacket(packet);
                 });
         }
+
+        public void RequestSong(MapCoordinate coordinate, int songIndex)
+        {
+            var packet = new PacketBuilder(PacketFamily.JukeBox, PacketAction.Message)
+                .AddChar(coordinate.X)
+                .AddChar(coordinate.Y)
+                .AddShort(songIndex)
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+        }
     }
 
     public interface IJukeboxActions
     {
         void PlayNote(int noteIndex);
+
+        void RequestSong(MapCoordinate coordinate, int songIndex);
     }
 }
