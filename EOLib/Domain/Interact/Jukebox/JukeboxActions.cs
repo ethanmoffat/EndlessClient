@@ -1,5 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
+using EOLib.Domain.Map;
 using EOLib.IO;
 using EOLib.IO.Repositories;
 using EOLib.Net;
@@ -7,7 +8,7 @@ using EOLib.Net.Communication;
 using Optional.Collections;
 using System;
 
-namespace EOLib.Domain.Jukebox
+namespace EOLib.Domain.Interact.Jukebox
 {
     [AutoMappedType]
     public class JukeboxActions : IJukeboxActions
@@ -42,10 +43,23 @@ namespace EOLib.Domain.Jukebox
                     _packetSendService.SendPacket(packet);
                 });
         }
+
+        public void RequestSong(MapCoordinate coordinate, int songIndex)
+        {
+            var packet = new PacketBuilder(PacketFamily.JukeBox, PacketAction.Message)
+                .AddChar(coordinate.X)
+                .AddChar(coordinate.Y)
+                .AddShort(songIndex)
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+        }
     }
 
     public interface IJukeboxActions
     {
         void PlayNote(int noteIndex);
+
+        void RequestSong(MapCoordinate coordinate, int songIndex);
     }
 }

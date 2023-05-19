@@ -43,7 +43,7 @@ namespace EndlessClient.Dialogs
                             ILockerDataProvider lockerDataProvider,
                             IHudControlProvider hudControlProvider,
                             IEIFFileProvider eifFileProvider)
-            : base(nativeGraphicsManager, dialogButtonService, dialogSize: ScrollingListDialogSize.Large)
+            : base(nativeGraphicsManager, dialogButtonService, dialogType: DialogType.Locker)
         {
             _lockerActions = lockerActions;
             _localizedStringFinder = localizedStringFinder;

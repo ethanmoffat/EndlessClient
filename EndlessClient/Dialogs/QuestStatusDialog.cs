@@ -25,7 +25,7 @@ namespace EndlessClient.Dialogs
                                  ILocalizedStringFinder localizedStringFinder,
                                  IQuestDataProvider questDataProvider,
                                  ICharacterProvider characterProvider)
-            : base(nativeGraphicsManager, dialogButtonService, ScrollingListDialogSize.Medium)
+            : base(nativeGraphicsManager, dialogButtonService, DialogType.QuestProgressHistory)
         {
             ListItemType = ListDialogItem.ListItemStyle.Small;
             Buttons = ScrollingListDialogButtons.HistoryOk;

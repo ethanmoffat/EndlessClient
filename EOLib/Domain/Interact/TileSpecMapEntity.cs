@@ -1,10 +1,10 @@
 ﻿using Amadevus.RecordGenerator;
 using EOLib.IO.Map;
 
-namespace EOLib.Domain.Interact.Board
+namespace EOLib.Domain.Interact
 {
     [Record]
-    public sealed partial class BoardMapEntity : IMapEntity
+    public sealed partial class TileSpecMapEntity : IMapEntity
     {
         public int X { get; }
 

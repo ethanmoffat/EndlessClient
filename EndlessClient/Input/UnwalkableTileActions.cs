@@ -20,6 +20,7 @@ namespace EndlessClient.Input
         Locker,
         Character,
         Board,
+        Jukebox,
     }
 
     [AutoMappedType]
@@ -177,8 +178,8 @@ namespace EndlessClient.Input
                 case TileSpec.Board7:
                 case TileSpec.Board8:
                     return UnwalkableTileAction.Board;
-                case TileSpec.Jukebox: //todo: jukebox
-                    break;
+                case TileSpec.Jukebox:
+                    return UnwalkableTileAction.Jukebox;
             }
 
             return UnwalkableTileAction.None;

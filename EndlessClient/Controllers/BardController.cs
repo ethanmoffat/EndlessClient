@@ -2,7 +2,7 @@
 using EndlessClient.Rendering.Character;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
-using EOLib.Domain.Jukebox;
+using EOLib.Domain.Interact.Jukebox;
 
 namespace EndlessClient.Controllers
 {

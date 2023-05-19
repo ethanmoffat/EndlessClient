@@ -16,7 +16,7 @@ namespace EndlessClient.Dialogs
         public FriendIgnoreListDialog(INativeGraphicsManager nativeGraphicsManager,
                                       IEODialogButtonService dialogButtonService,
                                       IOnlinePlayerProvider onlinePlayerProvider)
-            : base(nativeGraphicsManager, dialogButtonService, ScrollingListDialogSize.Large)
+            : base(nativeGraphicsManager, dialogButtonService, DialogType.FriendIgnore)
         {
             _onlinePlayerProvider = onlinePlayerProvider;
             _cachedOnlinePlayers = new HashSet<OnlinePlayerInfo>();

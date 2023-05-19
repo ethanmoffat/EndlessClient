@@ -1,5 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Dialogs.Actions;
+using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.Net;
 using System.Collections.Generic;
@@ -23,6 +24,7 @@ namespace EndlessClient.HUD
                 case PacketFamily.Locker: _inGameDialogActions.ShowLockerDialog(); break;
                 case PacketFamily.Chest: _inGameDialogActions.ShowChestDialog(); break;
                 case PacketFamily.Board: _inGameDialogActions.ShowBoardDialog(); break;
+                case PacketFamily.JukeBox: _inGameDialogActions.ShowJukeboxDialog(MapCoordinate.Zero); break;
             }
         }
 

@@ -160,7 +160,11 @@ namespace EndlessClient.Controllers
                             }
                             break;
                         case TileSpec.Jukebox:
-                            // todo
+                            if (unwalkableAction == UnwalkableTileAction.Jukebox)
+                            {
+                                _mapActions.OpenJukebox(cellState.Coordinate);
+                                _inGameDialogActions.ShowJukeboxDialog(cellState.Coordinate);
+                            }
                             break;
                     }
                 }

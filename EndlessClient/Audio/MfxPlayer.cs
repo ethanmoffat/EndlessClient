@@ -1,6 +1,7 @@
 ﻿using AutomaticTypeMapper;
 using Commons.Music.Midi;
 using EOLib;
+using EOLib.Config;
 using EOLib.IO.Map;
 using System;
 using System.IO;
@@ -11,16 +12,23 @@ namespace EndlessClient.Audio
     [AutoMappedType(IsSingleton = true)]
     public sealed class MfxPlayer : IMfxPlayer
     {
-        private readonly string[] _fileNames;
-        private readonly IMidiOutput _output;
+        private readonly IConfigurationProvider _configurationProvider;
 
+        private readonly string[] _mfxFiles;
+        private readonly string[] _jboxFiles;
+        private readonly IMidiOutput _output;
         private MidiPlayer _activePlayer;
         private int _activeId;
 
-        public MfxPlayer()
+        public MfxPlayer(IConfigurationProvider configurationProvider)
         {
-            _fileNames = Directory.GetFiles(Constants.MfxDirectory, "*.mid");
-            Array.Sort(_fileNames);
+            _configurationProvider = configurationProvider;
+
+            _mfxFiles = Directory.GetFiles(Constants.MfxDirectory, "*.mid");
+            Array.Sort(_mfxFiles);
+
+            _jboxFiles = Directory.GetFiles(Constants.JboxDirectory, "*.mid");
+            Array.Sort(_jboxFiles);
 
             try
             {
@@ -33,9 +41,13 @@ namespace EndlessClient.Audio
             }
         }
 
-        public void PlayBackgroundMusic(int id, MusicControl musicControl)
+        public void PlayBackgroundMusic(int id, MusicControl musicControl, bool isJukebox = false)
         {
-            if (id < 1 || id > _fileNames.Length)
+            if (!_configurationProvider.MusicEnabled)
+                return;
+
+            if ((!isJukebox && (id < 1 || id > _mfxFiles.Length)) ||
+                (isJukebox && (id < 1 || id > _jboxFiles.Length)))
                 throw new ArgumentException("ID should be 1-based index", nameof(id));
 
             var interrupt = false;
@@ -89,7 +101,7 @@ namespace EndlessClient.Audio
             {
                 if (_output != null)
                 {
-                    var music = MidiMusic.Read(File.OpenRead(_fileNames[id - 1]));
+                    var music = MidiMusic.Read(File.OpenRead(isJukebox ? _jboxFiles[id - 1] : _mfxFiles[id - 1]));
                     _activePlayer = new MidiPlayer(music, _output);
                     _activePlayer.Play();
                 }
@@ -119,7 +131,7 @@ namespace EndlessClient.Audio
 
     public interface IMfxPlayer : IDisposable
     {
-        void PlayBackgroundMusic(int id, MusicControl musicControl);
+        void PlayBackgroundMusic(int id, MusicControl musicControl, bool isJukebox = false);
 
         void StopBackgroundMusic();
     }

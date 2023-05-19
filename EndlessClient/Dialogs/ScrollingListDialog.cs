@@ -43,13 +43,32 @@ namespace EndlessClient.Dialogs
         OffsetCancel = DualButtons | Alternate | Cancel,
     }
 
-    public enum ScrollingListDialogSize
+    public enum DialogType
     {
-        Large,            // standard dialog with large list items (locker, shop, friend/ignore list)
-        LargeNoScroll,    // standard dialog with large list items / no scrollbar (chest)
-        Medium,           // quest progress/history dialog, board dialog
-        Small,            // npc quest dialog
-        SmallNoScroll,    // bank account dialog
+        // large
+        Shop,
+        FriendIgnore = Shop,
+        Locker = Shop,
+        Message = Shop,
+        Guild = Shop,
+        Inn = Shop,
+        LawBob = Shop,
+
+        // large no scroll
+        Chest,
+
+        // medium
+        QuestProgressHistory,
+        Board = QuestProgressHistory,
+
+        // small
+        NpcQuestDialog,
+
+        // small no scroll
+        BankAccountDialog,
+
+        Jukebox,
+        Barber,
     }
 
     public class ScrollingListDialog : BaseEODialog
@@ -83,13 +102,13 @@ namespace EndlessClient.Dialogs
                 if (ListItemType == ListDialogItem.ListItemStyle.Large)
                     return 5;
 
-                switch (DialogSize)
+                switch (DialogType)
                 {
 
-                    case ScrollingListDialogSize.Large:
-                    case ScrollingListDialogSize.Medium:
+                    case DialogType.Shop:
+                    case DialogType.QuestProgressHistory:
                         return 12;
-                    case ScrollingListDialogSize.Small: return 6;
+                    case DialogType.NpcQuestDialog: return 6;
                     default: throw new NotImplementedException();
                 }
             }
@@ -100,7 +119,7 @@ namespace EndlessClient.Dialogs
             get => _listItemType;
             set
             {
-                if (value == ListDialogItem.ListItemStyle.Large && DialogSize == ScrollingListDialogSize.Small)
+                if (value == ListDialogItem.ListItemStyle.Large && DialogType == DialogType.NpcQuestDialog)
                     throw new InvalidOperationException("Can't use large ListDialogItem with small scrolling dialog");
 
                 _listItemType = value;
@@ -158,7 +177,7 @@ namespace EndlessClient.Dialogs
             }
         }
 
-        public ScrollingListDialogSize DialogSize { get; }
+        public DialogType DialogType { get; }
 
         public event EventHandler AddAction;
 
@@ -172,32 +191,32 @@ namespace EndlessClient.Dialogs
 
         public ScrollingListDialog(INativeGraphicsManager nativeGraphicsManager,
                                    IEODialogButtonService dialogButtonService,
-                                   ScrollingListDialogSize dialogSize = ScrollingListDialogSize.Large)
+                                   DialogType dialogType = DialogType.Shop)
             : base(nativeGraphicsManager, isInGame: true)
         {
-            DialogSize = dialogSize;
+            DialogType = dialogType;
 
             _listItems = new List<ListDialogItem>();
 
             _titleText = new XNALabel(Constants.FontSize08pt5)
             {
-                DrawArea = GetTitleDrawArea(DialogSize),
+                DrawArea = GetTitleDrawArea(DialogType),
                 AutoSize = false,
                 TextAlign = LabelAlignment.MiddleLeft,
                 ForeColor = ColorConstants.LightGrayText,
-                Visible = DialogSize != ScrollingListDialogSize.LargeNoScroll,
+                Visible = DialogType != DialogType.Chest,
             };
             _titleText.SetParentControl(this);
 
-            _scrollBar = new ScrollBar(new Vector2(DialogSize == ScrollingListDialogSize.Medium ? 449 : 252, 44), new Vector2(16, GetScrollBarHeight(DialogSize)), ScrollBarColors.LightOnMed, GraphicsManager)
+            _scrollBar = new ScrollBar(new Vector2(DialogType == DialogType.QuestProgressHistory ? 449 : 252, 44), new Vector2(16, GetScrollBarHeight(DialogType)), ScrollBarColors.LightOnMed, GraphicsManager)
             {
-                Visible = DialogSize != ScrollingListDialogSize.LargeNoScroll && DialogSize != ScrollingListDialogSize.SmallNoScroll,
+                Visible = DialogType != DialogType.Chest && DialogType != DialogType.BankAccountDialog && DialogType != DialogType.Jukebox,
             };
             _scrollBar.SetParentControl(this);
             SetScrollWheelHandler(_scrollBar);
 
-            BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, GetBackgroundTexture(DialogSize));
-            BackgroundTextureSource = GetBackgroundSourceRectangle(BackgroundTexture, DialogSize);
+            BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, GetBackgroundTexture(DialogType));
+            BackgroundTextureSource = GetBackgroundSourceRectangle(BackgroundTexture, DialogType);
 
             _add = new XNAButton(dialogButtonService.SmallButtonSheet, Vector2.Zero,
                 dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Add),
@@ -279,9 +298,9 @@ namespace EndlessClient.Dialogs
             _cancel.SetParentControl(this);
             _cancel.OnClick += CloseButton_Click;
 
-            _button1Position = GetButton1Position(DrawArea, _ok.DrawArea, DialogSize);
-            _button2Position = GetButton2Position(DrawArea, _ok.DrawArea, DialogSize);
-            _buttonCenterPosition = GetButtonCenterPosition(DrawArea, _ok.DrawArea, DialogSize);
+            _button1Position = GetButton1Position(DrawArea, _ok.DrawArea, DialogType);
+            _button2Position = GetButton2Position(DrawArea, _ok.DrawArea, DialogType);
+            _buttonCenterPosition = GetButtonCenterPosition(DrawArea, _ok.DrawArea, DialogType);
 
             Buttons = ScrollingListDialogButtons.AddCancel;
 
@@ -418,105 +437,114 @@ namespace EndlessClient.Dialogs
             base.OnUpdateControl(gameTime);
         }
 
-        protected static Rectangle GetTitleDrawArea(ScrollingListDialogSize size)
+        protected static Rectangle GetTitleDrawArea(DialogType size)
         {
             switch(size)
             {
-                case ScrollingListDialogSize.Large:
-                case ScrollingListDialogSize.LargeNoScroll: return new Rectangle(16, 13, 253, 19);
-                case ScrollingListDialogSize.Medium:
+                case DialogType.Shop:
+                case DialogType.Chest: return new Rectangle(16, 13, 253, 19);
+                case DialogType.QuestProgressHistory:
                     return new Rectangle(18, 14, 452, 19);
-                case ScrollingListDialogSize.Small: return new Rectangle(16, 16, 255, 18);
-                case ScrollingListDialogSize.SmallNoScroll: return new Rectangle(129, 20, 121, 16);
+                case DialogType.Jukebox: return new Rectangle(24, 20, 263, 19);
+                case DialogType.NpcQuestDialog: return new Rectangle(16, 16, 255, 18);
+                case DialogType.BankAccountDialog: return new Rectangle(129, 20, 121, 16);
                 default: throw new NotImplementedException();
             }
         }
 
-        protected static int GetScrollBarHeight(ScrollingListDialogSize size)
+        protected static int GetScrollBarHeight(DialogType size)
         {
             switch (size)
             {
-                case ScrollingListDialogSize.Large:
-                case ScrollingListDialogSize.LargeNoScroll:
-                case ScrollingListDialogSize.Medium:
+                case DialogType.Shop:
+                case DialogType.Chest:
+                case DialogType.QuestProgressHistory:
                     return 199;
-                case ScrollingListDialogSize.Small:
-                case ScrollingListDialogSize.SmallNoScroll: return 99;
+                case DialogType.Jukebox:
+                case DialogType.NpcQuestDialog:
+                case DialogType.BankAccountDialog: return 99;
                 default: throw new NotImplementedException();
             }
         }
 
-        private static int GetBackgroundTexture(ScrollingListDialogSize size)
+        private static int GetBackgroundTexture(DialogType size)
         {
             switch (size)
             {
-                case ScrollingListDialogSize.Large: return 52;
-                case ScrollingListDialogSize.LargeNoScroll: return 51;
-                case ScrollingListDialogSize.Medium:
-                    return 59;
-                case ScrollingListDialogSize.Small: return 67;
-                case ScrollingListDialogSize.SmallNoScroll: return 53;
+                case DialogType.Shop: return 52;
+                case DialogType.Chest: return 51;
+                case DialogType.QuestProgressHistory: return 59;
+                case DialogType.Jukebox: return 60;
+                case DialogType.NpcQuestDialog: return 67;
+                case DialogType.BankAccountDialog: return 53;
                 default: throw new NotImplementedException();
             }
         }
 
-        protected static Rectangle? GetBackgroundSourceRectangle(Texture2D backgroundTexture, ScrollingListDialogSize size)
+        protected static Rectangle? GetBackgroundSourceRectangle(Texture2D backgroundTexture, DialogType size)
         {
             switch (size)
             {
-                case ScrollingListDialogSize.Large:
-                case ScrollingListDialogSize.LargeNoScroll: return null;
-                case ScrollingListDialogSize.Medium:
+                case DialogType.Shop:
+                case DialogType.Chest: return null;
+                case DialogType.QuestProgressHistory:
                     return new Rectangle(0, 0, backgroundTexture.Width, backgroundTexture.Height / 2);
-                case ScrollingListDialogSize.Small:
-                case ScrollingListDialogSize.SmallNoScroll:  return null;
+                case DialogType.Jukebox:
+                case DialogType.NpcQuestDialog:
+                case DialogType.BankAccountDialog:  return null;
                 default: throw new NotImplementedException();
             }
         }
 
-        private static Vector2 GetButton1Position(Rectangle dialogArea, Rectangle buttonArea, ScrollingListDialogSize size)
+        private static Vector2 GetButton1Position(Rectangle dialogArea, Rectangle buttonArea, DialogType size)
         {
             var yCoord = GetButtonYCoordinate(dialogArea);
             switch (size)
             {
                 // buttons are centered on these dialogs
-                case ScrollingListDialogSize.Large: 
-                case ScrollingListDialogSize.LargeNoScroll:
-                case ScrollingListDialogSize.SmallNoScroll: return new Vector2((int)Math.Floor((dialogArea.Width - buttonArea.Width) / 2.0) - 48, yCoord);
+                case DialogType.Shop: 
+                case DialogType.Chest:
+                case DialogType.BankAccountDialog:
+                case DialogType.Jukebox: return new Vector2((int)Math.Floor((dialogArea.Width - buttonArea.Width) / 2.0) - 48, yCoord);
                 // buttons are offset from center on these dialogs
-                case ScrollingListDialogSize.Medium:
+                case DialogType.QuestProgressHistory:
                     return new Vector2(288, yCoord);
-                case ScrollingListDialogSize.Small: return new Vector2(89, yCoord);
+                case DialogType.NpcQuestDialog: return new Vector2(89, yCoord);
                 default: throw new NotImplementedException();
             }
         }
 
-        private static Vector2 GetButton2Position(Rectangle dialogArea, Rectangle buttonArea, ScrollingListDialogSize size)
+        private static Vector2 GetButton2Position(Rectangle dialogArea, Rectangle buttonArea, DialogType size)
         {
             var yCoord = GetButtonYCoordinate(dialogArea);
             switch (size)
             {
                 // buttons are centered on these dialogs
-                case ScrollingListDialogSize.Large:
-                case ScrollingListDialogSize.LargeNoScroll:
-                case ScrollingListDialogSize.SmallNoScroll: return new Vector2((int)Math.Floor((dialogArea.Width - buttonArea.Width) / 2.0) + 48, yCoord);
+                case DialogType.Shop:
+                case DialogType.Chest:
+                case DialogType.BankAccountDialog:
+                case DialogType.Jukebox: return new Vector2((int)Math.Floor((dialogArea.Width - buttonArea.Width) / 2.0) + 48, yCoord);
                 // buttons are offset from center on these dialogs
-                case ScrollingListDialogSize.Medium:
+                case DialogType.QuestProgressHistory:
                     return new Vector2(380, yCoord);
-                case ScrollingListDialogSize.Small: return new Vector2(183, yCoord);
+                case DialogType.NpcQuestDialog: return new Vector2(183, yCoord);
                 default: throw new NotImplementedException();
             }
         }
 
-        private static Vector2 GetButtonCenterPosition(Rectangle dialogArea, Rectangle buttonArea, ScrollingListDialogSize dialogSize)
+        private static Vector2 GetButtonCenterPosition(Rectangle dialogArea, Rectangle buttonArea, DialogType dialogSize)
         {
             // chest dialog has a button built in to the graphic that needs to be covered up...
-            if (dialogSize == ScrollingListDialogSize.LargeNoScroll)
+            if (dialogSize == DialogType.Chest)
                 return new Vector2(92, 227);
 
             // bank dialog has a button built in to the graphic that needs to be covered up...
-            if (dialogSize == ScrollingListDialogSize.SmallNoScroll)
+            if (dialogSize == DialogType.BankAccountDialog)
                 return new Vector2(92, 191);
+
+            // jukebox dialog has a button built in to the graphic that needs to be covered up...
+            if (dialogSize == DialogType.Jukebox)
+                return new Vector2(92, 158);
 
             var yCoord = GetButtonYCoordinate(dialogArea);
             return new Vector2((dialogArea.Width - buttonArea.Width) / 2, yCoord);

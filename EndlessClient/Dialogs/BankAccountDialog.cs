@@ -45,7 +45,7 @@ namespace EndlessClient.Dialogs
                                   IBankDataProvider bankDataProvider,
                                   ICharacterInventoryProvider characterInventoryProvider,
                                   IEIFFileProvider eifFileProvider)
-            : base(nativeGraphicsManager, dialogButtonService, dialogSize: ScrollingListDialogSize.SmallNoScroll)
+            : base(nativeGraphicsManager, dialogButtonService, dialogType: DialogType.BankAccountDialog)
         {
             _bankActions = bankActions;
             _localizedStringFinder = localizedStringFinder;

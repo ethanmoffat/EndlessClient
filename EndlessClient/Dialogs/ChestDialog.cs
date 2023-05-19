@@ -44,7 +44,7 @@ namespace EndlessClient.Dialogs
                            IChestDataProvider chestDataProvider,
                            IEIFFileProvider eifFileProvider,
                            ICharacterProvider characterProvider)
-            : base(nativeGraphicsManager, dialogButtonService, dialogSize: ScrollingListDialogSize.LargeNoScroll)
+            : base(nativeGraphicsManager, dialogButtonService, dialogType: DialogType.Chest)
         {
             _chestActions = chestActions;
             _messageBoxFactory = messageBoxFactory;
