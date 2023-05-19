@@ -49,12 +49,15 @@ namespace EndlessClient.Controllers
             _gameStateActions.ChangeToState(GameStates.Initial);
         }
 
-        public void GoToInitialStateAndDisconnect()
+        public void GoToInitialStateAndDisconnect(bool showLostConnection = false)
         {
             GoToInitialState();
             StopReceivingAndDisconnect();
 
             _resetStateAction.ResetState();
+
+            if (showLostConnection)
+                _errorDialogDisplayAction.ShowConnectionLost(false);
         }
 
         public async Task ClickCreateAccount()
@@ -150,7 +153,7 @@ namespace EndlessClient.Controllers
     {
         void GoToInitialState();
 
-        void GoToInitialStateAndDisconnect();
+        void GoToInitialStateAndDisconnect(bool showLostConnection = false);
 
         Task ClickCreateAccount();
 

@@ -1,6 +1,7 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Content;
+using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Chat;
@@ -43,6 +44,8 @@ namespace EndlessClient.GameExecution
         private readonly IMfxPlayer _mfxPlayer;
         private readonly IXnaControlSoundMapper _soundMapper;
         private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
+        private readonly IMainButtonController _mainButtonController;
+
         private GraphicsDeviceManager _graphicsDeviceManager;
 
         private KeyboardState _previousKeyState;
@@ -69,7 +72,8 @@ namespace EndlessClient.GameExecution
                            IConfigurationProvider configurationProvider,
                            IMfxPlayer mfxPlayer,
                            IXnaControlSoundMapper soundMapper,
-                           IFixedTimeStepRepository fixedTimeStepRepository)
+                           IFixedTimeStepRepository fixedTimeStepRepository,
+                           IMainButtonController mainButtonController)
         {
             _windowSizeRepository = windowSizeRepository;
             _contentProvider = contentProvider;
@@ -86,6 +90,8 @@ namespace EndlessClient.GameExecution
             _mfxPlayer = mfxPlayer;
             _soundMapper = soundMapper;
             _fixedTimeStepRepository = fixedTimeStepRepository;
+            _mainButtonController = mainButtonController;
+
             _graphicsDeviceManager = new GraphicsDeviceManager(this)
             {
                 PreferredBackBufferWidth = ClientWindowSizeRepository.DEFAULT_BACKBUFFER_WIDTH,
@@ -203,9 +209,9 @@ namespace EndlessClient.GameExecution
                 {
                     base.Update(gameTime);
                 }
-                catch (InvalidOperationException ioe) when (ioe.InnerException is NullReferenceException)
+                catch
                 {
-                    // hide "failed to compare two elements in the array" error from Monogame
+                    _mainButtonController.GoToInitialStateAndDisconnect(showLostConnection: true);
                 }
 
                 _lastFrameUpdate = gameTime.TotalGameTime;
@@ -287,7 +293,7 @@ namespace EndlessClient.GameExecution
                 _controlSetRepository.CurrentControlSet);
             _controlSetRepository.CurrentControlSet = controls;
 
-            //since the controls are being created in Initialize(), adding them to the default game
+            //since the controls are being created in LoadContent(), adding them to the default game
             //  doesn't call the Initialize() method on any controls, so it must be done here
             foreach (var xnaControl in _controlSetRepository.CurrentControlSet.AllComponents)
                 xnaControl.Initialize();
