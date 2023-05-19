@@ -37,6 +37,10 @@ namespace EOLib.PacketHandlers.Jukebox
             {
                 _jukeboxRepository.PlayingRequestName = Option.Some(packet.ReadEndString());
             }
+            else
+            {
+                _jukeboxRepository.PlayingRequestName = Option.None<string>();
+            }
 
             foreach (var notifier in _userInterfaceNotifiers)
                 notifier.NotifyPacketDialog(PacketFamily.JukeBox);
