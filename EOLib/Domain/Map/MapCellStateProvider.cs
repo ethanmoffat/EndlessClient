@@ -45,7 +45,11 @@ namespace EOLib.Domain.Map
 
             Option<NPC.NPC> npc = Option.None<NPC.NPC>();
             if (_mapStateProvider.NPCs.TryGetValues(new MapCoordinate(x, y), out var npcs))
+            {
                 npc = npcs.FirstOrNone();
+                if (npc.Map(x => x.IsActing(NPCActionState.Walking)).ValueOr(false))
+                    npc = Option.None<NPC.NPC>();
+            }
 
             var items = _mapStateProvider.MapItems.TryGetValues(new MapCoordinate(x, y), out var mapItems)
                 ? mapItems.OrderByDescending(i => i.UniqueID)
