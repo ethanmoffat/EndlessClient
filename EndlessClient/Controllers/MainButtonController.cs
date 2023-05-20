@@ -1,6 +1,7 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.GameExecution;
+using EndlessClient.Rendering;
 using EOLib.Domain;
 using EOLib.Domain.Protocol;
 using EOLib.Net.Communication;
@@ -66,8 +67,11 @@ namespace EndlessClient.Controllers
 
             if (result)
             {
-                _gameStateActions.ChangeToState(GameStates.CreateAccount);
-                _accountDialogDisplayActions.ShowInitialCreateWarningDialog();
+                await DispatcherGameComponent.Invoke(() =>
+                {
+                    _gameStateActions.ChangeToState(GameStates.CreateAccount);
+                    _accountDialogDisplayActions.ShowInitialCreateWarningDialog();
+                });
             }
         }
 
@@ -76,7 +80,9 @@ namespace EndlessClient.Controllers
             var result = await StartNetworkConnection().ConfigureAwait(false);
 
             if (result)
-                _gameStateActions.ChangeToState(GameStates.Login);
+            {
+                await DispatcherGameComponent.Invoke(() => _gameStateActions.ChangeToState(GameStates.Login));
+            }
         }
 
         public void ClickViewCredits()
