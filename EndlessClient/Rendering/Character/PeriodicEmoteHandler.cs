@@ -109,7 +109,7 @@ namespace EndlessClient.Rendering.Character
             {
                 if ((now - _userInputTimeProvider.LastInputTime).TotalMilliseconds >= AFK_TIME_MS + AFK_TIME_ALERT_MS)
                 {
-                    _mainButtonController.GoToInitialStateAndDisconnect();
+                    _mainButtonController.GoToInitialStateAndDisconnect(showLostConnection: true);
                 }
                 else
                 {

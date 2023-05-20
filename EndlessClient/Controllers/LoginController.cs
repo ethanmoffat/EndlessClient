@@ -101,7 +101,9 @@ namespace EndlessClient.Controllers
             var reply = loginToServerOperation.Result;
 
             if (reply == LoginReply.Ok)
-                _gameStateActions.ChangeToState(GameStates.LoggedIn);
+            {
+                await DispatcherGameComponent.Invoke(() => _gameStateActions.ChangeToState(GameStates.LoggedIn));
+            }
             else
             {
                 _errorDisplayAction.ShowLoginError(reply);
@@ -227,12 +229,15 @@ namespace EndlessClient.Controllers
                 _clientWindowSizeRepository.Resizable = true;
             }
 
-            _gameStateActions.ChangeToState(GameStates.PlayingTheGame);
-            _chatTextBoxActions.FocusChatTextBox();
-            _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING,
-                                              EOResourceID.LOADING_GAME_HINT_FIRST);
-            _firstTimePlayerActions.WarnFirstTimePlayers();
-            _mapChangedActions.ActiveCharacterEnterMapForLogin();
+            await DispatcherGameComponent.Invoke(() =>
+            {
+                _gameStateActions.ChangeToState(GameStates.PlayingTheGame);
+                _chatTextBoxActions.FocusChatTextBox();
+                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING,
+                                                  EOResourceID.LOADING_GAME_HINT_FIRST);
+                _firstTimePlayerActions.WarnFirstTimePlayers();
+                _mapChangedActions.ActiveCharacterEnterMapForLogin();
+            });
         }
 
         private void SetInitialStateAndShowError(NoDataSentException ex)
