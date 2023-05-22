@@ -27,7 +27,7 @@ namespace EndlessClient.Dialogs
 
         public int ItemID => _itemInfo.Match(r => r.ID, () => 0);
 
-        public event EventHandler<EIFRecord> RightClick;
+        public event Action<EIFRecord> UnequipAction;
 
         public bool IsBeingDragged => _beingDragged;
 
@@ -60,7 +60,7 @@ namespace EndlessClient.Dialogs
                 if (_inventoryPanel.MouseOver && _inventoryPanel.MouseOverPreviously)
                 {
                     StopDragging();
-                    _itemInfo.MatchSome(itemInfo => RightClick?.Invoke(this, itemInfo));
+                    _itemInfo.MatchSome(itemInfo => UnequipAction?.Invoke(itemInfo));
                 }
             }
             else if (eventArgs.Button == MouseButton.Right)
@@ -68,7 +68,7 @@ namespace EndlessClient.Dialogs
                 if (_beingDragged)
                     StopDragging();
                 else
-                    _itemInfo.MatchSome(itemInfo => RightClick?.Invoke(this, itemInfo));
+                    _itemInfo.MatchSome(itemInfo => UnequipAction?.Invoke(itemInfo));
             }
 
             return true;
@@ -103,6 +103,9 @@ namespace EndlessClient.Dialogs
         {
             if (!_isMainCharacter || !_itemInfo.HasValue)
                 return false;
+
+            if (_inventoryPanel.MouseOver && _inventoryPanel.MouseOverPreviously)
+                _itemInfo.MatchSome(itemInfo => UnequipAction?.Invoke(itemInfo));
 
             StopDragging();
 

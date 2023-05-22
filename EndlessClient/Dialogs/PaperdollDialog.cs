@@ -146,9 +146,9 @@ namespace EndlessClient.Dialogs
                     _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, msg, extra);
                 };
 
-                paperdollItem.RightClick += (_, rightClickedItem) =>
+                paperdollItem.UnequipAction += itemInfo =>
                 {
-                    if (rightClickedItem.Special == ItemSpecial.Cursed)
+                    if (itemInfo.Special == ItemSpecial.Cursed)
                     {
                         var msgBox = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.ITEM_IS_CURSED_ITEM, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                         msgBox.ShowDialog();
