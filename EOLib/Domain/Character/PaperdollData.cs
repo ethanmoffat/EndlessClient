@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace EOLib.Domain.Character
 {
     [Record]
-    public sealed partial class PaperdollData
+    public sealed partial class PaperdollData : IPlayerInfoData
     {
         public string Name { get; }
 
