@@ -17,6 +17,8 @@ namespace EndlessClient.Dialogs
 
         Option<PaperdollDialog> PaperdollDialog { get; }
 
+        Option<BookDialog> BookDialog { get; }
+
         Option<ShopDialog> ShopDialog { get; }
 
         Option<QuestDialog> QuestDialog { get; }
@@ -53,6 +55,8 @@ namespace EndlessClient.Dialogs
         Option<QuestStatusDialog> QuestStatusDialog { get; set;  }
 
         Option<PaperdollDialog> PaperdollDialog { get; set; }
+
+        Option<BookDialog> BookDialog { get; set; }
 
         Option<ShopDialog> ShopDialog { get; set; }
 
@@ -92,6 +96,8 @@ namespace EndlessClient.Dialogs
 
         public Option<PaperdollDialog> PaperdollDialog { get; set; }
 
+        public Option<BookDialog> BookDialog { get; set; }
+
         public Option<ShopDialog> ShopDialog { get; set; }
 
         public Option<QuestDialog> QuestDialog { get; set; }
@@ -126,6 +132,7 @@ namespace EndlessClient.Dialogs
                     SessionExpDialog.Map(Map),
                     QuestStatusDialog.Map(Map),
                     PaperdollDialog.Map(Map),
+                    BookDialog.Map(Map),
                     ShopDialog.Map(Map),
                     QuestDialog.Map(Map),
                     ChestDialog.Map(Map),
@@ -160,6 +167,7 @@ namespace EndlessClient.Dialogs
             SessionExpDialog = Option.None<SessionExpDialog>();
             QuestStatusDialog = Option.None<QuestStatusDialog>();
             PaperdollDialog = Option.None<PaperdollDialog>();
+            BookDialog = Option.None<BookDialog>();
             ShopDialog = Option.None<ShopDialog>();
             QuestDialog = Option.None<QuestDialog>();
             ChestDialog = Option.None<ChestDialog>();

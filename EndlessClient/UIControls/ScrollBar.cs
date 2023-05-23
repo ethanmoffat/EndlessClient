@@ -1,5 +1,6 @@
 ﻿using EOLib.Graphics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.Input.InputListeners;
 using System;
 using XNAControls;
@@ -20,7 +21,9 @@ namespace EndlessClient.UIControls
         public int ScrollOffset { get; private set; }
         public int LinesToRender { get; set; }
 
-        private readonly XNAButton _upButton, _downButton, _scrollButton; //buttons
+        private readonly XNAButton _upButton, _downButton, _scrollButton;
+        private readonly Texture2D _backgroundTexture;
+        private readonly Rectangle? _backgroundTextureSource;
 
         private int _totalHeight;
 
@@ -82,6 +85,21 @@ namespace EndlessClient.UIControls
             _totalHeight = DrawAreaWithParentOffset.Height;
         }
 
+        public ScrollBar(Vector2 locationRelativeToParent, Texture2D backgroundTexture, Rectangle? backgroundTextureSource, ScrollBarColors palette, INativeGraphicsManager nativeGraphicsManager)
+            : this(locationRelativeToParent,
+                   (backgroundTextureSource.HasValue ? backgroundTextureSource.Value.Size : backgroundTexture.Bounds.Size).ToVector2(),
+                   palette,
+                   nativeGraphicsManager)
+        {
+            _backgroundTexture = backgroundTexture;
+            _backgroundTextureSource = backgroundTextureSource;
+
+            // assume vertical scrollbar : center on background image
+            _upButton.DrawPosition = new Vector2((DrawArea.Width - _upButton.DrawArea.Width) / 2, _upButton.DrawPosition.Y + 1);
+            _downButton.DrawPosition = new Vector2((DrawArea.Width - _downButton.DrawArea.Width) / 2, _downButton.DrawPosition.Y);
+            _scrollButton.DrawPosition = new Vector2((DrawArea.Width - _scrollButton.DrawArea.Width) / 2, _scrollButton.DrawPosition.Y);
+        }
+
         public override void Initialize()
         {
             _upButton.Initialize();
@@ -99,8 +117,7 @@ namespace EndlessClient.UIControls
         public void ScrollToTop()
         {
             ScrollOffset = 0;
-            var pixelsPerLine = (float)(scrollArea.Height - _scrollButton.DrawArea.Height * 2) / (_totalHeight - LinesToRender);
-            _scrollButton.DrawPosition = new Vector2(_scrollButton.DrawArea.X, _scrollButton.DrawArea.Height + pixelsPerLine * ScrollOffset);
+            _scrollButton.DrawPosition = new Vector2(_scrollButton.DrawArea.X, _upButton.DrawArea.Height);
         }
 
         public void ScrollToEnd()
@@ -117,6 +134,18 @@ namespace EndlessClient.UIControls
         public void SetDownArrowFlashSpeed(int milliseconds)
         {
             _downButton.FlashSpeed = milliseconds;
+        }
+
+        protected override void OnDrawControl(GameTime gameTime)
+        {
+            if (_backgroundTexture != null)
+            {
+                _spriteBatch.Begin();
+                _spriteBatch.Draw(_backgroundTexture, DrawAreaWithParentOffset, _backgroundTextureSource, Color.White);
+                _spriteBatch.End();
+            }
+
+            base.OnDrawControl(gameTime);
         }
 
         //the point of arrowClicked and scrollDragged is to respond to input on the three buttons in such
@@ -172,7 +201,7 @@ namespace EndlessClient.UIControls
             else if (y > scrollArea.Height - _scrollButton.DrawArea.Height)
                 y = scrollArea.Height - _scrollButton.DrawArea.Height;
 
-            _scrollButton.DrawPosition = new Vector2(0, y);
+            _scrollButton.DrawPosition = new Vector2(_scrollButton.DrawPosition.X, y);
 
             if (_totalHeight <= LinesToRender)
                 return;

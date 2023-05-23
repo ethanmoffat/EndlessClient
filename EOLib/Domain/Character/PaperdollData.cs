@@ -26,13 +26,18 @@ namespace EOLib.Domain.Character
 
         public int Gender { get; }
 
+        public AdminLevel AdminLevel { get; }
+
         public IReadOnlyDictionary<EquipLocation, int> Paperdoll { get; }
+
+        public IReadOnlyList<string> QuestNames { get; }
 
         public OnlineIcon Icon { get; }
 
         public PaperdollData()
         {
             Paperdoll = new Dictionary<EquipLocation, int>();
+            QuestNames = new List<string>();
         }
     }
 }

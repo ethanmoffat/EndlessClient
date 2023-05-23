@@ -21,6 +21,7 @@ namespace EndlessClient.Dialogs.Actions
     {
         private readonly IFriendIgnoreListDialogFactory _friendIgnoreListDialogFactory;
         private readonly IPaperdollDialogFactory _paperdollDialogFactory;
+        private readonly IBookDialogFactory _bookDialogFactory;
         private readonly ISessionExpDialogFactory _sessionExpDialogFactory;
         private readonly IQuestStatusDialogFactory _questStatusDialogFactory;
         private readonly IActiveDialogRepository _activeDialogRepository;
@@ -43,6 +44,7 @@ namespace EndlessClient.Dialogs.Actions
 
         public InGameDialogActions(IFriendIgnoreListDialogFactory friendIgnoreListDialogFactory,
                                    IPaperdollDialogFactory paperdollDialogFactory,
+                                   IBookDialogFactory bookDialogFactory,
                                    ISessionExpDialogFactory sessionExpDialogFactory,
                                    IQuestStatusDialogFactory questStatusDialogFactory,
                                    IShopDialogFactory shopDialogFactory,
@@ -65,6 +67,7 @@ namespace EndlessClient.Dialogs.Actions
         {
             _friendIgnoreListDialogFactory = friendIgnoreListDialogFactory;
             _paperdollDialogFactory = paperdollDialogFactory;
+            _bookDialogFactory = bookDialogFactory;
             _sessionExpDialogFactory = sessionExpDialogFactory;
             _questStatusDialogFactory = questStatusDialogFactory;
             _activeDialogRepository = activeDialogRepository;
@@ -149,6 +152,20 @@ namespace EndlessClient.Dialogs.Actions
                 var dlg = _paperdollDialogFactory.Create(character, isMainCharacter);
                 dlg.DialogClosed += (_, _) => _activeDialogRepository.PaperdollDialog = Option.None<PaperdollDialog>();
                 _activeDialogRepository.PaperdollDialog = Option.Some(dlg);
+
+                UseDefaultDialogSounds(dlg);
+
+                dlg.Show();
+            });
+        }
+
+        public void ShowBookDialog(Character character, bool isMainCharacter)
+        {
+            _activeDialogRepository.BookDialog.MatchNone(() =>
+            {
+                var dlg = _bookDialogFactory.Create(character, isMainCharacter);
+                dlg.DialogClosed += (_, _) => _activeDialogRepository.BookDialog = Option.None<BookDialog>();
+                _activeDialogRepository.BookDialog = Option.Some(dlg);
 
                 UseDefaultDialogSounds(dlg);
 
@@ -389,6 +406,8 @@ namespace EndlessClient.Dialogs.Actions
         void ShowQuestStatusDialog();
 
         void ShowPaperdollDialog(Character character, bool isMainCharacter);
+
+        void ShowBookDialog(Character character, bool isMainCharacter);
 
         void ShowShopDialog();
 
