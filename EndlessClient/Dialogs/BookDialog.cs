@@ -1,5 +1,4 @@
-﻿using EndlessClient.Content;
-using EndlessClient.Dialogs.Services;
+﻿using EndlessClient.Dialogs.Services;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Character;
@@ -10,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using XNAControls;
 using static EndlessClient.Dialogs.QuestStatusListDialogItem;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 namespace EndlessClient.Dialogs
 {
