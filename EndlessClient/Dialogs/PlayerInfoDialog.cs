@@ -13,13 +13,12 @@ using XNAControls;
 
 namespace EndlessClient.Dialogs
 {
-    public class PlayerInfoDialog<TData> : BaseEODialog
-        where TData : class, IPlayerInfoData
+    public class PlayerInfoDialog : BaseEODialog
     {
         private static readonly Rectangle _iconDrawRect = new Rectangle(227, 258, 44, 21);
 
         private readonly IPubFileProvider _pubFileProvider;
-
+        private readonly IPaperdollProvider _paperdollProvider;
         protected readonly bool _isMainCharacter;
 
         private readonly Texture2D _characterIconSheet;
@@ -35,45 +34,44 @@ namespace EndlessClient.Dialogs
 
         public Character Character { get; }
 
+        private Option<PaperdollData> _paperdollData;
+
         public PlayerInfoDialog(INativeGraphicsManager graphicsManager,
                                 IEODialogButtonService eoDialogButtonService,
                                 IPubFileProvider pubFileProvider,
+                                IPaperdollProvider paperdollProvider,
                                 Character character,
                                 bool isMainCharacter)
             : base(graphicsManager, isInGame: true)
         {
             _pubFileProvider = pubFileProvider;
+            _paperdollProvider = paperdollProvider;
+
             Character = character;
             _isMainCharacter = isMainCharacter;
+
             _characterIconSheet = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 32, true);
             _characterIconSourceRect = Option.None<Rectangle>();
 
             _name = new XNALabel(Constants.FontSize08pt5) { DrawArea = new Rectangle(228, 22, 1, 1), ForeColor = ColorConstants.LightGrayText };
-            _name.Initialize();
             _name.SetParentControl(this);
 
             _home = new XNALabel(Constants.FontSize08pt5) { DrawArea = new Rectangle(228, 52, 1, 1), ForeColor = ColorConstants.LightGrayText };
-            _home.Initialize();
             _home.SetParentControl(this);
 
             _class = new XNALabel(Constants.FontSize08pt5) { DrawArea = new Rectangle(228, 82, 1, 1), ForeColor = ColorConstants.LightGrayText };
-            _class.Initialize();
             _class.SetParentControl(this);
 
             _partner = new XNALabel(Constants.FontSize08pt5) { DrawArea = new Rectangle(228, 112, 1, 1), ForeColor = ColorConstants.LightGrayText };
-            _partner.Initialize();
             _partner.SetParentControl(this);
 
             _title = new XNALabel(Constants.FontSize08pt5) { DrawArea = new Rectangle(228, 142, 1, 1), ForeColor = ColorConstants.LightGrayText };
-            _title.Initialize();
             _title.SetParentControl(this);
 
             _guild = new XNALabel(Constants.FontSize08pt5) { DrawArea = new Rectangle(228, 202, 1, 1), ForeColor = ColorConstants.LightGrayText };
-            _guild.Initialize();
             _guild.SetParentControl(this);
 
             _rank = new XNALabel(Constants.FontSize08pt5) { DrawArea = new Rectangle(228, 232, 1, 1), ForeColor = ColorConstants.LightGrayText };
-            _rank.Initialize();
             _rank.SetParentControl(this);
 
             var okButton = new XNAButton(eoDialogButtonService.SmallButtonSheet,
@@ -83,6 +81,40 @@ namespace EndlessClient.Dialogs
             okButton.OnClick += (_, _) => Close(XNADialogResult.OK);
             okButton.Initialize();
             okButton.SetParentControl(this);
+
+            _paperdollData = Option.None<PaperdollData>();
+        }
+
+        public override void Initialize()
+        {
+            _name.Initialize();
+            _home.Initialize();
+            _class.Initialize();
+            _partner.Initialize();
+            _title.Initialize();
+            _guild.Initialize();
+            _rank.Initialize();
+
+            base.Initialize();
+        }
+
+        protected override void OnUpdateControl(GameTime gameTime)
+        {
+            _paperdollData = _paperdollData.FlatMap(paperdollData =>
+                paperdollData.NoneWhen(d => _paperdollProvider.VisibleCharacterPaperdolls.ContainsKey(Character.ID) &&
+                                           !_paperdollProvider.VisibleCharacterPaperdolls[Character.ID].Equals(d)));
+
+            _paperdollData.MatchNone(() =>
+            {
+                if (_paperdollProvider.VisibleCharacterPaperdolls.ContainsKey(Character.ID))
+                {
+                    var paperdollData = _paperdollProvider.VisibleCharacterPaperdolls[Character.ID];
+                    _paperdollData = Option.Some(paperdollData);
+                    UpdateDisplayedData(paperdollData);
+                }
+            });
+
+            base.OnUpdateControl(gameTime);
         }
 
         protected override void OnDrawControl(GameTime gameTime)
@@ -104,20 +136,20 @@ namespace EndlessClient.Dialogs
             _spriteBatch.End();
         }
 
-        protected virtual void UpdateDisplayedData(TData playerInfoDialogData)
+        protected virtual void UpdateDisplayedData(PaperdollData paperdollData)
         {
-            _name.Text = Capitalize(playerInfoDialogData.Name);
-            _home.Text = Capitalize(playerInfoDialogData.Home);
+            _name.Text = Capitalize(paperdollData.Name);
+            _home.Text = Capitalize(paperdollData.Home);
 
-            playerInfoDialogData.Class.SomeWhen(x => x != 0)
+            paperdollData.Class.SomeWhen(x => x != 0)
                 .MatchSome(classId => _class.Text = Capitalize(_pubFileProvider.ECFFile[classId].Name));
 
-            _partner.Text = Capitalize(playerInfoDialogData.Partner);
-            _title.Text = Capitalize(playerInfoDialogData.Title);
-            _guild.Text = Capitalize(playerInfoDialogData.Guild);
-            _rank.Text = Capitalize(playerInfoDialogData.Rank);
+            _partner.Text = Capitalize(paperdollData.Partner);
+            _title.Text = Capitalize(paperdollData.Title);
+            _guild.Text = Capitalize(paperdollData.Guild);
+            _rank.Text = Capitalize(paperdollData.Rank);
 
-            _characterIconSourceRect = Option.Some(GetOnlineIconSourceRectangle(playerInfoDialogData.Icon));
+            _characterIconSourceRect = Option.Some(GetOnlineIconSourceRectangle(paperdollData.Icon));
         }
 
         private static string Capitalize(string input) =>

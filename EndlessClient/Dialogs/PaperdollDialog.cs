@@ -18,14 +18,12 @@ using Optional;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using XNAControls;
 
 namespace EndlessClient.Dialogs
 {
-    public class PaperdollDialog : PlayerInfoDialog<PaperdollData>
+    public class PaperdollDialog : PlayerInfoDialog
     {
         private readonly IInventoryController _inventoryController;
-        private readonly IPaperdollProvider _paperdollProvider;
         private readonly IPubFileProvider _pubFileProvider;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly IInventorySpaceValidator _inventorySpaceValidator;
@@ -34,8 +32,6 @@ namespace EndlessClient.Dialogs
         private readonly ISfxPlayer _sfxPlayer;
 
         private readonly InventoryPanel _inventoryPanel;
-
-        private Option<PaperdollData> _paperdollData;
 
         private readonly List<PaperdollDialogItem> _childItems;
 
@@ -50,9 +46,8 @@ namespace EndlessClient.Dialogs
                                IStatusLabelSetter statusLabelSetter,
                                ISfxPlayer sfxPlayer,
                                Character character, bool isMainCharacter)
-            : base(nativeGraphicsManager, eoDialogButtonService, pubFileProvider, character, isMainCharacter)
+            : base(nativeGraphicsManager, eoDialogButtonService, pubFileProvider, paperdollProvider, character, isMainCharacter)
         {
-            _paperdollProvider = paperdollProvider;
             _pubFileProvider = pubFileProvider;
             _hudControlProvider = hudControlProvider;
             _inventorySpaceValidator = inventorySpaceValidator;
@@ -72,30 +67,9 @@ namespace EndlessClient.Dialogs
 
             if (!Game.Window.AllowUserResizing)
                 DrawPosition = new Vector2(DrawPosition.X, 15);
-
-            _paperdollData = Option.None<PaperdollData>();
         }
 
         public bool NoItemsDragging() => !_childItems.Any(x => x.IsBeingDragged);
-
-        protected override void OnUpdateControl(GameTime gameTime)
-        {
-            _paperdollData = _paperdollData.FlatMap(paperdollData =>
-                paperdollData.NoneWhen(d => _paperdollProvider.VisibleCharacterPaperdolls.ContainsKey(Character.ID) &&
-                                           !_paperdollProvider.VisibleCharacterPaperdolls[Character.ID].Equals(d)));
-
-            _paperdollData.MatchNone(() =>
-                {
-                    if (_paperdollProvider.VisibleCharacterPaperdolls.ContainsKey(Character.ID))
-                    {
-                        var paperdollData = _paperdollProvider.VisibleCharacterPaperdolls[Character.ID];
-                        _paperdollData = Option.Some(paperdollData);
-                        UpdateDisplayedData(paperdollData);
-                    }
-                });
-
-            base.OnUpdateControl(gameTime);
-        }
 
         protected override void UpdateDisplayedData(PaperdollData paperdollData)
         {

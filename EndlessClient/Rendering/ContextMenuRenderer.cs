@@ -48,6 +48,7 @@ namespace EndlessClient.Rendering
 
         private readonly IInGameDialogActions _inGameDialogActions;
         private readonly IPaperdollActions _paperdollActions;
+        private readonly IBookActions _bookActions;
         private readonly IPartyActions _partyActions;
         private readonly ITradeActions _tradeActions;
         private readonly IStatusLabelSetter _statusLabelSetter;
@@ -66,6 +67,7 @@ namespace EndlessClient.Rendering
         public ContextMenuRenderer(INativeGraphicsManager nativeGraphicsManager,
                                    IInGameDialogActions inGameDialogActions,
                                    IPaperdollActions paperdollActions,
+                                   IBookActions bookActions,
                                    IPartyActions partyActions,
                                    ITradeActions tradeActions,
                                    IStatusLabelSetter statusLabelSetter,
@@ -81,6 +83,7 @@ namespace EndlessClient.Rendering
             _menuActions = new Dictionary<Rectangle, Action>();
             _inGameDialogActions = inGameDialogActions;
             _paperdollActions = paperdollActions;
+            _bookActions = bookActions;
             _partyActions = partyActions;
             _tradeActions = tradeActions;
             _statusLabelSetter = statusLabelSetter;
@@ -253,6 +256,8 @@ namespace EndlessClient.Rendering
 
         private void ShowBook()
         {
+            _bookActions.RequestBook(_characterRenderer.Character.ID);
+            _inGameDialogActions.ShowBookDialog(_characterRenderer.Character, isMainCharacter: false);
         }
 
         private void JoinParty()

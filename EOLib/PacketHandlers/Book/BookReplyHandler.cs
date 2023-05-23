@@ -2,27 +2,27 @@
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Online;
-using EOLib.IO;
 using EOLib.Net;
 using EOLib.Net.Handlers;
+using System;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Paperdoll
 {
     /// <summary>
-    /// Sets paperdoll information for a given player
+    /// Sets book information for a given player
     /// </summary>
     [AutoMappedType]
-    internal class PaperdollReplyHandler : InGameOnlyPacketHandler
+    internal class BookReplyHandler : InGameOnlyPacketHandler
     {
         private readonly IPaperdollRepository _paperdollRepository;
 
-        public override PacketFamily Family => PacketFamily.PaperDoll;
+        public override PacketFamily Family => PacketFamily.Book;
 
         public override PacketAction Action => PacketAction.Reply;
 
-        public PaperdollReplyHandler(IPlayerInfoProvider playerInfoProvider,
-                                     IPaperdollRepository paperdollRepository)
+        public BookReplyHandler(IPlayerInfoProvider playerInfoProvider,
+                                IPaperdollRepository paperdollRepository)
             : base(playerInfoProvider)
         {
             _paperdollRepository = paperdollRepository;
@@ -43,12 +43,14 @@ namespace EOLib.PacketHandlers.Paperdoll
 
             var adminLevel = packet.ReadChar();
 
-            var paperdoll = new Dictionary<EquipLocation, int>((int)EquipLocation.PAPERDOLL_MAX);
-            for (var loc = (EquipLocation)0; loc < EquipLocation.PAPERDOLL_MAX; ++loc)
-                paperdoll[loc] = packet.ReadShort();
-
             var iconType = (OnlineIcon)packet.ReadChar();
 
+            if (packet.ReadByte() != 255)
+                return false;
+
+            var questNames = new List<string>();
+            while (packet.ReadPosition < packet.Length)
+                questNames.Add(packet.ReadBreakString());
 
             var paperdollData = _paperdollRepository.VisibleCharacterPaperdolls.ContainsKey(playerID)
                 ? _paperdollRepository.VisibleCharacterPaperdolls[playerID]
@@ -65,8 +67,8 @@ namespace EOLib.PacketHandlers.Paperdoll
                 .WithClass(clas)
                 .WithGender(gender)
                 .WithAdminLevel((AdminLevel)adminLevel)
-                .WithPaperdoll(paperdoll)
-                .WithIcon(iconType);
+                .WithIcon(iconType)
+                .WithQuestNames(questNames);
 
             _paperdollRepository.VisibleCharacterPaperdolls[playerID] = paperdollData;
 

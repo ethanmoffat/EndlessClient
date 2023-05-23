@@ -20,6 +20,7 @@ namespace EndlessClient.Rendering.Factories
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IInGameDialogActions _inGameDialogActions;
         private readonly IPaperdollActions _paperdollActions;
+        private readonly IBookActions _bookActions;
         private readonly IPartyActions _partyActions;
         private readonly ITradeActions _tradeActions;
         private readonly IStatusLabelSetter _statusLabelSetter;
@@ -34,6 +35,7 @@ namespace EndlessClient.Rendering.Factories
         public ContextMenuRendererFactory(INativeGraphicsManager nativeGraphicsManager,
             IInGameDialogActions inGameDialogActions,
             IPaperdollActions paperdollActions,
+            IBookActions bookActions,
             IPartyActions partyActions,
             ITradeActions tradeActions,
             IStatusLabelSetter statusLabelSetter,
@@ -48,6 +50,7 @@ namespace EndlessClient.Rendering.Factories
             _nativeGraphicsManager = nativeGraphicsManager;
             _inGameDialogActions = inGameDialogActions;
             _paperdollActions = paperdollActions;
+            _bookActions = bookActions;
             _partyActions = partyActions;
             _tradeActions = tradeActions;
             _statusLabelSetter = statusLabelSetter;
@@ -65,6 +68,7 @@ namespace EndlessClient.Rendering.Factories
             return new ContextMenuRenderer(_nativeGraphicsManager,
                 _inGameDialogActions,
                 _paperdollActions,
+                _bookActions,
                 _partyActions,
                 _tradeActions,
                 _statusLabelSetter,
