@@ -2,6 +2,7 @@
 using EndlessClient.Audio;
 using EndlessClient.Dialogs.Factories;
 using EOLib.Domain.Interact;
+using EOLib.Domain.Interact.Citizen;
 using EOLib.Domain.Interact.Skill;
 using EOLib.IO;
 using EOLib.IO.Repositories;
@@ -14,16 +15,19 @@ namespace EndlessClient.Dialogs.Actions
     {
         private readonly IInGameDialogActions _inGameDialogActions;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
+        private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly IECFFileProvider _ecfFileProvider;
         private readonly ISfxPlayer _sfxPlayer;
 
         public NPCInteractionActions(IInGameDialogActions inGameDialogActions,
                                      IEOMessageBoxFactory messageBoxFactory,
+                                     ILocalizedStringFinder localizedStringFinder,
                                      IECFFileProvider ecfFileProvider,
                                      ISfxPlayer sfxPlayer)
         {
             _inGameDialogActions = inGameDialogActions;
             _messageBoxFactory = messageBoxFactory;
+            _localizedStringFinder = localizedStringFinder;
             _ecfFileProvider = ecfFileProvider;
             _sfxPlayer = sfxPlayer;
         }
@@ -80,6 +84,31 @@ namespace EndlessClient.Dialogs.Actions
             dlg.ShowDialog();
 
             _sfxPlayer.PlaySfx(SoundEffectID.LearnNewSpell);
+        }
+
+        public void NotifyCitizenUnsubscribe(CitizenUnsubscribeReply reply)
+        {
+            var message = EOResourceID.INN_YOU_ARE_NOT_A_CITIZEN + (int)reply;
+            var dlg = _messageBoxFactory.CreateMessageBox(message, EOResourceID.INN_REGISTRATION_SERVICE);
+            dlg.ShowDialog();
+        }
+
+        public void NotifyCitizenSignUp(int questionsWrong)
+        {
+            if (questionsWrong == 0)
+            {
+                _sfxPlayer.PlaySfx(SoundEffectID.InnSignUp);
+
+                var dlg = _messageBoxFactory.CreateMessageBox(EOResourceID.INN_BECOME_CITIZEN_CONGRATULATIONS, EOResourceID.INN_REGISTRATION_SERVICE);
+                dlg.ShowDialog();
+            }
+            else
+            {
+                var dlg = _messageBoxFactory.CreateMessageBox(
+                    $"{questionsWrong} {_localizedStringFinder.GetString(EOResourceID.INN_YOUR_ANSWERS_WERE_INCORRECT)}",
+                    _localizedStringFinder.GetString(EOResourceID.INN_REGISTRATION_SERVICE));
+                dlg.ShowDialog();
+            }
         }
     }
 }

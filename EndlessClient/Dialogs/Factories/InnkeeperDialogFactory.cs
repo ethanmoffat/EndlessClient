@@ -17,6 +17,7 @@ namespace EndlessClient.Dialogs.Factories
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly ITextInputDialogFactory _textInputDialogFactory;
+        private readonly ICitizenActions _citizenActions;
         private readonly IContentProvider _contentProvider;
         private readonly IENFFileProvider _enfFileProvider;
         private readonly ICitizenDataProvider _citizenDataProvider;
@@ -27,6 +28,7 @@ namespace EndlessClient.Dialogs.Factories
                                ILocalizedStringFinder localizedStringFinder,
                                IEOMessageBoxFactory messageBoxFactory,
                                ITextInputDialogFactory textInputDialogFactory,
+                               ICitizenActions citizenActions,
                                IContentProvider contentProvider,
                                IENFFileProvider enfFileProvider,
                                ICitizenDataProvider citizenDataProvider)
@@ -37,6 +39,7 @@ namespace EndlessClient.Dialogs.Factories
             _localizedStringFinder = localizedStringFinder;
             _messageBoxFactory = messageBoxFactory;
             _textInputDialogFactory = textInputDialogFactory;
+            _citizenActions = citizenActions;
             _contentProvider = contentProvider;
             _enfFileProvider = enfFileProvider;
             _citizenDataProvider = citizenDataProvider;
@@ -50,6 +53,7 @@ namespace EndlessClient.Dialogs.Factories
                 _localizedStringFinder,
                 _messageBoxFactory,
                 _textInputDialogFactory,
+                _citizenActions,
                 _contentProvider,
                 _enfFileProvider,
                 _citizenDataProvider);
