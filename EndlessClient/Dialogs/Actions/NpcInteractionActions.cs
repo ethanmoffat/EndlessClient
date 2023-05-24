@@ -39,6 +39,7 @@ namespace EndlessClient.Dialogs.Actions
                 case NPCType.Shop: _inGameDialogActions.ShowShopDialog(); break;
                 case NPCType.Quest: _inGameDialogActions.ShowQuestDialog(); break;
                 case NPCType.Skills: _inGameDialogActions.ShowSkillmasterDialog(); break;
+                case NPCType.Inn: _inGameDialogActions.ShowInnkeeperDialog(); break;
             }
         }
 

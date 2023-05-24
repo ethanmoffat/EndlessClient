@@ -373,53 +373,26 @@ namespace EndlessClient.Dialogs
 
         private void ShowForgetAllMessage()
         {
-            ListItemType = ListDialogItem.ListItemStyle.Small;
-
-            var messages = new[]
-            {
+            AddTextAsListItems(_contentProvider.Fonts[Constants.FontSize09],
+                () =>
+                {
+                    var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.SKILL_RESET_CHARACTER_CONFIRMATION, EODialogButtons.OkCancel);
+                    dlg.DialogClosing += (_, args) =>
+                    {
+                        // todo: test how GameServer handles character reset with paperdoll items still equipped
+                        if (args.Result == XNADialogResult.OK)
+                        {
+                            _skillmasterActions.ResetCharacter();
+                        }
+                    };
+                    dlg.ShowDialog();
+                },
                 _localizedStringFinder.GetString(EOResourceID.SKILLMASTER_FORGET_ALL),
                 _localizedStringFinder.GetString(EOResourceID.SKILLMASTER_FORGET_ALL_MSG_1),
                 _localizedStringFinder.GetString(EOResourceID.SKILLMASTER_FORGET_ALL_MSG_2),
                 _localizedStringFinder.GetString(EOResourceID.SKILLMASTER_FORGET_ALL_MSG_3),
                 _localizedStringFinder.GetString(EOResourceID.SKILLMASTER_CLICK_HERE_TO_FORGET_ALL)
-            };
-
-            var drawStrings = new List<string>();
-            var ts = new TextSplitter(string.Empty, _contentProvider.Fonts[Constants.FontSize09]) { LineLength = 200 };
-            foreach (string s in messages)
-            {
-                ts.Text = s;
-                drawStrings.AddRange(ts.NeedsProcessing ? ts.SplitIntoLines() : new[] { s });
-                drawStrings.Add(" ");
-            }
-
-            foreach (string s in drawStrings)
-            {
-                var link = s.Length > 0 && s[0] == '*';
-                var nextItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Small)
-                {
-                    PrimaryText = link ? s.Remove(0, 1) : s
-                };
-
-                if (link)
-                {
-                    nextItem.SetPrimaryClickAction((_, _) =>
-                    {
-                        var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.SKILL_RESET_CHARACTER_CONFIRMATION, EODialogButtons.OkCancel);
-                        dlg.DialogClosing += (_, args) =>
-                        {
-                            // todo: test how GameServer handles character reset with paperdoll items still equipped
-                            if (args.Result == XNADialogResult.OK)
-                            {
-                                _skillmasterActions.ResetCharacter();
-                            }
-                        };
-                        dlg.ShowDialog();
-                    });
-                }
-
-                AddItemToList(nextItem, sortList: false);
-            }
+            );
         }
     }
 }

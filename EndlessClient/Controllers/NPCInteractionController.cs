@@ -61,6 +61,9 @@ namespace EndlessClient.Controllers
                 case EOLib.IO.NPCType.Skills:
                     _mapNpcActions.RequestSkillmaster(npc);
                     break;
+                case EOLib.IO.NPCType.Inn:
+                    _mapNpcActions.RequestInnkeeper(npc);
+                    break;
             }
         }
     }

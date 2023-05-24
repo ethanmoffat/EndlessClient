@@ -16,9 +16,13 @@ namespace EndlessClient.Dialogs.Services
         BankLockerUpgrade,
 
         JukeboxPlay = 8,
+        InnRegistration = 9,
 
         Learn = 20,
         Forget = 21,
+        InnSleep = 22,
+        SignUp = 23,
+        Unsubscribe = 24
     }
 
     [AutoMappedType]

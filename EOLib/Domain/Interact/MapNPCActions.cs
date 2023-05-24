@@ -63,6 +63,15 @@ namespace EOLib.Domain.Interact
 
             _packetSendService.SendPacket(packet);
         }
+
+        public void RequestInnkeeper(NPC.NPC npc)
+        {
+            var packet = new PacketBuilder(PacketFamily.Citizen, PacketAction.Open)
+                .AddShort(npc.Index)
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+        }
     }
 
     public interface IMapNPCActions
@@ -74,5 +83,7 @@ namespace EOLib.Domain.Interact
         void RequestBank(NPC.NPC npc);
 
         void RequestSkillmaster(NPC.NPC npc);
+
+        void RequestInnkeeper(NPC.NPC npc);
     }
 }
