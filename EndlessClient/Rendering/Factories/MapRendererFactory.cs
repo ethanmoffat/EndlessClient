@@ -22,6 +22,7 @@ namespace EndlessClient.Rendering.Factories
         private readonly IMapEntityRendererProvider _mapEntityRendererProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
+        private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly IContentProvider _contentProvider;
         private readonly IMapRenderDistanceCalculator _mapRenderDistanceCalculator;
         private readonly ICharacterRendererUpdater _characterRendererUpdater;
@@ -39,6 +40,7 @@ namespace EndlessClient.Rendering.Factories
             IMapEntityRendererProvider mapEntityRendererProvider,
             ICharacterProvider characterProvider,
             ICurrentMapProvider currentMapProvider,
+            ICurrentMapStateProvider currentMapStateProvider,
             IContentProvider contentProvider,
             IMapRenderDistanceCalculator mapRenderDistanceCalculator,
             ICharacterRendererUpdater characterRendererUpdater,
@@ -56,6 +58,7 @@ namespace EndlessClient.Rendering.Factories
             _mapEntityRendererProvider = mapEntityRendererProvider;
             _characterProvider = characterProvider;
             _currentMapProvider = currentMapProvider;
+            _currentMapStateProvider = currentMapStateProvider;
             _contentProvider = contentProvider;
             _mapRenderDistanceCalculator = mapRenderDistanceCalculator;
             _characterRendererUpdater = characterRendererUpdater;
@@ -76,6 +79,7 @@ namespace EndlessClient.Rendering.Factories
                                    _mapEntityRendererProvider,
                                    _characterProvider,
                                    _currentMapProvider,
+                                   _currentMapStateProvider,
                                    _contentProvider,
                                    _mapRenderDistanceCalculator,
                                    _characterRendererUpdater,

@@ -30,6 +30,7 @@ namespace EndlessClient.Rendering.Map
         private readonly IMapEntityRendererProvider _mapEntityRendererProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
+        private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly IContentProvider _contentProvider;
         private readonly IMapRenderDistanceCalculator _mapRenderDistanceCalculator;
         private readonly ICharacterRendererUpdater _characterRendererUpdater;
@@ -48,7 +49,6 @@ namespace EndlessClient.Rendering.Map
         private bool _groundDrawn;
 
         private Option<MapQuakeState> _quakeState;
-        private Option<DateTime> _sleepBackoff;
 
         private IDictionary<MapCoordinate, IEffectRenderer> _mapGridEffectRenderers;
 
@@ -71,6 +71,7 @@ namespace EndlessClient.Rendering.Map
                            IMapEntityRendererProvider mapEntityRendererProvider,
                            ICharacterProvider characterProvider,
                            ICurrentMapProvider currentMapProvider,
+                           ICurrentMapStateProvider currentMapStateProvider,
                            IContentProvider contentProvider,
                            IMapRenderDistanceCalculator mapRenderDistanceCalculator,
                            ICharacterRendererUpdater characterRendererUpdater,
@@ -88,6 +89,7 @@ namespace EndlessClient.Rendering.Map
             _mapEntityRendererProvider = mapEntityRendererProvider;
             _characterProvider = characterProvider;
             _currentMapProvider = currentMapProvider;
+            _currentMapStateProvider = currentMapStateProvider;
             _contentProvider = contentProvider;
             _mapRenderDistanceCalculator = mapRenderDistanceCalculator;
             _characterRendererUpdater = characterRendererUpdater;
@@ -118,7 +120,7 @@ namespace EndlessClient.Rendering.Map
 
         public override void Update(GameTime gameTime)
         {
-            if (_sleepBackoff.HasValue) return;
+            if (_currentMapStateProvider.IsSleepWarp) return;
 
             if (!_lastMapChecksum.HasValue || _lastMapChecksum != _currentMapProvider.CurrentMap.Properties.ChecksumInt)
             {
@@ -171,7 +173,7 @@ namespace EndlessClient.Rendering.Map
             if (!Visible)
                 return;
 
-            if (_sleepBackoff.HasValue)
+            if (_currentMapStateProvider.IsSleepWarp)
             {
                 lock (_rt_locker_)
                 {
@@ -185,11 +187,11 @@ namespace EndlessClient.Rendering.Map
                 _sb.DrawString(_contentProvider.Fonts[Constants.FontSize08], "zzzzz..", new Vector2(_clientWindowSizeRepository.Width / 2 - 15, _clientWindowSizeRepository.Height / 3), Color.White);
                 _sb.End();
 
-                _sleepBackoff.MatchSome(x =>
+                // This implementation relies on MapWarpTime being reset in InputHandlerBase
+                _currentMapStateProvider.MapWarpTime.MatchSome(x =>
                 {
                     if ((DateTime.Now - x).TotalSeconds >= 5)
                     {
-                        _sleepBackoff = Option.None<DateTime>();
                         _mapTransitionState = new MapTransitionState(Option.Some(DateTime.Now), 1);
                     }
                 });
@@ -202,16 +204,9 @@ namespace EndlessClient.Rendering.Map
             base.Draw(gameTime);
         }
 
-        public void StartMapTransition(bool isSleep)
+        public void StartMapTransition()
         {
-            if (isSleep)
-            {
-                _sleepBackoff = Option.Some(DateTime.Now);
-            }
-            else
-            {
-                _mapTransitionState = new MapTransitionState(Option.Some(DateTime.Now), 1);
-            }
+            _mapTransitionState = new MapTransitionState(Option.Some(DateTime.Now), 1);
         }
 
         public void StartEarthquake(int strength)

@@ -16,7 +16,6 @@ using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
 using System.Linq;
-using XNAControls;
 
 namespace EndlessClient.Rendering.Map
 {
@@ -188,10 +187,10 @@ namespace EndlessClient.Rendering.Map
             var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
             mapRenderer.ClearTransientRenderables();
 
-            if (_currentMapStateRepository.IsSleepWarp)
-                mapRenderer.StartMapTransition(isSleep: true);
-            else if (showMapTransition)
-                mapRenderer.StartMapTransition(isSleep: false);
+            if (showMapTransition)
+            {
+                mapRenderer.StartMapTransition();
+            }
         }
 
         private void AddSpikeTraps()

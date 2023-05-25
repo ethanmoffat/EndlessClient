@@ -180,8 +180,6 @@ namespace EndlessClient.Dialogs
             _cancel.Initialize();
         }
 
-        public void Close() => Close(XNADialogResult.NO_BUTTON_PRESSED);
-
         protected override void OnUnconditionalUpdateControl(GameTime gameTime)
         {
             var updateItemVisibility = false;
