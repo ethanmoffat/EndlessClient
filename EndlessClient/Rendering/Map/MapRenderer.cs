@@ -1,4 +1,5 @@
-﻿using EndlessClient.GameExecution;
+﻿using EndlessClient.Content;
+using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Factories;
@@ -11,6 +12,7 @@ using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.BitmapFonts;
 using Optional;
 using System;
 using System.Collections.Generic;
@@ -28,6 +30,7 @@ namespace EndlessClient.Rendering.Map
         private readonly IMapEntityRendererProvider _mapEntityRendererProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
+        private readonly IContentProvider _contentProvider;
         private readonly IMapRenderDistanceCalculator _mapRenderDistanceCalculator;
         private readonly ICharacterRendererUpdater _characterRendererUpdater;
         private readonly INPCRendererUpdater _npcRendererUpdater;
@@ -45,6 +48,7 @@ namespace EndlessClient.Rendering.Map
         private bool _groundDrawn;
 
         private Option<MapQuakeState> _quakeState;
+        private Option<DateTime> _sleepBackoff;
 
         private IDictionary<MapCoordinate, IEffectRenderer> _mapGridEffectRenderers;
 
@@ -67,6 +71,7 @@ namespace EndlessClient.Rendering.Map
                            IMapEntityRendererProvider mapEntityRendererProvider,
                            ICharacterProvider characterProvider,
                            ICurrentMapProvider currentMapProvider,
+                           IContentProvider contentProvider,
                            IMapRenderDistanceCalculator mapRenderDistanceCalculator,
                            ICharacterRendererUpdater characterRendererUpdater,
                            INPCRendererUpdater npcRendererUpdater,
@@ -83,6 +88,7 @@ namespace EndlessClient.Rendering.Map
             _mapEntityRendererProvider = mapEntityRendererProvider;
             _characterProvider = characterProvider;
             _currentMapProvider = currentMapProvider;
+            _contentProvider = contentProvider;
             _mapRenderDistanceCalculator = mapRenderDistanceCalculator;
             _characterRendererUpdater = characterRendererUpdater;
             _npcRendererUpdater = npcRendererUpdater;
@@ -112,6 +118,8 @@ namespace EndlessClient.Rendering.Map
 
         public override void Update(GameTime gameTime)
         {
+            if (_sleepBackoff.HasValue) return;
+
             if (!_lastMapChecksum.HasValue || _lastMapChecksum != _currentMapProvider.CurrentMap.Properties.ChecksumInt)
             {
                 // The dimensions of the map are 0-based in the properties. Adjust to 1-based for RT creation
@@ -163,14 +171,47 @@ namespace EndlessClient.Rendering.Map
             if (!Visible)
                 return;
 
-            DrawToSpriteBatch(_sb, gameTime);
+            if (_sleepBackoff.HasValue)
+            {
+                lock (_rt_locker_)
+                {
+                    GraphicsDevice.SetRenderTarget(_mapBaseTarget);
+                    GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
+                    GraphicsDevice.SetRenderTarget(null);
+                }
+
+                _sb.Begin();
+                _sb.Draw(_mapBaseTarget, new Vector2(0, 0), Color.White);
+                _sb.DrawString(_contentProvider.Fonts[Constants.FontSize08], "zzzzz..", new Vector2(_clientWindowSizeRepository.Width / 2 - 15, _clientWindowSizeRepository.Height / 3), Color.White);
+                _sb.End();
+
+                _sleepBackoff.MatchSome(x =>
+                {
+                    if ((DateTime.Now - x).TotalSeconds >= 5)
+                    {
+                        _sleepBackoff = Option.None<DateTime>();
+                        _mapTransitionState = new MapTransitionState(Option.Some(DateTime.Now), 1);
+                    }
+                });
+            }
+            else
+            {
+                DrawToSpriteBatch(_sb, gameTime);
+            }
 
             base.Draw(gameTime);
         }
 
-        public void StartMapTransition()
+        public void StartMapTransition(bool isSleep)
         {
-            _mapTransitionState = new MapTransitionState(Option.Some(DateTime.Now), 1);
+            if (isSleep)
+            {
+                _sleepBackoff = Option.Some(DateTime.Now);
+            }
+            else
+            {
+                _mapTransitionState = new MapTransitionState(Option.Some(DateTime.Now), 1);
+            }
         }
 
         public void StartEarthquake(int strength)

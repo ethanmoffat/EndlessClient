@@ -7,6 +7,7 @@ using EOLib.Domain.Interact.Skill;
 using EOLib.IO;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
+using XNAControls;
 
 namespace EndlessClient.Dialogs.Actions
 {
@@ -14,18 +15,21 @@ namespace EndlessClient.Dialogs.Actions
     public class NPCInteractionActions : INPCInteractionNotifier
     {
         private readonly IInGameDialogActions _inGameDialogActions;
+        private readonly ICitizenActions _citizenActions;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly IECFFileProvider _ecfFileProvider;
         private readonly ISfxPlayer _sfxPlayer;
 
         public NPCInteractionActions(IInGameDialogActions inGameDialogActions,
+                                     ICitizenActions citizenActions,
                                      IEOMessageBoxFactory messageBoxFactory,
                                      ILocalizedStringFinder localizedStringFinder,
                                      IECFFileProvider ecfFileProvider,
                                      ISfxPlayer sfxPlayer)
         {
             _inGameDialogActions = inGameDialogActions;
+            _citizenActions = citizenActions;
             _messageBoxFactory = messageBoxFactory;
             _localizedStringFinder = localizedStringFinder;
             _ecfFileProvider = ecfFileProvider;
@@ -109,6 +113,22 @@ namespace EndlessClient.Dialogs.Actions
                     _localizedStringFinder.GetString(EOResourceID.INN_REGISTRATION_SERVICE));
                 dlg.ShowDialog();
             }
+        }
+
+        public void NotifyCitizenRequestSleep(int sleepCost)
+        {
+            var message = $"{_localizedStringFinder.GetString(EOResourceID.INN_A_GOOD_NIGHT_REST_WILL_COST_YOU)} {sleepCost} Gold";
+
+            var dlg = _messageBoxFactory.CreateMessageBox(message, _localizedStringFinder.GetString(EOResourceID.INN_SLEEP), EODialogButtons.OkCancel);
+            dlg.DialogClosing += (_, e) =>
+            {
+                if (e.Result == XNADialogResult.OK)
+                {
+                    _citizenActions.ConfirmSleep();
+                }
+            };
+
+            dlg.ShowDialog();
         }
     }
 }

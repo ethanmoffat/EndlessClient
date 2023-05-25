@@ -20,6 +20,8 @@ namespace EOLib.Domain.Interact
         void NotifyCitizenUnsubscribe(CitizenUnsubscribeReply reply);
 
         void NotifyCitizenSignUp(int questionsWrong);
+
+        void NotifyCitizenRequestSleep(int sleepCost);
     }
 
     [AutoMappedType]
@@ -38,5 +40,7 @@ namespace EOLib.Domain.Interact
         public void NotifyCitizenUnsubscribe(CitizenUnsubscribeReply reply) { }
 
         public void NotifyCitizenSignUp(int questionsWrong) { }
+
+        public void NotifyCitizenRequestSleep(int sleepCost) { }
     }
 }

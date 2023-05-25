@@ -1,4 +1,5 @@
 using AutomaticTypeMapper;
+using EndlessClient.Content;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Effects;
@@ -21,6 +22,7 @@ namespace EndlessClient.Rendering.Factories
         private readonly IMapEntityRendererProvider _mapEntityRendererProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
+        private readonly IContentProvider _contentProvider;
         private readonly IMapRenderDistanceCalculator _mapRenderDistanceCalculator;
         private readonly ICharacterRendererUpdater _characterRendererUpdater;
         private readonly INPCRendererUpdater _npcRendererUpdater;
@@ -37,6 +39,7 @@ namespace EndlessClient.Rendering.Factories
             IMapEntityRendererProvider mapEntityRendererProvider,
             ICharacterProvider characterProvider,
             ICurrentMapProvider currentMapProvider,
+            IContentProvider contentProvider,
             IMapRenderDistanceCalculator mapRenderDistanceCalculator,
             ICharacterRendererUpdater characterRendererUpdater,
             INPCRendererUpdater npcRendererUpdater,
@@ -53,6 +56,7 @@ namespace EndlessClient.Rendering.Factories
             _mapEntityRendererProvider = mapEntityRendererProvider;
             _characterProvider = characterProvider;
             _currentMapProvider = currentMapProvider;
+            _contentProvider = contentProvider;
             _mapRenderDistanceCalculator = mapRenderDistanceCalculator;
             _characterRendererUpdater = characterRendererUpdater;
             _npcRendererUpdater = npcRendererUpdater;
@@ -72,6 +76,7 @@ namespace EndlessClient.Rendering.Factories
                                    _mapEntityRendererProvider,
                                    _characterProvider,
                                    _currentMapProvider,
+                                   _contentProvider,
                                    _mapRenderDistanceCalculator,
                                    _characterRendererUpdater,
                                    _npcRendererUpdater,

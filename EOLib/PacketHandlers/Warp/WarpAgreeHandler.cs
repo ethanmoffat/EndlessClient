@@ -87,6 +87,7 @@ namespace EOLib.PacketHandlers.Warp
 
             _currentMapStateRepository.MapWarpState = WarpState.None;
             _currentMapStateRepository.MapWarpTime = Option.Some(DateTime.Now);
+            _currentMapStateRepository.IsSleepWarp = false;
 
             return true;
         }

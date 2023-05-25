@@ -35,6 +35,8 @@ namespace EOLib.Domain.Map
 
         Option<DateTime> MapWarpTime { get; set; }
 
+        bool IsSleepWarp { get; set; }
+
         HashSet<int> UnknownPlayerIDs { get; set; }
 
         HashSet<int> UnknownNPCIndexes { get; set; }
@@ -69,6 +71,8 @@ namespace EOLib.Domain.Map
         Option<int> MapWarpID { get; }
 
         Option<DateTime> MapWarpTime { get; }
+
+        bool IsSleepWarp { get; }
 
         HashSet<int> UnknownPlayerIDs { get; }
 
@@ -105,6 +109,8 @@ namespace EOLib.Domain.Map
         public Option<int> MapWarpID { get; set; }
 
         public Option<DateTime> MapWarpTime { get; set; }
+
+        public bool IsSleepWarp { get; set; }
 
         public HashSet<int> UnknownPlayerIDs { get; set; }
 
@@ -145,6 +151,7 @@ namespace EOLib.Domain.Map
             MapWarpState = WarpState.None;
             MapWarpSession = Option.None<int>();
             MapWarpID = Option.None<int>();
+            IsSleepWarp = false;
         }
     }
 }

@@ -9,7 +9,7 @@ namespace EndlessClient.Rendering.Map
 
         bool MouseOver { get; }
 
-        void StartMapTransition();
+        void StartMapTransition(bool isSleep);
 
         void StartEarthquake(int strength);
 

@@ -22,6 +22,27 @@ namespace EOLib.Domain.Interact.Citizen
             _currentMapStateProvider = currentMapStateProvider;
         }
 
+        public void RequestSleep()
+        {
+            var packet = new PacketBuilder(PacketFamily.Citizen, PacketAction.Request)
+                .AddShort(_currentMapStateProvider.MapWarpSession.ValueOr(0))
+                .AddShort(_citizenDataProvider.BehaviorID.ValueOr(0))
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+
+        }
+
+        public void ConfirmSleep()
+        {
+            var packet = new PacketBuilder(PacketFamily.Citizen, PacketAction.Accept)
+                .AddShort(_currentMapStateProvider.MapWarpSession.ValueOr(0))
+                .AddShort(_citizenDataProvider.BehaviorID.ValueOr(0))
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+        }
+
         public void SignUp(IReadOnlyList<string> answers)
         {
             var packet = new PacketBuilder(PacketFamily.Citizen, PacketAction.Reply)
@@ -49,6 +70,10 @@ namespace EOLib.Domain.Interact.Citizen
 
     public interface ICitizenActions
     {
+        void RequestSleep();
+
+        void ConfirmSleep();
+
         void SignUp(IReadOnlyList<string> answers);
 
         void Unsubscribe();

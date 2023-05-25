@@ -125,8 +125,8 @@ namespace EndlessClient.Dialogs
                             SubText = _localizedStringFinder.GetString(EOResourceID.INN_FULL_HP_RECOVERY),
                             OffsetY = 45,
                         };
-                        sleepItem.LeftClick += Sleep_Click;
-                        sleepItem.RightClick += Sleep_Click;
+                        sleepItem.LeftClick += (_, _) => _citizenActions.RequestSleep();
+                        sleepItem.RightClick += (_, _) => _citizenActions.RequestSleep();
 
                         SetItemList(new List<ListDialogItem> { registrationItem, sleepItem });
                     }
@@ -245,11 +245,6 @@ namespace EndlessClient.Dialogs
                     break;
                 case InnkeeperDialogState.Sleep: break;
             }
-        }
-
-        private void Sleep_Click(object sender, MouseEventArgs e)
-        {
-            // todo: inn sleeping
         }
     }
 }
