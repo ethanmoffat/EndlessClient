@@ -50,6 +50,7 @@
         PotionOfSparklesEffect = 36,
         LearnNewSpell,
         PotionOfLoveEffect = LearnNewSpell,
+        InnSignUp = LearnNewSpell,
         AttackBow,
         LevelUp,
         Dead = 40,

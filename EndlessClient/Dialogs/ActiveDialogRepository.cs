@@ -43,6 +43,8 @@ namespace EndlessClient.Dialogs
 
         Option<JukeboxDialog> JukeboxDialog { get; }
 
+        Option<InnkeeperDialog> InnkeeperDialog { get; }
+
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs { get; }
     }
 
@@ -81,6 +83,8 @@ namespace EndlessClient.Dialogs
         Option<BoardDialog> BoardDialog { get; set; }
 
         Option<JukeboxDialog> JukeboxDialog { get; set; }
+
+        Option<InnkeeperDialog> InnkeeperDialog { get; set; }
 
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs { get; }
     }
@@ -122,6 +126,8 @@ namespace EndlessClient.Dialogs
 
         public Option<JukeboxDialog> JukeboxDialog { get; set; }
 
+        public Option<InnkeeperDialog> InnkeeperDialog { get; set; }
+
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs
         {
             get
@@ -145,6 +151,7 @@ namespace EndlessClient.Dialogs
                     MessageBox.Map(Map),
                     BoardDialog.Map(Map),
                     JukeboxDialog.Map(Map),
+                    InnkeeperDialog.Map(Map),
                 }.ToList();
 
                 static IXNADialog Map(object d)
@@ -180,6 +187,7 @@ namespace EndlessClient.Dialogs
             MessageBox = Option.None<EOMessageBox>();
             BoardDialog = Option.None<BoardDialog>();
             JukeboxDialog = Option.None<JukeboxDialog>();
+            InnkeeperDialog = Option.None<InnkeeperDialog>();
         }
     }
 }

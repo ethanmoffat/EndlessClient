@@ -11,6 +11,7 @@ namespace EndlessClient.Input
     {
         private const int INPUT_RATE_LIMIT_MILLISECONDS = 200;
         private const int WARP_BACKOFF_TIME_MILLISECONDS = 300;
+        private const int WARP_SLEEP_BACKOFF_TIME_MILLISECONDS = 5000;
 
         private readonly IEndlessGameProvider _endlessGameProvider;
         private readonly IUserInputProvider _keyStateProvider;
@@ -40,9 +41,19 @@ namespace EndlessClient.Input
                 _currentMapStateRepository.MapWarpState != WarpState.None)
                 return;
 
-            _currentMapStateRepository.MapWarpTime = _currentMapStateRepository.MapWarpTime.Match(
-                some: t => (DateTime.Now - t).TotalMilliseconds > WARP_BACKOFF_TIME_MILLISECONDS ? Option.None<DateTime>() : Option.Some(t),
-                none: () => Option.None<DateTime>());
+            _currentMapStateRepository.MapWarpTime.MatchSome(
+                some: t =>
+                {
+                    var span = (DateTime.Now - t).TotalMilliseconds;
+                    var isSleepBackoffDone = _currentMapStateRepository.IsSleepWarp && span >= WARP_SLEEP_BACKOFF_TIME_MILLISECONDS;
+                    var isWarpBackoffDone = !_currentMapStateRepository.IsSleepWarp && span >= WARP_BACKOFF_TIME_MILLISECONDS;
+
+                    if (isSleepBackoffDone || isWarpBackoffDone)
+                    {
+                        _currentMapStateRepository.MapWarpTime = Option.None<DateTime>();
+                        _currentMapStateRepository.IsSleepWarp = false;
+                    }
+                });
 
             _currentMapStateRepository.MapWarpTime.MatchNone(() => HandleInput().MatchSome(_ => _userInputTimeRepository.LastInputTime = timeAtBeginningOfUpdate));
         }

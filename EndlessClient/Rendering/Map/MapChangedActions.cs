@@ -2,6 +2,7 @@
 using EndlessClient.Audio;
 using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
+using EndlessClient.Dialogs;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Effects;
@@ -34,6 +35,7 @@ namespace EndlessClient.Rendering.Map
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IConfigurationProvider _configurationProvider;
+        private readonly IActiveDialogProvider _dialogProvider;
         private readonly IMfxPlayer _mfxPlayer;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IChatController _chatController;
@@ -50,6 +52,7 @@ namespace EndlessClient.Rendering.Map
                                  ICurrentMapProvider currentMapProvider,
                                  ICurrentMapStateRepository currentMapStateRepository,
                                  IConfigurationProvider configurationProvider,
+                                 IActiveDialogProvider dialogProvider,
                                  IMfxPlayer mfxPlayer,
                                  ISfxPlayer sfxPlayer,
                                  IChatController chatController)
@@ -66,6 +69,7 @@ namespace EndlessClient.Rendering.Map
             _currentMapProvider = currentMapProvider;
             _currentMapStateRepository = currentMapStateRepository;
             _configurationProvider = configurationProvider;
+            _dialogProvider = dialogProvider;
             _mfxPlayer = mfxPlayer;
             _sfxPlayer = sfxPlayer;
             _chatController = chatController;
@@ -73,8 +77,8 @@ namespace EndlessClient.Rendering.Map
 
         public void ActiveCharacterEnterMapForLogin()
         {
-            ShowMapNameIfAvailable(true);
-            ShowMapTransition(true);
+            ShowMapNameIfAvailable(differentMapID: true);
+            ShowMapTransition(showMapTransition: true);
             PlayBackgroundMusic(differentMapID: true);
             PlayAmbientNoise(differentMapID: true);
             //todo: show message if map is a PK map
@@ -96,6 +100,8 @@ namespace EndlessClient.Rendering.Map
 
             if (!differentMapID)
                 RedrawGroundLayer();
+
+            CloseAllDialogs();
 
             _chatController.ClearAndWarnIfJailAndGlobal();
         }
@@ -237,6 +243,12 @@ namespace EndlessClient.Rendering.Map
             }
             else
                 _sfxPlayer.StopLoopingSfx();
+        }
+
+        private void CloseAllDialogs()
+        {
+            foreach (var dlg in _dialogProvider.ActiveDialogs)
+                dlg.MatchSome(x => ((BaseEODialog)x).Close());
         }
     }
 

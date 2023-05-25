@@ -37,6 +37,7 @@ namespace EndlessClient.Dialogs.Actions
         private readonly ITradeDialogFactory _tradeDialogFactory;
         private readonly IBoardDialogFactory _boardDialogFactory;
         private readonly IJukeboxDialogFactory _jukeboxDialogFactory;
+        private readonly IInnkeeperDialogFactory _innkeeperDialogFactory;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IShopDialogFactory _shopDialogFactory;
@@ -62,6 +63,7 @@ namespace EndlessClient.Dialogs.Actions
                                    ITradeDialogFactory tradeDialogFactory,
                                    IBoardDialogFactory boardDialogFactory,
                                    IJukeboxDialogFactory jukeboxDialogFactory,
+                                   IInnkeeperDialogFactory innkeeperDialogFactory,
                                    ISfxPlayer sfxPlayer,
                                    IStatusLabelSetter statusLabelSetter)
         {
@@ -83,6 +85,7 @@ namespace EndlessClient.Dialogs.Actions
             _tradeDialogFactory = tradeDialogFactory;
             _boardDialogFactory = boardDialogFactory;
             _jukeboxDialogFactory = jukeboxDialogFactory;
+            _innkeeperDialogFactory = innkeeperDialogFactory;
             _sfxPlayer = sfxPlayer;
             _statusLabelSetter = statusLabelSetter;
             _shopDialogFactory = shopDialogFactory;
@@ -368,6 +371,20 @@ namespace EndlessClient.Dialogs.Actions
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.JUKEBOX_NOW_VIEWED);
         }
 
+        public void ShowInnkeeperDialog()
+        {
+            _activeDialogRepository.InnkeeperDialog.MatchNone(() =>
+            {
+                var dlg = _innkeeperDialogFactory.Create();
+                dlg.DialogClosed += (_, _) => _activeDialogRepository.InnkeeperDialog = Option.None<InnkeeperDialog>();
+                _activeDialogRepository.InnkeeperDialog = Option.Some(dlg);
+
+                dlg.Show();
+
+                UseDefaultDialogSounds(dlg);
+            });
+        }
+
         private void UseDefaultDialogSounds(ScrollingListDialog dialog)
         {
             UseDefaultDialogSounds((BaseEODialog)dialog);
@@ -432,5 +449,7 @@ namespace EndlessClient.Dialogs.Actions
         void ShowBoardDialog();
 
         void ShowJukeboxDialog(MapCoordinate mapCoordinate);
+
+        void ShowInnkeeperDialog();
     }
 }

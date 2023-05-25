@@ -1,9 +1,12 @@
-﻿using EndlessClient.Dialogs.Services;
+﻿using EndlessClient.Dialogs.Factories;
+using EndlessClient.Dialogs.Services;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Graphics;
+using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended.BitmapFonts;
 using MonoGame.Extended.Input.InputListeners;
 using System;
 using System.Collections.Generic;
@@ -390,6 +393,37 @@ namespace EndlessClient.Dialogs
             _listItems.Clear();
             _scrollBar.UpdateDimensions(0);
             _scrollBar.ScrollToTop();
+        }
+
+        public void AddTextAsListItems(BitmapFont font, Action linkClickAction, params string[] messages)
+        {
+            ListItemType = ListDialogItem.ListItemStyle.Small;
+
+            var drawStrings = new List<string>();
+            var ts = new TextSplitter(string.Empty, font) { LineLength = 200 };
+            foreach (string s in messages)
+            {
+                ts.Text = s;
+                drawStrings.AddRange(ts.NeedsProcessing ? ts.SplitIntoLines() : new[] { s });
+                drawStrings.Add(" ");
+            }
+
+            foreach (string s in drawStrings)
+            {
+                var link = s.Length > 0 && s[0] == '*';
+                var nextItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Small)
+                {
+                    PrimaryText = link ? s.Remove(0, 1) : s
+                };
+
+                if (link)
+                {
+                    nextItem.SetPrimaryClickAction((_, _) => linkClickAction());
+                }
+
+                AddItemToList(nextItem, sortList: false);
+            }
+
         }
 
         public override void Initialize()

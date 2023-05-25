@@ -106,7 +106,7 @@ namespace EndlessClient.Dialogs
 
         public object Data { get; set; }
 
-        public event EventHandler RightClick;
+        public event EventHandler<MouseEventArgs> RightClick;
         public event EventHandler<MouseEventArgs> LeftClick;
 
         public ListDialogItem(BaseEODialog parent, ListItemStyle style, int listIndex = -1)
