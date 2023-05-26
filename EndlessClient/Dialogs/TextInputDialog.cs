@@ -41,9 +41,7 @@ namespace EndlessClient.Dialogs
                 MaxChars = maxInputChars,
                 LeftPadding = 4,
                 TextColor = ColorConstants.LightBeigeText,
-                Selected = true,
             };
-            _inputBox.Initialize();
             _inputBox.SetParentControl(this);
 
             var ok = new XNAButton(eoDialogButtonService.SmallButtonSheet,
@@ -64,6 +62,15 @@ namespace EndlessClient.Dialogs
 
             CenterInGameView();
             DrawPosition += new Vector2(0, 17);
+        }
+
+        public override void Initialize()
+        {
+            _inputBox.Initialize();
+
+            _inputBox.Selected = true;
+
+            base.Initialize();
         }
     }
 }
