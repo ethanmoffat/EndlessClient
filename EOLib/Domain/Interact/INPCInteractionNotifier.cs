@@ -1,5 +1,7 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Interact.Citizen;
+using EOLib.Domain.Interact.Law;
+using EOLib.Domain.Interact.Priest;
 using EOLib.Domain.Interact.Skill;
 using EOLib.IO;
 
@@ -22,6 +24,12 @@ namespace EOLib.Domain.Interact
         void NotifyCitizenSignUp(int questionsWrong);
 
         void NotifyCitizenRequestSleep(int sleepCost);
+
+        void NotifyPriestReply(PriestReply reply);
+
+        void NotifyPriestRequest(string partnerName);
+
+        void NotifyMarriageReply(MarriageReply reply);
     }
 
     [AutoMappedType]
@@ -42,5 +50,11 @@ namespace EOLib.Domain.Interact
         public void NotifyCitizenSignUp(int questionsWrong) { }
 
         public void NotifyCitizenRequestSleep(int sleepCost) { }
+
+        public void NotifyPriestReply(PriestReply reply) { }
+
+        public void NotifyPriestRequest(string partnerName) { }
+
+        public void NotifyMarriageReply(MarriageReply reply) { }
     }
 }

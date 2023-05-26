@@ -16,7 +16,7 @@ namespace EndlessClient.Dialogs.Services
         BankLockerUpgrade,
 
         JukeboxPlay = 8,
-        InnRegistration = 9,
+        Registration = 9,
 
         Learn = 20,
         Forget = 21,

@@ -460,6 +460,9 @@ namespace EndlessClient.Rendering.Character
         // Called when the shout (spell prep time) should be cancelled without casting
         public void StopShout()
         {
+            if (_nameLabel == null)
+                return;
+
             _nameLabel.Visible = false;
             _nameLabel.Text = _character.Name;
             _nameLabel.ForeColor = Color.White;

@@ -64,6 +64,12 @@ namespace EndlessClient.Controllers
                 case EOLib.IO.NPCType.Inn:
                     _mapNpcActions.RequestInnkeeper(npc);
                     break;
+                case EOLib.IO.NPCType.Law:
+                    _mapNpcActions.RequestLaw(npc);
+                    break;
+                case EOLib.IO.NPCType.Priest:
+                    _mapNpcActions.RequestPriest(npc);
+                    break;
             }
         }
     }

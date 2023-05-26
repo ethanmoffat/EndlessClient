@@ -8,7 +8,6 @@ using EOLib.IO;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
-using MonoGame.Extended.Input.InputListeners;
 using Optional.Collections;
 using System;
 using System.Collections.Generic;
@@ -27,9 +26,7 @@ namespace EndlessClient.Dialogs
             // sign up text + link
             SignUp,
             // unsubscribe text + link
-            Unsubscribe,
-            // sleep at inn (todo)
-            Sleep
+            Unsubscribe
         }
 
         private readonly IEODialogIconService _dialogIconService;
@@ -70,7 +67,7 @@ namespace EndlessClient.Dialogs
             {
                 if (_state == InnkeeperDialogState.SignUp || _state == InnkeeperDialogState.Unsubscribe)
                     SetState(InnkeeperDialogState.Registration);
-                else if (_state == InnkeeperDialogState.Registration || _state == InnkeeperDialogState.Sleep)
+                else if (_state == InnkeeperDialogState.Registration)
                     SetState(InnkeeperDialogState.Initial);
             };
         }
@@ -108,7 +105,7 @@ namespace EndlessClient.Dialogs
                         {
                             ShowIconBackGround = false,
                             IconGraphic = _dialogIconService.IconSheet,
-                            IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.InnRegistration),
+                            IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.Registration),
                             PrimaryText = _localizedStringFinder.GetString(EOResourceID.INN_REGISTRATION_SERVICE),
                             SubText = _localizedStringFinder.GetString(EOResourceID.INN_CITIZEN_REGISTRATION_SERVICE),
                             OffsetY = 45,
@@ -243,7 +240,6 @@ namespace EndlessClient.Dialogs
                             _localizedStringFinder.GetString(EOResourceID.INN_GIVE_UP_TEXT_LINK));
                     }
                     break;
-                case InnkeeperDialogState.Sleep: break;
             }
         }
     }

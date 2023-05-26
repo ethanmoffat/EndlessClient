@@ -55,7 +55,7 @@ namespace EndlessClient.Dialogs
         Message = Shop,
         Guild = Shop,
         Inn = Shop,
-        LawBob = Shop,
+        Law = Shop,
 
         // large no scroll
         Chest,
