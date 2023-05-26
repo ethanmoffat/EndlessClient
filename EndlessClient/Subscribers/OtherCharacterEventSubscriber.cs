@@ -59,17 +59,20 @@ namespace EndlessClient.Subscribers
 
         private void SaySomethingShared(int characterID, string message, bool isGroupChat)
         {
-            if (!_characterRendererProvider.CharacterRenderers.ContainsKey(characterID))
-                return;
+            if (_characterRendererProvider.CharacterRenderers.TryGetValue(characterID, out var characterRenderer) ||
+                _characterRendererProvider.MainCharacterRenderer.HasValue)
+            {
+                _characterRendererProvider.MainCharacterRenderer.MatchSome(x => characterRenderer = x);
 
-            var name = _characterRendererProvider.CharacterRenderers[characterID].Character.Name;
+                var name = characterRenderer.Character.Name;
 
-            var ignoreList = _friendIgnoreListService.LoadList(Constants.IgnoreListFile);
-            if (ignoreList.Any(x => x.Equals(name, StringComparison.InvariantCultureIgnoreCase)) ||
-                (_configurationProvider.StrictFilterEnabled && !_chatProcessor.FilterCurses(message).ShowChat))
-                return;
+                var ignoreList = _friendIgnoreListService.LoadList(Constants.IgnoreListFile);
+                if (ignoreList.Any(x => x.Equals(name, StringComparison.InvariantCultureIgnoreCase)) ||
+                    (_configurationProvider.StrictFilterEnabled && !_chatProcessor.FilterCurses(message).ShowChat))
+                    return;
 
-            _characterRendererProvider.CharacterRenderers[characterID].ShowChatBubble(message, isGroupChat);
+                characterRenderer.ShowChatBubble(message, isGroupChat);
+            }
         }
     }
 }

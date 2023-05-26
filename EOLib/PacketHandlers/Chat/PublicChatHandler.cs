@@ -17,11 +17,12 @@ namespace EOLib.PacketHandlers.Chat
 
         public override PacketAction Action => PacketAction.Player;
 
-        public PublicChatHandler(ICurrentMapStateProvider currentMapStateProvider,
-                                 IPlayerInfoProvider playerInfoProvider,
+        public PublicChatHandler(IPlayerInfoProvider playerInfoProvider,
+                                 ICurrentMapStateProvider currentMapStateProvider,
+                                 ICharacterProvider characterProvider,
                                  IChatRepository chatRepository,
                                  IEnumerable<IOtherCharacterEventNotifier> notifiers)
-            : base(currentMapStateProvider, playerInfoProvider)
+            : base(playerInfoProvider, currentMapStateProvider, characterProvider)
         {
             _chatRepository = chatRepository;
             _notifiers = notifiers;
