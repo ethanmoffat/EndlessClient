@@ -140,8 +140,11 @@ namespace EndlessClient.HUD.Chat
             OnClosed?.Invoke(this, EventArgs.Empty);
         }
 
-        protected override void OnUpdateControl(GameTime gameTime)
+        protected override void OnUnconditionalUpdateControl(GameTime gameTime)
         {
+            if (!Visible)
+                return;
+
             if (!_cachedChat.SetEquals(_chatProvider.AllChat[Tab]))
             {
                 _cachedChat = _chatProvider.AllChat[Tab].ToHashSet();
@@ -159,7 +162,7 @@ namespace EndlessClient.HUD.Chat
                 }
             }
 
-            base.OnUpdateControl(gameTime);
+            base.OnUnconditionalUpdateControl(gameTime);
         }
 
         protected override void OnDrawControl(GameTime gameTime)
