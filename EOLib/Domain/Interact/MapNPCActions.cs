@@ -72,6 +72,24 @@ namespace EOLib.Domain.Interact
 
             _packetSendService.SendPacket(packet);
         }
+
+        public void RequestLaw(NPC.NPC npc)
+        {
+            var packet = new PacketBuilder(PacketFamily.Marriage, PacketAction.Open)
+                .AddShort(npc.Index)
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+        }
+
+        public void RequestPriest(NPC.NPC npc)
+        {
+            var packet = new PacketBuilder(PacketFamily.Priest, PacketAction.Open)
+                .AddInt(npc.Index)
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+        }
     }
 
     public interface IMapNPCActions
@@ -85,5 +103,9 @@ namespace EOLib.Domain.Interact
         void RequestSkillmaster(NPC.NPC npc);
 
         void RequestInnkeeper(NPC.NPC npc);
+
+        void RequestLaw(NPC.NPC npc);
+
+        void RequestPriest(NPC.NPC npc);
     }
 }

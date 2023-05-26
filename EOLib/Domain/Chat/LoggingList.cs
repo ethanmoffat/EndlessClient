@@ -36,7 +36,7 @@ namespace EOLib.Domain.Chat
 
         public void Add(ChatData item)
         {
-            if (_configurationProvider.CurseFilterEnabled || _configurationProvider.StrictFilterEnabled)
+            if (item.Filter && (_configurationProvider.CurseFilterEnabled || _configurationProvider.StrictFilterEnabled))
             {
                 var (ok, filtered) = _chatProcessor.FilterCurses(item.Message);
                 if (!ok)

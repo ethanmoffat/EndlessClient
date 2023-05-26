@@ -183,7 +183,7 @@ namespace EOLib.PacketHandlers.NPC
                     {
                         var npcData = _enfFileProvider.ENFFile[n.ID];
 
-                        var chatData = new ChatData(ChatTab.Local, npcData.Name, message, ChatIcon.Note);
+                        var chatData = new ChatData(ChatTab.Local, npcData.Name, message, ChatIcon.Note, filter: false);
                         _chatRepository.AllChat[ChatTab.Local].Add(chatData);
 
                         foreach (var notifier in _npcAnimationNotifiers)
