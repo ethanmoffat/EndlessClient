@@ -20,12 +20,15 @@ namespace EOLib.Domain.Chat
 
         public bool Log { get; }
 
+        public bool Filter { get; }
+
         public ChatData(ChatTab tab,
                         string who,
                         string message,
                         ChatIcon icon = ChatIcon.None,
                         ChatColor chatColor = ChatColor.Default,
-                        bool log = true)
+                        bool log = true,
+                        bool filter = true)
         {
             if (who == null)
                 who = "";
@@ -41,13 +44,14 @@ namespace EOLib.Domain.Chat
             Message = message;
             ChatColor = chatColor;
             Log = log;
+            Filter = filter;
 
             ChatTime = DateTime.Now;
         }
 
         public ChatData WithMessage(string message)
         {
-            return new ChatData(Tab, Who, message, Icon, ChatColor, Log);
+            return new ChatData(Tab, Who, message, Icon, ChatColor, Log, Filter);
         }
     }
 }
