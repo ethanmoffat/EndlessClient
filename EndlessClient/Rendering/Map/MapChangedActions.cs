@@ -81,7 +81,7 @@ namespace EndlessClient.Rendering.Map
             ShowMapTransition(showMapTransition: true);
             PlayBackgroundMusic(differentMapID: true);
             PlayAmbientNoise(differentMapID: true);
-            //todo: show message if map is a PK map
+            ShowPkWarning(differentMapId: true);
         }
 
         public void NotifyMapChanged(WarpAnimation warpAnimation, bool differentMapID)
@@ -91,7 +91,7 @@ namespace EndlessClient.Rendering.Map
             ClearNPCRenderersAndCache();
             ClearOpenDoors();
             ShowMapNameIfAvailable(differentMapID);
-            //todo: show message if map is a PK map
+            ShowPkWarning(differentMapID);
             ShowMapTransition(differentMapID);
             AddSpikeTraps();
             ShowWarpBubbles(warpAnimation);
@@ -180,6 +180,18 @@ namespace EndlessClient.Rendering.Map
 
             var chatData = new ChatData(ChatTab.System, string.Empty, message, ChatIcon.NoteLeftArrow);
             _chatRepository.AllChat[ChatTab.System].Add(chatData);
+        }
+
+        private void ShowPkWarning(bool differentMapId)
+        {
+            if (!differentMapId || !_currentMapProvider.CurrentMap.Properties.PKAvailable)
+                return;
+
+            var message = _localizedStringFinder.GetString(EOResourceID.CAUTION_THIS_IS_A_PK_ZONE);
+            var chatData = new ChatData(ChatTab.System, string.Empty, message, ChatIcon.NoteLeftArrow);
+            _chatRepository.AllChat[ChatTab.System].Add(chatData);
+
+            _sfxPlayer.PlaySfx(SoundEffectID.EnterPkMap);
         }
 
         private void ShowMapTransition(bool showMapTransition)

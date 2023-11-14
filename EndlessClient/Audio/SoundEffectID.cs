@@ -87,7 +87,7 @@
         MapEffectTPDrain,
         Spikes = 72,
         UnknownClick,
-        UnknownBoing,
+        EnterPkMap,
         UnknownMapAmbientNoise5,
         DarkHandSpell = 76,
         TentaclesSpell,
