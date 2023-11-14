@@ -97,7 +97,7 @@ namespace EndlessClient.Rendering.Sprites
                 Populate(graphic);
             }
 
-            return _spriteData[graphic][NPCFrame.Standing].Span.ToArray().Any(AlphaIsZero);
+            return _spriteData[graphic][NPCFrame.Standing].Span.ToArray().All(AlphaIsZero);
         }
 
         private static bool AlphaIsZero(Color input) => input.A == 0;
