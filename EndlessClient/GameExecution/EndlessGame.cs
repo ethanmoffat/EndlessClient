@@ -205,14 +205,25 @@ namespace EndlessClient.GameExecution
 #endif
                 _fixedTimeStepRepository.Tick();
 
+#if !DEBUG
                 try
                 {
                     base.Update(gameTime);
                 }
                 catch
                 {
-                    _mainButtonController.GoToInitialStateAndDisconnect(showLostConnection: true);
+                    if (_configurationProvider.DebugCrashes)
+                    {
+                        throw;
+                    }
+                    else
+                    {
+                        _mainButtonController.GoToInitialStateAndDisconnect(showLostConnection: true);
+                    }
                 }
+#else
+                base.Update(gameTime);
+#endif
 
                 _lastFrameUpdate = gameTime.TotalGameTime;
             }
