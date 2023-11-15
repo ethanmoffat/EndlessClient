@@ -117,6 +117,10 @@ namespace EndlessClient.GameExecution
 
                     i++;
                 }
+                else if (string.Equals(arg, "--debug"))
+                {
+                    _registry.Resolve<IConfigurationRepository>().DebugCrashes = true;
+                }
                 else
                 {
                     Debug.WriteLine($"Unrecognized argument: {arg}. Will be ignored.");
