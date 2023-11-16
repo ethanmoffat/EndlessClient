@@ -1,5 +1,6 @@
 using AutomaticTypeMapper;
-using EndlessClient.Rendering.NPC;
+using EndlessClient.Rendering.Metadata;
+using EndlessClient.Rendering.Metadata.Models;
 using EOLib;
 using EOLib.Domain.NPC;
 using EOLib.Graphics;

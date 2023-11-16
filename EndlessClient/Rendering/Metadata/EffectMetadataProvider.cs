@@ -1,8 +1,10 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Audio;
+using EndlessClient.Rendering.Effects;
+using EndlessClient.Rendering.Metadata.Models;
 using System.Collections.Generic;
 
-namespace EndlessClient.Rendering.Effects
+namespace EndlessClient.Rendering.Metadata
 {
     [AutoMappedType(IsSingleton = true)]
     public class EffectMetadataProvider : IEffectMetadataProvider

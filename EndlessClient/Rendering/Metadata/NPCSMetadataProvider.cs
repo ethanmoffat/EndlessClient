@@ -1,8 +1,8 @@
 ﻿using AutomaticTypeMapper;
-using EndlessClient.Rendering.NPC;
+using EndlessClient.Rendering.Metadata.Models;
 using System.Collections.Generic;
 
-namespace EndlessClient.Rendering.Sprites
+namespace EndlessClient.Rendering.Metadata
 {
     public interface INPCMetadataProvider
     {

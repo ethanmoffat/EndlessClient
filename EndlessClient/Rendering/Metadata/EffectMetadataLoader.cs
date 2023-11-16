@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Rendering.Metadata.Models;
 using EOLib.Graphics;
 using Newtonsoft.Json;
 using Optional;
@@ -6,7 +7,7 @@ using PELoaderLib;
 using System.Collections.Generic;
 using System.Text;
 
-namespace EndlessClient.Rendering.Effects
+namespace EndlessClient.Rendering.Metadata
 {
     [AutoMappedType(IsSingleton = true)]
     public class EffectMetadataLoader : IEffectMetadataLoader
@@ -21,7 +22,7 @@ namespace EndlessClient.Rendering.Effects
         }
 
         public Option<EffectMetadata> GetEffectMetadata(int graphic)
-        { 
+        {
             if (_cache.ContainsKey(graphic))
                 return _cache[graphic].SomeNotNull();
 

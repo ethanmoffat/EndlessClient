@@ -1,7 +1,7 @@
 ﻿using Amadevus.RecordGenerator;
 using Newtonsoft.Json;
 
-namespace EndlessClient.Rendering.NPC
+namespace EndlessClient.Rendering.Metadata.Models
 {
     [Record]
     public sealed partial class NPCMetadata

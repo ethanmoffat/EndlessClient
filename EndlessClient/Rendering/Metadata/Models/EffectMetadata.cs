@@ -1,8 +1,9 @@
 ﻿using Amadevus.RecordGenerator;
 using EndlessClient.Audio;
+using EndlessClient.Rendering.Effects;
 using Newtonsoft.Json;
 
-namespace EndlessClient.Rendering.Effects
+namespace EndlessClient.Rendering.Metadata.Models
 {
     [Record]
     public sealed partial class EffectMetadata

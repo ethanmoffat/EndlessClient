@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Rendering.Metadata.Models;
 using EOLib.Graphics;
 using Newtonsoft.Json;
 using Optional;
@@ -6,7 +7,7 @@ using PELoaderLib;
 using System.Collections.Generic;
 using System.Text;
 
-namespace EndlessClient.Rendering.NPC
+namespace EndlessClient.Rendering.Metadata
 {
     [AutoMappedType(IsSingleton = true)]
     public class NPCMetadataLoader : INPCMetadataLoader
