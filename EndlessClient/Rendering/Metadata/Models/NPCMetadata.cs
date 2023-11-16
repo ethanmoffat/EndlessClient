@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 namespace EndlessClient.Rendering.Metadata.Models
 {
     [Record]
-    public sealed partial class NPCMetadata
+    public sealed partial class NPCMetadata : IGFXMetadata
     {
         [JsonProperty("xOffset")]
         public int OffsetX { get; }

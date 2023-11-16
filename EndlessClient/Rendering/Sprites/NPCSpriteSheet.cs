@@ -13,15 +13,15 @@ namespace EndlessClient.Rendering.Sprites
     {
         private readonly INativeGraphicsManager _gfxManager;
         private readonly INPCMetadataProvider _npcSpriteOffsetProvider;
-        private readonly INPCMetadataLoader _npcMetadataLoader;
+        private readonly IGFXMetadataLoader _metadataLoader;
 
         public NPCSpriteSheet(INativeGraphicsManager gfxManager,
                               INPCMetadataProvider npcSpriteOffsetProvider,
-                              INPCMetadataLoader npcMetadataLoader)
+                              IGFXMetadataLoader metadataLoader)
         {
             _gfxManager = gfxManager;
             _npcSpriteOffsetProvider = npcSpriteOffsetProvider;
-            _npcMetadataLoader = npcMetadataLoader;
+            _metadataLoader = metadataLoader;
         }
 
         public Texture2D GetNPCTexture(int baseGraphic, NPCFrame whichFrame, EODirection direction)
@@ -65,7 +65,7 @@ namespace EndlessClient.Rendering.Sprites
         {
             var emptyMetadata = new NPCMetadata.Builder().ToImmutable();
 
-            return _npcMetadataLoader.GetMetadata(graphic)
+            return _metadataLoader.GetMetadata<NPCMetadata>(graphic)
                 .ValueOr(_npcSpriteOffsetProvider.DefaultMetadata.TryGetValue(graphic, out var ret) ? ret : emptyMetadata);
         }
     }

@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 namespace EndlessClient.Rendering.Metadata.Models
 {
     [Record]
-    public sealed partial class EffectMetadata
+    public sealed partial class EffectMetadata : IGFXMetadata
     {
         [JsonProperty("hasLayer0")]
         public bool HasBehindLayer { get; }
