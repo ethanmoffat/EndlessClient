@@ -64,14 +64,12 @@ namespace EOLib.Graphics
                 // for all gfx: 0x000000 is transparent
                 processAction = data => CrossPlatformMakeTransparent(data, Color.Black);
 
-                // for hats: 0x080000 is transparent
-                // 0x000000 clips pixels below it
+                // for hats: R=8 G=0 B=0 is transparent
+                // some default gfx use R=0 G=8 B=0 as black
+                // 0,0,0 clips pixels below it
                 if (file == GFXTypes.FemaleHat || file == GFXTypes.MaleHat)
                 {
-                    processAction = data => CrossPlatformMakeTransparent(data,
-                        new Color(0xff080000),
-                        new Color(0xff000800),
-                        new Color(0xff000008));
+                    processAction = data => CrossPlatformMakeTransparent(data, new Color(0xff000008));
                 }
 
                 // for hats: some hat gfx use multiple masking colors but don't have clipping behavior
@@ -79,8 +77,6 @@ namespace EOLib.Graphics
                 {
                     processAction = data => CrossPlatformMakeTransparent(data,
                         new Color(0xff000000),
-                        new Color(0xff080000),
-                        new Color(0xff000800),
                         new Color(0xff000008));
                 }
             }
