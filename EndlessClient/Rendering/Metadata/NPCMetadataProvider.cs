@@ -195,5 +195,4 @@ namespace EndlessClient.Rendering.Metadata
             };
         }
     }
-
 }
