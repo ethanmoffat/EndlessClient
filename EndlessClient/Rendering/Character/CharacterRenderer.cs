@@ -60,6 +60,8 @@ namespace EndlessClient.Rendering.Character
 
         private bool _lastIsDead;
 
+        private Color[] _rtColorData;
+
         public EOLib.Domain.Character.Character Character
         {
             get { return _character; }
@@ -436,19 +438,20 @@ namespace EndlessClient.Rendering.Character
 
         private void ClipHair()
         {
-            if (_hatMetadataProvider.GetValueOrDefault(Character.RenderProperties.HatGraphic).ClipMode != HatMaskType.Standard)
+            if (Character.RenderProperties.HatGraphic == 0 ||
+                _hatMetadataProvider.GetValueOrDefault(Character.RenderProperties.HatGraphic).ClipMode != HatMaskType.Standard)
                 return;
 
             // oof. I really need to learn how to use shaders or stencil buffer.
             // https://gamedev.stackexchange.com/questions/38118/best-way-to-mask-2d-sprites-in-xna/38150#38150
-            var data = new Color[_charRenderTarget.Width * _charRenderTarget.Height];
-            _charRenderTarget.GetData(data);
-            for (int i = 0; i < data.Length; i++)
+            _rtColorData = new Color[_charRenderTarget.Width * _charRenderTarget.Height];
+            _charRenderTarget.GetData(_rtColorData);
+            for (int i = 0; i < _rtColorData.Length; i++)
             {
-                if (data[i] == Color.Black)
-                    data[i].A = 0;
+                if (_rtColorData[i] == Color.Black)
+                    _rtColorData[i].A = 0;
             }
-            _charRenderTarget.SetData(data);
+            _charRenderTarget.SetData(_rtColorData);
         }
 
         #endregion
