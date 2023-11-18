@@ -29,9 +29,8 @@ namespace EndlessClient.Rendering.Metadata
 
         public ShieldMetadata GetValueOrDefault(int graphic)
         {
-            var emptyMetadata = new ShieldMetadata(IsShieldOnBack: false);
             return _metadataLoader.GetMetadata<ShieldMetadata>(graphic)
-                .ValueOr(DefaultMetadata.TryGetValue(graphic, out var ret) ? ret : emptyMetadata);
+                .ValueOr(DefaultMetadata.TryGetValue(graphic, out var ret) ? ret : ShieldMetadata.Default);
         }
     }
 }

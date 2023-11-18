@@ -62,9 +62,8 @@ namespace EndlessClient.Rendering.Metadata
 
         public HatMetadata GetValueOrDefault(int graphic)
         {
-            var emptyMetadata = new HatMetadata(HatMaskType.Standard);
             return _metadataLoader.GetMetadata<HatMetadata>(graphic)
-                .ValueOr(DefaultMetadata.TryGetValue(graphic, out var ret) ? ret : emptyMetadata);
+                .ValueOr(DefaultMetadata.TryGetValue(graphic, out var ret) ? ret : HatMetadata.Default);
         }
     }
 }

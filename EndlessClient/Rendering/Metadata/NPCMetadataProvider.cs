@@ -194,9 +194,8 @@ namespace EndlessClient.Rendering.Metadata
 
         public NPCMetadata GetValueOrDefault(int graphic)
         {
-            var emptyMetadata = new NPCMetadata.Builder().ToImmutable();
             return _metadataLoader.GetMetadata<NPCMetadata>(graphic)
-                .ValueOr(DefaultMetadata.TryGetValue(graphic, out var ret) ? ret : emptyMetadata);
+                .ValueOr(DefaultMetadata.TryGetValue(graphic, out var ret) ? ret : NPCMetadata.Default);
         }
     }
 }

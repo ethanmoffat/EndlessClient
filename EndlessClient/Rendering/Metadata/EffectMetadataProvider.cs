@@ -60,9 +60,8 @@ namespace EndlessClient.Rendering.Metadata
 
         public EffectMetadata GetValueOrDefault(int graphic)
         {
-            var emptyMetadata = new EffectMetadata.Builder { HasInFrontLayer = true, Loops = 2, Frames = 4, AnimationType = EffectAnimationType.Static }.ToImmutable();
             return _metadataLoader.GetMetadata<EffectMetadata>(graphic)
-                .ValueOr(DefaultMetadata.TryGetValue(graphic, out var ret) ? ret : emptyMetadata);
+                .ValueOr(DefaultMetadata.TryGetValue(graphic, out var ret) ? ret : EffectMetadata.Default);
         }
     }
 }

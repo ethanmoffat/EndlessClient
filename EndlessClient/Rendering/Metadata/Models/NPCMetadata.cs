@@ -6,6 +6,8 @@ namespace EndlessClient.Rendering.Metadata.Models
     [Record]
     public sealed partial class NPCMetadata : IGFXMetadata
     {
+        public static NPCMetadata Default { get; } = new Builder().ToImmutable();
+
         [JsonProperty("xOffset")]
         public int OffsetX { get; }
 

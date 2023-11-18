@@ -8,6 +8,8 @@ namespace EndlessClient.Rendering.Metadata.Models
     [Record]
     public sealed partial class EffectMetadata : IGFXMetadata
     {
+        public static EffectMetadata Default { get; } = new Builder { HasInFrontLayer = true, Loops = 2, Frames = 4, AnimationType = EffectAnimationType.Static }.ToImmutable();
+
         [JsonProperty("hasLayer0")]
         public bool HasBehindLayer { get; }
 

@@ -1,6 +1,6 @@
-﻿using Amadevus.RecordGenerator;
+﻿namespace EndlessClient.Rendering.Metadata.Models;
 
-namespace EndlessClient.Rendering.Metadata.Models;
-
-[Record]
-public sealed record ShieldMetadata(bool IsShieldOnBack) : IGFXMetadata;
+public sealed record ShieldMetadata(bool IsShieldOnBack) : IGFXMetadata
+{
+    public static ShieldMetadata Default { get; } = new ShieldMetadata(false);
+}
