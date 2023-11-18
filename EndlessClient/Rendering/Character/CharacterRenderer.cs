@@ -5,7 +5,8 @@ using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Factories;
-using EndlessClient.Rendering.Sprites;
+using EndlessClient.Rendering.Metadata;
+using EndlessClient.Rendering.Metadata.Models;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Character;
@@ -37,6 +38,8 @@ namespace EndlessClient.Rendering.Character
         private readonly IGameStateProvider _gameStateProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IUserInputProvider _userInputProvider;
+        private readonly IGFXMetadataLoader _gfxMetadataLoader;
+        private readonly IHatMetadataProvider _hatMetadataProvider;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IClientWindowSizeRepository _clientWindowSizeRepository;
         private readonly IEffectRenderer _effectRenderer;
@@ -94,6 +97,8 @@ namespace EndlessClient.Rendering.Character
                                  ICurrentMapProvider currentMapProvider,
                                  IUserInputProvider userInputProvider,
                                  IEffectRendererFactory effectRendererFactory,
+                                 IGFXMetadataLoader gfxMetadataLoader,
+                                 IHatMetadataProvider hatMetadataProvider,
                                  ISfxPlayer sfxPlayer,
                                  IClientWindowSizeRepository clientWindowSizeRepository)
             : base(game)
@@ -109,6 +114,8 @@ namespace EndlessClient.Rendering.Character
             _gameStateProvider = gameStateProvider;
             _currentMapProvider = currentMapProvider;
             _userInputProvider = userInputProvider;
+            _gfxMetadataLoader = gfxMetadataLoader;
+            _hatMetadataProvider = hatMetadataProvider;
             _effectRenderer = effectRendererFactory.Create();
             _sfxPlayer = sfxPlayer;
             _clientWindowSizeRepository = clientWindowSizeRepository;
@@ -300,6 +307,8 @@ namespace EndlessClient.Rendering.Character
 
                 _sb.End();
                 GraphicsDevice.SetRenderTarget(null);
+
+                ClipHair();
             }
         }
 
@@ -426,6 +435,34 @@ namespace EndlessClient.Rendering.Character
                     _sfxPlayer.PlaySfx(SoundEffectID.Dead);
                 }
             }
+        }
+
+        private void ClipHair()
+        {
+            if (GetHatMaskType(Character.RenderProperties.HatGraphic) != HatMaskType.Standard)
+                return;
+
+            // oof. I really need to learn how to use shaders or stencil buffer.
+            // https://gamedev.stackexchange.com/questions/38118/best-way-to-mask-2d-sprites-in-xna/38150#38150
+            var data = new Color[_charRenderTarget.Width * _charRenderTarget.Height];
+            _charRenderTarget.GetData(data);
+            for (int i = 0; i < data.Length; i++)
+            {
+                if (data[i] == Color.Black)
+                    data[i].A = 0;
+            }
+            _charRenderTarget.SetData(data);
+        }
+
+        private HatMaskType GetHatMaskType(int hatGraphic)
+        {
+            // todo: better way of GetValueOrDefault for metadata (this is copy/pasted here and in CharacterPropertyRendererBuilder)
+            if (hatGraphic == 0) return HatMaskType.Standard;
+
+            var emptyMetadata = new HatMetadata(HatMaskType.Standard);
+            var actualMetadata = _gfxMetadataLoader.GetMetadata<HatMetadata>(hatGraphic)
+                .ValueOr(_hatMetadataProvider.DefaultMetadata.TryGetValue(hatGraphic, out var ret) ? ret : emptyMetadata);
+            return actualMetadata.ClipMode;
         }
 
         #endregion

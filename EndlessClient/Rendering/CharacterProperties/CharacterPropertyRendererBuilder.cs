@@ -1,5 +1,4 @@
 ﻿using AutomaticTypeMapper;
-using EndlessClient.Content;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Metadata;
 using EndlessClient.Rendering.Metadata.Models;
@@ -14,26 +13,23 @@ using System.Linq;
 
 namespace EndlessClient.Rendering.CharacterProperties
 {
-    [MappedType(BaseType = typeof(ICharacterPropertyRendererBuilder))]
+    [AutoMappedType]
     public class CharacterPropertyRendererBuilder : ICharacterPropertyRendererBuilder
     {
         private readonly IEIFFileProvider _eifFileProvider;
         private readonly IGFXMetadataLoader _gfxMetadataLoader;
         private readonly IHatMetadataProvider _hatMetadataProvider;
         private readonly IShieldMetadataProvider _shieldMetadataProvider;
-        private readonly IShaderProvider _shaderProvider;
 
         public CharacterPropertyRendererBuilder(IEIFFileProvider eifFileProvider,
                                                 IGFXMetadataLoader gfxMetadataLoader,
                                                 IHatMetadataProvider hatMetadataProvider,
-                                                IShieldMetadataProvider shieldMetadataProvider,
-                                                IShaderProvider shaderProvider)
+                                                IShieldMetadataProvider shieldMetadataProvider)
         {
             _eifFileProvider = eifFileProvider;
             _gfxMetadataLoader = gfxMetadataLoader;
             _hatMetadataProvider = hatMetadataProvider;
             _shieldMetadataProvider = shieldMetadataProvider;
-            _shaderProvider = shaderProvider;
         }
 
         public IEnumerable<ICharacterPropertyRenderer> BuildList(ICharacterTextures textures,
@@ -60,7 +56,7 @@ namespace EndlessClient.Rendering.CharacterProperties
             yield return new ArmorRenderer(renderProperties, textures.Armor) { LayerDepth = BaseLayer * 8 };
 
             var hatMaskType = GetHatMaskType(renderProperties.HatGraphic);
-            yield return new HatRenderer(_shaderProvider, renderProperties, textures.Hat, textures.Hair)
+            yield return new HatRenderer(renderProperties, textures.Hat, textures.Hair)
             {
                 LayerDepth = BaseLayer * (hatMaskType == HatMaskType.FaceMask ? 10 : 11)
             };

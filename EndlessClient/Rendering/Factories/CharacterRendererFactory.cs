@@ -7,6 +7,7 @@ using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Effects;
+using EndlessClient.Rendering.Metadata;
 using EndlessClient.Rendering.Sprites;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
@@ -29,6 +30,8 @@ namespace EndlessClient.Rendering.Factories
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IUserInputProvider _userInputProvider;
         private readonly IEffectRendererFactory _effectRendererFactory;
+        private readonly IGFXMetadataLoader _gfxMetadataLoader;
+        private readonly IHatMetadataProvider _hatMetadataProvider;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IClientWindowSizeRepository _clientWindowSizeRepository;
 
@@ -44,6 +47,8 @@ namespace EndlessClient.Rendering.Factories
                                         ICurrentMapProvider currentMapProvider,
                                         IUserInputProvider userInputProvider,
                                         IEffectRendererFactory effectRendererFactory,
+                                        IGFXMetadataLoader gfxMetadataLoader,
+                                        IHatMetadataProvider hatMetadataProvider,
                                         ISfxPlayer sfxPlayer,
                                         IClientWindowSizeRepository clientWindowSizeRepository)
         {
@@ -59,6 +64,8 @@ namespace EndlessClient.Rendering.Factories
             _currentMapProvider = currentMapProvider;
             _userInputProvider = userInputProvider;
             _effectRendererFactory = effectRendererFactory;
+            _gfxMetadataLoader = gfxMetadataLoader;
+            _hatMetadataProvider = hatMetadataProvider;
             _sfxPlayer = sfxPlayer;
             _clientWindowSizeRepository = clientWindowSizeRepository;
         }
@@ -79,6 +86,8 @@ namespace EndlessClient.Rendering.Factories
                 _currentMapProvider,
                 _userInputProvider,
                 _effectRendererFactory,
+                _gfxMetadataLoader,
+                _hatMetadataProvider,
                 _sfxPlayer,
                 _clientWindowSizeRepository);
         }

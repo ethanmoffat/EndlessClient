@@ -3,6 +3,7 @@ using EndlessClient.Rendering.Metadata;
 using EndlessClient.Rendering.Metadata.Models;
 using EOLib;
 using EOLib.Domain.Character;
+using EOLib.Domain.Extensions;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.IO.Pub;
@@ -20,16 +21,19 @@ namespace EndlessClient.Rendering.Sprites
         private readonly IEIFFileProvider _eifFileProvider;
         private readonly IGFXMetadataLoader _gfxMetadataLoader;
         private readonly IShieldMetadataProvider _shieldMetadataProvider;
+        private readonly IHatMetadataProvider _hatMetadataProvider;
 
         public CharacterSpriteCalculator(INativeGraphicsManager gfxManager,
                                          IEIFFileProvider eifFileProvider,
                                          IGFXMetadataLoader gfxMetadataLoader,
-                                         IShieldMetadataProvider shieldMetadataProvider)
+                                         IShieldMetadataProvider shieldMetadataProvider,
+                                         IHatMetadataProvider hatMetadataProvider)
         {
             _gfxManager = gfxManager;
             _eifFileProvider = eifFileProvider;
             _gfxMetadataLoader = gfxMetadataLoader;
             _shieldMetadataProvider = shieldMetadataProvider;
+            _hatMetadataProvider = hatMetadataProvider;
         }
 
         public ISpriteSheet GetBootsTexture(CharacterRenderProperties characterRenderProperties)
@@ -151,7 +155,14 @@ namespace EndlessClient.Rendering.Sprites
             var baseHatValue = GetBaseHatGraphic(characterRenderProperties.HatGraphic);
             var gfxNumber = baseHatValue + 1 + offset;
 
-            return new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, true));
+            // todo: better way of GetValueOrDefault for metadata (this is copy/pasted here and in CharacterPropertyRendererBuilder)
+            var hatGraphic = characterRenderProperties.HatGraphic;
+            var emptyMetadata = new HatMetadata(HatMaskType.Standard);
+            var actualMetadata = _gfxMetadataLoader.GetMetadata<HatMetadata>(hatGraphic)
+                .ValueOr(_hatMetadataProvider.DefaultMetadata.TryGetValue(hatGraphic, out var ret) ? ret : emptyMetadata);
+
+            var isUpOrLeft = characterRenderProperties.IsFacing(EODirection.Up, EODirection.Left);
+            return new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, transparent: true, fullTransparent: actualMetadata.ClipMode != HatMaskType.Standard || isUpOrLeft));
         }
 
         public ISpriteSheet GetShieldTexture(CharacterRenderProperties characterRenderProperties)

@@ -13,7 +13,8 @@ namespace EOLib.Graphics
         /// <param name="file">File type to load from</param>
         /// <param name="transparent">Whether or not to make the background black color transparent</param>
         /// <param name="reloadFromFile">True to force reload the gfx from the gfx file, false to use the in-memory cache</param>
+        /// <param name="fullTransparent">True to make the gfx "fully" transparent; that is, to hide all transparent colors (0x08 blacks and full black)</param>
         /// <returns>Texture2D containing the image from the *.egf file</returns>
-        Texture2D TextureFromResource(GFXTypes file, int resourceVal, bool transparent = false, bool reloadFromFile = false);
+        Texture2D TextureFromResource(GFXTypes file, int resourceVal, bool transparent = false, bool reloadFromFile = false, bool fullTransparent = false);
     }
 }
