@@ -17,17 +17,14 @@ namespace EndlessClient.Rendering.CharacterProperties
     public class CharacterPropertyRendererBuilder : ICharacterPropertyRendererBuilder
     {
         private readonly IEIFFileProvider _eifFileProvider;
-        private readonly IGFXMetadataLoader _gfxMetadataLoader;
-        private readonly IHatMetadataProvider _hatMetadataProvider;
-        private readonly IShieldMetadataProvider _shieldMetadataProvider;
+        private readonly IMetadataProvider<HatMetadata> _hatMetadataProvider;
+        private readonly IMetadataProvider<ShieldMetadata> _shieldMetadataProvider;
 
         public CharacterPropertyRendererBuilder(IEIFFileProvider eifFileProvider,
-                                                IGFXMetadataLoader gfxMetadataLoader,
-                                                IHatMetadataProvider hatMetadataProvider,
-                                                IShieldMetadataProvider shieldMetadataProvider)
+                                                IMetadataProvider<HatMetadata> hatMetadataProvider,
+                                                IMetadataProvider<ShieldMetadata> shieldMetadataProvider)
         {
             _eifFileProvider = eifFileProvider;
-            _gfxMetadataLoader = gfxMetadataLoader;
             _hatMetadataProvider = hatMetadataProvider;
             _shieldMetadataProvider = shieldMetadataProvider;
         }
@@ -89,21 +86,13 @@ namespace EndlessClient.Rendering.CharacterProperties
         private HatMaskType GetHatMaskType(int hatGraphic)
         {
             if (hatGraphic == 0) return HatMaskType.Standard;
-
-            var emptyMetadata = new HatMetadata(HatMaskType.Standard);
-            var actualMetadata = _gfxMetadataLoader.GetMetadata<HatMetadata>(hatGraphic)
-                .ValueOr(_hatMetadataProvider.DefaultMetadata.TryGetValue(hatGraphic, out var ret) ? ret : emptyMetadata);
-            return actualMetadata.ClipMode;
+            return _hatMetadataProvider.GetValueOrDefault(hatGraphic).ClipMode;
         }
 
         private bool IsShieldOnBack(int shieldGraphic)
         {
             if (shieldGraphic == 0) return false;
-
-            var emptyMetadata = new ShieldMetadata(IsShieldOnBack: false);
-            var actualMetadata = _gfxMetadataLoader.GetMetadata<ShieldMetadata>(shieldGraphic)
-                .ValueOr(_shieldMetadataProvider.DefaultMetadata.TryGetValue(shieldGraphic, out var ret) ? ret : emptyMetadata);
-            return actualMetadata.IsShieldOnBack;
+            return _shieldMetadataProvider.GetValueOrDefault(shieldGraphic).IsShieldOnBack;
         }
 
         private IPubFile<EIFRecord> EIFFile => _eifFileProvider.EIFFile ?? new EIFFile();

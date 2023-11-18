@@ -19,19 +19,16 @@ namespace EndlessClient.Rendering.Sprites
     {
         private readonly INativeGraphicsManager _gfxManager;
         private readonly IEIFFileProvider _eifFileProvider;
-        private readonly IGFXMetadataLoader _gfxMetadataLoader;
-        private readonly IShieldMetadataProvider _shieldMetadataProvider;
-        private readonly IHatMetadataProvider _hatMetadataProvider;
+        private readonly IMetadataProvider<ShieldMetadata> _shieldMetadataProvider;
+        private readonly IMetadataProvider<HatMetadata> _hatMetadataProvider;
 
         public CharacterSpriteCalculator(INativeGraphicsManager gfxManager,
                                          IEIFFileProvider eifFileProvider,
-                                         IGFXMetadataLoader gfxMetadataLoader,
-                                         IShieldMetadataProvider shieldMetadataProvider,
-                                         IHatMetadataProvider hatMetadataProvider)
+                                         IMetadataProvider<ShieldMetadata> shieldMetadataProvider,
+                                         IMetadataProvider<HatMetadata> hatMetadataProvider)
         {
             _gfxManager = gfxManager;
             _eifFileProvider = eifFileProvider;
-            _gfxMetadataLoader = gfxMetadataLoader;
             _shieldMetadataProvider = shieldMetadataProvider;
             _hatMetadataProvider = hatMetadataProvider;
         }
@@ -155,12 +152,7 @@ namespace EndlessClient.Rendering.Sprites
             var baseHatValue = GetBaseHatGraphic(characterRenderProperties.HatGraphic);
             var gfxNumber = baseHatValue + 1 + offset;
 
-            // todo: better way of GetValueOrDefault for metadata (this is copy/pasted here and in CharacterPropertyRendererBuilder)
-            var hatGraphic = characterRenderProperties.HatGraphic;
-            var emptyMetadata = new HatMetadata(HatMaskType.Standard);
-            var actualMetadata = _gfxMetadataLoader.GetMetadata<HatMetadata>(hatGraphic)
-                .ValueOr(_hatMetadataProvider.DefaultMetadata.TryGetValue(hatGraphic, out var ret) ? ret : emptyMetadata);
-
+            var actualMetadata = _hatMetadataProvider.GetValueOrDefault(characterRenderProperties.HatGraphic);
             var isUpOrLeft = characterRenderProperties.IsFacing(EODirection.Up, EODirection.Left);
             return new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, transparent: true, fullTransparent: actualMetadata.ClipMode != HatMaskType.Standard || isUpOrLeft));
         }
@@ -173,13 +165,8 @@ namespace EndlessClient.Rendering.Sprites
             var type = ArmorShieldSpriteType.Standing;
             var offset = GetBaseOffsetFromDirection(characterRenderProperties.Direction);
 
-            // todo: better way of GetValueOrDefault for metadata (this is copy/pasted here and in CharacterPropertyRendererBuilder)
-            var shieldGraphic = characterRenderProperties.ShieldGraphic;
-            var emptyMetadata = new ShieldMetadata(IsShieldOnBack: false);
-            var actualMetadata = _gfxMetadataLoader.GetMetadata<ShieldMetadata>(shieldGraphic)
-                .ValueOr(_shieldMetadataProvider.DefaultMetadata.TryGetValue(shieldGraphic, out var ret) ? ret : emptyMetadata);
-
             // front shields have one size gfx, back arrows/wings have another size.
+            var actualMetadata = _shieldMetadataProvider.GetValueOrDefault(characterRenderProperties.ShieldGraphic);
             if (!actualMetadata.IsShieldOnBack)
             {
                 if (characterRenderProperties.CurrentAction == CharacterActionState.Walking)

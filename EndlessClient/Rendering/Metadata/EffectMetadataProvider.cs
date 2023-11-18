@@ -7,13 +7,14 @@ using System.Collections.Generic;
 namespace EndlessClient.Rendering.Metadata
 {
     [AutoMappedType(IsSingleton = true)]
-    public class EffectMetadataProvider : IEffectMetadataProvider
+    public class EffectMetadataProvider : IMetadataProvider<EffectMetadata>
     {
         public IReadOnlyDictionary<int, EffectMetadata> DefaultMetadata => _metadata;
 
         private readonly Dictionary<int, EffectMetadata> _metadata;
+        private readonly IGFXMetadataLoader _metadataLoader;
 
-        public EffectMetadataProvider()
+        public EffectMetadataProvider(IGFXMetadataLoader metadataLoader)
         {
             // source: https://docs.google.com/spreadsheets/d/1DQgN4r2cH6HA2ydn4M6CpUJlClWXXBemosYP57k_o5I/edit#gid=0
             // todo: flickering effects are off-by-one. Fix metadata in the GFX (EndlessClient.Binaries), here, and in EffectSpriteInfo where a -1 is applied to the random choice
@@ -54,11 +55,14 @@ namespace EndlessClient.Rendering.Metadata
                 { 33, new EffectMetadata(true, true, false, SoundEffectID.AuraSpell, 4, 4, 0, 0, EffectAnimationType.Static, null, null, null) }, // shell
                 { 34, new EffectMetadata(true, true, false, SoundEffectID.EnergyBallSpell, 5, 1, 0, -44, EffectAnimationType.Static, null, null, null) } // green flame
             };
+            _metadataLoader = metadataLoader;
         }
-    }
 
-    public interface IEffectMetadataProvider
-    {
-        IReadOnlyDictionary<int, EffectMetadata> DefaultMetadata { get; }
+        public EffectMetadata GetValueOrDefault(int graphic)
+        {
+            var emptyMetadata = new EffectMetadata.Builder { HasInFrontLayer = true, Loops = 2, Frames = 4, AnimationType = EffectAnimationType.Static }.ToImmutable();
+            return _metadataLoader.GetMetadata<EffectMetadata>(graphic)
+                .ValueOr(DefaultMetadata.TryGetValue(graphic, out var ret) ? ret : emptyMetadata);
+        }
     }
 }

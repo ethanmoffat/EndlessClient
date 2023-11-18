@@ -4,19 +4,15 @@ using System.Collections.Generic;
 
 namespace EndlessClient.Rendering.Metadata
 {
-    public interface IShieldMetadataProvider
-    {
-        IReadOnlyDictionary<int, ShieldMetadata> DefaultMetadata { get; }
-    }
-
     [AutoMappedType(IsSingleton = true)]
-    public class ShieldMetadataProvider : IShieldMetadataProvider
+    public class ShieldMetadataProvider : IMetadataProvider<ShieldMetadata>
     {
         public IReadOnlyDictionary<int, ShieldMetadata> DefaultMetadata => _metadata;
 
         private readonly Dictionary<int, ShieldMetadata> _metadata;
+        private readonly IGFXMetadataLoader _metadataLoader;
 
-        public ShieldMetadataProvider()
+        public ShieldMetadataProvider(IGFXMetadataLoader metadataLoader)
         {
             _metadata = new Dictionary<int, ShieldMetadata>
             {
@@ -28,6 +24,14 @@ namespace EndlessClient.Rendering.Metadata
                 { 18, new ShieldMetadata(true) }, // good force wings
                 { 19, new ShieldMetadata(true) }, // fire force wings
             };
+            _metadataLoader = metadataLoader;
+        }
+
+        public ShieldMetadata GetValueOrDefault(int graphic)
+        {
+            var emptyMetadata = new ShieldMetadata(IsShieldOnBack: false);
+            return _metadataLoader.GetMetadata<ShieldMetadata>(graphic)
+                .ValueOr(DefaultMetadata.TryGetValue(graphic, out var ret) ? ret : emptyMetadata);
         }
     }
 }

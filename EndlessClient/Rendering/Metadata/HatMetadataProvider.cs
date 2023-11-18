@@ -4,19 +4,15 @@ using System.Collections.Generic;
 
 namespace EndlessClient.Rendering.Metadata
 {
-    public interface IHatMetadataProvider
-    {
-        IReadOnlyDictionary<int, HatMetadata> DefaultMetadata { get; }
-    }
-
     [AutoMappedType(IsSingleton = true)]
-    public class HatMetadataProvider : IHatMetadataProvider
+    public class HatMetadataProvider : IMetadataProvider<HatMetadata>
     {
         public IReadOnlyDictionary<int, HatMetadata> DefaultMetadata => _metadata;
 
         private readonly Dictionary<int, HatMetadata> _metadata;
+        private readonly IGFXMetadataLoader _metadataLoader;
 
-        public HatMetadataProvider()
+        public HatMetadataProvider(IGFXMetadataLoader metadataLoader)
         {
             _metadata = new Dictionary<int, HatMetadata>
             {
@@ -61,6 +57,14 @@ namespace EndlessClient.Rendering.Metadata
                 { 48, new HatMetadata(HatMaskType.FaceMask) }, // glasses
                 { 50, new HatMetadata(HatMaskType.FaceMask) }, // medic cap
             };
+            _metadataLoader = metadataLoader;
+        }
+
+        public HatMetadata GetValueOrDefault(int graphic)
+        {
+            var emptyMetadata = new HatMetadata(HatMaskType.Standard);
+            return _metadataLoader.GetMetadata<HatMetadata>(graphic)
+                .ValueOr(DefaultMetadata.TryGetValue(graphic, out var ret) ? ret : emptyMetadata);
         }
     }
 }

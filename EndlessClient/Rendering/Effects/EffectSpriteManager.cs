@@ -11,23 +11,18 @@ namespace EndlessClient.Rendering.Effects
     public class EffectSpriteManager : IEffectSpriteManager
     {
         private readonly INativeGraphicsManager _graphicsManager;
-        private readonly IGFXMetadataLoader _metadataLoader;
-        private readonly IEffectMetadataProvider _effectMetadataProvider;
+        private readonly IMetadataProvider<EffectMetadata> _effectMetadataProvider;
 
         public EffectSpriteManager(INativeGraphicsManager graphicsManager,
-                                   IGFXMetadataLoader metadataLoader,
-                                   IEffectMetadataProvider effectMetadataProvider)
+                                   IMetadataProvider<EffectMetadata> effectMetadataProvider)
         {
             _graphicsManager = graphicsManager;
-            _metadataLoader = metadataLoader;
             _effectMetadataProvider = effectMetadataProvider;
         }
 
         public EffectMetadata GetEffectMetadata(int graphic)
         {
-            var emptyMetadata = new EffectMetadata.Builder { HasInFrontLayer = true, Loops = 2, Frames = 4, AnimationType = EffectAnimationType.Static }.ToImmutable();
-            return _metadataLoader.GetMetadata<EffectMetadata>(graphic)
-                .ValueOr(_effectMetadataProvider.DefaultMetadata.TryGetValue(graphic, out var ret) ? ret : emptyMetadata);
+            return _effectMetadataProvider.GetValueOrDefault(graphic);
         }
 
         public IList<IEffectSpriteInfo> GetEffectInfo(int graphic)

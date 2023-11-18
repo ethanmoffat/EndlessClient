@@ -4,19 +4,15 @@ using System.Collections.Generic;
 
 namespace EndlessClient.Rendering.Metadata
 {
-    public interface INPCMetadataProvider
-    {
-        IReadOnlyDictionary<int, NPCMetadata> DefaultMetadata { get; }
-    }
-
     [AutoMappedType(IsSingleton = true)]
-    public class NPCMetadataProvider : INPCMetadataProvider
+    public class NPCMetadataProvider : IMetadataProvider<NPCMetadata>
     {
         public IReadOnlyDictionary<int, NPCMetadata> DefaultMetadata => _metadata;
 
         private readonly Dictionary<int, NPCMetadata> _metadata;
+        private readonly IGFXMetadataLoader _metadataLoader;
 
-        public NPCMetadataProvider()
+        public NPCMetadataProvider(IGFXMetadataLoader metadataLoader)
         {
             // source: https://docs.google.com/spreadsheets/d/1GMo3c2xcPW5Uv3pOsaIS2EwtVA_N0Qfwo9TCTDibUoI/edit#gid=0
             _metadata = new Dictionary<int, NPCMetadata>
@@ -193,6 +189,14 @@ namespace EndlessClient.Rendering.Metadata
                 { 170, new NPCMetadata(0, 19, -8, -4, false, 17) }, // monkey
                 { 171, new NPCMetadata(0, 0, 0, 0, false, 0) }, // ancient wraith
             };
+            _metadataLoader = metadataLoader;
+        }
+
+        public NPCMetadata GetValueOrDefault(int graphic)
+        {
+            var emptyMetadata = new NPCMetadata.Builder().ToImmutable();
+            return _metadataLoader.GetMetadata<NPCMetadata>(graphic)
+                .ValueOr(DefaultMetadata.TryGetValue(graphic, out var ret) ? ret : emptyMetadata);
         }
     }
 }
