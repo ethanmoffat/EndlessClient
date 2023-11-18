@@ -1,14 +1,15 @@
-﻿using System;
-using System.Linq;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
+using EndlessClient.Rendering.Metadata;
+using EndlessClient.Rendering.Metadata.Models;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.IO;
-using EOLib.IO.Extensions;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
+using System;
+using System.Linq;
 
 namespace EndlessClient.Rendering.Sprites
 {
@@ -17,12 +18,18 @@ namespace EndlessClient.Rendering.Sprites
     {
         private readonly INativeGraphicsManager _gfxManager;
         private readonly IEIFFileProvider _eifFileProvider;
+        private readonly IGFXMetadataLoader _gfxMetadataLoader;
+        private readonly IShieldMetadataProvider _shieldMetadataProvider;
 
         public CharacterSpriteCalculator(INativeGraphicsManager gfxManager,
-                                         IEIFFileProvider eifFileProvider)
+                                         IEIFFileProvider eifFileProvider,
+                                         IGFXMetadataLoader gfxMetadataLoader,
+                                         IShieldMetadataProvider shieldMetadataProvider)
         {
             _gfxManager = gfxManager;
             _eifFileProvider = eifFileProvider;
+            _gfxMetadataLoader = gfxMetadataLoader;
+            _shieldMetadataProvider = shieldMetadataProvider;
         }
 
         public ISpriteSheet GetBootsTexture(CharacterRenderProperties characterRenderProperties)
@@ -155,8 +162,14 @@ namespace EndlessClient.Rendering.Sprites
             var type = ArmorShieldSpriteType.Standing;
             var offset = GetBaseOffsetFromDirection(characterRenderProperties.Direction);
 
-            //front shields have one size gfx, back arrows/wings have another size.
-            if (!EIFFile.IsShieldOnBack(characterRenderProperties.ShieldGraphic))
+            // todo: better way of GetValueOrDefault for metadata (this is copy/pasted here and in CharacterPropertyRendererBuilder)
+            var shieldGraphic = characterRenderProperties.ShieldGraphic;
+            var emptyMetadata = new ShieldMetadata(IsShieldOnBack: false);
+            var actualMetadata = _gfxMetadataLoader.GetMetadata<ShieldMetadata>(shieldGraphic)
+                .ValueOr(_shieldMetadataProvider.DefaultMetadata.TryGetValue(shieldGraphic, out var ret) ? ret : emptyMetadata);
+
+            // front shields have one size gfx, back arrows/wings have another size.
+            if (!actualMetadata.IsShieldOnBack)
             {
                 if (characterRenderProperties.CurrentAction == CharacterActionState.Walking)
                 {

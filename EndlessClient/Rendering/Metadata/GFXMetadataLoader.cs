@@ -23,7 +23,9 @@ namespace EndlessClient.Rendering.Metadata
             _mapper = new Dictionary<Type, GFXTypes>
             {
                 { typeof(EffectMetadata), GFXTypes.Spells },
-                { typeof(NPCMetadata), GFXTypes.NPC }
+                { typeof(NPCMetadata), GFXTypes.NPC },
+                { typeof(ShieldMetadata), GFXTypes.MaleBack },
+                { typeof(HatMetadata), GFXTypes.MaleHat }
             };
         }
 

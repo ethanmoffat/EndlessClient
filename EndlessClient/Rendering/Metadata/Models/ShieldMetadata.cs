@@ -3,4 +3,4 @@
 namespace EndlessClient.Rendering.Metadata.Models;
 
 [Record]
-public sealed record ShieldMetadata(bool IsShieldOnBack);
+public sealed record ShieldMetadata(bool IsShieldOnBack) : IGFXMetadata;

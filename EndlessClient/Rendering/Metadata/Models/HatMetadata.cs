@@ -1,7 +1,13 @@
 ﻿using Amadevus.RecordGenerator;
-using EndlessClient.Content;
 
 namespace EndlessClient.Rendering.Metadata.Models;
 
+public enum HatMaskType
+{
+    Standard,
+    FaceMask,
+    HideHair
+}
+
 [Record]
-public sealed record HatMetadata(HatMaskType ClipMode);
+public sealed record HatMetadata(HatMaskType ClipMode) : IGFXMetadata;
