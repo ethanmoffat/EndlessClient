@@ -39,11 +39,11 @@ namespace EndlessClient.Rendering.Metadata
                 { 17, new EffectMetadata(false, true, true, SoundEffectID.IceBlastSpell1, 7, 1, 0, 0, EffectAnimationType.Static, null, null, null) }, // ice blast
                 { 18, new EffectMetadata(false, false, true, SoundEffectID.EnergyBallSpell, 7, 1, 0, 0, EffectAnimationType.VerticalSliding, new VerticalSlidingEffectMetadata(-10), null, null) }, // energy ball
                 { 19, new EffectMetadata(true, true, true, SoundEffectID.WhirlSpell, 4, 2, 0, -10, EffectAnimationType.Position, null, new PositionOffsetEffectMetadata(new[] { -20, 0, 20, 0 }, new[] { 0, 14, 0, -14 }), null) }, // whirl / tornado
-                { 20, new EffectMetadata(false, true, false, SoundEffectID.AuraSpell, 5, 3, 0, -12, EffectAnimationType.Flickering, null, null, new RandomFlickeringEffectMetadata(4, 5)) }, // aura
+                { 20, new EffectMetadata(false, true, false, SoundEffectID.AuraSpell, 5, 3, 0, -12, EffectAnimationType.Flickering, null, null, new RandomFlickeringEffectMetadata(3, 4)) }, // aura
                 { 21, new EffectMetadata(false, false, true, SoundEffectID.BouldersSpell, 7, 1, 0, -160, EffectAnimationType.VerticalSliding, new VerticalSlidingEffectMetadata(30), null, null) }, // boulders
-                { 22, new EffectMetadata(true, true, false, SoundEffectID.HeavenSpell, 5, 4, 0, -114, EffectAnimationType.Flickering, null, null, new RandomFlickeringEffectMetadata(4, 5)) }, // heaven
+                { 22, new EffectMetadata(true, true, false, SoundEffectID.HeavenSpell, 5, 4, 0, -114, EffectAnimationType.Flickering, null, null, new RandomFlickeringEffectMetadata(3, 4)) }, // heaven
                 { 23, new EffectMetadata(true, true, false, SoundEffectID.IceBlastSpell2, 6, 1, 0, -160, EffectAnimationType.VerticalSliding, new VerticalSlidingEffectMetadata(30), null, null) }, // blue flame
-                { 24, new EffectMetadata(true, true, false, SoundEffectID.HeavenSpell, 5, 4, 0, -114, EffectAnimationType.Flickering, null, null, new RandomFlickeringEffectMetadata(4, 5)) }, // dark beam
+                { 24, new EffectMetadata(true, true, false, SoundEffectID.HeavenSpell, 5, 4, 0, -114, EffectAnimationType.Flickering, null, null, new RandomFlickeringEffectMetadata(3, 4)) }, // dark beam
                 { 25, new EffectMetadata(false, false, true, SoundEffectID.AdminHide, 4, 2, 0, 0, EffectAnimationType.Static, null, null, null) }, // admin hide
                 { 26, new EffectMetadata(true, true, false, SoundEffectID.DarkHandSpell, 5, 2, 0, 0, EffectAnimationType.Static, null, null, null) }, // dark hand
                 { 27, new EffectMetadata(true, true, false, SoundEffectID.DarkHandSpell, 5, 2, 0, 0, EffectAnimationType.Static, null, null, null) }, // dark skull
