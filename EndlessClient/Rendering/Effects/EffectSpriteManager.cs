@@ -1,4 +1,6 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Rendering.Metadata;
+using EndlessClient.Rendering.Metadata.Models;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
@@ -9,23 +11,18 @@ namespace EndlessClient.Rendering.Effects
     public class EffectSpriteManager : IEffectSpriteManager
     {
         private readonly INativeGraphicsManager _graphicsManager;
-        private readonly IEffectMetadataLoader _effectMetadataLoader;
-        private readonly IEffectMetadataProvider _effectMetadataProvider;
+        private readonly IMetadataProvider<EffectMetadata> _effectMetadataProvider;
 
         public EffectSpriteManager(INativeGraphicsManager graphicsManager,
-                                   IEffectMetadataLoader effectMetadataLoader,
-                                   IEffectMetadataProvider effectMetadataProvider)
+                                   IMetadataProvider<EffectMetadata> effectMetadataProvider)
         {
             _graphicsManager = graphicsManager;
-            _effectMetadataLoader = effectMetadataLoader;
             _effectMetadataProvider = effectMetadataProvider;
         }
 
         public EffectMetadata GetEffectMetadata(int graphic)
         {
-            var emptyMetadata = new EffectMetadata.Builder { HasInFrontLayer = true, Loops = 2, Frames = 4, AnimationType = EffectAnimationType.Static }.ToImmutable();
-            return _effectMetadataLoader.GetEffectMetadata(graphic)
-                .ValueOr(_effectMetadataProvider.DefaultMetadata.TryGetValue(graphic, out var ret) ? ret : emptyMetadata);
+            return _effectMetadataProvider.GetValueOrDefault(graphic);
         }
 
         public IList<IEffectSpriteInfo> GetEffectInfo(int graphic)

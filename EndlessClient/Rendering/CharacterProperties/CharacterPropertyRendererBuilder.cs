@@ -1,32 +1,32 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using AutomaticTypeMapper;
-using EndlessClient.Content;
+﻿using AutomaticTypeMapper;
 using EndlessClient.Rendering.Character;
+using EndlessClient.Rendering.Metadata;
+using EndlessClient.Rendering.Metadata.Models;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.IO;
-using EOLib.IO.Extensions;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace EndlessClient.Rendering.CharacterProperties
 {
-    [MappedType(BaseType = typeof(ICharacterPropertyRendererBuilder))]
+    [AutoMappedType]
     public class CharacterPropertyRendererBuilder : ICharacterPropertyRendererBuilder
     {
         private readonly IEIFFileProvider _eifFileProvider;
-        private readonly IHatConfigurationProvider _hatConfigurationProvider;
-        private readonly IShaderProvider _shaderProvider;
+        private readonly IMetadataProvider<HatMetadata> _hatMetadataProvider;
+        private readonly IMetadataProvider<ShieldMetadata> _shieldMetadataProvider;
 
         public CharacterPropertyRendererBuilder(IEIFFileProvider eifFileProvider,
-                                                IHatConfigurationProvider hatConfigurationProvider,
-                                                IShaderProvider shaderProvider)
+                                                IMetadataProvider<HatMetadata> hatMetadataProvider,
+                                                IMetadataProvider<ShieldMetadata> shieldMetadataProvider)
         {
             _eifFileProvider = eifFileProvider;
-            _hatConfigurationProvider = hatConfigurationProvider;
-            _shaderProvider = shaderProvider;
+            _hatMetadataProvider = hatMetadataProvider;
+            _shieldMetadataProvider = shieldMetadataProvider;
         }
 
         public IEnumerable<ICharacterPropertyRenderer> BuildList(ICharacterTextures textures,
@@ -36,7 +36,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 
             // Melee weapons render extra behind the character
             yield return new WeaponRenderer(renderProperties, textures.WeaponExtra) { LayerDepth = BaseLayer };
-            yield return new ShieldRenderer(renderProperties, textures.Shield, EIFFile.IsShieldOnBack(renderProperties.ShieldGraphic))
+            yield return new ShieldRenderer(renderProperties, textures.Shield, IsShieldOnBack(renderProperties.ShieldGraphic))
             {
                 LayerDepth = BaseLayer * (IsShieldBehindCharacter(renderProperties) ? 2 : 13)
             };
@@ -52,8 +52,8 @@ namespace EndlessClient.Rendering.CharacterProperties
             yield return new BootsRenderer(renderProperties, textures.Boots) { LayerDepth = BaseLayer * 7 };
             yield return new ArmorRenderer(renderProperties, textures.Armor) { LayerDepth = BaseLayer * 8 };
 
-            var hatMaskType = GetHatMaskType(renderProperties);
-            yield return new HatRenderer(_shaderProvider, renderProperties, textures.Hat, textures.Hair)
+            var hatMaskType = GetHatMaskType(renderProperties.HatGraphic);
+            yield return new HatRenderer(renderProperties, textures.Hat, textures.Hair)
             {
                 LayerDepth = BaseLayer * (hatMaskType == HatMaskType.FaceMask ? 10 : 11)
             };
@@ -67,7 +67,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 
         private bool IsShieldBehindCharacter(CharacterRenderProperties renderProperties)
         {
-            return renderProperties.IsFacing(EODirection.Right, EODirection.Down) && EIFFile.IsShieldOnBack(renderProperties.ShieldGraphic);
+            return renderProperties.IsFacing(EODirection.Right, EODirection.Down) && IsShieldOnBack(renderProperties.ShieldGraphic);
         }
 
         private bool IsWeaponBehindCharacter(CharacterRenderProperties renderProperties)
@@ -83,14 +83,16 @@ namespace EndlessClient.Rendering.CharacterProperties
             return pass1 || pass2 || pass3;
         }
 
-        private HatMaskType GetHatMaskType(CharacterRenderProperties renderProperties)
+        private HatMaskType GetHatMaskType(int hatGraphic)
         {
-            var hatInfo = EIFFile.FirstOrDefault(
-                x => x.Type == ItemType.Hat &&
-                     x.DollGraphic == renderProperties.HatGraphic);
+            if (hatGraphic == 0) return HatMaskType.Standard;
+            return _hatMetadataProvider.GetValueOrDefault(hatGraphic).ClipMode;
+        }
 
-            _hatConfigurationProvider.HatMasks.TryGetValue(hatInfo?.ID ?? 0, out var hatMaskType);
-            return hatMaskType;
+        private bool IsShieldOnBack(int shieldGraphic)
+        {
+            if (shieldGraphic == 0) return false;
+            return _shieldMetadataProvider.GetValueOrDefault(shieldGraphic).IsShieldOnBack;
         }
 
         private IPubFile<EIFRecord> EIFFile => _eifFileProvider.EIFFile ?? new EIFFile();

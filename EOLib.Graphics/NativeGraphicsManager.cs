@@ -24,7 +24,8 @@ namespace EOLib.Graphics
             _graphicsDeviceProvider = graphicsDeviceProvider;
         }
 
-        public Texture2D TextureFromResource(GFXTypes file, int resourceVal, bool transparent = false, bool reloadFromFile = false)
+        // todo: instead of having a bunch of bool params, maybe an enum param with [Flags] for the different options would be better
+        public Texture2D TextureFromResource(GFXTypes file, int resourceVal, bool transparent = false, bool reloadFromFile = false, bool fullTransparent = false)
         {
             if (_cache.ContainsKey(file) && _cache[file].ContainsKey(resourceVal))
             {
@@ -39,7 +40,7 @@ namespace EOLib.Graphics
                 }
             }
 
-            var ret = LoadTexture(file, resourceVal, transparent);
+            var ret = LoadTexture(file, resourceVal, transparent, fullTransparent);
             if (_cache.ContainsKey(file) ||
                 _cache.TryAdd(file, new ConcurrentDictionary<int, Texture2D>()))
             {
@@ -49,7 +50,7 @@ namespace EOLib.Graphics
             return ret;
         }
 
-        private Texture2D LoadTexture(GFXTypes file, int resourceVal, bool transparent)
+        private Texture2D LoadTexture(GFXTypes file, int resourceVal, bool transparent, bool fullTransparent)
         {
             var rawData = _gfxLoader.LoadGFX(file, resourceVal);
 
@@ -63,14 +64,19 @@ namespace EOLib.Graphics
                 // for all gfx: 0x000000 is transparent
                 processAction = data => CrossPlatformMakeTransparent(data, Color.Black);
 
-                // for hats: 0x080000 is transparent
+                // for hats: R=8 G=0 B=0 is transparent
+                // some default gfx use R=0 G=8 B=0 as black
+                // 0,0,0 clips pixels below it
                 if (file == GFXTypes.FemaleHat || file == GFXTypes.MaleHat)
                 {
+                    processAction = data => CrossPlatformMakeTransparent(data, new Color(0xff000008));
+                }
+
+                // for hats: some hat gfx use multiple masking colors but don't have clipping behavior
+                if (fullTransparent)
+                {
                     processAction = data => CrossPlatformMakeTransparent(data,
-                        // TODO: 0x000000 is supposed to clip hair below it
                         new Color(0xff000000),
-                        new Color(0xff080000),
-                        new Color(0xff000800),
                         new Color(0xff000008));
                 }
             }

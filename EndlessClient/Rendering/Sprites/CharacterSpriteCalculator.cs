@@ -1,14 +1,16 @@
-﻿using System;
-using System.Linq;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
+using EndlessClient.Rendering.Metadata;
+using EndlessClient.Rendering.Metadata.Models;
 using EOLib;
 using EOLib.Domain.Character;
+using EOLib.Domain.Extensions;
 using EOLib.Graphics;
 using EOLib.IO;
-using EOLib.IO.Extensions;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
+using System;
+using System.Linq;
 
 namespace EndlessClient.Rendering.Sprites
 {
@@ -17,12 +19,18 @@ namespace EndlessClient.Rendering.Sprites
     {
         private readonly INativeGraphicsManager _gfxManager;
         private readonly IEIFFileProvider _eifFileProvider;
+        private readonly IMetadataProvider<ShieldMetadata> _shieldMetadataProvider;
+        private readonly IMetadataProvider<HatMetadata> _hatMetadataProvider;
 
         public CharacterSpriteCalculator(INativeGraphicsManager gfxManager,
-                                         IEIFFileProvider eifFileProvider)
+                                         IEIFFileProvider eifFileProvider,
+                                         IMetadataProvider<ShieldMetadata> shieldMetadataProvider,
+                                         IMetadataProvider<HatMetadata> hatMetadataProvider)
         {
             _gfxManager = gfxManager;
             _eifFileProvider = eifFileProvider;
+            _shieldMetadataProvider = shieldMetadataProvider;
+            _hatMetadataProvider = hatMetadataProvider;
         }
 
         public ISpriteSheet GetBootsTexture(CharacterRenderProperties characterRenderProperties)
@@ -144,7 +152,9 @@ namespace EndlessClient.Rendering.Sprites
             var baseHatValue = GetBaseHatGraphic(characterRenderProperties.HatGraphic);
             var gfxNumber = baseHatValue + 1 + offset;
 
-            return new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, true));
+            var actualMetadata = _hatMetadataProvider.GetValueOrDefault(characterRenderProperties.HatGraphic);
+            var isUpOrLeft = characterRenderProperties.IsFacing(EODirection.Up, EODirection.Left);
+            return new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, transparent: true, fullTransparent: actualMetadata.ClipMode != HatMaskType.Standard || isUpOrLeft));
         }
 
         public ISpriteSheet GetShieldTexture(CharacterRenderProperties characterRenderProperties)
@@ -155,8 +165,9 @@ namespace EndlessClient.Rendering.Sprites
             var type = ArmorShieldSpriteType.Standing;
             var offset = GetBaseOffsetFromDirection(characterRenderProperties.Direction);
 
-            //front shields have one size gfx, back arrows/wings have another size.
-            if (!EIFFile.IsShieldOnBack(characterRenderProperties.ShieldGraphic))
+            // front shields have one size gfx, back arrows/wings have another size.
+            var actualMetadata = _shieldMetadataProvider.GetValueOrDefault(characterRenderProperties.ShieldGraphic);
+            if (!actualMetadata.IsShieldOnBack)
             {
                 if (characterRenderProperties.CurrentAction == CharacterActionState.Walking)
                 {

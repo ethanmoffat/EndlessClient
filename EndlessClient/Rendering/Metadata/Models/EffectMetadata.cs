@@ -1,12 +1,15 @@
 ﻿using Amadevus.RecordGenerator;
 using EndlessClient.Audio;
+using EndlessClient.Rendering.Effects;
 using Newtonsoft.Json;
 
-namespace EndlessClient.Rendering.Effects
+namespace EndlessClient.Rendering.Metadata.Models
 {
     [Record]
-    public sealed partial class EffectMetadata
+    public sealed partial class EffectMetadata : IGFXMetadata
     {
+        public static EffectMetadata Default { get; } = new Builder { HasInFrontLayer = true, Loops = 2, Frames = 4, AnimationType = EffectAnimationType.Static }.ToImmutable();
+
         [JsonProperty("hasLayer0")]
         public bool HasBehindLayer { get; }
 

@@ -39,7 +39,6 @@ namespace EndlessClient.GameExecution
         private readonly IPubFileLoadActions _pubFileLoadActions;
         private readonly ILoggerProvider _loggerProvider;
         private readonly IChatBubbleTextureProvider _chatBubbleTextureProvider;
-        private readonly IShaderRepository _shaderRepository;
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IMfxPlayer _mfxPlayer;
         private readonly IXnaControlSoundMapper _soundMapper;
@@ -68,7 +67,6 @@ namespace EndlessClient.GameExecution
                            IPubFileLoadActions pubFileLoadActions,
                            ILoggerProvider loggerProvider,
                            IChatBubbleTextureProvider chatBubbleTextureProvider,
-                           IShaderRepository shaderRepository,
                            IConfigurationProvider configurationProvider,
                            IMfxPlayer mfxPlayer,
                            IXnaControlSoundMapper soundMapper,
@@ -85,7 +83,6 @@ namespace EndlessClient.GameExecution
             _pubFileLoadActions = pubFileLoadActions;
             _loggerProvider = loggerProvider;
             _chatBubbleTextureProvider = chatBubbleTextureProvider;
-            _shaderRepository = shaderRepository;
             _configurationProvider = configurationProvider;
             _mfxPlayer = mfxPlayer;
             _soundMapper = soundMapper;
@@ -162,17 +159,6 @@ namespace EndlessClient.GameExecution
             _graphicsDeviceRepository.GraphicsDevice = GraphicsDevice;
             _graphicsDeviceRepository.GraphicsDeviceManager = _graphicsDeviceManager;
             _gameWindowRepository.Window = Window;
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                if (!File.Exists(ShaderRepository.HairClipFile))
-                {
-                    throw new FileNotFoundException("Missing HairClip shader");
-                }
-
-                var shaderBytes = File.ReadAllBytes(ShaderRepository.HairClipFile);
-                _shaderRepository.Shaders[ShaderRepository.HairClip] = new Effect(GraphicsDevice, shaderBytes);
-            }
 
             SetUpInitialControlSet();
 

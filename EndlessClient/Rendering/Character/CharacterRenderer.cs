@@ -5,7 +5,8 @@ using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Factories;
-using EndlessClient.Rendering.Sprites;
+using EndlessClient.Rendering.Metadata;
+using EndlessClient.Rendering.Metadata.Models;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Character;
@@ -37,6 +38,7 @@ namespace EndlessClient.Rendering.Character
         private readonly IGameStateProvider _gameStateProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IUserInputProvider _userInputProvider;
+        private readonly IMetadataProvider<HatMetadata> _hatMetadataProvider;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IClientWindowSizeRepository _clientWindowSizeRepository;
         private readonly IEffectRenderer _effectRenderer;
@@ -57,6 +59,8 @@ namespace EndlessClient.Rendering.Character
         private Lazy<IChatBubble> _chatBubble;
 
         private bool _lastIsDead;
+
+        private Color[] _rtColorData;
 
         public EOLib.Domain.Character.Character Character
         {
@@ -94,6 +98,7 @@ namespace EndlessClient.Rendering.Character
                                  ICurrentMapProvider currentMapProvider,
                                  IUserInputProvider userInputProvider,
                                  IEffectRendererFactory effectRendererFactory,
+                                 IMetadataProvider<HatMetadata> hatMetadataProvider,
                                  ISfxPlayer sfxPlayer,
                                  IClientWindowSizeRepository clientWindowSizeRepository)
             : base(game)
@@ -109,6 +114,7 @@ namespace EndlessClient.Rendering.Character
             _gameStateProvider = gameStateProvider;
             _currentMapProvider = currentMapProvider;
             _userInputProvider = userInputProvider;
+            _hatMetadataProvider = hatMetadataProvider;
             _effectRenderer = effectRendererFactory.Create();
             _sfxPlayer = sfxPlayer;
             _clientWindowSizeRepository = clientWindowSizeRepository;
@@ -300,6 +306,8 @@ namespace EndlessClient.Rendering.Character
 
                 _sb.End();
                 GraphicsDevice.SetRenderTarget(null);
+
+                ClipHair();
             }
         }
 
@@ -426,6 +434,24 @@ namespace EndlessClient.Rendering.Character
                     _sfxPlayer.PlaySfx(SoundEffectID.Dead);
                 }
             }
+        }
+
+        private void ClipHair()
+        {
+            if (Character.RenderProperties.HatGraphic == 0 ||
+                _hatMetadataProvider.GetValueOrDefault(Character.RenderProperties.HatGraphic).ClipMode != HatMaskType.Standard)
+                return;
+
+            // oof. I really need to learn how to use shaders or stencil buffer.
+            // https://gamedev.stackexchange.com/questions/38118/best-way-to-mask-2d-sprites-in-xna/38150#38150
+            _rtColorData = new Color[_charRenderTarget.Width * _charRenderTarget.Height];
+            _charRenderTarget.GetData(_rtColorData);
+            for (int i = 0; i < _rtColorData.Length; i++)
+            {
+                if (_rtColorData[i] == Color.Black)
+                    _rtColorData[i].A = 0;
+            }
+            _charRenderTarget.SetData(_rtColorData);
         }
 
         #endregion

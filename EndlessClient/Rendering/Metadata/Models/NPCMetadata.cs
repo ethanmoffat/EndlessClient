@@ -1,11 +1,13 @@
 ﻿using Amadevus.RecordGenerator;
 using Newtonsoft.Json;
 
-namespace EndlessClient.Rendering.NPC
+namespace EndlessClient.Rendering.Metadata.Models
 {
     [Record]
-    public sealed partial class NPCMetadata
+    public sealed partial class NPCMetadata : IGFXMetadata
     {
+        public static NPCMetadata Default { get; } = new Builder().ToImmutable();
+
         [JsonProperty("xOffset")]
         public int OffsetX { get; }
 
