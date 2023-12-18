@@ -248,7 +248,7 @@ namespace EndlessClient.GameExecution
 
             try
             {
-                _pubFileLoadActions.LoadItemFile(rangedWeaponIds: Constants.RangedWeaponIDs.Concat(Constants.InstrumentIDs));
+                _pubFileLoadActions.LoadItemFile();
             }
             catch (Exception ex) when (ex is IOException || ex is ArgumentException)
             {

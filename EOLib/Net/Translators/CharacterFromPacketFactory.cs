@@ -1,8 +1,7 @@
-﻿using System.IO;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
-using EOLib.IO.Extensions;
 using EOLib.IO.Repositories;
+using System.IO;
 
 namespace EOLib.Net.Translators
 {
@@ -71,7 +70,6 @@ namespace EOLib.Net.Translators
                HatGraphic = hat,
                ShieldGraphic = shield,
                WeaponGraphic = weapon,
-               IsRangedWeapon = _eifFileProvider.EIFFile.IsRangedWeapon(weapon),
                SitState = sitState,
                CurrentAction = sitState == SitState.Standing ? CharacterActionState.Standing : CharacterActionState.Sitting,
                IsHidden = hidden,

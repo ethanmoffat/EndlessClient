@@ -5,7 +5,7 @@ namespace EOLib.Domain.Extensions
 {
     public static class CharacterExtensions
     {
-        public static Character.Character WithAppliedData(this Character.Character original, Character.Character updatedData, bool isRangedWeapon)
+        public static Character.Character WithAppliedData(this Character.Character original, Character.Character updatedData)
         {
             var existingRenderProps = original.RenderProperties;
             var newRenderProps = updatedData.RenderProperties.ToBuilder();
@@ -14,7 +14,6 @@ namespace EOLib.Domain.Extensions
                 ? CharacterActionState.Standing
                 : CharacterActionState.Sitting;
             newRenderProps.IsDead = existingRenderProps.IsDead;
-            newRenderProps.IsRangedWeapon = isRangedWeapon;
             newRenderProps.IsDrunk = existingRenderProps.IsDrunk;
             newRenderProps.IsHidden = existingRenderProps.IsHidden;
 

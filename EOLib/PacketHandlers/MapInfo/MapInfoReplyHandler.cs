@@ -2,7 +2,6 @@
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
-using EOLib.IO.Extensions;
 using EOLib.IO.Repositories;
 using EOLib.Net;
 using EOLib.Net.Handlers;
@@ -47,8 +46,7 @@ namespace EOLib.PacketHandlers.MapInfo
                     var character = _characterFromPacketFactory.CreateCharacter(packet);
                     if (_currentMapStateRepository.Characters.TryGetValue(character.ID, out var existingCharacter))
                     {
-                        var isRangedWeapon = _eifFileProvider.EIFFile.IsRangedWeapon(character.RenderProperties.WeaponGraphic);
-                        character = existingCharacter.WithAppliedData(character, isRangedWeapon);
+                        character = existingCharacter.WithAppliedData(character);
                     }
 
                     _currentMapStateRepository.Characters.Update(existingCharacter, character);

@@ -4,7 +4,6 @@ using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.IO.Extensions;
 using EOLib.IO.Repositories;
 using EOLib.Net;
 using EOLib.Net.Handlers;
@@ -69,14 +68,12 @@ namespace EOLib.PacketHandlers.Players
             if (_characterRepository.MainCharacter.ID == character.ID)
             {
                 var existingCharacter = _characterRepository.MainCharacter;
-                var isRangedWeapon = _eifFileProvider.EIFFile.IsRangedWeapon(character.RenderProperties.WeaponGraphic);
-                _characterRepository.MainCharacter = existingCharacter.WithAppliedData(character, isRangedWeapon);
+                _characterRepository.MainCharacter = existingCharacter.WithAppliedData(character);
                 _characterRepository.HasAvatar = true;
             }
             else if (_mapStateRepository.Characters.TryGetValue(character.ID, out var existingCharacter))
             {
-                var isRangedWeapon = _eifFileProvider.EIFFile.IsRangedWeapon(character.RenderProperties.WeaponGraphic);
-                _mapStateRepository.Characters.Update(existingCharacter, existingCharacter.WithAppliedData(character, isRangedWeapon));
+                _mapStateRepository.Characters.Update(existingCharacter, existingCharacter.WithAppliedData(character));
             }
             else
             {

@@ -14,6 +14,8 @@ using EndlessClient.Rendering;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Map;
+using EndlessClient.Rendering.Metadata;
+using EndlessClient.Rendering.Metadata.Models;
 using EndlessClient.Rendering.NPC;
 using EndlessClient.UIControls;
 using EOLib;
@@ -67,6 +69,7 @@ namespace EndlessClient.HUD.Controls
         private readonly INewsProvider _newsProvider;
         private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
         private readonly IClickDispatcherFactory _clickDispatcherFactory;
+        private readonly IMetadataProvider<WeaponMetadata> _weaponMetadataProvider;
 
         private IChatController _chatController;
         private IMainButtonController _mainButtonController;
@@ -99,7 +102,8 @@ namespace EndlessClient.HUD.Controls
                                   IMiniMapRendererFactory miniMapRendererFactory,
                                   INewsProvider newsProvider,
                                   IFixedTimeStepRepository fixedTimeStepRepository,
-                                  IClickDispatcherFactory clickDispatcherFactory)
+                                  IClickDispatcherFactory clickDispatcherFactory,
+                                  IMetadataProvider<WeaponMetadata> weaponMetadataProvider)
         {
             _hudButtonController = hudButtonController;
             _hudPanelFactory = hudPanelFactory;
@@ -130,6 +134,7 @@ namespace EndlessClient.HUD.Controls
             _newsProvider = newsProvider;
             _fixedTimeStepRepository = fixedTimeStepRepository;
             _clickDispatcherFactory = clickDispatcherFactory;
+            _weaponMetadataProvider = weaponMetadataProvider;
         }
 
         public void InjectChatController(IChatController chatController,
@@ -561,7 +566,11 @@ namespace EndlessClient.HUD.Controls
 
         private ICharacterAnimator CreateCharacterAnimator()
         {
-            return new CharacterAnimator(_endlessGameProvider, _characterRepository, _currentMapStateRepository, _currentMapProvider, _spellSlotDataRepository, _characterActions, _walkValidationActions, _pathFinder, _fixedTimeStepRepository);
+            return new CharacterAnimator(
+                _endlessGameProvider, _characterRepository, _currentMapStateRepository,
+                _currentMapProvider, _spellSlotDataRepository, _characterActions,
+                _walkValidationActions, _pathFinder, _fixedTimeStepRepository,
+                _weaponMetadataProvider);
         }
 
         private INPCAnimator CreateNPCAnimator()

@@ -1,6 +1,8 @@
 ﻿using EndlessClient.GameExecution;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Spells;
+using EndlessClient.Rendering.Metadata;
+using EndlessClient.Rendering.Metadata.Models;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
@@ -31,6 +33,7 @@ namespace EndlessClient.Rendering.Character
         private readonly IWalkValidationActions _walkValidationActions;
         private readonly IPathFinder _pathFinder;
         private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
+        private readonly IMetadataProvider<WeaponMetadata> _weaponMetadataProvider;
 
         // todo: this state should really be managed better
         private readonly Dictionary<int, EODirection> _queuedDirections;
@@ -55,7 +58,8 @@ namespace EndlessClient.Rendering.Character
                                  ICharacterActions characterActions,
                                  IWalkValidationActions walkValidationActions,
                                  IPathFinder pathFinder,
-                                 IFixedTimeStepRepository fixedTimeStepRepository)
+                                 IFixedTimeStepRepository fixedTimeStepRepository,
+                                 IMetadataProvider<WeaponMetadata> weaponMetadataProvider)
             : base((Game) gameProvider.Game)
         {
             _characterRepository = characterRepository;
@@ -66,7 +70,7 @@ namespace EndlessClient.Rendering.Character
             _walkValidationActions = walkValidationActions;
             _pathFinder = pathFinder;
             _fixedTimeStepRepository = fixedTimeStepRepository;
-
+            _weaponMetadataProvider = weaponMetadataProvider;
             _queuedDirections = new Dictionary<int, EODirection>();
             _queuedPositions = new Dictionary<int, MapCoordinate>();
             _otherPlayerStartWalkingTimes = new Dictionary<int, RenderFrameActionTime>();
@@ -441,7 +445,8 @@ namespace EndlessClient.Rendering.Character
                         some: currentCharacter =>
                         {
                             var renderProperties = currentCharacter.RenderProperties;
-                            var nextFrameRenderProperties = renderProperties.WithNextAttackFrame();
+                            var isRanged = _weaponMetadataProvider.GetValueOrDefault(renderProperties.WeaponGraphic).Ranged;
+                            var nextFrameRenderProperties = renderProperties.WithNextAttackFrame(isRanged);
 
                             if (nextFrameRenderProperties.ActualAttackFrame == 2)
                                 pair.SoundEffect();
@@ -451,8 +456,7 @@ namespace EndlessClient.Rendering.Character
                             {
                                 if (pair.Replay)
                                 {
-                                    nextFrameRenderProperties = renderProperties.ResetAnimationFrames()
-                                        .WithNextAttackFrame();
+                                    nextFrameRenderProperties = renderProperties.ResetAnimationFrames().WithNextAttackFrame(isRanged);
                                     pair.ClearReplay();
                                 }
                                 else

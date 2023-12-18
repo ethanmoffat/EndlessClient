@@ -5,9 +5,6 @@ using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Graphics;
-using EOLib.IO;
-using EOLib.IO.Pub;
-using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using System;
 using System.Linq;
@@ -18,19 +15,19 @@ namespace EndlessClient.Rendering.Sprites
     public class CharacterSpriteCalculator : ICharacterSpriteCalculator
     {
         private readonly INativeGraphicsManager _gfxManager;
-        private readonly IEIFFileProvider _eifFileProvider;
         private readonly IMetadataProvider<ShieldMetadata> _shieldMetadataProvider;
         private readonly IMetadataProvider<HatMetadata> _hatMetadataProvider;
+        private readonly IMetadataProvider<WeaponMetadata> _weaponMetadataProvider;
 
         public CharacterSpriteCalculator(INativeGraphicsManager gfxManager,
-                                         IEIFFileProvider eifFileProvider,
                                          IMetadataProvider<ShieldMetadata> shieldMetadataProvider,
-                                         IMetadataProvider<HatMetadata> hatMetadataProvider)
+                                         IMetadataProvider<HatMetadata> hatMetadataProvider,
+                                         IMetadataProvider<WeaponMetadata> weaponMetadataProvider)
         {
             _gfxManager = gfxManager;
-            _eifFileProvider = eifFileProvider;
             _shieldMetadataProvider = shieldMetadataProvider;
             _hatMetadataProvider = hatMetadataProvider;
+            _weaponMetadataProvider = weaponMetadataProvider;
         }
 
         public ISpriteSheet GetBootsTexture(CharacterRenderProperties characterRenderProperties)
@@ -516,15 +513,7 @@ namespace EndlessClient.Rendering.Sprites
 
         private bool BowIsEquipped(CharacterRenderProperties characterRenderProperties)
         {
-            if (EIFFile == null)
-                return false;
-
-            var weaponInfo = EIFFile.FirstOrDefault(x => x.Type == ItemType.Weapon &&
-                                                         x.DollGraphic == characterRenderProperties.WeaponGraphic);
-
-            return weaponInfo != null && weaponInfo.SubType == ItemSubType.Ranged;
+            return _weaponMetadataProvider.GetValueOrDefault(characterRenderProperties.WeaponGraphic).Ranged;
         }
-
-        private IPubFile<EIFRecord> EIFFile => _eifFileProvider.EIFFile;
     }
 }

@@ -40,7 +40,5 @@ namespace EOLib.Domain.Character
         public bool IsHidden { get; }
         public bool IsDead { get; }
         public bool IsDrunk { get; }
-
-        public bool IsRangedWeapon { get; }
     }
 }

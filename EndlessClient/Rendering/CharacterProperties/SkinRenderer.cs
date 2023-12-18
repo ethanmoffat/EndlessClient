@@ -1,7 +1,6 @@
-﻿using EndlessClient.Rendering.Sprites;
-using EOLib;
+﻿using EndlessClient.Rendering.Metadata.Models;
+using EndlessClient.Rendering.Sprites;
 using EOLib.Domain.Character;
-using EOLib.Domain.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -23,9 +22,9 @@ namespace EndlessClient.Rendering.CharacterProperties
             _skinRenderLocationCalculator = new SkinRenderLocationCalculator(_renderProperties);
         }
 
-        public override void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
+        public override void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea, WeaponMetadata weaponMetadata)
         {
-            var drawLoc = _skinRenderLocationCalculator.CalculateDrawLocationOfCharacterSkin(_skinSheet.SourceRectangle, parentCharacterDrawArea);
+            var drawLoc = _skinRenderLocationCalculator.CalculateDrawLocationOfCharacterSkin(_skinSheet.SourceRectangle, parentCharacterDrawArea, weaponMetadata.Ranged);
             Render(spriteBatch, _skinSheet, drawLoc);
         }
     }

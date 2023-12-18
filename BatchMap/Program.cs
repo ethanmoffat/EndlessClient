@@ -103,7 +103,7 @@ namespace BatchMap
             {
                 var actions = _typeRegistry.Resolve<IPubFileLoadActions>();
 
-                actions.LoadItemFileByName(Path.Combine(pubFilePath, "dat001.eif"), rangedWeaponIds: Constants.RangedWeaponIDs.Concat(Constants.InstrumentIDs));
+                actions.LoadItemFileByName(Path.Combine(pubFilePath, "dat001.eif"));
                 actions.LoadNPCFileByName(Path.Combine(pubFilePath, "dtn001.enf"));
             }
             catch

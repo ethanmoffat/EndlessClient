@@ -39,6 +39,7 @@ namespace EndlessClient.Rendering.Character
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IUserInputProvider _userInputProvider;
         private readonly IMetadataProvider<HatMetadata> _hatMetadataProvider;
+        private readonly IMetadataProvider<WeaponMetadata> _weaponMetadataProvider;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IClientWindowSizeRepository _clientWindowSizeRepository;
         private readonly IEffectRenderer _effectRenderer;
@@ -99,6 +100,7 @@ namespace EndlessClient.Rendering.Character
                                  IUserInputProvider userInputProvider,
                                  IEffectRendererFactory effectRendererFactory,
                                  IMetadataProvider<HatMetadata> hatMetadataProvider,
+                                 IMetadataProvider<WeaponMetadata> weaponMetadataProvider,
                                  ISfxPlayer sfxPlayer,
                                  IClientWindowSizeRepository clientWindowSizeRepository)
             : base(game)
@@ -115,6 +117,7 @@ namespace EndlessClient.Rendering.Character
             _currentMapProvider = currentMapProvider;
             _userInputProvider = userInputProvider;
             _hatMetadataProvider = hatMetadataProvider;
+            _weaponMetadataProvider = weaponMetadataProvider;
             _effectRenderer = effectRendererFactory.Create();
             _sfxPlayer = sfxPlayer;
             _clientWindowSizeRepository = clientWindowSizeRepository;
@@ -282,6 +285,8 @@ namespace EndlessClient.Rendering.Character
 
         private void DrawToRenderTarget()
         {
+            var weaponMetadata = _weaponMetadataProvider.GetValueOrDefault(Character.RenderProperties.WeaponGraphic);
+
             lock (_rt_locker_)
             {
                 GraphicsDevice.SetRenderTarget(_charRenderTarget);
@@ -292,7 +297,7 @@ namespace EndlessClient.Rendering.Character
                     .BuildList(_characterTextures, _character.RenderProperties)
                     .Where(x => x.CanRender);
                 foreach (var renderer in characterPropertyRenderers)
-                    renderer.Render(_sb, DrawArea);
+                    renderer.Render(_sb, DrawArea, weaponMetadata);
 
                 if (_gameStateProvider.CurrentState == GameStates.None)
                 {

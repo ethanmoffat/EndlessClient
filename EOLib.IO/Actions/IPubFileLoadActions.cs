@@ -4,9 +4,9 @@ namespace EOLib.IO.Actions
 {
     public interface IPubFileLoadActions
     {
-        void LoadItemFile(IEnumerable<int> rangedWeaponIds);
+        void LoadItemFile();
 
-        void LoadItemFileByName(string fileName, IEnumerable<int> rangedWeaponIds);
+        void LoadItemFileByName(string fileName);
 
         void LoadNPCFile();
 
