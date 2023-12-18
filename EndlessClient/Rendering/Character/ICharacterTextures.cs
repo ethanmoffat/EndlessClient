@@ -12,6 +12,7 @@ namespace EndlessClient.Rendering.Character
         ISpriteSheet Shield { get; }
         ISpriteSheet Weapon { get; }
         ISpriteSheet WeaponExtra { get; }
+        ISpriteSheet WeaponSlash { get; }
 
         ISpriteSheet Hair { get; }
         ISpriteSheet Skin { get; }

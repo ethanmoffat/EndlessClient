@@ -1,10 +1,8 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
-using EOLib.Domain.NPC;
 using EOLib.IO;
 using EOLib.IO.Repositories;
-using Optional.Collections;
 using System.Linq;
 
 namespace EOLib.Domain.Spells
@@ -78,8 +76,7 @@ namespace EOLib.Domain.Spells
         public bool ValidateBard()
         {
             var weapon = _characterProvider.MainCharacter.RenderProperties.WeaponGraphic;
-            return _pubFileProvider.EIFFile.SingleOrNone(x => x.DollGraphic == weapon && x.Type == ItemType.Weapon)
-                .Match(some => Constants.InstrumentIDs.Any(x => x == some.ID), () => false);
+            return Constants.Instruments.Any(x => x == weapon);
         }
     }
 

@@ -1,4 +1,5 @@
-﻿using EndlessClient.Rendering.Sprites;
+﻿using EndlessClient.Rendering.Metadata.Models;
+using EndlessClient.Rendering.Sprites;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
@@ -30,14 +31,14 @@ namespace EndlessClient.Rendering.CharacterProperties
             _isShieldOnBack = isShieldOnBack;
         }
 
-        public override void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
+        public override void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea, WeaponMetadata weaponMetadata)
         {
-            var offsets = GetOffsets(parentCharacterDrawArea);
+            var offsets = GetOffsets(parentCharacterDrawArea, weaponMetadata.Ranged);
             var drawLoc = new Vector2(parentCharacterDrawArea.X + offsets.X, parentCharacterDrawArea.Y + offsets.Y);
             Render(spriteBatch, _shieldSheet, drawLoc);
         }
 
-        private Vector2 GetOffsets(Rectangle parentCharacterDrawArea)
+        private Vector2 GetOffsets(Rectangle parentCharacterDrawArea, bool ranged)
         {
             float resX, resY;
 
@@ -48,7 +49,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 
                 if (_renderProperties.RenderAttackFrame == 2)
                     resX += _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? 2 : -2;
-                else if (_renderProperties.IsRangedWeapon && _renderProperties.RenderAttackFrame == 1)
+                else if (ranged && _renderProperties.RenderAttackFrame == 1)
                 {
                     // This currently does *not* match up perfectly with the original client. The original client doesn't keep
                     // the arrows aligned on the attack frame, so they look like they are sliding across the back of the character.

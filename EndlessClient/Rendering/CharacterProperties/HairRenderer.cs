@@ -1,4 +1,5 @@
-﻿using EndlessClient.Rendering.Sprites;
+﻿using EndlessClient.Rendering.Metadata.Models;
+using EndlessClient.Rendering.Sprites;
 using EOLib.Domain.Character;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -20,9 +21,9 @@ namespace EndlessClient.Rendering.CharacterProperties
             _hairRenderLocationCalculator = new HairRenderLocationCalculator(_renderProperties);
         }
 
-        public override void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
+        public override void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea, WeaponMetadata weaponMetadata)
         {
-            var drawLoc = _hairRenderLocationCalculator.CalculateDrawLocationOfCharacterHair(_hairSheet.SourceRectangle, parentCharacterDrawArea);
+            var drawLoc = _hairRenderLocationCalculator.CalculateDrawLocationOfCharacterHair(_hairSheet.SourceRectangle, parentCharacterDrawArea, weaponMetadata.Ranged);
             Render(spriteBatch, _hairSheet, drawLoc);
         }
     }

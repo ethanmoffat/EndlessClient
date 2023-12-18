@@ -5,9 +5,6 @@ using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Graphics;
-using EOLib.IO;
-using EOLib.IO.Pub;
-using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using System;
 using System.Linq;
@@ -18,19 +15,19 @@ namespace EndlessClient.Rendering.Sprites
     public class CharacterSpriteCalculator : ICharacterSpriteCalculator
     {
         private readonly INativeGraphicsManager _gfxManager;
-        private readonly IEIFFileProvider _eifFileProvider;
         private readonly IMetadataProvider<ShieldMetadata> _shieldMetadataProvider;
         private readonly IMetadataProvider<HatMetadata> _hatMetadataProvider;
+        private readonly IMetadataProvider<WeaponMetadata> _weaponMetadataProvider;
 
         public CharacterSpriteCalculator(INativeGraphicsManager gfxManager,
-                                         IEIFFileProvider eifFileProvider,
                                          IMetadataProvider<ShieldMetadata> shieldMetadataProvider,
-                                         IMetadataProvider<HatMetadata> hatMetadataProvider)
+                                         IMetadataProvider<HatMetadata> hatMetadataProvider,
+                                         IMetadataProvider<WeaponMetadata> weaponMetadataProvider)
         {
             _gfxManager = gfxManager;
-            _eifFileProvider = eifFileProvider;
             _shieldMetadataProvider = shieldMetadataProvider;
             _hatMetadataProvider = hatMetadataProvider;
+            _weaponMetadataProvider = weaponMetadataProvider;
         }
 
         public ISpriteSheet GetBootsTexture(CharacterRenderProperties characterRenderProperties)
@@ -290,6 +287,22 @@ namespace EndlessClient.Rendering.Sprites
             return retTextures;
         }
 
+        public ISpriteSheet GetWeaponSlash(CharacterRenderProperties characterRenderProperties)
+        {
+            const int NUM_SLASHES = 9;
+
+            var metadata = _weaponMetadataProvider.GetValueOrDefault(characterRenderProperties.WeaponGraphic);
+            if (!metadata.Slash.HasValue || metadata.Ranged || characterRenderProperties.RenderAttackFrame != 2)
+                return new EmptySpriteSheet();
+
+            var sheet = _gfxManager.TextureFromResource(GFXTypes.PostLoginUI, 40, transparent: true);
+            return new SpriteSheet(sheet,
+                                   new Rectangle(sheet.Width / 4 * (int)characterRenderProperties.Direction,
+                                                 sheet.Height / NUM_SLASHES * metadata.Slash.Value,
+                                                 sheet.Width / 4,
+                                                 sheet.Height / NUM_SLASHES));
+        }
+
         public ISpriteSheet GetSkinTexture(CharacterRenderProperties characterRenderProperties)
         {
             const int SheetRows = 7;
@@ -516,15 +529,7 @@ namespace EndlessClient.Rendering.Sprites
 
         private bool BowIsEquipped(CharacterRenderProperties characterRenderProperties)
         {
-            if (EIFFile == null)
-                return false;
-
-            var weaponInfo = EIFFile.FirstOrDefault(x => x.Type == ItemType.Weapon &&
-                                                         x.DollGraphic == characterRenderProperties.WeaponGraphic);
-
-            return weaponInfo != null && weaponInfo.SubType == ItemSubType.Ranged;
+            return _weaponMetadataProvider.GetValueOrDefault(characterRenderProperties.WeaponGraphic).Ranged;
         }
-
-        private IPubFile<EIFRecord> EIFFile => _eifFileProvider.EIFFile;
     }
 }

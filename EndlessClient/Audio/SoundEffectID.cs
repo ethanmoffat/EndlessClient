@@ -41,7 +41,7 @@
         Craft,
         UnknownBuzzSound = 28,
         AdminChatReceived,
-        UnknownAttackLikeSound,
+        AlternateMeleeAttack,
         PotionOfFlamesEffect,
         AdminWarp = 32,
         NoWallWalk,

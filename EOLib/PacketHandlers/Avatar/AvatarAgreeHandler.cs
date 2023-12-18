@@ -2,7 +2,6 @@
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
-using EOLib.IO.Extensions;
 using EOLib.IO.Repositories;
 using EOLib.Net;
 using EOLib.Net.Handlers;
@@ -61,12 +60,8 @@ namespace EOLib.PacketHandlers.Avatar
                         currentRenderProps = currentRenderProps
                             .WithBootsGraphic(packet.ReadShort())
                             .WithArmorGraphic(packet.ReadShort())
-                            .WithHatGraphic(packet.ReadShort());
-
-                        var weaponGraphic = packet.ReadShort();
-                        currentRenderProps = currentRenderProps
-                            .WithWeaponGraphic(weaponGraphic)
-                            .WithIsRangedWeapon(_eifFileProvider.EIFFile.IsRangedWeapon(weaponGraphic))
+                            .WithHatGraphic(packet.ReadShort())
+                            .WithWeaponGraphic(packet.ReadShort())
                             .WithShieldGraphic(packet.ReadShort());
 
                         break;

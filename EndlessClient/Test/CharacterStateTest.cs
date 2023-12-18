@@ -1,18 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using EndlessClient.GameExecution;
+﻿using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
+using EndlessClient.Rendering.Metadata;
+using EndlessClient.Rendering.Metadata.Models;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.IO;
-using EOLib.IO.Extensions;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace EndlessClient.Test
 {
@@ -43,6 +44,7 @@ namespace EndlessClient.Test
 
         private readonly ICharacterRendererFactory _characterRendererFactory;
         private readonly IEIFFileProvider _eifFileProvider;
+        private readonly IMetadataProvider<WeaponMetadata> _weaponMetadataProvider;
 
         private CharacterRenderProperties _baseProperties;
         private readonly Dictionary<ItemType, int> _itemIndices;
@@ -57,11 +59,13 @@ namespace EndlessClient.Test
 
         public CharacterStateTest(IEndlessGame baseGame,
                                   ICharacterRendererFactory characterRendererFactory,
-                                  IEIFFileProvider eifFileProvider)
+                                  IEIFFileProvider eifFileProvider,
+                                  IMetadataProvider<WeaponMetadata> weaponMetadataProvider)
             : base((Game)baseGame)
         {
             _characterRendererFactory = characterRendererFactory;
             _eifFileProvider = eifFileProvider;
+            _weaponMetadataProvider = weaponMetadataProvider;
 
             _itemIndices = ((ItemType[])Enum.GetValues(typeof(ItemType))).ToDictionary(k => k, v => 0);
             _renderersForDifferentStates = new List<ICharacterRenderer>(12);
@@ -153,7 +157,7 @@ namespace EndlessClient.Test
             else if (KeyPressed(Keys.D6) && !_isBowEquipped)
             {
                 var nextGraphic = GetNextItemGraphicMatching(ItemType.Weapon, _baseProperties.WeaponGraphic);
-                _baseProperties = _baseProperties.WithWeaponGraphic(nextGraphic).WithIsRangedWeapon(EIFFile.IsRangedWeapon(nextGraphic));
+                _baseProperties = _baseProperties.WithWeaponGraphic(nextGraphic);
                 update = true;
             }
             else if (KeyPressed(Keys.D7))
@@ -173,11 +177,11 @@ namespace EndlessClient.Test
                 {
                     _lastGraphic = _baseProperties.WeaponGraphic;
                     var firstBowWeapon = EIFFile.First(x => x.Type == ItemType.Weapon && x.SubType == ItemSubType.Ranged);
-                    _baseProperties = _baseProperties.WithWeaponGraphic(firstBowWeapon.DollGraphic).WithIsRangedWeapon(true);
+                    _baseProperties = _baseProperties.WithWeaponGraphic(firstBowWeapon.DollGraphic);
                 }
                 else
                 {
-                    _baseProperties = _baseProperties.WithWeaponGraphic(_lastGraphic).WithIsRangedWeapon(EIFFile.IsRangedWeapon(_lastGraphic));
+                    _baseProperties = _baseProperties.WithWeaponGraphic(_lastGraphic);
                 }
                 
                 _isBowEquipped = !_isBowEquipped;
@@ -200,7 +204,8 @@ namespace EndlessClient.Test
             if ((now - _lastAttack).TotalMilliseconds > 500)
             {
                 var rend = _renderersForDifferentStates[(int)DisplayState.AttackingAnimation];
-                rend.Character = rend.Character.WithRenderProperties(rend.Character.RenderProperties.WithNextAttackFrame());
+                var isRanged = _weaponMetadataProvider.GetValueOrDefault(rend.Character.RenderProperties.WeaponGraphic).Ranged;
+                rend.Character = rend.Character.WithRenderProperties(rend.Character.RenderProperties.WithNextAttackFrame(isRanged));
                 _lastAttack = now;
             }
 
@@ -223,6 +228,7 @@ namespace EndlessClient.Test
 
         private CharacterRenderProperties GetRenderPropertiesForState(DisplayState displayState)
         {
+            var isRanged = _weaponMetadataProvider.GetValueOrDefault(_baseProperties.WeaponGraphic).Ranged;
             switch (displayState)
             {
                 case DisplayState.Standing:
@@ -232,9 +238,9 @@ namespace EndlessClient.Test
                 case DisplayState.SitFloor:
                     return _baseProperties.WithSitState(SitState.Floor);
                 case DisplayState.Attack1:
-                    return _baseProperties.WithNextAttackFrame();
+                    return _baseProperties.WithNextAttackFrame(isRanged);
                 case DisplayState.Attack2:
-                    return _baseProperties.WithNextAttackFrame().WithNextAttackFrame();
+                    return _baseProperties.WithNextAttackFrame(isRanged).WithNextAttackFrame(isRanged);
                 case DisplayState.Walk1:
                     return _baseProperties.WithNextWalkFrame();
                 case DisplayState.Walk2:

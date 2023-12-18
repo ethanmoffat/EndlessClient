@@ -15,13 +15,13 @@ namespace EndlessClient.Rendering.CharacterProperties
             _renderProperties = renderProperties;
         }
 
-        public Vector2 CalculateDrawLocationOfCharacterSkin(Rectangle skinRectangle, Rectangle parentCharacterDrawArea)
+        public Vector2 CalculateDrawLocationOfCharacterSkin(Rectangle skinRectangle, Rectangle parentCharacterDrawArea, bool ranged)
         {
             float resX, resY;
 
             // Ranged weapon attack frame is offset based on the Left or Right border of the parent character draw area
             // Ranged weapon graphics do not use the centering approach
-            if (_renderProperties.IsRangedWeapon && _renderProperties.RenderAttackFrame == 1)
+            if (ranged && _renderProperties.RenderAttackFrame == 1)
             {
                 var isFlipped = _renderProperties.IsFacing(EODirection.Right, EODirection.Up);
                 var needsExtraOffset = _renderProperties.IsFacing(EODirection.Right, EODirection.Down);

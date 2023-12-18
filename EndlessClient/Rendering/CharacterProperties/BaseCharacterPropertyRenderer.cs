@@ -1,4 +1,5 @@
-﻿using EndlessClient.Rendering.Sprites;
+﻿using EndlessClient.Rendering.Metadata.Models;
+using EndlessClient.Rendering.Sprites;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
@@ -23,7 +24,7 @@ namespace EndlessClient.Rendering.CharacterProperties
             LayerDepth = 1.0f;
         }
 
-        public abstract void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea);
+        public abstract void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea, WeaponMetadata weaponMetadata);
 
         protected virtual void Render(SpriteBatch spriteBatch, ISpriteSheet sheet, Vector2 drawLoc, int alpha = 255)
         {

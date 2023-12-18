@@ -4,15 +4,16 @@ namespace EndlessClient.Rendering.Sprites
 {
     public interface ICharacterSpriteCalculator
     {
-        ISpriteSheet GetBootsTexture(CharacterRenderProperties _characterRenderProperties);
-        ISpriteSheet GetArmorTexture(CharacterRenderProperties _characterRenderProperties);
-        ISpriteSheet GetHatTexture(CharacterRenderProperties _characterRenderProperties);
-        ISpriteSheet GetShieldTexture(CharacterRenderProperties _characterRenderProperties);
-        ISpriteSheet[] GetWeaponTextures(CharacterRenderProperties _characterRenderProperties);
+        ISpriteSheet GetBootsTexture(CharacterRenderProperties characterRenderProperties);
+        ISpriteSheet GetArmorTexture(CharacterRenderProperties characterRenderProperties);
+        ISpriteSheet GetHatTexture(CharacterRenderProperties characterRenderProperties);
+        ISpriteSheet GetShieldTexture(CharacterRenderProperties characterRenderProperties);
+        ISpriteSheet[] GetWeaponTextures(CharacterRenderProperties characterRenderProperties);
+        ISpriteSheet GetWeaponSlash(CharacterRenderProperties characterRenderProperties);
 
-        ISpriteSheet GetSkinTexture(CharacterRenderProperties _characterRenderProperties);
-        ISpriteSheet GetHairTexture(CharacterRenderProperties _characterRenderProperties);
-        ISpriteSheet GetFaceTexture(CharacterRenderProperties _characterRenderProperties);
-        ISpriteSheet GetEmoteTexture(CharacterRenderProperties _characterRenderProperties);
+        ISpriteSheet GetSkinTexture(CharacterRenderProperties characterRenderProperties);
+        ISpriteSheet GetHairTexture(CharacterRenderProperties characterRenderProperties);
+        ISpriteSheet GetFaceTexture(CharacterRenderProperties characterRenderProperties);
+        ISpriteSheet GetEmoteTexture(CharacterRenderProperties characterRenderProperties);
     }
 }

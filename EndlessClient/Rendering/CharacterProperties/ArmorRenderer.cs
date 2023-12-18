@@ -1,4 +1,5 @@
 ﻿using System;
+using EndlessClient.Rendering.Metadata.Models;
 using EndlessClient.Rendering.Sprites;
 using EOLib;
 using EOLib.Domain.Character;
@@ -21,24 +22,24 @@ namespace EndlessClient.Rendering.CharacterProperties
             _armorSheet = armorSheet;
         }
 
-        public override void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
+        public override void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea, WeaponMetadata weaponMetadata)
         {
-            var offsets = GetOffsets(parentCharacterDrawArea.Size.ToVector2());
+            var offsets = GetOffsets(parentCharacterDrawArea.Size.ToVector2(), weaponMetadata.Ranged);
             var drawLoc = new Vector2(parentCharacterDrawArea.X - 2 + offsets.X, parentCharacterDrawArea.Y + offsets.Y);
             Render(spriteBatch, _armorSheet, drawLoc);
         }
 
-        private Vector2 GetOffsets(Vector2 parentCharacterSize)
+        private Vector2 GetOffsets(Vector2 parentCharacterSize, bool ranged)
         {
             var resX = -(float)Math.Floor(Math.Abs(_armorSheet.SourceRectangle.Width - parentCharacterSize.X) / 2);
             var resY = -(float)Math.Floor(Math.Abs(_armorSheet.SourceRectangle.Height - parentCharacterSize.Y) / 2);
 
-            if ((_renderProperties.RenderAttackFrame == 2 && !_renderProperties.IsRangedWeapon) ||
-                (_renderProperties.RenderAttackFrame == 1 && _renderProperties.IsRangedWeapon))
+            if ((_renderProperties.RenderAttackFrame == 2 && !ranged) ||
+                (_renderProperties.RenderAttackFrame == 1 && ranged))
             {
                 resX += _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? 4 : 0;
 
-                if (_renderProperties.IsRangedWeapon)
+                if (ranged)
                 {
                     var factor = _renderProperties.IsFacing(EODirection.Down, EODirection.Left) ? -1 : 1;
                     resX += _renderProperties.IsFacing(EODirection.Left, EODirection.Up)

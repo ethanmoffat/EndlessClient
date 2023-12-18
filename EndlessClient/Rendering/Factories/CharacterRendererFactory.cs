@@ -1,6 +1,5 @@
 using AutomaticTypeMapper;
 using EndlessClient.Audio;
-using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
 using EndlessClient.Rendering.Character;
@@ -9,7 +8,6 @@ using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Metadata;
 using EndlessClient.Rendering.Metadata.Models;
-using EndlessClient.Rendering.Sprites;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
@@ -32,6 +30,7 @@ namespace EndlessClient.Rendering.Factories
         private readonly IUserInputProvider _userInputProvider;
         private readonly IEffectRendererFactory _effectRendererFactory;
         private readonly IMetadataProvider<HatMetadata> _hatMetadataProvider;
+        private readonly IMetadataProvider<WeaponMetadata> _weaponMetadataProvider;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IClientWindowSizeRepository _clientWindowSizeRepository;
 
@@ -48,6 +47,7 @@ namespace EndlessClient.Rendering.Factories
                                         IUserInputProvider userInputProvider,
                                         IEffectRendererFactory effectRendererFactory,
                                         IMetadataProvider<HatMetadata> hatMetadataProvider,
+                                        IMetadataProvider<WeaponMetadata> weaponMetadataProvider,
                                         ISfxPlayer sfxPlayer,
                                         IClientWindowSizeRepository clientWindowSizeRepository)
         {
@@ -64,6 +64,7 @@ namespace EndlessClient.Rendering.Factories
             _userInputProvider = userInputProvider;
             _effectRendererFactory = effectRendererFactory;
             _hatMetadataProvider = hatMetadataProvider;
+            _weaponMetadataProvider = weaponMetadataProvider;
             _sfxPlayer = sfxPlayer;
             _clientWindowSizeRepository = clientWindowSizeRepository;
         }
@@ -85,6 +86,7 @@ namespace EndlessClient.Rendering.Factories
                 _userInputProvider,
                 _effectRendererFactory,
                 _hatMetadataProvider,
+                _weaponMetadataProvider,
                 _sfxPlayer,
                 _clientWindowSizeRepository);
         }

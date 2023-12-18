@@ -25,7 +25,8 @@ namespace EndlessClient.Rendering.Metadata
                 { typeof(EffectMetadata), GFXTypes.Spells },
                 { typeof(NPCMetadata), GFXTypes.NPC },
                 { typeof(ShieldMetadata), GFXTypes.MaleBack },
-                { typeof(HatMetadata), GFXTypes.MaleHat }
+                { typeof(HatMetadata), GFXTypes.MaleHat },
+                { typeof(WeaponMetadata), GFXTypes.MaleWeapons }
             };
         }
 
@@ -38,7 +39,7 @@ namespace EndlessClient.Rendering.Metadata
         public Option<TMetadata> GetMetadata<TMetadata>(int graphic)
             where TMetadata : class, IGFXMetadata
         {
-            if (!_mapper.TryGetValue(typeof(TMetadata), out var gfxType))
+            if (graphic == 0 || !_mapper.TryGetValue(typeof(TMetadata), out var gfxType))
                 return Option.None<TMetadata>();
 
             if (!_cache.ContainsKey(gfxType))

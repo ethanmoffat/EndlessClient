@@ -1,4 +1,5 @@
-﻿using EndlessClient.Rendering.Sprites;
+﻿using EndlessClient.Rendering.Metadata.Models;
+using EndlessClient.Rendering.Sprites;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
@@ -21,16 +22,16 @@ namespace EndlessClient.Rendering.CharacterProperties
             _bootsSheet = bootsSheet;
         }
 
-        public override void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
+        public override void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea, WeaponMetadata weaponMetadata)
         {
-            var offsets = GetOffsets(parentCharacterDrawArea);
+            var offsets = GetOffsets(parentCharacterDrawArea, weaponMetadata.Ranged);
             var drawLoc = new Vector2(parentCharacterDrawArea.X + offsets.X,
                                       // Center the Y coordinate over the bottom half of the character sprite
                                       parentCharacterDrawArea.Y + offsets.Y);
             Render(spriteBatch, _bootsSheet, drawLoc);
         }
 
-        private Vector2 GetOffsets(Rectangle parentCharacterDrawArea)
+        private Vector2 GetOffsets(Rectangle parentCharacterDrawArea, bool ranged)
         {
             var resX = -(float)Math.Floor(Math.Abs((float)_bootsSheet.SourceRectangle.Width - parentCharacterDrawArea.Width) / 2);
             var resY = (int)Math.Floor(parentCharacterDrawArea.Height / 3f) * 2 - 1 - _renderProperties.Gender;
@@ -51,7 +52,7 @@ namespace EndlessClient.Rendering.CharacterProperties
                 resX += 2 * factor;
                 resY += 1 * factor - extra;
             }
-            else if (_renderProperties.RenderAttackFrame == 1 && _renderProperties.IsRangedWeapon)
+            else if (_renderProperties.RenderAttackFrame == 1 && ranged)
             {
                 var isDownOrLeft = _renderProperties.IsFacing(EODirection.Down, EODirection.Left);
                 var isDownOrRight = _renderProperties.IsFacing(EODirection.Down, EODirection.Right);

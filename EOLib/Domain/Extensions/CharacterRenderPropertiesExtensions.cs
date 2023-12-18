@@ -60,13 +60,13 @@ namespace EOLib.Domain.Extensions
             return props.ToImmutable();
         }
 
-        public static CharacterRenderProperties WithNextAttackFrame(this CharacterRenderProperties rp)
+        public static CharacterRenderProperties WithNextAttackFrame(this CharacterRenderProperties rp, bool isRangedWeapon)
         {
             var props = rp.ToBuilder();
             props.ActualAttackFrame = (props.ActualAttackFrame + 1) % CharacterRenderProperties.MAX_NUMBER_OF_WALK_FRAMES;
             props.RenderAttackFrame = props.ActualAttackFrame;
 
-            if (props.IsRangedWeapon)
+            if (isRangedWeapon)
             {
                 // ranged attack ticks: 0 0 1 1 1
                 props.RenderAttackFrame /= CharacterRenderProperties.MAX_NUMBER_OF_RANGED_ATTACK_FRAMES;

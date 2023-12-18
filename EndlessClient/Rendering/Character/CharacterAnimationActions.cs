@@ -5,6 +5,8 @@ using EndlessClient.HUD;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Map;
+using EndlessClient.Rendering.Metadata;
+using EndlessClient.Rendering.Metadata.Models;
 using EOLib;
 using EOLib.Config;
 using EOLib.Domain.Character;
@@ -36,7 +38,8 @@ namespace EndlessClient.Rendering.Character
         private readonly IPubFileProvider _pubFileProvider;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly ISfxPlayer _sfxPlayer;
-        
+        private readonly IMetadataProvider<WeaponMetadata> _weaponMetadataProvider;
+
         private readonly Random _random;
 
         public CharacterAnimationActions(IHudControlProvider hudControlProvider,
@@ -47,7 +50,8 @@ namespace EndlessClient.Rendering.Character
                                          ISpikeTrapActions spikeTrapActions,
                                          IPubFileProvider pubFileProvider,
                                          IStatusLabelSetter statusLabelSetter,
-                                         ISfxPlayer sfxPlayer)
+                                         ISfxPlayer sfxPlayer,
+                                         IMetadataProvider<WeaponMetadata> weaponMetadataProvider)
         {
             _hudControlProvider = hudControlProvider;
             _characterRepository = characterRepository;
@@ -58,7 +62,7 @@ namespace EndlessClient.Rendering.Character
             _pubFileProvider = pubFileProvider;
             _statusLabelSetter = statusLabelSetter;
             _sfxPlayer = sfxPlayer;
-
+            _weaponMetadataProvider = weaponMetadataProvider;
             _random = new Random();
         }
 
@@ -383,57 +387,30 @@ namespace EndlessClient.Rendering.Character
 
         private void PlayWeaponSound(EOLib.Domain.Character.Character character, int noteIndex = -1)
         {
-            if (character.RenderProperties.WeaponGraphic == 0)
-            {
-                _sfxPlayer.PlaySfx(SoundEffectID.PunchAttack);
-                return;
-            }
+            var weaponMetadata = _weaponMetadataProvider.GetValueOrDefault(character.RenderProperties.WeaponGraphic);
 
-            _pubFileProvider.EIFFile.FirstOrNone(x => x.Type == ItemType.Weapon && x.DollGraphic == character.RenderProperties.WeaponGraphic)
-                .MatchSome(x =>
+            if (noteIndex >= 0 && noteIndex < 36)
+            {
+                var firstSfx = weaponMetadata.SFX.FirstOrDefault();
+                if (firstSfx == SoundEffectID.Harp1)
                 {
-                    var instrumentIndex = Constants.InstrumentIDs.ToList().FindIndex(y => y == x.ID);
-                    switch (instrumentIndex)
-                    {
-                        case 0:
-                            {
-                                if (noteIndex < 0 || noteIndex >= 36)
-                                    _sfxPlayer.PlaySfx(SoundEffectID.Harp1 + _random.Next(0, 3));
-                                else
-                                    _sfxPlayer.PlayHarpNote(noteIndex);
-                            }
-                            break;
-                        case 1:
-                            {
-                                if (noteIndex < 0 || noteIndex >= 36)
-                                    _sfxPlayer.PlaySfx(SoundEffectID.Guitar1 + _random.Next(0, 3));
-                                else
-                                    _sfxPlayer.PlayGuitarNote(noteIndex);
-                            }
-                            break;
-                        default:
-                            switch (x.SubType)
-                            {
-                                case ItemSubType.Ranged:
-                                    if (x.ID == 365 && string.Equals(x.Name, "gun", System.StringComparison.OrdinalIgnoreCase))
-                                        _sfxPlayer.PlaySfx(SoundEffectID.Gun);
-                                    else
-                                        _sfxPlayer.PlaySfx(SoundEffectID.AttackBow);
-                                    break;
-                                default:
-                                    _sfxPlayer.PlaySfx(SoundEffectID.MeleeWeaponAttack);
-                                    break;
-                            }
-                            break;
-                    }
-                });
+                    _sfxPlayer.PlayHarpNote(noteIndex);
+                }
+                else if (firstSfx == SoundEffectID.Guitar1)
+                {
+                    _sfxPlayer.PlayGuitarNote(noteIndex);
+                }
+            }
+            else
+            {
+                var index = _random.Next(0, weaponMetadata.SFX.Length);
+                _sfxPlayer.PlaySfx(weaponMetadata.SFX[index]);
+            }
         }
 
         private bool IsInstrumentWeapon(int weaponGraphic)
         {
-            return _pubFileProvider.EIFFile
-                .SingleOrNone(x => x.Type == ItemType.Weapon && x.DollGraphic == weaponGraphic)
-                .Match(some: x => Constants.InstrumentIDs.ToList().FindIndex(y => y == x.ID) >= 0, none: () => false);
+            return Constants.Instruments.Any(x => x == weaponGraphic);
         }
 
         private bool IsSteppingStone(CharacterRenderProperties renderProps)
