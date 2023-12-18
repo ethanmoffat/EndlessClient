@@ -63,6 +63,8 @@ namespace EndlessClient.Rendering.CharacterProperties
                 {
                     LayerDepth = BaseLayer * (hatMaskType == HatMaskType.FaceMask ? 11 : 10)
                 };
+
+            yield return new WeaponSlashRenderer(renderProperties, textures.WeaponSlash) { LayerDepth = BaseLayer * 14 };
         }
 
         private bool IsShieldBehindCharacter(CharacterRenderProperties renderProperties)

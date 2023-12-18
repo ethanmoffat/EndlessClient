@@ -15,6 +15,7 @@ namespace EndlessClient.Rendering.Character
         public ISpriteSheet Shield { get; private set; }
         public ISpriteSheet Weapon { get; private set; }
         public ISpriteSheet WeaponExtra { get; private set; }
+        public ISpriteSheet WeaponSlash{ get; private set; }
 
         public ISpriteSheet Hair { get; private set; }
         public ISpriteSheet Skin { get; private set; }
@@ -37,6 +38,8 @@ namespace EndlessClient.Rendering.Character
             var weaponTextures = _characterSpriteCalculator.GetWeaponTextures(characterRenderProperties);
             Weapon = weaponTextures[0];
             WeaponExtra = weaponTextures[1];
+
+            WeaponSlash = _characterSpriteCalculator.GetWeaponSlash(characterRenderProperties);
 
             Hair = _characterSpriteCalculator.GetHairTexture(characterRenderProperties);
             Skin = _characterSpriteCalculator.GetSkinTexture(characterRenderProperties);

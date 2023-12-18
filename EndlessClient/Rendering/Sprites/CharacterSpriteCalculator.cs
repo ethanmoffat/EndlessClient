@@ -287,6 +287,22 @@ namespace EndlessClient.Rendering.Sprites
             return retTextures;
         }
 
+        public ISpriteSheet GetWeaponSlash(CharacterRenderProperties characterRenderProperties)
+        {
+            const int NUM_SLASHES = 9;
+
+            var metadata = _weaponMetadataProvider.GetValueOrDefault(characterRenderProperties.WeaponGraphic);
+            if (!metadata.Slash.HasValue || metadata.Ranged || characterRenderProperties.RenderAttackFrame != 2)
+                return new EmptySpriteSheet();
+
+            var sheet = _gfxManager.TextureFromResource(GFXTypes.PostLoginUI, 40, transparent: true);
+            return new SpriteSheet(sheet,
+                                   new Rectangle(sheet.Width / 4 * (int)characterRenderProperties.Direction,
+                                                 sheet.Height / NUM_SLASHES * metadata.Slash.Value,
+                                                 sheet.Width / 4,
+                                                 sheet.Height / NUM_SLASHES));
+        }
+
         public ISpriteSheet GetSkinTexture(CharacterRenderProperties characterRenderProperties)
         {
             const int SheetRows = 7;
