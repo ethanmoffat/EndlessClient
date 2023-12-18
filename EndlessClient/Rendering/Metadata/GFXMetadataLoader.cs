@@ -25,7 +25,8 @@ namespace EndlessClient.Rendering.Metadata
                 { typeof(EffectMetadata), GFXTypes.Spells },
                 { typeof(NPCMetadata), GFXTypes.NPC },
                 { typeof(ShieldMetadata), GFXTypes.MaleBack },
-                { typeof(HatMetadata), GFXTypes.MaleHat }
+                { typeof(HatMetadata), GFXTypes.MaleHat },
+                { typeof(WeaponMetadata), GFXTypes.MaleWeapons }
             };
         }
 
