@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.HUD;
 using EndlessClient.Rendering.Character;
 using EOLib.Domain.Character;
@@ -15,18 +16,21 @@ namespace EndlessClient.Controllers
         private readonly ICharacterActions _characterActions;
         private readonly ICharacterAnimationActions _characterAnimationActions;
         private readonly IStatusLabelSetter _statusLabelSetter;
+        private readonly ISfxPlayer _sfxPlayer;
 
         public ControlKeyController(ICharacterProvider characterProvider,
                                     IAttackValidationActions attackValidationActions,
                                     ICharacterActions characterActions,
                                     ICharacterAnimationActions characterAnimationActions,
-                                    IStatusLabelSetter statusLabelSetter)
+                                    IStatusLabelSetter statusLabelSetter,
+                                    ISfxPlayer sfxPlayer)
         {
             _characterProvider = characterProvider;
             _attackValidationActions = attackValidationActions;
             _characterActions = characterActions;
             _characterAnimationActions = characterAnimationActions;
             _statusLabelSetter = statusLabelSetter;
+            _sfxPlayer = sfxPlayer;
         }
 
         public bool Attack()
@@ -68,6 +72,7 @@ namespace EndlessClient.Controllers
                 }
                 else if (validationResult == AttackValidationError.MissingArrows)
                 {
+                    _sfxPlayer.PlaySfx(SoundEffectID.NoArrows);
                     _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING,
                                                       EOResourceID.STATUS_LABEL_YOU_HAVE_NO_ARROWS);
                 }
