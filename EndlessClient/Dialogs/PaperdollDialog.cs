@@ -142,7 +142,7 @@ namespace EndlessClient.Dialogs
                             {
                                 // packet reply handles updating the paperdoll for the character which will unrender the equipment
                                 _inventoryController.UnequipItem(equipLocation);
-                                _sfxPlayer.PlaySfx(SoundEffectID.ItemUnequip);
+                                _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);
                             }
                         });
                     }
