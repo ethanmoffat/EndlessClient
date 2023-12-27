@@ -6,25 +6,25 @@ namespace EOLib.Domain.Interact.Quest
     [Record]
     public sealed partial class QuestDialogData
     {
-        public short VendorID { get; }
+        public int VendorID { get; }
 
-        public short QuestID { get; }
+        public int QuestID { get; }
 
-        public short SessionID { get; }
+        public int SessionID { get; }
 
-        public short DialogID { get; }
+        public int DialogID { get; }
 
-        public IReadOnlyDictionary<short, string> DialogTitles { get; }
+        public IReadOnlyDictionary<int, string> DialogTitles { get; }
 
         public IReadOnlyList<string> PageText { get; }
 
-        public IReadOnlyList<(short ActionID, string DisplayText)> Actions { get; }
+        public IReadOnlyList<(int ActionID, string DisplayText)> Actions { get; }
 
         public QuestDialogData()
         {
-            DialogTitles = new Dictionary<short, string>();
+            DialogTitles = new Dictionary<int, string>();
             PageText = new List<string>();
-            Actions = new List<(short, string)>();
+            Actions = new List<(int, string)>();
         }
     }
 }

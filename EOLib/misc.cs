@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace EOLib
+﻿namespace EOLib
 {
     public static class ArrayExtension
     {
@@ -15,14 +13,6 @@ namespace EOLib
                 ret[i - offset] = arr[i];
 
             return ret;
-        }
-    }
-
-    public static class DateTimeExtension
-    {
-        public static int ToEOTimeStamp(this DateTime dt)
-        {
-            return dt.Hour * 360000 + dt.Minute * 6000 + dt.Second * 100 + dt.Millisecond / 10;
         }
     }
 
@@ -44,22 +34,22 @@ namespace EOLib
 
         public const string SfxDirectory = "sfx";
         public const string MfxDirectory = "mfx";
+        public const string JboxDirectory = "jbox";
 
         public const string FriendListFile = "config/friends.ini";
         public const string IgnoreListFile = "config/ignore.ini";
 
         public const string InventoryFile = "config/inventory.ini";
         public const string SpellsFile = "config/spells.ini";
+        public const string PanelLayoutFile = "config/layout.ini";
         public const string ChatLogFile = "chatlog.txt";
 
         //Should be easily customizable between different clients (based on graphics)
         //not a config option because this shouldn't be exposed at the user level
         public static readonly int[] TrapSpikeGFXObjectIDs = { 449, 450, 451, 452 };
 
-        // Item IDs of instruments (there is no pub flag for this)
-        public static readonly int[] InstrumentIDs = { 349, 350 };
-        // Item IDs of ranged weapons (overrides pub value)
-        public static readonly int[] RangedWeaponIDs = { 365 };
+        // Weapon graphics of instruments (there is no pub flag for this)
+        public static readonly int[] Instruments = { 49, 50 };
         public const string FontSize07 = @"BitmapFonts/sans_09px";
         public const string FontSize08 = @"BitmapFonts/sans_11px";
         public const string FontSize08pt5 = @"BitmapFonts/sans_11px_103pct";

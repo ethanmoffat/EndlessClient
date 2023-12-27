@@ -35,13 +35,12 @@ namespace EOLib.PacketHandlers.Attack
             var playerID = packet.ReadShort();
             var direction = (EODirection)packet.ReadChar();
 
-            if (_currentMapStateRepository.Characters.ContainsKey(playerID))
+            if (_currentMapStateRepository.Characters.TryGetValue(playerID, out var character))
             {
-                var character = _currentMapStateRepository.Characters[playerID];
                 if (character.RenderProperties.Direction != direction)
                 {
                     var renderProperties = character.RenderProperties.WithDirection(direction);
-                    _currentMapStateRepository.Characters[playerID] = character.WithRenderProperties(renderProperties);
+                    _currentMapStateRepository.Characters.Update(character, character.WithRenderProperties(renderProperties));
                 }
 
                 foreach (var notifier in _otherCharacterAnimationNotifiers)

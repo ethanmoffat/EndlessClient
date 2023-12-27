@@ -27,16 +27,16 @@ namespace EOLib.Domain.Chat.Commands
 
         public bool Execute(string parameter)
         {
-            short requestID;
+            int requestID;
             do
             {
-                requestID = (short) _random.Next(0, short.MaxValue - 1);
+                requestID = _random.Next(0, short.MaxValue - 1);
             } while (_pingTimeRepository.PingRequests.ContainsKey(requestID));
 
             _pingTimeRepository.PingRequests.Add(requestID, DateTime.Now);
 
             var packet = new PacketBuilder(PacketFamily.Message, PacketAction.Ping)
-                .AddShort((short)requestID)
+                .AddShort(requestID)
                 .Build();
 
             _packetSendService.SendPacketAsync(packet);

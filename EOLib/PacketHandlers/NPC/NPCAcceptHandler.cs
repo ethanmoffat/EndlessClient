@@ -56,7 +56,7 @@ namespace EOLib.PacketHandlers.NPC
             _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);
 
             foreach (var notifier in _emoteNotifiers)
-                notifier.NotifyEmote((short)_characterRepository.MainCharacter.ID, Domain.Character.Emote.LevelUp);
+                notifier.NotifyEmote(_characterRepository.MainCharacter.ID, Domain.Character.Emote.LevelUp);
 
             return true;
         }

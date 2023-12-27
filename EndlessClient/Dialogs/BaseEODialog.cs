@@ -10,8 +10,6 @@ namespace EndlessClient.Dialogs
     {
         private readonly Func<bool> _isInGame;
 
-        public bool ChildControlClickHandled { get; set; }
-
         public INativeGraphicsManager GraphicsManager { get; }
 
         protected BaseEODialog(INativeGraphicsManager graphicsManager,
@@ -31,15 +29,13 @@ namespace EndlessClient.Dialogs
         {
             base.CenterInGameView();
 
-            if (_isInGame())
+            if (_isInGame() && !Game.Window.AllowUserResizing)
                 DrawPosition = new Vector2(DrawPosition.X, (330 - DrawArea.Height)/2f);
         }
 
-        protected override void OnUpdateControl(GameTime gameTime)
+        public void Close()
         {
-            ChildControlClickHandled = false;
-
-            base.OnUpdateControl(gameTime);
+            Close(XNADialogResult.NO_BUTTON_PRESSED);
         }
     }
 }

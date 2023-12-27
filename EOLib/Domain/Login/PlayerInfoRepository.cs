@@ -8,11 +8,13 @@ namespace EOLib.Domain.Login
 
         string PlayerPassword { get; set; }
 
-        short PlayerID { get; set; }
+        int PlayerID { get; set; }
 
         bool IsFirstTimePlayer { get; set; }
 
         bool PlayerIsInGame { get; set; }
+
+        bool PlayerHasAdminCharacter { get; set; }
     }
 
     public interface IPlayerInfoProvider
@@ -21,11 +23,13 @@ namespace EOLib.Domain.Login
 
         string PlayerPassword { get; }
 
-        short PlayerID { get; }
+        int PlayerID { get; }
 
         bool IsFirstTimePlayer { get; }
 
         bool PlayerIsInGame { get; }
+
+        bool PlayerHasAdminCharacter { get; }
     }
 
     [AutoMappedType(IsSingleton = true)]
@@ -35,11 +39,13 @@ namespace EOLib.Domain.Login
 
         public string PlayerPassword { get; set; }
 
-        public short PlayerID { get; set; }
+        public int PlayerID { get; set; }
 
         public bool IsFirstTimePlayer { get; set; }
 
         public bool PlayerIsInGame { get; set; }
+
+        public bool PlayerHasAdminCharacter { get; set; }
 
         public void ResetState()
         {
@@ -48,6 +54,7 @@ namespace EOLib.Domain.Login
             PlayerID = 0;
             IsFirstTimePlayer = false;
             PlayerIsInGame = false;
+            PlayerHasAdminCharacter = false;
         }
     }
 }

@@ -5,7 +5,7 @@ namespace EOLib.Domain.Notifiers
 {
     public interface IPartyEventNotifier
     {
-        void NotifyPartyRequest(PartyRequestType type, short playerId, string name);
+        void NotifyPartyRequest(PartyRequestType type, int playerId, string name);
 
         void NotifyPartyJoined();
 
@@ -17,7 +17,7 @@ namespace EOLib.Domain.Notifiers
     [AutoMappedType]
     public class NoOpPartyEventNotifier : IPartyEventNotifier
     {
-        public void NotifyPartyRequest(PartyRequestType type, short playerId, string name) { }
+        public void NotifyPartyRequest(PartyRequestType type, int playerId, string name) { }
 
         public void NotifyPartyJoined() { }
 

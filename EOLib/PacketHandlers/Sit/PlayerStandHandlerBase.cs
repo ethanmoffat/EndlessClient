@@ -40,15 +40,14 @@ namespace EOLib.PacketHandlers.Sit
                     .WithMapY(y);
                 _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithRenderProperties(updatedRenderProperties);
             }
-            else if (_currentMapStateRepository.Characters.ContainsKey(playerId))
+            else if (_currentMapStateRepository.Characters.TryGetValue(playerId, out var oldCharacter))
             {
-                var oldCharacter = _currentMapStateRepository.Characters[playerId];
                 var renderProperties = oldCharacter.RenderProperties.WithSitState(SitState.Standing)
                     .WithCurrentAction(CharacterActionState.Standing)
                     .WithMapX(x)
                     .WithMapY(y);
 
-                _currentMapStateRepository.Characters[playerId] = oldCharacter.WithRenderProperties(renderProperties);
+                _currentMapStateRepository.Characters.Update(oldCharacter, oldCharacter.WithRenderProperties(renderProperties));
             }
             else
             {

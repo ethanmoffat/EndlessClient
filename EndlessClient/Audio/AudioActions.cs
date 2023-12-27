@@ -2,6 +2,7 @@
 using EOLib.Config;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
+using EOLib.IO.Map;
 
 namespace EndlessClient.Audio
 {
@@ -55,9 +56,14 @@ namespace EndlessClient.Audio
                 _sfxPlayer.StopLoopingSfx();
         }
 
-        public void NotifySoundEffect(byte soundEffectId)
+        public void NotifySoundEffect(int soundEffectId)
         {
             _sfxPlayer.PlaySfx((SoundEffectID)soundEffectId);
+        }
+
+        public void NotifyMusic(int musicEffectId, bool isJukebox)
+        {
+            _mfxPlayer.PlayBackgroundMusic(musicEffectId, MusicControl.InterruptIfDifferentPlayOnce, isJukebox);
         }
     }
 

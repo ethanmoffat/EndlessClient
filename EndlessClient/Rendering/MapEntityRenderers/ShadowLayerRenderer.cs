@@ -23,8 +23,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
                                    ICurrentMapProvider currentMapProvider,
                                    ICharacterProvider characterProvider,
                                    IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
+                                   IClientWindowSizeProvider clientWindowSizeProvider,
                                    IConfigurationProvider configurationProvider)
-            : base(characterProvider, gridDrawCoordinateCalculator)
+            : base(characterProvider, gridDrawCoordinateCalculator, clientWindowSizeProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _currentMapProvider = currentMapProvider;

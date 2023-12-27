@@ -1,14 +1,18 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Dialogs.Factories;
+using EndlessClient.HUD;
 using EOLib.Domain.Character;
 using EOLib.Domain.Interact.Quest;
 using EOLib.Domain.Interact.Shop;
 using EOLib.Domain.Interact.Skill;
+using EOLib.Domain.Map;
+using EOLib.Localization;
 using Optional;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using XNAControls;
 
 namespace EndlessClient.Dialogs.Actions
 {
@@ -17,6 +21,7 @@ namespace EndlessClient.Dialogs.Actions
     {
         private readonly IFriendIgnoreListDialogFactory _friendIgnoreListDialogFactory;
         private readonly IPaperdollDialogFactory _paperdollDialogFactory;
+        private readonly IBookDialogFactory _bookDialogFactory;
         private readonly ISessionExpDialogFactory _sessionExpDialogFactory;
         private readonly IQuestStatusDialogFactory _questStatusDialogFactory;
         private readonly IActiveDialogRepository _activeDialogRepository;
@@ -30,12 +35,18 @@ namespace EndlessClient.Dialogs.Actions
         private readonly IBardDialogFactory _bardDialogFactory;
         private readonly IScrollingListDialogFactory _scrollingListDialogFactory;
         private readonly ITradeDialogFactory _tradeDialogFactory;
+        private readonly IBoardDialogFactory _boardDialogFactory;
+        private readonly IJukeboxDialogFactory _jukeboxDialogFactory;
+        private readonly IInnkeeperDialogFactory _innkeeperDialogFactory;
+        private readonly ILawDialogFactory _lawDialogFactory;
         private readonly ISfxPlayer _sfxPlayer;
+        private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IShopDialogFactory _shopDialogFactory;
         private readonly IQuestDialogFactory _questDialogFactory;
 
         public InGameDialogActions(IFriendIgnoreListDialogFactory friendIgnoreListDialogFactory,
                                    IPaperdollDialogFactory paperdollDialogFactory,
+                                   IBookDialogFactory bookDialogFactory,
                                    ISessionExpDialogFactory sessionExpDialogFactory,
                                    IQuestStatusDialogFactory questStatusDialogFactory,
                                    IShopDialogFactory shopDialogFactory,
@@ -51,10 +62,16 @@ namespace EndlessClient.Dialogs.Actions
                                    IBardDialogFactory bardDialogFactory,
                                    IScrollingListDialogFactory scrollingListDialogFactory,
                                    ITradeDialogFactory tradeDialogFactory,
-                                   ISfxPlayer sfxPlayer)
+                                   IBoardDialogFactory boardDialogFactory,
+                                   IJukeboxDialogFactory jukeboxDialogFactory,
+                                   IInnkeeperDialogFactory innkeeperDialogFactory,
+                                   ILawDialogFactory lawDialogFactory,
+                                   ISfxPlayer sfxPlayer,
+                                   IStatusLabelSetter statusLabelSetter)
         {
             _friendIgnoreListDialogFactory = friendIgnoreListDialogFactory;
             _paperdollDialogFactory = paperdollDialogFactory;
+            _bookDialogFactory = bookDialogFactory;
             _sessionExpDialogFactory = sessionExpDialogFactory;
             _questStatusDialogFactory = questStatusDialogFactory;
             _activeDialogRepository = activeDialogRepository;
@@ -68,7 +85,12 @@ namespace EndlessClient.Dialogs.Actions
             _bardDialogFactory = bardDialogFactory;
             _scrollingListDialogFactory = scrollingListDialogFactory;
             _tradeDialogFactory = tradeDialogFactory;
+            _boardDialogFactory = boardDialogFactory;
+            _jukeboxDialogFactory = jukeboxDialogFactory;
+            _innkeeperDialogFactory = innkeeperDialogFactory;
+            _lawDialogFactory = lawDialogFactory;
             _sfxPlayer = sfxPlayer;
+            _statusLabelSetter = statusLabelSetter;
             _shopDialogFactory = shopDialogFactory;
             _questDialogFactory = questDialogFactory;
         }
@@ -136,6 +158,20 @@ namespace EndlessClient.Dialogs.Actions
                 var dlg = _paperdollDialogFactory.Create(character, isMainCharacter);
                 dlg.DialogClosed += (_, _) => _activeDialogRepository.PaperdollDialog = Option.None<PaperdollDialog>();
                 _activeDialogRepository.PaperdollDialog = Option.Some(dlg);
+
+                UseDefaultDialogSounds(dlg);
+
+                dlg.Show();
+            });
+        }
+
+        public void ShowBookDialog(Character character, bool isMainCharacter)
+        {
+            _activeDialogRepository.BookDialog.MatchNone(() =>
+            {
+                var dlg = _bookDialogFactory.Create(character, isMainCharacter);
+                dlg.DialogClosed += (_, _) => _activeDialogRepository.BookDialog = Option.None<BookDialog>();
+                _activeDialogRepository.BookDialog = Option.Some(dlg);
 
                 UseDefaultDialogSounds(dlg);
 
@@ -259,7 +295,7 @@ namespace EndlessClient.Dialogs.Actions
         {
             _activeDialogRepository.MessageDialog.MatchNone(() =>
             {
-                var dlg = _scrollingListDialogFactory.Create(ScrollingListDialogSize.Large);
+                var dlg = _scrollingListDialogFactory.Create(DialogType.Message);
                 dlg.DialogClosed += (_, _) => _activeDialogRepository.MessageDialog = Option.None<ScrollingListDialog>();
 
                 dlg.ListItemType = ListDialogItem.ListItemStyle.Small;
@@ -303,21 +339,85 @@ namespace EndlessClient.Dialogs.Actions
             _activeDialogRepository.TradeDialog.MatchSome(dlg => dlg.Close());
         }
 
+        public void ShowBoardDialog()
+        {
+            _activeDialogRepository.BoardDialog.MatchNone(() =>
+            {
+                var dlg = _boardDialogFactory.Create();
+                dlg.DialogClosed += (_, _) => _activeDialogRepository.BoardDialog = Option.None<BoardDialog>();
+                _activeDialogRepository.BoardDialog = Option.Some(dlg);
+
+                dlg.Show();
+
+                UseDefaultDialogSounds(dlg);
+            });
+
+            // the vanilla client shows the status label any time the server sends the BOARD_OPEN packet
+            _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.BOARD_TOWN_BOARD_NOW_VIEWED);
+        }
+
+        public void ShowJukeboxDialog(MapCoordinate mapCoordinate)
+        {
+            _activeDialogRepository.JukeboxDialog.MatchNone(() =>
+            {
+                var dlg = _jukeboxDialogFactory.Create(mapCoordinate);
+                dlg.DialogClosed += (_, _) => _activeDialogRepository.JukeboxDialog = Option.None<JukeboxDialog>();
+                _activeDialogRepository.JukeboxDialog = Option.Some(dlg);
+
+                dlg.Show();
+
+                UseDefaultDialogSounds(dlg);
+            });
+
+            // the vanilla client shows the status label any time the server sends the BOARD_OPEN packet
+            // the vanilla client uses [Action] for Board and [Information] for Jukebox, for some reason
+            _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.JUKEBOX_NOW_VIEWED);
+        }
+
+        public void ShowInnkeeperDialog()
+        {
+            _activeDialogRepository.InnkeeperDialog.MatchNone(() =>
+            {
+                var dlg = _innkeeperDialogFactory.Create();
+                dlg.DialogClosed += (_, _) => _activeDialogRepository.InnkeeperDialog = Option.None<InnkeeperDialog>();
+                _activeDialogRepository.InnkeeperDialog = Option.Some(dlg);
+
+                dlg.Show();
+
+                UseDefaultDialogSounds(dlg);
+            });
+        }
+
+        public void ShowLawDialog()
+        {
+            _activeDialogRepository.LawDialog.MatchNone(() =>
+            {
+                var dlg = _lawDialogFactory.Create();
+                dlg.DialogClosed += (_, _) => _activeDialogRepository.LawDialog = Option.None<LawDialog>();
+                _activeDialogRepository.LawDialog = Option.Some(dlg);
+
+                dlg.Show();
+
+                UseDefaultDialogSounds(dlg);
+            });
+        }
+
         private void UseDefaultDialogSounds(ScrollingListDialog dialog)
         {
             UseDefaultDialogSounds((BaseEODialog)dialog);
 
-            EventHandler handler = (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
-            dialog.AddAction += handler;
-            dialog.BackAction += handler;
-            dialog.NextAction += handler;
-            dialog.HistoryAction += handler;
-            dialog.ProgressAction += handler;
+            foreach (var button in dialog.ChildControls.OfType<IXNAButton>())
+                button.OnClick += Handler;
+
+            void Handler(object sender, EventArgs e) => _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
         }
 
         private void UseDefaultDialogSounds(BaseEODialog dialog)
         {
             dialog.DialogClosing += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
+
+            foreach (var textbox in dialog.ChildControls.OfType<IXNATextBox>())
+                textbox.OnGotFocus += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.TextBoxFocus);
         }
 
         private void UseQuestDialogSounds(QuestDialog dialog)
@@ -341,6 +441,8 @@ namespace EndlessClient.Dialogs.Actions
 
         void ShowPaperdollDialog(Character character, bool isMainCharacter);
 
+        void ShowBookDialog(Character character, bool isMainCharacter);
+
         void ShowShopDialog();
 
         void ShowQuestDialog();
@@ -360,5 +462,13 @@ namespace EndlessClient.Dialogs.Actions
         void ShowTradeDialog();
 
         void CloseTradeDialog();
+
+        void ShowBoardDialog();
+
+        void ShowJukeboxDialog(MapCoordinate mapCoordinate);
+
+        void ShowInnkeeperDialog();
+
+        void ShowLawDialog();
     }
 }

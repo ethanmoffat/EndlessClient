@@ -33,7 +33,7 @@ namespace EndlessClient.Dialogs
                            IQuestDataProvider questDataProvider,
                            IENFFileProvider enfFileProvider,
                            IContentProvider contentProvider)
-            : base(nativeGraphicsManager, dialogButtonService, dialogSize: ScrollingListDialogSize.Small)
+            : base(nativeGraphicsManager, dialogButtonService, dialogType: DialogType.NpcQuestDialog)
         {
             _questActions = questActions;
             _questDataProvider = questDataProvider;
@@ -141,7 +141,7 @@ namespace EndlessClient.Dialogs
                     PrimaryText = action.DisplayText
                 };
 
-                var linkIndex = (byte)action.ActionID;
+                var linkIndex = action.ActionID;
                 actionItem.SetPrimaryClickAction((_, _) =>
                 {
                     _questActions.RespondToQuestDialog(DialogReply.Link, linkIndex);

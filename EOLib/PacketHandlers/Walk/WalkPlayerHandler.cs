@@ -36,24 +36,22 @@ namespace EOLib.PacketHandlers.Walk
         {
             var characterID = packet.ReadShort();
 
-            if (_currentMapStateRepository.Characters.ContainsKey(characterID))
+            if (_currentMapStateRepository.Characters.TryGetValue(characterID, out var character))
             {
                 var dir = (EODirection)packet.ReadChar();
                 var x = packet.ReadChar();
                 var y = packet.ReadChar();
-
-                var character = _currentMapStateRepository.Characters[characterID];
 
                 // if character is walking, that means animator is handling position of character
                 // if character is not walking (this is true in EOBot), update the domain model here
                 if (!character.RenderProperties.IsActing(CharacterActionState.Walking))
                 {
                     var renderProperties = EnsureCorrectXAndY(character.RenderProperties.WithDirection(dir), x, y);
-                    _currentMapStateRepository.Characters[characterID] = character.WithRenderProperties(renderProperties);
+                    _currentMapStateRepository.Characters.Update(character, character.WithRenderProperties(renderProperties));
                 }
 
                 foreach (var notifier in _otherCharacterAnimationNotifiers)
-                    notifier.StartOtherCharacterWalkAnimation(characterID, x, y, dir);
+                    notifier.StartOtherCharacterWalkAnimation(characterID, new MapCoordinate(x, y), dir);
             }
             else
             {
@@ -63,7 +61,7 @@ namespace EOLib.PacketHandlers.Walk
             return true;
         }
 
-        private static CharacterRenderProperties EnsureCorrectXAndY(CharacterRenderProperties renderProperties, byte x, byte y)
+        private static CharacterRenderProperties EnsureCorrectXAndY(CharacterRenderProperties renderProperties, int x, int y)
         {
             var opposite = renderProperties.Direction.Opposite();
             var tempRenderProperties = renderProperties

@@ -5,6 +5,7 @@ using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Controls;
+using EndlessClient.HUD.Panels;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Map;
 using EOLib;
@@ -126,7 +127,7 @@ namespace EndlessClient.Controllers
                         {
                             if (e.Result == XNADialogResult.OK)
                             {
-                                _itemActions.UseItem((short)record.ID);
+                                _itemActions.UseItem(record.ID);
                             }
                         };
                         msgBox.ShowDialog();
@@ -149,7 +150,7 @@ namespace EndlessClient.Controllers
 
             if (useItem)
             {
-                _itemActions.UseItem((short)record.ID);
+                _itemActions.UseItem(record.ID);
 
                 if (record.Type == ItemType.Beer)
                 {
@@ -184,7 +185,7 @@ namespace EndlessClient.Controllers
                         EOResourceID.STATUS_LABEL_ITEM_EQUIP_CAN_ONLY_BE_USED_BY, detail);
                     break;
                 case ItemEquipResult.Ok:
-                    _itemActions.EquipItem((short)itemData.ID, isAlternateEquipLocation);
+                    _itemActions.EquipItem(itemData.ID, isAlternateEquipLocation);
                     break;
             }
         }
@@ -199,11 +200,12 @@ namespace EndlessClient.Controllers
         public void DropItem(EIFRecord itemData, InventoryItem inventoryItem)
         {
             var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
+            var inventoryPanel = _hudControlProvider.GetComponent<InventoryPanel>(HudControlIdentifier.InventoryPanel);
             if (_activeDialogProvider.ActiveDialogs.Any(x => x.HasValue) && mapRenderer.MouseOver)
                 return;
 
             var rp = _characterProvider.MainCharacter.RenderProperties;
-            var dropPoint = mapRenderer.MouseOver
+            var dropPoint = mapRenderer.MouseOver && !inventoryPanel.MouseOver
                 ? mapRenderer.GridCoordinates
                 : new MapCoordinate(rp.MapX, rp.MapY);
 

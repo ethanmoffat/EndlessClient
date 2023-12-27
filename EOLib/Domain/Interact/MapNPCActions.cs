@@ -26,7 +26,7 @@ namespace EOLib.Domain.Interact
         public void RequestShop(NPC.NPC npc)
         {
             var packet = new PacketBuilder(PacketFamily.Shop, PacketAction.Open)
-                .AddShort((short)npc.Index)
+                .AddShort(npc.Index)
                 .Build();
 
             _packetSendService.SendPacket(packet);
@@ -39,7 +39,7 @@ namespace EOLib.Domain.Interact
             var data = _enfFileProvider.ENFFile[npc.ID];
 
             var packet = new PacketBuilder(PacketFamily.Quest, PacketAction.Use)
-                .AddShort((short)npc.Index)
+                .AddShort(npc.Index)
                 .AddShort(data.VendorID)
                 .Build();
 
@@ -49,7 +49,7 @@ namespace EOLib.Domain.Interact
         public void RequestBank(NPC.NPC npc)
         {
             var packet = new PacketBuilder(PacketFamily.Bank, PacketAction.Open)
-                .AddShort((short)npc.Index)
+                .AddShort(npc.Index)
                 .Build();
 
             _packetSendService.SendPacket(packet);
@@ -58,7 +58,34 @@ namespace EOLib.Domain.Interact
         public void RequestSkillmaster(NPC.NPC npc)
         {
             var packet = new PacketBuilder(PacketFamily.StatSkill, PacketAction.Open)
-                .AddShort((short)npc.Index)
+                .AddShort(npc.Index)
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+        }
+
+        public void RequestInnkeeper(NPC.NPC npc)
+        {
+            var packet = new PacketBuilder(PacketFamily.Citizen, PacketAction.Open)
+                .AddShort(npc.Index)
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+        }
+
+        public void RequestLaw(NPC.NPC npc)
+        {
+            var packet = new PacketBuilder(PacketFamily.Marriage, PacketAction.Open)
+                .AddShort(npc.Index)
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+        }
+
+        public void RequestPriest(NPC.NPC npc)
+        {
+            var packet = new PacketBuilder(PacketFamily.Priest, PacketAction.Open)
+                .AddInt(npc.Index)
                 .Build();
 
             _packetSendService.SendPacket(packet);
@@ -74,5 +101,11 @@ namespace EOLib.Domain.Interact
         void RequestBank(NPC.NPC npc);
 
         void RequestSkillmaster(NPC.NPC npc);
+
+        void RequestInnkeeper(NPC.NPC npc);
+
+        void RequestLaw(NPC.NPC npc);
+
+        void RequestPriest(NPC.NPC npc);
     }
 }

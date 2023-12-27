@@ -68,32 +68,44 @@ namespace EndlessClient.Rendering.NPC
             _sfxPlayer.PlaySfx(SoundEffectID.PunchAttack);
         }
 
-        public void RemoveNPCFromView(int npcIndex, int playerId, Option<short> spellId, Option<int> damage, bool showDeathAnimation)
+        public void RemoveNPCFromView(int npcIndex, int playerId, Option<int> spellId, Option<int> damage, bool showDeathAnimation)
         {
             //possible that the server might send a packet for the npc to be removed by the map switch is completed
-            if (!_hudControlProvider.IsInGame || !_npcRendererRepository.NPCRenderers.ContainsKey(npcIndex))
+            if (!_hudControlProvider.IsInGame)
                 return;
+
+            var hasRenderer = _npcRendererRepository.NPCRenderers.ContainsKey(npcIndex);
 
             _npcStateCache.RemoveStateByIndex(npcIndex);
 
-            if (!showDeathAnimation)
+            if (hasRenderer)
             {
-                _npcRendererRepository.NPCRenderers[npcIndex].Dispose();
-                _npcRendererRepository.NPCRenderers.Remove(npcIndex);
-            }
-            else
-            {
-                _npcRendererRepository.NPCRenderers[npcIndex].StartDying();
+                var renderer = _npcRendererRepository.NPCRenderers[npcIndex];
 
-                spellId.MatchSome(spell =>
+                if (!showDeathAnimation)
+                {
+                    renderer.Dispose();
+                    _npcRendererRepository.NPCRenderers.Remove(npcIndex);
+                }
+                else
+                {
+                    renderer.StartDying();
+                    _npcRendererRepository.DyingNPCs[new MapCoordinate(renderer.NPC.X, renderer.NPC.Y)] = npcIndex;
+
+                    damage.MatchSome(d => renderer.ShowDamageCounter(d, 0, isHeal: false));
+                }
+            }
+
+            spellId.MatchSome(spell =>
+            {
+                if (hasRenderer)
                 {
                     var graphic = _esfFileProvider.ESFFile[spell].Graphic;
                     _npcRendererRepository.NPCRenderers[npcIndex].PlayEffect(graphic);
-                    ShoutSpellCast(playerId);
-                });
+                }
 
-                damage.MatchSome(d => _npcRendererRepository.NPCRenderers[npcIndex].ShowDamageCounter(d, 0, isHeal: false));
-            }
+                ShoutSpellCast(playerId);
+            });
         }
 
         public void ShowNPCSpeechBubble(int npcIndex, string message)
@@ -101,17 +113,23 @@ namespace EndlessClient.Rendering.NPC
             _chatBubbleActions.ShowChatBubbleForNPC(npcIndex, message);
         }
 
-        public void NPCTakeDamage(short npcIndex, int fromPlayerId, int damageToNpc, short npcPctHealth, Option<int> spellId)
+        public void NPCTakeDamage(int npcIndex, int fromPlayerId, int damageToNpc, int npcPctHealth, Option<int> spellId)
         {
-            if (_npcRendererRepository.NPCRenderers.ContainsKey(npcIndex))
+            var hasRenderer = _npcRendererRepository.NPCRenderers.ContainsKey(npcIndex);
+
+            if (hasRenderer)
                 _npcRendererRepository.NPCRenderers[npcIndex].ShowDamageCounter(damageToNpc, npcPctHealth, isHeal: false);
 
             spellId.MatchSome(spell =>
             {
-                var renderer = _npcRendererRepository.NPCRenderers[npcIndex];
+                if (hasRenderer)
+                {
+                    var renderer = _npcRendererRepository.NPCRenderers[npcIndex];
 
-                var graphic = _esfFileProvider.ESFFile[spell].Graphic;
-                renderer.PlayEffect(graphic);
+                    var graphic = _esfFileProvider.ESFFile[spell].Graphic;
+                    renderer.PlayEffect(graphic);
+                }
+
                 ShoutSpellCast(fromPlayerId);
             });
         }

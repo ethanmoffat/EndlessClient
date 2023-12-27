@@ -303,7 +303,7 @@ namespace EndlessClient.Dialogs
                 }
             }
 
-            var needItemTransferDialog = (buying && shopItem.MaxBuy == 1) || (!buying && inventoryItem.Match(x => x.Amount != 1, () => false));
+            var needItemTransferDialog = (buying && shopItem.MaxBuy != 1) || (!buying && inventoryItem.Match(x => x.Amount != 1, () => false));
 
             if (needItemTransferDialog)
             {
@@ -335,9 +335,9 @@ namespace EndlessClient.Dialogs
                         return;
 
                     if (buying)
-                        _shopActions.BuyItem((short)shopItem.ID, amount);
+                        _shopActions.BuyItem(shopItem.ID, amount);
                     else
-                        _shopActions.SellItem((short)shopItem.ID, amount);
+                        _shopActions.SellItem(shopItem.ID, amount);
                 };
                 dlg.ShowDialog();
             }
@@ -388,7 +388,7 @@ namespace EndlessClient.Dialogs
                 if (e.Result == XNADialogResult.Cancel)
                     return;
 
-                _shopActions.CraftItem((short)craftItem.ID);
+                _shopActions.CraftItem(craftItem.ID);
             };
             dlg2.ShowDialog();
 

@@ -1,3 +1,4 @@
+using EndlessClient.HUD.Panels;
 using EOLib.Domain.Chat;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.BitmapFonts;
@@ -10,6 +11,6 @@ namespace EndlessClient.Rendering.Chat
 
         ChatData Data { get; }
 
-        void Render(SpriteBatch spriteBatch, BitmapFont chatFont);
+        void Render(IHudPanel parentPanel, SpriteBatch spriteBatch, BitmapFont chatFont);
     }
 }

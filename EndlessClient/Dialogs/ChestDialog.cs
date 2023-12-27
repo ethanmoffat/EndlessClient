@@ -28,10 +28,8 @@ namespace EndlessClient.Dialogs
         private readonly IInventorySpaceValidator _inventorySpaceValidator;
         private readonly IMapItemGraphicProvider _mapItemGraphicProvider;
         private readonly IChestDataProvider _chestDataProvider;
-        private readonly IHudControlProvider _hudControlProvider;
         private readonly IEIFFileProvider _eifFileProvider;
         private readonly ICharacterProvider _characterProvider;
-        private readonly InventoryPanel _inventoryPanel;
 
         private HashSet<ChestItem> _cachedItems;
 
@@ -44,10 +42,9 @@ namespace EndlessClient.Dialogs
                            IInventorySpaceValidator inventorySpaceValidator,
                            IMapItemGraphicProvider mapItemGraphicProvider,
                            IChestDataProvider chestDataProvider,
-                           IHudControlProvider hudControlProvider,
                            IEIFFileProvider eifFileProvider,
                            ICharacterProvider characterProvider)
-            : base(nativeGraphicsManager, dialogButtonService, dialogSize: ScrollingListDialogSize.LargeNoScroll)
+            : base(nativeGraphicsManager, dialogButtonService, dialogType: DialogType.Chest)
         {
             _chestActions = chestActions;
             _messageBoxFactory = messageBoxFactory;
@@ -56,14 +53,12 @@ namespace EndlessClient.Dialogs
             _inventorySpaceValidator = inventorySpaceValidator;
             _mapItemGraphicProvider = mapItemGraphicProvider;
             _chestDataProvider = chestDataProvider;
-            _hudControlProvider = hudControlProvider;
             _eifFileProvider = eifFileProvider;
             _characterProvider = characterProvider;
 
             ListItemType = ListDialogItem.ListItemStyle.Large;
             Buttons = ScrollingListDialogButtons.Cancel;
 
-            _inventoryPanel = _hudControlProvider.GetComponent<InventoryPanel>(HudControlIdentifier.InventoryPanel);
             _cachedItems = new HashSet<ChestItem>();
 
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION,
@@ -78,8 +73,6 @@ namespace EndlessClient.Dialogs
                 _cachedItems = _chestDataProvider.Items.ToHashSet();
                 RefreshItemList();
             }
-
-            SuppressClickDragEvent(!_inventoryPanel.NoItemsDragging());
 
             base.OnUpdateControl(gameTime);
         }

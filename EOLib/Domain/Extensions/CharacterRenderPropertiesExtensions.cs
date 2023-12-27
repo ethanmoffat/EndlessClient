@@ -60,13 +60,13 @@ namespace EOLib.Domain.Extensions
             return props.ToImmutable();
         }
 
-        public static CharacterRenderProperties WithNextAttackFrame(this CharacterRenderProperties rp)
+        public static CharacterRenderProperties WithNextAttackFrame(this CharacterRenderProperties rp, bool isRangedWeapon)
         {
             var props = rp.ToBuilder();
             props.ActualAttackFrame = (props.ActualAttackFrame + 1) % CharacterRenderProperties.MAX_NUMBER_OF_WALK_FRAMES;
             props.RenderAttackFrame = props.ActualAttackFrame;
 
-            if (props.IsRangedWeapon)
+            if (isRangedWeapon)
             {
                 // ranged attack ticks: 0 0 1 1 1
                 props.RenderAttackFrame /= CharacterRenderProperties.MAX_NUMBER_OF_RANGED_ATTACK_FRAMES;
@@ -87,8 +87,10 @@ namespace EOLib.Domain.Extensions
         {
             var props = rp.ToBuilder();
             props.EmoteFrame = (props.EmoteFrame + 1) % CharacterRenderProperties.MAX_NUMBER_OF_EMOTE_FRAMES;
+
+            var resetAction = props.SitState == SitState.Standing ? CharacterActionState.Standing : CharacterActionState.Sitting;
             props.CurrentAction = props.EmoteFrame == 0
-                ? CharacterActionState.Standing
+                ? resetAction
                 : props.CurrentAction == CharacterActionState.Attacking // when using an instrument keep the current state as "Attacking"
                     ? CharacterActionState.Attacking
                     : CharacterActionState.Emote;

@@ -46,10 +46,10 @@ namespace EOLib.PacketHandlers.Items
             var weight = packet.ReadChar();
             var maxWeight = packet.ReadChar();
 
-            var existing = _characterInventoryRepository.ItemInventory.SingleOrNone(x => x.ItemID == id);
-            existing.MatchSome(x => _characterInventoryRepository.ItemInventory.Remove(x));
+            var existingInventoryItem = _characterInventoryRepository.ItemInventory.SingleOrNone(x => x.ItemID == id);
+            existingInventoryItem.MatchSome(x => _characterInventoryRepository.ItemInventory.Remove(x));
 
-            existing.Map(x => x.WithAmount(x.Amount + amountTaken))
+            existingInventoryItem.Map(x => x.WithAmount(x.Amount + amountTaken))
                 .Match(some: _characterInventoryRepository.ItemInventory.Add,
                        none: () => _characterInventoryRepository.ItemInventory.Add(new InventoryItem(id, amountTaken)));
 
@@ -58,7 +58,8 @@ namespace EOLib.PacketHandlers.Items
                 .WithNewStat(CharacterStat.MaxWeight, maxWeight);
             _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(newStats);
 
-            _mapStateRepository.MapItems.RemoveWhere(x => x.UniqueID == uid);
+            if (_mapStateRepository.MapItems.ContainsKey(uid))
+                _mapStateRepository.MapItems.Remove(_mapStateRepository.MapItems[uid]);
 
             foreach (var notifier in _mainCharacterEventNotifiers)
             {

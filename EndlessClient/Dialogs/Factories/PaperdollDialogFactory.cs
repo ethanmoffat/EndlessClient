@@ -3,7 +3,6 @@ using EndlessClient.Audio;
 using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Services;
-using EndlessClient.GameExecution;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Inventory;
 using EOLib.Domain.Character;
@@ -15,7 +14,6 @@ namespace EndlessClient.Dialogs.Factories
     [AutoMappedType(IsSingleton = true)]
     public class PaperdollDialogFactory : IPaperdollDialogFactory
     {
-        private readonly IGameStateProvider _gameStateProvider;
         private readonly IEODialogButtonService _eoDialogButtonService;
         private readonly IInventorySpaceValidator _inventorySpaceValidator;
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
@@ -27,8 +25,7 @@ namespace EndlessClient.Dialogs.Factories
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private IInventoryController _inventoryController;
 
-        public PaperdollDialogFactory(IGameStateProvider gameStateProvider,
-            INativeGraphicsManager nativeGraphicsManager,
+        public PaperdollDialogFactory(INativeGraphicsManager nativeGraphicsManager,
             IPaperdollProvider paperdollProvider,
             IPubFileProvider pubFileProvider,
             IHudControlProvider hudControlProvider,
@@ -42,7 +39,6 @@ namespace EndlessClient.Dialogs.Factories
             _pubFileProvider = pubFileProvider;
             _hudControlProvider = hudControlProvider;
             _nativeGraphicsManager = nativeGraphicsManager;
-            _gameStateProvider = gameStateProvider;
             _eoDialogButtonService = eoDialogButtonService;
             _inventorySpaceValidator = inventorySpaceValidator;
             _eoMessageBoxFactory = eoMessageBoxFactory;
@@ -52,8 +48,7 @@ namespace EndlessClient.Dialogs.Factories
 
         public PaperdollDialog Create(Character character, bool isMainCharacter)
         {
-            return new PaperdollDialog(_gameStateProvider,
-                _nativeGraphicsManager,
+            return new PaperdollDialog(_nativeGraphicsManager,
                 _inventoryController,
                 _paperdollProvider,
                 _pubFileProvider,

@@ -134,7 +134,10 @@ namespace EndlessClient.ControlSets
             var outSource = new Rectangle(0, i * heightFactor, widthFactor, heightFactor);
             var overSource = new Rectangle(widthFactor, i * heightFactor, widthFactor, heightFactor);
 
-            return new XNAButton(_mainButtonTexture, new Vector2(25, 280 + i * 40), outSource, overSource);
+            return new XNAButton(_mainButtonTexture, new Vector2(25, 280 + i * 40), outSource, overSource)
+            {
+                //DrawOrder = i + 1
+            };
         }
 
         private IXNALabel GetVersionInfoLabel()

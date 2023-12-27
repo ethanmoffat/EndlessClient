@@ -1,6 +1,8 @@
-﻿using System;
-using EOLib.Graphics;
+﻿using EOLib.Graphics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended.Input.InputListeners;
+using System;
 using XNAControls;
 
 namespace EndlessClient.UIControls
@@ -13,22 +15,37 @@ namespace EndlessClient.UIControls
         DarkOnDark //very bottom set
     }
 
-    public class ScrollBar : XNAControl
+    public class ScrollBar : XNAControl, IScrollHandler
     {
         private Rectangle scrollArea; //area valid for scrolling: always 16 from top and 16 from bottom
         public int ScrollOffset { get; private set; }
         public int LinesToRender { get; set; }
 
-        private readonly XNAButton _upButton, _downButton, _scrollButton; //buttons
+        private readonly XNAButton _upButton, _downButton, _scrollButton;
+        private readonly Texture2D _backgroundTexture;
+        private readonly Rectangle? _backgroundTextureSource;
 
         private int _totalHeight;
+
+        public override Rectangle DrawArea
+        {
+            get => base.DrawArea;
+            set
+            {
+                base.DrawArea = value;
+
+                scrollArea = new Rectangle(0, 15, 0, value.Height - 15);
+
+                if (_downButton != null)
+                    _downButton.DrawPosition = new Vector2(0, value.Height - 15);
+            }
+        }
 
         public ScrollBar(Vector2 locationRelativeToParent,
                          Vector2 size,
                          ScrollBarColors palette,
                          INativeGraphicsManager nativeGraphicsManager)
         {
-            scrollArea = new Rectangle(0, 15, 0, (int)size.Y - 15);
             DrawPosition = locationRelativeToParent;
             SetSize((int)size.X, (int)size.Y);
             ScrollOffset = 0;
@@ -63,11 +80,24 @@ namespace EndlessClient.UIControls
 
             _scrollButton = new XNAButton(scrollSpriteSheet, new Vector2(0, 15), scrollBox, scrollBox);
             _scrollButton.OnClickDrag += OnScrollButtonDragged;
-            _scrollButton.OnMouseEnter += (o, e) => { SuppressParentClickDragEvent(true); };
-            _scrollButton.OnMouseLeave += (o, e) => { SuppressParentClickDragEvent(false); };
             _scrollButton.SetParentControl(this);
 
             _totalHeight = DrawAreaWithParentOffset.Height;
+        }
+
+        public ScrollBar(Vector2 locationRelativeToParent, Texture2D backgroundTexture, Rectangle? backgroundTextureSource, ScrollBarColors palette, INativeGraphicsManager nativeGraphicsManager)
+            : this(locationRelativeToParent,
+                   (backgroundTextureSource.HasValue ? backgroundTextureSource.Value.Size : backgroundTexture.Bounds.Size).ToVector2(),
+                   palette,
+                   nativeGraphicsManager)
+        {
+            _backgroundTexture = backgroundTexture;
+            _backgroundTextureSource = backgroundTextureSource;
+
+            // assume vertical scrollbar : center on background image
+            _upButton.DrawPosition = new Vector2((DrawArea.Width - _upButton.DrawArea.Width) / 2, _upButton.DrawPosition.Y + 1);
+            _downButton.DrawPosition = new Vector2((DrawArea.Width - _downButton.DrawArea.Width) / 2, _downButton.DrawPosition.Y);
+            _scrollButton.DrawPosition = new Vector2((DrawArea.Width - _scrollButton.DrawArea.Width) / 2, _scrollButton.DrawPosition.Y);
         }
 
         public override void Initialize()
@@ -87,8 +117,7 @@ namespace EndlessClient.UIControls
         public void ScrollToTop()
         {
             ScrollOffset = 0;
-            var pixelsPerLine = (float)(scrollArea.Height - _scrollButton.DrawArea.Height * 2) / (_totalHeight - LinesToRender);
-            _scrollButton.DrawPosition = new Vector2(_scrollButton.DrawArea.X, _scrollButton.DrawArea.Height + pixelsPerLine * ScrollOffset);
+            _scrollButton.DrawPosition = new Vector2(_scrollButton.DrawArea.X, _upButton.DrawArea.Height);
         }
 
         public void ScrollToEnd()
@@ -105,6 +134,18 @@ namespace EndlessClient.UIControls
         public void SetDownArrowFlashSpeed(int milliseconds)
         {
             _downButton.FlashSpeed = milliseconds;
+        }
+
+        protected override void OnDrawControl(GameTime gameTime)
+        {
+            if (_backgroundTexture != null)
+            {
+                _spriteBatch.Begin();
+                _spriteBatch.Draw(_backgroundTexture, DrawAreaWithParentOffset, _backgroundTextureSource, Color.White);
+                _spriteBatch.End();
+            }
+
+            base.OnDrawControl(gameTime);
         }
 
         //the point of arrowClicked and scrollDragged is to respond to input on the three buttons in such
@@ -148,19 +189,19 @@ namespace EndlessClient.UIControls
             }
         }
 
-        private void OnScrollButtonDragged(object btn, EventArgs e)
+        private void OnScrollButtonDragged(object btn, MouseEventArgs e)
         {
             if (_downButton.FlashSpeed.HasValue)
                 _downButton.FlashSpeed = null; //as soon as we are dragged, stop flashing
 
-            var y = CurrentMouseState.Y - (DrawAreaWithParentOffset.Y + _scrollButton.DrawArea.Height / 2);
+            var y = e.Position.Y - (DrawAreaWithParentOffset.Y + _scrollButton.DrawArea.Height / 2);
 
             if (y < _upButton.DrawAreaWithParentOffset.Height)
                 y = _upButton.DrawAreaWithParentOffset.Height + 1;
             else if (y > scrollArea.Height - _scrollButton.DrawArea.Height)
                 y = scrollArea.Height - _scrollButton.DrawArea.Height;
 
-            _scrollButton.DrawPosition = new Vector2(0, y);
+            _scrollButton.DrawPosition = new Vector2(_scrollButton.DrawPosition.X, y);
 
             if (_totalHeight <= LinesToRender)
                 return;
@@ -169,28 +210,26 @@ namespace EndlessClient.UIControls
             ScrollOffset = (int)Math.Round((y - _scrollButton.DrawArea.Height) / pixelsPerLine);
         }
 
-        protected override void OnUpdateControl(GameTime gt)
+        protected override bool HandleMouseWheelMoved(IXNAControl control, MouseEventArgs eventArgs)
         {
-            if (CurrentMouseState.ScrollWheelValue != PreviousMouseState.ScrollWheelValue
-                && ImmediateParent != null && ImmediateParent.MouseOver && ImmediateParent.MouseOverPreviously
-                && _totalHeight > LinesToRender)
+            if (_totalHeight <= LinesToRender)
+                return false;
+
+            //value must be /-120, otherwise you get "Natural" (smooth) scroll. We'll have none of that.
+            var dif = eventArgs.ScrollWheelDelta / -120;
+            if ((dif < 0 && dif + ScrollOffset >= 0) || (dif > 0 && ScrollOffset + dif <= _totalHeight - LinesToRender))
             {
-                //value must be /-120, otherwise you get "Natural" scroll. We'll have none of that.
-                var dif = (CurrentMouseState.ScrollWheelValue - PreviousMouseState.ScrollWheelValue) / -120;
-                if ((dif < 0 && dif + ScrollOffset >= 0) || (dif > 0 && ScrollOffset + dif <= _totalHeight - LinesToRender))
-                {
-                    ScrollOffset += dif;
+                ScrollOffset += dif;
 
-                    var pixelsPerLine = (float)(scrollArea.Height - _scrollButton.DrawArea.Height * 2) /
-                                        (_totalHeight - LinesToRender);
-                    _scrollButton.DrawPosition = new Vector2(_scrollButton.DrawPosition.X, _scrollButton.DrawArea.Height + pixelsPerLine * ScrollOffset);
+                var pixelsPerLine = (float)(scrollArea.Height - _scrollButton.DrawArea.Height * 2) /
+                                    (_totalHeight - LinesToRender);
+                _scrollButton.DrawPosition = new Vector2(_scrollButton.DrawPosition.X, _scrollButton.DrawArea.Height + pixelsPerLine * ScrollOffset);
 
-                    if (_scrollButton.DrawPosition.Y > scrollArea.Height - _scrollButton.DrawArea.Height)
-                        _scrollButton.DrawPosition = new Vector2(_scrollButton.DrawPosition.X, scrollArea.Height - _scrollButton.DrawArea.Height);
-                }
+                if (_scrollButton.DrawPosition.Y > scrollArea.Height - _scrollButton.DrawArea.Height)
+                    _scrollButton.DrawPosition = new Vector2(_scrollButton.DrawPosition.X, scrollArea.Height - _scrollButton.DrawArea.Height);
             }
 
-            base.OnUpdateControl(gt);
+            return true;
         }
     }
 }

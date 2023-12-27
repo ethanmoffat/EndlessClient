@@ -47,11 +47,10 @@ namespace EOLib.PacketHandlers.Spell
                 var renderProps = _characterRepository.MainCharacter.RenderProperties.WithDirection(sourcePlayerDirection);
                 _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithRenderProperties(renderProps);
             }
-            else if (_currentMapStateRepository.Characters.ContainsKey(sourcePlayerId))
+            else if (_currentMapStateRepository.Characters.TryGetValue(sourcePlayerId, out var character))
             {
-                var character = _currentMapStateRepository.Characters[sourcePlayerId];
                 var updatedCharacter = character.WithRenderProperties(character.RenderProperties.WithDirection(sourcePlayerDirection));
-                _currentMapStateRepository.Characters[sourcePlayerId] = updatedCharacter;
+                _currentMapStateRepository.Characters.Update(character, updatedCharacter);
             }
             else
             {

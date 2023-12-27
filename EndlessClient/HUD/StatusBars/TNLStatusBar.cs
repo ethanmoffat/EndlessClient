@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using EndlessClient.Input;
+using EndlessClient.Rendering;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
@@ -11,11 +12,13 @@ namespace EndlessClient.HUD.StatusBars
     {
         private readonly IExperienceTableProvider _experienceTableProvider;
 
+        protected override int StatusBarIndex => 1;
+
         public TNLStatusBar(INativeGraphicsManager nativeGraphicsManager,
+                            IClientWindowSizeProvider clientWindowSizeProvider,
                             ICharacterProvider characterProvider,
-                            IUserInputRepository userInputRepository,
                             IExperienceTableProvider experienceTableProvider)
-            : base(nativeGraphicsManager, characterProvider, userInputRepository)
+            : base(nativeGraphicsManager, clientWindowSizeProvider, characterProvider)
         {
             _experienceTableProvider = experienceTableProvider;
             DrawArea = new Rectangle(430, 0, _sourceRectangleArea.Width, _sourceRectangleArea.Height);
@@ -24,6 +27,7 @@ namespace EndlessClient.HUD.StatusBars
                                                  0,
                                                  _sourceRectangleArea.Width + 1,
                                                  _sourceRectangleArea.Height);
+            ChangeStatusBarPosition();
         }
 
         protected override void UpdateLabelText()

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Chat;
+using EndlessClient.Rendering;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Sprites;
 using EndlessClient.UIControls;
@@ -14,7 +15,7 @@ using XNAControls;
 
 namespace EndlessClient.HUD.Panels
 {
-    public class ChatPanel : XNAPanel, IHudPanel
+    public class ChatPanel : DraggableHudPanel
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IChatActions _chatActions;
@@ -32,7 +33,9 @@ namespace EndlessClient.HUD.Panels
                          IChatRenderableGenerator chatRenderableGenerator,
                          IChatProvider chatProvider,
                          IHudControlProvider hudControlProvider,
-                         BitmapFont chatFont)
+                         BitmapFont chatFont,
+                         IClientWindowSizeProvider clientWindowSizeProvider)
+            : base(clientWindowSizeProvider.Resizable)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _chatActions = chatActions;
@@ -47,6 +50,7 @@ namespace EndlessClient.HUD.Panels
                 Visible = true
             };
             _scrollBar.SetParentControl(this);
+            SetScrollWheelHandler(_scrollBar);
 
             var tabTexture = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 35);
             var smallSelected = new SpriteSheet(tabTexture, new Rectangle(307, 16, 43, 16));

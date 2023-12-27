@@ -77,7 +77,7 @@ namespace EOLib.PacketHandlers.Items
                     var tp = packet.ReadShort();
 
                     stats = stats.WithNewStat(CharacterStat.HP, hp).WithNewStat(CharacterStat.TP, tp);
-                    var percentHealth = (int)Math.Round(100.0 * (double)stats[CharacterStat.HP] / stats[CharacterStat.MaxHP]);
+                    var percentHealth = (int)Math.Round(100.0 * stats[CharacterStat.HP] / stats[CharacterStat.MaxHP]);
 
                     foreach (var notifier in _mainCharacterEventNotifiers)
                         notifier.NotifyTakeDamage(hpGain, percentHealth, isHeal: true);
@@ -96,7 +96,7 @@ namespace EOLib.PacketHandlers.Items
                     var potionId = packet.ReadShort();
 
                     foreach (var notifier in _effectNotifiers)
-                        notifier.NotifyPotionEffect((short)character.ID, potionId);
+                        notifier.NotifyPotionEffect(character.ID, potionId);
 
                     break;
                 case ItemType.CureCurse:
@@ -135,7 +135,7 @@ namespace EOLib.PacketHandlers.Items
                                 else if (loc == EquipLocation.Hat)
                                     renderProps = renderProps.WithHatGraphic(0);
                                 else if (loc == EquipLocation.Weapon)
-                                    renderProps = renderProps.WithWeaponGraphic(0).WithIsRangedWeapon(false);
+                                    renderProps = renderProps.WithWeaponGraphic(0);
                                 else if (loc == EquipLocation.Shield)
                                     renderProps = renderProps.WithShieldGraphic(0);
                             }
@@ -173,7 +173,7 @@ namespace EOLib.PacketHandlers.Items
                     {
                         foreach (var notifier in _emoteNotifiers)
                         {
-                            notifier.NotifyEmote((short)_characterRepository.MainCharacter.ID, Domain.Character.Emote.LevelUp);
+                            notifier.NotifyEmote(_characterRepository.MainCharacter.ID, Domain.Character.Emote.LevelUp);
                         }
 
                         stats = stats.WithNewStat(CharacterStat.Level, levelUpLevel);

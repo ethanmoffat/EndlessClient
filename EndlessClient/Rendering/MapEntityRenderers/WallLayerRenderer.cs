@@ -23,8 +23,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
                                         ICurrentMapProvider currentMapProvider,
                                         ICharacterProvider characterProvider,
                                         IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
+                                        IClientWindowSizeProvider clientWindowSizeProvider,
                                         ICurrentMapStateProvider currentMapStateProvider)
-            : base(characterProvider, gridDrawCoordinateCalculator)
+            : base(characterProvider, gridDrawCoordinateCalculator, clientWindowSizeProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _currentMapProvider = currentMapProvider;
@@ -60,8 +61,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
                                     ICurrentMapProvider currentMapProvider,
                                     ICharacterProvider characterProvider,
                                     IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
+                                    IClientWindowSizeProvider clientWindowSizeProvider,
                                     ICurrentMapStateProvider currentMapStateProvider)
-            : base(nativeGraphicsManager, currentMapProvider, characterProvider, gridDrawCoordinateCalculator, currentMapStateProvider)
+            : base(nativeGraphicsManager, currentMapProvider, characterProvider, gridDrawCoordinateCalculator, clientWindowSizeProvider, currentMapStateProvider)
         {
         }
 
@@ -87,8 +89,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
                                       ICurrentMapProvider currentMapProvider,
                                       ICharacterProvider characterProvider,
                                       IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
+                                      IClientWindowSizeProvider clientWindowSizeProvider,
                                       ICurrentMapStateProvider currentMapStateProvider)
-            : base(nativeGraphicsManager, currentMapProvider, characterProvider, gridDrawCoordinateCalculator, currentMapStateProvider)
+            : base(nativeGraphicsManager, currentMapProvider, characterProvider, gridDrawCoordinateCalculator, clientWindowSizeProvider, currentMapStateProvider)
         {
         }
 

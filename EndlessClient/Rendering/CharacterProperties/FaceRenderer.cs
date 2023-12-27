@@ -1,4 +1,5 @@
-﻿using EndlessClient.Rendering.Sprites;
+﻿using EndlessClient.Rendering.Metadata.Models;
+using EndlessClient.Rendering.Sprites;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
@@ -29,14 +30,18 @@ namespace EndlessClient.Rendering.CharacterProperties
             _skinRenderLocationCalculator = new SkinRenderLocationCalculator(_renderProperties);
         }
 
-        public override void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
+        public override void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea, WeaponMetadata weaponMetadata)
         {
             if (!_renderProperties.IsFacing(EODirection.Down, EODirection.Right))
                 return;
 
-            var skinLoc = _skinRenderLocationCalculator.CalculateDrawLocationOfCharacterSkin(_skinSheet.SourceRectangle, parentCharacterDrawArea);
-            var facePos = new Vector2(skinLoc.X + (_renderProperties.IsFacing(EODirection.Down) ? 2 : 3),
-                                      skinLoc.Y + (_renderProperties.Gender == 0 ? 2 : 0));
+            var skinLoc = _skinRenderLocationCalculator.CalculateDrawLocationOfCharacterSkin(_skinSheet.SourceRectangle, parentCharacterDrawArea, weaponMetadata.Ranged);
+
+            var adjustX = _renderProperties.IsFacing(EODirection.Down)
+                ? _renderProperties.SitState == SitState.Standing ? 2 : 8
+                : 3;
+
+            var facePos = new Vector2(skinLoc.X + adjustX, skinLoc.Y + (_renderProperties.Gender == 0 ? 2 : 0));
 
             Render(spriteBatch, _faceSheet, facePos);
         }

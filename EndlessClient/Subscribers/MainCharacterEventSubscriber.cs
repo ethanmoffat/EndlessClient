@@ -45,10 +45,12 @@ namespace EndlessClient.Subscribers
 
         public void NotifyTakeDamage(int damageTaken, int playerPercentHealth, bool isHeal)
         {
+            if (isHeal && damageTaken == 0) return;
+
             _characterRendererProvider.MainCharacterRenderer.MatchSome(r => r.ShowDamageCounter(damageTaken, playerPercentHealth, isHeal));
         }
 
-        public void TakeItemFromMap(short id, int amountTaken)
+        public void TakeItemFromMap(int id, int amountTaken)
         {
             var rec = _pubFileProvider.EIFFile[id];
 
@@ -59,7 +61,7 @@ namespace EndlessClient.Subscribers
                 $" {amountTaken} {rec.Name}");
         }
 
-        public void DropItem(short id, int amountDropped)
+        public void DropItem(int id, int amountDropped)
         {
             var rec = _pubFileProvider.EIFFile[id];
 
@@ -70,7 +72,7 @@ namespace EndlessClient.Subscribers
                 $" {amountDropped} {rec.Name}");
         }
 
-        public void JunkItem(short id, int amountRemoved)
+        public void JunkItem(int id, int amountRemoved)
         {
             var rec = _pubFileProvider.EIFFile[id];
             

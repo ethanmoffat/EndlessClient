@@ -71,11 +71,11 @@ namespace EOLib.Domain.Chat
             }
             else if (chatType == ChatType.Party && !_partyDataProvider.Members.Any())
             {
-                return (ChatResult.HideAll, String.Empty);
+                return (ChatResult.HideAll, string.Empty);
             }
             else if (chatType == ChatType.Global && _currentMapStateProvider.IsJail)
             {
-                return (ChatResult.JailProtection, String.Empty);
+                return (ChatResult.JailProtection, string.Empty);
             }
 
             chat = _chatProcessor.RemoveFirstCharacterIfNeeded(chat, chatType, targetCharacter);
@@ -109,7 +109,7 @@ namespace EOLib.Domain.Chat
         {
             // GLOBAL_REMOVE with 'n' enables whispers...? 
             var packet = new PacketBuilder(PacketFamily.Global, whispersEnabled ? PacketAction.Remove : PacketAction.Player)
-                .AddChar((byte)(whispersEnabled ? 'n' : 'y'))
+                .AddChar(whispersEnabled ? 'n' : 'y')
                 .Build();
             _packetSendService.SendPacket(packet);
         }
@@ -117,7 +117,7 @@ namespace EOLib.Domain.Chat
         public void SetGlobalActive(bool active)
         {
             var packet = new PacketBuilder(PacketFamily.Global, active ? PacketAction.Open : PacketAction.Close)
-                .AddChar((byte)(active ? 'y' : 'n'))
+                .AddChar(active ? 'y' : 'n')
                 .Build();
             _packetSendService.SendPacket(packet);
         }

@@ -40,10 +40,10 @@ namespace EndlessClient.Rendering
         private readonly IItemNameColorService _itemNameColorService;
         private readonly IEIFFileProvider _eifFileProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
-        private readonly IMapInteractionController _mapInteractionController;
         private readonly IUserInputProvider _userInputProvider;
         private readonly IActiveDialogProvider _activeDialogProvider;
         private readonly IContextMenuProvider _contextMenuProvider;
+
         private readonly XNALabel _mapItemText;
 
         private int _gridX, _gridY;
@@ -64,7 +64,6 @@ namespace EndlessClient.Rendering
                                    IItemNameColorService itemNameColorService,
                                    IEIFFileProvider eifFileProvider,
                                    ICurrentMapProvider currentMapProvider,
-                                   IMapInteractionController mapInteractionController,
                                    IUserInputProvider userInputProvider,
                                    IActiveDialogProvider activeDialogProvider,
                                    IContextMenuProvider contextMenuProvider)
@@ -76,10 +75,10 @@ namespace EndlessClient.Rendering
             _itemNameColorService = itemNameColorService;
             _eifFileProvider = eifFileProvider;
             _currentMapProvider = currentMapProvider;
-            _mapInteractionController = mapInteractionController;
             _userInputProvider = userInputProvider;
             _activeDialogProvider = activeDialogProvider;
             _contextMenuProvider = contextMenuProvider;
+
             SingleCursorFrameArea = new Rectangle(0, 0,
                                                   _mouseCursorTexture.Width/(int) CursorIndex.NumberOfFramesInSheet,
                                                   _mouseCursorTexture.Height);
@@ -111,8 +110,6 @@ namespace EndlessClient.Rendering
                 _contextMenuProvider.ContextMenu.HasValue)
                 return;
 
-            // todo: don't do anything if there is a context menu and mouse is over context menu
-
             var gridPosition = _gridDrawCoordinateCalculator.CalculateGridCoordinatesFromDrawLocation(_userInputProvider.CurrentMouseState.Position.ToVector2());
             _gridX = gridPosition.X;
             _gridY = gridPosition.Y;
@@ -121,8 +118,6 @@ namespace EndlessClient.Rendering
 
             var cellState = _mapCellStateProvider.GetCellStateAt(_gridX, _gridY);
             UpdateCursorSourceRectangle(cellState);
-
-            CheckForClicks(cellState);
         }
 
         private void UpdateDrawPostionBasedOnGridPosition()
@@ -250,20 +245,6 @@ namespace EndlessClient.Rendering
             }
         }
 
-        private void CheckForClicks(IMapCellState cellState)
-        {
-            if (_userInputProvider.ClickHandled)
-                return;
-
-            var currentMouseState = _userInputProvider.CurrentMouseState;
-            var previousMouseState = _userInputProvider.PreviousMouseState;
-
-            if (currentMouseState.LeftButton == ButtonState.Released && previousMouseState.LeftButton == ButtonState.Pressed)
-            {
-                _mapInteractionController.LeftClick(cellState, Option.Some<IMouseCursorRenderer>(this));
-            }
-        }
-
         #endregion
 
         public void Draw(SpriteBatch spriteBatch, Vector2 additionalOffset)
@@ -276,7 +257,7 @@ namespace EndlessClient.Rendering
                 _gridY <= _currentMapProvider.CurrentMap.Properties.Height)
             {
                 spriteBatch.Draw(_mouseCursorTexture,
-                                 DrawArea.Location.ToVector2() + additionalOffset,
+                                 DrawPosition + additionalOffset,
                                  new Rectangle(SingleCursorFrameArea.Width*(int) _cursorIndex,
                                                0,
                                                SingleCursorFrameArea.Width,

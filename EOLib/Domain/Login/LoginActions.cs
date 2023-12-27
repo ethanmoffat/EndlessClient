@@ -88,7 +88,7 @@ namespace EOLib.Domain.Login
             return data.Response;
         }
 
-        public async Task<short> RequestCharacterLogin(Character.Character character)
+        public async Task<int> RequestCharacterLogin(Character.Character character)
         {
             var packet = new PacketBuilder(PacketFamily.Welcome, PacketAction.Request)
                 .AddInt(character.ID)
@@ -113,6 +113,8 @@ namespace EOLib.Domain.Login
                 .WithStats(data.CharacterStats);
 
             _playerInfoRepository.IsFirstTimePlayer = data.FirstTimePlayer;
+            _playerInfoRepository.PlayerHasAdminCharacter = _characterSelectorRepository.Characters.Any(x => x.AdminLevel > 0);
+
             _currentMapStateRepository.CurrentMapID = data.MapID;
             _currentMapStateRepository.JailMapID = data.JailMap;
 
@@ -139,10 +141,10 @@ namespace EOLib.Domain.Login
             return data.SessionID;
         }
 
-        public async Task<CharacterLoginReply> CompleteCharacterLogin(short sessionID)
+        public async Task<CharacterLoginReply> CompleteCharacterLogin(int sessionID)
         {
             var packet = new PacketBuilder(PacketFamily.Welcome, PacketAction.Message)
-                .AddThree((ushort)sessionID)
+                .AddThree(sessionID)
                 .AddInt(_characterRepository.MainCharacter.ID)
                 .Build();
 
@@ -183,9 +185,9 @@ namespace EOLib.Domain.Login
             _characterInventoryRepository.ItemInventory = new HashSet<InventoryItem>(data.CharacterItemInventory);
             _characterInventoryRepository.SpellInventory = new HashSet<InventorySpell>(data.CharacterSpellInventory);
 
-            _currentMapStateRepository.Characters = data.MapCharacters.Except(new[] { mainCharacter }).ToDictionary(k => k.ID, v => v);
-            _currentMapStateRepository.NPCs = new HashSet<NPC.NPC>(data.MapNPCs);
-            _currentMapStateRepository.MapItems = new HashSet<MapItem>(data.MapItems);
+            _currentMapStateRepository.Characters = new MapEntityCollectionHashSet<Character.Character>(c => c.ID, c => new MapCoordinate(c.X, c.Y), data.MapCharacters.Except(new[] { mainCharacter }));
+            _currentMapStateRepository.NPCs = new MapEntityCollectionHashSet<NPC.NPC>(n => n.Index, n => new MapCoordinate(n.X, n.Y), data.MapNPCs);
+            _currentMapStateRepository.MapItems = new MapEntityCollectionHashSet<MapItem>(item => item.UniqueID, item => new MapCoordinate(item.X, item.Y), data.MapItems);
 
             _playerInfoRepository.PlayerIsInGame = true;
             _characterSessionRepository.ResetState();
@@ -211,8 +213,8 @@ namespace EOLib.Domain.Login
 
         Task<LoginReply> LoginToServer(ILoginParameters parameters);
 
-        Task<short> RequestCharacterLogin(Character.Character character);
+        Task<int> RequestCharacterLogin(Character.Character character);
 
-        Task<CharacterLoginReply> CompleteCharacterLogin(short sessionID);
+        Task<CharacterLoginReply> CompleteCharacterLogin(int sessionID);
     }
 }

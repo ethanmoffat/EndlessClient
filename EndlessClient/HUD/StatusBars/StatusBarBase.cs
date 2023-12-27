@@ -1,12 +1,12 @@
-﻿using System;
-using EndlessClient.Input;
+﻿using EndlessClient.Rendering;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.Input.InputListeners;
 using Optional;
+using System;
 using XNAControls;
 
 namespace EndlessClient.HUD.StatusBars
@@ -14,8 +14,8 @@ namespace EndlessClient.HUD.StatusBars
     public abstract class StatusBarBase : XNAControl
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
+        private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
         private readonly ICharacterProvider _characterProvider;
-        private readonly IUserInputRepository _userInputRepository;
 
         protected readonly XNALabel _label;
         protected readonly Texture2D _texture;
@@ -23,18 +23,20 @@ namespace EndlessClient.HUD.StatusBars
         protected CharacterStats Stats => _characterProvider.MainCharacter.Stats;
         protected Rectangle _sourceRectangleArea;
 
+        protected abstract int StatusBarIndex { get; }
+
         private Option<DateTime> _labelShowTime;
 
         public event Action StatusBarClicked;
         public event Action StatusBarClosed;
 
         protected StatusBarBase(INativeGraphicsManager nativeGraphicsManager,
-                                ICharacterProvider characterProvider,
-                                IUserInputRepository userInputRepository)
+                                IClientWindowSizeProvider clientWindowSizeProvider,
+                                ICharacterProvider characterProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
+            _clientWindowSizeProvider = clientWindowSizeProvider;
             _characterProvider = characterProvider;
-            _userInputRepository = userInputRepository;
 
             _texture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 58, true);
 
@@ -49,6 +51,9 @@ namespace EndlessClient.HUD.StatusBars
             _label.SetParentControl(this);
 
             _sourceRectangleArea = new Rectangle(0, 0, 110, 14);
+
+            if (_clientWindowSizeProvider.Resizable)
+                _clientWindowSizeProvider.GameWindowSizeChanged += (o, e) => ChangeStatusBarPosition();
         }
 
         protected abstract void UpdateLabelText();
@@ -62,19 +67,6 @@ namespace EndlessClient.HUD.StatusBars
 
         protected override void OnUpdateControl(GameTime gameTime)
         {
-            if (MouseOver &&
-                CurrentMouseState.LeftButton == ButtonState.Released &&
-                PreviousMouseState.LeftButton == ButtonState.Pressed)
-            {
-                // eat this mouse click so that other game elements don't attempt to use it
-                _userInputRepository.PreviousMouseState = _userInputRepository.CurrentMouseState;
-
-                _label.Visible = !_label.Visible;
-                _labelShowTime = _label.SomeWhen(x => x.Visible).Map(_ => DateTime.Now);
-
-                StatusBarClicked?.Invoke();
-            }
-
             _labelShowTime.MatchSome(x =>
             {
                 UpdateLabelText();
@@ -106,6 +98,22 @@ namespace EndlessClient.HUD.StatusBars
             }
 
             base.OnDrawControl(gameTime);
+        }
+
+        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            _label.Visible = !_label.Visible;
+            _labelShowTime = _label.SomeWhen(x => x.Visible).Map(_ => DateTime.Now);
+
+            StatusBarClicked?.Invoke();
+
+            return true;
+        }
+
+        protected void ChangeStatusBarPosition()
+        {
+            var xCoord = (_clientWindowSizeProvider.Width / 2) + StatusBarIndex * DrawArea.Width;
+            DrawPosition = new Vector2(xCoord, 0);
         }
 
         /// <summary>

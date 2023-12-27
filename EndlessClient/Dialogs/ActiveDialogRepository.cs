@@ -17,6 +17,8 @@ namespace EndlessClient.Dialogs
 
         Option<PaperdollDialog> PaperdollDialog { get; }
 
+        Option<BookDialog> BookDialog { get; }
+
         Option<ShopDialog> ShopDialog { get; }
 
         Option<QuestDialog> QuestDialog { get; }
@@ -37,6 +39,14 @@ namespace EndlessClient.Dialogs
 
         Option<EOMessageBox> MessageBox { get; }
 
+        Option<BoardDialog> BoardDialog { get; }
+
+        Option<JukeboxDialog> JukeboxDialog { get; }
+
+        Option<InnkeeperDialog> InnkeeperDialog { get; }
+
+        Option<LawDialog> LawDialog { get; }
+
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs { get; }
     }
 
@@ -49,6 +59,8 @@ namespace EndlessClient.Dialogs
         Option<QuestStatusDialog> QuestStatusDialog { get; set;  }
 
         Option<PaperdollDialog> PaperdollDialog { get; set; }
+
+        Option<BookDialog> BookDialog { get; set; }
 
         Option<ShopDialog> ShopDialog { get; set; }
 
@@ -70,6 +82,14 @@ namespace EndlessClient.Dialogs
 
         Option<EOMessageBox> MessageBox { get; set; }
 
+        Option<BoardDialog> BoardDialog { get; set; }
+
+        Option<JukeboxDialog> JukeboxDialog { get; set; }
+
+        Option<InnkeeperDialog> InnkeeperDialog { get; set; }
+
+        Option<LawDialog> LawDialog { get; set; }
+
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs { get; }
     }
 
@@ -83,6 +103,8 @@ namespace EndlessClient.Dialogs
         public Option<QuestStatusDialog> QuestStatusDialog { get; set; }
 
         public Option<PaperdollDialog> PaperdollDialog { get; set; }
+
+        public Option<BookDialog> BookDialog { get; set; }
 
         public Option<ShopDialog> ShopDialog { get; set; }
 
@@ -104,27 +126,45 @@ namespace EndlessClient.Dialogs
 
         public Option<EOMessageBox> MessageBox { get; set; }
 
+        public Option<BoardDialog> BoardDialog { get; set; }
+
+        public Option<JukeboxDialog> JukeboxDialog { get; set; }
+
+        public Option<InnkeeperDialog> InnkeeperDialog { get; set; }
+
+        public Option<LawDialog> LawDialog { get; set; }
+
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs
         {
             get
             {
-                return new[]
+                return new Option<IXNADialog>[]
                 {
-                    FriendIgnoreDialog.Map(d => (IXNADialog)d),
-                    SessionExpDialog.Map(d => (IXNADialog)d),
-                    QuestStatusDialog.Map(d => (IXNADialog)d),
-                    PaperdollDialog.Map(d => (IXNADialog)d),
-                    ShopDialog.Map(d => (IXNADialog)d),
-                    QuestDialog.Map(d => (IXNADialog)d),
-                    ChestDialog.Map(d => (IXNADialog)d),
-                    LockerDialog.Map(d => (IXNADialog)d),
-                    BankAccountDialog.Map(d => (IXNADialog)d),
-                    SkillmasterDialog.Map(d => (IXNADialog)d),
-                    BardDialog.Map(d => (IXNADialog)d),
-                    MessageDialog.Map(d => (IXNADialog)d),
-                    TradeDialog.Map(d => (IXNADialog)d),
-                    MessageBox.Map(d => (IXNADialog)d),
+                    FriendIgnoreDialog.Map(Map),
+                    SessionExpDialog.Map(Map),
+                    QuestStatusDialog.Map(Map),
+                    PaperdollDialog.Map(Map),
+                    BookDialog.Map(Map),
+                    ShopDialog.Map(Map),
+                    QuestDialog.Map(Map),
+                    ChestDialog.Map(Map),
+                    LockerDialog.Map(Map),
+                    BankAccountDialog.Map(Map),
+                    SkillmasterDialog.Map(Map),
+                    BardDialog.Map(Map),
+                    MessageDialog.Map(Map),
+                    TradeDialog.Map(Map),
+                    MessageBox.Map(Map),
+                    BoardDialog.Map(Map),
+                    JukeboxDialog.Map(Map),
+                    InnkeeperDialog.Map(Map),
+                    LawDialog.Map(Map),
                 }.ToList();
+
+                static IXNADialog Map(object d)
+                {
+                    return (IXNADialog)d;
+                }
             }
         }
 
@@ -141,6 +181,7 @@ namespace EndlessClient.Dialogs
             SessionExpDialog = Option.None<SessionExpDialog>();
             QuestStatusDialog = Option.None<QuestStatusDialog>();
             PaperdollDialog = Option.None<PaperdollDialog>();
+            BookDialog = Option.None<BookDialog>();
             ShopDialog = Option.None<ShopDialog>();
             QuestDialog = Option.None<QuestDialog>();
             ChestDialog = Option.None<ChestDialog>();
@@ -151,6 +192,10 @@ namespace EndlessClient.Dialogs
             MessageDialog = Option.None<ScrollingListDialog>();
             TradeDialog = Option.None<TradeDialog>();
             MessageBox = Option.None<EOMessageBox>();
+            BoardDialog = Option.None<BoardDialog>();
+            JukeboxDialog = Option.None<JukeboxDialog>();
+            InnkeeperDialog = Option.None<InnkeeperDialog>();
+            LawDialog = Option.None<LawDialog>();
         }
     }
 }

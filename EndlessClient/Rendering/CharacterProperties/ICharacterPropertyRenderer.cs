@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using EndlessClient.Rendering.Metadata.Models;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.CharacterProperties
@@ -9,6 +10,6 @@ namespace EndlessClient.Rendering.CharacterProperties
 
         float LayerDepth { get; set; }
 
-        void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea);
+        void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea, WeaponMetadata weaponMetadata);
     }
 }

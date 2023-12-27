@@ -6,7 +6,6 @@ using EOLib.Domain.Extensions;
 using EOLib.Domain.Item;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
-using EOLib.Domain.NPC;
 using EOLib.IO;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
@@ -23,8 +22,8 @@ namespace EOBot
     internal class TrainerBot : BotBase
     {
         private const int CONSECUTIVE_ATTACK_COUNT = 150;
-        private const int ATTACK_BACKOFF_MS = 500;
-        private const int WALK_BACKOFF_MS = 400;
+        private const int ATTACK_BACKOFF_MS = 600;
+        private const int WALK_BACKOFF_MS = 480;
         private const int FACE_BACKOFF_MS = 120;
 
         private static readonly int[] JunkItemIds = new[]
@@ -44,6 +43,7 @@ namespace EOBot
         private IItemActions _itemActions;
 
         private ICharacterRepository _characterRepository;
+        private IFixedTimeStepRepository _fixedTimeStepRepository;
 
         private IPubFile<EIFRecord> _itemData;
         private IPubFile<ENFRecord> _npcData;
@@ -97,6 +97,8 @@ namespace EOBot
             _chatProvider = c.Resolve<IChatProvider>();
             _cachedChat = new HashSet<ChatData>();
 
+            _fixedTimeStepRepository = c.Resolve<IFixedTimeStepRepository>();
+
             var healItems = new List<InventoryItem>();
             var healSpells = new List<InventorySpell>();
 
@@ -114,6 +116,10 @@ namespace EOBot
                         ConsoleHelper.WriteMessage(ConsoleHelper.Type.Chat, $"{message.Who}: {message.Message}", ConsoleColor.Cyan);
 
                     _cachedChat = _chatProvider.AllChat[ChatTab.Local].ToHashSet();
+                    if (OperatingSystem.IsWindows())
+                    {
+                        Console.Beep(261, 1500);
+                    }
                 }
 
                 var character = _characterRepository.MainCharacter;
@@ -121,12 +127,16 @@ namespace EOBot
 
                 var currentPositionCellState = mapCellStateProvider.GetCellStateAt(charRenderProps.MapX, charRenderProps.MapY);
 
-                if (cachedPlayerCount != mapStateProvider.Characters.Count)
+                if (cachedPlayerCount != mapStateProvider.Characters.Count())
                 {
-                    cachedPlayerCount = mapStateProvider.Characters.Count;
-                    if (cachedPlayerCount > 0)
+                    cachedPlayerCount = mapStateProvider.Characters.Count();
+                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"{cachedPlayerCount,7} - Players on map - You may not be able to train here", ConsoleColor.DarkYellow);
+
+                    if (OperatingSystem.IsWindows())
                     {
-                        ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"{cachedPlayerCount,7} - Players on map - You may not be able to train here", ConsoleColor.DarkYellow);
+                        Console.Beep(220, 500);
+                        Console.Beep(247, 500);
+                        Console.Beep(220, 500);
                     }
                 }
 
@@ -249,7 +259,7 @@ namespace EOBot
                     }
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(1.0 / 8.0));
+                await Delay(120);
             }
         }
 
@@ -257,7 +267,7 @@ namespace EOBot
         {
             cellState.NPC.MatchSome(npc => ConsoleHelper.WriteMessage(ConsoleHelper.Type.Attack, $"{npc.Index,7} - {_npcData.Single(x => x.ID == npc.ID).Name}"));
             await TrySend(_characterActions.Attack);
-            await Task.Delay(TimeSpan.FromMilliseconds(ATTACK_BACKOFF_MS));
+            await Delay(ATTACK_BACKOFF_MS);
         }
 
         private async Task Walk()
@@ -265,7 +275,7 @@ namespace EOBot
             var renderProps = _characterRepository.MainCharacter.RenderProperties;
             ConsoleHelper.WriteMessage(ConsoleHelper.Type.Walk, $"{renderProps.GetDestinationX(),3},{renderProps.GetDestinationY(),3}");
             await TrySend(_characterActions.Walk);
-            await Task.Delay(TimeSpan.FromMilliseconds(WALK_BACKOFF_MS));
+            await Delay(WALK_BACKOFF_MS);
         }
 
         private async Task Face(EODirection direction)
@@ -278,7 +288,7 @@ namespace EOBot
             _characterRepository.MainCharacter = _characterRepository.MainCharacter
                 .WithRenderProperties(_characterRepository.MainCharacter.RenderProperties.WithDirection(direction));
 
-            await Task.Delay(TimeSpan.FromMilliseconds(FACE_BACKOFF_MS));
+            await Delay(FACE_BACKOFF_MS);
         }
 
         private async Task FaceCoordinateIfNeeded(MapCoordinate originalCoord, MapCoordinate targetCoord)
@@ -306,7 +316,7 @@ namespace EOBot
 
                 if (JunkItemIds.Contains(item.ItemID))
                 {
-                    await Task.Delay(TimeSpan.FromSeconds(1));
+                    await Delay(1000);
                     await JunkItem(item);
                 }
             }
@@ -323,14 +333,14 @@ namespace EOBot
                 else
                     ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"Ignoring item {itemName} x{item.Amount} due to pickup error {pickupResult}", ConsoleColor.DarkYellow);
             });
-            await Task.Delay(TimeSpan.FromMilliseconds(ATTACK_BACKOFF_MS));
+            await Delay(ATTACK_BACKOFF_MS);
         }
 
         private async Task JunkItem(MapItem item)
         {
             ConsoleHelper.WriteMessage(ConsoleHelper.Type.JunkItem, $"{item.Amount,7} - {_itemData.Single(x => x.ID == item.ItemID).Name}");
             await TrySend(() => _itemActions.JunkItem(item.ItemID, item.Amount));
-            await Task.Delay(TimeSpan.FromMilliseconds(ATTACK_BACKOFF_MS));
+            await Delay(ATTACK_BACKOFF_MS);
         }
 
         private async Task CastHealSpell(IEnumerable<InventorySpell> healSpells)
@@ -344,10 +354,10 @@ namespace EOBot
             ConsoleHelper.WriteMessage(ConsoleHelper.Type.Cast, $"{spellToUse.HP,4} HP - {spellToUse.Name} - TP {stats[CharacterStat.TP]}/{stats[CharacterStat.MaxTP]}");
 
             await TrySend(() => _characterActions.PrepareCastSpell(spellToUse.ID));
-            await Task.Delay((spellToUse.CastTime - 1) * 480 + 350);
+            await Delay((uint)spellToUse.CastTime * 480);
 
             await TrySend(() => _characterActions.CastSpell(spellToUse.ID, _characterRepository.MainCharacter));
-            await Task.Delay(600); // 600ms cooldown between spell casts
+            await Delay(ATTACK_BACKOFF_MS); // 600ms cooldown between spell casts
         }
 
         private async Task UseHealItem(IEnumerable<InventoryItem> healItems)
@@ -360,9 +370,8 @@ namespace EOBot
 
             ConsoleHelper.WriteMessage(ConsoleHelper.Type.UseItem, $"{itemToUse.Name} - {itemToUse.HP} HP - inventory: {amount - 1} - (other heal item types: {healItems.Count() - 1})");
 
-            await TrySend(() => _itemActions.UseItem((short)itemToUse.ID));
-
-            await Task.Delay(ATTACK_BACKOFF_MS);
+            await TrySend(() => _itemActions.UseItem(itemToUse.ID));
+            await Delay(ATTACK_BACKOFF_MS);
         }
 
         private async Task ToggleSit()
@@ -373,9 +382,9 @@ namespace EOBot
             await TrySend(_characterActions.ToggleSit);
         }
 
-        private async Task TrySend(Action action, int attempts = 3)
+        private async Task TrySend(Action action, uint attempts = 3)
         {
-            for (int i = 1; i <= attempts; i++)
+            for (uint i = 1; i <= attempts; i++)
             {
                 try
                 {
@@ -388,9 +397,15 @@ namespace EOBot
                     if (i == attempts)
                         throw;
 
-                    await Task.Delay(TimeSpan.FromSeconds(i * i));
+                    await Delay(i * i * 1000);
                 }
             }
+        }
+
+        private Task Delay(uint milliseconds)
+        {
+            _fixedTimeStepRepository.Tick(milliseconds / 10);
+            return Task.Delay((int)milliseconds);
         }
     }
 }

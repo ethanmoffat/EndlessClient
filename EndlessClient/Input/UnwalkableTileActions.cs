@@ -19,6 +19,8 @@ namespace EndlessClient.Input
         Door,
         Locker,
         Character,
+        Board,
+        Jukebox,
     }
 
     [AutoMappedType]
@@ -150,7 +152,7 @@ namespace EndlessClient.Input
                         });
                 case TileSpec.BankVault:
                     return UnwalkableTileAction.Locker;
-                case TileSpec.Board1: //todo: boards
+                case TileSpec.Board1:
                 case TileSpec.Board2:
                 case TileSpec.Board3:
                 case TileSpec.Board4:
@@ -158,9 +160,9 @@ namespace EndlessClient.Input
                 case TileSpec.Board6:
                 case TileSpec.Board7:
                 case TileSpec.Board8:
-                    break;
-                case TileSpec.Jukebox: //todo: jukebox
-                    break;
+                    return UnwalkableTileAction.Board;
+                case TileSpec.Jukebox:
+                    return UnwalkableTileAction.Jukebox;
             }
 
             return UnwalkableTileAction.None;

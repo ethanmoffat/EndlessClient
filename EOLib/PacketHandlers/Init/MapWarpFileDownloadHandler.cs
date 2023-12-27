@@ -1,7 +1,5 @@
 ﻿using AutomaticTypeMapper;
-using EOLib.Domain.Character;
 using EOLib.Domain.Map;
-using EOLib.Domain.Notifiers;
 using EOLib.Domain.Protocol;
 using EOLib.IO.Map;
 using EOLib.IO.Repositories;
@@ -9,7 +7,6 @@ using EOLib.IO.Services;
 using EOLib.IO.Services.Serializers;
 using EOLib.Net;
 using EOLib.Net.Communication;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace EOLib.PacketHandlers.Init
@@ -64,7 +61,7 @@ namespace EOLib.PacketHandlers.Init
             return true;
         }
 
-        private void SendWarpAcceptToServer(short mapID, short sessionID)
+        private void SendWarpAcceptToServer(int mapID, int sessionID)
         {
             var response = new PacketBuilder(PacketFamily.Warp, PacketAction.Accept)
                 .AddShort(mapID)

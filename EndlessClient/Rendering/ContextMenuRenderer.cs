@@ -1,5 +1,4 @@
-﻿using EndlessClient.Audio;
-using EndlessClient.ControlSets;
+﻿using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD;
@@ -17,7 +16,8 @@ using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.Input;
+using MonoGame.Extended.Input.InputListeners;
 using Optional;
 using System;
 using System.Collections.Generic;
@@ -48,18 +48,18 @@ namespace EndlessClient.Rendering
 
         private readonly IInGameDialogActions _inGameDialogActions;
         private readonly IPaperdollActions _paperdollActions;
+        private readonly IBookActions _bookActions;
         private readonly IPartyActions _partyActions;
         private readonly ITradeActions _tradeActions;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IFriendIgnoreListService _friendIgnoreListService;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly IContextMenuRepository _contextMenuRepository;
-        private readonly IUserInputRepository _userInputRepository;
         private readonly IPartyDataProvider _partyDataProvider;
         private readonly ICharacterRenderer _characterRenderer;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
-        private readonly ISfxPlayer _sfxPlayer;
+        private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
 
         private static DateTime? _lastTradeRequestedTime;
         private static DateTime? _lastPartyRequestTime;
@@ -67,34 +67,34 @@ namespace EndlessClient.Rendering
         public ContextMenuRenderer(INativeGraphicsManager nativeGraphicsManager,
                                    IInGameDialogActions inGameDialogActions,
                                    IPaperdollActions paperdollActions,
+                                   IBookActions bookActions,
                                    IPartyActions partyActions,
                                    ITradeActions tradeActions,
                                    IStatusLabelSetter statusLabelSetter,
                                    IFriendIgnoreListService friendIgnoreListService,
                                    IHudControlProvider hudControlProvider,
                                    IContextMenuRepository contextMenuRepository,
-                                   IUserInputRepository userInputRepository,
                                    IPartyDataProvider partyDataProvider,
                                    ICharacterRenderer characterRenderer,
                                    ICurrentMapStateProvider currentMapStateProvider, 
                                    IEOMessageBoxFactory messageBoxFactory,
-                                   ISfxPlayer sfxPlayer)
+                                   IClientWindowSizeProvider clientWindowSizeProvider)
         {
             _menuActions = new Dictionary<Rectangle, Action>();
             _inGameDialogActions = inGameDialogActions;
             _paperdollActions = paperdollActions;
+            _bookActions = bookActions;
             _partyActions = partyActions;
             _tradeActions = tradeActions;
             _statusLabelSetter = statusLabelSetter;
             _friendIgnoreListService = friendIgnoreListService;
             _hudControlProvider = hudControlProvider;
             _contextMenuRepository = contextMenuRepository;
-            _userInputRepository = userInputRepository;
             _partyDataProvider = partyDataProvider;
             _characterRenderer = characterRenderer;
             _currentMapStateProvider = currentMapStateProvider;
             _messageBoxFactory = messageBoxFactory;
-            _sfxPlayer = sfxPlayer;
+            _clientWindowSizeProvider = clientWindowSizeProvider;
 
             //first, load up the images. split in half: the right half is the 'over' text
             _backgroundTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 41, true);
@@ -119,6 +119,8 @@ namespace EndlessClient.Rendering
             SetPositionBasedOnCharacterRenderer(_characterRenderer);
             SetSize(W, H);
 
+            OnMouseOver += ContextMenuRenderer_OnMouseOver;
+
             // Update this before map renderer so that clicks are handled first
             UpdateOrder = -20;
         }
@@ -126,7 +128,6 @@ namespace EndlessClient.Rendering
         public override void Initialize()
         {
             base.Initialize();
-            _sfxPlayer.PlaySfx(SoundEffectID.ButtonClick);
 
             if (!Game.Components.Contains(this))
                 Game.Components.Add(this);
@@ -144,14 +145,14 @@ namespace EndlessClient.Rendering
 
             DrawPosition = new Vector2(rendRect.Right + 20, rendRect.Y);
 
-            if (DrawArea.Right > Game.GraphicsDevice.PresentationParameters.BackBufferWidth - 15)
+            if (DrawArea.Right > _clientWindowSizeProvider.Width - 15)
             {
                 // case: goes off the right side of the screen, show on the left
                 DrawPosition = new Vector2(rendRect.X - DrawArea.Width - 20, DrawPosition.Y);
             }
 
             // 308px is the bottom of the display area for map stuff
-            if (DrawArea.Bottom > 308)
+            if (DrawArea.Bottom > (_clientWindowSizeProvider.Resizable ? _clientWindowSizeProvider.Height : 308))
             {
                 //case: goes off bottom of the screen, adjust new rectangle so it is above 308
                 DrawPosition = new Vector2(DrawPosition.X, 298 - DrawArea.Height);
@@ -168,50 +169,6 @@ namespace EndlessClient.Rendering
         protected override bool ShouldUpdate()
         {
             return base.ShouldUpdate();
-        }
-
-        protected override void OnUpdateControl(GameTime gameTime)
-        {
-            int checkX = CurrentMouseState.X - DrawAreaWithParentOffset.X;
-            int checkY = CurrentMouseState.Y - DrawAreaWithParentOffset.Y;
-
-            var leftClicked = CurrentMouseState.LeftButton == ButtonState.Released && PreviousMouseState.LeftButton == ButtonState.Pressed;
-            var rightClicked = CurrentMouseState.RightButton == ButtonState.Released && PreviousMouseState.RightButton == ButtonState.Pressed;
-
-            bool found = false;
-            foreach (var (sourceRect, menuAction) in _menuActions)
-            {
-                if (sourceRect.Contains(checkX, checkY))
-                {
-                    _overRect = Option.Some(sourceRect);
-                    found = true;
-
-                    if (leftClicked && !_userInputRepository.ClickHandled)
-                    {
-                        menuAction();
-                        _userInputRepository.ClickHandled = true;
-                    }
-
-                    break;
-                }
-            }
-
-            if (!found)
-            {
-                _overRect = Option.None<Rectangle>();
-            }
-
-            if (leftClicked || rightClicked)
-            {
-                if (_userInputRepository.ClickHandled) _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
-                    
-                Game.Components.Remove(this);
-                Dispose();
-
-                _contextMenuRepository.ContextMenu = Option.None<IContextMenuRenderer>();
-            }
-
-            base.OnUpdateControl(gameTime);
         }
 
         protected override void OnDrawControl(GameTime gameTime)
@@ -232,6 +189,46 @@ namespace EndlessClient.Rendering
             _spriteBatch.End();
 
             base.OnDrawControl(gameTime);
+        }
+
+        private void ContextMenuRenderer_OnMouseOver(object sender, MouseStateExtended e)
+        {
+            bool found = false;
+            foreach (var (sourceRect, menuAction) in _menuActions)
+            {
+                if (sourceRect.Contains(e.Position - DrawAreaWithParentOffset.Location))
+                {
+                    _overRect = Option.Some(sourceRect);
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                _overRect = Option.None<Rectangle>();
+            }
+        }
+
+        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            if (eventArgs.Button == MouseButton.Left)
+            {
+                _overRect.MatchSome(sourceRect =>
+                {
+                    if (!_menuActions.ContainsKey(sourceRect)) return;
+
+                    var menuAction = _menuActions[sourceRect];
+                    menuAction();
+                });
+            }
+
+            Game.Components.Remove(this);
+            Dispose();
+
+            _contextMenuRepository.ContextMenu = Option.None<IContextMenuRenderer>();
+
+            return true;
         }
 
         /* Helper maps MenuAction enum value to a member method for easy initialization */
@@ -259,6 +256,8 @@ namespace EndlessClient.Rendering
 
         private void ShowBook()
         {
+            _bookActions.RequestBook(_characterRenderer.Character.ID);
+            _inGameDialogActions.ShowBookDialog(_characterRenderer.Character, isMainCharacter: false);
         }
 
         private void JoinParty()
@@ -276,7 +275,7 @@ namespace EndlessClient.Rendering
             }
 
             _lastPartyRequestTime = DateTime.Now;
-            _partyActions.RequestParty(PartyRequestType.Join, (short)_characterRenderer.Character.ID);
+            _partyActions.RequestParty(PartyRequestType.Join, _characterRenderer.Character.ID);
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_PARTY_REQUESTED_TO_JOIN);
         }
 
@@ -295,7 +294,7 @@ namespace EndlessClient.Rendering
             }
 
             _lastPartyRequestTime = DateTime.Now;
-            _partyActions.RequestParty(PartyRequestType.Invite, (short)_characterRenderer.Character.ID);
+            _partyActions.RequestParty(PartyRequestType.Invite, _characterRenderer.Character.ID);
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, _characterRenderer.Character.Name, EOResourceID.STATUS_LABEL_PARTY_IS_INVITED);
         }
 
@@ -316,7 +315,7 @@ namespace EndlessClient.Rendering
 
             _lastTradeRequestedTime = DateTime.Now;
 
-            _tradeActions.RequestTrade((short)_characterRenderer.Character.ID);
+            _tradeActions.RequestTrade(_characterRenderer.Character.ID);
 
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_TRADE_REQUESTED_TO_TRADE);
         }

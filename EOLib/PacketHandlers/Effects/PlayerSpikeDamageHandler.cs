@@ -35,10 +35,10 @@ namespace EOLib.PacketHandlers.Effects
             var isDead = packet.ReadChar() != 0;
             var damageTaken = packet.ReadThree();
 
-            if (_currentMapStateRepository.Characters.ContainsKey(characterId))
+            if (_currentMapStateRepository.Characters.TryGetValue(characterId, out var character))
             {
-                var updatedCharacter = _currentMapStateRepository.Characters[characterId].WithDamage(damageTaken, isDead);
-                _currentMapStateRepository.Characters[characterId] = updatedCharacter;
+                var updatedCharacter = character.WithDamage(damageTaken, isDead);
+                _currentMapStateRepository.Characters.Update(character, updatedCharacter);
 
                 foreach (var notifier in _otherCharacterEventNotifiers)
                 {

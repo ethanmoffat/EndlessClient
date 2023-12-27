@@ -61,8 +61,8 @@ namespace EOBot
 
             packetProcessActions.SetInitialSequenceNumber(handshakeResult[InitializationDataKey.SequenceByte1],
                 handshakeResult[InitializationDataKey.SequenceByte2]);
-            packetProcessActions.SetEncodeMultiples((byte)handshakeResult[InitializationDataKey.ReceiveMultiple],
-                (byte)handshakeResult[InitializationDataKey.SendMultiple]);
+            packetProcessActions.SetEncodeMultiples(handshakeResult[InitializationDataKey.ReceiveMultiple],
+                handshakeResult[InitializationDataKey.SendMultiple]);
 
             connectionActions.CompleteHandshake(handshakeResult);
 

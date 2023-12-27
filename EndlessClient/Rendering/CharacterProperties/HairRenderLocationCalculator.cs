@@ -15,14 +15,14 @@ namespace EndlessClient.Rendering.CharacterProperties
             _renderProperties = renderProperties;
         }
 
-        public Vector2 CalculateDrawLocationOfCharacterHair(Rectangle hairRectangle, Rectangle parentCharacterDrawArea)
+        public Vector2 CalculateDrawLocationOfCharacterHair(Rectangle hairRectangle, Rectangle parentCharacterDrawArea, bool ranged)
         {
             var resX = -(float)Math.Floor(Math.Abs((float)hairRectangle.Width - parentCharacterDrawArea.Width) / 2) - 1;
             var resY = -(float)Math.Floor(Math.Abs(hairRectangle.Height - (parentCharacterDrawArea.Height / 2f)) / 2) - _renderProperties.Gender;
 
             var isFlipped = _renderProperties.IsFacing(EODirection.Up, EODirection.Right);
 
-            if (_renderProperties.IsRangedWeapon && _renderProperties.RenderAttackFrame == 1)
+            if (ranged && _renderProperties.RenderAttackFrame == 1)
             {
                 var rangedXOff = _renderProperties.Gender == 0 ? 1 : 3;
                 resX += rangedXOff * (isFlipped ? 1 : -1);

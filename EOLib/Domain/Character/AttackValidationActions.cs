@@ -35,7 +35,14 @@ namespace EOLib.Domain.Character
 
             var rp = _characterProvider.MainCharacter.RenderProperties;
 
-            if (rp.IsRangedWeapon && (rp.ShieldGraphic == 0 || !_eifFileProvider.EIFFile.Any(x => x.DollGraphic == rp.ShieldGraphic && x.SubType == IO.ItemSubType.Arrows)))
+            var isRangedWeapon = _eifFileProvider.EIFFile
+                .Where(x => x.Type == IO.ItemType.Weapon && x.SubType == IO.ItemSubType.Ranged)
+                .Any(x => x.DollGraphic == rp.WeaponGraphic);
+            var isArrows = _eifFileProvider.EIFFile
+                .Where(x => x.Type == IO.ItemType.Shield && x.SubType == IO.ItemSubType.Arrows)
+                .Any(x => x.DollGraphic == rp.ShieldGraphic);
+
+            if (isRangedWeapon && (rp.ShieldGraphic == 0 || !isArrows))
                 return AttackValidationError.MissingArrows;
 
             return _mapCellStateProvider

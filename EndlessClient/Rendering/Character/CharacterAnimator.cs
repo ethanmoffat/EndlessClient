@@ -1,7 +1,8 @@
 ﻿using EndlessClient.GameExecution;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Spells;
-using EndlessClient.Input;
+using EndlessClient.Rendering.Metadata;
+using EndlessClient.Rendering.Metadata.Models;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
@@ -20,19 +21,19 @@ namespace EndlessClient.Rendering.Character
 {
     public class CharacterAnimator : GameComponent, ICharacterAnimator
     {
-        public const int WALK_FRAME_TIME_MS = 125;
-        public const int ATTACK_FRAME_TIME_MS = 125;
-        public const int EMOTE_FRAME_TIME_MS = 250;
+        public const int TICKS_PER_WALK_FRAME = 9; // 9 x10ms ticks per walk frame
+        public const int TICKS_PER_FRAME = 12; // 12 x10ms ticks per attack frame
+        public const int TICKS_PER_CAST_TIME = 48;
 
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly ISpellSlotDataRepository _spellSlotDataRepository;
-        private readonly IUserInputRepository _userInputRepository;
         private readonly ICharacterActions _characterActions;
         private readonly IWalkValidationActions _walkValidationActions;
         private readonly IPathFinder _pathFinder;
         private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
+        private readonly IMetadataProvider<WeaponMetadata> _weaponMetadataProvider;
 
         // todo: this state should really be managed better
         private readonly Dictionary<int, EODirection> _queuedDirections;
@@ -42,37 +43,34 @@ namespace EndlessClient.Rendering.Character
         private readonly Dictionary<int, RenderFrameActionTime> _otherPlayerStartSpellCastTimes;
         private readonly Dictionary<int, RenderFrameActionTime> _startEmoteTimes;
 
-        private Option<Stopwatch> _mainPlayerStartShoutTime;
+        private Option<ulong> _mainPlayerStartShoutTick;
         private ESFRecord _shoutSpellData;
         private ISpellTargetable _spellTarget;
 
         private Queue<MapCoordinate> _walkPath;
         private Option<MapCoordinate> _targetCoordinate;
 
-        private bool _clickHandled;
-
         public CharacterAnimator(IEndlessGameProvider gameProvider,
                                  ICharacterRepository characterRepository,
                                  ICurrentMapStateRepository currentMapStateRepository,
                                  ICurrentMapProvider currentMapProvider,
                                  ISpellSlotDataRepository spellSlotDataRepository,
-                                 IUserInputRepository userInputRepository,
                                  ICharacterActions characterActions,
                                  IWalkValidationActions walkValidationActions,
                                  IPathFinder pathFinder,
-                                 IFixedTimeStepRepository fixedTimeStepRepository)
+                                 IFixedTimeStepRepository fixedTimeStepRepository,
+                                 IMetadataProvider<WeaponMetadata> weaponMetadataProvider)
             : base((Game) gameProvider.Game)
         {
             _characterRepository = characterRepository;
             _currentMapStateRepository = currentMapStateRepository;
             _currentMapProvider = currentMapProvider;
             _spellSlotDataRepository = spellSlotDataRepository;
-            _userInputRepository = userInputRepository;
             _characterActions = characterActions;
             _walkValidationActions = walkValidationActions;
             _pathFinder = pathFinder;
             _fixedTimeStepRepository = fixedTimeStepRepository;
-
+            _weaponMetadataProvider = weaponMetadataProvider;
             _queuedDirections = new Dictionary<int, EODirection>();
             _queuedPositions = new Dictionary<int, MapCoordinate>();
             _otherPlayerStartWalkingTimes = new Dictionary<int, RenderFrameActionTime>();
@@ -85,20 +83,14 @@ namespace EndlessClient.Rendering.Character
 
         public override void Update(GameTime gameTime)
         {
-            if (_userInputRepository.ClickHandled && !_userInputRepository.WalkClickHandled && _walkPath.Any())
-                _clickHandled = true;
-
-            if (_fixedTimeStepRepository.IsUpdateFrame)
+            if (_fixedTimeStepRepository.IsWalkUpdateFrame)
             {
-                if (_fixedTimeStepRepository.IsWalkUpdateFrame)
-                {
-                    AnimateCharacterWalking();
-                }
-
-                AnimateCharacterAttacking();
-                AnimateCharacterSpells();
-                AnimateCharacterEmotes();
+                AnimateCharacterWalking();
             }
+
+            AnimateCharacterAttacking();
+            AnimateCharacterSpells();
+            AnimateCharacterEmotes();
 
             base.Update(gameTime);
         }
@@ -148,11 +140,11 @@ namespace EndlessClient.Rendering.Character
             {
                 if (_otherPlayerStartWalkingTimes.ContainsKey(_characterRepository.MainCharacter.ID))
                 {
-                    _otherPlayerStartWalkingTimes[_characterRepository.MainCharacter.ID].Replay = true;
+                    _otherPlayerStartWalkingTimes[_characterRepository.MainCharacter.ID].SetReplay(sfxCallback);
                     return;
                 }
 
-                var startWalkingTime = new RenderFrameActionTime(_characterRepository.MainCharacter.ID, sfxCallback);
+                var startWalkingTime = new RenderFrameActionTime(_characterRepository.MainCharacter.ID, _fixedTimeStepRepository.TickCount, sfxCallback);
                 _otherPlayerStartWalkingTimes.Add(_characterRepository.MainCharacter.ID, startWalkingTime);
 
                 _characterActions.Walk();
@@ -169,20 +161,20 @@ namespace EndlessClient.Rendering.Character
         {
             if (_otherPlayerStartAttackingTimes.ContainsKey(_characterRepository.MainCharacter.ID))
             {
-                _otherPlayerStartAttackingTimes[_characterRepository.MainCharacter.ID].Replay = true;
+                _otherPlayerStartAttackingTimes[_characterRepository.MainCharacter.ID].SetReplay(sfxCallback);
                 return;
             }
 
-            var startAttackingTime = new RenderFrameActionTime(_characterRepository.MainCharacter.ID, sfxCallback);
+            var startAttackingTime = new RenderFrameActionTime(_characterRepository.MainCharacter.ID, _fixedTimeStepRepository.TickCount, sfxCallback);
             _otherPlayerStartAttackingTimes.Add(_characterRepository.MainCharacter.ID, startAttackingTime);
         }
 
         public bool MainCharacterShoutSpellPrep(ESFRecord spellData, ISpellTargetable target)
         {
-            if (_mainPlayerStartShoutTime.HasValue)
+            if (_mainPlayerStartShoutTick.HasValue)
                 return false;
 
-            _mainPlayerStartShoutTime = Option.Some(Stopwatch.StartNew());
+            _mainPlayerStartShoutTick = Option.Some(_fixedTimeStepRepository.TickCount);
             _shoutSpellData = spellData;
             _spellTarget = target;
             return true;
@@ -190,7 +182,7 @@ namespace EndlessClient.Rendering.Character
 
         public void MainCharacterCancelSpellPrep()
         {
-            _mainPlayerStartShoutTime = Option.None<Stopwatch>();
+            _mainPlayerStartShoutTick = Option.None<ulong>();
             _shoutSpellData = null;
             _spellTarget = null;
 
@@ -198,17 +190,17 @@ namespace EndlessClient.Rendering.Character
             _spellSlotDataRepository.SpellIsPrepared = false;
         }
 
-        public void StartOtherCharacterWalkAnimation(int characterID, byte destinationX, byte destinationY, EODirection direction)
+        public void StartOtherCharacterWalkAnimation(int characterID, MapCoordinate destination, EODirection direction)
         {
             if (_otherPlayerStartWalkingTimes.ContainsKey(characterID))
             {
-                _otherPlayerStartWalkingTimes[characterID].Replay = true;
+                _otherPlayerStartWalkingTimes[characterID].SetReplay();
                 _queuedDirections[characterID] = direction;
-                _queuedPositions[characterID] = new MapCoordinate(destinationX, destinationY);
+                _queuedPositions[characterID] = destination;
                 return;
             }
 
-            var startWalkingTimeAndID = new RenderFrameActionTime(characterID);
+            var startWalkingTimeAndID = new RenderFrameActionTime(characterID, _fixedTimeStepRepository.TickCount);
             _otherPlayerStartWalkingTimes.Add(characterID, startWalkingTimeAndID);
         }
 
@@ -216,11 +208,11 @@ namespace EndlessClient.Rendering.Character
         {
             if (_otherPlayerStartAttackingTimes.ContainsKey(characterID))
             {
-                _otherPlayerStartAttackingTimes[characterID].Replay = true;
+                _otherPlayerStartAttackingTimes[characterID].SetReplay(sfxCallback);
                 return;
             }
 
-            var startAttackingTime = new RenderFrameActionTime(characterID, sfxCallback);
+            var startAttackingTime = new RenderFrameActionTime(characterID, _fixedTimeStepRepository.TickCount, sfxCallback);
             _otherPlayerStartAttackingTimes.Add(characterID, startAttackingTime);
         }
 
@@ -236,7 +228,7 @@ namespace EndlessClient.Rendering.Character
                 _otherPlayerStartSpellCastTimes.Remove(characterID);
             }
 
-            var startAttackingTimeAndID = new RenderFrameActionTime(characterID);
+            var startAttackingTimeAndID = new RenderFrameActionTime(characterID, _fixedTimeStepRepository.TickCount);
             _otherPlayerStartSpellCastTimes.Add(characterID, startAttackingTimeAndID);
         }
 
@@ -248,7 +240,7 @@ namespace EndlessClient.Rendering.Character
                 _startEmoteTimes.ContainsKey(characterID))
                 return false;
 
-            var startEmoteTime = new RenderFrameActionTime(characterID);
+            var startEmoteTime = new RenderFrameActionTime(characterID, _fixedTimeStepRepository.TickCount);
             if (characterID == _characterRepository.MainCharacter.ID)
             {
                 var rp = _characterRepository.MainCharacter.RenderProperties.WithEmote(whichEmote);
@@ -257,11 +249,12 @@ namespace EndlessClient.Rendering.Character
             else if (_currentMapStateRepository.Characters.TryGetValue(characterID, out var otherCharacter))
             {
                 var rp = otherCharacter.RenderProperties.WithEmote(whichEmote);
-                _currentMapStateRepository.Characters[characterID] = otherCharacter.WithRenderProperties(rp);
+                _currentMapStateRepository.Characters.Update(otherCharacter, otherCharacter.WithRenderProperties(rp));
             }
             else
             {
-                _currentMapStateRepository.UnknownPlayerIDs.Add((short)characterID);
+                _currentMapStateRepository.UnknownPlayerIDs.Add(characterID);
+                return false;
             }
 
             _startEmoteTimes[characterID] = startEmoteTime;
@@ -279,9 +272,11 @@ namespace EndlessClient.Rendering.Character
                 _characterRepository.MainCharacter.WithRenderProperties(
                     _characterRepository.MainCharacter.RenderProperties.ResetAnimationFrames());
 
-            _currentMapStateRepository.Characters = _currentMapStateRepository.Characters.Values
-                .Select(c => c.WithRenderProperties(c.RenderProperties.ResetAnimationFrames()))
-                .ToDictionary(k => k.ID, v => v);
+            var characterPairs = _currentMapStateRepository.Characters
+                .Select(c => (Old: c, New: c.WithRenderProperties(c.RenderProperties.ResetAnimationFrames())))
+                .ToList();
+            foreach (var (Old, New) in characterPairs)
+                _currentMapStateRepository.Characters.Update(Old, New);
         }
 
         #region Walk Animation
@@ -293,7 +288,7 @@ namespace EndlessClient.Rendering.Character
             {
                 var sendWalk = false;
 
-                if (pair.ActionTimer.ElapsedMilliseconds >= WALK_FRAME_TIME_MS)
+                if ((_fixedTimeStepRepository.TickCount - pair.ActionTick) >= TICKS_PER_WALK_FRAME)
                 {
                     GetCurrentCharacterFromRepository(pair).Match(
                         none: () => playersDoneWalking.Add(pair.UniqueID),
@@ -302,7 +297,7 @@ namespace EndlessClient.Rendering.Character
                             var renderProperties = currentCharacter.RenderProperties;
                             var nextFrameRenderProperties = AnimateOneWalkFrame(renderProperties);
 
-                            pair.UpdateActionStartTime();
+                            pair.UpdateActionStartTime(_fixedTimeStepRepository.TickCount);
                             if (nextFrameRenderProperties.IsActing(CharacterActionState.Standing))
                             {
                                 var isMainCharacter = currentCharacter == _characterRepository.MainCharacter;
@@ -324,7 +319,7 @@ namespace EndlessClient.Rendering.Character
                                         sendWalk = isMainCharacter;
 
                                         var extraFrameProps = AnimateOneWalkFrame(nextFramePropertiesWithDirection.ResetAnimationFrames());
-                                        pair.Replay = false;
+                                        pair.ClearReplay();
 
                                         nextFrameRenderProperties = extraFrameProps;
                                         pair.SoundEffect();
@@ -335,7 +330,7 @@ namespace EndlessClient.Rendering.Character
                                         playersDoneWalking.Add(pair.UniqueID);
                                     }
                                 }
-                                else if (isMainCharacter && _walkPath.Any() && !_clickHandled)
+                                else if (isMainCharacter && _walkPath.Any())
                                 {
                                     var characterCoord = new MapCoordinate(nextFrameRenderProperties.MapX, nextFrameRenderProperties.MapY);
 
@@ -374,8 +369,6 @@ namespace EndlessClient.Rendering.Character
 
                                     playersDoneWalking.Add(pair.UniqueID);
                                 }
-
-                                _clickHandled = false;
                             }
 
                             var nextFrameCharacter = currentCharacter.WithRenderProperties(nextFrameRenderProperties);
@@ -445,26 +438,26 @@ namespace EndlessClient.Rendering.Character
             var playersDoneAttacking = new HashSet<int>();
             foreach (var pair in _otherPlayerStartAttackingTimes.Values)
             {
-                if (pair.ActionTimer.ElapsedMilliseconds >= ATTACK_FRAME_TIME_MS)
+                if ((_fixedTimeStepRepository.TickCount - pair.ActionTick) >= TICKS_PER_FRAME)
                 {
                     GetCurrentCharacterFromRepository(pair).Match(
                         none: () => playersDoneAttacking.Add(pair.UniqueID),
                         some: currentCharacter =>
                         {
                             var renderProperties = currentCharacter.RenderProperties;
-                            var nextFrameRenderProperties = renderProperties.WithNextAttackFrame();
+                            var isRanged = _weaponMetadataProvider.GetValueOrDefault(renderProperties.WeaponGraphic).Ranged;
+                            var nextFrameRenderProperties = renderProperties.WithNextAttackFrame(isRanged);
 
                             if (nextFrameRenderProperties.ActualAttackFrame == 2)
                                 pair.SoundEffect();
 
-                            pair.UpdateActionStartTime();
+                            pair.UpdateActionStartTime(_fixedTimeStepRepository.TickCount);
                             if (nextFrameRenderProperties.IsActing(CharacterActionState.Standing))
                             {
                                 if (pair.Replay)
                                 {
-                                    nextFrameRenderProperties = renderProperties.ResetAnimationFrames()
-                                        .WithNextAttackFrame();
-                                    pair.Replay = false;
+                                    nextFrameRenderProperties = renderProperties.ResetAnimationFrames().WithNextAttackFrame(isRanged);
+                                    pair.ClearReplay();
                                 }
                                 else
                                 {
@@ -488,11 +481,11 @@ namespace EndlessClient.Rendering.Character
 
         private void AnimateCharacterSpells()
         {
-            _mainPlayerStartShoutTime.MatchSome(t =>
+            _mainPlayerStartShoutTick.MatchSome(startTick =>
             {
-                if (t.ElapsedMilliseconds >= (_shoutSpellData.CastTime - 1) * 480 + 350)
+                if (_fixedTimeStepRepository.TickCount - startTick >= (ulong)(_shoutSpellData.CastTime * TICKS_PER_CAST_TIME))
                 {
-                    _otherPlayerStartSpellCastTimes.Add(_characterRepository.MainCharacter.ID, new RenderFrameActionTime(_characterRepository.MainCharacter.ID));
+                    _otherPlayerStartSpellCastTimes.Add(_characterRepository.MainCharacter.ID, new RenderFrameActionTime(_characterRepository.MainCharacter.ID, _fixedTimeStepRepository.TickCount));
                     _characterActions.CastSpell(_shoutSpellData.ID, _spellTarget);
                     MainCharacterCancelSpellPrep();
 
@@ -504,7 +497,7 @@ namespace EndlessClient.Rendering.Character
             var playersDoneCasting = new HashSet<int>();
             foreach (var pair in _otherPlayerStartSpellCastTimes.Values)
             {
-                if (pair.ActionTimer.ElapsedMilliseconds >= ATTACK_FRAME_TIME_MS)
+                if ((_fixedTimeStepRepository.TickCount - pair.ActionTick) >= TICKS_PER_FRAME)
                 {
                     GetCurrentCharacterFromRepository(pair).Match(
                         none: () => playersDoneCasting.Add(pair.UniqueID),
@@ -513,7 +506,7 @@ namespace EndlessClient.Rendering.Character
                             var renderProperties = currentCharacter.RenderProperties;
                             var nextFrameRenderProperties = renderProperties.WithNextSpellCastFrame();
 
-                            pair.UpdateActionStartTime();
+                            pair.UpdateActionStartTime(_fixedTimeStepRepository.TickCount);
                             if (nextFrameRenderProperties.IsActing(CharacterActionState.Standing))
                                 playersDoneCasting.Add(pair.UniqueID);
 
@@ -536,7 +529,7 @@ namespace EndlessClient.Rendering.Character
             var playersDoneEmoting = new HashSet<int>();
             foreach (var pair in _startEmoteTimes.Values)
             {
-                if (pair.ActionTimer.ElapsedMilliseconds >= EMOTE_FRAME_TIME_MS)
+                if ((_fixedTimeStepRepository.TickCount - pair.ActionTick) >= TICKS_PER_FRAME * 2)
                 {
                     GetCurrentCharacterFromRepository(pair).Match(
                         none: () => playersDoneEmoting.Add(pair.UniqueID),
@@ -545,8 +538,8 @@ namespace EndlessClient.Rendering.Character
                             var renderProperties = currentCharacter.RenderProperties;
                             var nextFrameRenderProperties = renderProperties.WithNextEmoteFrame();
 
-                            pair.UpdateActionStartTime();
-                            if (nextFrameRenderProperties.IsActing(CharacterActionState.Standing))
+                            pair.UpdateActionStartTime(_fixedTimeStepRepository.TickCount);
+                            if (nextFrameRenderProperties.IsActing(CharacterActionState.Standing, CharacterActionState.Sitting))
                                 playersDoneEmoting.Add(pair.UniqueID);
 
                             var nextFrameCharacter = currentCharacter.WithRenderProperties(nextFrameRenderProperties);
@@ -565,8 +558,8 @@ namespace EndlessClient.Rendering.Character
         {
             return pair.UniqueID == _characterRepository.MainCharacter.ID
                 ? Option.Some(_characterRepository.MainCharacter)
-                : _currentMapStateRepository.Characters.ContainsKey(pair.UniqueID)
-                    ? Option.Some(_currentMapStateRepository.Characters[pair.UniqueID])
+                : _currentMapStateRepository.Characters.TryGetValue(pair.UniqueID, out var character)
+                    ? Option.Some(character)
                     : Option.None<EOLib.Domain.Character.Character>();
         }
 
@@ -579,7 +572,7 @@ namespace EndlessClient.Rendering.Character
             }
             else
             {
-                _currentMapStateRepository.Characters[nextFrameCharacter.ID] = nextFrameCharacter;
+                _currentMapStateRepository.Characters.Update(currentCharacter, nextFrameCharacter);
             }
         }
 
@@ -588,7 +581,7 @@ namespace EndlessClient.Rendering.Character
             var character = _currentMapStateRepository.Characters[characterID];
             var renderProps = character.RenderProperties.ResetAnimationFrames();
             var newCharacter = character.WithRenderProperties(renderProps);
-            _currentMapStateRepository.Characters[characterID] = newCharacter;
+            _currentMapStateRepository.Characters.Update(character, newCharacter);
         }
     }
 
@@ -606,7 +599,7 @@ namespace EndlessClient.Rendering.Character
 
         void MainCharacterCancelSpellPrep();
 
-        void StartOtherCharacterWalkAnimation(int characterID, byte targetX, byte targetY, EODirection direction);
+        void StartOtherCharacterWalkAnimation(int characterID, MapCoordinate destination, EODirection direction);
 
         void StartOtherCharacterAttackAnimation(int characterID, Action sfxCallback);
 

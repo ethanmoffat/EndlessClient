@@ -9,6 +9,8 @@ using EOLib.Domain.Chat;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.BitmapFonts;
+using MonoGame.Extended.Input;
+using MonoGame.Extended.Input.InputListeners;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -138,8 +140,11 @@ namespace EndlessClient.HUD.Chat
             OnClosed?.Invoke(this, EventArgs.Empty);
         }
 
-        protected override void OnUpdateControl(GameTime gameTime)
+        protected override void OnUnconditionalUpdateControl(GameTime gameTime)
         {
+            if (!Visible)
+                return;
+
             if (!_cachedChat.SetEquals(_chatProvider.AllChat[Tab]))
             {
                 _cachedChat = _chatProvider.AllChat[Tab].ToHashSet();
@@ -157,21 +162,7 @@ namespace EndlessClient.HUD.Chat
                 }
             }
 
-            if (Active && MouseOver &&
-                CurrentMouseState.RightButton == ButtonState.Released &&
-                PreviousMouseState.RightButton == ButtonState.Pressed)
-            {
-                var clickedYRelativeToTopOfPanel = CurrentMouseState.Y - DrawAreaWithParentOffset.Y;
-                var clickedChatRow = (int)Math.Round(clickedYRelativeToTopOfPanel / 13.0) - 1;
-
-                if (clickedChatRow >= 0 && _scrollBar.ScrollOffset + clickedChatRow < _cachedChat.Count)
-                {
-                    var who = _chatProvider.AllChat[Tab][_scrollBar.ScrollOffset + clickedChatRow].Who;
-                    _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox).Text = $"!{who} ";
-                }
-            }
-
-            base.OnUpdateControl(gameTime);
+            base.OnUnconditionalUpdateControl(gameTime);
         }
 
         protected override void OnDrawControl(GameTime gameTime)
@@ -188,7 +179,7 @@ namespace EndlessClient.HUD.Chat
                 foreach (var (ndx, renderable) in _renderables.Skip(_scrollBar.ScrollOffset).Take(_scrollBar.LinesToRender).Select((r, i) => (i, r)))
                 {
                     renderable.DisplayIndex = ndx;
-                    renderable.Render(_spriteBatch, _chatFont);
+                    renderable.Render(_parentPanel, _spriteBatch, _chatFont);
                 }
 
                 _spriteBatch.Begin();
@@ -197,6 +188,25 @@ namespace EndlessClient.HUD.Chat
             _spriteBatch.End();
 
             base.OnDrawControl(gameTime);
+        }
+
+        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            if (eventArgs.Button == MouseButton.Right)
+            {
+                var clickedYRelativeToTopOfPanel = eventArgs.Position.Y - DrawAreaWithParentOffset.Y;
+                var clickedChatRow = (int)Math.Round(clickedYRelativeToTopOfPanel / 13.0) - 1;
+
+                if (clickedChatRow >= 0 && _scrollBar.ScrollOffset + clickedChatRow < _cachedChat.Count)
+                {
+                    var who = _chatProvider.AllChat[Tab][_scrollBar.ScrollOffset + clickedChatRow].Who;
+                    _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox).Text = $"!{who} ";
+                }
+
+                return true;
+            }
+
+            return false;
         }
 
         private void SelectThisTab()

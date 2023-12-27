@@ -18,12 +18,13 @@ namespace EOLib.PacketHandlers.Chat
 
         public override PacketAction Action => PacketAction.Open;
 
-        public GroupChatHandler(ICurrentMapStateProvider currentMapStateProvider,
-                                IPlayerInfoProvider playerInfoProvider,
+        public GroupChatHandler(IPlayerInfoProvider playerInfoProvider,
+                                ICurrentMapStateProvider currentMapStateProvider,
+                                ICharacterProvider characterProvider,
                                 IChatRepository chatRepository,
                                 IEnumerable<IOtherCharacterEventNotifier> otherCharacterEventNotifiers,
                                 IEnumerable<IChatEventNotifier> chatEventNotifiers)
-            : base(currentMapStateProvider, playerInfoProvider)
+            : base(playerInfoProvider, currentMapStateProvider, characterProvider)
         {
             _chatRepository = chatRepository;
             _otherCharacterEventNotifiers = otherCharacterEventNotifiers;

@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using EOLib.Domain.Character;
-using EOLib.IO.Extensions;
+﻿using EOLib.Domain.Character;
 using EOLib.IO.Repositories;
+using System.Collections.Generic;
 
 namespace EOLib.Net.Translators
 {
@@ -69,8 +67,7 @@ namespace EOLib.Net.Translators
                ArmorGraphic = armor,
                HatGraphic = hat,
                ShieldGraphic = shield,
-               WeaponGraphic = weapon,
-               IsRangedWeapon = _eifFileProvider.EIFFile.IsRangedWeapon(weapon),
+               WeaponGraphic = weapon
             };
 
             character.Stats = stats;

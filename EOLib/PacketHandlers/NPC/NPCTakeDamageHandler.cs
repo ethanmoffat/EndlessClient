@@ -40,7 +40,7 @@ namespace EOLib.PacketHandlers.NPC
         {
             var spellId = Family
                 .SomeWhen(x => x == PacketFamily.Cast)
-                .Map<int>(_ => packet.ReadShort());
+                .Map(_ => packet.ReadShort());
 
             var fromPlayerId = packet.ReadShort();
             var fromDirection = (EODirection)packet.ReadChar();
@@ -67,11 +67,11 @@ namespace EOLib.PacketHandlers.NPC
 
                 _characterRepository.MainCharacter = character;
             }
-            else if (_currentMapStateRepository.Characters.ContainsKey(fromPlayerId))
+            else if (_currentMapStateRepository.Characters.TryGetValue(fromPlayerId, out var character))
             {
-                var renderProps = _currentMapStateRepository.Characters[fromPlayerId].RenderProperties.WithDirection(fromDirection);
-                var updatedCharacter = _currentMapStateRepository.Characters[fromPlayerId].WithRenderProperties(renderProps);
-                _currentMapStateRepository.Characters[fromPlayerId] = updatedCharacter;
+                var renderProps = character.RenderProperties.WithDirection(fromDirection);
+                var updatedCharacter = character.WithRenderProperties(renderProps);
+                _currentMapStateRepository.Characters.Update(character, updatedCharacter);
             }
             else
             {
@@ -81,16 +81,16 @@ namespace EOLib.PacketHandlers.NPC
             // todo: this has the potential to bug out if the opponent ID is never reset and the player dies/leaves
             try
             {
-                var npc = _currentMapStateRepository.NPCs.Single(x => x.Index == npcIndex);
+                var npc = _currentMapStateRepository.NPCs[npcIndex];
                 var newNpc = npc.WithOpponentID(Option.Some(fromPlayerId));
-                _currentMapStateRepository.NPCs.Remove(npc);
-                _currentMapStateRepository.NPCs.Add(newNpc);
+                _currentMapStateRepository.NPCs.Update(npc, newNpc);
+
                 foreach (var notifier in _npcNotifiers)
                     notifier.NPCTakeDamage(npcIndex, fromPlayerId, damageToNpc, npcPctHealth, spellId);
             }
             catch (InvalidOperationException)
             {
-                _currentMapStateRepository.UnknownNPCIndexes.Add((byte)npcIndex);
+                _currentMapStateRepository.UnknownNPCIndexes.Add(npcIndex);
                 return true;
             }
 

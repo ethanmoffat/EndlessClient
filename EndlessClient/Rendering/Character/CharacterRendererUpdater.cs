@@ -1,6 +1,7 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Factories;
+using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
@@ -20,18 +21,21 @@ namespace EndlessClient.Rendering.Character
         private readonly ICharacterRendererFactory _characterRendererFactory;
         private readonly ICharacterRendererRepository _characterRendererRepository;
         private readonly ICharacterStateCache _characterStateCache;
+        private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
 
         public CharacterRendererUpdater(ICharacterProvider characterProvider,
                                         ICurrentMapStateRepository currentMapStateRepository,
                                         ICharacterRendererFactory characterRendererFactory,
                                         ICharacterRendererRepository characterRendererRepository,
-                                        ICharacterStateCache characterStateCache)
+                                        ICharacterStateCache characterStateCache,
+                                        IFixedTimeStepRepository fixedTimeStepRepository)
         {
             _characterProvider = characterProvider;
             _currentMapStateRepository = currentMapStateRepository;
             _characterRendererFactory = characterRendererFactory;
             _characterRendererRepository = characterRendererRepository;
             _characterStateCache = characterStateCache;
+            _fixedTimeStepRepository = fixedTimeStepRepository;
         }
 
         public void UpdateCharacters(GameTime gameTime)
@@ -70,9 +74,9 @@ namespace EndlessClient.Rendering.Character
 
         private void CreateOtherCharacterRenderersAndCacheProperties()
         {
-            foreach (var id in _currentMapStateRepository.Characters.Keys)
+            foreach (var character in _currentMapStateRepository.Characters)
             {
-                var character = _currentMapStateRepository.Characters[id];
+                var id = character.ID;
 
                 _characterStateCache.HasCharacterWithID(id)
                     .SomeWhen(b => b)
@@ -142,16 +146,16 @@ namespace EndlessClient.Rendering.Character
 
         private void UpdateDeadCharacters()
         {
-            var deadCharacters = new List<int>();
+            var deadCharacters = new List<EOLib.Domain.Character.Character>();
 
-            foreach (var character in _currentMapStateRepository.Characters.Values.Where(x => x.RenderProperties.IsDead))
+            foreach (var character in _currentMapStateRepository.Characters.Where(x => x.RenderProperties.IsDead))
             {
                 _characterStateCache.DeathStartTimes.SingleOrNone(x => x.UniqueID == character.ID)
                     .Match(
                         none: () => _characterStateCache.AddDeathStartTime(character.ID),
                         some: actionTime =>
                         {
-                            if (actionTime.ActionTimer.ElapsedMilliseconds >= 2)
+                            if ((_fixedTimeStepRepository.TickCount - actionTime.ActionTick) >= 200) // 200 ticks * 10ms = 2 seconds
                             {
                                 _characterStateCache.RemoveDeathStartTime(character.ID);
                                 _characterStateCache.RemoveCharacterState(character.ID);
@@ -162,13 +166,13 @@ namespace EndlessClient.Rendering.Character
                                     _characterRendererRepository.CharacterRenderers.Remove(character.ID);
                                 }
 
-                                deadCharacters.Add(character.ID);
+                                deadCharacters.Add(character);
                             }
                         });
             }
 
-            foreach (var id in deadCharacters)
-                _currentMapStateRepository.Characters.Remove(id);
+            foreach (var dead in deadCharacters)
+                _currentMapStateRepository.Characters.Remove(dead);
         }
 
         private ICharacterRenderer InitializeRendererForCharacter(EOLib.Domain.Character.Character character)

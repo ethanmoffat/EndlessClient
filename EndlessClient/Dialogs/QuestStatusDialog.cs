@@ -25,7 +25,7 @@ namespace EndlessClient.Dialogs
                                  ILocalizedStringFinder localizedStringFinder,
                                  IQuestDataProvider questDataProvider,
                                  ICharacterProvider characterProvider)
-            : base(nativeGraphicsManager, dialogButtonService, ScrollingListDialogSize.Medium)
+            : base(nativeGraphicsManager, dialogButtonService, DialogType.QuestProgressHistory)
         {
             ListItemType = ListDialogItem.ListItemStyle.Small;
             Buttons = ScrollingListDialogButtons.HistoryOk;
@@ -63,13 +63,13 @@ namespace EndlessClient.Dialogs
 
             if (_cachedHistory.Count == 0)
             {
-                AddItemToList(
-                    new QuestStatusListDialogItem(this, QuestPage.History)
-                    {
-                        QuestName = _localizedStringFinder.GetString(EOResourceID.QUEST_DID_NOT_FINISH_ANY),
-                        ShowIcons = false
-                    },
-                    sortList: false);
+                var nextItem = new QuestStatusListDialogItem(this, QuestPage.History)
+                {
+                    QuestName = _localizedStringFinder.GetString(EOResourceID.QUEST_DID_NOT_FINISH_ANY),
+                    ShowIcons = false
+                };
+                nextItem.SetScrollWheelHandler(this);
+                AddItemToList(nextItem, sortList: false);
             }
 
             foreach (var questName in _cachedHistory)
@@ -79,6 +79,7 @@ namespace EndlessClient.Dialogs
                     QuestName = questName,
                     QuestProgress = _localizedStringFinder.GetString(EOResourceID.QUEST_COMPLETED),
                 };
+                nextItem.SetScrollWheelHandler(this);
                 AddItemToList(nextItem, sortList: false);
             }
 
@@ -93,13 +94,13 @@ namespace EndlessClient.Dialogs
 
             if (_cachedProgress.Count == 0)
             {
-                AddItemToList(
-                    new QuestStatusListDialogItem(this, QuestPage.Progress)
-                    {
-                        QuestName = _localizedStringFinder.GetString(EOResourceID.QUEST_DID_NOT_START_ANY),
-                        ShowIcons = false,
-                    },
-                    sortList: false);
+                var nextItem = new QuestStatusListDialogItem(this, QuestPage.Progress)
+                {
+                    QuestName = _localizedStringFinder.GetString(EOResourceID.QUEST_DID_NOT_START_ANY),
+                    ShowIcons = false,
+                };
+                nextItem.SetScrollWheelHandler(this);
+                AddItemToList(nextItem, sortList: false);
             }
 
             foreach (var quest in _cachedProgress)
@@ -111,6 +112,7 @@ namespace EndlessClient.Dialogs
                     Icon = (QuestStatusListDialogItem.QuestStatusIcon)quest.IconIndex,
                     QuestProgress = quest.Target > 0 ? $"{quest.Progress} / {quest.Target}" : "n / a"
                 };
+                nextItem.SetScrollWheelHandler(this);
                 AddItemToList(nextItem, sortList: false);
             }
 

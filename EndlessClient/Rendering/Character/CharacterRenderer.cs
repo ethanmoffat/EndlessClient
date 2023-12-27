@@ -1,12 +1,12 @@
 ﻿using EndlessClient.Audio;
-using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Factories;
-using EndlessClient.Rendering.Sprites;
+using EndlessClient.Rendering.Metadata;
+using EndlessClient.Rendering.Metadata.Models;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Character;
@@ -17,7 +17,6 @@ using EOLib.Graphics;
 using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Optional;
 using System;
 using System.Linq;
@@ -27,7 +26,8 @@ namespace EndlessClient.Rendering.Character
 {
     public class CharacterRenderer : DrawableGameComponent, ICharacterRenderer
     {
-        private readonly IMapInteractionController _mapInteractionController;
+        private readonly object _rt_locker_ = new object();
+
         private readonly IRenderTargetFactory _renderTargetFactory;
         private readonly IHealthBarRendererFactory _healthBarRendererFactory;
         private readonly IChatBubbleFactory _chatBubbleFactory;
@@ -35,12 +35,13 @@ namespace EndlessClient.Rendering.Character
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
         private readonly ICharacterPropertyRendererBuilder _characterPropertyRendererBuilder;
         private readonly ICharacterTextures _characterTextures;
-        private readonly ICharacterSpriteCalculator _characterSpriteCalculator;
         private readonly IGameStateProvider _gameStateProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IUserInputProvider _userInputProvider;
+        private readonly IMetadataProvider<HatMetadata> _hatMetadataProvider;
+        private readonly IMetadataProvider<WeaponMetadata> _weaponMetadataProvider;
         private readonly ISfxPlayer _sfxPlayer;
-        private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
+        private readonly IClientWindowSizeRepository _clientWindowSizeRepository;
         private readonly IEffectRenderer _effectRenderer;
 
         private EOLib.Domain.Character.Character _character;
@@ -59,6 +60,8 @@ namespace EndlessClient.Rendering.Character
         private Lazy<IChatBubble> _chatBubble;
 
         private bool _lastIsDead;
+
+        private Color[] _rtColorData;
 
         public EOLib.Domain.Character.Character Character
         {
@@ -83,15 +86,7 @@ namespace EndlessClient.Rendering.Character
 
         public bool IsAlive => !Character.RenderProperties.IsDead;
 
-        public bool MouseOver => DrawArea.Contains(_userInputProvider.CurrentMouseState.Position);
-
-        public bool MouseOverPreviously => DrawArea.Contains(_userInputProvider.PreviousMouseState.Position);
-
-        public Rectangle EffectTargetArea
-            => DrawArea.WithPosition(new Vector2(DrawArea.X, DrawArea.Y - 8));
-
         public CharacterRenderer(Game game,
-                                 IMapInteractionController mapInteractionController,
                                  IRenderTargetFactory renderTargetFactory,
                                  IHealthBarRendererFactory healthBarRendererFactory,
                                  IChatBubbleFactory chatBubbleFactory,
@@ -99,17 +94,17 @@ namespace EndlessClient.Rendering.Character
                                  IRenderOffsetCalculator renderOffsetCalculator,
                                  ICharacterPropertyRendererBuilder characterPropertyRendererBuilder,
                                  ICharacterTextures characterTextures,
-                                 ICharacterSpriteCalculator characterSpriteCalculator,
                                  EOLib.Domain.Character.Character character,
                                  IGameStateProvider gameStateProvider,
                                  ICurrentMapProvider currentMapProvider,
                                  IUserInputProvider userInputProvider,
                                  IEffectRendererFactory effectRendererFactory,
+                                 IMetadataProvider<HatMetadata> hatMetadataProvider,
+                                 IMetadataProvider<WeaponMetadata> weaponMetadataProvider,
                                  ISfxPlayer sfxPlayer,
-                                 IFixedTimeStepRepository fixedTimeStepRepository)
+                                 IClientWindowSizeRepository clientWindowSizeRepository)
             : base(game)
         {
-            _mapInteractionController = mapInteractionController;
             _renderTargetFactory = renderTargetFactory;
             _healthBarRendererFactory = healthBarRendererFactory;
             _chatBubbleFactory = chatBubbleFactory;
@@ -117,23 +112,38 @@ namespace EndlessClient.Rendering.Character
             _renderOffsetCalculator = renderOffsetCalculator;
             _characterPropertyRendererBuilder = characterPropertyRendererBuilder;
             _characterTextures = characterTextures;
-            _characterSpriteCalculator = characterSpriteCalculator;
             _character = character;
             _gameStateProvider = gameStateProvider;
             _currentMapProvider = currentMapProvider;
             _userInputProvider = userInputProvider;
+            _hatMetadataProvider = hatMetadataProvider;
+            _weaponMetadataProvider = weaponMetadataProvider;
             _effectRenderer = effectRendererFactory.Create();
             _sfxPlayer = sfxPlayer;
-            _fixedTimeStepRepository = fixedTimeStepRepository;
+            _clientWindowSizeRepository = clientWindowSizeRepository;
 
             _chatBubble = new Lazy<IChatBubble>(() => _chatBubbleFactory.CreateChatBubble(this));
+
+            _clientWindowSizeRepository.GameWindowSizeChanged += (_, _) =>
+            {
+                lock (_rt_locker_)
+                {
+                    _charRenderTarget.Dispose();
+                    _charRenderTarget = _renderTargetFactory.CreateRenderTarget();
+                }
+            };
+
+            if (_character == _characterProvider.MainCharacter)
+                _clientWindowSizeRepository.GameWindowSizeChanged += (_, _) => SetToCenterScreenPosition();
         }
 
         #region Game Component
 
         public override void Initialize()
         {
-            _charRenderTarget = _renderTargetFactory.CreateRenderTarget();
+            lock(_rt_locker_)
+                _charRenderTarget = _renderTargetFactory.CreateRenderTarget();
+
             _sb = new SpriteBatch(Game.GraphicsDevice);
 
             if (_gameStateProvider.CurrentState == GameStates.PlayingTheGame)
@@ -165,6 +175,7 @@ namespace EndlessClient.Rendering.Character
         protected override void LoadContent()
         {
             _textureUpdateRequired = true;
+            _characterTextures.Refresh(_character.RenderProperties);
 
             _outline = new Texture2D(GraphicsDevice, 1, 1);
             _outline.SetData(new[] { Color.White });
@@ -180,38 +191,20 @@ namespace EndlessClient.Rendering.Character
             if (!Visible)
                 return;
 
-            if (_fixedTimeStepRepository.IsUpdateFrame)
+            if (_positionIsRelative)
+                SetGridCoordinatePosition();
+
+            if (_textureUpdateRequired)
             {
-                if (_positionIsRelative)
-                    SetGridCoordinatePosition();
+                _characterTextures.Refresh(_character.RenderProperties);
+                DrawToRenderTarget();
 
-                if (_textureUpdateRequired)
-                {
-                    _characterTextures.Refresh(_character.RenderProperties);
-                    DrawToRenderTarget();
-
-                    _textureUpdateRequired = false;
-                }
+                _textureUpdateRequired = false;
             }
 
             if (_gameStateProvider.CurrentState == GameStates.PlayingTheGame)
             {
                 UpdateNameLabel();
-
-                if (MouseOver)
-                {
-                    if (_userInputProvider.CurrentMouseState.RightButton == ButtonState.Released &&
-                        _userInputProvider.PreviousMouseState.RightButton == ButtonState.Pressed)
-                    {
-                        _mapInteractionController.RightClick(Character);
-                    }
-                    else if (_userInputProvider.CurrentMouseState.LeftButton == ButtonState.Released &&
-                             _userInputProvider.PreviousMouseState.LeftButton == ButtonState.Pressed &&
-                             !_userInputProvider.ClickHandled)
-                    {
-                        _mapInteractionController.LeftClick(Character);
-                    }
-                }
 
                 _healthBarRenderer?.Update(gameTime);
 
@@ -252,18 +245,30 @@ namespace EndlessClient.Rendering.Character
 
         public void SetToCenterScreenPosition()
         {
-            const int x = 310; // 620 / 2.0
+            var skinRect = _characterTextures.Skin.SourceRectangle;
 
-            var skinRect = new Rectangle(0, 0, 18, 58);
-            var y = (298 - skinRect.Height)/2 - skinRect.Height/4 - 3;
-            SetAbsoluteScreenPosition(x, y);
+            var xCoord = _clientWindowSizeRepository.Resizable
+                ? (_clientWindowSizeRepository.Width - skinRect.Width) / 2
+                : 310;
+            var yCoord = _clientWindowSizeRepository.Resizable
+                ? (_clientWindowSizeRepository.Height - skinRect.Height) / 2 - 11
+                : (298 - skinRect.Height) / 2 - skinRect.Height/4 - 3;
+
+            SetAbsoluteScreenPosition(xCoord, yCoord);
         }
 
         public void DrawToSpriteBatch(SpriteBatch spriteBatch)
         {
             _effectRenderer.DrawBehindTarget(spriteBatch);
+
             if (Visible)
-                spriteBatch.Draw(_charRenderTarget, new Vector2(0, GetSteppingStoneOffset(Character.RenderProperties)), GetAlphaColor());
+            {
+                lock (_rt_locker_)
+                {
+                    spriteBatch.Draw(_charRenderTarget, new Vector2(0, GetSteppingStoneOffset(Character.RenderProperties)), GetAlphaColor());
+                }
+            }
+
             _effectRenderer.DrawInFrontOfTarget(spriteBatch);
 
             if (_gameStateProvider.CurrentState == GameStates.PlayingTheGame)
@@ -280,28 +285,35 @@ namespace EndlessClient.Rendering.Character
 
         private void DrawToRenderTarget()
         {
-            GraphicsDevice.SetRenderTarget(_charRenderTarget);
-            GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
-            _sb.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend);
+            var weaponMetadata = _weaponMetadataProvider.GetValueOrDefault(Character.RenderProperties.WeaponGraphic);
 
-            var characterPropertyRenderers = _characterPropertyRendererBuilder
-                .BuildList(_characterTextures, _character.RenderProperties)
-                .Where(x => x.CanRender);
-            foreach (var renderer in characterPropertyRenderers)
-                renderer.Render(_sb, DrawArea);
-
-            if (_gameStateProvider.CurrentState == GameStates.None)
+            lock (_rt_locker_)
             {
-                _sb.Draw(_outline, DrawArea.WithSize(DrawArea.Width, 1), Color.Black);
-                _sb.Draw(_outline, DrawArea.WithPosition(new Vector2(DrawArea.X + DrawArea.Width, DrawArea.Y)).WithSize(1, DrawArea.Height), Color.Black);
-                _sb.Draw(_outline, DrawArea.WithPosition(new Vector2(DrawArea.X, DrawArea.Y + DrawArea.Height)).WithSize(DrawArea.Width, 1), Color.Black);
-                _sb.Draw(_outline, DrawArea.WithSize(1, DrawArea.Height), Color.Black);
+                GraphicsDevice.SetRenderTarget(_charRenderTarget);
+                GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
+                _sb.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend);
 
-                _sb.Draw(_outline, DrawArea, Color.FromNonPremultiplied(255, 0, 0, 64));
+                var characterPropertyRenderers = _characterPropertyRendererBuilder
+                    .BuildList(_characterTextures, _character.RenderProperties)
+                    .Where(x => x.CanRender);
+                foreach (var renderer in characterPropertyRenderers)
+                    renderer.Render(_sb, DrawArea, weaponMetadata);
+
+                if (_gameStateProvider.CurrentState == GameStates.None)
+                {
+                    _sb.Draw(_outline, DrawArea.WithSize(DrawArea.Width, 1), Color.Black);
+                    _sb.Draw(_outline, DrawArea.WithPosition(new Vector2(DrawArea.X + DrawArea.Width, DrawArea.Y)).WithSize(1, DrawArea.Height), Color.Black);
+                    _sb.Draw(_outline, DrawArea.WithPosition(new Vector2(DrawArea.X, DrawArea.Y + DrawArea.Height)).WithSize(DrawArea.Width, 1), Color.Black);
+                    _sb.Draw(_outline, DrawArea.WithSize(1, DrawArea.Height), Color.Black);
+
+                    _sb.Draw(_outline, DrawArea, Color.FromNonPremultiplied(255, 0, 0, 64));
+                }
+
+                _sb.End();
+                GraphicsDevice.SetRenderTarget(null);
+
+                ClipHair();
             }
-
-            _sb.End();
-            GraphicsDevice.SetRenderTarget(null);
         }
 
         private Color GetAlphaColor()
@@ -318,9 +330,11 @@ namespace EndlessClient.Rendering.Character
 
         private void SetGridCoordinatePosition()
         {
-            //todo: the constants here should be dynamically configurable to support window resizing
-            var screenX = _renderOffsetCalculator.CalculateOffsetX(_character.RenderProperties) + 310 - GetMainCharacterOffsetX();
-            var screenY = _renderOffsetCalculator.CalculateOffsetY(_character.RenderProperties) + 104 - GetMainCharacterOffsetY();
+            var centerX = _clientWindowSizeRepository.Resizable ? (_clientWindowSizeRepository.Width - DrawArea.Width) / 2 : 310;
+            var centerY = _clientWindowSizeRepository.Resizable ? (_clientWindowSizeRepository.Height - DrawArea.Height) / 2 - 8 : 104;
+
+            var screenX = _renderOffsetCalculator.CalculateOffsetX(_character.RenderProperties) + centerX - GetMainCharacterOffsetX();
+            var screenY = _renderOffsetCalculator.CalculateOffsetY(_character.RenderProperties) + centerY - GetMainCharacterOffsetY();
 
             SetScreenCoordinates(screenX, screenY);
         }
@@ -332,7 +346,6 @@ namespace EndlessClient.Rendering.Character
                 // size of standing still skin texture
                 DrawArea = new Rectangle(xPosition, yPosition, 18, 58);
                 HorizontalCenter = xPosition + 9;
-                NameLabelY = DrawArea.Y - 12 - (int)(_nameLabel?.ActualHeight ?? 0);
                 _textureUpdateRequired = true;
             }
         }
@@ -385,6 +398,7 @@ namespace EndlessClient.Rendering.Character
 
         private Vector2 GetNameLabelPosition()
         {
+            NameLabelY = DrawArea.Y - 12 - (int)(_nameLabel?.ActualHeight ?? 0) + ((int)Character.RenderProperties.SitState)*10;
             return new Vector2(HorizontalCenter - (_nameLabel.ActualWidth / 2f), NameLabelY);
         }
 
@@ -427,6 +441,24 @@ namespace EndlessClient.Rendering.Character
             }
         }
 
+        private void ClipHair()
+        {
+            if (Character.RenderProperties.HatGraphic == 0 ||
+                _hatMetadataProvider.GetValueOrDefault(Character.RenderProperties.HatGraphic).ClipMode != HatMaskType.Standard)
+                return;
+
+            // oof. I really need to learn how to use shaders or stencil buffer.
+            // https://gamedev.stackexchange.com/questions/38118/best-way-to-mask-2d-sprites-in-xna/38150#38150
+            _rtColorData = new Color[_charRenderTarget.Width * _charRenderTarget.Height];
+            _charRenderTarget.GetData(_rtColorData);
+            for (int i = 0; i < _rtColorData.Length; i++)
+            {
+                if (_rtColorData[i] == Color.Black)
+                    _rtColorData[i].A = 0;
+            }
+            _charRenderTarget.SetData(_rtColorData);
+        }
+
         #endregion
 
         public bool EffectIsPlaying()
@@ -459,6 +491,9 @@ namespace EndlessClient.Rendering.Character
         // Called when the shout (spell prep time) should be cancelled without casting
         public void StopShout()
         {
+            if (_nameLabel == null)
+                return;
+
             _nameLabel.Visible = false;
             _nameLabel.Text = _character.Name;
             _nameLabel.ForeColor = Color.White;
@@ -496,7 +531,9 @@ namespace EndlessClient.Rendering.Character
                     _chatBubble.Value?.Dispose();
 
                 _sb?.Dispose();
-                _charRenderTarget?.Dispose();
+
+                lock(_rt_locker_)
+                    _charRenderTarget?.Dispose();
             }
 
             base.Dispose(disposing);

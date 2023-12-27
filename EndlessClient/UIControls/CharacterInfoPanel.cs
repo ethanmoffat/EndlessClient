@@ -60,6 +60,7 @@ namespace EndlessClient.UIControls
             _deleteButton.SetParentControl(this);
 
             _backgroundImage = _gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 11);
+            SetSize(_backgroundImage.Width, _backgroundImage.Height);
         }
 
         public CharacterInfoPanel(int characterIndex,

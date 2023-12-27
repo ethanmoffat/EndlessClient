@@ -10,14 +10,14 @@ namespace EOLib.IO.Pub
         {
         }
 
-        public ESFFile(int checksum, List<ESFRecord> data)
-            : base(checksum, data)
+        public ESFFile(int id, int checksum, int totalLength, List<ESFRecord> data)
+            : base(id, checksum, totalLength, data)
         {
         }
 
         protected override BasePubFile<ESFRecord> MakeCopy()
         {
-            return new ESFFile(CheckSum, new List<ESFRecord>(this));
+            return new ESFFile(ID, CheckSum, TotalLength, new List<ESFRecord>(this));
         }
     }
 }

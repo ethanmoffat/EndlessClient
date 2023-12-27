@@ -82,6 +82,8 @@ ShowBaloons=off
 ShowShadows=no
 ShowTransition=true
 EnableLogging=true
+InGameWidth=123
+InGameHeight=321
 [CUSTOM]
 NPCDropProtectTime=5000
 PlayerDropProtectTime=10000
@@ -115,6 +117,8 @@ Interaction=false";
             Assert.IsFalse(_configurationRepository.ShowShadows);
             Assert.IsFalse(_configurationRepository.ShowChatBubbles);
             Assert.IsTrue(_configurationRepository.ShowTransition);
+            Assert.AreEqual(123, _configurationRepository.InGameWidth);
+            Assert.AreEqual(321, _configurationRepository.InGameHeight);
 
             Assert.IsTrue(_configurationRepository.MusicEnabled);
             Assert.IsTrue(_configurationRepository.SoundEnabled);

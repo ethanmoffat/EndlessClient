@@ -30,7 +30,7 @@ namespace EndlessClient.UIControls
         private void SetupSpecificSound(IXNAButton button, SoundEffectID sound) => button.OnClick += (_, _) => _sfxPlayer.PlaySfx(sound);
 
         private void SetupSound(IXNATextBox textBox) => SetupSpecificSound(textBox, SoundEffectID.TextBoxFocus);
-        private void SetupSpecificSound(IXNATextBox textBox, SoundEffectID sound) => textBox.OnFocused += (_, _) => _sfxPlayer.PlaySfx(sound);
+        private void SetupSpecificSound(IXNATextBox textBox, SoundEffectID sound) => textBox.OnGotFocus += (_, _) => _sfxPlayer.PlaySfx(sound);
 
         private void SetupSound(CreateCharacterControl characterControl) => SetupSpecificSound(characterControl, SoundEffectID.TextBoxFocus);
         private void SetupSpecificSound(CreateCharacterControl characterControl, SoundEffectID sound) => characterControl.Clicked += (_, _) => _sfxPlayer.PlaySfx(sound);

@@ -15,7 +15,7 @@ namespace EOLib.Domain.Item
             _packetSendService = packetSendService;
         }
 
-        public void UseItem(short itemId)
+        public void UseItem(int itemId)
         {
             var packet = new PacketBuilder(PacketFamily.Item, PacketAction.Use)
                 .AddShort(itemId)
@@ -24,38 +24,38 @@ namespace EOLib.Domain.Item
             _packetSendService.SendPacket(packet);
         }
 
-        public void EquipItem(short itemId, bool alternateLocation)
+        public void EquipItem(int itemId, bool alternateLocation)
         {
             var packet = new PacketBuilder(PacketFamily.PaperDoll, PacketAction.Add)
                 .AddShort(itemId)
-                .AddChar((byte)(alternateLocation ? 1 : 0))
+                .AddChar(alternateLocation ? 1 : 0)
                 .Build();
 
             _packetSendService.SendPacket(packet);
         }
 
-        public void UnequipItem(short itemId, bool alternateLocation)
+        public void UnequipItem(int itemId, bool alternateLocation)
         {
             var packet = new PacketBuilder(PacketFamily.PaperDoll, PacketAction.Remove)
                 .AddShort(itemId)
-                .AddChar((byte)(alternateLocation ? 1 : 0))
+                .AddChar(alternateLocation ? 1 : 0)
                 .Build();
 
             _packetSendService.SendPacket(packet);
         }
 
-        public void DropItem(short itemId, int amount, MapCoordinate dropPoint)
+        public void DropItem(int itemId, int amount, MapCoordinate dropPoint)
         {
             var packet = new PacketBuilder(PacketFamily.Item, PacketAction.Drop)
                 .AddShort(itemId)
                 .AddInt(amount)
-                .AddChar((byte)dropPoint.X)
-                .AddChar((byte)dropPoint.Y)
+                .AddChar(dropPoint.X)
+                .AddChar(dropPoint.Y)
                 .Build();
             _packetSendService.SendPacket(packet);
         }
 
-        public void JunkItem(short itemId, int amount)
+        public void JunkItem(int itemId, int amount)
         {
             var packet = new PacketBuilder(PacketFamily.Item, PacketAction.Junk)
                 .AddShort(itemId)
@@ -68,14 +68,14 @@ namespace EOLib.Domain.Item
 
     public interface IItemActions
     {
-        void UseItem(short itemId);
+        void UseItem(int itemId);
 
-        void EquipItem(short itemId, bool alternateLocation);
+        void EquipItem(int itemId, bool alternateLocation);
 
-        void UnequipItem(short itemId, bool alternateLocation);
+        void UnequipItem(int itemId, bool alternateLocation);
 
-        void DropItem(short itemId, int amount, MapCoordinate dropPoint);
+        void DropItem(int itemId, int amount, MapCoordinate dropPoint);
 
-        void JunkItem(short itemId, int amount);
+        void JunkItem(int itemId, int amount);
     }
 }

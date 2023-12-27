@@ -12,16 +12,16 @@ namespace EOLib.Domain.Character
 
         public CharacterActionState CurrentAction { get; }
 
-        public byte HairStyle { get; }
-        public byte HairColor { get; }
-        public byte Race { get; }
-        public byte Gender { get; }
+        public int HairStyle { get; }
+        public int HairColor { get; }
+        public int Race { get; }
+        public int Gender { get; }
 
-        public short BootsGraphic { get; }
-        public short ArmorGraphic { get; }
-        public short HatGraphic { get; }
-        public short ShieldGraphic { get; }
-        public short WeaponGraphic { get; }
+        public int BootsGraphic { get; }
+        public int ArmorGraphic { get; }
+        public int HatGraphic { get; }
+        public int ShieldGraphic { get; }
+        public int WeaponGraphic { get; }
 
         public EODirection Direction { get; }
         public int MapX { get; }
@@ -40,7 +40,5 @@ namespace EOLib.Domain.Character
         public bool IsHidden { get; }
         public bool IsDead { get; }
         public bool IsDrunk { get; }
-
-        public bool IsRangedWeapon { get; }
     }
 }

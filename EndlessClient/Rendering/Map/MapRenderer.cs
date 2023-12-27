@@ -1,15 +1,18 @@
-﻿using EndlessClient.GameExecution;
+﻿using EndlessClient.Content;
+using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.MapEntityRenderers;
 using EndlessClient.Rendering.NPC;
+using EOLib;
 using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.BitmapFonts;
 using Optional;
 using System;
 using System.Collections.Generic;
@@ -18,13 +21,17 @@ namespace EndlessClient.Rendering.Map
 {
     public class MapRenderer : DrawableGameComponent, IMapRenderer
     {
-        private const double TRANSITION_TIME_MS = 125.0;
+        private const double TRANSITION_TIME_MS = 60.0;
+
+        private readonly object _rt_locker_ = new object();
 
         private readonly IRenderTargetFactory _renderTargetFactory;
         private readonly IEffectRendererFactory _effectRendererFactory;
         private readonly IMapEntityRendererProvider _mapEntityRendererProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
+        private readonly ICurrentMapStateProvider _currentMapStateProvider;
+        private readonly IContentProvider _contentProvider;
         private readonly IMapRenderDistanceCalculator _mapRenderDistanceCalculator;
         private readonly ICharacterRendererUpdater _characterRendererUpdater;
         private readonly INPCRendererUpdater _npcRendererUpdater;
@@ -32,7 +39,9 @@ namespace EndlessClient.Rendering.Map
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IMouseCursorRenderer _mouseCursorRenderer;
         private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
+        private readonly IClientWindowSizeRepository _clientWindowSizeRepository;
         private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
+
         private RenderTarget2D _mapBaseTarget, _mapObjectTarget;
         private SpriteBatch _sb;
         private MapTransitionState _mapTransitionState = MapTransitionState.Default;
@@ -48,8 +57,9 @@ namespace EndlessClient.Rendering.Map
             get
             {
                 var ms = Mouse.GetState();
-                //todo: turn magic numbers into meaningful values
-                return Game.IsActive && ms.X > 0 && ms.Y > 0 && ms.X < 640 && ms.Y < 320;
+                return Game.IsActive && ms.X > 0 && ms.Y > 0 &&
+                    ms.X < _clientWindowSizeRepository.Width &&
+                    ms.Y < (_clientWindowSizeRepository.Resizable ? _clientWindowSizeRepository.Height : _clientWindowSizeRepository.Height * 2 / 3);
             }
         }
 
@@ -61,6 +71,8 @@ namespace EndlessClient.Rendering.Map
                            IMapEntityRendererProvider mapEntityRendererProvider,
                            ICharacterProvider characterProvider,
                            ICurrentMapProvider currentMapProvider,
+                           ICurrentMapStateProvider currentMapStateProvider,
+                           IContentProvider contentProvider,
                            IMapRenderDistanceCalculator mapRenderDistanceCalculator,
                            ICharacterRendererUpdater characterRendererUpdater,
                            INPCRendererUpdater npcRendererUpdater,
@@ -68,6 +80,7 @@ namespace EndlessClient.Rendering.Map
                            IConfigurationProvider configurationProvider,
                            IMouseCursorRenderer mouseCursorRenderer,
                            IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
+                           IClientWindowSizeRepository clientWindowSizeRepository,
                            IFixedTimeStepRepository fixedTimeStepRepository)
             : base((Game)endlessGame)
         {
@@ -76,6 +89,8 @@ namespace EndlessClient.Rendering.Map
             _mapEntityRendererProvider = mapEntityRendererProvider;
             _characterProvider = characterProvider;
             _currentMapProvider = currentMapProvider;
+            _currentMapStateProvider = currentMapStateProvider;
+            _contentProvider = contentProvider;
             _mapRenderDistanceCalculator = mapRenderDistanceCalculator;
             _characterRendererUpdater = characterRendererUpdater;
             _npcRendererUpdater = npcRendererUpdater;
@@ -83,12 +98,15 @@ namespace EndlessClient.Rendering.Map
             _configurationProvider = configurationProvider;
             _mouseCursorRenderer = mouseCursorRenderer;
             _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
+            _clientWindowSizeRepository = clientWindowSizeRepository;
             _fixedTimeStepRepository = fixedTimeStepRepository;
             _mapGridEffectRenderers = new Dictionary<MapCoordinate, IEffectRenderer>();
         }
 
         public override void Initialize()
         {
+            _clientWindowSizeRepository.GameWindowSizeChanged += ResizeGameWindow;
+
             _mapBaseTarget = _renderTargetFactory.CreateRenderTarget();
             _mapObjectTarget = _renderTargetFactory.CreateRenderTarget();
             _sb = new SpriteBatch(Game.GraphicsDevice);
@@ -102,17 +120,22 @@ namespace EndlessClient.Rendering.Map
 
         public override void Update(GameTime gameTime)
         {
+            if (_currentMapStateProvider.IsSleepWarp) return;
+
             if (!_lastMapChecksum.HasValue || _lastMapChecksum != _currentMapProvider.CurrentMap.Properties.ChecksumInt)
             {
                 // The dimensions of the map are 0-based in the properties. Adjust to 1-based for RT creation
                 var widthPlus1 = _currentMapProvider.CurrentMap.Properties.Width + 1;
                 var heightPlus1 = _currentMapProvider.CurrentMap.Properties.Height + 1;
 
-                _mapBaseTarget.Dispose();
-                _mapBaseTarget = _renderTargetFactory.CreateRenderTarget(
-                    (widthPlus1 + heightPlus1) * 32,
-                    (widthPlus1 + heightPlus1) * 16);
-                _groundDrawn = false;
+                lock (_rt_locker_)
+                {
+                    _mapBaseTarget.Dispose();
+                    _mapBaseTarget = _renderTargetFactory.CreateRenderTarget(
+                        (widthPlus1 + heightPlus1) * 32,
+                        (widthPlus1 + heightPlus1) * 16);
+                    _groundDrawn = false;
+                }
             }
 
             if (Visible)
@@ -150,7 +173,33 @@ namespace EndlessClient.Rendering.Map
             if (!Visible)
                 return;
 
-            DrawToSpriteBatch(_sb, gameTime);
+            if (_currentMapStateProvider.IsSleepWarp)
+            {
+                lock (_rt_locker_)
+                {
+                    GraphicsDevice.SetRenderTarget(_mapBaseTarget);
+                    GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
+                    GraphicsDevice.SetRenderTarget(null);
+                }
+
+                _sb.Begin();
+                _sb.Draw(_mapBaseTarget, new Vector2(0, 0), Color.White);
+                _sb.DrawString(_contentProvider.Fonts[Constants.FontSize08], "zzzzz..", new Vector2(_clientWindowSizeRepository.Width / 2 - 15, _clientWindowSizeRepository.Height / 3), Color.White);
+                _sb.End();
+
+                // This implementation relies on MapWarpTime being reset in InputHandlerBase
+                _currentMapStateProvider.MapWarpTime.MatchSome(x =>
+                {
+                    if ((DateTime.Now - x).TotalSeconds >= 5)
+                    {
+                        _mapTransitionState = new MapTransitionState(Option.Some(DateTime.Now), 1);
+                    }
+                });
+            }
+            else
+            {
+                DrawToSpriteBatch(_sb, gameTime);
+            }
 
             base.Draw(gameTime);
         }
@@ -160,7 +209,7 @@ namespace EndlessClient.Rendering.Map
             _mapTransitionState = new MapTransitionState(Option.Some(DateTime.Now), 1);
         }
 
-        public void StartEarthquake(byte strength)
+        public void StartEarthquake(int strength)
         {
             _quakeState = Option.Some(new MapQuakeState(strength));
         }
@@ -171,10 +220,8 @@ namespace EndlessClient.Rendering.Map
             _mapTransitionState = new MapTransitionState(Option.Some(DateTime.Now - new TimeSpan(0, 5, 0)), 255);
         }
 
-        public void RenderEffect(byte x, byte y, short effectId)
+        public void RenderEffect(MapCoordinate coordinate, int effectId)
         {
-            var coordinate = new MapCoordinate(x, y);
-
             if (!_mapGridEffectRenderers.ContainsKey(coordinate))
             {
                 var renderer = _effectRendererFactory.Create();
@@ -190,6 +237,8 @@ namespace EndlessClient.Rendering.Map
                 _mapGridEffectRenderers[coordinate].QueueEffect(effectId + 1, coordinate);
             }
         }
+
+        public void AnimateMouseClick() => _mouseCursorRenderer.AnimateClick();
 
         public void ClearTransientRenderables()
         {
@@ -226,93 +275,98 @@ namespace EndlessClient.Rendering.Map
 
             _groundDrawn = true;
 
-            GraphicsDevice.SetRenderTarget(_mapBaseTarget);
-            _sb.Begin();
-
-            var renderBounds = new MapRenderBounds(0, _currentMapProvider.CurrentMap.Properties.Height,
-                                                   0, _currentMapProvider.CurrentMap.Properties.Width);
-
-            var transitionComplete = true;
-            for (var row = renderBounds.FirstRow; row <= renderBounds.LastRow; row++)
+            lock (_rt_locker_)
             {
-                for (var col = renderBounds.FirstCol; col <= renderBounds.LastCol; ++col)
-                {
-                    var alpha = GetAlphaForCoordinates(col, row, _characterProvider.MainCharacter);
-                    transitionComplete &= alpha == 255;
+                GraphicsDevice.SetRenderTarget(_mapBaseTarget);
+                _sb.Begin();
 
-                    if (_mapEntityRendererProvider.GroundRenderer.CanRender(row, col))
-                        _mapEntityRendererProvider.GroundRenderer.RenderElementAt(_sb, row, col, alpha);
+                var renderBounds = new MapRenderBounds(0, _currentMapProvider.CurrentMap.Properties.Height,
+                                                    0, _currentMapProvider.CurrentMap.Properties.Width);
+
+                var transitionComplete = true;
+                for (var row = renderBounds.FirstRow; row <= renderBounds.LastRow; row++)
+                {
+                    for (var col = renderBounds.FirstCol; col <= renderBounds.LastCol; ++col)
+                    {
+                        var alpha = GetAlphaForCoordinates(col, row, _characterProvider.MainCharacter);
+                        transitionComplete &= alpha == 255;
+
+                        if (_mapEntityRendererProvider.GroundRenderer.CanRender(row, col))
+                            _mapEntityRendererProvider.GroundRenderer.RenderElementAt(_sb, row, col, alpha);
+                    }
                 }
-            }
 
             if (transitionComplete)
                 _mapTransitionState = new MapTransitionState(Option.None<DateTime>(), 0);
 
-            _sb.End();
-            GraphicsDevice.SetRenderTarget(null);
+                _sb.End();
+                GraphicsDevice.SetRenderTarget(null);
+            }
         }
 
         private void DrawMapToRenderTarget()
         {
             var immutableCharacter = _characterProvider.MainCharacter;
-
-            GraphicsDevice.SetRenderTarget(_mapObjectTarget);
-            GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
-
             var gfxToRenderLast = new SortedList<MapRenderLayer, List<(MapCoordinate Coord, IMapEntityRenderer Renderer)>>();
 
-            _sb.Begin();
-
-            var renderBounds = _mapRenderDistanceCalculator.CalculateRenderBounds(immutableCharacter, _currentMapProvider.CurrentMap);
-
-            var hitKeys = new HashSet<MapCoordinate>();
-
-            // render the grid diagonally. hack that fixes some layering issues due to not using a depth buffer for layers
-            // a better solution would be to use a depth buffer like eomap-js
-            for (var rowStart = renderBounds.FirstRow; rowStart <= renderBounds.LastRow; rowStart++)
+            lock (_rt_locker_)
             {
-                var row = rowStart;
-                var col = renderBounds.FirstCol;
+                GraphicsDevice.SetRenderTarget(_mapObjectTarget);
+                GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
 
-                if (!hitKeys.Add(new MapCoordinate(col, row)))
-                    continue;
+                _sb.Begin();
 
-                while (row >= 0)
+                var renderBounds = _mapRenderDistanceCalculator.CalculateRenderBounds(immutableCharacter, _currentMapProvider.CurrentMap);
+
+                var hitKeys = new HashSet<MapCoordinate>();
+
+                // render the grid diagonally. hack that fixes some layering issues due to not using a depth buffer for layers
+                // a better solution would be to use a depth buffer like eomap-js
+                for (var rowStart = renderBounds.FirstRow; rowStart <= renderBounds.LastRow; rowStart++)
                 {
-                    RenderGridSpace(row, col);
+                    var row = rowStart;
+                    var col = renderBounds.FirstCol;
 
-                    row--;
-                    col++;
+                    if (!hitKeys.Add(new MapCoordinate(col, row)))
+                        continue;
+
+                    while (row >= 0)
+                    {
+                        RenderGridSpace(row, col);
+
+                        row--;
+                        col++;
+                    }
                 }
-            }
 
-            for (var colStart = renderBounds.FirstCol; colStart <= renderBounds.LastCol; colStart++)
-            {
-                var row = renderBounds.LastRow;
-                var col = colStart;
-
-                if (!hitKeys.Add(new MapCoordinate(col, row)))
-                    continue;
-
-                while (col <= renderBounds.LastCol)
+                for (var colStart = renderBounds.FirstCol; colStart <= renderBounds.LastCol; colStart++)
                 {
-                    RenderGridSpace(row, col);
-                    row--;
-                    col++;
-                }
-            }
+                    var row = renderBounds.LastRow;
+                    var col = colStart;
 
-            foreach (var kvp in gfxToRenderLast)
-            {
-                foreach (var (pointKey, renderer) in kvp.Value)
+                    if (!hitKeys.Add(new MapCoordinate(col, row)))
+                        continue;
+
+                    while (col <= renderBounds.LastCol)
+                    {
+                        RenderGridSpace(row, col);
+                        row--;
+                        col++;
+                    }
+                }
+
+                foreach (var kvp in gfxToRenderLast)
                 {
-                    var alpha = GetAlphaForCoordinates(pointKey.X, pointKey.Y, immutableCharacter);
-                    renderer.RenderElementAt(_sb, pointKey.Y, pointKey.X, alpha);
+                    foreach (var (pointKey, renderer) in kvp.Value)
+                    {
+                        var alpha = GetAlphaForCoordinates(pointKey.X, pointKey.Y, immutableCharacter);
+                        renderer.RenderElementAt(_sb, pointKey.Y, pointKey.X, alpha);
+                    }
                 }
-            }
 
-            _sb.End();
-            GraphicsDevice.SetRenderTarget(null);
+                _sb.End();
+                GraphicsDevice.SetRenderTarget(null);
+            }
 
             void RenderGridSpace(int row, int col)
             {
@@ -341,28 +395,33 @@ namespace EndlessClient.Rendering.Map
         {
             spriteBatch.Begin();
 
-            var drawLoc = _gridDrawCoordinateCalculator.CalculateGroundLayerDrawCoordinatesFromGridUnits();
-            var offset = _quakeState.Map(qs => qs.Offset).Match(some: o => o, none: () => 0);
+            var drawLoc = _gridDrawCoordinateCalculator.CalculateGroundLayerRenderTargetDrawCoordinates();
+            var offset = _quakeState.Map(GetOffset).ValueOr(0);
 
-            spriteBatch.Draw(_mapBaseTarget, drawLoc + new Vector2(offset, 0), Color.White);
-            DrawBaseLayers(spriteBatch);
-
-            _mouseCursorRenderer.Draw(spriteBatch, new Vector2(offset, 0));
-
-            spriteBatch.Draw(_mapObjectTarget, new Vector2(offset, 0), Color.White);
-
-            foreach (var target in _mapGridEffectRenderers.Values)
+            lock (_rt_locker_)
             {
-                target.DrawBehindTarget(spriteBatch);
-                target.DrawInFrontOfTarget(spriteBatch);
+                spriteBatch.Draw(_mapBaseTarget, drawLoc + new Vector2(offset, 0), Color.White);
+                DrawBaseLayers(spriteBatch);
+
+                _mouseCursorRenderer.Draw(spriteBatch, new Vector2(offset, 0));
+
+                spriteBatch.Draw(_mapObjectTarget, new Vector2(offset, 0), Color.White);
+
+                foreach (var target in _mapGridEffectRenderers.Values)
+                {
+                    target.DrawBehindTarget(spriteBatch);
+                    target.DrawInFrontOfTarget(spriteBatch);
+                }
+
+                spriteBatch.End();
             }
 
-            spriteBatch.End();
+            static float GetOffset(MapQuakeState quakeState) => quakeState.Offset;
         }
 
         private void DrawBaseLayers(SpriteBatch spriteBatch)
         {
-            var offset = _quakeState.Map(qs => qs.Offset).Match(some: o => o, none: () => 0);
+            var offset = _quakeState.Map(GetOffset).ValueOr(0);
 
             var renderBounds = _mapRenderDistanceCalculator.CalculateRenderBounds(_characterProvider.MainCharacter, _currentMapProvider.CurrentMap);
 
@@ -379,6 +438,8 @@ namespace EndlessClient.Rendering.Map
                     }
                 }
             }
+
+            static float GetOffset(MapQuakeState quakeState) => quakeState.Offset;
         }
 
         private int GetAlphaForCoordinates(int objX, int objY, EOLib.Domain.Character.Character character)
@@ -402,28 +463,42 @@ namespace EndlessClient.Rendering.Map
             }
             else if (metric == _mapTransitionState.TransitionMetric)
             {
-                _mapTransitionState.StartTime
-                    .MatchSome(startTime =>
-                    {
-                        var ms = (DateTime.Now - startTime).TotalMilliseconds;
-                        alpha = (int)Math.Round(ms / TRANSITION_TIME_MS * 255);
-
-                        if (ms / TRANSITION_TIME_MS >= 1)
-                            _mapTransitionState = new MapTransitionState(Option.Some(DateTime.Now), _mapTransitionState.TransitionMetric + 1);
-                    });
+                alpha = _mapTransitionState.StartTime.Map(HandleStartTime).ValueOr(alpha);
             }
             else
                 alpha = 0;
 
             return alpha;
+
+            int HandleStartTime(DateTime startTime)
+            {
+                var ms = (DateTime.Now - startTime).TotalMilliseconds;
+
+                if (ms / TRANSITION_TIME_MS >= 1)
+                    _mapTransitionState = new MapTransitionState(Option.Some(DateTime.Now), _mapTransitionState.TransitionMetric + 1);
+
+                return (int)Math.Round(ms / TRANSITION_TIME_MS * 255);
+            }
+        }
+
+        private void ResizeGameWindow(object sender, EventArgs e)
+        {
+            lock (_rt_locker_)
+            {
+                _mapObjectTarget.Dispose();
+                _mapObjectTarget = _renderTargetFactory.CreateRenderTarget(_clientWindowSizeRepository.Width, _clientWindowSizeRepository.Height);
+            }
         }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                _mapBaseTarget.Dispose();
-                _mapObjectTarget.Dispose();
+                lock (_rt_locker_)
+                {
+                    _mapBaseTarget.Dispose();
+                    _mapObjectTarget.Dispose();
+                }
                 _sb.Dispose();
                 _mouseCursorRenderer.Dispose();
 

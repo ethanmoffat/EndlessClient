@@ -2,16 +2,20 @@
 using EndlessClient.Audio;
 using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
+using EndlessClient.Dialogs;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.NPC;
+using EndlessClient.Rendering.Sprites;
 using EOLib.Config;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.IO.Map;
+using EOLib.IO.Repositories;
 using EOLib.Localization;
+using System.Linq;
 
 namespace EndlessClient.Rendering.Map
 {
@@ -21,42 +25,51 @@ namespace EndlessClient.Rendering.Map
     {
         private readonly ICharacterStateCache _characterStateCache;
         private readonly INPCStateCache _npcStateCache;
+        private readonly INPCSpriteDataCache _npcSpriteDataCache;
         private readonly ICharacterRendererRepository _characterRendererRepository;
         private readonly INPCRendererRepository _npcRendererRepository;
+        private readonly IENFFileProvider _enfFileProvider;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly IChatRepository _chatRepository;
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IConfigurationProvider _configurationProvider;
+        private readonly IActiveDialogProvider _dialogProvider;
         private readonly IMfxPlayer _mfxPlayer;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IChatController _chatController;
 
         public MapChangedActions(ICharacterStateCache characterStateCache,
                                  INPCStateCache npcStateCache,
+                                 INPCSpriteDataCache npcSpriteDataCache,
                                  ICharacterRendererRepository characterRendererRepository,
                                  INPCRendererRepository npcRendererRepository,
+                                 IENFFileProvider enfFileProvider,
                                  IHudControlProvider hudControlProvider,
                                  IChatRepository chatRepository,
                                  ILocalizedStringFinder localizedStringFinder,
                                  ICurrentMapProvider currentMapProvider,
                                  ICurrentMapStateRepository currentMapStateRepository,
                                  IConfigurationProvider configurationProvider,
+                                 IActiveDialogProvider dialogProvider,
                                  IMfxPlayer mfxPlayer,
                                  ISfxPlayer sfxPlayer,
                                  IChatController chatController)
         {
             _characterStateCache = characterStateCache;
             _npcStateCache = npcStateCache;
+            _npcSpriteDataCache = npcSpriteDataCache;
             _characterRendererRepository = characterRendererRepository;
             _npcRendererRepository = npcRendererRepository;
+            _enfFileProvider = enfFileProvider;
             _hudControlProvider = hudControlProvider;
             _chatRepository = chatRepository;
             _localizedStringFinder = localizedStringFinder;
             _currentMapProvider = currentMapProvider;
             _currentMapStateRepository = currentMapStateRepository;
             _configurationProvider = configurationProvider;
+            _dialogProvider = dialogProvider;
             _mfxPlayer = mfxPlayer;
             _sfxPlayer = sfxPlayer;
             _chatController = chatController;
@@ -64,11 +77,11 @@ namespace EndlessClient.Rendering.Map
 
         public void ActiveCharacterEnterMapForLogin()
         {
-            ShowMapNameIfAvailable(true);
-            ShowMapTransition(true);
+            ShowMapNameIfAvailable(differentMapID: true);
+            ShowMapTransition(showMapTransition: true);
             PlayBackgroundMusic(differentMapID: true);
             PlayAmbientNoise(differentMapID: true);
-            //todo: show message if map is a PK map
+            ShowPkWarning(differentMapId: true);
         }
 
         public void NotifyMapChanged(WarpAnimation warpAnimation, bool differentMapID)
@@ -78,7 +91,7 @@ namespace EndlessClient.Rendering.Map
             ClearNPCRenderersAndCache();
             ClearOpenDoors();
             ShowMapNameIfAvailable(differentMapID);
-            //todo: show message if map is a PK map
+            ShowPkWarning(differentMapID);
             ShowMapTransition(differentMapID);
             AddSpikeTraps();
             ShowWarpBubbles(warpAnimation);
@@ -87,6 +100,8 @@ namespace EndlessClient.Rendering.Map
 
             if (!differentMapID)
                 RedrawGroundLayer();
+
+            CloseAllDialogs();
 
             _chatController.ClearAndWarnIfJailAndGlobal();
         }
@@ -130,6 +145,15 @@ namespace EndlessClient.Rendering.Map
 
         private void ClearNPCRenderersAndCache()
         {
+            var currentMapNpcGraphics = _currentMapStateRepository.NPCs.Select(x => _enfFileProvider.ENFFile[x.ID].Graphic).ToList();
+            var priorMapNpcGraphics = _npcRendererRepository.NPCRenderers.Select(x => _enfFileProvider.ENFFile[x.Value.NPC.ID].Graphic);
+            
+            foreach (var evict in priorMapNpcGraphics.Except(currentMapNpcGraphics))
+                _npcSpriteDataCache.MarkForEviction(evict);
+
+            foreach (var unevict in currentMapNpcGraphics)
+                _npcSpriteDataCache.UnmarkForEviction(unevict);
+
             foreach (var npcRenderer in _npcRendererRepository.NPCRenderers)
                 npcRenderer.Value.Dispose();
             _npcRendererRepository.NPCRenderers.Clear();
@@ -158,6 +182,18 @@ namespace EndlessClient.Rendering.Map
             _chatRepository.AllChat[ChatTab.System].Add(chatData);
         }
 
+        private void ShowPkWarning(bool differentMapId)
+        {
+            if (!differentMapId || !_currentMapProvider.CurrentMap.Properties.PKAvailable)
+                return;
+
+            var message = _localizedStringFinder.GetString(EOResourceID.CAUTION_THIS_IS_A_PK_ZONE);
+            var chatData = new ChatData(ChatTab.System, string.Empty, message, ChatIcon.NoteLeftArrow);
+            _chatRepository.AllChat[ChatTab.System].Add(chatData);
+
+            _sfxPlayer.PlaySfx(SoundEffectID.EnterPkMap);
+        }
+
         private void ShowMapTransition(bool showMapTransition)
         {
             var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
@@ -171,7 +207,7 @@ namespace EndlessClient.Rendering.Map
 
         private void AddSpikeTraps()
         {
-            foreach (var character in _currentMapStateRepository.Characters.Values)
+            foreach (var character in _currentMapStateRepository.Characters)
             {
                 if (_currentMapProvider.CurrentMap.Tiles[character.RenderProperties.MapY, character.RenderProperties.MapX] == TileSpec.SpikesTrap)
                     _currentMapStateRepository.VisibleSpikeTraps.Add(new MapCoordinate(character.RenderProperties.MapX, character.RenderProperties.MapY));
@@ -219,6 +255,12 @@ namespace EndlessClient.Rendering.Map
             }
             else
                 _sfxPlayer.StopLoopingSfx();
+        }
+
+        private void CloseAllDialogs()
+        {
+            foreach (var dlg in _dialogProvider.ActiveDialogs)
+                dlg.MatchSome(x => ((BaseEODialog)x).Close());
         }
     }
 

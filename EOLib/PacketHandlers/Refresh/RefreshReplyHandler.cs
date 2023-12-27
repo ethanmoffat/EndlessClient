@@ -46,24 +46,25 @@ namespace EOLib.PacketHandlers.Refresh
         {
             var data = _refreshReplyTranslator.TranslatePacket(packet);
 
-            var updatedMainCharacter = data.Characters.Single(IDMatches);
+            var updatedMainCharacter = data.Characters.Single(MainCharacterIDMatches);
             var updatedRenderProperties = _characterRepository.MainCharacter.RenderProperties
                 .WithMapX(updatedMainCharacter.RenderProperties.MapX)
                 .WithMapY(updatedMainCharacter.RenderProperties.MapY);
 
-            var withoutMainCharacter = data.Characters.Where(x => !IDMatches(x));
-            data = data.WithCharacters(withoutMainCharacter.ToList());
+            var withoutMainCharacter = data.Characters.Where(x => !MainCharacterIDMatches(x));
 
             _characterRepository.MainCharacter = _characterRepository.MainCharacter
                 .WithRenderProperties(updatedRenderProperties);
 
-            _currentMapStateRepository.Characters = data.Characters.ToDictionary(k => k.ID, v => v);
-            _currentMapStateRepository.NPCs = new HashSet<DomainNPC>(data.NPCs);
-            _currentMapStateRepository.MapItems = new HashSet<MapItem>(data.Items);
+            _currentMapStateRepository.Characters = new MapEntityCollectionHashSet<Character>(c => c.ID, c => new MapCoordinate(c.X, c.Y),  withoutMainCharacter);
+            _currentMapStateRepository.NPCs = new MapEntityCollectionHashSet<DomainNPC>(n => n.Index, n => new MapCoordinate(n.X, n.Y), data.NPCs);
+            _currentMapStateRepository.MapItems = new MapEntityCollectionHashSet<MapItem>(item => item.UniqueID, item => new MapCoordinate(item.X, item.Y), data.Items);
 
             _currentMapStateRepository.OpenDoors.Clear();
             _currentMapStateRepository.PendingDoors.Clear();
             _currentMapStateRepository.VisibleSpikeTraps.Clear();
+
+            _currentMapStateRepository.MapWarpTime = Optional.Option.Some(System.DateTime.Now.AddMilliseconds(-100));
 
             foreach (var notifier in _mapChangedNotifiers)
                 notifier.NotifyMapChanged(differentMapID: false, warpAnimation: WarpAnimation.None);
@@ -71,7 +72,7 @@ namespace EOLib.PacketHandlers.Refresh
             return true;
         }
 
-        private bool IDMatches(Character x)
+        private bool MainCharacterIDMatches(Character x)
         {
             return x.ID == _characterRepository.MainCharacter.ID;
         }

@@ -1,16 +1,18 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using EndlessClient.Rendering.Chat;
+﻿using EndlessClient.Rendering.Chat;
 using EndlessClient.UIControls;
 using EOLib.Domain.Login;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended.BitmapFonts;
 using XNAControls;
+using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
+using System.Linq;
+using EndlessClient.Rendering;
 
 namespace EndlessClient.HUD.Panels
 {
-    public class NewsPanel : XNAPanel, IHudPanel
+    public class NewsPanel : DraggableHudPanel
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IChatRenderableGenerator _chatRenderableGenerator;
@@ -29,7 +31,9 @@ namespace EndlessClient.HUD.Panels
         public NewsPanel(INativeGraphicsManager nativeGraphicsManager,
                          IChatRenderableGenerator chatRenderableGenerator,
                          INewsProvider newsProvider,
-                         BitmapFont chatFont)
+                         BitmapFont chatFont,
+                         IClientWindowSizeProvider clientWindowSizeProvider)
+            : base(clientWindowSizeProvider.Resizable)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _chatRenderableGenerator = chatRenderableGenerator;
@@ -42,6 +46,7 @@ namespace EndlessClient.HUD.Panels
                 Visible = true
             };
             _scrollBar.SetParentControl(this);
+            SetScrollWheelHandler(_scrollBar);
 
             _chatRenderables = new List<IChatRenderable>();
             _chatFont = chatFont;
@@ -96,7 +101,7 @@ namespace EndlessClient.HUD.Panels
                 return;
 
             foreach (var renderable in _chatRenderables)
-                renderable.Render(_spriteBatch, _chatFont);
+                renderable.Render(this, _spriteBatch, _chatFont);
         }
 
         private void UpdateCachedNewsStrings()

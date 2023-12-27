@@ -14,19 +14,19 @@ namespace EOLib.IO.Map
         public int ChecksumInt { get; private set; }
         public string Name { get; private set; }
 
-        public byte Width { get; private set; }
-        public byte Height { get; private set; }
+        public int Width { get; private set; }
+        public int Height { get; private set; }
 
         public MapEffect Effect { get; private set; }
 
-        public byte Music { get; private set; }
+        public int Music { get; private set; }
         public MusicControl Control { get; private set; }
-        public short AmbientNoise { get; private set; }
+        public int AmbientNoise { get; private set; }
 
-        public short FillTile { get; private set; }
-        public byte RelogX { get; private set; }
-        public byte RelogY { get; private set; }
-        public byte Unknown2 { get; private set; }
+        public int FillTile { get; private set; }
+        public int RelogX { get; private set; }
+        public int RelogY { get; private set; }
+        public int Unknown2 { get; private set; }
 
         public bool MapAvailable { get; private set; }
         public bool CanScroll { get; private set; }
@@ -69,14 +69,14 @@ namespace EOLib.IO.Map
             return clone;
         }
 
-        public IMapFileProperties WithWidth(byte width)
+        public IMapFileProperties WithWidth(int width)
         {
             var clone = Clone();
             clone.Width = width;
             return clone;
         }
 
-        public IMapFileProperties WithHeight(byte height)
+        public IMapFileProperties WithHeight(int height)
         {
             var clone = Clone();
             clone.Height = height;
@@ -90,7 +90,7 @@ namespace EOLib.IO.Map
             return clone;
         }
 
-        public IMapFileProperties WithMusic(byte music)
+        public IMapFileProperties WithMusic(int music)
         {
             var clone = Clone();
             clone.Music = music;
@@ -104,35 +104,35 @@ namespace EOLib.IO.Map
             return clone;
         }
 
-        public IMapFileProperties WithAmbientNoise(short ambientNoise)
+        public IMapFileProperties WithAmbientNoise(int ambientNoise)
         {
             var clone = Clone();
             clone.AmbientNoise = ambientNoise;
             return clone;
         }
 
-        public IMapFileProperties WithFillTile(short fillTile)
+        public IMapFileProperties WithFillTile(int fillTile)
         {
             var clone = Clone();
             clone.FillTile = fillTile;
             return clone;
         }
 
-        public IMapFileProperties WithRelogX(byte relogX)
+        public IMapFileProperties WithRelogX(int relogX)
         {
             var clone = Clone();
             clone.RelogX = relogX;
             return clone;
         }
 
-        public IMapFileProperties WithRelogY(byte relogY)
+        public IMapFileProperties WithRelogY(int relogY)
         {
             var clone = Clone();
             clone.RelogY = relogY;
             return clone;
         }
 
-        public IMapFileProperties WithUnknown2(byte unknown2)
+        public IMapFileProperties WithUnknown2(int unknown2)
         {
             var clone = Clone();
             clone.Unknown2 = unknown2;

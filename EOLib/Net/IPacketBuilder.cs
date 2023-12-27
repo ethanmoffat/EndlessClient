@@ -18,9 +18,9 @@ namespace EOLib.Net
 
         IPacketBuilder AddByte(byte b);
 
-        IPacketBuilder AddChar(byte b);
+        IPacketBuilder AddChar(int b);
 
-        IPacketBuilder AddShort(short s);
+        IPacketBuilder AddShort(int s);
 
         IPacketBuilder AddThree(int t);
 

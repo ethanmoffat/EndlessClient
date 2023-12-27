@@ -5,7 +5,7 @@ namespace EOLib.Domain.Interact.Skill
 {
     public interface ISkillDataRepository : IResettable
     {
-        short ID { get; set; }
+        int ID { get; set; }
 
         string Title { get; set; }
 
@@ -14,7 +14,7 @@ namespace EOLib.Domain.Interact.Skill
 
     public interface ISkillDataProvider : IResettable
     {
-        short ID { get; }
+        int ID { get; }
 
         string Title { get; }
 
@@ -24,7 +24,7 @@ namespace EOLib.Domain.Interact.Skill
     [AutoMappedType(IsSingleton = true)]
     public class SkillDataRepository : ISkillDataRepository, ISkillDataProvider
     {
-        public short ID { get; set; }
+        public int ID { get; set; }
 
         public string Title { get; set; }
 

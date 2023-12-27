@@ -53,12 +53,12 @@ namespace EOLib.PacketHandlers.Quest
                 DialogID = dialogID, // not used by eoserv
             };
 
-            var dialogTitles = new Dictionary<short, string>(numDialogs);
+            var dialogTitles = new Dictionary<int, string>(numDialogs);
             for (int i = 0; i < numDialogs; i++)
                 dialogTitles.Add(packet.ReadShort(), packet.ReadBreakString());
 
             var pages = new List<string>();
-            var links = new List<(short, string)>();
+            var links = new List<(int, string)>();
             while (packet.ReadPosition < packet.Length)
             {
                 var entryType = (DialogEntryType)packet.ReadShort();

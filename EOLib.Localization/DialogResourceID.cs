@@ -58,14 +58,12 @@
         BANK_ACCOUNT_UNABLE_TO_DEPOSIT = 102,
         SHOP_NOTHING_IS_FOR_SALE = 104,
         //106: confirmed (AFAIK) that the client does not show this message separately from NOT_BUYING_YOUR_ITEMS message
-// ReSharper disable once UnusedMember.Global
         SHOP_NOT_BUYING_USED_ITEMS = 106,
         SHOP_NOT_BUYING_YOUR_ITEMS = 108,
         WARNING_YOU_HAVE_NOT_ENOUGH = 110,
         SHOP_DOES_NOT_BUY = 112,
         LOCKER_FULL_SINGLE_ITEM_MAX = 114,
         //116: confirmed (AFAIK) that the client does not show a message when you hit the max (unless the server is missing a message for this)
-// ReSharper disable once UnusedMember.Global
         LOCKER_FULL_DIFF_ITEMS_MAX = 116,
         LOCKER_DEPOSIT_GOLD_ERROR = 118,
         DROP_MANY_GOLD_ON_GROUND = 120,
@@ -108,10 +106,10 @@
         GUILD_DEPOSIT_NEW_BALANCE = 194,
         ITEM_IS_LORE_ITEM = 196,
         ITEM_IS_CURSED_ITEM = 198,
-        BOARD_ERROR_NO_SUBJECT = 200,
-        BOARD_ERROR_NO_MESSAGE = 202,
-        BOARD_ERROR_MSG_NO_SUBJECT = 204,
-        BOARD_ERROR_SUBJECT_NO_MSG = 206,
+        DEPRECATED_BOARD_ERROR_NO_SUBJECT = 200,
+        DEPRECATED_BOARD_ERROR_NO_MESSAGE = 202,
+        BOARD_ERROR_NO_SUBJECT = 204,
+        BOARD_ERROR_NO_MESSAGE = 206,
         BOARD_ERROR_TOO_MANY_MESSAGES = 208,
         ITEM_CURSE_REMOVE_PROMPT = 210,
         JUKEBOX_REQUESTED_RECENTLY = 212,

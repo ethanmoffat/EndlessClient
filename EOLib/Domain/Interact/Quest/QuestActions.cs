@@ -17,7 +17,7 @@ namespace EOLib.Domain.Interact.Quest
             _questDataProvider = questDataProvider;
         }
 
-        public void RespondToQuestDialog(DialogReply reply, byte linkId = 0)
+        public void RespondToQuestDialog(DialogReply reply, int linkId = 0)
         {
             _questDataProvider.QuestDialogData.MatchSome(data =>
             {
@@ -26,7 +26,7 @@ namespace EOLib.Domain.Interact.Quest
                     .AddShort(data.DialogID) // ignored by eoserv
                     .AddShort(data.QuestID)
                     .AddShort(data.VendorID) // ignored by eoserv
-                    .AddChar((byte)reply);
+                    .AddChar((int)reply);
 
                 if (reply == DialogReply.Link)
                     builder = builder.AddChar(linkId);
@@ -39,7 +39,7 @@ namespace EOLib.Domain.Interact.Quest
         public void RequestQuestHistory(QuestPage page)
         {
             var packet = new PacketBuilder(PacketFamily.Quest, PacketAction.List)
-                .AddChar((byte)page)
+                .AddChar((int)page)
                 .Build();
 
             _packetSendService.SendPacket(packet);
@@ -48,7 +48,7 @@ namespace EOLib.Domain.Interact.Quest
 
     public interface IQuestActions
     {
-        void RespondToQuestDialog(DialogReply reply, byte linkId = 0);
+        void RespondToQuestDialog(DialogReply reply, int linkId = 0);
 
         void RequestQuestHistory(QuestPage page);
     }

@@ -29,15 +29,27 @@ namespace EndlessClient.Input
                 switch (action)
                 {
                     case UnwalkableTileAction.Chest:
-                        _mapActions.OpenChest((byte)cellState.Coordinate.X, (byte)cellState.Coordinate.Y);
+                        _mapActions.OpenChest(cellState.Coordinate);
                         _inGameDialogActions.ShowChestDialog();
                         break;
                     case UnwalkableTileAction.Locker:
-                        _mapActions.OpenLocker((byte)cellState.Coordinate.X, (byte)cellState.Coordinate.Y);
+                        _mapActions.OpenLocker(cellState.Coordinate);
                         _inGameDialogActions.ShowLockerDialog();
                         break;
-                    case UnwalkableTileAction.Chair: _characterActions.SitInChair(); break;
-                    case UnwalkableTileAction.Door: cellState.Warp.MatchSome(w => _mapActions.OpenDoor(w)); break;
+                    case UnwalkableTileAction.Chair:
+                        _characterActions.SitInChair();
+                        break;
+                    case UnwalkableTileAction.Door:
+                        cellState.Warp.MatchSome(w => _mapActions.OpenDoor(w));
+                        break;
+                    case UnwalkableTileAction.Board:
+                        _mapActions.OpenBoard(cellState.TileSpec);
+                        _inGameDialogActions.ShowBoardDialog();
+                        break;
+                    case UnwalkableTileAction.Jukebox:
+                        _mapActions.OpenJukebox(cellState.Coordinate);
+                        _inGameDialogActions.ShowJukeboxDialog(cellState.Coordinate);
+                        break;
                 }
             }
         }

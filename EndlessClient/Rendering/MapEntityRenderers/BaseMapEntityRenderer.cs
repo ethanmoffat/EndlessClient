@@ -34,6 +34,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         protected readonly ICharacterProvider _characterProvider;
         protected readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
+        private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
 
         public abstract MapRenderLayer RenderLayer { get; }
 
@@ -42,10 +43,12 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         protected abstract int RenderDistance { get; }
 
         protected BaseMapEntityRenderer(ICharacterProvider characterProvider,
-                                        IGridDrawCoordinateCalculator gridDrawCoordinateCalculator)
+                                        IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
+                                        IClientWindowSizeProvider clientWindowSizeProvider)
         {
             _characterProvider = characterProvider;
             _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
+            _clientWindowSizeProvider = clientWindowSizeProvider;
         }
 
         public virtual bool CanRender(int row, int col)
@@ -58,7 +61,10 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             var rowDelta = Math.Abs(props.MapY - row);
             var colDelta = Math.Abs(props.MapX - col);
 
-            return rowDelta <= RenderDistance && colDelta <= RenderDistance;
+            var renderDistanceScaledX = (int)Math.Ceiling(_clientWindowSizeProvider.Width / 640.0 * RenderDistance);
+            var renderDistanceScaledY = (int)Math.Ceiling(_clientWindowSizeProvider.Height / 480.0 * RenderDistance);
+
+            return rowDelta <= renderDistanceScaledX && colDelta <= renderDistanceScaledY;
         }
 
         protected abstract bool ElementExistsAt(int row, int col);

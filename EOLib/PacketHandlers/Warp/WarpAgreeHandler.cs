@@ -4,7 +4,6 @@ using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.IO.Extensions;
 using EOLib.IO.Repositories;
 using EOLib.Net;
 using EOLib.Net.Handlers;
@@ -68,14 +67,14 @@ namespace EOLib.PacketHandlers.Warp
             var bringBackToLife = _characterRepository.MainCharacter.RenderProperties.WithIsDead(false);
             _characterRepository.MainCharacter = _characterRepository.MainCharacter
                 .WithRenderProperties(bringBackToLife)
-                .WithAppliedData(updatedMainCharacter, _eifFileProvider.EIFFile.IsRangedWeapon(updatedMainCharacter.RenderProperties.WeaponGraphic));
+                .WithAppliedData(updatedMainCharacter);
 
             var withoutMainCharacter = warpAgreePacketData.Characters.Where(x => !MainCharacterIDMatches(x));
             warpAgreePacketData = warpAgreePacketData.WithCharacters(withoutMainCharacter.ToList());
 
-            _currentMapStateRepository.Characters = warpAgreePacketData.Characters.ToDictionary(k => k.ID, v => v);
-            _currentMapStateRepository.NPCs = new HashSet<DomainNPC>(warpAgreePacketData.NPCs);
-            _currentMapStateRepository.MapItems = new HashSet<MapItem>(warpAgreePacketData.Items);
+            _currentMapStateRepository.Characters = new MapEntityCollectionHashSet<Character>(c => c.ID, c => new MapCoordinate(c.X, c.Y), warpAgreePacketData.Characters);
+            _currentMapStateRepository.NPCs = new MapEntityCollectionHashSet<DomainNPC>(n => n.Index, n => new MapCoordinate(n.X, n.Y), warpAgreePacketData.NPCs);
+            _currentMapStateRepository.MapItems = new MapEntityCollectionHashSet<MapItem>(item => item.UniqueID, item => new MapCoordinate(item.X, item.Y), warpAgreePacketData.Items);
             _currentMapStateRepository.OpenDoors.Clear();
             _currentMapStateRepository.VisibleSpikeTraps.Clear();
             _currentMapStateRepository.ShowMiniMap = _currentMapStateRepository.ShowMiniMap &&

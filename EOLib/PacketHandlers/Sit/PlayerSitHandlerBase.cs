@@ -47,21 +47,19 @@ namespace EOLib.PacketHandlers.Sit
                     .WithDirection(direction);
                 _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithRenderProperties(updatedRenderProperties);
             }
-            else if (_currentMapStateRepository.Characters.ContainsKey(playerId))
+            else if (_currentMapStateRepository.Characters.TryGetValue(playerId, out var oldCharacter))
             {
-                var oldCharacter = _currentMapStateRepository.Characters[playerId];
                 var renderProperties = oldCharacter.RenderProperties.WithSitState(sitState)
                     .WithCurrentAction(sitState == SitState.Standing ? CharacterActionState.Standing : CharacterActionState.Sitting)
                     .WithMapX(x)
                     .WithMapY(y)
                     .WithDirection(direction);
 
-                _currentMapStateRepository.Characters[playerId] = oldCharacter.WithRenderProperties(renderProperties);
+                _currentMapStateRepository.Characters.Update(oldCharacter, oldCharacter.WithRenderProperties(renderProperties));
             }
             else
             {
                 _currentMapStateRepository.UnknownPlayerIDs.Add(playerId);
-                return true;
             }
 
             return true;

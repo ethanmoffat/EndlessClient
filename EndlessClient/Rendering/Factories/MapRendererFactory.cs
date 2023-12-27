@@ -1,10 +1,12 @@
 using AutomaticTypeMapper;
+using EndlessClient.Content;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Map;
 using EndlessClient.Rendering.MapEntityRenderers;
 using EndlessClient.Rendering.NPC;
+using EOLib;
 using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
@@ -20,14 +22,17 @@ namespace EndlessClient.Rendering.Factories
         private readonly IMapEntityRendererProvider _mapEntityRendererProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
+        private readonly ICurrentMapStateProvider _currentMapStateProvider;
+        private readonly IContentProvider _contentProvider;
         private readonly IMapRenderDistanceCalculator _mapRenderDistanceCalculator;
         private readonly ICharacterRendererUpdater _characterRendererUpdater;
+        private readonly INPCRendererUpdater _npcRendererUpdater;
+        private readonly IDynamicMapObjectUpdater _dynamicMapObjectUpdater;
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IMouseCursorRendererFactory _mouseCursorRendererFactory;
         private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
+        private readonly IClientWindowSizeRepository _clientWindowSizeRepository;
         private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
-        private readonly INPCRendererUpdater _npcRendererUpdater;
-        private readonly IDynamicMapObjectUpdater _dynamicMapObjectUpdater;
 
         public MapRendererFactory(IEndlessGameProvider endlessGameProvider,
             IRenderTargetFactory renderTargetFactory,
@@ -35,6 +40,8 @@ namespace EndlessClient.Rendering.Factories
             IMapEntityRendererProvider mapEntityRendererProvider,
             ICharacterProvider characterProvider,
             ICurrentMapProvider currentMapProvider,
+            ICurrentMapStateProvider currentMapStateProvider,
+            IContentProvider contentProvider,
             IMapRenderDistanceCalculator mapRenderDistanceCalculator,
             ICharacterRendererUpdater characterRendererUpdater,
             INPCRendererUpdater npcRendererUpdater,
@@ -42,6 +49,7 @@ namespace EndlessClient.Rendering.Factories
             IConfigurationProvider configurationProvider,
             IMouseCursorRendererFactory mouseCursorRendererFactory,
             IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
+            IClientWindowSizeRepository clientWindowSizeRepository,
             IFixedTimeStepRepository fixedTimeStepRepository)
         {
             _endlessGameProvider = endlessGameProvider;
@@ -50,6 +58,8 @@ namespace EndlessClient.Rendering.Factories
             _mapEntityRendererProvider = mapEntityRendererProvider;
             _characterProvider = characterProvider;
             _currentMapProvider = currentMapProvider;
+            _currentMapStateProvider = currentMapStateProvider;
+            _contentProvider = contentProvider;
             _mapRenderDistanceCalculator = mapRenderDistanceCalculator;
             _characterRendererUpdater = characterRendererUpdater;
             _npcRendererUpdater = npcRendererUpdater;
@@ -57,6 +67,7 @@ namespace EndlessClient.Rendering.Factories
             _configurationProvider = configurationProvider;
             _mouseCursorRendererFactory = mouseCursorRendererFactory;
             _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
+            _clientWindowSizeRepository = clientWindowSizeRepository;
             _fixedTimeStepRepository = fixedTimeStepRepository;
         }
 
@@ -68,6 +79,8 @@ namespace EndlessClient.Rendering.Factories
                                    _mapEntityRendererProvider,
                                    _characterProvider,
                                    _currentMapProvider,
+                                   _currentMapStateProvider,
+                                   _contentProvider,
                                    _mapRenderDistanceCalculator,
                                    _characterRendererUpdater,
                                    _npcRendererUpdater,
@@ -75,6 +88,7 @@ namespace EndlessClient.Rendering.Factories
                                    _configurationProvider,
                                    _mouseCursorRendererFactory.Create(),
                                    _gridDrawCoordinateCalculator,
+                                   _clientWindowSizeRepository,
                                    _fixedTimeStepRepository);
         }
     }

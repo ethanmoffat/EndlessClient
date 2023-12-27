@@ -1,5 +1,4 @@
 ﻿using AutomaticTypeMapper;
-using EndlessClient.Audio;
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
@@ -21,47 +20,47 @@ namespace EndlessClient.Rendering.Factories
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IInGameDialogActions _inGameDialogActions;
         private readonly IPaperdollActions _paperdollActions;
+        private readonly IBookActions _bookActions;
         private readonly IPartyActions _partyActions;
         private readonly ITradeActions _tradeActions;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IFriendIgnoreListService _friendIgnoreListService;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly IContextMenuRepository _contextMenuRepository;
-        private readonly IUserInputRepository _userInputRepository;
         private readonly IPartyDataProvider _partyDataProvider;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
-        private readonly ISfxPlayer _sfxPlayer;
+        private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
 
         public ContextMenuRendererFactory(INativeGraphicsManager nativeGraphicsManager,
             IInGameDialogActions inGameDialogActions,
             IPaperdollActions paperdollActions,
+            IBookActions bookActions,
             IPartyActions partyActions,
             ITradeActions tradeActions,
             IStatusLabelSetter statusLabelSetter,
             IFriendIgnoreListService friendIgnoreListService,
             IHudControlProvider hudControlProvider,
             IContextMenuRepository contextMenuRepository,
-            IUserInputRepository userInputRepository,
             IPartyDataProvider partyDataProvider,
             ICurrentMapStateProvider currentMapStateProvider, 
             IEOMessageBoxFactory messageBoxFactory,
-            ISfxPlayer sfxPlayer)
+            IClientWindowSizeProvider clientWindowSizeProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _inGameDialogActions = inGameDialogActions;
             _paperdollActions = paperdollActions;
+            _bookActions = bookActions;
             _partyActions = partyActions;
             _tradeActions = tradeActions;
             _statusLabelSetter = statusLabelSetter;
             _friendIgnoreListService = friendIgnoreListService;
             _hudControlProvider = hudControlProvider;
             _contextMenuRepository = contextMenuRepository;
-            _userInputRepository = userInputRepository;
             _partyDataProvider = partyDataProvider;
             _currentMapStateProvider = currentMapStateProvider;
             _messageBoxFactory = messageBoxFactory;
-            _sfxPlayer = sfxPlayer;
+            _clientWindowSizeProvider = clientWindowSizeProvider;
         }
 
         public IContextMenuRenderer CreateContextMenuRenderer(ICharacterRenderer characterRenderer)
@@ -69,18 +68,18 @@ namespace EndlessClient.Rendering.Factories
             return new ContextMenuRenderer(_nativeGraphicsManager,
                 _inGameDialogActions,
                 _paperdollActions,
+                _bookActions,
                 _partyActions,
                 _tradeActions,
                 _statusLabelSetter,
                 _friendIgnoreListService,
                 _hudControlProvider,
                 _contextMenuRepository,
-                _userInputRepository,
                 _partyDataProvider,
                 characterRenderer, 
                 _currentMapStateProvider,
                 _messageBoxFactory,
-                _sfxPlayer);
+                _clientWindowSizeProvider);
         }
     }
 

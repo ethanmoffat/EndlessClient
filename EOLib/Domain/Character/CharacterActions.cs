@@ -16,20 +16,23 @@ namespace EOLib.Domain.Character
         private readonly IPacketSendService _packetSendService;
         private readonly ICharacterRepository _characterRepository;
         private readonly IESFFileProvider _spellFileProvider;
+        private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
 
         public CharacterActions(IPacketSendService packetSendService,
                                 ICharacterRepository characterRepository,
-                                IESFFileProvider spellFileProvider)
+                                IESFFileProvider spellFileProvider,
+                                IFixedTimeStepRepository fixedTimeStepRepository)
         {
             _packetSendService = packetSendService;
             _characterRepository = characterRepository;
             _spellFileProvider = spellFileProvider;
+            _fixedTimeStepRepository = fixedTimeStepRepository;
         }
 
         public void Face(EODirection direction)
         {
             var packet = new PacketBuilder(PacketFamily.Face, PacketAction.Player)
-                .AddChar((byte) direction)
+                .AddChar((int)direction)
                 .Build();
 
             _packetSendService.SendPacket(packet);
@@ -42,10 +45,10 @@ namespace EOLib.Domain.Character
             var renderProperties = _characterRepository.MainCharacter.RenderProperties;
 
             var packet = new PacketBuilder(PacketFamily.Walk, admin ? PacketAction.Admin : PacketAction.Player)
-                .AddChar((byte) renderProperties.Direction)
-                .AddThree(DateTime.Now.ToEOTimeStamp())
-                .AddChar((byte)renderProperties.GetDestinationX())
-                .AddChar((byte)renderProperties.GetDestinationY())
+                .AddChar((int)renderProperties.Direction)
+                .AddThree((int)_fixedTimeStepRepository.TickCount)
+                .AddChar(renderProperties.GetDestinationX())
+                .AddChar(renderProperties.GetDestinationY())
                 .Build();
 
             _packetSendService.SendPacket(packet);
@@ -58,8 +61,8 @@ namespace EOLib.Domain.Character
             _characterRepository.MainCharacter = c.WithStats(c.Stats.WithNewStat(CharacterStat.SP, sp));
 
             var packet = new PacketBuilder(PacketFamily.Attack, PacketAction.Use)
-                .AddChar((byte) _characterRepository.MainCharacter.RenderProperties.Direction)
-                .AddThree(DateTime.Now.ToEOTimeStamp())
+                .AddChar((int) _characterRepository.MainCharacter.RenderProperties.Direction)
+                .AddThree((int)_fixedTimeStepRepository.TickCount)
                 .Build();
 
             _packetSendService.SendPacket(packet);
@@ -77,7 +80,7 @@ namespace EOLib.Domain.Character
                 : PacketFamily.Sit;
 
             var packet = new PacketBuilder(packetFamily, PacketAction.Request)
-                .AddChar((byte)sitAction)
+                .AddChar((int)sitAction)
                 .Build();
 
             _packetSendService.SendPacket(packet);
@@ -88,9 +91,9 @@ namespace EOLib.Domain.Character
             var rp = _characterRepository.MainCharacter.RenderProperties;
             var action = rp.SitState == SitState.Chair ? SitAction.Stand : SitAction.Sit;
             var packet = new PacketBuilder(PacketFamily.Chair, PacketAction.Request)
-                .AddChar((byte)action)
-                .AddChar((byte)rp.GetDestinationX())
-                .AddChar((byte)rp.GetDestinationY())
+                .AddChar((int)action)
+                .AddChar(rp.GetDestinationX())
+                .AddChar(rp.GetDestinationY())
                 .Build();
 
             _packetSendService.SendPacket(packet);
@@ -99,8 +102,8 @@ namespace EOLib.Domain.Character
         public void PrepareCastSpell(int spellId)
         {
             var packet = new PacketBuilder(PacketFamily.Spell, PacketAction.Request)
-                .AddShort((short)spellId)
-                .AddThree(DateTime.Now.ToEOTimeStamp())
+                .AddShort(spellId)
+                .AddThree((int)_fixedTimeStepRepository.TickCount)
                 .Build();
 
             _packetSendService.SendPacket(packet);
@@ -127,8 +130,8 @@ namespace EOLib.Domain.Character
             if (data.Target == IO.SpellTarget.Group)
             {
                 builder = builder
-                    .AddShort((short)spellId)
-                    .AddThree(DateTime.Now.ToEOTimeStamp());
+                    .AddShort(spellId)
+                    .AddThree((int)_fixedTimeStepRepository.TickCount);
             }
             else
             {
@@ -137,22 +140,22 @@ namespace EOLib.Domain.Character
                     : target is Character
                         ? SpellTargetType.Player
                         : throw new InvalidOperationException("Invalid spell target specified, must be player or character");
-                builder = builder.AddChar((byte)spellTargetType);
+                builder = builder.AddChar((int)spellTargetType);
 
                 if (data.Target == IO.SpellTarget.Normal)
                 {
                     builder = builder
                         .AddChar(1) // unknown
                         .AddShort(1) // unknown
-                        .AddShort((short)spellId)
-                        .AddShort((short)target.Index)
-                        .AddThree(DateTime.Now.ToEOTimeStamp());
+                        .AddShort(spellId)
+                        .AddShort(target.Index)
+                        .AddThree((int)_fixedTimeStepRepository.TickCount);
                 }
                 else
                 {
                     builder = builder
-                        .AddShort((short)spellId)
-                        .AddInt(DateTime.Now.ToEOTimeStamp());
+                        .AddShort(spellId)
+                        .AddInt((int)_fixedTimeStepRepository.TickCount);
                 }
             }
 
@@ -162,7 +165,7 @@ namespace EOLib.Domain.Character
         public void Emote(Emote whichEmote)
         {
             var packet = new PacketBuilder(PacketFamily.Emote, PacketAction.Report)
-                .AddChar((byte)whichEmote)
+                .AddChar((int)whichEmote)
                 .Build();
 
             _packetSendService.SendPacket(packet);

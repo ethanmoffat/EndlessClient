@@ -2,7 +2,7 @@
 using EOLib;
 using EOLib.Domain.Character;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.Input.InputListeners;
 using System;
 using XNAControls;
 
@@ -32,40 +32,40 @@ namespace EndlessClient.UIControls
             if (_lastPosition != actualDrawPosition)
                 _characterRenderer.SetAbsoluteScreenPosition((int)actualDrawPosition.X, (int)actualDrawPosition.Y);
 
-            if (((CurrentMouseState.LeftButton == ButtonState.Released && PreviousMouseState.LeftButton == ButtonState.Pressed) ||
-                (CurrentMouseState.RightButton == ButtonState.Released && PreviousMouseState.RightButton == ButtonState.Pressed)) &&
-                DrawAreaWithParentOffset.ContainsPoint(CurrentMouseState.X, CurrentMouseState.Y))
-            {
-                var nextDirectionInt = (int)RenderProperties.Direction + 1;
-                var nextDirection = (EODirection)(nextDirectionInt % 4);
-                RenderProperties = RenderProperties.WithDirection(nextDirection);
-
-                Clicked?.Invoke(this, EventArgs.Empty);
-            }
-
             base.OnUpdateControl(gameTime);
 
             _lastPosition = actualDrawPosition;
         }
 
+        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            var nextDirectionInt = (int)RenderProperties.Direction + 1;
+            var nextDirection = (EODirection)(nextDirectionInt % 4);
+            RenderProperties = RenderProperties.WithDirection(nextDirection);
+
+            Clicked?.Invoke(this, EventArgs.Empty);
+
+            return true;
+        }
+
         public void NextGender()
         {
-            RenderProperties = RenderProperties.WithGender((byte)((RenderProperties.Gender + 1) % 2));
+            RenderProperties = RenderProperties.WithGender((RenderProperties.Gender + 1) % 2);
         }
 
         public void NextRace()
         {
-            RenderProperties = RenderProperties.WithRace((byte)((RenderProperties.Race + 1) % 6));
+            RenderProperties = RenderProperties.WithRace((RenderProperties.Race + 1) % 6);
         }
 
         public void NextHairStyle()
         {
-            RenderProperties = RenderProperties.WithHairStyle((byte)((RenderProperties.HairStyle + 1) % 21));
+            RenderProperties = RenderProperties.WithHairStyle((RenderProperties.HairStyle + 1) % 21);
         }
 
         public void NextHairColor()
         {
-            RenderProperties = RenderProperties.WithHairColor((byte)((RenderProperties.HairColor + 1) % 10));
+            RenderProperties = RenderProperties.WithHairColor((RenderProperties.HairColor + 1) % 10);
         }
 
         private static CharacterRenderProperties GetDefaultProperties()

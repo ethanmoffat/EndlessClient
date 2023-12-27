@@ -39,7 +39,7 @@ namespace EndlessClient.Dialogs.Actions
             _configurationProvider = configurationProvider;
         }
 
-        public void NotifyPartyRequest(PartyRequestType type, short playerId, string name)
+        public void NotifyPartyRequest(PartyRequestType type, int playerId, string name)
         {
             if (!_configurationProvider.Interaction)
                 return;

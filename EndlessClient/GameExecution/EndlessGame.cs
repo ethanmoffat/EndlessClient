@@ -1,20 +1,14 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Content;
+using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
-using EndlessClient.Network;
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Test;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Config;
-using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.IO.Actions;
@@ -23,25 +17,34 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.BitmapFonts;
+using MonoGame.Extended.Input;
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace EndlessClient.GameExecution
 {
     [MappedType(BaseType = typeof(IEndlessGame), IsSingleton = true)]
     public class EndlessGame : Game, IEndlessGame
     {
-        private readonly IClientWindowSizeProvider _windowSizeProvider;
+        private readonly IClientWindowSizeRepository _windowSizeRepository;
         private readonly IContentProvider _contentProvider;
         private readonly IGraphicsDeviceRepository _graphicsDeviceRepository;
+        private readonly IGameWindowRepository _gameWindowRepository;
         private readonly IControlSetRepository _controlSetRepository;
         private readonly IControlSetFactory _controlSetFactory;
         private readonly ITestModeLauncher _testModeLauncher;
         private readonly IPubFileLoadActions _pubFileLoadActions;
         private readonly ILoggerProvider _loggerProvider;
         private readonly IChatBubbleTextureProvider _chatBubbleTextureProvider;
-        private readonly IShaderRepository _shaderRepository;
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IMfxPlayer _mfxPlayer;
         private readonly IXnaControlSoundMapper _soundMapper;
+        private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
+        private readonly IMainButtonController _mainButtonController;
+
         private GraphicsDeviceManager _graphicsDeviceManager;
 
         private KeyboardState _previousKeyState;
@@ -54,34 +57,43 @@ namespace EndlessClient.GameExecution
         private Texture2D _black;
 #endif
 
-        public EndlessGame(IClientWindowSizeProvider windowSizeProvider,
+        public EndlessGame(IClientWindowSizeRepository windowSizeRepository,
                            IContentProvider contentProvider,
                            IGraphicsDeviceRepository graphicsDeviceRepository,
+                           IGameWindowRepository gameWindowRepository,
                            IControlSetRepository controlSetRepository,
                            IControlSetFactory controlSetFactory,
                            ITestModeLauncher testModeLauncher,
                            IPubFileLoadActions pubFileLoadActions,
                            ILoggerProvider loggerProvider,
                            IChatBubbleTextureProvider chatBubbleTextureProvider,
-                           IShaderRepository shaderRepository,
                            IConfigurationProvider configurationProvider,
                            IMfxPlayer mfxPlayer,
-                           IXnaControlSoundMapper soundMapper)
+                           IXnaControlSoundMapper soundMapper,
+                           IFixedTimeStepRepository fixedTimeStepRepository,
+                           IMainButtonController mainButtonController)
         {
-            _windowSizeProvider = windowSizeProvider;
+            _windowSizeRepository = windowSizeRepository;
             _contentProvider = contentProvider;
             _graphicsDeviceRepository = graphicsDeviceRepository;
+            _gameWindowRepository = gameWindowRepository;
             _controlSetRepository = controlSetRepository;
             _controlSetFactory = controlSetFactory;
             _testModeLauncher = testModeLauncher;
             _pubFileLoadActions = pubFileLoadActions;
             _loggerProvider = loggerProvider;
             _chatBubbleTextureProvider = chatBubbleTextureProvider;
-            _shaderRepository = shaderRepository;
             _configurationProvider = configurationProvider;
             _mfxPlayer = mfxPlayer;
             _soundMapper = soundMapper;
-            _graphicsDeviceManager = new GraphicsDeviceManager(this);
+            _fixedTimeStepRepository = fixedTimeStepRepository;
+            _mainButtonController = mainButtonController;
+
+            _graphicsDeviceManager = new GraphicsDeviceManager(this)
+            {
+                PreferredBackBufferWidth = ClientWindowSizeRepository.DEFAULT_BACKBUFFER_WIDTH,
+                PreferredBackBufferHeight = ClientWindowSizeRepository.DEFAULT_BACKBUFFER_HEIGHT
+            };
 
             Content.RootDirectory = "Content";
         }
@@ -102,27 +114,29 @@ namespace EndlessClient.GameExecution
                 }
             };
 
-            Components.ComponentRemoved += (o, e) =>
-            {
-                //if (e.GameComponent is PacketHandlerGameComponent)
-                //{
-                //    throw new InvalidOperationException("Packet handler game component should never be removed from Game components");
-                //}
-            };
-
             base.Initialize();
-
-            AttemptToLoadPubFiles();
 
             IsMouseVisible = true;
             IsFixedTimeStep = false;
+
+            TargetElapsedTime = TimeSpan.FromMilliseconds(FixedTimeStepRepository.TICK_TIME_MS);
+
             _previousKeyState = Keyboard.GetState();
 
+            // setting Width/Height in window size repository applies the change to disable vsync
             _graphicsDeviceManager.SynchronizeWithVerticalRetrace = false;
             _graphicsDeviceManager.IsFullScreen = false;
-            _graphicsDeviceManager.PreferredBackBufferWidth = _windowSizeProvider.Width;
-            _graphicsDeviceManager.PreferredBackBufferHeight = _windowSizeProvider.Height;
-            _graphicsDeviceManager.ApplyChanges();
+            _windowSizeRepository.Width = ClientWindowSizeRepository.DEFAULT_BACKBUFFER_WIDTH;
+            _windowSizeRepository.Height = ClientWindowSizeRepository.DEFAULT_BACKBUFFER_HEIGHT;
+
+            _windowSizeRepository.GameWindowSizeChanged += (_, _) =>
+            {
+                if (_windowSizeRepository.Width < ClientWindowSizeRepository.DEFAULT_BACKBUFFER_HEIGHT)
+                    _windowSizeRepository.Width = ClientWindowSizeRepository.DEFAULT_BACKBUFFER_WIDTH;
+
+                if (_windowSizeRepository.Height < ClientWindowSizeRepository.DEFAULT_BACKBUFFER_HEIGHT)
+                    _windowSizeRepository.Height = ClientWindowSizeRepository.DEFAULT_BACKBUFFER_HEIGHT;
+            };
 
             Exiting += (_, _) => _mfxPlayer.StopBackgroundMusic();
         }
@@ -140,20 +154,11 @@ namespace EndlessClient.GameExecution
             //todo: all the things that should load stuff as part of game's load/initialize should be broken into a pattern
             _chatBubbleTextureProvider.LoadContent();
 
-            //the GraphicsDevice doesn't exist until Initialize() is called by the framework
+            //the GraphicsDevice/Window don't exist until Initialize() is called by the framework
             //Ideally, this would be set in a DependencyContainer, but I'm not sure of a way to do that now
             _graphicsDeviceRepository.GraphicsDevice = GraphicsDevice;
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                if (!File.Exists(ShaderRepository.HairClipFile))
-                {
-                    throw new FileNotFoundException("Missing HairClip shader");
-                }
-
-                var shaderBytes = File.ReadAllBytes(ShaderRepository.HairClipFile);
-                _shaderRepository.Shaders[ShaderRepository.HairClip] = new Effect(GraphicsDevice, shaderBytes);
-            }
+            _graphicsDeviceRepository.GraphicsDeviceManager = _graphicsDeviceManager;
+            _gameWindowRepository.Window = Window;
 
             SetUpInitialControlSet();
 
@@ -162,37 +167,49 @@ namespace EndlessClient.GameExecution
                 _mfxPlayer.PlayBackgroundMusic(1, EOLib.IO.Map.MusicControl.InterruptPlayRepeat);
             }
 
+            AttemptToLoadPubFiles();
+
             base.LoadContent();
         }
 
         protected override void Update(GameTime gameTime)
         {
-            // Force update at 60FPS
-            // Some game components rely on ~60FPS update times. See: https://github.com/ethanmoffat/EndlessClient/issues/199
+            // Force updates to wait every 12ms
+            // Some game components rely on slower update times. 60FPS was the original, but 12ms factors nicely in 120ms "ticks"
+            // See: https://github.com/ethanmoffat/EndlessClient/issues/199
             // Using IsFixedTimeStep = true with TargetUpdateTime set to 60FPS also limits the draw rate, which is not desired
-            if ((gameTime.TotalGameTime - _lastFrameUpdate).TotalMilliseconds > 1000.0 / 60)
+            if ((gameTime.TotalGameTime - _lastFrameUpdate).TotalMilliseconds >= FixedTimeStepRepository.TICK_TIME_MS)
             {
-
 #if DEBUG
-                //todo: this is a debug-only mode launched with the F5 key.
-                //todo: move this to be handled by some sort of key listener once function keys are handled in-game
                 var currentKeyState = Keyboard.GetState();
-                if (_previousKeyState.IsKeyDown(Keys.F5) && currentKeyState.IsKeyUp(Keys.F5))
+                if (KeyboardExtended.GetState().WasKeyJustDown(Keys.F5))
                 {
                     _testModeLauncher.LaunchTestMode();
                 }
 
                 _previousKeyState = currentKeyState;
 #endif
+                _fixedTimeStepRepository.Tick();
 
+#if !DEBUG
                 try
                 {
                     base.Update(gameTime);
                 }
-                catch (InvalidOperationException ioe) when (ioe.InnerException is NullReferenceException)
+                catch
                 {
-                    // hide "failed to compare two elements in the array" error from Monogame
+                    if (_configurationProvider.DebugCrashes)
+                    {
+                        throw;
+                    }
+                    else
+                    {
+                        _mainButtonController.GoToInitialStateAndDisconnect(showLostConnection: true);
+                    }
                 }
+#else
+                base.Update(gameTime);
+#endif
 
                 _lastFrameUpdate = gameTime.TotalGameTime;
             }
@@ -231,38 +248,38 @@ namespace EndlessClient.GameExecution
 
             try
             {
-                _pubFileLoadActions.LoadItemFile(rangedWeaponIds: Constants.RangedWeaponIDs.Concat(Constants.InstrumentIDs));
+                _pubFileLoadActions.LoadItemFile();
             }
-            catch (IOException ioe)
+            catch (Exception ex) when (ex is IOException || ex is ArgumentException)
             {
-                _loggerProvider.Logger.Log(PUB_LOG_MSG, PubFileNameConstants.PathToEIFFile, ioe.Message);
+                _loggerProvider.Logger.Log(PUB_LOG_MSG, string.Format(PubFileNameConstants.EIFFormat, 1), ex.Message);
             }
 
             try
             {
                 _pubFileLoadActions.LoadNPCFile();
             }
-            catch (IOException ioe)
+            catch (Exception ex) when (ex is IOException || ex is ArgumentException)
             {
-                _loggerProvider.Logger.Log(PUB_LOG_MSG, PubFileNameConstants.PathToENFFile, ioe.Message);
+                _loggerProvider.Logger.Log(PUB_LOG_MSG, string.Format(PubFileNameConstants.ENFFormat, 1), ex.Message);
             }
 
             try
             {
                 _pubFileLoadActions.LoadSpellFile();
             }
-            catch (IOException ioe)
+            catch (Exception ex) when (ex is IOException || ex is ArgumentException)
             {
-                _loggerProvider.Logger.Log(PUB_LOG_MSG, PubFileNameConstants.PathToESFFile, ioe.Message);
+                _loggerProvider.Logger.Log(PUB_LOG_MSG, string.Format(PubFileNameConstants.ESFFormat, 1), ex.Message);
             }
 
             try
             {
                 _pubFileLoadActions.LoadClassFile();
             }
-            catch (IOException ioe)
+            catch (Exception ex) when (ex is IOException || ex is ArgumentException)
             {
-                _loggerProvider.Logger.Log(PUB_LOG_MSG, PubFileNameConstants.PathToECFFile, ioe.Message);
+                _loggerProvider.Logger.Log(PUB_LOG_MSG, string.Format(PubFileNameConstants.ECFFormat, 1), ex.Message);
             }
         }
 
@@ -273,7 +290,7 @@ namespace EndlessClient.GameExecution
                 _controlSetRepository.CurrentControlSet);
             _controlSetRepository.CurrentControlSet = controls;
 
-            //since the controls are being created in Initialize(), adding them to the default game
+            //since the controls are being created in LoadContent(), adding them to the default game
             //  doesn't call the Initialize() method on any controls, so it must be done here
             foreach (var xnaControl in _controlSetRepository.CurrentControlSet.AllComponents)
                 xnaControl.Initialize();

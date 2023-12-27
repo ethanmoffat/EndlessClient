@@ -7,19 +7,19 @@ namespace EOLib.Domain.Map
 {
     public interface ICurrentMapStateRepository
     {
-        short CurrentMapID { get; set; }
+        int CurrentMapID { get; set; }
 
         bool ShowMiniMap { get; set; }
 
-        short JailMapID { get; set; }
+        int JailMapID { get; set; }
 
         bool IsJail { get; }
 
-        Dictionary<int, Character.Character> Characters { get; set; }
+        MapEntityCollectionHashSet<Character.Character> Characters { get; set; }
 
-        HashSet<NPC.NPC> NPCs { get; set; }
+        MapEntityCollectionHashSet<NPC.NPC> NPCs { get; set; }
 
-        HashSet<MapItem> MapItems { get; set; }
+        MapEntityCollectionHashSet<MapItem> MapItems { get; set; }
 
         HashSet<Warp> OpenDoors { get; set;  }
 
@@ -29,32 +29,34 @@ namespace EOLib.Domain.Map
 
         WarpState MapWarpState { get; set; }
 
-        Option<short> MapWarpSession { get; set; }
+        Option<int> MapWarpSession { get; set; }
 
-        Option<short> MapWarpID { get; set; }
+        Option<int> MapWarpID { get; set; }
 
         Option<DateTime> MapWarpTime { get; set; }
 
-        HashSet<short> UnknownPlayerIDs { get; set; }
+        bool IsSleepWarp { get; set; }
 
-        HashSet<byte> UnknownNPCIndexes { get; set; }
+        HashSet<int> UnknownPlayerIDs { get; set; }
+
+        HashSet<int> UnknownNPCIndexes { get; set; }
     }
 
     public interface ICurrentMapStateProvider
     {
-        short CurrentMapID { get; }
+        int CurrentMapID { get; }
 
         bool ShowMiniMap { get; }
 
-        short JailMapID { get; }
+        int JailMapID { get; }
 
         bool IsJail { get; }
 
-        IReadOnlyDictionary<int, Character.Character> Characters { get; }
+        IReadOnlyMapEntityCollection<Character.Character> Characters { get; }
 
-        IReadOnlyCollection<NPC.NPC> NPCs { get; }
+        IReadOnlyMapEntityCollection<NPC.NPC> NPCs { get; }
 
-        IReadOnlyCollection<MapItem> MapItems { get; }
+        IReadOnlyMapEntityCollection<MapItem> MapItems { get; }
 
         IReadOnlyCollection<Warp> OpenDoors { get; }
 
@@ -64,33 +66,35 @@ namespace EOLib.Domain.Map
 
         WarpState MapWarpState { get; }
 
-        Option<short> MapWarpSession { get; }
+        Option<int> MapWarpSession { get; }
 
-        Option<short> MapWarpID { get; }
+        Option<int> MapWarpID { get; }
 
         Option<DateTime> MapWarpTime { get; }
 
-        HashSet<short> UnknownPlayerIDs { get; }
+        bool IsSleepWarp { get; }
 
-        HashSet<byte> UnknownNPCIndexes { get; }
+        HashSet<int> UnknownPlayerIDs { get; }
+
+        HashSet<int> UnknownNPCIndexes { get; }
     }
 
     [AutoMappedType(IsSingleton = true)]
     public class CurrentMapStateRepository : ICurrentMapStateRepository, ICurrentMapStateProvider, IResettable
     {
-        public short CurrentMapID { get; set; }
+        public int CurrentMapID { get; set; }
 
         public bool ShowMiniMap { get; set; }
 
-        public short JailMapID { get; set; }
+        public int JailMapID { get; set; }
 
         public bool IsJail => JailMapID == CurrentMapID;
 
-        public Dictionary<int, Character.Character> Characters { get; set; }
+        public MapEntityCollectionHashSet<Character.Character> Characters { get; set; }
 
-        public HashSet<NPC.NPC> NPCs { get; set; }
+        public MapEntityCollectionHashSet<NPC.NPC> NPCs { get; set; }
 
-        public HashSet<MapItem> MapItems { get; set; }
+        public MapEntityCollectionHashSet<MapItem> MapItems { get; set; }
 
         public HashSet<Warp> OpenDoors { get; set; }
 
@@ -100,21 +104,23 @@ namespace EOLib.Domain.Map
 
         public WarpState MapWarpState { get; set; }
 
-        public Option<short> MapWarpSession { get; set; }
+        public Option<int> MapWarpSession { get; set; }
 
-        public Option<short> MapWarpID { get; set; }
+        public Option<int> MapWarpID { get; set; }
 
         public Option<DateTime> MapWarpTime { get; set; }
 
-        public HashSet<short> UnknownPlayerIDs { get; set; }
+        public bool IsSleepWarp { get; set; }
 
-        public HashSet<byte> UnknownNPCIndexes { get; set; }
+        public HashSet<int> UnknownPlayerIDs { get; set; }
 
-        IReadOnlyDictionary<int, Character.Character> ICurrentMapStateProvider.Characters => Characters;
+        public HashSet<int> UnknownNPCIndexes { get; set; }
 
-        IReadOnlyCollection<NPC.NPC> ICurrentMapStateProvider.NPCs => NPCs;
+        IReadOnlyMapEntityCollection<Character.Character> ICurrentMapStateProvider.Characters => Characters;
 
-        IReadOnlyCollection<MapItem> ICurrentMapStateProvider.MapItems => MapItems;
+        IReadOnlyMapEntityCollection<NPC.NPC> ICurrentMapStateProvider.NPCs => NPCs;
+
+        IReadOnlyMapEntityCollection<MapItem> ICurrentMapStateProvider.MapItems => MapItems;
 
         IReadOnlyCollection<Warp> ICurrentMapStateProvider.OpenDoors => OpenDoors;
 
@@ -133,18 +139,19 @@ namespace EOLib.Domain.Map
             ShowMiniMap = false;
             JailMapID = 0;
 
-            Characters = new Dictionary<int, Character.Character>();
-            NPCs = new HashSet<NPC.NPC>();
-            MapItems = new HashSet<MapItem>();
+            Characters = new MapEntityCollectionHashSet<Character.Character>(x => x.ID, x => new MapCoordinate(x.X, x.Y));
+            NPCs = new MapEntityCollectionHashSet<NPC.NPC>(x => x.Index, x => new MapCoordinate(x.X, x.Y));
+            MapItems = new MapEntityCollectionHashSet<MapItem>(x => x.UniqueID, x => new MapCoordinate(x.X, x.Y));
             OpenDoors = new HashSet<Warp>();
             PendingDoors = new HashSet<Warp>();
             VisibleSpikeTraps = new HashSet<MapCoordinate>();
-            UnknownPlayerIDs = new HashSet<short>();
-            UnknownNPCIndexes = new HashSet<byte>();
+            UnknownPlayerIDs = new HashSet<int>();
+            UnknownNPCIndexes = new HashSet<int>();
 
             MapWarpState = WarpState.None;
-            MapWarpSession = Option.None<short>();
-            MapWarpID = Option.None<short>();
+            MapWarpSession = Option.None<int>();
+            MapWarpID = Option.None<int>();
+            IsSleepWarp = false;
         }
     }
 }

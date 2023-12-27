@@ -1,5 +1,6 @@
 ﻿using EndlessClient.Content;
 using EndlessClient.HUD.Party;
+using EndlessClient.Rendering;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Character;
@@ -13,7 +14,7 @@ using XNAControls;
 
 namespace EndlessClient.HUD.Panels
 {
-    public class PartyPanel : XNAPanel, IHudPanel
+    public class PartyPanel : DraggableHudPanel
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IPartyActions _partyActions;
@@ -32,7 +33,9 @@ namespace EndlessClient.HUD.Panels
                           IPartyActions partyActions,
                           IContentProvider contentProvider,
                           IPartyDataProvider partyDataProvider,
-                          ICharacterProvider characterProvider)
+                          ICharacterProvider characterProvider,
+                          IClientWindowSizeProvider clientWindowSizeProvider)
+            : base(clientWindowSizeProvider.Resizable)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _partyActions = partyActions;
@@ -45,11 +48,13 @@ namespace EndlessClient.HUD.Panels
                 Visible = true,
             };
             _scrollBar.SetParentControl(this);
+            _scrollBar.UpdateDimensions(0);
+            SetScrollWheelHandler(_scrollBar);
 
             _numMembers = new XNALabel(Constants.FontSize09)
             {
                 AutoSize = false,
-                DrawArea = new Rectangle(455, 2, 27, 14),
+                DrawArea = new Rectangle(455, 0, 27, 14),
                 ForeColor = ColorConstants.LightGrayText,
                 TextAlign = LabelAlignment.MiddleRight
             };

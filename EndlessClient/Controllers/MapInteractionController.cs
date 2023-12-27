@@ -13,12 +13,14 @@ using EndlessClient.Input;
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
+using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Interact;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
 using EOLib.Domain.Spells;
+using EOLib.IO.Extensions;
 using EOLib.IO.Map;
 using EOLib.Localization;
 using Optional;
@@ -50,7 +52,6 @@ namespace EndlessClient.Controllers
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly IContextMenuRendererFactory _contextMenuRendererFactory;
         private readonly IActiveDialogProvider _activeDialogProvider;
-        private readonly IUserInputRepository _userInputRepository;
         private readonly ISpellSlotDataRepository _spellSlotDataRepository;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly ISfxPlayer _sfxPlayer;
@@ -74,7 +75,6 @@ namespace EndlessClient.Controllers
                                         IEOMessageBoxFactory messageBoxFactory,
                                         IContextMenuRendererFactory contextMenuRendererFactory,
                                         IActiveDialogProvider activeDialogProvider,
-                                        IUserInputRepository userInputRepository,
                                         ISpellSlotDataRepository spellSlotDataRepository,
                                         ICurrentMapProvider currentMapProvider,
                                         ISfxPlayer sfxPlayer)
@@ -98,13 +98,12 @@ namespace EndlessClient.Controllers
             _messageBoxFactory = messageBoxFactory;
             _contextMenuRendererFactory = contextMenuRendererFactory;
             _activeDialogProvider = activeDialogProvider;
-            _userInputRepository = userInputRepository;
             _spellSlotDataRepository = spellSlotDataRepository;
             _currentMapProvider = currentMapProvider;
             _sfxPlayer = sfxPlayer;
         }
 
-        public void LeftClick(IMapCellState cellState, Option<IMouseCursorRenderer> mouseRenderer)
+        public void LeftClick(IMapCellState cellState)
         {
             if (!InventoryPanel.NoItemsDragging() || _activeDialogProvider.ActiveDialogs.Any(x => x.HasValue))
                 return;
@@ -117,48 +116,54 @@ namespace EndlessClient.Controllers
                     _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
                 else
                     HandlePickupResult(_mapActions.PickUpItem(item), item);
-
-                _userInputRepository.ClickHandled = true;
             }
             else if (cellState.Sign.HasValue)
             {
                 var sign = cellState.Sign.ValueOr(Sign.None);
                 var messageBox = _messageBoxFactory.CreateMessageBox(sign.Message, sign.Title);
                 messageBox.ShowDialog();
-
-                _userInputRepository.ClickHandled = true;
+                _sfxPlayer.PlaySfx(SoundEffectID.ChestOpen);
             }
+            // vanilla client prioritizes standing first, then board interaction
             else if (_characterProvider.MainCharacter.RenderProperties.SitState != SitState.Standing)
             {
                 _characterActions.ToggleSit();
-
-                _userInputRepository.ClickHandled = true;
             }
-            else if (InteractableTileSpec(cellState.TileSpec) && CharacterIsCloseEnough(cellState.Coordinate))
+            else if (InteractableTileSpec(cellState.TileSpec) && (cellState.TileSpec.IsBoard() || CharacterIsCloseEnough(cellState.Coordinate)))
             {
                 var unwalkableActions = _unwalkableTileActions.GetUnwalkableTileActions(cellState);
 
                 foreach (var unwalkableAction in unwalkableActions)
                 {
+
+                    if (cellState.TileSpec.IsBoard())
+                    {
+                        _mapActions.OpenBoard(cellState.TileSpec);
+                        _inGameDialogActions.ShowBoardDialog();
+                        continue;
+                    }
+
                     switch (cellState.TileSpec)
                     {
-                        // todo: implement for other clickable tile specs (board, jukebox, etc)
                         case TileSpec.Chest:
                             if (unwalkableAction == UnwalkableTileAction.Chest)
                             {
-                                _mapActions.OpenChest((byte)cellState.Coordinate.X, (byte)cellState.Coordinate.Y);
+                                _mapActions.OpenChest(cellState.Coordinate);
                                 _inGameDialogActions.ShowChestDialog();
-
-                                _userInputRepository.ClickHandled = true;
                             }
                             break;
                         case TileSpec.BankVault:
                             if (unwalkableAction == UnwalkableTileAction.Locker)
                             {
-                                _mapActions.OpenLocker((byte)cellState.Coordinate.X, (byte)cellState.Coordinate.Y);
+                                _mapActions.OpenLocker(cellState.Coordinate);
                                 _inGameDialogActions.ShowLockerDialog();
-
-                                _userInputRepository.ClickHandled = true;
+                            }
+                            break;
+                        case TileSpec.Jukebox:
+                            if (unwalkableAction == UnwalkableTileAction.Jukebox)
+                            {
+                                _mapActions.OpenJukebox(cellState.Coordinate);
+                                _inGameDialogActions.ShowJukeboxDialog(cellState.Coordinate);
                             }
                             break;
                     }
@@ -169,11 +174,9 @@ namespace EndlessClient.Controllers
                 && !_characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Attacking)
                 && !_spellSlotDataRepository.SelectedSpellSlot.HasValue)
             {
-                mouseRenderer.MatchSome(r => r.AnimateClick());
                 _characterAnimationActions.StartWalking(Option.Some(cellState.Coordinate));
-
-                _userInputRepository.ClickHandled = true;
-                _userInputRepository.WalkClickHandled = true;
+                _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer)
+                    .AnimateMouseClick();
             }
 
             cellState.Warp.MatchSome(w =>
@@ -185,8 +188,6 @@ namespace EndlessClient.Controllers
                         {
                             _mapActions.OpenDoor(d);
                         }
-
-                        _userInputRepository.ClickHandled = true;
                     });
             });
 
@@ -195,46 +196,44 @@ namespace EndlessClient.Controllers
             _userInputTimeRepository.LastInputTime = DateTime.Now;
         }
 
-        public void LeftClick(ISpellTargetable spellTarget)
+        public bool LeftClick(ISpellTargetable target)
         {
-            if (_spellSlotDataRepository.SpellIsPrepared)
-            {
-                _spellSlotDataRepository.SelectedSpellInfo.MatchSome(si =>
-                {
-                    var result = _spellCastValidationActions.ValidateSpellCast(si.ID, spellTarget);
-                    if (result == SpellCastValidationResult.Ok && _characterAnimationActions.PrepareMainCharacterSpell(si.ID, spellTarget))
-                        _characterActions.PrepareCastSpell(si.ID);
-                    else if (result == SpellCastValidationResult.CannotAttackNPC)
-                        _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.YOU_CANNOT_ATTACK_THIS_NPC);
-                    else if (result == SpellCastValidationResult.ExhaustedNoTp)
-                        _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.ATTACK_YOU_ARE_EXHAUSTED_TP);
-                    else if (result == SpellCastValidationResult.ExhaustedNoSp)
-                        _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.ATTACK_YOU_ARE_EXHAUSTED_SP);
-                });
-
-                _spellSlotDataRepository.SpellIsPrepared = false;
-                _spellSlotDataRepository.SelectedSpellSlot = Option.None<int>();
-
-                _userInputRepository.ClickHandled = true;
-            }
-
             _userInputTimeRepository.LastInputTime = DateTime.Now;
+
+            if (!_spellSlotDataRepository.SpellIsPrepared)
+                return false;
+
+            _spellSlotDataRepository.SelectedSpellInfo.MatchSome(si =>
+            {
+                var result = _spellCastValidationActions.ValidateSpellCast(si.ID, target);
+                if (result == SpellCastValidationResult.Ok && _characterAnimationActions.PrepareMainCharacterSpell(si.ID, target))
+                    _characterActions.PrepareCastSpell(si.ID);
+                else if (result == SpellCastValidationResult.CannotAttackNPC)
+                    _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.YOU_CANNOT_ATTACK_THIS_NPC);
+                else if (result == SpellCastValidationResult.ExhaustedNoTp)
+                    _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.ATTACK_YOU_ARE_EXHAUSTED_TP);
+                else if (result == SpellCastValidationResult.ExhaustedNoSp)
+                    _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.ATTACK_YOU_ARE_EXHAUSTED_SP);
+            });
+
+            _spellSlotDataRepository.SpellIsPrepared = false;
+            _spellSlotDataRepository.SelectedSpellSlot = Option.None<int>();
+
+            return true;
         }
 
-        public void RightClick(Character character)
+        public void RightClick(ISpellTargetable target)
         {
             if (_activeDialogProvider.ActiveDialogs.Any(x => x.HasValue))
                 return;
 
-            if (character == _characterProvider.MainCharacter)
+            if (target == _characterProvider.MainCharacter)
             {
                 _paperdollActions.RequestPaperdoll(_characterProvider.MainCharacter.ID);
                 _inGameDialogActions.ShowPaperdollDialog(_characterProvider.MainCharacter, isMainCharacter: true);
                 _userInputTimeRepository.LastInputTime = DateTime.Now;
-
-                _userInputRepository.ClickHandled = true;
             }
-            else if (_characterRendererProvider.CharacterRenderers.ContainsKey(character.ID))
+            else if (target is Character character && _characterRendererProvider.CharacterRenderers.ContainsKey(character.ID))
             {
                 _contextMenuRepository.ContextMenu = _contextMenuRepository.ContextMenu.Match(
                     some: cmr =>
@@ -244,8 +243,6 @@ namespace EndlessClient.Controllers
                     },
                     none: () => Option.Some(_contextMenuRendererFactory.CreateContextMenuRenderer(_characterRendererProvider.CharacterRenderers[character.ID])));
                 _contextMenuRepository.ContextMenu.MatchSome(r => r.Initialize());
-
-                _userInputRepository.ClickHandled = true;
             }
         }
 
@@ -274,9 +271,9 @@ namespace EndlessClient.Controllers
                     item.OwningPlayerID.MatchSome(playerId =>
                     {
                         message = EOResourceID.STATUS_LABEL_ITEM_PICKUP_PROTECTED_BY;
-                        if (_currentMapStateProvider.Characters.ContainsKey(playerId))
+                        if (_currentMapStateProvider.Characters.TryGetValue(playerId, out var character))
                         {
-                            extra = $" {_currentMapStateProvider.Characters[playerId].Name}";
+                            extra = $" {character.Name}";
                         }
                     });
 
@@ -328,10 +325,10 @@ namespace EndlessClient.Controllers
 
     public interface IMapInteractionController
     {
-        void LeftClick(IMapCellState cellState, Option<IMouseCursorRenderer> mouseRenderer);
+        void LeftClick(IMapCellState cellState);
 
-        void LeftClick(ISpellTargetable spellTarget);
+        bool LeftClick(ISpellTargetable target);
 
-        void RightClick(Character character);
+        void RightClick(ISpellTargetable target);
     }
 }

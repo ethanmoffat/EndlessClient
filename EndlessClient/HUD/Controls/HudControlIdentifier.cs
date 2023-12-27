@@ -10,6 +10,8 @@ namespace EndlessClient.HUD.Controls
         StatusIcons,
         MiniMapRenderer,
 
+        ClickDispatcher,
+
         HudBackground,
 
         //buttons and panels

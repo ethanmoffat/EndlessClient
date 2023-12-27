@@ -1,6 +1,7 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.GameExecution;
+using EndlessClient.Rendering;
 using EOLib.Domain;
 using EOLib.Domain.Protocol;
 using EOLib.Net.Communication;
@@ -49,12 +50,15 @@ namespace EndlessClient.Controllers
             _gameStateActions.ChangeToState(GameStates.Initial);
         }
 
-        public void GoToInitialStateAndDisconnect()
+        public void GoToInitialStateAndDisconnect(bool showLostConnection = false)
         {
             GoToInitialState();
             StopReceivingAndDisconnect();
 
             _resetStateAction.ResetState();
+
+            if (showLostConnection)
+                _errorDialogDisplayAction.ShowConnectionLost(false);
         }
 
         public async Task ClickCreateAccount()
@@ -63,8 +67,11 @@ namespace EndlessClient.Controllers
 
             if (result)
             {
-                _gameStateActions.ChangeToState(GameStates.CreateAccount);
-                _accountDialogDisplayActions.ShowInitialCreateWarningDialog();
+                await DispatcherGameComponent.Invoke(() =>
+                {
+                    _gameStateActions.ChangeToState(GameStates.CreateAccount);
+                    _accountDialogDisplayActions.ShowInitialCreateWarningDialog();
+                });
             }
         }
 
@@ -73,7 +80,9 @@ namespace EndlessClient.Controllers
             var result = await StartNetworkConnection().ConfigureAwait(false);
 
             if (result)
-                _gameStateActions.ChangeToState(GameStates.Login);
+            {
+                await DispatcherGameComponent.Invoke(() => _gameStateActions.ChangeToState(GameStates.Login));
+            }
         }
 
         public void ClickViewCredits()
@@ -128,8 +137,7 @@ namespace EndlessClient.Controllers
 
                 _packetProcessActions.SetInitialSequenceNumber(initData[InitializationDataKey.SequenceByte1],
                     initData[InitializationDataKey.SequenceByte2]);
-                _packetProcessActions.SetEncodeMultiples((byte) initData[InitializationDataKey.ReceiveMultiple],
-                    (byte) initData[InitializationDataKey.SendMultiple]);
+                _packetProcessActions.SetEncodeMultiples(initData[InitializationDataKey.ReceiveMultiple], initData[InitializationDataKey.SendMultiple]);
 
                 _networkConnectionActions.CompleteHandshake(initData);
                 return true;
@@ -151,7 +159,7 @@ namespace EndlessClient.Controllers
     {
         void GoToInitialState();
 
-        void GoToInitialStateAndDisconnect();
+        void GoToInitialStateAndDisconnect(bool showLostConnection = false);
 
         Task ClickCreateAccount();
 

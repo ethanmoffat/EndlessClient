@@ -92,7 +92,7 @@ namespace EOLib.PacketHandlers.NPC
                 _characterSessionRepository.LastKillExp = expDifference;
                 if (expDifference > _characterSessionRepository.BestKillExp)
                     _characterSessionRepository.BestKillExp = expDifference;
-                _characterSessionRepository.TodayTotalExp += expDifference;
+                _characterSessionRepository.TodayTotalExp += Convert.ToUInt64(Math.Max(expDifference, 0));
             }
 
             if (droppedItemID > 0)
@@ -107,15 +107,16 @@ namespace EOLib.PacketHandlers.NPC
             return true;
         }
 
-        private void RemoveNPCFromView(short deadNPCIndex, int playerId, Option<short> spellId, Option<int> damage, bool showDeathAnimation)
+        private void RemoveNPCFromView(int deadNPCIndex, int playerId, Option<int> spellId, Option<int> damage, bool showDeathAnimation)
         {
             foreach (var notifier in _npcActionNotifiers)
                 notifier.RemoveNPCFromView(deadNPCIndex, playerId, spellId, damage, showDeathAnimation);
 
-            _currentMapStateRepository.NPCs.RemoveWhere(npc => npc.Index == deadNPCIndex);
+            if (_currentMapStateRepository.NPCs.TryGetValue(deadNPCIndex, out var npc))
+                _currentMapStateRepository.NPCs.Remove(npc);
         }
 
-        private void UpdatePlayerDirection(short playerID, EODirection playerDirection)
+        private void UpdatePlayerDirection(int playerID, EODirection playerDirection)
         {
             if (playerID == _characterRepository.MainCharacter.ID)
             {
@@ -126,11 +127,11 @@ namespace EOLib.PacketHandlers.NPC
 
                 _characterRepository.MainCharacter = updatedCharacter;
             }
-            else if (_currentMapStateRepository.Characters.ContainsKey(playerID))
+            else if (_currentMapStateRepository.Characters.TryGetValue(playerID, out var character))
             {
-                var updatedRenderProps = _currentMapStateRepository.Characters[playerID].RenderProperties.WithDirection(playerDirection);
-                var updatedCharacter = _currentMapStateRepository.Characters[playerID].WithRenderProperties(updatedRenderProps);
-                _currentMapStateRepository.Characters[playerID] = updatedCharacter;
+                var updatedRenderProps = character.RenderProperties.WithDirection(playerDirection);
+                var updatedCharacter = character.WithRenderProperties(updatedRenderProps);
+                _currentMapStateRepository.Characters.Update(character, updatedCharacter);
             }
             else
             {
@@ -145,14 +146,16 @@ namespace EOLib.PacketHandlers.NPC
             _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);
         }
 
-        private void ShowDroppedItem(short playerID, short droppedItemUID, short droppedItemID, byte x, byte y, int droppedAmount)
+        private void ShowDroppedItem(int playerID, int droppedItemUID, int droppedItemID, int x, int y, int droppedAmount)
         {
             var mapItem = new MapItem(droppedItemUID, droppedItemID, x, y, droppedAmount)
                 .WithIsNPCDrop(true)
                 .WithDropTime(Option.Some(DateTime.Now))
-                .WithOwningPlayerID(Option.Some<int>(playerID));
+                .WithOwningPlayerID(Option.Some(playerID));
 
-            _currentMapStateRepository.MapItems.RemoveWhere(item => item.UniqueID == droppedItemUID);
+            if (_currentMapStateRepository.MapItems.TryGetValue(droppedItemID, out var oldItem))
+                _currentMapStateRepository.MapItems.Remove(oldItem);
+
             _currentMapStateRepository.MapItems.Add(mapItem);
 
             foreach (var notifier in _npcActionNotifiers)

@@ -2,7 +2,6 @@
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
-using EOLib.IO.Extensions;
 using EOLib.IO.Repositories;
 using EOLib.Net;
 using EOLib.Net.Handlers;
@@ -43,11 +42,7 @@ namespace EOLib.PacketHandlers.Avatar
             {
                 currentCharacter = _characterRepository.MainCharacter;
             }
-            else if (_currentMapStateRepository.Characters.ContainsKey(playerID))
-            {
-                currentCharacter = _currentMapStateRepository.Characters[playerID];
-            }
-            else
+            else if (!_currentMapStateRepository.Characters.TryGetValue(playerID, out currentCharacter))
             {
                 _currentMapStateRepository.UnknownPlayerIDs.Add(playerID);
                 return true;
@@ -65,12 +60,8 @@ namespace EOLib.PacketHandlers.Avatar
                         currentRenderProps = currentRenderProps
                             .WithBootsGraphic(packet.ReadShort())
                             .WithArmorGraphic(packet.ReadShort())
-                            .WithHatGraphic(packet.ReadShort());
-
-                        var weaponGraphic = packet.ReadShort();
-                        currentRenderProps = currentRenderProps
-                            .WithWeaponGraphic(weaponGraphic)
-                            .WithIsRangedWeapon(_eifFileProvider.EIFFile.IsRangedWeapon(weaponGraphic))
+                            .WithHatGraphic(packet.ReadShort())
+                            .WithWeaponGraphic(packet.ReadShort())
                             .WithShieldGraphic(packet.ReadShort());
 
                         break;
@@ -106,7 +97,7 @@ namespace EOLib.PacketHandlers.Avatar
             }
             else
             {
-                _currentMapStateRepository.Characters[playerID] = updatedCharacter;
+                _currentMapStateRepository.Characters.Update(currentCharacter, updatedCharacter);
             }
 
             return true;

@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using EndlessClient.Rendering.Metadata.Models;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Optional;
 using System;
@@ -98,7 +99,9 @@ namespace EndlessClient.Rendering.Effects
             return _metadata.AnimationType switch
                 {
                     EffectAnimationType.Flickering =>
-                        _random.Next(_metadata.RandomFlickeringMetadata?.FirstFrame ?? 0, (_metadata.RandomFlickeringMetadata?.LastFrame ?? 0) + 1) - 1,
+                        _random.Next(
+                            _metadata.RandomFlickeringMetadata?.FirstFrame ?? 0,
+                            1 + (_metadata.RandomFlickeringMetadata?.LastFrame ?? _metadata.RandomFlickeringMetadata?.FirstFrame ?? 0)),
                     _ => _displayFrame + 1
                 };
         }

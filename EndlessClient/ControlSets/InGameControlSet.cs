@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using EndlessClient.Controllers;
+﻿using EndlessClient.Controllers;
 using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Controls;
-using EndlessClient.Input;
+using EndlessClient.Rendering;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
-using Optional;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.ControlSets
@@ -19,7 +18,6 @@ namespace EndlessClient.ControlSets
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly IHudControlsFactory _hudControlsFactory;
         private readonly IActiveDialogRepository _activeDialogRepository;
-        private readonly IUserInputRepository _userInputRepository;
         private IReadOnlyDictionary<HudControlIdentifier, IGameComponent> _controls;
 
         public override GameStates GameState => GameStates.PlayingTheGame;
@@ -28,13 +26,12 @@ namespace EndlessClient.ControlSets
                                 IEOMessageBoxFactory messageBoxFactory,
                                 IHudControlsFactory hudControlsFactory,
                                 IActiveDialogRepository activeDialogRepository,
-                                IUserInputRepository userInputRepository)
-            : base(mainButtonController)
+                                IClientWindowSizeRepository clientWindowSizeRepository)
+            : base(mainButtonController, clientWindowSizeRepository)
         {
             _messageBoxFactory = messageBoxFactory;
             _hudControlsFactory = hudControlsFactory;
             _activeDialogRepository = activeDialogRepository;
-            _userInputRepository = userInputRepository;
             _controls = new Dictionary<HudControlIdentifier, IGameComponent>();
         }
 
@@ -54,8 +51,6 @@ namespace EndlessClient.ControlSets
 
         protected override async void DoBackButtonClick(object sender, EventArgs e)
         {
-            _userInputRepository.ClickHandled = true;
-
             var messageBox = _messageBoxFactory.CreateMessageBox(
                 DialogResourceID.EXIT_GAME_ARE_YOU_SURE,
                 EODialogButtons.OkCancel);

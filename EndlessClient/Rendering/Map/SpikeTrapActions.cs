@@ -38,13 +38,10 @@ namespace EndlessClient.Rendering.Map
 
         public void ShowSpikeTrap(int characterId)
         {
-            if (!_currentMapStateRepository.Characters.ContainsKey(characterId))
+            if (!_currentMapStateRepository.Characters.TryGetValue(characterId, out var character))
                 return;
 
-            var character = _currentMapStateRepository.Characters[characterId];
-            ShowSpikeTrap(new MapCoordinate(
-                character.RenderProperties.GetDestinationX(),
-                character.RenderProperties.GetDestinationY()));
+            ShowSpikeTrap(new MapCoordinate(character.X, character.Y));
         }
 
         public void HideSpikeTrap(MapCoordinate coordinate)
@@ -54,13 +51,10 @@ namespace EndlessClient.Rendering.Map
 
         public void HideSpikeTrap(int characterId)
         {
-            if (!_currentMapStateRepository.Characters.ContainsKey(characterId))
+            if (!_currentMapStateRepository.Characters.TryGetValue(characterId, out var character))
                 return;
 
-            var character = _currentMapStateRepository.Characters[characterId];
-            HideSpikeTrap(new MapCoordinate(
-                character.RenderProperties.MapX,
-                character.RenderProperties.MapY));
+            HideSpikeTrap(new MapCoordinate(character.X, character.Y));
         }
     }
 

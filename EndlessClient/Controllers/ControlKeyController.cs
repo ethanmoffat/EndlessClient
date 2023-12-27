@@ -72,6 +72,7 @@ namespace EndlessClient.Controllers
                 }
                 else if (validationResult == AttackValidationError.MissingArrows)
                 {
+                    _sfxPlayer.PlaySfx(SoundEffectID.NoArrows);
                     _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING,
                                                       EOResourceID.STATUS_LABEL_YOU_HAVE_NO_ARROWS);
 

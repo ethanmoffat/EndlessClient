@@ -1,6 +1,7 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Item;
+using EOLib.IO.Map;
 using EOLib.Net;
 using EOLib.Net.Communication;
 
@@ -13,24 +14,23 @@ namespace EOLib.Domain.Map
         private readonly IItemPickupValidator _itemPickupValidator;
         private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
-        private readonly IChestDataProvider _chestDataProvider;
 
         public MapActions(IPacketSendService packetSendService,
                           IItemPickupValidator itemPickupValidator,
                           ICharacterProvider characterProvider,
-                          ICurrentMapStateRepository currentMapStateRepository,
-                          IChestDataProvider chestDataProvider)
+                          ICurrentMapStateRepository currentMapStateRepository)
         {
             _packetSendService = packetSendService;
             _itemPickupValidator = itemPickupValidator;
             _characterProvider = characterProvider;
             _currentMapStateRepository = currentMapStateRepository;
-            _chestDataProvider = chestDataProvider;
         }
 
         public void RequestRefresh()
         {
-            var packet = new PacketBuilder(PacketFamily.Refresh, PacketAction.Request).Build();
+            var packet = new PacketBuilder(PacketFamily.Refresh, PacketAction.Request)
+                .AddByte(255)
+                .Build();
             _packetSendService.SendPacket(packet);
         }
 
@@ -55,29 +55,48 @@ namespace EOLib.Domain.Map
                 return;
 
             var packet = new PacketBuilder(PacketFamily.Door, PacketAction.Open)
-                .AddChar((byte)warp.X)
-                .AddChar((byte)warp.Y)
+                .AddChar(warp.X)
+                .AddChar(warp.Y)
                 .Build();
 
             _packetSendService.SendPacket(packet);
             _currentMapStateRepository.PendingDoors.Add(warp);
         }
 
-        public void OpenChest(byte x, byte y)
+        public void OpenChest(MapCoordinate location)
         {
             var packet = new PacketBuilder(PacketFamily.Chest, PacketAction.Open)
-                .AddChar(x)
-                .AddChar(y)
+                .AddChar(location.X)
+                .AddChar(location.Y)
                 .Build();
 
             _packetSendService.SendPacket(packet);
         }
 
-        public void OpenLocker(byte x, byte y)
+        public void OpenLocker(MapCoordinate location)
         {
             var packet = new PacketBuilder(PacketFamily.Locker, PacketAction.Open)
-                .AddChar(x)
-                .AddChar(y)
+                .AddChar(location.X)
+                .AddChar(location.Y)
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+        }
+
+        public void OpenBoard(TileSpec boardSpec)
+        {
+            var packet = new PacketBuilder(PacketFamily.Board, PacketAction.Open)
+                .AddShort(boardSpec - TileSpec.Board1)
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+        }
+
+        public void OpenJukebox(MapCoordinate location)
+        {
+            var packet = new PacketBuilder(PacketFamily.JukeBox, PacketAction.Open)
+                .AddChar(location.X)
+                .AddChar(location.Y)
                 .Build();
 
             _packetSendService.SendPacket(packet);
@@ -92,8 +111,12 @@ namespace EOLib.Domain.Map
 
         void OpenDoor(Warp warp);
 
-        void OpenChest(byte x, byte y);
+        void OpenChest(MapCoordinate location);
 
-        void OpenLocker(byte x, byte y);
+        void OpenLocker(MapCoordinate location);
+
+        void OpenBoard(TileSpec boardSpec);
+
+        void OpenJukebox(MapCoordinate location);
     }
 }

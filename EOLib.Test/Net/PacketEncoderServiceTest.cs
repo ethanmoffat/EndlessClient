@@ -19,7 +19,7 @@ namespace EOLib.IO.Test.Services
                 .AddShort(0)
                 .AddShort(111)
                 .AddShort(127)
-                .AddChar((byte)DialogReply.Link)
+                .AddChar((int)DialogReply.Link)
                 .AddChar(1)
                 .Build();
 

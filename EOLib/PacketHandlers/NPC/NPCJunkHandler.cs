@@ -47,13 +47,14 @@ namespace EOLib.PacketHandlers.NPC
                 {
                     notifier.RemoveNPCFromView(index,
                         _characterProvider.MainCharacter.ID,
-                        spellId: Option.None<short>(),
+                        spellId: Option.None<int>(),
                         damage: Option.None<int>(),
                         showDeathAnimation: true);
                 }
             }
 
-            _currentMapStateRepository.NPCs.RemoveWhere(npc => npc.ID == childNpcId);
+            foreach (var npc in _currentMapStateRepository.NPCs.Where(npc => npc.ID == childNpcId))
+                _currentMapStateRepository.NPCs.Remove(npc);
 
             return true;
         }

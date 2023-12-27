@@ -83,7 +83,7 @@ namespace EOLib.Net.Connection
                 .AddChar(_configurationProvider.VersionMinor)
                 .AddChar(_configurationProvider.VersionBuild)
                 .AddChar(112)
-                .AddChar((byte)hdSerialNumber.Length)
+                .AddChar(hdSerialNumber.Length)
                 .AddString(hdSerialNumber)
                 .Build();
 
@@ -96,11 +96,11 @@ namespace EOLib.Net.Connection
 
         public void CompleteHandshake(IInitializationData initializationData)
         {
-            _playerInfoRepository.PlayerID = (short)initializationData[InitializationDataKey.PlayerID];
+            _playerInfoRepository.PlayerID = initializationData[InitializationDataKey.PlayerID];
 
             var packet = new PacketBuilder(PacketFamily.Connection, PacketAction.Accept)
-                .AddShort((short)initializationData[InitializationDataKey.SendMultiple])
-                .AddShort((short)initializationData[InitializationDataKey.ReceiveMultiple])
+                .AddShort(initializationData[InitializationDataKey.SendMultiple])
+                .AddShort(initializationData[InitializationDataKey.ReceiveMultiple])
                 .AddShort(_playerInfoRepository.PlayerID)
                 .Build();
 

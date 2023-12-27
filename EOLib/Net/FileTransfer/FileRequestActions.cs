@@ -3,11 +3,13 @@ using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Protocol;
 using EOLib.IO;
+using EOLib.IO.Extensions;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
 using Optional;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace EOLib.Net.FileTransfer
@@ -46,7 +48,7 @@ namespace EOLib.Net.FileTransfer
             _playerInfoProvider = playerInfoProvider;
         }
 
-        public bool NeedsFileForLogin(InitFileType fileType, short optionalID = 0)
+        public bool NeedsFileForLogin(InitFileType fileType, int optionalID = 0)
         {
             var expectedChecksum = _numberEncoderService.DecodeNumber(_loginFileChecksumProvider.MapChecksum);
             var expectedLength = _loginFileChecksumProvider.MapLength;
@@ -56,20 +58,20 @@ namespace EOLib.Net.FileTransfer
                 : NeedPub(fileType);
         }
 
-        public bool NeedsMapForWarp(short mapID, byte[] mapRid, int fileSize)
+        public bool NeedsMapForWarp(int mapID, byte[] mapRid, int fileSize)
         {
             var expectedChecksum = _numberEncoderService.DecodeNumber(mapRid);
             return NeedMap(mapID, expectedChecksum, fileSize);
         }
 
-        public void RequestMapForWarp(short mapID, short sessionID)
+        public void RequestMapForWarp(int mapID, int sessionID)
         {
             _fileRequestService.RequestMapFileForWarp(mapID, sessionID);
             _currentMapStateRepository.MapWarpSession = Option.Some(sessionID);
             _currentMapStateRepository.MapWarpID = Option.Some(mapID);
         }
 
-        public async Task GetMapFromServer(short mapID, short sessionID)
+        public async Task GetMapFromServer(int mapID, int sessionID)
         {
             var mapFile = await _fileRequestService.RequestMapFile(mapID, sessionID);
             _mapFileSaveService.SaveFileToDefaultDirectory(mapFile, rewriteChecksum: false);
@@ -80,35 +82,52 @@ namespace EOLib.Net.FileTransfer
                 _mapFileRepository.MapFiles.Add(mapID, mapFile);
         }
 
-        public async Task GetItemFileFromServer(short sessionID)
+        public async Task GetItemFileFromServer(int sessionID)
         {
-            var itemFile = await _fileRequestService.RequestFile<EIFRecord>(InitFileType.Item, sessionID);
-            _pubFileSaveService.SaveFile(PubFileNameConstants.PathToEIFFile, itemFile, rewriteChecksum: false);
-            _pubFileRepository.EIFFile = (EIFFile)itemFile;
+            DeleteExisting(PubFileNameConstants.EIFFilter);
+
+            var itemFiles = await _fileRequestService.RequestFile<EIFRecord>(InitFileType.Item, sessionID);
+            foreach (var file in itemFiles)
+                _pubFileSaveService.SaveFile(string.Format(PubFileNameConstants.EIFFormat, file.ID), file, rewriteChecksum: false);
+
+            _pubFileRepository.EIFFiles = itemFiles;
+            _pubFileRepository.EIFFile = PubFileExtensions.Merge(itemFiles);
         }
 
-        public async Task GetNPCFileFromServer(short sessionID)
+        public async Task GetNPCFileFromServer(int sessionID)
         {
-            var npcFile = await _fileRequestService.RequestFile<ENFRecord>(InitFileType.Npc, sessionID);
-            _pubFileSaveService.SaveFile(PubFileNameConstants.PathToENFFile, npcFile, rewriteChecksum: false);
-            _pubFileRepository.ENFFile = (ENFFile)npcFile;
+            DeleteExisting(PubFileNameConstants.ENFFilter);
+
+            var npcFiles = await _fileRequestService.RequestFile<ENFRecord>(InitFileType.Npc, sessionID);
+            foreach (var file in npcFiles)
+                _pubFileSaveService.SaveFile(string.Format(PubFileNameConstants.ENFFormat, file.ID), file, rewriteChecksum: false);
+            _pubFileRepository.ENFFiles = npcFiles;
+            _pubFileRepository.ENFFile = PubFileExtensions.Merge(npcFiles);
         }
 
-        public async Task GetSpellFileFromServer(short sessionID)
+        public async Task GetSpellFileFromServer(int sessionID)
         {
-            var spellFile = await _fileRequestService.RequestFile<ESFRecord>(InitFileType.Spell, sessionID);
-            _pubFileSaveService.SaveFile(PubFileNameConstants.PathToESFFile, spellFile, rewriteChecksum: false);
-            _pubFileRepository.ESFFile = (ESFFile)spellFile;
+            DeleteExisting(PubFileNameConstants.ESFFilter);
+
+            var spellFiles = await _fileRequestService.RequestFile<ESFRecord>(InitFileType.Spell, sessionID);
+            foreach (var file in spellFiles)
+                _pubFileSaveService.SaveFile(string.Format(PubFileNameConstants.ESFFormat, file.ID), file, rewriteChecksum: false);
+            _pubFileRepository.ESFFiles = spellFiles;
+            _pubFileRepository.ESFFile = PubFileExtensions.Merge(spellFiles);
         }
 
-        public async Task GetClassFileFromServer(short sessionID)
+        public async Task GetClassFileFromServer(int sessionID)
         {
-            var classFile = await _fileRequestService.RequestFile<ECFRecord>(InitFileType.Class, sessionID);
-            _pubFileSaveService.SaveFile(PubFileNameConstants.PathToECFFile, classFile, rewriteChecksum: false);
-            _pubFileRepository.ECFFile = (ECFFile)classFile;
+            DeleteExisting(PubFileNameConstants.ECFFilter);
+
+            var classFiles = await _fileRequestService.RequestFile<ECFRecord>(InitFileType.Class, sessionID);
+            foreach (var file in classFiles)
+                _pubFileSaveService.SaveFile(string.Format(PubFileNameConstants.ECFFormat, file.ID), file, rewriteChecksum: false);
+            _pubFileRepository.ECFFiles = classFiles;
+            _pubFileRepository.ECFFile = PubFileExtensions.Merge(classFiles);
         }
 
-        private bool NeedMap(short mapID, int expectedChecksum, int expectedLength)
+        private bool NeedMap(int mapID, int expectedChecksum, int expectedLength)
         {
             if (!_mapFileRepository.MapFiles.ContainsKey(mapID))
                 return true; //map with that ID is not in the cache, need to get it from the server
@@ -143,24 +162,34 @@ namespace EOLib.Net.FileTransfer
                     throw new ArgumentOutOfRangeException(nameof(fileType), fileType, null);
             }
         }
+
+        private static void DeleteExisting(string filter)
+        {
+            try
+            {
+                foreach (var file in Directory.GetFiles("pub", filter))
+                    File.Delete(file);
+            }
+            catch (IOException) { }
+        }
     }
 
     public interface IFileRequestActions
     {
-        bool NeedsFileForLogin(InitFileType fileType, short optionalID = 0);
+        bool NeedsFileForLogin(InitFileType fileType, int optionalID = 0);
 
-        bool NeedsMapForWarp(short mapID, byte[] mapRid, int fileSize);
+        bool NeedsMapForWarp(int mapID, byte[] mapRid, int fileSize);
 
-        void RequestMapForWarp(short mapID, short sessionID);
+        void RequestMapForWarp(int mapID, int sessionID);
 
-        Task GetMapFromServer(short mapID, short sessionID);
+        Task GetMapFromServer(int mapID, int sessionID);
 
-        Task GetItemFileFromServer(short sessionID);
+        Task GetItemFileFromServer(int sessionID);
 
-        Task GetNPCFileFromServer(short sessionID);
+        Task GetNPCFileFromServer(int sessionID);
 
-        Task GetSpellFileFromServer(short sessionID);
+        Task GetSpellFileFromServer(int sessionID);
 
-        Task GetClassFileFromServer(short sessionID);
+        Task GetClassFileFromServer(int sessionID);
     }
 }

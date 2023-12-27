@@ -1,4 +1,5 @@
 ﻿using EndlessClient.Audio;
+using EndlessClient.Rendering.Metadata.Models;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;

@@ -22,8 +22,8 @@ namespace EOLib.Domain.Map
         public void AddItemToLocker(InventoryItem item)
         {
             var packet = new PacketBuilder(PacketFamily.Locker, PacketAction.Add)
-                .AddChar((byte)_lockerDataProvider.Location.X)
-                .AddChar((byte)_lockerDataProvider.Location.Y)
+                .AddChar(_lockerDataProvider.Location.X)
+                .AddChar(_lockerDataProvider.Location.Y)
                 .AddShort(item.ItemID)
                 .AddThree(item.Amount)
                 .Build();
@@ -31,18 +31,18 @@ namespace EOLib.Domain.Map
             _packetSendService.SendPacket(packet);
         }
 
-        public void TakeItemFromLocker(short itemId)
+        public void TakeItemFromLocker(int itemId)
         {
             var packet = new PacketBuilder(PacketFamily.Locker, PacketAction.Take)
-                .AddChar((byte)_lockerDataProvider.Location.X)
-                .AddChar((byte)_lockerDataProvider.Location.Y)
+                .AddChar(_lockerDataProvider.Location.X)
+                .AddChar(_lockerDataProvider.Location.Y)
                 .AddShort(itemId)
                 .Build();
 
             _packetSendService.SendPacket(packet);
         }
 
-        public int GetNewItemAmount(short itemId, int amount)
+        public int GetNewItemAmount(int itemId, int amount)
         {
             return _lockerDataProvider.Items
                 .SingleOrNone(x => x.ItemID == itemId)
@@ -54,8 +54,8 @@ namespace EOLib.Domain.Map
     {
         void AddItemToLocker(InventoryItem item);
 
-        void TakeItemFromLocker(short itemId);
+        void TakeItemFromLocker(int itemId);
 
-        int GetNewItemAmount(short itemId, int amount);
+        int GetNewItemAmount(int itemId, int amount);
     }
 }

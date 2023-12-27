@@ -1,16 +1,16 @@
-﻿using System.Collections;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Controls;
-using EndlessClient.Input;
-using EndlessClient.Network;
 using EndlessClient.UIControls;
 using Microsoft.Xna.Framework;
+using MonoGame.Extended.Input.InputListeners;
+using System.Collections.Generic;
 using XNAControls;
+using XNAControls.Input;
 
 namespace EndlessClient.Initialization
 {
@@ -20,8 +20,7 @@ namespace EndlessClient.Initialization
         private readonly IEndlessGame _game;
         private readonly IEndlessGameRepository _endlessGameRepository;
         private readonly IContentProvider _contentProvider;
-        private readonly IKeyboardDispatcherRepository _keyboardDispatcherRepository;
-        private readonly PacketHandlerGameComponent _packetHandlerGameComponent;
+        private readonly List<IGameComponent> _persistentComponents;
 
         private readonly IMainButtonController _mainButtonController;
         private readonly IAccountController _accountController;
@@ -37,8 +36,7 @@ namespace EndlessClient.Initialization
         public EndlessClientInitializer(IEndlessGame game,
                                         IEndlessGameRepository endlessGameRepository,
                                         IContentProvider contentProvider,
-                                        IKeyboardDispatcherRepository keyboardDispatcherRepository,
-                                        PacketHandlerGameComponent packetHandlerGameComponent,
+                                        List<IGameComponent> persistentComponents,
 
                                         //Todo: refactor method injection to something like IEnumerable<IMethodInjectable>
                                         IMainButtonController mainButtonController,
@@ -56,8 +54,7 @@ namespace EndlessClient.Initialization
             _game = game;
             _endlessGameRepository = endlessGameRepository;
             _contentProvider = contentProvider;
-            _keyboardDispatcherRepository = keyboardDispatcherRepository;
-            _packetHandlerGameComponent = packetHandlerGameComponent;
+            _persistentComponents = persistentComponents;
             _mainButtonController = mainButtonController;
             _accountController = accountController;
             _loginController = loginController;
@@ -74,13 +71,20 @@ namespace EndlessClient.Initialization
         {
             GameRepository.SetGame(_game as Game);
 
-            _game.Components.Add(_packetHandlerGameComponent);
+            foreach (var component in _persistentComponents)
+                _game.Components.Add(component);
+
+            var mouseListenerSettings = new MouseListenerSettings
+            {
+                DoubleClickMilliseconds = 150,
+                DragThreshold = 1
+            };
+            _game.Components.Add(new InputManager(GameRepository.GetGame(), mouseListenerSettings));
+
             _endlessGameRepository.Game = _game;
 
             _game.Content.RootDirectory = "ContentPipeline";
             _contentProvider.SetContentManager(_game.Content);
-
-            _keyboardDispatcherRepository.Dispatcher = new KeyboardDispatcher(_game.Window);
 
             _controlSetFactory.InjectControllers(_mainButtonController,
                                                  _accountController,
@@ -88,7 +92,7 @@ namespace EndlessClient.Initialization
                                                  _characterManagementController);
             _characterInfoPanelFactory.InjectCharacterManagementController(_characterManagementController);
             _characterInfoPanelFactory.InjectLoginController(_loginController);
-            _hudControlsFactory.InjectChatController(_chatController);
+            _hudControlsFactory.InjectChatController(_chatController, _mainButtonController);
             _paperdollDialogFactory.InjectInventoryController(_inventoryController);
         }
     }

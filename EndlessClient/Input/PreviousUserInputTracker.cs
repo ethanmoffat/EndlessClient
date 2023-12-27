@@ -1,5 +1,4 @@
 ﻿using EndlessClient.GameExecution;
-using EndlessClient.Rendering;
 using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Input
@@ -7,16 +6,13 @@ namespace EndlessClient.Input
     public class PreviousUserInputTracker : GameComponent
     {
         private readonly IUserInputRepository _userInputRepository;
-        private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
 
         public PreviousUserInputTracker(
             IEndlessGameProvider endlessGameProvider,
-            IUserInputRepository userInputRepository,
-            IFixedTimeStepRepository fixedTimeStepRepository)
+            IUserInputRepository userInputRepository)
             : base((Game)endlessGameProvider.Game)
         {
             _userInputRepository = userInputRepository;
-            _fixedTimeStepRepository = fixedTimeStepRepository;
             UpdateOrder = int.MaxValue;
         }
 
@@ -24,11 +20,6 @@ namespace EndlessClient.Input
         {
             _userInputRepository.PreviousKeyState = _userInputRepository.CurrentKeyState;
             _userInputRepository.PreviousMouseState = _userInputRepository.CurrentMouseState;
-            _userInputRepository.ClickHandled = false;
-            _userInputRepository.WalkClickHandled = false;
-
-            if (_fixedTimeStepRepository.IsUpdateFrame)
-                _fixedTimeStepRepository.RestartTimer();
 
             base.Update(gameTime);
         }

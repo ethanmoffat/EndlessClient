@@ -11,9 +11,9 @@ namespace EOLib.Domain.NPC
 
         public int Index { get; }
 
-        public byte X { get; }
+        public int X { get; }
 
-        public byte Y { get; }
+        public int Y { get; }
 
         public EODirection Direction { get; }
 
@@ -21,6 +21,6 @@ namespace EOLib.Domain.NPC
 
         public int ActualAttackFrame { get; }
 
-        public Option<short> OpponentID { get; }
+        public Option<int> OpponentID { get; }
     }
 }

@@ -1,12 +1,11 @@
-﻿using System;
-using EndlessClient.ControlSets;
+﻿using EndlessClient.ControlSets;
 using EndlessClient.HUD.Chat;
 using EndlessClient.HUD.Controls;
-using EOLib;
+using EndlessClient.Rendering;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Optional;
+using System;
 using XNAControls;
 
 namespace EndlessClient.UIControls
@@ -31,17 +30,27 @@ namespace EndlessClient.UIControls
         private string _lastChat;
         private Option<DateTime> _endMuteTime;
 
-        public ChatModePictureBox(IChatModeCalculator chatModeCalculator,
-                                  IHudControlProvider hudControlProvider,
-                                  Texture2D displayPicture)
+        public ChatModePictureBox(INativeGraphicsManager nativeGraphicsManager,
+                                  IClientWindowSizeProvider clientWindowSizeProvider,
+                                  IChatModeCalculator chatModeCalculator,
+                                  IHudControlProvider hudControlProvider)
         {
-            Texture = displayPicture;
-
             _chatModeCalculator = chatModeCalculator;
             _hudControlProvider = hudControlProvider;
 
             _lastChat = "";
             _endMuteTime = Option.None<DateTime>();
+
+            Texture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 31);
+
+            DrawArea = new Rectangle(16, 309, Texture.Width, Texture.Height / 8 - 2);
+            SourceRectangle = new Rectangle(0, 0, Texture.Width, Texture.Height / 8 - 2);
+
+            if (clientWindowSizeProvider.Resizable)
+            {
+                DrawPosition = new Vector2(122, clientWindowSizeProvider.Height - 39);
+                clientWindowSizeProvider.GameWindowSizeChanged += (_, _) => DrawPosition = new Vector2(122, clientWindowSizeProvider.Height - 39);
+            }
         }
 
         public void SetMuted(DateTime endMuteTime)
@@ -86,8 +95,7 @@ namespace EndlessClient.UIControls
             if (!SourceRectangle.HasValue)
                 throw new InvalidOperationException("SourceRectangle is expected to have a value.");
 
-            var source = SourceRectangle.Value;
-            SourceRectangle = source.WithPosition(new Vector2(0, (float)mode * source.Height));
+            SourceRectangle = new Rectangle(0, (int)((int)mode * (Texture.Height / 8f)), Texture.Width, Texture.Height / 8 - 2);
         }
 
         private ChatTextBox ChatTextBox => _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox);

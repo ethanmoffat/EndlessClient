@@ -2,6 +2,7 @@ using System;
 using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
+using EndlessClient.Rendering;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -11,18 +12,16 @@ namespace EndlessClient.ControlSets
 {
     public abstract class IntermediateControlSet : BackButtonControlSet
     {
-        protected readonly KeyboardDispatcher _dispatcher;
         private readonly Texture2D[] _personSet2;
         private readonly Random _randomGen;
 
         private IXNAButton _btnCreate;
         private IXNAPictureBox _person2Picture;
 
-        protected IntermediateControlSet(KeyboardDispatcher dispatcher,
-                                         IMainButtonController mainButtonController)
-            : base(mainButtonController)
+        protected IntermediateControlSet(IMainButtonController mainButtonController,
+                                         IClientWindowSizeRepository clientWindowSizeRepository)
+            : base(mainButtonController, clientWindowSizeRepository)
         {
-            _dispatcher = dispatcher;
             _personSet2 = new Texture2D[8];
             _randomGen = new Random();
         }

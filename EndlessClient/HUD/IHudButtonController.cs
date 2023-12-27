@@ -2,6 +2,8 @@
 {
     public interface IHudButtonController
     {
+        void ShowNews();
+
         void ClickInventory();
 
         void ClickViewMapToggle();

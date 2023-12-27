@@ -1,6 +1,4 @@
-﻿using EndlessClient.Controllers;
-using EndlessClient.GameExecution;
-using EndlessClient.HUD.Spells;
+﻿using EndlessClient.GameExecution;
 using EndlessClient.Input;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Effects;
@@ -14,25 +12,27 @@ using EOLib.Graphics;
 using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Optional;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Rendering.NPC
 {
     public class NPCRenderer : DrawableGameComponent, INPCRenderer
     {
+        private static readonly object _rt_locker_ = new object();
+
+        private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
         private readonly IENFFileProvider _enfFileProvider;
         private readonly INPCSpriteSheet _npcSpriteSheet;
+        private readonly INPCSpriteDataCache _npcSpriteDataCache;
         private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
         private readonly IHealthBarRendererFactory _healthBarRendererFactory;
         private readonly IChatBubbleFactory _chatBubbleFactory;
         private readonly IRenderTargetFactory _renderTargetFactory;
-        private readonly INPCInteractionController _npcInteractionController;
-        private readonly IMapInteractionController _mapInteractionController;
         private readonly IUserInputProvider _userInputProvider;
-        private readonly ISpellSlotDataProvider _spellSlotDataProvider;
         private readonly IEffectRenderer _effectRenderer;
         private readonly IHealthBarRenderer _healthBarRenderer;
 
@@ -54,10 +54,6 @@ namespace EndlessClient.Rendering.NPC
 
         public Rectangle DrawArea { get; private set; }
 
-        public bool MouseOver => DrawArea.Contains(_userInputProvider.CurrentMouseState.Position);
-
-        public bool MouseOverPreviously => DrawArea.Contains(_userInputProvider.PreviousMouseState.Position);
-
         public EOLib.Domain.NPC.NPC NPC { get; set; }
 
         public ISpellTargetable SpellTarget => NPC;
@@ -67,38 +63,44 @@ namespace EndlessClient.Rendering.NPC
         public Rectangle EffectTargetArea { get; private set; }
 
         public NPCRenderer(IEndlessGameProvider endlessGameProvider,
+                           IClientWindowSizeProvider clientWindowSizeProvider,
                            IENFFileProvider enfFileProvider,
                            INPCSpriteSheet npcSpriteSheet,
+                           INPCSpriteDataCache npcSpriteDataCache,
                            IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
                            IHealthBarRendererFactory healthBarRendererFactory,
                            IChatBubbleFactory chatBubbleFactory,
                            IRenderTargetFactory renderTargetFactory,
-                           INPCInteractionController npcInteractionController,
-                           IMapInteractionController mapInteractionController,
                            IUserInputProvider userInputProvider,
-                           ISpellSlotDataProvider spellSlotDataProvider,
                            IEffectRendererFactory effectRendererFactory,
                            EOLib.Domain.NPC.NPC initialNPC)
             : base((Game)endlessGameProvider.Game)
         {
             NPC = initialNPC;
-
+            _clientWindowSizeProvider = clientWindowSizeProvider;
             _enfFileProvider = enfFileProvider;
             _npcSpriteSheet = npcSpriteSheet;
+            _npcSpriteDataCache = npcSpriteDataCache;
             _gridDrawCoordinateCalculator = gridDrawCoordinateCalculator;
             _healthBarRendererFactory = healthBarRendererFactory;
             _chatBubbleFactory = chatBubbleFactory;
             _renderTargetFactory = renderTargetFactory;
-            _npcInteractionController = npcInteractionController;
-            _mapInteractionController = mapInteractionController;
             _userInputProvider = userInputProvider;
-            _spellSlotDataProvider = spellSlotDataProvider;
             _effectRenderer = effectRendererFactory.Create();
 
             DrawArea = GetStandingFrameRectangle();
 
             _lastStandingAnimation = DateTime.Now;
             _fadeAwayAlpha = 255;
+
+            _clientWindowSizeProvider.GameWindowSizeChanged += (_, _) =>
+            {
+                lock (_rt_locker_)
+                {
+                    _npcRenderTarget.Dispose();
+                    _npcRenderTarget = _renderTargetFactory.CreateRenderTarget();
+                }
+            };
 
             _healthBarRenderer = _healthBarRendererFactory.CreateHealthBarRenderer(this);
         }
@@ -125,8 +127,14 @@ namespace EndlessClient.Rendering.NPC
 
             _nameLabel.DrawPosition = GetNameLabelPosition();
 
-            _npcRenderTarget = _renderTargetFactory.CreateRenderTarget(640, 480);
+            lock (_rt_locker_)
+                _npcRenderTarget = _renderTargetFactory.CreateRenderTarget();
+
             _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
+
+            var graphic = _enfFileProvider.ENFFile[NPC.ID].Graphic;
+            _npcSpriteDataCache.Populate(graphic);
+            _isBlankSprite = _npcSpriteDataCache.IsBlankSprite(graphic);
 
             base.Initialize();
         }
@@ -141,37 +149,12 @@ namespace EndlessClient.Rendering.NPC
             DrawToRenderTarget();
 
             var currentMousePosition = _userInputProvider.CurrentMouseState.Position;
-            var currentFrame = _npcSpriteSheet.GetNPCTexture(_enfFileProvider.ENFFile[NPC.ID].Graphic, NPC.Frame, NPC.Direction);
 
             if (DrawArea.Contains(currentMousePosition))
             {
-                var colorData = new Color[] { Color.FromNonPremultiplied(0, 0, 0, 255) };
-                if (currentFrame != null && !_isBlankSprite)
-                {
-                    if (_npcRenderTarget.Bounds.Contains(currentMousePosition))
-                        _npcRenderTarget.GetData(0, new Rectangle(currentMousePosition.X, currentMousePosition.Y, 1, 1), colorData, 0, 1);
-                }
-
                 var chatBubbleIsVisible = _chatBubble != null && _chatBubble.Visible;
-                _nameLabel.Visible = !_healthBarRenderer.Visible && !chatBubbleIsVisible && !_isDying && (_isBlankSprite || colorData[0].A > 0);
+                _nameLabel.Visible = !_healthBarRenderer.Visible && !chatBubbleIsVisible && !_isDying && IsClickablePixel(currentMousePosition);
                 _nameLabel.DrawPosition = GetNameLabelPosition();
-
-                if (!_userInputProvider.ClickHandled &&
-                    _userInputProvider.CurrentMouseState.LeftButton == ButtonState.Released &&
-                    _userInputProvider.PreviousMouseState.LeftButton == ButtonState.Pressed)
-                {
-                    if (_spellSlotDataProvider.SpellIsPrepared)
-                    {
-                        _mapInteractionController.LeftClick(NPC);
-                    }
-                    else
-                    {
-                        if (_isBlankSprite || colorData[0].A > 0)
-                        {
-                            _npcInteractionController.ShowNPCDialog(NPC);
-                        }
-                    }
-                }
             }
             else
             {
@@ -182,6 +165,22 @@ namespace EndlessClient.Rendering.NPC
             _healthBarRenderer.Update(gameTime);
 
             base.Update(gameTime);
+        }
+
+        public bool IsClickablePixel(Point currentMousePosition)
+        {
+            var cachedTexture = _npcSpriteDataCache.GetData(_enfFileProvider.ENFFile[NPC.ID].Graphic, NPC.Frame);
+            if (!_isBlankSprite && cachedTexture.Length > 0 && _npcRenderTarget.Bounds.Contains(currentMousePosition))
+            {
+                var currentFrame = _npcSpriteSheet.GetNPCTexture(_enfFileProvider.ENFFile[NPC.ID].Graphic, NPC.Frame, NPC.Direction);
+
+                var adjustedPos = currentMousePosition - DrawArea.Location;
+                var pixel = cachedTexture[adjustedPos.Y * currentFrame.Width + adjustedPos.X];
+
+                return pixel.A > 0;
+            }
+
+            return true;
         }
 
         public void DrawToSpriteBatch(SpriteBatch spriteBatch)
@@ -264,7 +263,8 @@ namespace EndlessClient.Rendering.NPC
             var horizontalOffset = _npcSpriteSheet.GetNPCMetadata(data.Graphic).OffsetX * (NPC.IsFacing(EODirection.Down, EODirection.Left) ? -1 : 1);
             HorizontalCenter = DrawArea.X + (DrawArea.Width / 2) + horizontalOffset;
 
-            NameLabelY = DrawArea.Y - (int)(_nameLabel?.ActualHeight + 4 ?? 0);
+            var nameLabelGridCoordinates = _gridDrawCoordinateCalculator.CalculateDrawCoordinates(NPC.WithX(NPC.X - 1).WithY(NPC.Y - 1));
+            NameLabelY = (int)nameLabelGridCoordinates.Y - metaData.NameLabelOffset;
 
             EffectTargetArea = DrawArea.WithSize(DrawArea.Width + horizontalOffset * 2, DrawArea.Height);
         }
@@ -305,14 +305,17 @@ namespace EndlessClient.Rendering.NPC
             var color = Color.FromNonPremultiplied(255, 255, 255, _fadeAwayAlpha);
             var effects = NPC.IsFacing(EODirection.Left, EODirection.Down) ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
 
-            GraphicsDevice.SetRenderTarget(_npcRenderTarget);
-            GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 1, 0);
+            lock (_rt_locker_)
+            {
+                GraphicsDevice.SetRenderTarget(_npcRenderTarget);
+                GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 1, 0);
 
-            _spriteBatch.Begin();
-            _spriteBatch.Draw(texture, DrawArea, null, color, 0, Vector2.Zero, effects, 1);
-            _spriteBatch.End();
+                _spriteBatch.Begin();
+                _spriteBatch.Draw(texture, DrawArea, null, color, 0, Vector2.Zero, effects, 1);
+                _spriteBatch.End();
 
-            GraphicsDevice.SetRenderTarget(null);
+                GraphicsDevice.SetRenderTarget(null);
+            }
         }
 
         private Vector2 GetNameLabelPosition()
@@ -327,7 +330,9 @@ namespace EndlessClient.Rendering.NPC
                 _nameLabel.Dispose();
                 _chatBubble?.Dispose();
                 _spriteBatch?.Dispose();
-                _npcRenderTarget?.Dispose();
+
+                lock (_rt_locker_)
+                    _npcRenderTarget?.Dispose();
             }
 
             base.Dispose(disposing);

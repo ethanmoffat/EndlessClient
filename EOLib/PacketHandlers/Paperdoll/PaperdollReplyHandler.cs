@@ -41,16 +41,20 @@ namespace EOLib.PacketHandlers.Paperdoll
             var clas = packet.ReadChar();
             var gender = packet.ReadChar();
 
-            if (packet.ReadChar() != 0)
-                return false;
+            var adminLevel = packet.ReadChar();
 
-            var paperdoll = new Dictionary<EquipLocation, short>((int)EquipLocation.PAPERDOLL_MAX);
+            var paperdoll = new Dictionary<EquipLocation, int>((int)EquipLocation.PAPERDOLL_MAX);
             for (var loc = (EquipLocation)0; loc < EquipLocation.PAPERDOLL_MAX; ++loc)
                 paperdoll[loc] = packet.ReadShort();
 
             var iconType = (OnlineIcon)packet.ReadChar();
 
-            var paperdollData = new PaperdollData()
+
+            var paperdollData = _paperdollRepository.VisibleCharacterPaperdolls.ContainsKey(playerID)
+                ? _paperdollRepository.VisibleCharacterPaperdolls[playerID]
+                : new PaperdollData();
+
+            paperdollData = paperdollData
                 .WithName(name)
                 .WithHome(home)
                 .WithPartner(partner)
@@ -60,6 +64,7 @@ namespace EOLib.PacketHandlers.Paperdoll
                 .WithPlayerID(playerID)
                 .WithClass(clas)
                 .WithGender(gender)
+                .WithAdminLevel((AdminLevel)adminLevel)
                 .WithPaperdoll(paperdoll)
                 .WithIcon(iconType);
 

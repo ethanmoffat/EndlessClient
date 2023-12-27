@@ -1,13 +1,14 @@
 ﻿using AutomaticTypeMapper;
+using EOLib.IO.Extensions;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace EOLib.IO.Actions
 {
-    [MappedType(BaseType = typeof(IPubFileLoadActions))]
+    [AutoMappedType]
     public class PubFileLoadActions : IPubFileLoadActions
     {
         private readonly IPubFileRepository _pubFileRepository;
@@ -29,63 +30,60 @@ namespace EOLib.IO.Actions
             _classFileLoadService = classFileLoadService;
         }
 
-        public void LoadItemFile(IEnumerable<int> rangedWeaponIds)
+        public void LoadItemFile()
         {
-            var itemFile = _itemFileLoadService.LoadPubFromDefaultFile();
-            _pubFileRepository.EIFFile = OverrideRangedWeapons(itemFile, rangedWeaponIds);
+            var itemFiles = _itemFileLoadService.LoadPubFromDefaultFile();
+            _pubFileRepository.EIFFiles = itemFiles.ToList();
+            _pubFileRepository.EIFFile = PubFileExtensions.Merge(_pubFileRepository.EIFFiles);
         }
 
-        public void LoadItemFileByName(string fileName, IEnumerable<int> rangedWeaponIds)
+        public void LoadItemFileByName(string fileName)
         {
-            var itemFile = _itemFileLoadService.LoadPubFromExplicitFile(fileName);
-            _pubFileRepository.EIFFile = OverrideRangedWeapons(itemFile, rangedWeaponIds);
+            var itemFiles = _itemFileLoadService.LoadPubFromExplicitFile(Path.GetDirectoryName(fileName), Path.GetFileName(fileName));
+            _pubFileRepository.EIFFiles = itemFiles.ToList();
+            _pubFileRepository.EIFFile = PubFileExtensions.Merge(_pubFileRepository.EIFFiles);
         }
 
         public void LoadNPCFile()
         {
-            var npcFile = _npcFileLoadService.LoadPubFromDefaultFile();
-            _pubFileRepository.ENFFile = npcFile;
+            var npcFiles = _npcFileLoadService.LoadPubFromDefaultFile();
+            _pubFileRepository.ENFFiles = npcFiles.ToList();
+            _pubFileRepository.ENFFile = PubFileExtensions.Merge(_pubFileRepository.ENFFiles);
         }
 
         public void LoadNPCFileByName(string fileName)
         {
-            var npcFile = _npcFileLoadService.LoadPubFromExplicitFile(fileName);
-            _pubFileRepository.ENFFile = npcFile;
+            var npcFiles = _npcFileLoadService.LoadPubFromExplicitFile(Path.GetDirectoryName(fileName), Path.GetFileName(fileName));
+            _pubFileRepository.ENFFiles = npcFiles.ToList();
+            _pubFileRepository.ENFFile = PubFileExtensions.Merge(_pubFileRepository.ENFFiles);
         }
 
         public void LoadSpellFile()
         {
-            var spellFile = _spellFileLoadService.LoadPubFromDefaultFile();
-            _pubFileRepository.ESFFile = spellFile;
+            var spellFiles = _spellFileLoadService.LoadPubFromDefaultFile();
+            _pubFileRepository.ESFFiles = spellFiles.ToList();
+            _pubFileRepository.ESFFile = PubFileExtensions.Merge(_pubFileRepository.ESFFiles);
         }
 
         public void LoadSpellFileByName(string fileName)
         {
-            var spellFile = _spellFileLoadService.LoadPubFromExplicitFile(fileName);
-            _pubFileRepository.ESFFile = spellFile;
+            var spellFiles = _spellFileLoadService.LoadPubFromExplicitFile(Path.GetDirectoryName(fileName), Path.GetFileName(fileName));
+            _pubFileRepository.ESFFiles = spellFiles.ToList();
+            _pubFileRepository.ESFFile = PubFileExtensions.Merge(_pubFileRepository.ESFFiles);
         }
 
         public void LoadClassFile()
         {
-            var classFile = _classFileLoadService.LoadPubFromDefaultFile();
-            _pubFileRepository.ECFFile = classFile;
+            var classFiles = _classFileLoadService.LoadPubFromDefaultFile();
+            _pubFileRepository.ECFFiles = classFiles.ToList();
+            _pubFileRepository.ECFFile = PubFileExtensions.Merge(_pubFileRepository.ECFFiles);
         }
 
         public void LoadClassFileByName(string fileName)
         {
-            var classFile = _classFileLoadService.LoadPubFromExplicitFile(fileName);
-            _pubFileRepository.ECFFile = classFile;
-        }
-
-        private static IPubFile<EIFRecord> OverrideRangedWeapons(IPubFile<EIFRecord> inputFile, IEnumerable<int> rangedWeaponIds)
-        {
-            var rangedItemOverrides = inputFile.Where(x => x.Type == ItemType.Weapon && rangedWeaponIds.Contains(x.ID)).ToList();
-
-            var retFile = inputFile;
-            foreach (var item in rangedItemOverrides)
-                retFile = retFile.WithUpdatedRecord((EIFRecord)item.WithProperty(PubRecordProperty.ItemSubType, (int)ItemSubType.Ranged));
-
-            return retFile;
+            var classFiles = _classFileLoadService.LoadPubFromExplicitFile(Path.GetDirectoryName(fileName), Path.GetFileName(fileName));
+            _pubFileRepository.ECFFiles = classFiles.ToList();
+            _pubFileRepository.ECFFile = PubFileExtensions.Merge(_pubFileRepository.ECFFiles);
         }
     }
 }
