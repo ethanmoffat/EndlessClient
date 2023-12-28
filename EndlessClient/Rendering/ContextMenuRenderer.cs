@@ -1,9 +1,9 @@
-﻿using EndlessClient.ControlSets;
+﻿using EndlessClient.Audio;
+using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Controls;
-using EndlessClient.Input;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Services;
 using EndlessClient.UIControls;
@@ -60,6 +60,7 @@ namespace EndlessClient.Rendering
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
+        private readonly ISfxPlayer _sfxPlayer;
 
         private static DateTime? _lastTradeRequestedTime;
         private static DateTime? _lastPartyRequestTime;
@@ -78,7 +79,8 @@ namespace EndlessClient.Rendering
                                    ICharacterRenderer characterRenderer,
                                    ICurrentMapStateProvider currentMapStateProvider, 
                                    IEOMessageBoxFactory messageBoxFactory,
-                                   IClientWindowSizeProvider clientWindowSizeProvider)
+                                   IClientWindowSizeProvider clientWindowSizeProvider,
+                                   ISfxPlayer sfxPlayer)
         {
             _menuActions = new Dictionary<Rectangle, Action>();
             _inGameDialogActions = inGameDialogActions;
@@ -95,6 +97,7 @@ namespace EndlessClient.Rendering
             _currentMapStateProvider = currentMapStateProvider;
             _messageBoxFactory = messageBoxFactory;
             _clientWindowSizeProvider = clientWindowSizeProvider;
+            _sfxPlayer = sfxPlayer;
 
             //first, load up the images. split in half: the right half is the 'over' text
             _backgroundTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 41, true);
@@ -222,6 +225,8 @@ namespace EndlessClient.Rendering
                     menuAction();
                 });
             }
+
+            _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
 
             Game.Components.Remove(this);
             Dispose();
