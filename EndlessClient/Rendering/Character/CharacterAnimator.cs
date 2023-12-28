@@ -311,7 +311,7 @@ namespace EndlessClient.Rendering.Character
 
                                     var canMoveToDestinationCoordinates = _walkValidationActions.CanMoveToCoordinates(
                                         nextFramePropertiesWithDirection.GetDestinationX(),
-                                        nextFramePropertiesWithDirection.GetDestinationY());
+                                        nextFramePropertiesWithDirection.GetDestinationY()) == WalkValidationResult.Walkable;
 
                                     if (!isMainCharacter || (isMainCharacter && canMoveToDestinationCoordinates))
                                     {

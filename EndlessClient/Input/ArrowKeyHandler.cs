@@ -31,6 +31,9 @@ namespace EndlessClient.Input
             if (IsKeyHeld(Keys.Down) && _arrowKeyController.MoveDown())
                 return Option.Some(Keys.Down);
 
+            if (KeysAreUp(Keys.Left, Keys.Right, Keys.Up, Keys.Down))
+                _arrowKeyController.KeysUp();
+
             return Option.None<Keys>();
         }
     }

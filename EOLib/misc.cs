@@ -1,21 +1,5 @@
 ﻿namespace EOLib
 {
-    public static class ArrayExtension
-    {
-        public static T[] SubArray<T>(this T[] arr, int offset, int count)
-        {
-            T[] ret = new T[count];
-
-            if (count == 1)
-                ret[0] = arr[offset];
-
-            for (int i = offset; i < offset + count; ++i)
-                ret[i - offset] = arr[i];
-
-            return ret;
-        }
-    }
-
     public static class Constants
     {
         public const int ResponseTimeout = 5000;
@@ -28,6 +12,8 @@
         public const int PartyRequestTimeoutSeconds = 15;
         public const int TradeRequestTimeoutSeconds = 15;
         public const int MuteDefaultTimeMinutes = 5;
+
+        public const int GhostTime = 5;
 
         public const string LogFilePath = "log/debug.log";
         public const string LogFileFmt = "log/{0}-debug.log";

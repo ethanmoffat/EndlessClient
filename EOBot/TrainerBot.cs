@@ -226,7 +226,7 @@ namespace EOBot
 
                             // find a direction that's open to walk to
                             var targetWalkCell = coords.Select(z => mapCellStateProvider.GetCellStateAt(z.X, z.Y))
-                                .FirstOrDefault(z => walkValidator.IsCellStateWalkable(z));
+                                .FirstOrDefault(z => walkValidator.IsCellStateWalkable(z) == WalkValidationResult.Walkable);
                             if (targetWalkCell == null)
                             {
                                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"Couldn't find open space to walk!", ConsoleColor.DarkYellow);

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using EOLib;
 
 namespace EndlessClient.Audio
 {
@@ -13,7 +12,7 @@ namespace EndlessClient.Audio
         {
             var wavBuffer = File.ReadAllBytes(filename);
 
-            var riff = Encoding.ASCII.GetString(wavBuffer.SubArray(0, 4));
+            var riff = Encoding.ASCII.GetString(wavBuffer[..4]);
             if (riff != "RIFF" || wavBuffer.Length < 8) //check for RIFF tag and length
                 throw new ArgumentException("Invalid WAV file", nameof(filename));
 

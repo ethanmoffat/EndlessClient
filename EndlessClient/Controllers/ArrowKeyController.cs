@@ -1,4 +1,6 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Audio;
+using EndlessClient.HUD;
 using EndlessClient.Input;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Map;
@@ -6,11 +8,12 @@ using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
+using EOLib.Localization;
 using Optional;
 
 namespace EndlessClient.Controllers
 {
-    [MappedType(BaseType = typeof(IArrowKeyController))]
+    [AutoMappedType]
     public class ArrowKeyController : IArrowKeyController
     {
         private readonly IWalkValidationActions _walkValidationActions;
@@ -19,13 +22,19 @@ namespace EndlessClient.Controllers
         private readonly IUnwalkableTileActions _unwalkableTileActions;
         private readonly ISpikeTrapActions _spikeTrapActions;
         private readonly IUnwalkableTileActionsHandler _unwalkableTileActionsHandler;
+        private readonly IStatusLabelSetter _statusLabelSetter;
+        private readonly IGhostingRepository _ghostingRepository;
+        private readonly ISfxPlayer _sfxPlayer;
 
         public ArrowKeyController(IWalkValidationActions walkValidationActions,
                                   ICharacterAnimationActions characterAnimationActions,
                                   ICharacterProvider characterProvider,
                                   IUnwalkableTileActions walkErrorHandler,
                                   ISpikeTrapActions spikeTrapActions,
-                                  IUnwalkableTileActionsHandler unwalkableTileActionsHandler)
+                                  IUnwalkableTileActionsHandler unwalkableTileActionsHandler,
+                                  IStatusLabelSetter statusLabelSetter,
+                                  IGhostingRepository ghostingRepository,
+                                  ISfxPlayer sfxPlayer)
         {
             _walkValidationActions = walkValidationActions;
             _characterAnimationActions = characterAnimationActions;
@@ -33,6 +42,9 @@ namespace EndlessClient.Controllers
             _unwalkableTileActions = walkErrorHandler;
             _spikeTrapActions = spikeTrapActions;
             _unwalkableTileActionsHandler = unwalkableTileActionsHandler;
+            _statusLabelSetter = statusLabelSetter;
+            _ghostingRepository = ghostingRepository;
+            _sfxPlayer = sfxPlayer;
         }
 
         public bool MoveLeft()
@@ -75,6 +87,11 @@ namespace EndlessClient.Controllers
             return true;
         }
 
+        public void KeysUp()
+        {
+            _ghostingRepository.ResetState();
+        }
+
         private bool CanWalkAgain()
         {
             return _characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Standing) ||
@@ -101,24 +118,29 @@ namespace EndlessClient.Controllers
 
         private void AttemptToStartWalking()
         {
-            if (!_walkValidationActions.CanMoveToDestinationCoordinates())
-            {
-                var (unwalkableActions, cellState) = _unwalkableTileActions.GetUnwalkableTileActions();
-                _unwalkableTileActionsHandler.HandleUnwalkableTileActions(unwalkableActions, cellState);
-            }
-            else
-            {
-                _characterAnimationActions.StartWalking(Option.None<MapCoordinate>());
+            var walkValidationResult = _walkValidationActions.CanMoveToDestinationCoordinates();
+            if (walkValidationResult == WalkValidationResult.GhostComplete)
+                _sfxPlayer.PlaySfx(SoundEffectID.GhostPlayer);
 
-                var coordinate = new MapCoordinate(
-                    _characterProvider.MainCharacter.RenderProperties.MapX,
-                    _characterProvider.MainCharacter.RenderProperties.MapY);
-                _spikeTrapActions.HideSpikeTrap(coordinate);
+            switch (walkValidationResult)
+            {
+                case WalkValidationResult.BlockedByCharacter:
+                    _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_KEEP_MOVING_THROUGH_PLAYER);
+                    break;
+                case WalkValidationResult.NotWalkable:
+                    var (unwalkableActions, cellState) = _unwalkableTileActions.GetUnwalkableTileActions();
+                    _unwalkableTileActionsHandler.HandleUnwalkableTileActions(unwalkableActions, cellState);
+                    break;
+                case WalkValidationResult.GhostComplete:
+                case WalkValidationResult.Walkable:
+                    _characterAnimationActions.StartWalking(Option.None<MapCoordinate>());
 
-                coordinate = new MapCoordinate(
-                    _characterProvider.MainCharacter.RenderProperties.GetDestinationX(),
-                    _characterProvider.MainCharacter.RenderProperties.GetDestinationY());
-                _spikeTrapActions.ShowSpikeTrap(coordinate, isMainCharacter: true);
+                    var coordinate = _characterProvider.MainCharacter.RenderProperties.Coordinates();
+                    _spikeTrapActions.HideSpikeTrap(coordinate);
+
+                    coordinate = _characterProvider.MainCharacter.RenderProperties.DestinationCoordinates();
+                    _spikeTrapActions.ShowSpikeTrap(coordinate, isMainCharacter: true);
+                    break;
             }
         }
     }
@@ -132,5 +154,7 @@ namespace EndlessClient.Controllers
         bool MoveUp();
 
         bool MoveDown();
+
+        void KeysUp();
     }
 }

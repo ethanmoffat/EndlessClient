@@ -18,7 +18,6 @@ namespace EndlessClient.Input
         Chest,
         Door,
         Locker,
-        Character,
         Board,
         Jukebox,
     }
@@ -76,26 +75,9 @@ namespace EndlessClient.Input
             if (MainCharacter.RenderProperties.SitState != SitState.Standing)
                 return new[] { UnwalkableTileAction.None };
 
-            return cellState.Character.Match(
-                some: c => new[] { HandleWalkThroughOtherCharacter(c) }, //todo: walk through players after certain elapsed time (3-5sec?)
-                none: () => cellState.Warp.Match(
-                    some: w => new[] { HandleWalkToWarpTile(w), HandleWalkToTileSpec(cellState) },
-                    none: () => new[] { HandleWalkToTileSpec(cellState) }));
-        }
-
-        private UnwalkableTileAction HandleWalkThroughOtherCharacter(Character c)
-        {
-            // todo: caller handles this
-            //        EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION,
-            //            EOResourceID.STATUS_LABEL_KEEP_MOVING_THROUGH_PLAYER);
-            //        if (_startWalkingThroughPlayerTime == null)
-            //            _startWalkingThroughPlayerTime = DateTime.Now;
-            //        else if ((DateTime.Now - _startWalkingThroughPlayerTime.Value).TotalSeconds > 5)
-            //        {
-            //            _startWalkingThroughPlayerTime = null;
-            //            goto case TileInfoReturnType.IsTileSpec;
-            //        }
-            return UnwalkableTileAction.Character;
+            return cellState.Warp.Match(
+                some: w => new[] { HandleWalkToWarpTile(w), HandleWalkToTileSpec(cellState) },
+                none: () => new[] { HandleWalkToTileSpec(cellState) });
         }
 
         private UnwalkableTileAction HandleWalkToWarpTile(Warp warp)
@@ -184,7 +166,6 @@ namespace EndlessClient.Input
 
             return UnwalkableTileAction.None;
         }
-
         private Character MainCharacter => _characterProvider.MainCharacter;
     }
 

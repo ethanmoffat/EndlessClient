@@ -98,7 +98,7 @@ namespace EndlessClient.HUD
 
             foreach (var coordinateOffset in points)
             { 
-                if (_walkValidationActions.CanMoveToCoordinates(current.X + coordinateOffset.X, current.Y + coordinateOffset.Y))
+                if (_walkValidationActions.CanMoveToCoordinates(current.X + coordinateOffset.X, current.Y + coordinateOffset.Y) == WalkValidationResult.Walkable)
                     yield return new MapCoordinate(current.X + coordinateOffset.X, current.Y + coordinateOffset.Y);
             }
         }

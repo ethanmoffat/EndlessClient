@@ -170,7 +170,7 @@ namespace EndlessClient.Controllers
                 }
             }
             else if (cellState.InBounds && !cellState.Character.HasValue && !cellState.NPC.HasValue
-                && _walkValidationActions.IsCellStateWalkable(cellState)
+                && _walkValidationActions.IsCellStateWalkable(cellState) == WalkValidationResult.Walkable
                 && !_characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Attacking)
                 && !_spellSlotDataRepository.SelectedSpellSlot.HasValue)
             {
