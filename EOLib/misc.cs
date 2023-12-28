@@ -1,21 +1,5 @@
 ﻿namespace EOLib
 {
-    public static class ArrayExtension
-    {
-        public static T[] SubArray<T>(this T[] arr, int offset, int count)
-        {
-            T[] ret = new T[count];
-
-            if (count == 1)
-                ret[0] = arr[offset];
-
-            for (int i = offset; i < offset + count; ++i)
-                ret[i - offset] = arr[i];
-
-            return ret;
-        }
-    }
-
     public static class Constants
     {
         public const int ResponseTimeout = 5000;
