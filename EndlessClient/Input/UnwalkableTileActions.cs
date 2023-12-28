@@ -18,7 +18,6 @@ namespace EndlessClient.Input
         Chest,
         Door,
         Locker,
-        Character,
         Board,
         Jukebox,
     }
