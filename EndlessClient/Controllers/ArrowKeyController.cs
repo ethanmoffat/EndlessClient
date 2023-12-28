@@ -87,6 +87,11 @@ namespace EndlessClient.Controllers
             return true;
         }
 
+        public void KeysUp()
+        {
+            _ghostingRepository.ResetState();
+        }
+
         private bool CanWalkAgain()
         {
             return _characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Standing) ||
@@ -130,14 +135,10 @@ namespace EndlessClient.Controllers
                 case WalkValidationResult.Walkable:
                     _characterAnimationActions.StartWalking(Option.None<MapCoordinate>());
 
-                    var coordinate = new MapCoordinate(
-                        _characterProvider.MainCharacter.RenderProperties.MapX,
-                        _characterProvider.MainCharacter.RenderProperties.MapY);
+                    var coordinate = _characterProvider.MainCharacter.RenderProperties.Coordinates();
                     _spikeTrapActions.HideSpikeTrap(coordinate);
 
-                    coordinate = new MapCoordinate(
-                        _characterProvider.MainCharacter.RenderProperties.GetDestinationX(),
-                        _characterProvider.MainCharacter.RenderProperties.GetDestinationY());
+                    coordinate = _characterProvider.MainCharacter.RenderProperties.DestinationCoordinates();
                     _spikeTrapActions.ShowSpikeTrap(coordinate, isMainCharacter: true);
                     break;
             }
@@ -153,5 +154,7 @@ namespace EndlessClient.Controllers
         bool MoveUp();
 
         bool MoveDown();
+
+        void KeysUp();
     }
 }
