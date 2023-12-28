@@ -29,6 +29,8 @@
         public const int TradeRequestTimeoutSeconds = 15;
         public const int MuteDefaultTimeMinutes = 5;
 
+        public const int GhostTime = 5;
+
         public const string LogFilePath = "log/debug.log";
         public const string LogFileFmt = "log/{0}-debug.log";
 

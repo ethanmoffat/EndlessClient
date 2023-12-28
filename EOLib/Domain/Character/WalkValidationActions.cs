@@ -63,6 +63,8 @@ namespace EOLib.Domain.Character
 
         public WalkValidationResult IsCellStateWalkable(IMapCellState cellState)
         {
+            ClearGhostCache();
+
             var mc = _characterProvider.MainCharacter;
 
             var cellChar = cellState.Character.FlatMap(c => c.SomeWhen(cc => cc != mc));
@@ -72,10 +74,10 @@ namespace EOLib.Domain.Character
                     if (mc.NoWall)
                         return WalkValidationResult.Walkable;
 
-                    if (!_ghostingRepository.CanGhostPlayer(c))
+                    if (!CanGhostPlayer(c))
                         return WalkValidationResult.BlockedByCharacter;
 
-                    if (IsTileSpecWalkable(cellState.TileSpec) && _ghostingRepository.GhostedRecently())
+                    if (IsTileSpecWalkable(cellState.TileSpec) && _ghostingRepository.GhostedRecently)
                         return WalkValidationResult.GhostComplete;
 
                     return BoolToWalkResult(IsTileSpecWalkable(cellState.TileSpec));
@@ -142,6 +144,50 @@ namespace EOLib.Domain.Character
                     // TileSpec 10, 12, and 31 are walkable while other unknown values are not
                     return (int)tileSpec == 10 || (int)tileSpec == 12 || (int)tileSpec == 31;
             }
+        }
+
+        private void ClearGhostCache()
+        {
+            _ghostingRepository.GhostTarget.MatchSome(ghostTarget =>
+            {
+                var mc = _characterProvider.MainCharacter;
+                var playersDiff = Math.Max(Math.Abs(mc.RenderProperties.MapX - ghostTarget.RenderProperties.MapX),
+                    Math.Abs(mc.RenderProperties.MapY - ghostTarget.RenderProperties.MapY));
+
+                var playersAreTooFar = playersDiff > 1;
+                var playersAreOnTopOfEachother = playersDiff == 0;
+                var timerHasBeenTooLong = _ghostingRepository.GhostStartTime.Elapsed.TotalSeconds > Constants.GhostTime + 1;
+
+                if (playersAreTooFar || playersAreOnTopOfEachother || timerHasBeenTooLong)
+                    _ghostingRepository.ResetState();
+            });
+        }
+
+        private bool CanGhostPlayer(Character c)
+        {
+            void _setNewTarget(Character cc)
+            {
+                _ghostingRepository.GhostCompleted = false;
+                _ghostingRepository.GhostStartTime.Reset();
+                _ghostingRepository.GhostStartTime.Start();
+                _ghostingRepository.GhostTarget = Option.Some(cc);
+            }
+
+            if (_ghostingRepository.GhostTarget.Match(x => x != c, () => true) || _ghostingRepository.GhostCompleted)
+                _setNewTarget(c);
+
+            if (_ghostingRepository.GhostStartTime.Elapsed.TotalSeconds > Constants.GhostTime &&
+                _ghostingRepository.GhostTarget.Match(x => x == c, () => false))
+            {
+                _ghostingRepository.GhostStartTime.Stop();
+                _ghostingRepository.GhostCompleted = true;
+                return true;
+            }
+
+            if (_ghostingRepository.GhostedRecently)
+                _setNewTarget(c);
+
+            return false;
         }
     }
 

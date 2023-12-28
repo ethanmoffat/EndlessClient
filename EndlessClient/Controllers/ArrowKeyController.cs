@@ -13,7 +13,7 @@ using Optional;
 
 namespace EndlessClient.Controllers
 {
-    [MappedType(BaseType = typeof(IArrowKeyController))]
+    [AutoMappedType]
     public class ArrowKeyController : IArrowKeyController
     {
         private readonly IWalkValidationActions _walkValidationActions;
@@ -113,8 +113,6 @@ namespace EndlessClient.Controllers
 
         private void AttemptToStartWalking()
         {
-            _ghostingRepository.ClearCacheIfNeeded();
-
             var walkValidationResult = _walkValidationActions.CanMoveToDestinationCoordinates();
             if (walkValidationResult == WalkValidationResult.GhostComplete)
                 _sfxPlayer.PlaySfx(SoundEffectID.GhostPlayer);
