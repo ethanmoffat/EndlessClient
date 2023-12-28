@@ -41,6 +41,9 @@ namespace EndlessClient.Services
 
         private static List<string> Load(string fileName)
         {
+            if (!File.Exists(fileName))
+                return new List<string>();
+
             List<string> allLines;
             try
             {
@@ -48,7 +51,7 @@ namespace EndlessClient.Services
             }
             catch (IOException)
             {
-                allLines = new List<string>();
+                return new List<string>();
             }
 
             allLines.RemoveAll(s => s.StartsWith("#") || string.IsNullOrWhiteSpace(s));
