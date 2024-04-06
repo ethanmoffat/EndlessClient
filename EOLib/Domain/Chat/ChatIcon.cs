@@ -28,7 +28,7 @@ namespace EOLib.Domain.Chat
         DotDotDotDot,
         GSymbol,
         Skeleton,
-        WhatTheFuck,
+        Trophy,
         Information,
         QuestMessage
     }
