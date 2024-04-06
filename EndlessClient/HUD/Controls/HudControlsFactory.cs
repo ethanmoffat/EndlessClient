@@ -61,6 +61,7 @@ namespace EndlessClient.HUD.Controls
         private readonly IPathFinder _pathFinder;
         private readonly ICharacterActions _characterActions;
         private readonly IWalkValidationActions _walkValidationActions;
+        private readonly IChatBubbleActions _chatBubbleActions;
         private readonly IPacketSendService _packetSendService;
         private readonly IUserInputTimeProvider _userInputTimeProvider;
         private readonly ISpellSlotDataRepository _spellSlotDataRepository;
@@ -70,7 +71,7 @@ namespace EndlessClient.HUD.Controls
         private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
         private readonly IClickDispatcherFactory _clickDispatcherFactory;
         private readonly IMetadataProvider<WeaponMetadata> _weaponMetadataProvider;
-
+        private readonly ILocalizedStringFinder _localizedStringFinder;
         private IChatController _chatController;
         private IMainButtonController _mainButtonController;
 
@@ -95,6 +96,7 @@ namespace EndlessClient.HUD.Controls
                                   IPathFinder pathFinder,
                                   ICharacterActions characterActions,
                                   IWalkValidationActions walkValidationActions,
+                                  IChatBubbleActions chatBubbleActions,
                                   IPacketSendService packetSendService,
                                   IUserInputTimeProvider userInputTimeProvider,
                                   ISpellSlotDataRepository spellSlotDataRepository,
@@ -103,7 +105,8 @@ namespace EndlessClient.HUD.Controls
                                   INewsProvider newsProvider,
                                   IFixedTimeStepRepository fixedTimeStepRepository,
                                   IClickDispatcherFactory clickDispatcherFactory,
-                                  IMetadataProvider<WeaponMetadata> weaponMetadataProvider)
+                                  IMetadataProvider<WeaponMetadata> weaponMetadataProvider,
+                                  ILocalizedStringFinder localizedStringFinder)
         {
             _hudButtonController = hudButtonController;
             _hudPanelFactory = hudPanelFactory;
@@ -126,6 +129,7 @@ namespace EndlessClient.HUD.Controls
             _pathFinder = pathFinder;
             _characterActions = characterActions;
             _walkValidationActions = walkValidationActions;
+            _chatBubbleActions = chatBubbleActions;
             _packetSendService = packetSendService;
             _userInputTimeProvider = userInputTimeProvider;
             _spellSlotDataRepository = spellSlotDataRepository;
@@ -135,6 +139,7 @@ namespace EndlessClient.HUD.Controls
             _fixedTimeStepRepository = fixedTimeStepRepository;
             _clickDispatcherFactory = clickDispatcherFactory;
             _weaponMetadataProvider = weaponMetadataProvider;
+            _localizedStringFinder = localizedStringFinder;
         }
 
         public void InjectChatController(IChatController chatController,
@@ -580,7 +585,11 @@ namespace EndlessClient.HUD.Controls
 
         private IPeriodicEmoteHandler CreatePeriodicEmoteHandler(ICharacterAnimator characterAnimator)
         {
-            return new PeriodicEmoteHandler(_endlessGameProvider, _characterActions, _userInputTimeProvider, _characterRepository, characterAnimator, _statusLabelSetter, _mainButtonController);
+            return new PeriodicEmoteHandler(
+                _endlessGameProvider, _characterActions, _chatBubbleActions,
+                _userInputTimeProvider, _characterRepository, characterAnimator,
+                _statusLabelSetter, _mainButtonController, _localizedStringFinder,
+                _sfxPlayer);
         }
 
         private PreviousUserInputTracker CreatePreviousUserInputTracker()

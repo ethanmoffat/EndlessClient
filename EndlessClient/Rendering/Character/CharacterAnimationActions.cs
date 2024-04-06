@@ -80,6 +80,8 @@ namespace EndlessClient.Rendering.Character
             if (!_hudControlProvider.IsInGame)
                 return;
 
+            _hudControlProvider.GetComponent<IPeriodicEmoteHandler>(HudControlIdentifier.PeriodicEmoteHandler).CancelArenaBlockTimer();
+
             CancelSpellPrep();
             Animator.StartMainCharacterWalkAnimation(targetCoordinate, () =>
             {

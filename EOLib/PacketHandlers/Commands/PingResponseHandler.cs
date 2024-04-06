@@ -24,9 +24,9 @@ namespace EOLib.PacketHandlers.Commands
 
         public override PacketAction Action => PacketAction.Pong;
 
-        public PingResponseHandler(IPingTimeRepository pingTimeRepository,
+        public PingResponseHandler(IPlayerInfoProvider playerInfoProvider,
+                                   IPingTimeRepository pingTimeRepository,
                                    IChatRepository chatRepository,
-                                   IPlayerInfoProvider playerInfoProvider,
                                    IEnumerable<IChatEventNotifier> chatEventNotifiers)
             : base(playerInfoProvider)
         {
@@ -40,17 +40,13 @@ namespace EOLib.PacketHandlers.Commands
             var now = DateTime.Now;
             var requestID = packet.ReadShort();
             if (!_pingTimeRepository.PingRequests.ContainsKey(requestID))
-                return true;
+                return false;
 
             var timeInMS = (int) Math.Round((now - _pingTimeRepository.PingRequests[requestID]).TotalMilliseconds);
             _pingTimeRepository.PingRequests.Remove(requestID);
 
-            var message = $"[x] Current ping to the server is: {timeInMS} ms.";
-            var chatData = new ChatData(ChatTab.Local, "System", message, ChatIcon.LookingDude);
-            _chatRepository.AllChat[ChatTab.Local].Add(chatData);
-
             foreach (var notifier in _chatEventNotifiers)
-                notifier.NotifyChatReceived(ChatEventType.Server);
+                notifier.NotifyServerPing(timeInMS);
 
             return true;
         }

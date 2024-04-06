@@ -66,6 +66,7 @@
         Guitar3,
         Thunder,
         MapEvacTimer,
+        ArenaTickSound = MapEvacTimer,
         ArenaWin = 52,
         Gun,
         UltimaBlastSpell,

@@ -8,7 +8,6 @@ namespace EOLib.Domain.Notifiers
         AdminChat,
         AdminAnnounce,
         Group,
-        Server,
     }
 
     public interface IChatEventNotifier
@@ -18,6 +17,9 @@ namespace EOLib.Domain.Notifiers
         void NotifyPrivateMessageRecipientNotFound(string recipientName);
 
         void NotifyPlayerMutedByAdmin(string adminName);
+
+        void NotifyServerMessage(string serverMessage);
+        void NotifyServerPing(int timeInMS);
     }
 
     [AutoMappedType]
@@ -28,5 +30,9 @@ namespace EOLib.Domain.Notifiers
         public void NotifyPrivateMessageRecipientNotFound(string recipientName) { }
 
         public void NotifyPlayerMutedByAdmin(string adminName) { }
+
+        public void NotifyServerMessage(string serverMessage) { }
+
+        public void NotifyServerPing(int timeInMS) { }
     }
 }
