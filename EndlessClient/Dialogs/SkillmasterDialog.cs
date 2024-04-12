@@ -279,7 +279,7 @@ namespace EndlessClient.Dialogs
 
             if (!skillReqsMet ||
                 stats[CharacterStat.Strength] < skill.StrRequirement || stats[CharacterStat.Intelligence] < skill.IntRequirement || stats[CharacterStat.Wisdom] < skill.WisRequirement ||
-                stats[CharacterStat.Agility] < skill.AgiRequirement || stats[CharacterStat.Constituion] < skill.ConRequirement || stats[CharacterStat.Charisma] < skill.ChaRequirement ||
+                stats[CharacterStat.Agility] < skill.AgiRequirement || stats[CharacterStat.Constitution] < skill.ConRequirement || stats[CharacterStat.Charisma] < skill.ChaRequirement ||
                 stats[CharacterStat.Level] < skill.LevelRequirement || !_characterInventoryProvider.ItemInventory.SingleOrNone(x => x.ItemID == 1 && x.Amount >= skill.GoldRequirement).HasValue)
             {
                 var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.SKILL_LEARN_REQS_NOT_MET);

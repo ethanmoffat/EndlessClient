@@ -91,7 +91,7 @@ namespace EOLib.Net.Translators
                 .WithNewStat(CharacterStat.Intelligence, dispInt)
                 .WithNewStat(CharacterStat.Wisdom, dispWis)
                 .WithNewStat(CharacterStat.Agility, dispAgi)
-                .WithNewStat(CharacterStat.Constituion, dispCon)
+                .WithNewStat(CharacterStat.Constitution, dispCon)
                 .WithNewStat(CharacterStat.Charisma, dispCha);
 
             var paperDoll = new Dictionary<EquipLocation, int>();

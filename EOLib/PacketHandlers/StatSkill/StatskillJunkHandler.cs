@@ -47,7 +47,7 @@ namespace EOLib.PacketHandlers.StatSkill
                 .WithNewStat(CharacterStat.Intelligence, packet.ReadShort())
                 .WithNewStat(CharacterStat.Wisdom, packet.ReadShort())
                 .WithNewStat(CharacterStat.Agility, packet.ReadShort())
-                .WithNewStat(CharacterStat.Constituion, packet.ReadShort())
+                .WithNewStat(CharacterStat.Constitution, packet.ReadShort())
                 .WithNewStat(CharacterStat.Charisma, packet.ReadShort())
                 .WithNewStat(CharacterStat.MinDam, packet.ReadShort())
                 .WithNewStat(CharacterStat.MaxDam, packet.ReadShort())

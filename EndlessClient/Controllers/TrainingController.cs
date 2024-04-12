@@ -40,7 +40,7 @@ namespace EndlessClient.Controllers
                 case CharacterStat.Intelligence:
                 case CharacterStat.Wisdom:
                 case CharacterStat.Agility:
-                case CharacterStat.Constituion:
+                case CharacterStat.Constitution:
                 case CharacterStat.Charisma: return false;
                 default: return true;
             }

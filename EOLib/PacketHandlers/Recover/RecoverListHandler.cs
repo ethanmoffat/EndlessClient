@@ -50,7 +50,7 @@ namespace EOLib.PacketHandlers.Recover
                 .WithNewStat(CharacterStat.Intelligence, intl)
                 .WithNewStat(CharacterStat.Wisdom, wis)
                 .WithNewStat(CharacterStat.Agility, agi)
-                .WithNewStat(CharacterStat.Constituion, con)
+                .WithNewStat(CharacterStat.Constitution, con)
                 .WithNewStat(CharacterStat.Charisma, cha)
                 .WithNewStat(CharacterStat.MaxHP, hp)
                 .WithNewStat(CharacterStat.MaxTP, tp)

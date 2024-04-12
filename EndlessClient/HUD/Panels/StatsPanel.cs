@@ -165,7 +165,7 @@ namespace EndlessClient.HUD.Panels
                 _basicStats[INT].Text = $"{_lastCharacterStats[CharacterStat.Intelligence]}";
                 _basicStats[WIS].Text = $"{_lastCharacterStats[CharacterStat.Wisdom]}";
                 _basicStats[AGI].Text = $"{_lastCharacterStats[CharacterStat.Agility]}";
-                _basicStats[CON].Text = $"{_lastCharacterStats[CharacterStat.Constituion]}";
+                _basicStats[CON].Text = $"{_lastCharacterStats[CharacterStat.Constitution]}";
                 _basicStats[CHA].Text = $"{_lastCharacterStats[CharacterStat.Charisma]}";
 
                 _characterStats[HP].Text = $"{_lastCharacterStats[CharacterStat.HP]}";

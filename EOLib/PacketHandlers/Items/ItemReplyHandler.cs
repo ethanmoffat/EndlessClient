@@ -151,7 +151,7 @@ namespace EOLib.PacketHandlers.Items
                         .WithNewStat(CharacterStat.Intelligence, cureCurseInt)
                         .WithNewStat(CharacterStat.Wisdom, cureCurseWis)
                         .WithNewStat(CharacterStat.Agility, cureCurseAgi)
-                        .WithNewStat(CharacterStat.Constituion, cureCurseCon)
+                        .WithNewStat(CharacterStat.Constitution, cureCurseCon)
                         .WithNewStat(CharacterStat.Charisma, cureCurseCha)
                         .WithNewStat(CharacterStat.MinDam, cureCurseMinDam)
                         .WithNewStat(CharacterStat.MaxDam, cureCurseMaxDam)

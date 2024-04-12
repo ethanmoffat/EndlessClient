@@ -26,7 +26,7 @@
         Intelligence,
         Wisdom,
         Agility,
-        Constituion,
+        Constitution,
         Charisma,
 
         Weight,

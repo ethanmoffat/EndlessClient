@@ -57,7 +57,7 @@ namespace EOLib.Domain.Item
             var reqNames = new[] { "STR", "INT", "WIS", "AGI", "CON", "CHA" };
             if ((reqs[0] = itemData.StrReq) > c.Stats[CharacterStat.Strength] || (reqs[1] = itemData.IntReq) > c.Stats[CharacterStat.Intelligence]
                 || (reqs[2] = itemData.WisReq) > c.Stats[CharacterStat.Wisdom] || (reqs[3] = itemData.AgiReq) > c.Stats[CharacterStat.Agility]
-                || (reqs[4] = itemData.ConReq) > c.Stats[CharacterStat.Constituion] || (reqs[5] = itemData.ChaReq) > c.Stats[CharacterStat.Charisma])
+                || (reqs[4] = itemData.ConReq) > c.Stats[CharacterStat.Constitution] || (reqs[5] = itemData.ChaReq) > c.Stats[CharacterStat.Charisma])
             {
                 var req = reqs.Select((i, n) => new { Req = n, Ndx = i }).First(x => x.Req > 0);
                 return (ItemEquipResult.StatRequirementNotMet, $" {reqs[req.Ndx]} {reqNames[req.Ndx]}", isAlternateEquipLocation);
