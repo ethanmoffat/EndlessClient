@@ -31,5 +31,12 @@
 
         Weight,
         MaxWeight,
+
+        Light,
+        Dark,
+        Fire,
+        Water,
+        Earth,
+        Wind,
     }
 }

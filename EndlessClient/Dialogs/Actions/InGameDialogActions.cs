@@ -320,6 +320,37 @@ namespace EndlessClient.Dialogs.Actions
             });
         }
 
+        public void ShowKeyValueMessageDialog(string title, IReadOnlyList<(string, string)> messages)
+        {
+            _activeDialogRepository.MessageDialog.MatchNone(() =>
+            {
+                var dlg = _scrollingListDialogFactory.Create(DialogType.Message);
+                dlg.DialogClosed += (_, _) => _activeDialogRepository.MessageDialog = Option.None<ScrollingListDialog>();
+
+                dlg.ListItemType = ListDialogItem.ListItemStyle.SmallKeyValue;
+                dlg.Buttons = ScrollingListDialogButtons.Cancel;
+                dlg.Title = title;
+
+                var _68spaces = new string(Enumerable.Repeat(' ', 68).ToArray());
+                var items = messages
+                    .Select(x =>
+                        new ListDialogItem(dlg, ListDialogItem.ListItemStyle.SmallKeyValue)
+                        {
+                            PrimaryText = x.Item1,
+                            SubText = x.Item2,
+                        })
+                    .ToList();
+
+                dlg.SetItemList(items);
+
+                _activeDialogRepository.MessageDialog = Option.Some(dlg);
+
+                UseDefaultDialogSounds(dlg);
+
+                dlg.Show();
+            });
+        }
+
         public void ShowTradeDialog()
         {
             _activeDialogRepository.TradeDialog.MatchNone(() =>
@@ -458,6 +489,8 @@ namespace EndlessClient.Dialogs.Actions
         void ShowBardDialog();
 
         void ShowMessageDialog(string title, IReadOnlyList<string> messages);
+
+        void ShowKeyValueMessageDialog(string title, IReadOnlyList<(string, string)> messages);
 
         void ShowTradeDialog();
 

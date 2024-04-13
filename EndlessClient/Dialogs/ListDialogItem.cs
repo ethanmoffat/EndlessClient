@@ -14,6 +14,7 @@ namespace EndlessClient.Dialogs
         public enum ListItemStyle
         {
             Small,
+            SmallKeyValue,
             Large
         }
 
@@ -86,7 +87,8 @@ namespace EndlessClient.Dialogs
             set
             {
                 _subText.Text = value;
-                _subText.ResizeBasedOnText();
+                if (Style != ListItemStyle.SmallKeyValue)
+                    _subText.ResizeBasedOnText();
             }
         }
 
@@ -136,16 +138,31 @@ namespace EndlessClient.Dialogs
             _primaryText.SetParentControl(this);
             _primaryText.Initialize();
 
-            _subText = new XNALabel(Constants.FontSize08pt5)
+            if (Style == ListItemStyle.SmallKeyValue)
             {
-                AutoSize = true,
-                BackColor = _primaryText.BackColor,
-                ForeColor = _primaryText.ForeColor,
-                DrawPosition = Style == ListItemStyle.Large ? new Vector2(56, 20) : new Vector2(100, 0),
-                Text = " ",
-                Visible = Style == ListItemStyle.Large
-            };
-            _subText.ResizeBasedOnText();
+                _subText = new XNALabel(Constants.FontSize08pt5)
+                {
+                    BackColor = _primaryText.BackColor,
+                    ForeColor = _primaryText.ForeColor,
+                    DrawArea = new Rectangle(2, 0, 225, 13),
+                    TextAlign = LabelAlignment.Right,
+                    Text = " ",
+                    Visible = true
+                };
+            }
+            else
+            {
+                _subText = new XNALabel(Constants.FontSize08pt5)
+                {
+                    AutoSize = true,
+                    BackColor = _primaryText.BackColor,
+                    ForeColor = _primaryText.ForeColor,
+                    DrawPosition = Style == ListItemStyle.Large ? new Vector2(56, 20) : new Vector2(100, 0),
+                    Text = " ",
+                    Visible = Style == ListItemStyle.Large
+                };
+                _subText.ResizeBasedOnText();
+            }
             _subText.SetParentControl(this);
             _subText.Initialize();
 
@@ -185,13 +202,13 @@ namespace EndlessClient.Dialogs
 
             oldText.Dispose();
 
-            if (Style == ListItemStyle.Small)
+            if (Style == ListItemStyle.Small || Style == ListItemStyle.SmallKeyValue)
                 LeftClick += onClickAction;
         }
 
         public void SetSubtextClickAction(EventHandler<MouseEventArgs> onClickAction)
         {
-            if (Style == ListItemStyle.Small)
+            if (Style == ListItemStyle.Small || Style == ListItemStyle.SmallKeyValue)
                 throw new InvalidOperationException("Unable to set subtext click action when style is Small");
 
             var oldText = _subText;

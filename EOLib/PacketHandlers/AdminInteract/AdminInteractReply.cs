@@ -6,6 +6,9 @@ using EOLib.Net.Handlers;
 
 namespace EOLib.PacketHandlers.AdminInteract
 {
+    /// <summary>
+    /// Received by admins when a report is made by another player.
+    /// </summary>
     [AutoMappedType]
     public class AdminInteractReply : InGameOnlyPacketHandler
     {
