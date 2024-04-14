@@ -39,6 +39,7 @@ namespace EndlessClient.Dialogs.Actions
         private readonly IJukeboxDialogFactory _jukeboxDialogFactory;
         private readonly IInnkeeperDialogFactory _innkeeperDialogFactory;
         private readonly ILawDialogFactory _lawDialogFactory;
+        private readonly IHelpDialogFactory _helpDialogFactory;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IShopDialogFactory _shopDialogFactory;
@@ -66,6 +67,7 @@ namespace EndlessClient.Dialogs.Actions
                                    IJukeboxDialogFactory jukeboxDialogFactory,
                                    IInnkeeperDialogFactory innkeeperDialogFactory,
                                    ILawDialogFactory lawDialogFactory,
+                                   IHelpDialogFactory helpDialogFactory,
                                    ISfxPlayer sfxPlayer,
                                    IStatusLabelSetter statusLabelSetter)
         {
@@ -89,6 +91,7 @@ namespace EndlessClient.Dialogs.Actions
             _jukeboxDialogFactory = jukeboxDialogFactory;
             _innkeeperDialogFactory = innkeeperDialogFactory;
             _lawDialogFactory = lawDialogFactory;
+            _helpDialogFactory = helpDialogFactory;
             _sfxPlayer = sfxPlayer;
             _statusLabelSetter = statusLabelSetter;
             _shopDialogFactory = shopDialogFactory;
@@ -433,6 +436,20 @@ namespace EndlessClient.Dialogs.Actions
             });
         }
 
+        public void ShowHelpDialog()
+        {
+            _activeDialogRepository.HelpDialog.MatchNone(() =>
+            {
+                var dlg = _helpDialogFactory.Create();
+                dlg.DialogClosed += (_, _) => _activeDialogRepository.HelpDialog = Option.None<ScrollingListDialog>();
+                _activeDialogRepository.HelpDialog = Option.Some(dlg);
+
+                dlg.Show();
+
+                UseDefaultDialogSounds(dlg);
+            });
+        }
+
         private void UseDefaultDialogSounds(ScrollingListDialog dialog)
         {
             UseDefaultDialogSounds((BaseEODialog)dialog);
@@ -503,5 +520,7 @@ namespace EndlessClient.Dialogs.Actions
         void ShowInnkeeperDialog();
 
         void ShowLawDialog();
+
+        void ShowHelpDialog();
     }
 }

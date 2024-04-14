@@ -374,25 +374,27 @@ namespace EndlessClient.Dialogs
         private void ShowForgetAllMessage()
         {
             AddTextAsListItems(_contentProvider.Fonts[Constants.FontSize09],
-                () =>
-                {
-                    var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.SKILL_RESET_CHARACTER_CONFIRMATION, EODialogButtons.OkCancel);
-                    dlg.DialogClosing += (_, args) =>
-                    {
-                        // todo: test how GameServer handles character reset with paperdoll items still equipped
-                        if (args.Result == XNADialogResult.OK)
-                        {
-                            _skillmasterActions.ResetCharacter();
-                        }
-                    };
-                    dlg.ShowDialog();
-                },
+                new List<Action> { ConfirmResetCharacter },
                 _localizedStringFinder.GetString(EOResourceID.SKILLMASTER_FORGET_ALL),
                 _localizedStringFinder.GetString(EOResourceID.SKILLMASTER_FORGET_ALL_MSG_1),
                 _localizedStringFinder.GetString(EOResourceID.SKILLMASTER_FORGET_ALL_MSG_2),
                 _localizedStringFinder.GetString(EOResourceID.SKILLMASTER_FORGET_ALL_MSG_3),
                 _localizedStringFinder.GetString(EOResourceID.SKILLMASTER_CLICK_HERE_TO_FORGET_ALL)
             );
+        }
+
+        private void ConfirmResetCharacter()
+        {
+            var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.SKILL_RESET_CHARACTER_CONFIRMATION, EODialogButtons.OkCancel);
+            dlg.DialogClosing += (_, args) =>
+            {
+                // todo: test how GameServer handles character reset with paperdoll items still equipped
+                if (args.Result == XNADialogResult.OK)
+                {
+                    _skillmasterActions.ResetCharacter();
+                }
+            };
+            dlg.ShowDialog();
         }
     }
 }

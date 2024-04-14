@@ -85,6 +85,7 @@ namespace EndlessClient.HUD
         public void ClickHelp()
         {
             _hudStateActions.SwitchToState(InGameStates.Help);
+            _inGameDialogActions.ShowHelpDialog();
         }
 
         public void ClickFriendList()

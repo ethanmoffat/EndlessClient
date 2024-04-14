@@ -57,6 +57,9 @@ namespace EndlessClient.Dialogs
         Inn = Shop,
         Law = Shop,
 
+        // large / alternate background
+        Help,
+
         // large no scroll
         Chest,
 
@@ -109,6 +112,7 @@ namespace EndlessClient.Dialogs
                 {
 
                     case DialogType.Shop:
+                    case DialogType.Help:
                     case DialogType.QuestProgressHistory:
                         return 12;
                     case DialogType.NpcQuestDialog: return 6;
@@ -395,7 +399,7 @@ namespace EndlessClient.Dialogs
             _scrollBar.ScrollToTop();
         }
 
-        public void AddTextAsListItems(BitmapFont font, Action linkClickAction, params string[] messages)
+        public void AddTextAsListItems(BitmapFont font, List<Action> linkClickActions, params string[] messages)
         {
             ListItemType = ListDialogItem.ListItemStyle.Small;
 
@@ -408,6 +412,8 @@ namespace EndlessClient.Dialogs
                 drawStrings.Add(" ");
             }
 
+            int linkIndex = 0;
+
             foreach (string s in drawStrings)
             {
                 var link = s.Length > 0 && s[0] == '*';
@@ -416,8 +422,9 @@ namespace EndlessClient.Dialogs
                     PrimaryText = link ? s.Remove(0, 1) : s
                 };
 
-                if (link)
+                if (link && linkIndex < linkClickActions.Count)
                 {
+                    var linkClickAction = linkClickActions[linkIndex++];
                     nextItem.SetPrimaryClickAction((_, _) => linkClickAction());
                 }
 
@@ -491,6 +498,7 @@ namespace EndlessClient.Dialogs
             switch (size)
             {
                 case DialogType.Shop:
+                case DialogType.Help:
                 case DialogType.Chest:
                 case DialogType.QuestProgressHistory:
                     return 199;
@@ -506,6 +514,7 @@ namespace EndlessClient.Dialogs
             switch (size)
             {
                 case DialogType.Shop: return 52;
+                case DialogType.Help: return 64;
                 case DialogType.Chest: return 51;
                 case DialogType.QuestProgressHistory: return 59;
                 case DialogType.Jukebox: return 60;
@@ -520,6 +529,7 @@ namespace EndlessClient.Dialogs
             switch (size)
             {
                 case DialogType.Shop:
+                case DialogType.Help:
                 case DialogType.Chest: return null;
                 case DialogType.QuestProgressHistory:
                     return new Rectangle(0, 0, backgroundTexture.Width, backgroundTexture.Height / 2);
@@ -536,7 +546,8 @@ namespace EndlessClient.Dialogs
             switch (size)
             {
                 // buttons are centered on these dialogs
-                case DialogType.Shop: 
+                case DialogType.Shop:
+                case DialogType.Help:
                 case DialogType.Chest:
                 case DialogType.BankAccountDialog:
                 case DialogType.Jukebox: return new Vector2((int)Math.Floor((dialogArea.Width - buttonArea.Width) / 2.0) - 48, yCoord);
@@ -555,6 +566,7 @@ namespace EndlessClient.Dialogs
             {
                 // buttons are centered on these dialogs
                 case DialogType.Shop:
+                case DialogType.Help:
                 case DialogType.Chest:
                 case DialogType.BankAccountDialog:
                 case DialogType.Jukebox: return new Vector2((int)Math.Floor((dialogArea.Width - buttonArea.Width) / 2.0) + 48, yCoord);
