@@ -208,8 +208,9 @@ namespace EndlessClient.UIControls
             {
                 case AdminLevel.Player:
                     return new EmptySpriteSheet();
-                case AdminLevel.Guide:
+                case AdminLevel.Spy:
                     return new SpriteSheet(adminGraphic, new Rectangle(252, 39, 17, 17));
+                case AdminLevel.Guide:
                 case AdminLevel.Guardian:
                 case AdminLevel.GM:
                 case AdminLevel.HGM:
