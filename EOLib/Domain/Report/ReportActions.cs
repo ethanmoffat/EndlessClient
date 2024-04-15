@@ -1,8 +1,10 @@
-﻿using EOLib.Net;
+﻿using AutomaticTypeMapper;
+using EOLib.Net;
 using EOLib.Net.Communication;
 
 namespace EOLib.Domain.Report
 {
+    [AutoMappedType]
     public class ReportActions : IReportActions
     {
         private readonly IPacketSendService _packetSendService;

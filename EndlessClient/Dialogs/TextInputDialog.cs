@@ -43,7 +43,7 @@ namespace EndlessClient.Dialogs
                 TextColor = ColorConstants.LightBeigeText,
             };
             _inputBox.SetParentControl(this);
-
+                    
             var ok = new XNAButton(eoDialogButtonService.SmallButtonSheet,
                 new Vector2(41, 103),
                 eoDialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Ok),

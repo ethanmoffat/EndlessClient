@@ -399,7 +399,7 @@ namespace EndlessClient.Dialogs
             _scrollBar.ScrollToTop();
         }
 
-        public void AddTextAsListItems(BitmapFont font, List<Action> linkClickActions, params string[] messages)
+        public void AddTextAsListItems(BitmapFont font, bool insertLineBreaks, List<Action> linkClickActions, params string[] messages)
         {
             ListItemType = ListDialogItem.ListItemStyle.Small;
 
@@ -409,7 +409,10 @@ namespace EndlessClient.Dialogs
             {
                 ts.Text = s;
                 drawStrings.AddRange(ts.NeedsProcessing ? ts.SplitIntoLines() : new[] { s });
-                drawStrings.Add(" ");
+                if (insertLineBreaks)
+                {
+                    drawStrings.Add(" ");
+                }
             }
 
             int linkIndex = 0;
@@ -483,6 +486,7 @@ namespace EndlessClient.Dialogs
             switch(size)
             {
                 case DialogType.Shop:
+                case DialogType.Help:
                 case DialogType.Chest: return new Rectangle(16, 13, 253, 19);
                 case DialogType.QuestProgressHistory:
                     return new Rectangle(18, 14, 452, 19);

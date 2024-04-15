@@ -9,6 +9,7 @@ using EOLib.IO;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
 using Optional.Collections;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using XNAControls;
@@ -141,17 +142,21 @@ namespace EndlessClient.Dialogs
                         Buttons = ScrollingListDialogButtons.BackCancel;
 
                         AddTextAsListItems(_contentProvider.Fonts[Constants.FontSize09],
-                            () =>
+                            insertLineBreaks: true,
+                            new List<Action>
                             {
-                                var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.WEDDING_PROMPT_ENTER_NAME_MARRY));
-                                dlg.DialogClosing += (_, e) =>
+                                () =>
                                 {
-                                    if (e.Result != XNADialogResult.OK)
-                                        return;
+                                    var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.WEDDING_PROMPT_ENTER_NAME_MARRY));
+                                    dlg.DialogClosing += (_, e) =>
+                                    {
+                                        if (e.Result != XNADialogResult.OK)
+                                            return;
 
-                                    _lawActions.RequestMarriage(dlg.ResponseText);
-                                };
-                                dlg.ShowDialog();
+                                        _lawActions.RequestMarriage(dlg.ResponseText);
+                                    };
+                                    dlg.ShowDialog();
+                                },
                             },
                             _localizedStringFinder.GetString(EOResourceID.WEDDING_MARRIAGE),
                             _localizedStringFinder.GetString(EOResourceID.WEDDING_REQUEST_TEXT_1),
@@ -165,17 +170,21 @@ namespace EndlessClient.Dialogs
                         Buttons = ScrollingListDialogButtons.BackCancel;
 
                         AddTextAsListItems(_contentProvider.Fonts[Constants.FontSize09],
-                            () =>
+                            insertLineBreaks: true,
+                            new List<Action>
                             {
-                                var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.WEDDING_PROMPT_ENTER_NAME_DIVORCE));
-                                dlg.DialogClosing += (_, e) =>
+                                () =>
                                 {
-                                    if (e.Result != XNADialogResult.OK)
-                                        return;
+                                    var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.WEDDING_PROMPT_ENTER_NAME_DIVORCE));
+                                    dlg.DialogClosing += (_, e) =>
+                                    {
+                                        if (e.Result != XNADialogResult.OK)
+                                            return;
 
-                                    _lawActions.RequestDivorce(dlg.ResponseText);
-                                };
-                                dlg.ShowDialog();
+                                        _lawActions.RequestDivorce(dlg.ResponseText);
+                                    };
+                                    dlg.ShowDialog();
+                                },
                             },
                             _localizedStringFinder.GetString(EOResourceID.WEDDING_DIVORCE),
                             _localizedStringFinder.GetString(EOResourceID.WEDDING_DIVORCE_TEXT_1),

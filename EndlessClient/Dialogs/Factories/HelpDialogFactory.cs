@@ -36,11 +36,15 @@ namespace EndlessClient.Dialogs.Factories
         {
             var dlg = new ScrollingListDialog(_nativeGraphicsManager, _dialogButtonService, DialogType.Help)
             {
+                Title = _localizedStringFinder.GetString(EOResourceID.ENDLESS_HELP),
                 Buttons = ScrollingListDialogButtons.Cancel,
                 ListItemType = ListDialogItem.ListItemStyle.Small,
             };
 
-            dlg.AddTextAsListItems(_contentProvider.Fonts[Constants.FontSize08pt5], GetActions(), GetMessages());
+            dlg.AddTextAsListItems(_contentProvider.Fonts[Constants.FontSize08pt5],
+                insertLineBreaks: false,
+                linkClickActions: GetActions(),
+                messages: GetMessages());
 
             return dlg;
         }

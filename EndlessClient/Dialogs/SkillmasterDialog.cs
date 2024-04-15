@@ -374,6 +374,7 @@ namespace EndlessClient.Dialogs
         private void ShowForgetAllMessage()
         {
             AddTextAsListItems(_contentProvider.Fonts[Constants.FontSize09],
+                insertLineBreaks: true,
                 new List<Action> { ConfirmResetCharacter },
                 _localizedStringFinder.GetString(EOResourceID.SKILLMASTER_FORGET_ALL),
                 _localizedStringFinder.GetString(EOResourceID.SKILLMASTER_FORGET_ALL_MSG_1),
