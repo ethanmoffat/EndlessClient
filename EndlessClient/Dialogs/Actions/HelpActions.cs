@@ -1,7 +1,9 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.Dialogs.Factories;
 using EOLib.Domain.Report;
 using EOLib.Localization;
+using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Dialogs.Actions
@@ -13,16 +15,19 @@ namespace EndlessClient.Dialogs.Actions
         private readonly ITextMultiInputDialogFactory _textMultiInputDialogFactory;
         private readonly ITextInputDialogFactory _textInputDialogFactory;
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
+        private readonly ISfxPlayer _sfxPlayer;
 
         public HelpActions(IReportActions reportActions,
                            ITextMultiInputDialogFactory textMultiInputDialogFactory,
                            ITextInputDialogFactory textInputDialogFactory,
-                           IEOMessageBoxFactory eoMessageBoxFactory)
+                           IEOMessageBoxFactory eoMessageBoxFactory,
+                           ISfxPlayer sfxPlayer)
         {
             _reportActions = reportActions;
             _textMultiInputDialogFactory = textMultiInputDialogFactory;
             _textInputDialogFactory = textInputDialogFactory;
             _eoMessageBoxFactory = eoMessageBoxFactory;
+            _sfxPlayer = sfxPlayer;
         }
 
         public void ResetPassword()
@@ -42,11 +47,19 @@ namespace EndlessClient.Dialogs.Actions
             {
                 if (e.Result == XNADialogResult.OK)
                 {
-                    _reportActions.ReportPlayer(dlg.Responses[0], dlg.Responses[1]);
+                    if (dlg.Responses[0].Length > 0 && dlg.Responses[1].Length > 0)
+                    {
+                        _reportActions.ReportPlayer(dlg.Responses[0], dlg.Responses[1]);
+                        _sfxPlayer.PlaySfx(SoundEffectID.AdminRequestSent);
+                    }
+
                     var dlg2 = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.HELP_REQUEST_RECEIVED);
                     dlg2.ShowDialog();
                 }
             };
+
+            UseDefaultDialogSounds(dlg);
+
             dlg.ShowDialog();
         }
 
@@ -59,12 +72,29 @@ namespace EndlessClient.Dialogs.Actions
             {
                 if (e.Result == XNADialogResult.OK)
                 {
-                    _reportActions.SpeakToAdmin(dlg.ResponseText);
+                    if (dlg.ResponseText.Length > 0)
+                    {
+                        _reportActions.SpeakToAdmin(dlg.ResponseText);
+                        _sfxPlayer.PlaySfx(SoundEffectID.AdminRequestSent);
+                    }
+
                     var dlg2 = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.HELP_REQUEST_RECEIVED);
                     dlg2.ShowDialog();
                 }
             };
+
+            UseDefaultDialogSounds(dlg);
+
             dlg.ShowDialog();
+        }
+
+        // copied from InGameDialogActions
+        private void UseDefaultDialogSounds(BaseEODialog dialog)
+        {
+            dialog.DialogClosing += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
+
+            foreach (var textbox in dialog.ChildControls.OfType<IXNATextBox>())
+                textbox.OnGotFocus += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.TextBoxFocus);
         }
     }
 
