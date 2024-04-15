@@ -84,7 +84,7 @@ namespace EOLib.PacketHandlers.Paperdoll
                     .WithNewStat(CharacterStat.Intelligence, disp_int)
                     .WithNewStat(CharacterStat.Wisdom, disp_wis)
                     .WithNewStat(CharacterStat.Agility, disp_agi)
-                    .WithNewStat(CharacterStat.Constituion, disp_con)
+                    .WithNewStat(CharacterStat.Constitution, disp_con)
                     .WithNewStat(CharacterStat.Charisma, disp_cha)
                     .WithNewStat(CharacterStat.MinDam, mindam)
                     .WithNewStat(CharacterStat.MaxDam, maxdam)

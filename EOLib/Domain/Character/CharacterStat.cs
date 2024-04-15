@@ -26,10 +26,17 @@
         Intelligence,
         Wisdom,
         Agility,
-        Constituion,
+        Constitution,
         Charisma,
 
         Weight,
         MaxWeight,
+
+        Light,
+        Dark,
+        Fire,
+        Water,
+        Earth,
+        Wind,
     }
 }

@@ -46,7 +46,7 @@ namespace EOLib.Domain.Character
                 case CharacterStat.Intelligence:
                 case CharacterStat.Wisdom:
                 case CharacterStat.Agility:
-                case CharacterStat.Constituion:
+                case CharacterStat.Constitution:
                 case CharacterStat.Charisma: return false;
                 default: return true;
             }
@@ -60,7 +60,7 @@ namespace EOLib.Domain.Character
                 case CharacterStat.Intelligence: return 2;
                 case CharacterStat.Wisdom: return 3;
                 case CharacterStat.Agility: return 4;
-                case CharacterStat.Constituion: return 5;
+                case CharacterStat.Constitution: return 5;
                 case CharacterStat.Charisma: return 6;
             }
 

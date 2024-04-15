@@ -279,7 +279,7 @@ namespace EndlessClient.Dialogs
 
             if (!skillReqsMet ||
                 stats[CharacterStat.Strength] < skill.StrRequirement || stats[CharacterStat.Intelligence] < skill.IntRequirement || stats[CharacterStat.Wisdom] < skill.WisRequirement ||
-                stats[CharacterStat.Agility] < skill.AgiRequirement || stats[CharacterStat.Constituion] < skill.ConRequirement || stats[CharacterStat.Charisma] < skill.ChaRequirement ||
+                stats[CharacterStat.Agility] < skill.AgiRequirement || stats[CharacterStat.Constitution] < skill.ConRequirement || stats[CharacterStat.Charisma] < skill.ChaRequirement ||
                 stats[CharacterStat.Level] < skill.LevelRequirement || !_characterInventoryProvider.ItemInventory.SingleOrNone(x => x.ItemID == 1 && x.Amount >= skill.GoldRequirement).HasValue)
             {
                 var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.SKILL_LEARN_REQS_NOT_MET);
@@ -374,25 +374,28 @@ namespace EndlessClient.Dialogs
         private void ShowForgetAllMessage()
         {
             AddTextAsListItems(_contentProvider.Fonts[Constants.FontSize09],
-                () =>
-                {
-                    var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.SKILL_RESET_CHARACTER_CONFIRMATION, EODialogButtons.OkCancel);
-                    dlg.DialogClosing += (_, args) =>
-                    {
-                        // todo: test how GameServer handles character reset with paperdoll items still equipped
-                        if (args.Result == XNADialogResult.OK)
-                        {
-                            _skillmasterActions.ResetCharacter();
-                        }
-                    };
-                    dlg.ShowDialog();
-                },
+                insertLineBreaks: true,
+                new List<Action> { ConfirmResetCharacter },
                 _localizedStringFinder.GetString(EOResourceID.SKILLMASTER_FORGET_ALL),
                 _localizedStringFinder.GetString(EOResourceID.SKILLMASTER_FORGET_ALL_MSG_1),
                 _localizedStringFinder.GetString(EOResourceID.SKILLMASTER_FORGET_ALL_MSG_2),
                 _localizedStringFinder.GetString(EOResourceID.SKILLMASTER_FORGET_ALL_MSG_3),
                 _localizedStringFinder.GetString(EOResourceID.SKILLMASTER_CLICK_HERE_TO_FORGET_ALL)
             );
+        }
+
+        private void ConfirmResetCharacter()
+        {
+            var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.SKILL_RESET_CHARACTER_CONFIRMATION, EODialogButtons.OkCancel);
+            dlg.DialogClosing += (_, args) =>
+            {
+                // todo: test how GameServer handles character reset with paperdoll items still equipped
+                if (args.Result == XNADialogResult.OK)
+                {
+                    _skillmasterActions.ResetCharacter();
+                }
+            };
+            dlg.ShowDialog();
         }
     }
 }

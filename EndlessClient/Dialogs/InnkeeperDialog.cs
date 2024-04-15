@@ -166,57 +166,61 @@ namespace EndlessClient.Dialogs
                         Buttons = ScrollingListDialogButtons.BackCancel;
 
                         AddTextAsListItems(_contentProvider.Fonts[Constants.FontSize09],
-                            () =>
+                            insertLineBreaks: true,
+                            new List<Action>
                             {
-                                if (_citizenDataProvider.CurrentHomeID.HasValue)
+                                () =>
                                 {
-                                    var dlg = _messageBoxFactory.CreateMessageBox(EOResourceID.INN_YOU_ARE_ALREADY_A_CITIZEN_OF_A_TOWN, EOResourceID.INN_REGISTRATION_SERVICE);
-                                    dlg.ShowDialog();
-                                }
-                                else
-                                {
-                                    var answers = new List<string>(3);
-
-                                    Func<int, TextInputDialog> createDlg = i => _textInputDialogFactory.Create($"{i + 1}. {_citizenDataProvider.Questions[i]}");
-
-                                    // we can't suspend the context and await the result of the dialogs because XNAControls isn't that powerful,
-                                    //    so we have to get the result in the DialogClosing event handler after we know the user is done entering their input
-                                    var dlg1 = createDlg(0);
-                                    dlg1.DialogClosing += (_, e1) =>
+                                    if (_citizenDataProvider.CurrentHomeID.HasValue)
                                     {
-                                        if (e1.Result != XNADialogResult.OK)
-                                            return;
+                                        var dlg = _messageBoxFactory.CreateMessageBox(EOResourceID.INN_YOU_ARE_ALREADY_A_CITIZEN_OF_A_TOWN, EOResourceID.INN_REGISTRATION_SERVICE);
+                                        dlg.ShowDialog();
+                                    }
+                                    else
+                                    {
+                                        var answers = new List<string>(3);
 
-                                        var dlg2 = createDlg(1);
-                                        dlg2.DialogClosing += (_, e2) =>
+                                        Func<int, TextInputDialog> createDlg = i => _textInputDialogFactory.Create($"{i + 1}. {_citizenDataProvider.Questions[i]}");
+
+                                        // we can't suspend the context and await the result of the dialogs because XNAControls isn't that powerful,
+                                        //    so we have to get the result in the DialogClosing event handler after we know the user is done entering their input
+                                        var dlg1 = createDlg(0);
+                                        dlg1.DialogClosing += (_, e1) =>
                                         {
-                                            if (e2.Result != XNADialogResult.OK)
+                                            if (e1.Result != XNADialogResult.OK)
                                                 return;
 
-                                            var dlg3 = createDlg(2);
-                                            dlg3.DialogClosing += (_, e3) =>
+                                            var dlg2 = createDlg(1);
+                                            dlg2.DialogClosing += (_, e2) =>
                                             {
-                                                if (e3.Result != XNADialogResult.OK)
+                                                if (e2.Result != XNADialogResult.OK)
                                                     return;
 
-                                                var answers = new List<string>
+                                                var dlg3 = createDlg(2);
+                                                dlg3.DialogClosing += (_, e3) =>
                                                 {
-                                                    dlg1.ResponseText,
-                                                    dlg2.ResponseText,
-                                                    dlg3.ResponseText
+                                                    if (e3.Result != XNADialogResult.OK)
+                                                        return;
+
+                                                    var answers = new List<string>
+                                                    {
+                                                        dlg1.ResponseText,
+                                                        dlg2.ResponseText,
+                                                        dlg3.ResponseText
+                                                    };
+
+                                                    _citizenActions.SignUp(answers);
                                                 };
 
-                                                _citizenActions.SignUp(answers);
+                                                dlg3.ShowDialog();
                                             };
 
-                                            dlg3.ShowDialog();
+                                            dlg2.ShowDialog();
                                         };
 
-                                        dlg2.ShowDialog();
-                                    };
-
-                                    dlg1.ShowDialog();
-                                }
+                                        dlg1.ShowDialog();
+                                    }
+                                },
                             },
                             _localizedStringFinder.GetString(EOResourceID.INN_SIGN_UP),
                             _localizedStringFinder.GetString(EOResourceID.INN_BECOME_CITIZEN_TEXT_1),
@@ -230,10 +234,14 @@ namespace EndlessClient.Dialogs
                         Buttons = ScrollingListDialogButtons.BackCancel;
 
                         AddTextAsListItems(_contentProvider.Fonts[Constants.FontSize09],
-                            () =>
+                            insertLineBreaks: true,
+                            new List<Action>
                             {
-                                _citizenActions.Unsubscribe();
-                                SetState(InnkeeperDialogState.Registration);
+                                () =>
+                                {
+                                    _citizenActions.Unsubscribe();
+                                    SetState(InnkeeperDialogState.Registration);
+                                },
                             },
                             _localizedStringFinder.GetString(EOResourceID.INN_UNSUBSCRIBE),
                             _localizedStringFinder.GetString(EOResourceID.INN_GIVE_UP_TEXT_1),

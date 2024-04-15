@@ -83,7 +83,7 @@
         MapAmbientNoiseDrone1,
         AdminHide,
         MapAmbientNoiseLavaBubbles1,
-        UnknownMapAmbientNoise3 = 68,
+        AdminRequestSent = 68,
         MapAmbientNoiseFactory,
         MapEffectHPDrain,
         MapEffectTPDrain,

@@ -39,6 +39,7 @@ namespace EndlessClient.Dialogs.Actions
         private readonly IJukeboxDialogFactory _jukeboxDialogFactory;
         private readonly IInnkeeperDialogFactory _innkeeperDialogFactory;
         private readonly ILawDialogFactory _lawDialogFactory;
+        private readonly IHelpDialogFactory _helpDialogFactory;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IShopDialogFactory _shopDialogFactory;
@@ -66,6 +67,7 @@ namespace EndlessClient.Dialogs.Actions
                                    IJukeboxDialogFactory jukeboxDialogFactory,
                                    IInnkeeperDialogFactory innkeeperDialogFactory,
                                    ILawDialogFactory lawDialogFactory,
+                                   IHelpDialogFactory helpDialogFactory,
                                    ISfxPlayer sfxPlayer,
                                    IStatusLabelSetter statusLabelSetter)
         {
@@ -89,6 +91,7 @@ namespace EndlessClient.Dialogs.Actions
             _jukeboxDialogFactory = jukeboxDialogFactory;
             _innkeeperDialogFactory = innkeeperDialogFactory;
             _lawDialogFactory = lawDialogFactory;
+            _helpDialogFactory = helpDialogFactory;
             _sfxPlayer = sfxPlayer;
             _statusLabelSetter = statusLabelSetter;
             _shopDialogFactory = shopDialogFactory;
@@ -320,6 +323,37 @@ namespace EndlessClient.Dialogs.Actions
             });
         }
 
+        public void ShowKeyValueMessageDialog(string title, IReadOnlyList<(string, string)> messages)
+        {
+            _activeDialogRepository.MessageDialog.MatchNone(() =>
+            {
+                var dlg = _scrollingListDialogFactory.Create(DialogType.Message);
+                dlg.DialogClosed += (_, _) => _activeDialogRepository.MessageDialog = Option.None<ScrollingListDialog>();
+
+                dlg.ListItemType = ListDialogItem.ListItemStyle.SmallKeyValue;
+                dlg.Buttons = ScrollingListDialogButtons.Cancel;
+                dlg.Title = title;
+
+                var _68spaces = new string(Enumerable.Repeat(' ', 68).ToArray());
+                var items = messages
+                    .Select(x =>
+                        new ListDialogItem(dlg, ListDialogItem.ListItemStyle.SmallKeyValue)
+                        {
+                            PrimaryText = x.Item1,
+                            SubText = x.Item2,
+                        })
+                    .ToList();
+
+                dlg.SetItemList(items);
+
+                _activeDialogRepository.MessageDialog = Option.Some(dlg);
+
+                UseDefaultDialogSounds(dlg);
+
+                dlg.Show();
+            });
+        }
+
         public void ShowTradeDialog()
         {
             _activeDialogRepository.TradeDialog.MatchNone(() =>
@@ -402,6 +436,20 @@ namespace EndlessClient.Dialogs.Actions
             });
         }
 
+        public void ShowHelpDialog()
+        {
+            _activeDialogRepository.HelpDialog.MatchNone(() =>
+            {
+                var dlg = _helpDialogFactory.Create();
+                dlg.DialogClosed += (_, _) => _activeDialogRepository.HelpDialog = Option.None<ScrollingListDialog>();
+                _activeDialogRepository.HelpDialog = Option.Some(dlg);
+
+                dlg.Show();
+
+                UseDefaultDialogSounds(dlg);
+            });
+        }
+
         private void UseDefaultDialogSounds(ScrollingListDialog dialog)
         {
             UseDefaultDialogSounds((BaseEODialog)dialog);
@@ -459,6 +507,8 @@ namespace EndlessClient.Dialogs.Actions
 
         void ShowMessageDialog(string title, IReadOnlyList<string> messages);
 
+        void ShowKeyValueMessageDialog(string title, IReadOnlyList<(string, string)> messages);
+
         void ShowTradeDialog();
 
         void CloseTradeDialog();
@@ -470,5 +520,7 @@ namespace EndlessClient.Dialogs.Actions
         void ShowInnkeeperDialog();
 
         void ShowLawDialog();
+
+        void ShowHelpDialog();
     }
 }
