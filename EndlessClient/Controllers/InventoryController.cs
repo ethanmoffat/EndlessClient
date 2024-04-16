@@ -49,6 +49,7 @@ namespace EndlessClient.Controllers
         private readonly IItemTransferDialogFactory _itemTransferDialogFactory;
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
         private readonly IChatRepository _chatRepository;
+        private readonly ILocalizedStringFinder _localizedStringFinder;
 
         public InventoryController(IItemActions itemActions,
                                    IInGameDialogActions inGameDialogActions,
@@ -69,7 +70,8 @@ namespace EndlessClient.Controllers
                                    IStatusLabelSetter statusLabelSetter,
                                    IItemTransferDialogFactory itemTransferDialogFactory,
                                    IEOMessageBoxFactory eoMessageBoxFactory,
-                                   IChatRepository chatRepository)
+                                   IChatRepository chatRepository,
+                                   ILocalizedStringFinder localizedStringFinder)
         {
             _itemActions = itemActions;
             _inGameDialogActions = inGameDialogActions;
@@ -91,6 +93,7 @@ namespace EndlessClient.Controllers
             _itemTransferDialogFactory = itemTransferDialogFactory;
             _eoMessageBoxFactory = eoMessageBoxFactory;
             _chatRepository = chatRepository;
+            _localizedStringFinder = localizedStringFinder;
         }
 
         public void ShowPaperdollDialog()
@@ -234,8 +237,8 @@ namespace EndlessClient.Controllers
             }
             else if (validationResult == ItemDropResult.TooFar)
             {
-                var message = "Out of drop range.";
-                var chatData = new ChatData(ChatTab.System, "System", message, ChatIcon.DotDotDotDot);
+                var localizedMessage = _localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_ITEM_DROP_OUT_OF_RANGE);
+                var chatData = new ChatData(ChatTab.System, "System",localizedMessage, ChatIcon.DotDotDotDot);
                 _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_ITEM_DROP_OUT_OF_RANGE);
                 _chatRepository.AllChat[ChatTab.System].Add(chatData);
             }
