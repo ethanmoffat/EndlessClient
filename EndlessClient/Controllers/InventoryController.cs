@@ -9,6 +9,7 @@ using EndlessClient.HUD.Panels;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Map;
 using EOLib;
+using EOLib.Domain.Chat;
 using EOLib.Domain.Character;
 using EOLib.Domain.Interact;
 using EOLib.Domain.Interact.Bank;
@@ -47,6 +48,8 @@ namespace EndlessClient.Controllers
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IItemTransferDialogFactory _itemTransferDialogFactory;
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
+        private readonly IChatRepository _chatRepository;
+        private readonly ILocalizedStringFinder _localizedStringFinder;
 
         public InventoryController(IItemActions itemActions,
                                    IInGameDialogActions inGameDialogActions,
@@ -66,7 +69,9 @@ namespace EndlessClient.Controllers
                                    ITradeProvider tradeProvider,
                                    IStatusLabelSetter statusLabelSetter,
                                    IItemTransferDialogFactory itemTransferDialogFactory,
-                                   IEOMessageBoxFactory eoMessageBoxFactory)
+                                   IEOMessageBoxFactory eoMessageBoxFactory,
+                                   IChatRepository chatRepository,
+                                   ILocalizedStringFinder localizedStringFinder)
         {
             _itemActions = itemActions;
             _inGameDialogActions = inGameDialogActions;
@@ -87,6 +92,8 @@ namespace EndlessClient.Controllers
             _statusLabelSetter = statusLabelSetter;
             _itemTransferDialogFactory = itemTransferDialogFactory;
             _eoMessageBoxFactory = eoMessageBoxFactory;
+            _chatRepository = chatRepository;
+            _localizedStringFinder = localizedStringFinder;
         }
 
         public void ShowPaperdollDialog()
@@ -230,7 +237,10 @@ namespace EndlessClient.Controllers
             }
             else if (validationResult == ItemDropResult.TooFar)
             {
+                var localizedMessage = _localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_ITEM_DROP_OUT_OF_RANGE);
+                var chatData = new ChatData(ChatTab.System, "System",localizedMessage, ChatIcon.DotDotDotDot);
                 _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_ITEM_DROP_OUT_OF_RANGE);
+                _chatRepository.AllChat[ChatTab.System].Add(chatData);
             }
         }
 
