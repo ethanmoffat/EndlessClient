@@ -10,12 +10,12 @@ namespace EOLib.PacketHandlers.Sit
     /// Sent when a player sits on the floor via F11
     /// </summary>
     [AutoMappedType]
-    public class SitPlayerHandler : PlayerSitHandlerBase
+    public class SitReplyHandler : PlayerSitHandlerBase
     {
         public override PacketFamily Family => PacketFamily.Sit;
-        public override PacketAction Action => PacketAction.Player;
+        public override PacketAction Action => PacketAction.Reply;
 
-        public SitPlayerHandler(IPlayerInfoProvider playerInfoProvider,
+        public SitReplyHandler(IPlayerInfoProvider playerInfoProvider,
                                 ICharacterRepository characterRepository,
                                 ICurrentMapStateRepository currentMapStateRepository)
             : base(playerInfoProvider, characterRepository, currentMapStateRepository) { }

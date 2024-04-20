@@ -14,6 +14,8 @@ namespace EOLib.PacketHandlers.Chair
     public class ChairPlayerHandler : PlayerSitHandlerBase
     {
         public override PacketFamily Family => PacketFamily.Chair;
+        public override PacketAction Action => PacketAction.Player;
+
 
         public ChairPlayerHandler(IPlayerInfoProvider playerInfoProvider,
                                   ICharacterRepository characterRepository,

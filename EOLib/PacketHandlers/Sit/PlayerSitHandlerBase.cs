@@ -14,8 +14,6 @@ namespace EOLib.PacketHandlers.Sit
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
 
-        public override PacketAction Action => PacketAction.Player;
-
         public PlayerSitHandlerBase(IPlayerInfoProvider playerInfoProvider,
                                     ICharacterRepository characterRepository,
                                     ICurrentMapStateRepository currentMapStateRepository)
