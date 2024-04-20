@@ -28,7 +28,10 @@ namespace EOLib.PacketHandlers.Items
         public override bool HandlePacket(IPacket packet)
         {
             var uid = packet.ReadShort();
-            _currentMapStateRepository.MapItems.Remove(_currentMapStateRepository.MapItems[uid]);
+            if (_currentMapStateRepository.MapItems.ContainsKey(uid))
+            {
+                _currentMapStateRepository.MapItems.Remove(_currentMapStateRepository.MapItems[uid]);
+            }
             return true;
         }
     }
