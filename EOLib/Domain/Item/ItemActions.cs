@@ -48,7 +48,7 @@ namespace EOLib.Domain.Item
         {
             var packet = new PacketBuilder(PacketFamily.Item, PacketAction.Drop)
                 .AddShort(itemId)
-                .AddInt(amount)
+                .AddThree(amount)
                 .AddChar(dropPoint.X)
                 .AddChar(dropPoint.Y)
                 .Build();
