@@ -5,6 +5,7 @@ using EndlessClient.Dialogs.Services;
 using EndlessClient.HUD.Chat;
 using EOLib.Graphics;
 using EOLib.Localization;
+using System;
 
 namespace EndlessClient.Dialogs.Factories
 {
@@ -17,6 +18,7 @@ namespace EndlessClient.Dialogs.Factories
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly IContentProvider _contentProvider;
         private readonly ISfxPlayer _sfxPlayer;
+        private bool _goldSoundPlayed = false;
 
         public ItemTransferDialogFactory(INativeGraphicsManager nativeGraphicsManager,
                                          IChatTextBoxActions chatTextBoxActions,
@@ -44,7 +46,19 @@ namespace EndlessClient.Dialogs.Factories
                 transferType,
                 totalAmount,
                 message);
-            dlg.DialogClosing += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
+
+            dlg.DialogClosing += (_, _) =>
+            {
+                if (itemName == "Gold" && !_goldSoundPlayed)
+                {
+                    _sfxPlayer.PlaySfx(SoundEffectID.Login);
+                    _goldSoundPlayed = true; 
+                }
+                else if (itemName != "Gold")
+                {
+                    _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
+                }
+            };
             return dlg;
         }
     }

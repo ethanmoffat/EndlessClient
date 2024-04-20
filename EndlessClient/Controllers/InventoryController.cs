@@ -23,6 +23,7 @@ using EOLib.Localization;
 using System;
 using System.Linq;
 using XNAControls;
+using System.Diagnostics;
 
 namespace EndlessClient.Controllers
 {
@@ -50,6 +51,7 @@ namespace EndlessClient.Controllers
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
         private readonly IChatRepository _chatRepository;
         private readonly ILocalizedStringFinder _localizedStringFinder;
+        private bool _goldWarningShown = false;
 
         public InventoryController(IItemActions itemActions,
                                    IInGameDialogActions inGameDialogActions,
@@ -238,7 +240,7 @@ namespace EndlessClient.Controllers
             else if (validationResult == ItemDropResult.TooFar)
             {
                 var localizedMessage = _localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_ITEM_DROP_OUT_OF_RANGE);
-                var chatData = new ChatData(ChatTab.System, "System",localizedMessage, ChatIcon.DotDotDotDot);
+                var chatData = new ChatData(ChatTab.System, "System", localizedMessage, ChatIcon.DotDotDotDot);
                 _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_ITEM_DROP_OUT_OF_RANGE);
                 _chatRepository.AllChat[ChatTab.System].Add(chatData);
             }
@@ -350,8 +352,8 @@ namespace EndlessClient.Controllers
         }
 
         private void DoItemDrop(EIFRecord itemData, InventoryItem inventoryItem, Action<int> dropAction,
-                                ItemTransferDialog.TransferType transferType = ItemTransferDialog.TransferType.DropItems,
-                                EOResourceID message = EOResourceID.DIALOG_TRANSFER_DROP)
+                         ItemTransferDialog.TransferType transferType = ItemTransferDialog.TransferType.DropItems,
+                         EOResourceID message = EOResourceID.DIALOG_TRANSFER_DROP)
         {
             if (inventoryItem.Amount > 1)
             {
@@ -360,19 +362,30 @@ namespace EndlessClient.Controllers
                     transferType,
                     inventoryItem.Amount,
                     message);
+
                 transferDialog.DialogClosing += (sender, e) =>
                 {
                     if (e.Result == XNADialogResult.OK)
                     {
                         if (inventoryItem.ItemID == 1 && transferDialog.SelectedAmount > 10000 && transferType == ItemTransferDialog.TransferType.DropItems)
                         {
-                            var warningMsg = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.DROP_MANY_GOLD_ON_GROUND, EODialogButtons.OkCancel);
-                            warningMsg.DialogClosing += (_, warningArgs) =>
+                            if (!_goldWarningShown)
                             {
-                                if (warningArgs.Result == XNADialogResult.OK)
-                                    dropAction(transferDialog.SelectedAmount);
-                            };
-                            warningMsg.ShowDialog();
+                                var warningMsg = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.DROP_MANY_GOLD_ON_GROUND, EODialogButtons.OkCancel);
+                                warningMsg.DialogClosing += (_, warningArgs) =>
+                                {
+                                    if (warningArgs.Result == XNADialogResult.OK)
+                                    {
+                                        dropAction(transferDialog.SelectedAmount);
+                                    }
+                                };
+                                warningMsg.ShowDialog();
+                                _goldWarningShown = true;
+                            }
+                            else
+                            {
+                                dropAction(transferDialog.SelectedAmount);
+                            }
                         }
                         else
                         {
