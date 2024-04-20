@@ -386,9 +386,9 @@ namespace EndlessClient.Controllers
                             {
                                 if (warningArgs.Result == XNADialogResult.OK)
                                 {
+                                    _goldWarningShown = true;
                                     dropAction(transferDialog.SelectedAmount);
                                     _sfxPlayer.PlaySfx(SoundEffectID.Login);
-                                    _goldWarningShown = true;
                                 }
                             };
                             warningMsg.ShowDialog();
