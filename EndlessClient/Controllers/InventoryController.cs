@@ -381,13 +381,13 @@ namespace EndlessClient.Controllers
                         if (!playDefaultSound && !_goldWarningShown)
                         {
                             var warningMsg = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.DROP_MANY_GOLD_ON_GROUND, EODialogButtons.OkCancel);
+                            _sfxPlayer.PlaySfx(SoundEffectID.Login);
                             warningMsg.DialogClosing += (_, warningArgs) =>
                             {
                                 if (warningArgs.Result == XNADialogResult.OK)
                                 {
                                     _goldWarningShown = true;
                                     dropAction(transferDialog.SelectedAmount);
-                                    _sfxPlayer.PlaySfx(SoundEffectID.Login);
                                 }
                             };
                             warningMsg.ShowDialog();
