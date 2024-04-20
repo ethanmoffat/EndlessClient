@@ -5,7 +5,6 @@ using EndlessClient.Dialogs.Services;
 using EndlessClient.HUD.Chat;
 using EOLib.Graphics;
 using EOLib.Localization;
-using System;
 
 namespace EndlessClient.Dialogs.Factories
 {
@@ -18,7 +17,6 @@ namespace EndlessClient.Dialogs.Factories
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly IContentProvider _contentProvider;
         private readonly ISfxPlayer _sfxPlayer;
-        private bool _goldSoundPlayed = false;
 
         public ItemTransferDialogFactory(INativeGraphicsManager nativeGraphicsManager,
                                          IChatTextBoxActions chatTextBoxActions,
@@ -35,7 +33,7 @@ namespace EndlessClient.Dialogs.Factories
             _sfxPlayer = sfxPlayer;
         }
 
-        public ItemTransferDialog CreateItemTransferDialog(string itemName, ItemTransferDialog.TransferType transferType, int totalAmount, EOResourceID message)
+        public ItemTransferDialog CreateItemTransferDialog(string itemName, ItemTransferDialog.TransferType transferType, int totalAmount, EOResourceID message, bool playDefaultSound = true)
         {
             var dlg = new ItemTransferDialog(_nativeGraphicsManager,
                 _chatTextBoxActions,
@@ -47,24 +45,20 @@ namespace EndlessClient.Dialogs.Factories
                 totalAmount,
                 message);
 
-            dlg.DialogClosing += (_, _) =>
+            if (playDefaultSound)
             {
-                if (itemName == "Gold" && !_goldSoundPlayed)
-                {
-                    _sfxPlayer.PlaySfx(SoundEffectID.Login);
-                    _goldSoundPlayed = true; 
-                }
-                else if (itemName != "Gold")
+                dlg.DialogClosing += (_, _) =>
                 {
                     _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
-                }
-            };
+                };
+            }
+
             return dlg;
         }
     }
 
     public interface IItemTransferDialogFactory
     {
-        ItemTransferDialog CreateItemTransferDialog(string itemName, ItemTransferDialog.TransferType transferType, int totalAmount, EOResourceID message);
+        ItemTransferDialog CreateItemTransferDialog(string itemName, ItemTransferDialog.TransferType transferType, int totalAmount, EOResourceID message, bool playDefaultSound = true);
     }
 }

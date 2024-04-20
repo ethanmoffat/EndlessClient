@@ -8,6 +8,7 @@ using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Panels;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Map;
+using EndlessClient.Audio;
 using EOLib;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Character;
@@ -51,6 +52,7 @@ namespace EndlessClient.Controllers
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
         private readonly IChatRepository _chatRepository;
         private readonly ILocalizedStringFinder _localizedStringFinder;
+        private readonly ISfxPlayer _sfxPlayer;
         private bool _goldWarningShown = false;
 
         public InventoryController(IItemActions itemActions,
@@ -73,7 +75,8 @@ namespace EndlessClient.Controllers
                                    IItemTransferDialogFactory itemTransferDialogFactory,
                                    IEOMessageBoxFactory eoMessageBoxFactory,
                                    IChatRepository chatRepository,
-                                   ILocalizedStringFinder localizedStringFinder)
+                                   ILocalizedStringFinder localizedStringFinder,
+                                   ISfxPlayer sfxPlayer)
         {
             _itemActions = itemActions;
             _inGameDialogActions = inGameDialogActions;
@@ -96,6 +99,7 @@ namespace EndlessClient.Controllers
             _eoMessageBoxFactory = eoMessageBoxFactory;
             _chatRepository = chatRepository;
             _localizedStringFinder = localizedStringFinder;
+            _sfxPlayer = sfxPlayer;
         }
 
         public void ShowPaperdollDialog()
@@ -352,40 +356,42 @@ namespace EndlessClient.Controllers
         }
 
         private void DoItemDrop(EIFRecord itemData, InventoryItem inventoryItem, Action<int> dropAction,
-                         ItemTransferDialog.TransferType transferType = ItemTransferDialog.TransferType.DropItems,
-                         EOResourceID message = EOResourceID.DIALOG_TRANSFER_DROP)
+                        ItemTransferDialog.TransferType transferType = ItemTransferDialog.TransferType.DropItems,
+                        EOResourceID message = EOResourceID.DIALOG_TRANSFER_DROP)
         {
+            bool playDefaultSound = true;
+
             if (inventoryItem.Amount > 1)
             {
+                if (inventoryItem.ItemID == 1 && inventoryItem.Amount > 10000 && transferType == ItemTransferDialog.TransferType.DropItems)
+                {
+                    playDefaultSound = false;
+                }
+
                 var transferDialog = _itemTransferDialogFactory.CreateItemTransferDialog(
                     itemData.Name,
                     transferType,
                     inventoryItem.Amount,
-                    message);
+                    message,
+                    playDefaultSound);
 
                 transferDialog.DialogClosing += (sender, e) =>
                 {
                     if (e.Result == XNADialogResult.OK)
                     {
-                        if (inventoryItem.ItemID == 1 && transferDialog.SelectedAmount > 10000 && transferType == ItemTransferDialog.TransferType.DropItems)
+                        if (!playDefaultSound && !_goldWarningShown)
                         {
-                            if (!_goldWarningShown)
+                            var warningMsg = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.DROP_MANY_GOLD_ON_GROUND, EODialogButtons.OkCancel);
+                            warningMsg.DialogClosing += (_, warningArgs) =>
                             {
-                                var warningMsg = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.DROP_MANY_GOLD_ON_GROUND, EODialogButtons.OkCancel);
-                                warningMsg.DialogClosing += (_, warningArgs) =>
+                                if (warningArgs.Result == XNADialogResult.OK)
                                 {
-                                    if (warningArgs.Result == XNADialogResult.OK)
-                                    {
-                                        dropAction(transferDialog.SelectedAmount);
-                                    }
-                                };
-                                warningMsg.ShowDialog();
-                                _goldWarningShown = true;
-                            }
-                            else
-                            {
-                                dropAction(transferDialog.SelectedAmount);
-                            }
+                                    dropAction(transferDialog.SelectedAmount);
+                                    _sfxPlayer.PlaySfx(SoundEffectID.Login);
+                                    _goldWarningShown = true;
+                                }
+                            };
+                            warningMsg.ShowDialog();
                         }
                         else
                         {
