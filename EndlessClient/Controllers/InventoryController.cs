@@ -27,7 +27,7 @@ using XNAControls;
 
 namespace EndlessClient.Controllers
 {
-    [AutoMappedType]
+    [AutoMappedType(IsSingleton = true)]
     public class InventoryController : IInventoryController
     {
         private readonly IItemActions _itemActions;
@@ -354,31 +354,26 @@ namespace EndlessClient.Controllers
                     EOResourceID.DIALOG_TRANSFER_OFFER);
             }
         }
+        
         private void DoItemDrop(EIFRecord itemData, InventoryItem inventoryItem, Action<int> dropAction,
-                        ItemTransferDialog.TransferType transferType = ItemTransferDialog.TransferType.DropItems,
-                        EOResourceID message = EOResourceID.DIALOG_TRANSFER_DROP)
+                 ItemTransferDialog.TransferType transferType = ItemTransferDialog.TransferType.DropItems,
+                 EOResourceID message = EOResourceID.DIALOG_TRANSFER_DROP)
         {
-            bool playDefaultSound = true;
-
             if (inventoryItem.Amount > 1)
             {
-                if (inventoryItem.ItemID == 1 && inventoryItem.Amount > 10000 && transferType == ItemTransferDialog.TransferType.DropItems)
-                {
-                    playDefaultSound = false;
-                }
-
                 var transferDialog = _itemTransferDialogFactory.CreateItemTransferDialog(
                     itemData.Name,
                     transferType,
                     inventoryItem.Amount,
-                    message,
-                    playDefaultSound);
-
+                    message);
+                
                 transferDialog.DialogClosing += (sender, e) =>
                 {
                     if (e.Result == XNADialogResult.OK)
                     {
-                        if (!playDefaultSound && !_goldWarningShown)
+                        var isLargeGoldItemDrop = inventoryItem.ItemID == 1 && inventoryItem.Amount > 10000 && transferType == ItemTransferDialog.TransferType.DropItems;
+
+                        if (isLargeGoldItemDrop && !_goldWarningShown)
                         {
                             var warningMsg = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.DROP_MANY_GOLD_ON_GROUND, EODialogButtons.OkCancel);
                             _sfxPlayer.PlaySfx(SoundEffectID.Login);

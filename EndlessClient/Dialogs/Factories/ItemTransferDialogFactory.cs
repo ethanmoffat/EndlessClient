@@ -5,6 +5,7 @@ using EndlessClient.Dialogs.Services;
 using EndlessClient.HUD.Chat;
 using EOLib.Graphics;
 using EOLib.Localization;
+using XNAControls;
 
 namespace EndlessClient.Dialogs.Factories
 {
@@ -33,7 +34,7 @@ namespace EndlessClient.Dialogs.Factories
             _sfxPlayer = sfxPlayer;
         }
 
-        public ItemTransferDialog CreateItemTransferDialog(string itemName, ItemTransferDialog.TransferType transferType, int totalAmount, EOResourceID message, bool playDefaultSound = true)
+        public ItemTransferDialog CreateItemTransferDialog(string itemName, ItemTransferDialog.TransferType transferType, int totalAmount, EOResourceID message)
         {
             var dlg = new ItemTransferDialog(_nativeGraphicsManager,
                 _chatTextBoxActions,
@@ -45,20 +46,19 @@ namespace EndlessClient.Dialogs.Factories
                 totalAmount,
                 message);
 
-            if (playDefaultSound)
+            dlg.DialogClosing += (sender, args) =>
             {
-                dlg.DialogClosing += (_, _) =>
+                if (args.Result == XNADialogResult.Cancel)
                 {
                     _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
-                };
-            }
-
+                }
+            };
             return dlg;
         }
     }
 
     public interface IItemTransferDialogFactory
     {
-        ItemTransferDialog CreateItemTransferDialog(string itemName, ItemTransferDialog.TransferType transferType, int totalAmount, EOResourceID message, bool playDefaultSound = true);
+        ItemTransferDialog CreateItemTransferDialog(string itemName, ItemTransferDialog.TransferType transferType, int totalAmount, EOResourceID message);
     }
 }
