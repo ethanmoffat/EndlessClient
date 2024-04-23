@@ -8,6 +8,7 @@ using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Panels;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Map;
+using EndlessClient.Audio;
 using EOLib;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Character;
@@ -26,7 +27,7 @@ using XNAControls;
 
 namespace EndlessClient.Controllers
 {
-    [AutoMappedType]
+    [AutoMappedType(IsSingleton = true)]
     public class InventoryController : IInventoryController
     {
         private readonly IItemActions _itemActions;
@@ -50,6 +51,9 @@ namespace EndlessClient.Controllers
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
         private readonly IChatRepository _chatRepository;
         private readonly ILocalizedStringFinder _localizedStringFinder;
+        private readonly ISfxPlayer _sfxPlayer;
+
+        private bool _goldWarningShown = false;
 
         public InventoryController(IItemActions itemActions,
                                    IInGameDialogActions inGameDialogActions,
@@ -71,7 +75,8 @@ namespace EndlessClient.Controllers
                                    IItemTransferDialogFactory itemTransferDialogFactory,
                                    IEOMessageBoxFactory eoMessageBoxFactory,
                                    IChatRepository chatRepository,
-                                   ILocalizedStringFinder localizedStringFinder)
+                                   ILocalizedStringFinder localizedStringFinder,
+                                   ISfxPlayer sfxPlayer)
         {
             _itemActions = itemActions;
             _inGameDialogActions = inGameDialogActions;
@@ -94,6 +99,7 @@ namespace EndlessClient.Controllers
             _eoMessageBoxFactory = eoMessageBoxFactory;
             _chatRepository = chatRepository;
             _localizedStringFinder = localizedStringFinder;
+            _sfxPlayer = sfxPlayer;
         }
 
         public void ShowPaperdollDialog()
@@ -238,7 +244,7 @@ namespace EndlessClient.Controllers
             else if (validationResult == ItemDropResult.TooFar)
             {
                 var localizedMessage = _localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_ITEM_DROP_OUT_OF_RANGE);
-                var chatData = new ChatData(ChatTab.System, "System",localizedMessage, ChatIcon.DotDotDotDot);
+                var chatData = new ChatData(ChatTab.System, "System", localizedMessage, ChatIcon.DotDotDotDot);
                 _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_ITEM_DROP_OUT_OF_RANGE);
                 _chatRepository.AllChat[ChatTab.System].Add(chatData);
             }
@@ -348,10 +354,10 @@ namespace EndlessClient.Controllers
                     EOResourceID.DIALOG_TRANSFER_OFFER);
             }
         }
-
+        
         private void DoItemDrop(EIFRecord itemData, InventoryItem inventoryItem, Action<int> dropAction,
-                                ItemTransferDialog.TransferType transferType = ItemTransferDialog.TransferType.DropItems,
-                                EOResourceID message = EOResourceID.DIALOG_TRANSFER_DROP)
+                 ItemTransferDialog.TransferType transferType = ItemTransferDialog.TransferType.DropItems,
+                 EOResourceID message = EOResourceID.DIALOG_TRANSFER_DROP)
         {
             if (inventoryItem.Amount > 1)
             {
@@ -360,17 +366,24 @@ namespace EndlessClient.Controllers
                     transferType,
                     inventoryItem.Amount,
                     message);
+                
                 transferDialog.DialogClosing += (sender, e) =>
                 {
                     if (e.Result == XNADialogResult.OK)
                     {
-                        if (inventoryItem.ItemID == 1 && transferDialog.SelectedAmount > 10000 && transferType == ItemTransferDialog.TransferType.DropItems)
+                        var isLargeGoldItemDrop = inventoryItem.ItemID == 1 && inventoryItem.Amount > 10000 && transferType == ItemTransferDialog.TransferType.DropItems;
+
+                        if (isLargeGoldItemDrop && !_goldWarningShown)
                         {
                             var warningMsg = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.DROP_MANY_GOLD_ON_GROUND, EODialogButtons.OkCancel);
+                            _sfxPlayer.PlaySfx(SoundEffectID.Login);
                             warningMsg.DialogClosing += (_, warningArgs) =>
                             {
                                 if (warningArgs.Result == XNADialogResult.OK)
+                                {
+                                    _goldWarningShown = true;
                                     dropAction(transferDialog.SelectedAmount);
+                                }
                             };
                             warningMsg.ShowDialog();
                         }

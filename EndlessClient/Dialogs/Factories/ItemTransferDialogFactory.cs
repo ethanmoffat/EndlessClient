@@ -5,6 +5,7 @@ using EndlessClient.Dialogs.Services;
 using EndlessClient.HUD.Chat;
 using EOLib.Graphics;
 using EOLib.Localization;
+using XNAControls;
 
 namespace EndlessClient.Dialogs.Factories
 {
@@ -44,7 +45,14 @@ namespace EndlessClient.Dialogs.Factories
                 transferType,
                 totalAmount,
                 message);
-            dlg.DialogClosing += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
+
+            dlg.DialogClosing += (sender, args) =>
+            {
+                if (args.Result == XNADialogResult.Cancel)
+                {
+                    _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
+                }
+            };
             return dlg;
         }
     }
