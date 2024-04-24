@@ -79,19 +79,17 @@ namespace EOLib.PacketHandlers.NPC
             }
 
             // todo: this has the potential to bug out if the opponent ID is never reset and the player dies/leaves
-            try
+            if (_currentMapStateRepository.NPCs.TryGetValue(npcIndex, out var npc))
             {
-                var npc = _currentMapStateRepository.NPCs[npcIndex];
                 var newNpc = npc.WithOpponentID(Option.Some(fromPlayerId));
                 _currentMapStateRepository.NPCs.Update(npc, newNpc);
 
                 foreach (var notifier in _npcNotifiers)
                     notifier.NPCTakeDamage(npcIndex, fromPlayerId, damageToNpc, npcPctHealth, spellId);
             }
-            catch (InvalidOperationException)
+            else
             {
                 _currentMapStateRepository.UnknownNPCIndexes.Add(npcIndex);
-                return true;
             }
 
             spellId.MatchSome(_ =>
