@@ -20,6 +20,7 @@ namespace EOLib.PacketHandlers.Avatar
         private readonly ICharacterRepository _characterRepository;
 
         public override PacketFamily Family => PacketFamily.Avatar;
+        
         public override PacketAction Action => PacketAction.Reply;
 
         public AvatarReplyHandler(IPlayerInfoProvider playerInfoProvider,
