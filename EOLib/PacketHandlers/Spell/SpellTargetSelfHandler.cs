@@ -41,8 +41,6 @@ namespace EOLib.PacketHandlers.Spell
                 //main player was source of this packet (otherwise, other player was source)
                 var characterHP = packet.ReadShort();
                 var characterTP = packet.ReadShort();
-                if (packet.ReadShort() != 1) //malformed packet! eoserv sends '1' here
-                    return false;
 
                 var stats = _characterRepository.MainCharacter.Stats;
                 stats = stats.WithNewStat(CharacterStat.HP, characterHP)
