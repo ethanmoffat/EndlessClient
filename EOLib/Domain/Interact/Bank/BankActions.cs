@@ -9,15 +9,19 @@ namespace EOLib.Domain.Interact.Bank
     {
         private readonly IPacketSendService _packetSendService;
 
-        public BankActions(IPacketSendService packetSendService)
+        private readonly IBankDataProvider _bankDataProvider;
+
+        public BankActions(IPacketSendService packetSendService, IBankDataProvider bankDataProvider)
         {
             _packetSendService = packetSendService;
+            _bankDataProvider = bankDataProvider;
         }
 
         public void Deposit(int amount)
         {
             var packet = new PacketBuilder(PacketFamily.Bank, PacketAction.Add)
                 .AddInt(amount)
+                .AddThree(_bankDataProvider.SessionID)
                 .Build();
 
             _packetSendService.SendPacket(packet);
@@ -27,6 +31,7 @@ namespace EOLib.Domain.Interact.Bank
         {
             var packet = new PacketBuilder(PacketFamily.Bank, PacketAction.Take)
                 .AddInt(amount)
+                .AddThree(_bankDataProvider.SessionID)
                 .Build();
 
             _packetSendService.SendPacket(packet);
