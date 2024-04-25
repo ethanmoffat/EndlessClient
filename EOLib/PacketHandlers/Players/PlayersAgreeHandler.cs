@@ -18,6 +18,7 @@ namespace EOLib.PacketHandlers.Players
     [AutoMappedType]
     public class PlayersAgreeHandler : InGameOnlyPacketHandler
     {
+        private readonly IPacketTranslator<PlayersAgreeData> _playersAgreeTranslator;
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _mapStateRepository;
         private readonly ICharacterFromPacketFactory _characterFromPacketFactory;
@@ -33,7 +34,8 @@ namespace EOLib.PacketHandlers.Players
                                      ICurrentMapStateRepository mapStateRepository,
                                      ICharacterFromPacketFactory characterFromPacketFactory,
                                      IEIFFileProvider eifFileProvider,
-                                     IEnumerable<IEffectNotifier> effectNotifiers)
+                                     IEnumerable<IEffectNotifier> effectNotifiers,
+                                     IPacketTranslator<PlayersAgreeData> playersAgreeTranslator)
             : base(playerInfoProvider)
         {
             _characterRepository = characterRepository;
@@ -41,29 +43,13 @@ namespace EOLib.PacketHandlers.Players
             _characterFromPacketFactory = characterFromPacketFactory;
             _eifFileProvider = eifFileProvider;
             _effectNotifiers = effectNotifiers;
+            _playersAgreeTranslator = playersAgreeTranslator;
         }
 
         public override bool HandlePacket(IPacket packet)
         {
-            if (packet.ReadByte() != 255)
-                throw new MalformedPacketException("Missing 255 header byte for player enter map handler", packet);
-
-            var character = _characterFromPacketFactory.CreateCharacter(packet);
-
-            if (packet.PeekByte() != 255) // next byte was the warp animation: sent on Map::Enter in eoserv
-            {
-                var anim = (WarpAnimation)packet.ReadChar();
-
-                foreach (var notifier in _effectNotifiers)
-                    notifier.NotifyWarpEnterEffect(character.ID, anim);
-            }
-
-            if (packet.ReadByte() != 255)
-                throw new MalformedPacketException("Missing 255 byte after the warp animation for player enter map handler", packet);
-
-            // 0 for NPC, 1 for player. In eoserv it is never 0.
-            if (packet.ReadChar() != 1)
-                throw new MalformedPacketException("Missing '1' char after warp animation for player enter map handler. Are you using a non-standard version of EOSERV?", packet);
+            var data = _playersAgreeTranslator.TranslatePacket(packet);
+            var character = data.Characters[0];
 
             if (_characterRepository.MainCharacter.ID == character.ID)
             {
