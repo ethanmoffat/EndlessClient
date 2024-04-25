@@ -29,7 +29,7 @@ namespace EOLib.PacketHandlers.Shop
 
         public override bool HandlePacket(IPacket packet)
         {
-            _shopDataRepository.ShopID = packet.ReadShort();
+            _shopDataRepository.SessionID = packet.ReadShort();
             _shopDataRepository.ShopName = packet.ReadBreakString();
 
             var tradeItems = new List<IShopItem>();

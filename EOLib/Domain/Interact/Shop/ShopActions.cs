@@ -9,9 +9,12 @@ namespace EOLib.Domain.Interact.Shop
     {
         private readonly IPacketSendService _packetSendService;
 
-        public ShopActions(IPacketSendService packetSendService)
+        private readonly IShopDataProvider _shopDataProvider;
+
+        public ShopActions(IPacketSendService packetSendService, IShopDataProvider shopDataProvider)
         {
             _packetSendService = packetSendService;
+            _shopDataProvider = shopDataProvider;
         }
 
         public void BuyItem(int itemId, int amount)
@@ -19,6 +22,7 @@ namespace EOLib.Domain.Interact.Shop
             var packet = new PacketBuilder(PacketFamily.Shop, PacketAction.Buy)
                 .AddShort(itemId)
                 .AddInt(amount)
+                .AddInt(_shopDataProvider.SessionID)
                 .Build();
 
             _packetSendService.SendPacket(packet);
@@ -29,6 +33,7 @@ namespace EOLib.Domain.Interact.Shop
             var packet = new PacketBuilder(PacketFamily.Shop, PacketAction.Sell)
                 .AddShort(itemId)
                 .AddInt(amount)
+                .AddInt(_shopDataProvider.SessionID)
                 .Build();
 
             _packetSendService.SendPacket(packet);
@@ -38,6 +43,7 @@ namespace EOLib.Domain.Interact.Shop
         {
             var packet = new PacketBuilder(PacketFamily.Shop, PacketAction.Create)
                 .AddShort(itemId)
+                .AddInt(_shopDataProvider.SessionID)
                 .Build();
 
             _packetSendService.SendPacket(packet);

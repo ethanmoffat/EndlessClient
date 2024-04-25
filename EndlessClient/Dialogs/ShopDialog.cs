@@ -42,7 +42,7 @@ namespace EndlessClient.Dialogs
 
         private ShopState _state;
 
-        private Option<int> _cachedShopId;
+        private Option<int> _cachedSessionID;
         private HashSet<InventoryItem> _cachedInventory;
         private ulong _tick;
 
@@ -81,12 +81,12 @@ namespace EndlessClient.Dialogs
 
         protected override void OnUpdateControl(GameTime gameTime)
         {
-            _cachedShopId.MatchNone(() =>
+            _cachedSessionID.MatchNone(() =>
             {
-                _shopDataProvider.ShopID.SomeWhen(x => x > 0)
+                _shopDataProvider.SessionID.SomeWhen(x => x > 0)
                     .MatchSome(x =>
                     {
-                        _cachedShopId = Option.Some(_shopDataProvider.ShopID);
+                        _cachedSessionID = Option.Some(_shopDataProvider.SessionID);
 
                         Title = _shopDataProvider.ShopName;
 
