@@ -3,7 +3,6 @@ using EndlessClient.Dialogs.Actions;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering;
 using EOLib.Domain;
-using EOLib.Domain.Protocol;
 using EOLib.Net.Communication;
 using EOLib.Net.Connection;
 using EOLib.Net.PacketProcessing;
@@ -12,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace EndlessClient.Controllers
 {
-    [MappedType(BaseType = typeof(IMainButtonController))]
+    [AutoMappedType]
     public class MainButtonController : IMainButtonController
     {
         private readonly INetworkConnectionActions _networkConnectionActions;

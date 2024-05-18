@@ -1,6 +1,8 @@
 using Amadevus.RecordGenerator;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Spells;
+using Moffat.EndlessOnline.SDK.Protocol;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOLib.Domain.Character
 {
@@ -48,5 +50,43 @@ namespace EOLib.Domain.Character
         public int MapID { get; }
 
         public bool NoWall { get; }
+
+        public static Character FromCharacterSelectionListEntry(CharacterSelectionListEntry selectionListEntry)
+        {
+            return new Builder
+            {
+                Name = selectionListEntry.Name,
+                ID = selectionListEntry.Id,
+                Stats = new CharacterStats()
+                    .WithNewStat(CharacterStat.Level, selectionListEntry.Level),
+                RenderProperties = new CharacterRenderProperties.Builder
+                {
+                    Gender = (int)selectionListEntry.Gender,
+                    HairStyle = selectionListEntry.HairStyle,
+                    HairColor = selectionListEntry.HairColor,
+                    Race = selectionListEntry.Skin,
+                    BootsGraphic = selectionListEntry.Equipment.Boots,
+                    ArmorGraphic = selectionListEntry.Equipment.Armor,
+                    HatGraphic = selectionListEntry.Equipment.Hat,
+                    ShieldGraphic = selectionListEntry.Equipment.Shield,
+                    WeaponGraphic = selectionListEntry.Equipment.Weapon,
+                }.ToImmutable(),
+                AdminLevel = selectionListEntry.Admin,
+            }.ToImmutable();
+        }
+
+        public static Character FromNearby(CharacterMapInfo characterMapInfo)
+        {
+            return new Builder
+            {
+                Name = characterMapInfo.Name,
+                ID = characterMapInfo.PlayerId,
+                ClassID = characterMapInfo.ClassId,
+                MapID = characterMapInfo.MapId,
+                GuildTag = characterMapInfo.GuildTag,
+                Stats = CharacterStats.FromCharacterMapInfo(characterMapInfo),
+                RenderProperties = CharacterRenderProperties.FromCharacterMapInfo(characterMapInfo),
+            }.ToImmutable();
+        }
     }
 }

@@ -1,12 +1,13 @@
 ﻿using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
 
 namespace EOLib.PacketHandlers.Chat
 {
-    public abstract class PlayerChatByIDHandler : InGameOnlyPacketHandler
+    public abstract class PlayerChatByIDHandler<TPacket> : InGameOnlyPacketHandler<TPacket>
+        where TPacket : IPacket
     {
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly ICharacterProvider _characterProvider;
@@ -22,9 +23,8 @@ namespace EOLib.PacketHandlers.Chat
             _characterProvider = characterProvider;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        protected bool Handle(TPacket packet, int fromPlayerID)
         {
-            var fromPlayerID = packet.ReadShort();
             if (!_currentMapStateProvider.Characters.TryGetValue(fromPlayerID, out var character) &&
                 _characterProvider.MainCharacter.ID != fromPlayerID)
             {
@@ -40,6 +40,6 @@ namespace EOLib.PacketHandlers.Chat
             return true;
         }
 
-        protected abstract void DoTalk(IPacket packet, Character character);
+        protected abstract void DoTalk(TPacket packet, Character character);
     }
 }

@@ -1,16 +1,16 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Interact;
-using EOLib.Domain.Interact.Law;
 using EOLib.Domain.Login;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Marriage
 {
     [AutoMappedType]
-    public class MarriageReplyHandler : InGameOnlyPacketHandler
+    public class MarriageReplyHandler : InGameOnlyPacketHandler<MarriageReplyServerPacket>
     {
         private readonly ICharacterInventoryRepository _characterInventoryRepository;
         private readonly IEnumerable<INPCInteractionNotifier> _npcInteractionNotifiers;
@@ -28,20 +28,17 @@ namespace EOLib.PacketHandlers.Marriage
             _npcInteractionNotifiers = npcInteractionNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(MarriageReplyServerPacket packet)
         {
-            var replyCode = (MarriageReply)packet.ReadShort();
-
-            if (replyCode == MarriageReply.Success)
+            if (packet.ReplyCode == MarriageReply.Success)
             {
-                var goldAmount = packet.ReadInt();
-
+                var data = (MarriageReplyServerPacket.ReplyCodeDataSuccess)packet.ReplyCodeData;
                 _characterInventoryRepository.ItemInventory.RemoveWhere(x => x.ItemID == 1);
-                _characterInventoryRepository.ItemInventory.Add(new InventoryItem(1, goldAmount));
+                _characterInventoryRepository.ItemInventory.Add(new InventoryItem(1, data.GoldAmount));
             }
 
             foreach (var notifier in _npcInteractionNotifiers)
-                notifier.NotifyMarriageReply(replyCode);
+                notifier.NotifyMarriageReply(packet.ReplyCode);
 
             return true;
         }

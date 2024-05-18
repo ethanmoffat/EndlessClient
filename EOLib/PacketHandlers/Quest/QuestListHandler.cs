@@ -1,14 +1,15 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Interact.Quest;
 using EOLib.Domain.Login;
-using EOLib.Net;
 using EOLib.Net.Handlers;
-using System.Collections.Generic;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using System.Linq;
 
 namespace EOLib.PacketHandlers.Quest
 {
     [AutoMappedType]
-    public class QuestListHandler : InGameOnlyPacketHandler
+    public class QuestListHandler : InGameOnlyPacketHandler<QuestListServerPacket>
     {
         private readonly IQuestDataRepository _questDataRepository;
 
@@ -23,49 +24,26 @@ namespace EOLib.PacketHandlers.Quest
             _questDataRepository = questDataRepository;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(QuestListServerPacket packet)
         {
-            var page = (QuestPage)packet.ReadChar();
-            var numQuests = packet.ReadShort();
-
-            switch (page)
+            switch (packet.Page)
             {
                 case QuestPage.Progress:
-                    {
-                        var progress = new List<QuestProgressData>(numQuests);
-
-                        for (int i = 0; packet.ReadPosition < packet.Length && i < numQuests; i++)
-                        {
-                            var progressData = new QuestProgressData.Builder
-                            { 
-                                Name = packet.ReadBreakString(),
-                                Description = packet.ReadBreakString(),
-                                Icon = (BookIcon)packet.ReadShort(),
-                                Progress = packet.ReadShort(),
-                                Target = packet.ReadShort(),
-                            };
-
-                            progress.Add(progressData.ToImmutable());
-
-                            if (packet.ReadByte() != 255)
-                                return false;
-                        }
-
-                        _questDataRepository.QuestProgress = progress;
-                    }
+                    _questDataRepository.QuestProgress = ((QuestListServerPacket.PageDataProgress)packet.PageData)
+                        .QuestProgressEntries
+                        .Select(x => new QuestProgressData.Builder
+                            {
+                                Name = x.Name,
+                                Description = x.Description,
+                                Icon = x.Icon,
+                                Progress = x.Progress,
+                                Target = x.Target,
+                            }.ToImmutable())
+                        .ToList();
                     break;
                 case QuestPage.History:
-                    {
-                        var completedQuests = new List<string>(numQuests);
-
-                        for (int i = 0; packet.ReadPosition < packet.Length && i < numQuests; i++)
-                            completedQuests.Add(packet.ReadBreakString());
-
-                        _questDataRepository.QuestHistory = completedQuests;
-                    }
+                    _questDataRepository.QuestHistory = ((QuestListServerPacket.PageDataHistory)packet.PageData).CompletedQuests;
                     break;
-                default:
-                    return false;
             }
 
             return true;

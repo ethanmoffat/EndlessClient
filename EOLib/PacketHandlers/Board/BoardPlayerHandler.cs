@@ -1,8 +1,9 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Interact.Board;
 using EOLib.Domain.Login;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
 
 namespace EOLib.PacketHandlers.Board
@@ -11,7 +12,7 @@ namespace EOLib.PacketHandlers.Board
     /// Sent by the server to read a post on a board
     /// </summary>
     [AutoMappedType]
-    public class BoardPlayerHandler : InGameOnlyPacketHandler
+    public class BoardPlayerHandler : InGameOnlyPacketHandler<BoardPlayerServerPacket>
     {
         private readonly IBoardRepository _boardRepository;
 
@@ -26,17 +27,14 @@ namespace EOLib.PacketHandlers.Board
             _boardRepository = boardRepository;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(BoardPlayerServerPacket packet)
         {
-            var postId = packet.ReadShort();
-            var message = packet.ReadEndString();
-
             _boardRepository.ActivePost.MatchSome(post =>
             {
-                if (post.PostId == postId)
+                if (post.PostId == packet.PostId)
                 {
                     // EndlessClient uses \n as line split, vanilla client uses \r
-                    _boardRepository.ActivePostMessage = Option.Some(message.Replace('\r', '\n'));
+                    _boardRepository.ActivePostMessage = Option.Some(packet.PostBody.Replace('\r', '\n'));
                 }
             });
 

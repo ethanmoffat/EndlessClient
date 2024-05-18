@@ -1,52 +1,49 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Online;
-using EOLib.Domain.Protocol;
 using EOLib.IO.Repositories;
-using EOLib.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace EOLib.PacketHandlers.Init
 {
     [AutoMappedType]
-    public class OnlinePlayerListHandler : BasePlayersListHandler
+    public class OnlinePlayerListHandler : BaseInGameInitPacketHandler<InitInitServerPacket.ReplyCodeDataPlayersList>
     {
+        private readonly IOnlinePlayerRepository _onlinePlayerRepository;
         private readonly IECFFileProvider _classFileProvider;
 
-        public override InitReply Reply => InitReply.AllPlayersList;
+        public override InitReply Reply => InitReply.PlayersList;
 
         public OnlinePlayerListHandler(IOnlinePlayerRepository onlinePlayerRepository,
                                        IECFFileProvider classFileProvider)
-            : base(onlinePlayerRepository)
         {
+            _onlinePlayerRepository = onlinePlayerRepository;
             _classFileProvider = classFileProvider;
         }
 
-        protected override OnlinePlayerInfo GetNextRecord(IPacket packet)
+        public override bool HandleData(InitInitServerPacket.ReplyCodeDataPlayersList packet)
         {
-            string name = packet.ReadBreakString();
+            _onlinePlayerRepository.OnlinePlayers = new HashSet<OnlinePlayerInfo>(packet.PlayersList.Players.Select(x =>
+            {
+                var name = char.ToUpper(x.Name[0]) + x.Name.Substring(1);
+                var title = string.IsNullOrEmpty(x.Title)
+                    ? "-"
+                    : char.ToUpper(x.Title[0]) + x.Title.Substring(1);
 
-            var title = packet.ReadBreakString();
-            if (packet.ReadChar() != 0)
-                throw new MalformedPacketException("Expected 0 char after online entry title", packet);
+                var className = _classFileProvider.ECFFile.Length < x.ClassId || x.ClassId == 0
+                    ? "-"
+                    : _classFileProvider.ECFFile[x.ClassId].Name;
 
-            var iconType = (OnlineIcon)packet.ReadChar();
-            int clsId = packet.ReadChar();
-            var guild = packet.ReadBreakString();
+                var guild = string.IsNullOrWhiteSpace(x.GuildTag)
+                    ? "-"
+                    : x.GuildTag;
 
-            name = char.ToUpper(name[0]) + name.Substring(1);
+                return new OnlinePlayerInfo(name, title, guild, className, x.Icon);
 
-            if (string.IsNullOrWhiteSpace(title))
-                title = "-";
-            else
-                title = char.ToUpper(title[0]) + title.Substring(1);
+            }));
 
-            var className = _classFileProvider.ECFFile.Length >= clsId && clsId != 0
-                ? _classFileProvider.ECFFile[clsId].Name
-                : "-";
-
-            if (string.IsNullOrWhiteSpace(guild))
-                guild = "-";
-
-            return new OnlinePlayerInfo(name, title, guild, className, iconType);
+            return true;
         }
     }
 }

@@ -1,14 +1,21 @@
-﻿using System;
+﻿using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using System;
 
 namespace EOLib.Domain.Map
 {
-    public struct MapCoordinate : IComparable<MapCoordinate>
+    public readonly struct MapCoordinate : IComparable<MapCoordinate>
     {
         public static MapCoordinate Zero { get; } = new MapCoordinate(0, 0);
 
         public int X { get; }
 
         public int Y { get; }
+
+        public MapCoordinate(BigCoords coords)
+        {
+            X = coords.X;
+            Y = coords.Y;
+        }
 
         public MapCoordinate(int x, int y)
         {

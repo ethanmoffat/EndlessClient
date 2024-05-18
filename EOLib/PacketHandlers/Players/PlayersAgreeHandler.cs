@@ -4,11 +4,11 @@ using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.IO.Repositories;
-using EOLib.Net;
 using EOLib.Net.Handlers;
-using EOLib.Net.Translators;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace EOLib.PacketHandlers.Players
 {
@@ -16,12 +16,10 @@ namespace EOLib.PacketHandlers.Players
     /// Sent when a player is entering the map
     /// </summary>
     [AutoMappedType]
-    public class PlayersAgreeHandler : InGameOnlyPacketHandler
+    public class PlayersAgreeHandler : InGameOnlyPacketHandler<PlayersAgreeServerPacket>
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _mapStateRepository;
-        private readonly ICharacterFromPacketFactory _characterFromPacketFactory;
-        private readonly IEIFFileProvider _eifFileProvider;
         private readonly IEnumerable<IEffectNotifier> _effectNotifiers;
 
         public override PacketFamily Family => PacketFamily.Players;
@@ -29,55 +27,66 @@ namespace EOLib.PacketHandlers.Players
         public override PacketAction Action => PacketAction.Agree;
 
         public PlayersAgreeHandler(IPlayerInfoProvider playerInfoProvider,
-                                     ICharacterRepository characterRepository,
-                                     ICurrentMapStateRepository mapStateRepository,
-                                     ICharacterFromPacketFactory characterFromPacketFactory,
-                                     IEIFFileProvider eifFileProvider,
-                                     IEnumerable<IEffectNotifier> effectNotifiers)
+                                   ICharacterRepository characterRepository,
+                                   ICurrentMapStateRepository mapStateRepository,
+                                   IEnumerable<IEffectNotifier> effectNotifiers)
             : base(playerInfoProvider)
         {
             _characterRepository = characterRepository;
             _mapStateRepository = mapStateRepository;
-            _characterFromPacketFactory = characterFromPacketFactory;
-            _eifFileProvider = eifFileProvider;
             _effectNotifiers = effectNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(PlayersAgreeServerPacket packet)
         {
-            if (packet.ReadByte() != 255)
-                throw new MalformedPacketException("Missing 255 header byte for player enter map handler", packet);
-
-            var character = _characterFromPacketFactory.CreateCharacter(packet);
-
-            if (packet.PeekByte() != 255) // next byte was the warp animation: sent on Map::Enter in eoserv
+            foreach (var charInfo in packet.Nearby.Characters.Where(x => x.ByteSize >= 42))
             {
-                var anim = (WarpAnimation)packet.ReadChar();
+                var character = Character.FromNearby(charInfo);
 
-                foreach (var notifier in _effectNotifiers)
-                    notifier.NotifyWarpEnterEffect(character.ID, anim);
+                if (charInfo.WarpEffect.HasValue)
+                {
+                    foreach (var notifier in _effectNotifiers)
+                        notifier.NotifyWarpEnterEffect(character.ID, charInfo.WarpEffect.Value);
+                }
+
+                if (_characterRepository.MainCharacter.ID == character.ID)
+                {
+                    var existingCharacter = _characterRepository.MainCharacter;
+                    _characterRepository.MainCharacter = existingCharacter.WithAppliedData(character);
+                    _characterRepository.HasAvatar = true;
+                }
+                else if (_mapStateRepository.Characters.TryGetValue(character.ID, out var existingCharacter))
+                {
+                    _mapStateRepository.Characters.Update(existingCharacter, existingCharacter.WithAppliedData(character));
+                }
+                else
+                {
+                    _mapStateRepository.Characters.Add(character);
+                }
             }
 
-            if (packet.ReadByte() != 255)
-                throw new MalformedPacketException("Missing 255 byte after the warp animation for player enter map handler", packet);
-
-            // 0 for NPC, 1 for player. In eoserv it is never 0.
-            if (packet.ReadChar() != 1)
-                throw new MalformedPacketException("Missing '1' char after warp animation for player enter map handler. Are you using a non-standard version of EOSERV?", packet);
-
-            if (_characterRepository.MainCharacter.ID == character.ID)
+            foreach (var npc in packet.Nearby.Npcs.Select(Domain.NPC.NPC.FromNearby))
             {
-                var existingCharacter = _characterRepository.MainCharacter;
-                _characterRepository.MainCharacter = existingCharacter.WithAppliedData(character);
-                _characterRepository.HasAvatar = true;
+                if (_mapStateRepository.NPCs.TryGetValue(npc.Index, out var existing))
+                {
+                    _mapStateRepository.NPCs.Update(existing, npc);
+                }
+                else
+                {
+                    _mapStateRepository.NPCs.Add(npc);
+                }
             }
-            else if (_mapStateRepository.Characters.TryGetValue(character.ID, out var existingCharacter))
+
+            foreach (var item in packet.Nearby.Items.Select(MapItem.FromNearby))
             {
-                _mapStateRepository.Characters.Update(existingCharacter, existingCharacter.WithAppliedData(character));
-            }
-            else
-            {
-                _mapStateRepository.Characters.Add(character);
+                if (_mapStateRepository.MapItems.TryGetValue(item.UniqueID, out var existing))
+                {
+                    _mapStateRepository.MapItems.Update(existing, item);
+                }
+                else
+                {
+                    _mapStateRepository.MapItems.Add(item);
+                }
             }
 
             return true;

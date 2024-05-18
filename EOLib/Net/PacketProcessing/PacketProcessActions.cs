@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using AutomaticTypeMapper;
+using Moffat.EndlessOnline.SDK.Data;
 using EOLib.Logger;
+using Moffat.EndlessOnline.SDK.Packet;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
 
 namespace EOLib.Net.PacketProcessing
 {
@@ -9,7 +11,6 @@ namespace EOLib.Net.PacketProcessing
     public class PacketProcessActions : IPacketProcessActions
     {
         private readonly IPacketEncoderService _encoderService;
-        private readonly IPacketSequenceService _sequenceService;
         private readonly ILoggerProvider _loggerProvider;
         private readonly IPacketEncoderRepository _encoderRepository;
         private readonly ISequenceRepository _sequenceRepository;
@@ -17,27 +18,18 @@ namespace EOLib.Net.PacketProcessing
         public PacketProcessActions(ISequenceRepository sequenceNumberRepository,
                                     IPacketEncoderRepository encoderRepository,
                                     IPacketEncoderService encoderService,
-                                    IPacketSequenceService sequenceService,
                                     ILoggerProvider loggerProvider)
         {
             _sequenceRepository = sequenceNumberRepository;
             _encoderRepository = encoderRepository;
 
             _encoderService = encoderService;
-            _sequenceService = sequenceService;
             _loggerProvider = loggerProvider;
         }
 
-        public void SetInitialSequenceNumber(int seq1, int seq2)
+        public void SetSequenceStart(ISequenceStart sequenceStart)
         {
-            var initialSequence = _sequenceService.CalculateInitialSequenceNumber(seq1, seq2);
-            _sequenceRepository.SequenceStart = initialSequence;
-        }
-
-        public void SetUpdatedBaseSequenceNumber(int seq1, int seq2)
-        {
-            var updatedSequence = _sequenceService.CalculateNewInitialSequenceNumber(seq1, seq2);
-            _sequenceRepository.SequenceStart = updatedSequence;
+            _sequenceRepository.Sequencer = _sequenceRepository.Sequencer.WithSequenceStart(sequenceStart);
         }
 
         public void SetEncodeMultiples(int emulti_d, int emulti_e)
@@ -51,40 +43,35 @@ namespace EOLib.Net.PacketProcessing
 
         public byte[] EncodePacket(IPacket pkt)
         {
-            var seq = CalculateNextSequenceNumber();
-            pkt = _encoderService.AddSequenceNumber(pkt, seq);
-
-            var data = _encoderService.Encode(pkt, _encoderRepository.SendMultiplier);
-            data = _encoderService.PrependLengthBytes(data);
-
-            return data;
+            var seq = _sequenceRepository.Sequencer.NextSequence();
+            var data = _encoderService.Encode(pkt, _encoderRepository.SendMultiplier, seq);
+            return PrependLengthBytes(data);
         }
 
         public byte[] EncodeRawPacket(IPacket pkt)
         {
-            return _encoderService.PrependLengthBytes(pkt.RawData.ToArray());
+            var eoWriter = new EoWriter();
+            pkt.Serialize(eoWriter);
+            return PrependLengthBytes(eoWriter.ToByteArray());
         }
 
-        public IPacket DecodeData(IEnumerable<byte> rawData)
+        public IPacket DecodeData(byte[] rawData)
         {
             return _encoderService.Decode(rawData, _encoderRepository.ReceiveMultiplier);
         }
 
-        private int CalculateNextSequenceNumber()
+        private static byte[] PrependLengthBytes(byte[] data)
         {
-            var oldSequenceIncrement = _sequenceRepository.SequenceIncrement;
-            var sequenceStart = _sequenceRepository.SequenceStart;
-
-            _sequenceRepository.SequenceIncrement = _sequenceService.CalculateNextSequenceIncrement(oldSequenceIncrement);
-            return _sequenceService.CalculateNextSequenceNumber(sequenceStart, _sequenceRepository.SequenceIncrement);
+            var newArray = new byte[data.Length + 2];
+            Array.Copy(NumberEncoder.EncodeNumber(data.Length), newArray, 2);
+            Array.Copy(data, 0, newArray, 2, data.Length);
+            return newArray;
         }
     }
 
     public interface IPacketProcessActions
     {
-        void SetInitialSequenceNumber(int seq1, int seq2);
-
-        void SetUpdatedBaseSequenceNumber(int seq1, int seq2);
+        void SetSequenceStart(ISequenceStart sequenceStart);
 
         void SetEncodeMultiples(int emulti_d, int emulti_e);
 
@@ -92,6 +79,6 @@ namespace EOLib.Net.PacketProcessing
 
         byte[] EncodeRawPacket(IPacket pkt);
 
-        IPacket DecodeData(IEnumerable<byte> rawData);
+        IPacket DecodeData(byte[] rawData);
     }
 }

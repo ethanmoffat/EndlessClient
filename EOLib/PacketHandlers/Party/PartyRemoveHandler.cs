@@ -2,8 +2,9 @@
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
 using EOLib.Domain.Party;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional.Collections;
 using System.Collections.Generic;
 
@@ -13,7 +14,7 @@ namespace EOLib.PacketHandlers.Party
     /// Handles removing a member from the party
     /// </summary>
     [AutoMappedType]
-    public class PartyRemoveHandler : InGameOnlyPacketHandler
+    public class PartyRemoveHandler : InGameOnlyPacketHandler<PartyRemoveServerPacket>
     {
         private readonly IPartyDataRepository _partyDataRepository;
         private readonly IEnumerable<IPartyEventNotifier> _partyEventNotifiers;
@@ -31,11 +32,9 @@ namespace EOLib.PacketHandlers.Party
             _partyEventNotifiers = partyEventNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(PartyRemoveServerPacket packet)
         {
-            var memberToRemove = packet.ReadShort();
-
-            _partyDataRepository.Members.SingleOrNone(x => x.CharacterID == memberToRemove)
+            _partyDataRepository.Members.SingleOrNone(x => x.CharacterID == packet.PlayerId)
                 .MatchSome(x =>
                 {
                     _partyDataRepository.Members.Remove(x);

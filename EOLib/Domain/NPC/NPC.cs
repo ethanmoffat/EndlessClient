@@ -1,5 +1,6 @@
 ﻿using Amadevus.RecordGenerator;
 using EOLib.Domain.Spells;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
 
 namespace EOLib.Domain.NPC
@@ -22,5 +23,17 @@ namespace EOLib.Domain.NPC
         public int ActualAttackFrame { get; }
 
         public Option<int> OpponentID { get; }
+
+        public static NPC FromNearby(NpcMapInfo npcMapInfo)
+        {
+            return new Builder
+            {
+                ID = npcMapInfo.Id,
+                Index = npcMapInfo.Index,
+                X = npcMapInfo.Coords.X,
+                Y = npcMapInfo.Coords.Y,
+                Direction = (EODirection)npcMapInfo.Direction,
+            }.ToImmutable();
+        }
     }
 }

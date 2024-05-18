@@ -1,16 +1,15 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Interact;
-using EOLib.Domain.Interact.Priest;
 using EOLib.Domain.Login;
-using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Priest
 {
     [AutoMappedType]
-    public class PriestReplyHandler : InGameOnlyPacketHandler
+    public class PriestReplyHandler : InGameOnlyPacketHandler<PriestReplyServerPacket>
     {
         private readonly IEnumerable<INPCInteractionNotifier> _npcInteractionNotifiers;
 
@@ -25,12 +24,10 @@ namespace EOLib.PacketHandlers.Priest
             _npcInteractionNotifiers = npcInteractionNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(PriestReplyServerPacket packet)
         {
-            var replyCode = (PriestReply)packet.ReadShort();
-
             foreach (var notifier in _npcInteractionNotifiers)
-                notifier.NotifyPriestReply(replyCode);
+                notifier.NotifyPriestReply(packet.ReplyCode);
 
             return true;
         }

@@ -1,8 +1,9 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Party;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOLib.PacketHandlers.Party
 {
@@ -10,7 +11,7 @@ namespace EOLib.PacketHandlers.Party
     /// Handles leaving (or being removed from) a party
     /// </summary>
     [AutoMappedType]
-    public class PartyCloseHandler : InGameOnlyPacketHandler
+    public class PartyCloseHandler : InGameOnlyPacketHandler<PartyCloseServerPacket>
     {
         private readonly IPartyDataRepository _partyDataRepository;
 
@@ -25,10 +26,10 @@ namespace EOLib.PacketHandlers.Party
             _partyDataRepository = partyDataRepository;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(PartyCloseServerPacket packet)
         {
             _partyDataRepository.Members.Clear();
-            return packet.ReadByte() == 255;
+            return true;
         }
     }
 }

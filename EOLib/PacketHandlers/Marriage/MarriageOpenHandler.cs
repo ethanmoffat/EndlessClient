@@ -2,14 +2,15 @@
 using EOLib.Domain.Interact;
 using EOLib.Domain.Interact.Law;
 using EOLib.Domain.Login;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Marriage
 {
     [AutoMappedType]
-    public class MarriageOpenHandler : InGameOnlyPacketHandler
+    public class MarriageOpenHandler : InGameOnlyPacketHandler<MarriageOpenServerPacket>
     {
         private readonly ILawSessionRepository _lawSessionRepository;
         private readonly IEnumerable<INPCInteractionNotifier> _npcInteractionNotifiers;
@@ -27,9 +28,9 @@ namespace EOLib.PacketHandlers.Marriage
             _npcInteractionNotifiers = npcInteractionNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(MarriageOpenServerPacket packet)
         {
-            _lawSessionRepository.SessionID = packet.ReadThree();
+            _lawSessionRepository.SessionID = packet.SessionId;
 
             foreach (var notifier in _npcInteractionNotifiers)
                 notifier.NotifyInteractionFromNPC(IO.NPCType.Law);

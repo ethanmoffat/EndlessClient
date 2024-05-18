@@ -1,4 +1,6 @@
 ﻿using Amadevus.RecordGenerator;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using NetSitState = Moffat.EndlessOnline.SDK.Protocol.Net.Server.SitState;
 
 namespace EOLib.Domain.Character
 {
@@ -40,5 +42,29 @@ namespace EOLib.Domain.Character
         public bool IsHidden { get; }
         public bool IsDead { get; }
         public bool IsDrunk { get; }
+
+        public static CharacterRenderProperties FromCharacterMapInfo(CharacterMapInfo characterMapInfo)
+        {
+            return new Builder
+            {
+                Direction = (EODirection)characterMapInfo.Direction,
+                Gender = (int)characterMapInfo.Gender,
+                HairStyle = characterMapInfo.HairStyle,
+                HairColor = characterMapInfo.HairColor,
+                Race = characterMapInfo.Skin,
+                BootsGraphic = characterMapInfo.Equipment.Boots,
+                ArmorGraphic = characterMapInfo.Equipment.Armor,
+                HatGraphic = characterMapInfo.Equipment.Hat,
+                ShieldGraphic = characterMapInfo.Equipment.Shield,
+                WeaponGraphic = characterMapInfo.Equipment.Weapon,
+                SitState = (SitState)characterMapInfo.SitState,
+                CurrentAction = characterMapInfo.SitState == NetSitState.Stand
+                    ? CharacterActionState.Standing
+                    : CharacterActionState.Sitting,
+                IsHidden = characterMapInfo.Invisible,
+                MapX = characterMapInfo.Coords.X,
+                MapY = characterMapInfo.Coords.Y
+            }.ToImmutable();
+        }
     }
 }

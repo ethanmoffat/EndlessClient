@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using AutomaticTypeMapper;
-using EOLib.Domain.Chat;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
 using EOLib.Domain.Protocol;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Commands
 {
@@ -14,10 +13,9 @@ namespace EOLib.PacketHandlers.Commands
     /// Handles MESSAGE_PONG packets which are in response to a #ping command request
     /// </summary>
     [AutoMappedType]
-    public class PingResponseHandler : InGameOnlyPacketHandler
+    public class PingResponseHandler : InGameOnlyPacketHandler<MessagePongServerPacket>
     {
         private readonly IPingTimeRepository _pingTimeRepository;
-        private readonly IChatRepository _chatRepository;
         private readonly IEnumerable<IChatEventNotifier> _chatEventNotifiers;
 
         public override PacketFamily Family => PacketFamily.Message;
@@ -26,27 +24,20 @@ namespace EOLib.PacketHandlers.Commands
 
         public PingResponseHandler(IPlayerInfoProvider playerInfoProvider,
                                    IPingTimeRepository pingTimeRepository,
-                                   IChatRepository chatRepository,
                                    IEnumerable<IChatEventNotifier> chatEventNotifiers)
             : base(playerInfoProvider)
         {
             _pingTimeRepository = pingTimeRepository;
-            _chatRepository = chatRepository;
             _chatEventNotifiers = chatEventNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(MessagePongServerPacket packet)
         {
-            var now = DateTime.Now;
-            var requestID = packet.ReadShort();
-            if (!_pingTimeRepository.PingRequests.ContainsKey(requestID))
-                return false;
-
-            var timeInMS = (int) Math.Round((now - _pingTimeRepository.PingRequests[requestID]).TotalMilliseconds);
-            _pingTimeRepository.PingRequests.Remove(requestID);
+            var time = (int)_pingTimeRepository.RequestTimer.ElapsedMilliseconds;
+            _pingTimeRepository.RequestTimer.Reset();
 
             foreach (var notifier in _chatEventNotifiers)
-                notifier.NotifyServerPing(timeInMS);
+                notifier.NotifyServerPing(time);
 
             return true;
         }

@@ -1,8 +1,9 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Arena
@@ -11,7 +12,7 @@ namespace EOLib.PacketHandlers.Arena
     /// Arena start message
     /// </summary>
     [AutoMappedType]
-    public class ArenaUseHandler : InGameOnlyPacketHandler
+    public class ArenaUseHandler : InGameOnlyPacketHandler<ArenaUseServerPacket>
     {
         private readonly IEnumerable<IArenaNotifier> _arenaNotifiers;
 
@@ -26,13 +27,11 @@ namespace EOLib.PacketHandlers.Arena
             _arenaNotifiers = arenaNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(ArenaUseServerPacket packet)
         {
-            var playersCount = packet.ReadChar();
-
             foreach (var  notifier in _arenaNotifiers)
             {
-                notifier.NotifyArenaStart(playersCount);
+                notifier.NotifyArenaStart(packet.PlayersCount);
             }
 
             return true;

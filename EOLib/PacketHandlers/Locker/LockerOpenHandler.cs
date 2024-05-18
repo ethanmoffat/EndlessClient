@@ -3,8 +3,9 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Locker
@@ -13,7 +14,7 @@ namespace EOLib.PacketHandlers.Locker
     /// Handles LOCKER_OPEN from server for opening a locker
     /// </summary>
     [AutoMappedType]
-    public class LockerOpenHandler : InGameOnlyPacketHandler
+    public class LockerOpenHandler : InGameOnlyPacketHandler<LockerOpenServerPacket>
     {
         private readonly ILockerDataRepository _lockerDataRepository;
         private readonly IEnumerable<IUserInterfaceNotifier> _userInterfaceNotifiers;
@@ -31,16 +32,13 @@ namespace EOLib.PacketHandlers.Locker
             _userInterfaceNotifiers = userInterfaceNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(LockerOpenServerPacket packet)
         {
-            var x = packet.ReadChar();
-            var y = packet.ReadChar();
-
             _lockerDataRepository.ResetState();
-            _lockerDataRepository.Location = new MapCoordinate(x, y);
+            _lockerDataRepository.Location = new MapCoordinate(packet.LockerCoords.X, packet.LockerCoords.Y);
 
-            while (packet.ReadPosition < packet.Length)
-                _lockerDataRepository.Items.Add(new InventoryItem(packet.ReadShort(), packet.ReadThree()));
+            foreach (var item in packet.LockerItems)
+                _lockerDataRepository.Items.Add(new InventoryItem(item.Id, item.Amount));
 
             foreach (var notifier in _userInterfaceNotifiers)
                 notifier.NotifyPacketDialog(Family);

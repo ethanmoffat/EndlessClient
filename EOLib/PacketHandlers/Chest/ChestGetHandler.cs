@@ -2,8 +2,13 @@
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
-using EOLib.Net;
+using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Sockets;
 
 namespace EOLib.PacketHandlers.Chest
 {
@@ -11,8 +16,9 @@ namespace EOLib.PacketHandlers.Chest
     /// Handler for CHEST_GET packet, sent as confirmation to character that item is being taken
     /// </summary>
     [AutoMappedType]
-    public class ChestGetHandler : ChestAgreeHandler
+    public class ChestGetHandler : InGameOnlyPacketHandler<ChestGetServerPacket>
     {
+        private readonly IChestDataRepository _chestDataRepository;
         private readonly ICharacterRepository _characterRepository;
         private readonly ICharacterInventoryRepository _characterInventoryRepository;
 
@@ -24,59 +30,44 @@ namespace EOLib.PacketHandlers.Chest
                                IChestDataRepository chestDataRepository,
                                ICharacterRepository characterRepository,
                                ICharacterInventoryRepository characterInventoryRepository)
-            : base(playerInfoProvider, chestDataRepository)
+            : base(playerInfoProvider)
         {
+            _chestDataRepository = chestDataRepository;
             _characterRepository = characterRepository;
             _characterInventoryRepository = characterInventoryRepository;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(ChestGetServerPacket packet)
         {
-            var itemId = packet.ReadShort();
-            var amount = Action == PacketAction.Get ? packet.ReadThree() : packet.ReadInt();
-            var weight = packet.ReadChar();
-            var maxWeight = packet.ReadChar();
+            Handle(packet.Items, packet.TakenItem, packet.Weight, addingItemFromInventory: false);
+            return true;
+        }
 
-            _characterInventoryRepository.ItemInventory.SingleOrNone(x => x.ItemID == itemId)
+        protected void Handle(List<ThreeItem> items, ThreeItem item, Weight weight, bool addingItemFromInventory)
+        {
+            _chestDataRepository.Items = new HashSet<ChestItem>(items.Select((x, i) => new ChestItem(x.Id, x.Amount, i)));
+
+            _characterInventoryRepository.ItemInventory.SingleOrNone(x => x.ItemID == item.Id)
                 .Match(
                     some: existing =>
                     {
                         _characterInventoryRepository.ItemInventory.Remove(existing);
-                        if (amount > 0 || itemId == 1)
+                        if (item.Amount > 0 || item.Id == 1)
                         {
-                            _characterInventoryRepository.ItemInventory.Add(existing.WithAmount(existing.Amount + (Action == PacketAction.Get ? amount : -amount)));
+                            _characterInventoryRepository.ItemInventory.Add(existing.WithAmount(existing.Amount + (item.Amount * (addingItemFromInventory ? -1 : 1))));
                         }
                     },
                     none: () =>
                     {
-                        if (amount > 0)
-                            _characterInventoryRepository.ItemInventory.Add(new InventoryItem(itemId, amount));
+                        if (item.Amount > 0)
+                            _characterInventoryRepository.ItemInventory.Add(new InventoryItem(item.Id, item.Amount));
                     });
 
             var stats = _characterRepository.MainCharacter.Stats
-                .WithNewStat(CharacterStat.Weight, weight)
-                .WithNewStat(CharacterStat.MaxWeight, maxWeight);
+                .WithNewStat(CharacterStat.Weight, weight.Current)
+                .WithNewStat(CharacterStat.MaxWeight, weight.Max);
 
             _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);
-
-            return base.HandlePacket(packet);
-        }
-    }
-
-    /// <summary>
-    /// Handler for CHEST_REPLY packet, sent in response to main player adding an item to a chest
-    /// </summary>
-    [AutoMappedType]
-    public class ChestReplyHandler : ChestGetHandler
-    {
-        public override PacketAction Action => PacketAction.Reply;
-
-        public ChestReplyHandler(IPlayerInfoProvider playerInfoProvider,
-                                 IChestDataRepository chestDataRepository,
-                                 ICharacterRepository characterRepository,
-                                 ICharacterInventoryRepository characterInventoryRepository)
-            : base(playerInfoProvider, chestDataRepository, characterRepository, characterInventoryRepository)
-        {
         }
     }
 }

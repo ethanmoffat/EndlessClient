@@ -1,5 +1,5 @@
 ﻿using AutomaticTypeMapper;
-using EOLib.IO.Services;
+using Moffat.EndlessOnline.SDK.Data;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,13 +11,6 @@ namespace EOLib.Localization
     [AutoMappedType]
     public class EDFLoaderService : IEDFLoaderService
     {
-        private readonly IDataEncoderService _dataEncoderService;
-
-        public EDFLoaderService(IDataEncoderService dataEncoderService)
-        {
-            _dataEncoderService = dataEncoderService;
-        }
-
         public IEDFFile LoadFile(string fileName, DataFiles whichFile)
         {
             switch (whichFile)
@@ -103,24 +96,24 @@ namespace EOLib.Localization
 
         private string DecodeDatString(string content, DataFiles whichFile)
         {
-            var res = _dataEncoderService.Deinterleave(Encoding.ASCII.GetBytes(content));
+            var res = DataEncrypter.Deinterleave(Encoding.ASCII.GetBytes(content));
 
             if (whichFile != DataFiles.CurseFilter)
-                res = _dataEncoderService.SwapMultiples(res, 7);
+                res = DataEncrypter.SwapMultiples(res, 7);
 
             return Encoding.ASCII.GetString(res.ToArray());
         }
 
         private string EncodeDatString(string content, DataFiles whichFile)
         {
-            List<byte> res = null;
+            byte[] res = null;
 
             if (whichFile != DataFiles.CurseFilter)
-                res = _dataEncoderService.SwapMultiples(Encoding.ASCII.GetBytes(content).ToList(), 7);
+                res = DataEncrypter.SwapMultiples(Encoding.ASCII.GetBytes(content), 7);
 
-            res = _dataEncoderService.Interleave(res ?? Encoding.ASCII.GetBytes(content).ToList());
+            res = DataEncrypter.Interleave(res ?? Encoding.ASCII.GetBytes(content));
 
-            return Encoding.ASCII.GetString(res.ToArray());
+            return Encoding.ASCII.GetString(res);
         }
     }
 }

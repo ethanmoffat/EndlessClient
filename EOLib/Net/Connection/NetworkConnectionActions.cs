@@ -3,10 +3,11 @@ using System.Threading.Tasks;
 using AutomaticTypeMapper;
 using EOLib.Config;
 using EOLib.Domain.Login;
-using EOLib.Domain.Protocol;
 using EOLib.Net.Communication;
 using EOLib.Net.PacketProcessing;
-using EOLib.Net.Translators;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOLib.Net.Connection
 {
@@ -16,9 +17,7 @@ namespace EOLib.Net.Connection
         private readonly INetworkClientRepository _networkClientRepository;
         private readonly ISequenceRepository _sequenceRepository;
         private readonly IConfigurationProvider _configurationProvider;
-        private readonly IHashService _hashService;
         private readonly IHDSerialNumberService _hdSerialNumberService;
-        private readonly IPacketTranslator<IInitializationData> _initPacketTranslator;
         private readonly INetworkClientFactory _networkClientFactory;
         private readonly IPacketSendService _packetSendService;
         private readonly IPlayerInfoRepository _playerInfoRepository;
@@ -27,9 +26,7 @@ namespace EOLib.Net.Connection
         public NetworkConnectionActions(INetworkClientRepository networkClientRepository,
                                         ISequenceRepository sequenceRepository,
                                         IConfigurationProvider configurationProvider,
-                                        IHashService hashService,
                                         IHDSerialNumberService hdSerialNumberService,
-                                        IPacketTranslator<IInitializationData> initPacketTranslator,
                                         INetworkClientFactory networkClientFactory,
                                         IPacketSendService packetSendService,
                                         IPlayerInfoRepository playerInfoRepository)
@@ -37,9 +34,7 @@ namespace EOLib.Net.Connection
             _networkClientRepository = networkClientRepository;
             _sequenceRepository = sequenceRepository;
             _configurationProvider = configurationProvider;
-            _hashService = hashService;
             _hdSerialNumberService = hdSerialNumberService;
-            _initPacketTranslator = initPacketTranslator;
             _networkClientFactory = networkClientFactory;
             _packetSendService = packetSendService;
             _playerInfoRepository = playerInfoRepository;
@@ -68,48 +63,55 @@ namespace EOLib.Net.Connection
                 _networkClientRepository.NetworkClient = null;
             }
 
-            _sequenceRepository.SequenceIncrement = 0;
-            _sequenceRepository.SequenceStart = 0;
+            _sequenceRepository.ResetState();
         }
 
-        public async Task<IInitializationData> BeginHandshake()
+        public async Task<InitInitServerPacket> BeginHandshake(int challenge)
         {
-            var stupidHash = _hashService.StupidHash(new Random().Next(6, 12));
             var hdSerialNumber = _hdSerialNumberService.GetHDSerialNumber();
 
-            var packet = new PacketBuilder(PacketFamily.Init, PacketAction.Init)
-                .AddThree(stupidHash)
-                .AddChar(_configurationProvider.VersionMajor)
-                .AddChar(_configurationProvider.VersionMinor)
-                .AddChar(_configurationProvider.VersionBuild)
-                .AddChar(112)
-                .AddChar(hdSerialNumber.Length)
-                .AddString(hdSerialNumber)
-                .Build();
+            var initPacket = new InitInitClientPacket
+            {
+                Challenge = challenge,
+                Version = new Protocol.Net.Version
+                {
+                    Major = _configurationProvider.VersionMajor,
+                    Minor = _configurationProvider.VersionMinor,
+                    Patch = _configurationProvider.VersionBuild,
+                },
+                HdidLength = hdSerialNumber.Length,
+                Hdid = hdSerialNumber
+            };
 
-            var responsePacket = await _packetSendService.SendRawPacketAndWaitAsync(packet);
-            if (IsInvalidInitPacket(responsePacket))
+            var responsePacket = await _packetSendService.SendRawPacketAndWaitAsync(initPacket);
+            if (IsInvalidInitPacket(responsePacket, out var initInitServerPacket))
                 throw new EmptyPacketReceivedException();
 
-            return _initPacketTranslator.TranslatePacket(responsePacket);
+            return initInitServerPacket;
         }
 
-        public void CompleteHandshake(IInitializationData initializationData)
+        public void CompleteHandshake(InitInitServerPacket serverPacket)
         {
-            _playerInfoRepository.PlayerID = initializationData[InitializationDataKey.PlayerID];
+            if (serverPacket.ReplyCode != Protocol.Net.Server.InitReply.Ok || !(serverPacket.ReplyCodeData is InitInitServerPacket.ReplyCodeDataOk okData))
+                throw new InvalidOperationException($"Unable to complete handshake for response code: {serverPacket.ReplyCode}");
 
-            var packet = new PacketBuilder(PacketFamily.Connection, PacketAction.Accept)
-                .AddShort(initializationData[InitializationDataKey.SendMultiple])
-                .AddShort(initializationData[InitializationDataKey.ReceiveMultiple])
-                .AddShort(_playerInfoRepository.PlayerID)
-                .Build();
+            _playerInfoRepository.PlayerID = okData.PlayerId;
+
+            var packet = new ConnectionAcceptClientPacket
+            {
+                ClientEncryptionMultiple = okData.ClientEncryptionMultiple,
+                ServerEncryptionMultiple = okData.ServerEncryptionMultiple,
+                PlayerId = okData.PlayerId,
+            };
 
             _packetSendService.SendPacket(packet);
         }
 
-        private static bool IsInvalidInitPacket(IPacket responsePacket)
+        private static bool IsInvalidInitPacket(IPacket responsePacket, out InitInitServerPacket serverPacket)
         {
-            return responsePacket.Family != PacketFamily.Init || responsePacket.Action != PacketAction.Init;
+            var idMatches = responsePacket.Family != PacketFamily.Init || responsePacket.Action != PacketAction.Init;
+            serverPacket = responsePacket as InitInitServerPacket;
+            return idMatches && serverPacket != null;
         }
 
         private INetworkClient Client => _networkClientRepository.NetworkClient;

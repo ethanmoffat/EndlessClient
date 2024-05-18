@@ -1,6 +1,7 @@
 ﻿using Amadevus.RecordGenerator;
-using EOLib.Domain.Online;
 using EOLib.IO;
+using Moffat.EndlessOnline.SDK.Protocol;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.Domain.Character
@@ -32,7 +33,7 @@ namespace EOLib.Domain.Character
 
         public IReadOnlyList<string> QuestNames { get; }
 
-        public OnlineIcon Icon { get; }
+        public CharacterIcon Icon { get; }
 
         public PaperdollData()
         {

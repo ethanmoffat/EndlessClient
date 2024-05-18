@@ -9,6 +9,8 @@ using EOLib.IO.Services;
 using EOLib.Logger;
 using EOLib.Net.Handlers;
 using EOLib.Net.PacketProcessing;
+using Moffat.EndlessOnline.SDK.Data;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
 
 namespace EOLib.Net.Communication
 {
@@ -143,22 +145,28 @@ namespace EOLib.Net.Communication
         [Conditional("DEBUG")]
         private void LogReceivedPacket(IPacket packet)
         {
+            var writer = new EoWriter();
+            packet.Serialize(writer);
+
             _loggerProvider.Logger.Log("RECV thread: Received             packet Family={0,-13} Action={1,-8} sz={2,-5} data={3}",
                 Enum.GetName(typeof(PacketFamily), packet.Family),
                 Enum.GetName(typeof(PacketAction), packet.Action),
-                packet.Length,
-                string.Join(":", packet.RawData.Select(b => $"{b:x2}")));
+                writer.Length,
+                string.Join(":", writer.ToByteArray().Select(b => $"{b:x2}")));
         }
 
         [Conditional("DEBUG")]
         private void LogSentPacket(IPacket packet, bool encoded)
         {
+            var writer = new EoWriter();
+            packet.Serialize(writer);
+
             _loggerProvider.Logger.Log("SEND thread: Processing       {0,-3} packet Family={1,-13} Action={2,-8} sz={3,-5} data={4}",
                     encoded ? "ENC" : "RAW",
                     Enum.GetName(typeof(PacketFamily), packet.Family),
                     Enum.GetName(typeof(PacketAction), packet.Action),
-                    packet.Length,
-                    string.Join(":", packet.RawData.Select(b => $"{b:x2}")));
+                    writer.Length,
+                    string.Join(":", writer.ToByteArray().Select(b => $"{b:x2}")));
         }
 
         public void Dispose()

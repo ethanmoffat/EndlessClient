@@ -1,24 +1,30 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Online;
-using EOLib.Domain.Protocol;
-using EOLib.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace EOLib.PacketHandlers.Init
 {
     [AutoMappedType]
-    public class FriendIgnoreListHandler : BasePlayersListHandler
+    public class FriendIgnoreListHandler : BaseInGameInitPacketHandler<InitInitServerPacket.ReplyCodeDataPlayersListFriends>
     {
-        public override InitReply Reply => InitReply.FriendPlayersList;
+        private readonly IOnlinePlayerRepository _onlinePlayerRepository;
+
+        public override InitReply Reply => InitReply.PlayersListFriends;
+
+        public Type DataType => typeof(InitInitServerPacket.ReplyCodeDataPlayersListFriends);
 
         public FriendIgnoreListHandler(IOnlinePlayerRepository onlinePlayerRepository)
-            : base(onlinePlayerRepository)
         {
+            _onlinePlayerRepository = onlinePlayerRepository;
         }
 
-        protected override OnlinePlayerInfo GetNextRecord(IPacket packet)
+        public override bool HandleData(InitInitServerPacket.ReplyCodeDataPlayersListFriends data)
         {
-            string name = packet.ReadBreakString();
-            return new OnlinePlayerInfo(name);
+            _onlinePlayerRepository.OnlinePlayers = new HashSet<OnlinePlayerInfo>(data.PlayersList.Players.Select(x => new OnlinePlayerInfo(x)));
+            return true;
         }
     }
 }

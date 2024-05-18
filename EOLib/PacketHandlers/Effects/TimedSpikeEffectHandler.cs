@@ -5,15 +5,15 @@ using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.IO.Map;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace EOLib.PacketHandlers.Effects
 {
     [AutoMappedType]
-    public class TimedSpikeEffectHandler : InGameOnlyPacketHandler
+    public class TimedSpikeEffectHandler : InGameOnlyPacketHandler<EffectReportServerPacket>
     {
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly ICharacterProvider _characterProvider;
@@ -34,18 +34,15 @@ namespace EOLib.PacketHandlers.Effects
             _effectNotifiers = effectNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(EffectReportServerPacket packet)
         {
-            if ((char)packet.ReadByte() != 'S')
-                return false;
-
             var characterPosition = _characterProvider.MainCharacter.RenderProperties.Coordinates();
             var distanceToSpikes = _currentMapProvider.CurrentMap.GetDistanceToClosestTileSpec(TileSpec.SpikesTimed, characterPosition);
 
             if (distanceToSpikes <= 6)
             {
                 foreach (var notifier in _effectNotifiers)
-                    notifier.NotifyMapEffect(MapEffect.Spikes);
+                    notifier.NotifyMapEffect(IO.Map.MapEffect.Spikes);
             }
 
             return true;

@@ -2,8 +2,9 @@
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
 using EOLib.Domain.Party;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Party
@@ -12,7 +13,7 @@ namespace EOLib.PacketHandlers.Party
     /// Handles HP update for party members
     /// </summary>
     [AutoMappedType]
-    public class PartyCreateHandler : InGameOnlyPacketHandler
+    public class PartyCreateHandler : InGameOnlyPacketHandler<PartyCreateServerPacket>
     {
         private readonly IPartyDataRepository _partyDataRepository;
         private readonly IEnumerable<IPartyEventNotifier> _partyEventNotifiers;
@@ -30,31 +31,24 @@ namespace EOLib.PacketHandlers.Party
             _partyEventNotifiers = partyEventNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(PartyCreateServerPacket packet)
         {
             _partyDataRepository.Members.Clear();
 
-            while (packet.ReadPosition < packet.Length)
+            foreach (var member in packet.Members)
             {
-                var partyMember = new PartyMember.Builder
+                _partyDataRepository.Members.Add(new Domain.Party.PartyMember.Builder
                 {
-                    CharacterID = packet.ReadShort(),
-                    IsLeader = packet.ReadChar() != 0,
-                    Level = packet.ReadChar(),
-                    PercentHealth = packet.ReadChar(),
-                    Name = packet.ReadBreakString(),
-                };
-                partyMember.Name = char.ToUpper(partyMember.Name[0]) + partyMember.Name.Substring(1);
-
-                _partyDataRepository.Members.Add(partyMember.ToImmutable());
+                    CharacterID = member.PlayerId,
+                    IsLeader = member.Leader,
+                    Level = member.Level,
+                    PercentHealth = member.HpPercentage,
+                    Name = char.ToUpper(member.Name[0]) + member.Name.Substring(1),
+                }.ToImmutable());
             }
 
-            if (Action == PacketAction.Create)
-            {
-                // don't notify a party was joined for LIST packet handling
-                foreach (var notifier in _partyEventNotifiers)
-                    notifier.NotifyPartyJoined();
-            }
+            foreach (var notifier in _partyEventNotifiers)
+                notifier.NotifyPartyJoined();
 
             return true;
         }

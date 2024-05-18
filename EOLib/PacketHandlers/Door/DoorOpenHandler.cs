@@ -1,10 +1,10 @@
-﻿using System.Linq;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
-using EOLib.Net;
 using EOLib.Net.Handlers;
-
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using System.Linq;
 using DomainWarp = EOLib.Domain.Map.Warp;
 
 namespace EOLib.PacketHandlers.Door
@@ -13,7 +13,7 @@ namespace EOLib.PacketHandlers.Door
     /// Sent when a player near you opens a door
     /// </summary>
     [AutoMappedType]
-    public class DoorOpenHandler : InGameOnlyPacketHandler
+    public class DoorOpenHandler : InGameOnlyPacketHandler<DoorOpenServerPacket>
     {
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly ICurrentMapProvider _currentMapProvider;
@@ -31,11 +31,10 @@ namespace EOLib.PacketHandlers.Door
             _currentMapProvider = currentMapProvider;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(DoorOpenServerPacket packet)
         {
-            var x = packet.ReadChar();
-            var y = packet.ReadShort();
-
+            var x = packet.Coords.X;
+            var y = packet.Coords.Y;
 
             if (_currentMapStateRepository.OpenDoors.Any(d => d.X == x && d.Y == y))
                 return true;

@@ -2,8 +2,9 @@
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOLib.PacketHandlers.Citizen
 {
@@ -11,7 +12,7 @@ namespace EOLib.PacketHandlers.Citizen
     /// Sent when the player has accepted the cost of sleeping at an inn
     /// </summary>
     [AutoMappedType]
-    public class CitizenAcceptHandler : InGameOnlyPacketHandler
+    public class CitizenAcceptHandler : InGameOnlyPacketHandler<CitizenAcceptServerPacket>
     {
         private readonly ICharacterInventoryRepository _characterInventoryRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
@@ -32,11 +33,10 @@ namespace EOLib.PacketHandlers.Citizen
             _characterRepository = characterRepository;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(CitizenAcceptServerPacket packet)
         {
-            var goldRemaining = packet.ReadInt();
             _characterInventoryRepository.ItemInventory.RemoveWhere(x => x.ItemID == 1);
-            _characterInventoryRepository.ItemInventory.Add(new InventoryItem(1, goldRemaining));
+            _characterInventoryRepository.ItemInventory.Add(new InventoryItem(1, packet.GoldAmount));
 
             var stats = _characterRepository.MainCharacter.Stats;
             stats = stats.WithNewStat(CharacterStat.HP, stats[CharacterStat.MaxHP])

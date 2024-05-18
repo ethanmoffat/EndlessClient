@@ -1,5 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
 
 namespace EOLib.Net.Handlers
 {
@@ -44,7 +45,7 @@ namespace EOLib.Net.Handlers
                 return false;
 
             var handler = _packetHandlerFinder.FindHandler(packet.Family, packet.Action);
-            if (!handler.CanHandle)
+            if (!handler.CanHandle || !handler.IsHandlerFor(packet))
                 return false;
 
             //todo: catch exceptions and log error details

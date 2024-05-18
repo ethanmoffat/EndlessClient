@@ -1,4 +1,5 @@
 ﻿using Amadevus.RecordGenerator;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System;
 
 namespace EOLib.Domain.Interact.Quest
@@ -10,28 +11,18 @@ namespace EOLib.Domain.Interact.Quest
 
         public string Description { get; }
 
-        public BookIcon Icon { get; }
+        public QuestRequirementIcon Icon { get; }
 
-        public int IconIndex
-        {
-            get
-            {
-                //these are probably wrong. can't really tell what it's supposed to be from original
-                switch (Icon)
+        //these are probably wrong. can't really tell what it's supposed to be from original
+        public int IconIndex =>
+                Icon switch
                 {
-                    case BookIcon.Item:
-                        return 2;
-                    case BookIcon.Talk:
-                        return 1;
-                    case BookIcon.Kill:
-                        return 3;
-                    case BookIcon.Step:
-                        return 4;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
-        }
+                    QuestRequirementIcon.Item => 2,
+                    QuestRequirementIcon.Talk => 1,
+                    QuestRequirementIcon.Kill => 3,
+                    QuestRequirementIcon.Step => 4,
+                    _ => 1,
+                };
 
         public int Progress { get; }
 

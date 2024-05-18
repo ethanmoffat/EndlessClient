@@ -1,9 +1,7 @@
 ﻿using AutomaticTypeMapper;
-using EOLib.Domain.Interact.Citizen;
-using EOLib.Domain.Interact.Law;
-using EOLib.Domain.Interact.Priest;
 using EOLib.Domain.Interact.Skill;
 using EOLib.IO;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOLib.Domain.Interact
 {
@@ -19,7 +17,7 @@ namespace EOLib.Domain.Interact
 
         void NotifyStatReset();
 
-        void NotifyCitizenUnsubscribe(CitizenUnsubscribeReply reply);
+        void NotifyCitizenUnsubscribe(InnUnsubscribeReply reply);
 
         void NotifyCitizenSignUp(int questionsWrong);
 
@@ -45,7 +43,7 @@ namespace EOLib.Domain.Interact
 
         public void NotifyStatReset() { }
 
-        public void NotifyCitizenUnsubscribe(CitizenUnsubscribeReply reply) { }
+        public void NotifyCitizenUnsubscribe(InnUnsubscribeReply reply) { }
 
         public void NotifyCitizenSignUp(int questionsWrong) { }
 

@@ -1,19 +1,18 @@
-﻿using System.Collections.Generic;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
 using EOLib.Localization;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Chat
 {
     [AutoMappedType]
-    public class PrivateMessageTargetNotFound : InGameOnlyPacketHandler
+    public class PrivateMessageTargetNotFound : InGameOnlyPacketHandler<TalkReplyServerPacket>
     {
-        private const int TALK_NOTFOUND = 1;
-
         private readonly IChatRepository _chatRepository;
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly IEnumerable<IChatEventNotifier> _chatEventNotifiers;
@@ -33,13 +32,12 @@ namespace EOLib.PacketHandlers.Chat
             _chatEventNotifiers = chatEventNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(TalkReplyServerPacket packet)
         {
-            var response = packet.ReadShort();
-            if (response != TALK_NOTFOUND)
-                return false;
+            if (packet.ReplyCode != TalkReply.NotFound)
+                return true;
 
-            var from = packet.ReadEndString();
+            var from = packet.Name;
             from = char.ToUpper(from[0]) + from.Substring(1).ToLower();
             var sysMessage = _localizedStringFinder.GetString(EOResourceID.SYS_CHAT_PM_PLAYER_COULD_NOT_BE_FOUND);
             var message = $"{@from} {sysMessage}";

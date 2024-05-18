@@ -3,6 +3,10 @@ using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.Handlers;
 using EOLib.Net.PacketProcessing;
+using Moffat.EndlessOnline.SDK.Packet;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOLib.PacketHandlers.Connection
 {
@@ -10,7 +14,7 @@ namespace EOLib.PacketHandlers.Connection
     /// Sent when the server is updating the sequence numbers for the client
     /// </summary>
     [AutoMappedType]
-    public class ConnectionPlayerHandler : DefaultAsyncPacketHandler
+    public class ConnectionPlayerHandler : DefaultAsyncPacketHandler<ConnectionPlayerServerPacket>
     {
         private readonly IPacketProcessActions _packetProcessActions;
         private readonly IPacketSendService _packetSendService;
@@ -28,20 +32,13 @@ namespace EOLib.PacketHandlers.Connection
             _packetSendService = packetSendService;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(ConnectionPlayerServerPacket packet)
         {
-            var seq1 = packet.ReadShort();
-            var seq2 = packet.ReadChar();
-
-            _packetProcessActions.SetUpdatedBaseSequenceNumber(seq1, seq2);
-
-            var response = new PacketBuilder(PacketFamily.Connection, PacketAction.Ping)
-                .AddString("k")
-                .Build();
+            _packetProcessActions.SetSequenceStart(PingSequenceStart.FromPingValues(packet.Seq1, packet.Seq2));
 
             try
             {
-                _packetSendService.SendPacket(response);
+                _packetSendService.SendPacket(new ConnectionPingClientPacket());
             }
             catch (NoDataSentException)
             {

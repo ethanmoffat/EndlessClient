@@ -1,4 +1,5 @@
 ﻿using Amadevus.RecordGenerator;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOLib.Domain.Online
 {
@@ -13,10 +14,10 @@ namespace EOLib.Domain.Online
 
         public string Class { get; }
 
-        public OnlineIcon Icon { get; }
+        public CharacterIcon Icon { get; }
 
         public OnlinePlayerInfo(string name)
-            : this(name, string.Empty, string.Empty, string.Empty, OnlineIcon.Normal)
+            : this(name, string.Empty, string.Empty, string.Empty, CharacterIcon.Player)
         {
         }
     }

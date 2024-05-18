@@ -2,14 +2,15 @@
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Effects
 {
     [AutoMappedType]
-    public class EffectAgreeHandler : InGameOnlyPacketHandler
+    public class EffectAgreeHandler : InGameOnlyPacketHandler<EffectAgreeServerPacket>
     {
         private readonly IEnumerable<IEffectNotifier> _effectNotifiers;
 
@@ -23,14 +24,13 @@ namespace EOLib.PacketHandlers.Effects
             _effectNotifiers = effectNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(EffectAgreeServerPacket packet)
         {
-            var x = packet.ReadChar();
-            var y = packet.ReadChar();
-            var effectId = packet.ReadShort();
-
-            foreach (var notifier in _effectNotifiers)
-                notifier.NotifyEffectAtLocation(new MapCoordinate(x, y), effectId);
+            foreach (var effect in packet.Effects)
+            {
+                foreach (var notifier in _effectNotifiers)
+                    notifier.NotifyEffectAtLocation(new MapCoordinate(effect.Coords.X, effect.Coords.Y), effect.EffectId);
+            }
 
             return true;
         }

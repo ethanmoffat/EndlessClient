@@ -1,9 +1,9 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
+using EOLib.Domain.Chat.Builders;
 using EOLib.Domain.Map;
 using EOLib.Domain.Party;
 using EOLib.Net;
-using EOLib.Net.Builders;
 using EOLib.Net.Communication;
 using System;
 using System.Linq;

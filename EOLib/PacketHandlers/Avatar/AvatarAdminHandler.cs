@@ -3,8 +3,9 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Avatar
@@ -13,7 +14,7 @@ namespace EOLib.PacketHandlers.Avatar
     /// Sent when a player takes damge from a PK spell
     /// </summary>
     [AutoMappedType]
-    public class AvatarAdminHandler : InGameOnlyPacketHandler
+    public class AvatarAdminHandler : InGameOnlyPacketHandler<AvatarAdminServerPacket>
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
@@ -34,15 +35,15 @@ namespace EOLib.PacketHandlers.Avatar
             _animationNotifiers = animationNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(AvatarAdminServerPacket packet)
         {
-            var sourcePlayerId = packet.ReadShort();
-            var targetPlayerId = packet.ReadShort();
-            var damage = packet.ReadThree();
-            var sourcePlayerDirection = (EODirection)packet.ReadChar();
-            var targetPercentHealth = packet.ReadChar();
-            var targetIsDead = packet.ReadChar() != 0;
-            var spellId = packet.ReadShort();
+            var sourcePlayerId = packet.CasterId;
+            var targetPlayerId = packet.VictimId;
+            var damage = packet.Damage;
+            var sourcePlayerDirection = (EODirection)packet.CasterDirection;
+            var targetPercentHealth = packet.HpPercentage;
+            var targetIsDead = packet.VictimDied;
+            var spellId = packet.SpellId;
 
             if (sourcePlayerId == _characterRepository.MainCharacter.ID)
             {

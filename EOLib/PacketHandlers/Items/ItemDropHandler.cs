@@ -3,8 +3,9 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ namespace EOLib.PacketHandlers.Items
     /// Sent when the main character drops an item
     /// </summary>
     [AutoMappedType]
-    public class ItemDropHandler : InGameOnlyPacketHandler
+    public class ItemDropHandler : InGameOnlyPacketHandler<ItemDropServerPacket>
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly ICharacterInventoryRepository _inventoryRepository;
@@ -39,34 +40,23 @@ namespace EOLib.PacketHandlers.Items
             _mainCharacterEventNotifiers = mainCharacterEventNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(ItemDropServerPacket packet)
         {
-            var id = packet.ReadShort();
-            var amountDropped = packet.ReadThree();
-            var amountRemaining = packet.ReadInt();
-
-            var uid = packet.ReadShort();
-            var dropX = packet.ReadChar();
-            var dropY = packet.ReadChar();
-
-            var weight = packet.ReadChar();
-            var maxWeight = packet.ReadChar();
-
-            _inventoryRepository.ItemInventory.RemoveWhere(x => x.ItemID == id);
-            if (amountRemaining > 0 || id == 1)
-                _inventoryRepository.ItemInventory.Add(new InventoryItem(id, amountRemaining));
+            _inventoryRepository.ItemInventory.RemoveWhere(x => x.ItemID == packet.DroppedItem.Id);
+            if (packet.RemainingAmount > 0 || packet.DroppedItem.Id == 1)
+                _inventoryRepository.ItemInventory.Add(new InventoryItem(packet.DroppedItem.Id, packet.RemainingAmount));
 
             var stats = _characterRepository.MainCharacter.Stats;
-            stats = stats.WithNewStat(CharacterStat.Weight, weight)
-                .WithNewStat(CharacterStat.MaxWeight, maxWeight);
+            stats = stats.WithNewStat(CharacterStat.Weight, packet.Weight.Current)
+                .WithNewStat(CharacterStat.MaxWeight, packet.Weight.Max);
             _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);
 
-            var mapItem = new MapItem(uid, id, dropX, dropY, amountDropped)
+            var mapItem = new MapItem(packet.ItemIndex, packet.DroppedItem.Id, packet.Coords.X, packet.Coords.Y, packet.DroppedItem.Amount)
                 .WithDropTime(Option.Some(DateTime.Now.AddSeconds(-5)));
             _currentMapStateRepository.MapItems.Add(mapItem);
 
             foreach (var notifier in _mainCharacterEventNotifiers)
-                notifier.DropItem(id, amountDropped);
+                notifier.DropItem(packet.DroppedItem.Id, packet.DroppedItem.Amount);
 
             return true;
         }

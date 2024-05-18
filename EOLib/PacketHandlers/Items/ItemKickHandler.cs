@@ -1,7 +1,8 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
-using EOLib.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOLib.PacketHandlers.Items
 {
@@ -9,7 +10,7 @@ namespace EOLib.PacketHandlers.Items
     /// Sent when a quest takes an item from the main character
     /// </summary>
     [AutoMappedType]
-    public class ItemKickHandler : QuestItemChangeHandler
+    public class ItemKickHandler : QuestItemChangeHandler<ItemKickServerPacket>
     {
         public override PacketAction Action => PacketAction.Kick;
 
@@ -18,6 +19,12 @@ namespace EOLib.PacketHandlers.Items
                                ICharacterInventoryRepository inventoryRepository)
             : base(playerInfoProvider, characterRepository, inventoryRepository)
         {
+        }
+
+        public override bool HandlePacket(ItemKickServerPacket packet)
+        {
+            Handle(packet.Item.Id, packet.Item.Amount, packet.CurrentWeight);
+            return true;
         }
     }
 }

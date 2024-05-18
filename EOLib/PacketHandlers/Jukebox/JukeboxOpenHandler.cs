@@ -2,21 +2,21 @@
 using EOLib.Domain.Interact.Jukebox;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
 using System.Collections.Generic;
-using System.IO;
 
 namespace EOLib.PacketHandlers.Jukebox
 {
     [AutoMappedType]
-    public class JukeboxOpenHandler : InGameOnlyPacketHandler
+    public class JukeboxOpenHandler : InGameOnlyPacketHandler<JukeboxOpenServerPacket>
     {
         private readonly IJukeboxRepository _jukeboxRepository;
         private readonly IEnumerable<IUserInterfaceNotifier> _userInterfaceNotifiers;
 
-        public override PacketFamily Family => PacketFamily.JukeBox;
+        public override PacketFamily Family => PacketFamily.Jukebox;
 
         public override PacketAction Action => PacketAction.Open;
 
@@ -29,21 +29,12 @@ namespace EOLib.PacketHandlers.Jukebox
             _userInterfaceNotifiers = userInterfaceNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(JukeboxOpenServerPacket packet)
         {
-            packet.Seek(2, SeekOrigin.Current);
-
-            if (packet.ReadPosition < packet.Length)
-            {
-                _jukeboxRepository.PlayingRequestName = Option.Some(packet.ReadEndString());
-            }
-            else
-            {
-                _jukeboxRepository.PlayingRequestName = Option.None<string>();
-            }
+            _jukeboxRepository.PlayingRequestName = packet.JukeboxPlayer.SomeNotNull();
 
             foreach (var notifier in _userInterfaceNotifiers)
-                notifier.NotifyPacketDialog(PacketFamily.JukeBox);
+                notifier.NotifyPacketDialog(PacketFamily.Jukebox);
 
             return true;
         }

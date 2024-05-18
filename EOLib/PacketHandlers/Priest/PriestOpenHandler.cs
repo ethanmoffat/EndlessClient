@@ -2,14 +2,15 @@
 using EOLib.Domain.Interact;
 using EOLib.Domain.Interact.Priest;
 using EOLib.Domain.Login;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Priest
 {
     [AutoMappedType]
-    public class PriestOpenHandler : InGameOnlyPacketHandler
+    public class PriestOpenHandler : InGameOnlyPacketHandler<PriestOpenServerPacket>
     {
         private readonly IPriestSessionRepository _priestSessionRepository;
         private readonly IEnumerable<INPCInteractionNotifier> _npcInteractionNotifiers;
@@ -27,9 +28,9 @@ namespace EOLib.PacketHandlers.Priest
             _npcInteractionNotifiers = npcInteractionNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(PriestOpenServerPacket packet)
         {
-            _priestSessionRepository.SessionID = packet.ReadInt();
+            _priestSessionRepository.SessionID = packet.SessionId;
 
             foreach (var notifier in _npcInteractionNotifiers)
                 notifier.NotifyInteractionFromNPC(IO.NPCType.Priest);

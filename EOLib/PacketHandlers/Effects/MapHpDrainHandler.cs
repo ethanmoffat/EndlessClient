@@ -4,16 +4,16 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
-using EOLib.IO.Map;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Effects
 {
     [AutoMappedType]
-    public class MapHpDrainHandler : InGameOnlyPacketHandler
+    public class MapHpDrainHandler : InGameOnlyPacketHandler<EffectTargetOtherServerPacket>
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly IEnumerable<IMainCharacterEventNotifier> _mainCharacterEventNotifiers;
@@ -37,11 +37,11 @@ namespace EOLib.PacketHandlers.Effects
             _effectNotifiers = effectNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(EffectTargetOtherServerPacket packet)
         {
-            var damage = packet.ReadShort();
-            var hp = packet.ReadShort();
-            var maxhp = packet.ReadShort();
+            var damage = packet.Damage;
+            var hp = packet.Hp;
+            var maxhp = packet.MaxHp;
 
             _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithDamage(damage, hp == 0);
 
@@ -49,16 +49,12 @@ namespace EOLib.PacketHandlers.Effects
                 notifier.NotifyTakeDamage(damage, (int)Math.Round(((double)hp / maxhp) * 100), isHeal: false);
 
             foreach (var notifier in _effectNotifiers)
-                notifier.NotifyMapEffect(MapEffect.HPDrain);
+                notifier.NotifyMapEffect(IO.Map.MapEffect.HPDrain);
 
-            while (packet.ReadPosition != packet.Length)
+            foreach (var other in packet.Others)
             {
-                var otherCharacterId = packet.ReadShort();
-                var otherCharacterPercentHealth = packet.ReadChar();
-                var damageDealt = packet.ReadShort();
-
                 foreach (var notifier in _otherCharacterEventNotifiers)
-                    notifier.OtherCharacterTakeDamage(otherCharacterId, otherCharacterPercentHealth, damageDealt, isHeal: false);
+                    notifier.OtherCharacterTakeDamage(other.PlayerId, other.HpPercentage, other.Damage, isHeal: false);
             }
 
             return true;

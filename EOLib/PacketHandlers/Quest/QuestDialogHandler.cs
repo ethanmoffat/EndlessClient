@@ -2,24 +2,20 @@
 using EOLib.Domain.Interact;
 using EOLib.Domain.Interact.Quest;
 using EOLib.Domain.Login;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace EOLib.PacketHandlers.Quest
 {
     [AutoMappedType]
-    public class QuestDialogHandler : InGameOnlyPacketHandler
+    public class QuestDialogHandler : InGameOnlyPacketHandler<QuestDialogServerPacket>
     {
         private readonly IQuestDataRepository _questDataRepository;
         private readonly IEnumerable<INPCInteractionNotifier> _npcInteractionNotifiers;
-
-        private enum DialogEntryType : byte
-        {
-            Text = 1,
-            Link
-        }
 
         public override PacketFamily Family => PacketFamily.Quest;
 
@@ -34,45 +30,33 @@ namespace EOLib.PacketHandlers.Quest
             _npcInteractionNotifiers = npcInteractionNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(QuestDialogServerPacket packet)
         {
-            var numDialogs = packet.ReadChar();
-            var vendorID = packet.ReadShort();
-            var questID = packet.ReadShort();
-            var sessionID = packet.ReadShort();
-            var dialogID = packet.ReadShort();
-
-            if (packet.ReadByte() != 255)
-                return false;
-
-            var questData = new QuestDialogData.Builder
-            {
-                VendorID = vendorID,
-                QuestID = questID,
-                SessionID = sessionID, // not used by eoserv
-                DialogID = dialogID, // not used by eoserv
-            };
-
-            var dialogTitles = new Dictionary<int, string>(numDialogs);
-            for (int i = 0; i < numDialogs; i++)
-                dialogTitles.Add(packet.ReadShort(), packet.ReadBreakString());
-
             var pages = new List<string>();
             var links = new List<(int, string)>();
-            while (packet.ReadPosition < packet.Length)
+            foreach (var entry in packet.DialogEntries)
             {
-                var entryType = (DialogEntryType)packet.ReadShort();
-                switch (entryType)
+                if (entry.EntryType == DialogEntryType.Link)
                 {
-                    case DialogEntryType.Text: pages.Add(packet.ReadBreakString()); break;
-                    case DialogEntryType.Link: links.Add((packet.ReadShort(), packet.ReadBreakString())); break;
-                    default: return false;
+                    var data = (DialogEntry.EntryTypeDataLink)entry.EntryTypeData;
+                    links.Add((data.LinkId, entry.Line));
+                }
+                else
+                {
+                    pages.Add(entry.Line);
                 }
             }
 
-            questData.DialogTitles = dialogTitles;
-            questData.PageText = pages;
-            questData.Actions = links;
+            var questData = new QuestDialogData.Builder
+            {
+                VendorID = packet.BehaviorId,
+                QuestID = packet.QuestId,
+                SessionID = packet.SessionId,
+                DialogID = packet.DialogId,
+                DialogTitles = packet.QuestEntries.ToDictionary(k => k.QuestId, v => v.QuestName),
+                PageText = pages,
+                Actions = links
+            };
 
             _questDataRepository.QuestDialogData = Option.Some(questData.ToImmutable());
 

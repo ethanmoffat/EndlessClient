@@ -1,24 +1,23 @@
 ﻿using EOLib.Domain.Chat;
-using EOLib.Domain.Online;
-using System;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOLib.Extensions
 {
     public static class OnlineIconExtensions
     {
-        public static ChatIcon ToChatIcon(this OnlineIcon icon)
+        public static ChatIcon ToChatIcon(this CharacterIcon icon)
         {
-            switch (icon)
+            return icon switch
             {
-                case OnlineIcon.Normal: return ChatIcon.Player;
-                case OnlineIcon.GM: return ChatIcon.GM;
-                case OnlineIcon.HGM: return ChatIcon.HGM;
-                case OnlineIcon.Party: return ChatIcon.PlayerParty;
-                case OnlineIcon.GMParty: return ChatIcon.GMParty;
-                case OnlineIcon.HGMParty: return ChatIcon.HGMParty;
-                case OnlineIcon.SLNBot: return ChatIcon.PlayerPartyDark;
-                default: throw new ArgumentOutOfRangeException(nameof(icon), "Invalid Icon type specified.");
-            }
+                CharacterIcon.Player => ChatIcon.Player,
+                CharacterIcon.Gm => ChatIcon.GM,
+                CharacterIcon.Hgm => ChatIcon.HGM,
+                CharacterIcon.Party => ChatIcon.PlayerParty,
+                CharacterIcon.GmParty => ChatIcon.GMParty,
+                CharacterIcon.HgmParty => ChatIcon.HGMParty,
+                (CharacterIcon)20 => ChatIcon.PlayerPartyDark, // SLNBot in eoserv
+                _ => ChatIcon.Player,
+            };
         }
     }
 }

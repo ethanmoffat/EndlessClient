@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Moffat.EndlessOnline.SDK.Protocol.Net;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,7 +36,7 @@ namespace EOLib.Net.Communication
         public IPacket PeekPacket()
         {
             if (QueuedPacketCount == 0)
-                return new EmptyPacket();
+                throw new EmptyPacketReceivedException();
 
             lock (_locker)
                 return _internalQueue.Peek();
@@ -44,7 +45,7 @@ namespace EOLib.Net.Communication
         public IPacket DequeueFirstPacket()
         {
             if (QueuedPacketCount == 0)
-                return new EmptyPacket();
+                throw new EmptyPacketReceivedException();
 
             lock (_locker)
                 return _internalQueue.Dequeue();
@@ -62,7 +63,7 @@ namespace EOLib.Net.Communication
 
                 var result = await _enqueuedTaskCompletionSource.Task;
                 if (!result)
-                    return new EmptyPacket();
+                    throw new EmptyPacketReceivedException();
             }
 
             return DequeueFirstPacket();

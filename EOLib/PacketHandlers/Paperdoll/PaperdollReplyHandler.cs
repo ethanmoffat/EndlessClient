@@ -1,11 +1,10 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
+using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
-using EOLib.Domain.Online;
-using EOLib.IO;
-using EOLib.Net;
 using EOLib.Net.Handlers;
-using System.Collections.Generic;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOLib.PacketHandlers.Paperdoll
 {
@@ -13,11 +12,11 @@ namespace EOLib.PacketHandlers.Paperdoll
     /// Sets paperdoll information for a given player
     /// </summary>
     [AutoMappedType]
-    internal class PaperdollReplyHandler : InGameOnlyPacketHandler
+    internal class PaperdollReplyHandler : InGameOnlyPacketHandler<PaperdollReplyServerPacket>
     {
         private readonly IPaperdollRepository _paperdollRepository;
 
-        public override PacketFamily Family => PacketFamily.PaperDoll;
+        public override PacketFamily Family => PacketFamily.Paperdoll;
 
         public override PacketAction Action => PacketAction.Reply;
 
@@ -28,27 +27,24 @@ namespace EOLib.PacketHandlers.Paperdoll
             _paperdollRepository = paperdollRepository;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(PaperdollReplyServerPacket packet)
         {
-            var name = packet.ReadBreakString();
-            var home = packet.ReadBreakString();
-            var partner = packet.ReadBreakString();
-            var title = packet.ReadBreakString();
-            var guild = packet.ReadBreakString();
-            var rank = packet.ReadBreakString();
+            var name = packet.Details.Name;
+            var home = packet.Details.Home;
+            var partner = packet.Details.Partner;
+            var title = packet.Details.Title;
+            var guild = packet.Details.Guild;
+            var rank = packet.Details.GuildRank;
 
-            var playerID = packet.ReadShort();
-            var clas = packet.ReadChar();
-            var gender = packet.ReadChar();
+            var playerID = packet.Details.PlayerId;
+            var clas = packet.Details.ClassId;
+            var gender = packet.Details.Gender;
 
-            var adminLevel = packet.ReadChar();
+            var adminLevel = packet.Details.Admin;
 
-            var paperdoll = new Dictionary<EquipLocation, int>((int)EquipLocation.PAPERDOLL_MAX);
-            for (var loc = (EquipLocation)0; loc < EquipLocation.PAPERDOLL_MAX; ++loc)
-                paperdoll[loc] = packet.ReadShort();
+            var paperdoll = packet.Equipment.GetPaperdoll();
 
-            var iconType = (OnlineIcon)packet.ReadChar();
-
+            var iconType = packet.Icon;
 
             var paperdollData = _paperdollRepository.VisibleCharacterPaperdolls.ContainsKey(playerID)
                 ? _paperdollRepository.VisibleCharacterPaperdolls[playerID]
@@ -63,8 +59,8 @@ namespace EOLib.PacketHandlers.Paperdoll
                 .WithRank(rank)
                 .WithPlayerID(playerID)
                 .WithClass(clas)
-                .WithGender(gender)
-                .WithAdminLevel((AdminLevel)adminLevel)
+                .WithGender((int)gender)
+                .WithAdminLevel(adminLevel)
                 .WithPaperdoll(paperdoll)
                 .WithIcon(iconType);
 

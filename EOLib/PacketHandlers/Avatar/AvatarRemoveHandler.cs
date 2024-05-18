@@ -4,8 +4,9 @@ using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Avatar
@@ -14,7 +15,7 @@ namespace EOLib.PacketHandlers.Avatar
     /// Sent when a player leaves the map
     /// </summary>
     [AutoMappedType]
-    public class AvatarRemoveHandler : InGameOnlyPacketHandler
+    public class AvatarRemoveHandler : InGameOnlyPacketHandler<AvatarRemoveServerPacket>
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
@@ -35,30 +36,27 @@ namespace EOLib.PacketHandlers.Avatar
             _effectNotifiers = effectNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(AvatarRemoveServerPacket packet)
         {
-            var id = packet.ReadShort();
-
-            if (packet.ReadPosition < packet.Length)
+            if (packet.WarpEffect != null)
             {
-                var anim = (WarpAnimation)packet.ReadChar();
                 foreach (var notifier in _effectNotifiers)
-                    notifier.NotifyWarpLeaveEffect(id, anim);
+                    notifier.NotifyWarpLeaveEffect(packet.PlayerId, packet.WarpEffect.Value);
             }
 
-            if (_characterRepository.MainCharacter.ID == id)
+            if (_characterRepository.MainCharacter.ID == packet.PlayerId)
             {
                 _characterRepository.HasAvatar = false;
                 _currentMapStateRepository.VisibleSpikeTraps.Remove(_characterRepository.MainCharacter.RenderProperties.Coordinates());
             }
-            else if (_currentMapStateRepository.Characters.TryGetValue(id, out var character))
+            else if (_currentMapStateRepository.Characters.TryGetValue(packet.PlayerId, out var character))
             {
                 _currentMapStateRepository.Characters.Remove(character);
                 _currentMapStateRepository.VisibleSpikeTraps.Remove(character.RenderProperties.Coordinates());
             }
             else
             {
-                _currentMapStateRepository.UnknownPlayerIDs.Add(id);
+                _currentMapStateRepository.UnknownPlayerIDs.Add(packet.PlayerId);
             }
 
             return true;

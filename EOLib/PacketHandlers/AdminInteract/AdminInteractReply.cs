@@ -1,8 +1,9 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Login;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOLib.PacketHandlers.AdminInteract
 {
@@ -10,7 +11,7 @@ namespace EOLib.PacketHandlers.AdminInteract
     /// Received by admins when a report is made by another player.
     /// </summary>
     [AutoMappedType]
-    public class AdminInteractReply : InGameOnlyPacketHandler
+    public class AdminInteractReply : InGameOnlyPacketHandler<AdminInteractReplyServerPacket>
     {
         private readonly IChatRepository _chatRepository;
 
@@ -25,23 +26,22 @@ namespace EOLib.PacketHandlers.AdminInteract
             _chatRepository = chatRepository;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(AdminInteractReplyServerPacket packet)
         {
-            var messageType = (AdminMessageType)packet.ReadChar();
-            packet.ReadByte();
-
-            var playerName = packet.ReadBreakString();
-            var message = packet.ReadBreakString();
-
             ChatData chatData;
-            switch (messageType)
+            switch (packet.MessageType)
             {
                 case AdminMessageType.Message:
-                    chatData = new ChatData(ChatTab.Group, playerName, $"needs help: {message}", ChatIcon.Information, ChatColor.ServerGlobal, filter: false);
+                    {
+                        var message = (AdminInteractReplyServerPacket.MessageTypeDataMessage)packet.MessageTypeData;
+                        chatData = new ChatData(ChatTab.Group, message.PlayerName, $"needs help: {message}", ChatIcon.Information, ChatColor.ServerGlobal, filter: false);
+                    }
                     break;
                 case AdminMessageType.Report:
-                    var reporteeName = packet.ReadBreakString();
-                    chatData = new ChatData(ChatTab.Group, playerName, $"reports: {reporteeName}, {message}", ChatIcon.Information, ChatColor.ServerGlobal, filter: false);
+                    {
+                        var report = (AdminInteractReplyServerPacket.MessageTypeDataReport)packet.MessageTypeData;
+                        chatData = new ChatData(ChatTab.Group, report.PlayerName, $"reports: {report.ReporteeName}, {report.Message}", ChatIcon.Information, ChatColor.ServerGlobal, filter: false);
+                    }
                     break;
                 default:
                     return false;

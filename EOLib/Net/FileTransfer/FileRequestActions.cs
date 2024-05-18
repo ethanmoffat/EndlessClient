@@ -7,6 +7,7 @@ using EOLib.IO.Extensions;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 using Optional;
 using System;
 using System.IO;
@@ -48,12 +49,12 @@ namespace EOLib.Net.FileTransfer
             _playerInfoProvider = playerInfoProvider;
         }
 
-        public bool NeedsFileForLogin(InitFileType fileType, int optionalID = 0)
+        public bool NeedsFileForLogin(FileType fileType, int optionalID = 0)
         {
             var expectedChecksum = _numberEncoderService.DecodeNumber(_loginFileChecksumProvider.MapChecksum);
             var expectedLength = _loginFileChecksumProvider.MapLength;
 
-            return fileType == InitFileType.Map
+            return fileType == FileType.Emf
                 ? NeedMap(optionalID, expectedChecksum, expectedLength)
                 : NeedPub(fileType);
         }
@@ -86,7 +87,7 @@ namespace EOLib.Net.FileTransfer
         {
             DeleteExisting(PubFileNameConstants.EIFFilter);
 
-            var itemFiles = await _fileRequestService.RequestFile<EIFRecord>(InitFileType.Item, sessionID);
+            var itemFiles = await _fileRequestService.RequestFile<EIFRecord>(FileType.Eif, sessionID);
             foreach (var file in itemFiles)
                 _pubFileSaveService.SaveFile(string.Format(PubFileNameConstants.EIFFormat, file.ID), file, rewriteChecksum: false);
 
@@ -98,7 +99,7 @@ namespace EOLib.Net.FileTransfer
         {
             DeleteExisting(PubFileNameConstants.ENFFilter);
 
-            var npcFiles = await _fileRequestService.RequestFile<ENFRecord>(InitFileType.Npc, sessionID);
+            var npcFiles = await _fileRequestService.RequestFile<ENFRecord>(FileType.Enf, sessionID);
             foreach (var file in npcFiles)
                 _pubFileSaveService.SaveFile(string.Format(PubFileNameConstants.ENFFormat, file.ID), file, rewriteChecksum: false);
             _pubFileRepository.ENFFiles = npcFiles;
@@ -109,7 +110,7 @@ namespace EOLib.Net.FileTransfer
         {
             DeleteExisting(PubFileNameConstants.ESFFilter);
 
-            var spellFiles = await _fileRequestService.RequestFile<ESFRecord>(InitFileType.Spell, sessionID);
+            var spellFiles = await _fileRequestService.RequestFile<ESFRecord>(FileType.Esf, sessionID);
             foreach (var file in spellFiles)
                 _pubFileSaveService.SaveFile(string.Format(PubFileNameConstants.ESFFormat, file.ID), file, rewriteChecksum: false);
             _pubFileRepository.ESFFiles = spellFiles;
@@ -120,7 +121,7 @@ namespace EOLib.Net.FileTransfer
         {
             DeleteExisting(PubFileNameConstants.ECFFilter);
 
-            var classFiles = await _fileRequestService.RequestFile<ECFRecord>(InitFileType.Class, sessionID);
+            var classFiles = await _fileRequestService.RequestFile<ECFRecord>(FileType.Ecf, sessionID);
             foreach (var file in classFiles)
                 _pubFileSaveService.SaveFile(string.Format(PubFileNameConstants.ECFFormat, file.ID), file, rewriteChecksum: false);
             _pubFileRepository.ECFFiles = classFiles;
@@ -138,23 +139,23 @@ namespace EOLib.Net.FileTransfer
             return expectedChecksum != actualChecksum || expectedLength != actualLength;
         }
 
-        private bool NeedPub(InitFileType fileType)
+        private bool NeedPub(FileType fileType)
         {
             switch (fileType)
             {
-                case InitFileType.Item:
+                case FileType.Eif:
                     return _pubFileRepository.EIFFile == null ||
                            _loginFileChecksumProvider.EIFChecksum != _pubFileRepository.EIFFile.CheckSum ||
                            _loginFileChecksumProvider.EIFLength != _pubFileRepository.EIFFile.Length;
-                case InitFileType.Npc:
+                case FileType.Enf:
                     return _pubFileRepository.ENFFile == null ||
                            _loginFileChecksumProvider.ENFChecksum != _pubFileRepository.ENFFile.CheckSum ||
                            _loginFileChecksumProvider.ENFLength != _pubFileRepository.ENFFile.Length;
-                case InitFileType.Spell:
+                case FileType.Esf:
                     return _pubFileRepository.ESFFile == null ||
                            _loginFileChecksumProvider.ESFChecksum != _pubFileRepository.ESFFile.CheckSum ||
                            _loginFileChecksumProvider.ESFLength != _pubFileRepository.ESFFile.Length;
-                case InitFileType.Class:
+                case FileType.Ecf:
                     return _pubFileRepository.ECFFile == null ||
                            _loginFileChecksumProvider.ECFChecksum != _pubFileRepository.ECFFile.CheckSum ||
                            _loginFileChecksumProvider.ECFLength != _pubFileRepository.ECFFile.Length;
@@ -176,7 +177,7 @@ namespace EOLib.Net.FileTransfer
 
     public interface IFileRequestActions
     {
-        bool NeedsFileForLogin(InitFileType fileType, int optionalID = 0);
+        bool NeedsFileForLogin(FileType fileType, int optionalID = 0);
 
         bool NeedsMapForWarp(int mapID, byte[] mapRid, int fileSize);
 

@@ -1,15 +1,18 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
+using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
-using EOLib.Domain.NPC;
-using EOLib.Domain.Protocol;
+using EOLib.IO;
 using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.FileTransfer;
-using EOLib.Net.Translators;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace EOLib.Domain.Login
 {
@@ -17,9 +20,6 @@ namespace EOLib.Domain.Login
     public class LoginActions : ILoginActions
     {
         private readonly IPacketSendService _packetSendService;
-        private readonly IPacketTranslator<IAccountLoginData> _loginPacketTranslator;
-        private readonly IPacketTranslator<LoginRequestGrantedData> _loginRequestGrantedPacketTranslator;
-        private readonly IPacketTranslator<LoginRequestCompletedData> _loginRequestCompletedPacketTranslator;
         private readonly ICharacterSelectorRepository _characterSelectorRepository;
         private readonly IPlayerInfoRepository _playerInfoRepository;
         private readonly ICharacterRepository _characterRepository;
@@ -31,9 +31,6 @@ namespace EOLib.Domain.Login
         private readonly ICharacterSessionRepository _characterSessionRepository;
 
         public LoginActions(IPacketSendService packetSendService,
-                            IPacketTranslator<IAccountLoginData> loginPacketTranslator,
-                            IPacketTranslator<LoginRequestGrantedData> loginRequestGrantedPacketTranslator,
-                            IPacketTranslator<LoginRequestCompletedData> loginRequestCompletedPacketTranslator,
                             ICharacterSelectorRepository characterSelectorRepository,
                             IPlayerInfoRepository playerInfoRepository,
                             ICharacterRepository characterRepository,
@@ -45,9 +42,6 @@ namespace EOLib.Domain.Login
                             ICharacterSessionRepository characterSessionRepository)
         {
             _packetSendService = packetSendService;
-            _loginPacketTranslator = loginPacketTranslator;
-            _loginRequestGrantedPacketTranslator = loginRequestGrantedPacketTranslator;
-            _loginRequestCompletedPacketTranslator = loginRequestCompletedPacketTranslator;
             _characterSelectorRepository = characterSelectorRepository;
             _playerInfoRepository = playerInfoRepository;
             _characterRepository = characterRepository;
@@ -67,142 +61,164 @@ namespace EOLib.Domain.Login
 
         public async Task<LoginReply> LoginToServer(ILoginParameters parameters)
         {
-            var packet = new PacketBuilder(PacketFamily.Login, PacketAction.Request)
-                .AddBreakString(parameters.Username)
-                .AddBreakString(parameters.Password)
-                .Build();
+            var packet = new LoginRequestClientPacket
+            {
+                Username = parameters.Username,
+                Password = parameters.Password,
+            };
 
             var response = await _packetSendService.SendEncodedPacketAndWaitAsync(packet);
-            if (IsInvalidResponse(response))
+            if (IsInvalidResponse(response, out var responsePacket))
                 throw new EmptyPacketReceivedException();
 
-            var data = _loginPacketTranslator.TranslatePacket(response);
-            _characterSelectorRepository.Characters = data.Characters;
-
-            if (data.Response == LoginReply.Ok)
+            if (responsePacket.ReplyCode == LoginReply.Ok)
             {
+                _characterSelectorRepository.Characters = ((LoginReplyServerPacket.ReplyCodeDataOk)responsePacket.ReplyCodeData)
+                    .Characters.Select(Character.Character.FromCharacterSelectionListEntry).ToList();
                 _playerInfoRepository.LoggedInAccountName = parameters.Username;
                 _playerInfoRepository.PlayerPassword = parameters.Password;
             }
 
-            return data.Response;
+            return responsePacket.ReplyCode;
         }
 
         public async Task<int> RequestCharacterLogin(Character.Character character)
         {
-            var packet = new PacketBuilder(PacketFamily.Welcome, PacketAction.Request)
-                .AddInt(character.ID)
-                .Build();
+            var packet = new WelcomeRequestClientPacket { CharacterId = character.ID };
 
             var response = await _packetSendService.SendEncodedPacketAndWaitAsync(packet);
-            if (IsInvalidWelcome(response))
+            if (IsInvalidWelcome(response, out var responsePacket) || responsePacket.WelcomeCode != WelcomeCode.SelectCharacter)
                 throw new EmptyPacketReceivedException();
 
-            var data = _loginRequestGrantedPacketTranslator.TranslatePacket(response);
+            var data = (WelcomeReplyServerPacket.WelcomeCodeDataSelectCharacter)responsePacket.WelcomeCodeData;
 
             _characterRepository.MainCharacter = character
-                .WithID(data.CharacterID)
+                .WithID(data.CharacterId)
                 .WithName(data.Name)
                 .WithTitle(data.Title)
                 .WithGuildName(data.GuildName)
-                .WithGuildRank(data.GuildRank)
+                .WithGuildRank(data.GuildRankName)
                 .WithGuildTag(data.GuildTag)
-                .WithClassID(data.ClassID)
-                .WithMapID(data.MapID)
-                .WithAdminLevel(data.AdminLevel)
-                .WithStats(data.CharacterStats);
+                .WithClassID(data.ClassId)
+                .WithMapID(data.MapId)
+                .WithAdminLevel(data.Admin)
+                .WithStats(CharacterStats.FromSelectCharacterData(data));
 
-            _playerInfoRepository.IsFirstTimePlayer = data.FirstTimePlayer;
+            _playerInfoRepository.IsFirstTimePlayer = data.LoginMessageCode == LoginMessageCode.Yes;
             _playerInfoRepository.PlayerHasAdminCharacter = _characterSelectorRepository.Characters.Any(x => x.AdminLevel > 0);
 
-            _currentMapStateRepository.CurrentMapID = data.MapID;
-            _currentMapStateRepository.JailMapID = data.JailMap;
+            _currentMapStateRepository.CurrentMapID = data.MapId;
+            _currentMapStateRepository.JailMapID = data.Settings.JailMap;
 
-            _paperdollRepository.VisibleCharacterPaperdolls[data.SessionID] = new PaperdollData()
+            _paperdollRepository.VisibleCharacterPaperdolls[data.SessionId] = new PaperdollData()
                 .WithName(data.Name)
                 .WithTitle(data.Title)
                 .WithGuild(data.GuildName)
-                .WithRank(data.GuildRank)
-                .WithClass(data.ClassID)
-                .WithPlayerID(data.SessionID)
-                .WithPaperdoll(data.Paperdoll);
+                .WithRank(data.GuildRankName)
+                .WithClass(data.ClassId)
+                .WithPlayerID(data.SessionId)
+                .WithPaperdoll(data.Equipment.GetPaperdoll());
 
-            _loginFileChecksumRepository.MapChecksum = data.MapRID.ToArray();
-            _loginFileChecksumRepository.MapLength = data.MapLen;
+            _loginFileChecksumRepository.MapChecksum = data.MapRid;
+            _loginFileChecksumRepository.MapLength = data.MapFileSize;
 
             _loginFileChecksumRepository.EIFChecksum = data.EifRid;
-            _loginFileChecksumRepository.EIFLength = data.EifLen;
+            _loginFileChecksumRepository.EIFLength = data.EifLength;
             _loginFileChecksumRepository.ENFChecksum = data.EnfRid;
-            _loginFileChecksumRepository.ENFLength = data.EnfLen;
+            _loginFileChecksumRepository.ENFLength = data.EnfLength;
             _loginFileChecksumRepository.ESFChecksum = data.EsfRid;
-            _loginFileChecksumRepository.ESFLength = data.EsfLen;
+            _loginFileChecksumRepository.ESFLength = data.EsfLength;
             _loginFileChecksumRepository.ECFChecksum = data.EcfRid;
-            _loginFileChecksumRepository.ECFLength = data.EcfLen;
-            return data.SessionID;
+            _loginFileChecksumRepository.ECFLength = data.EcfLength;
+
+            return data.SessionId;
         }
 
-        public async Task<CharacterLoginReply> CompleteCharacterLogin(int sessionID)
+        public async Task<WelcomeCode> CompleteCharacterLogin(int sessionID)
         {
-            var packet = new PacketBuilder(PacketFamily.Welcome, PacketAction.Message)
-                .AddThree(sessionID)
-                .AddInt(_characterRepository.MainCharacter.ID)
-                .Build();
+            var packet = new WelcomeMsgClientPacket
+            {
+                SessionId = sessionID,
+                CharacterId = _characterRepository.MainCharacter.ID
+            };
 
             var response = await _packetSendService.SendEncodedPacketAndWaitAsync(packet);
-            if (IsInvalidWelcome(response))
+            if (IsInvalidWelcome(response, out var responsePacket))
                 throw new EmptyPacketReceivedException();
 
-            var data = _loginRequestCompletedPacketTranslator.TranslatePacket(response);
+            if (responsePacket.WelcomeCode != WelcomeCode.EnterGame)
+                return responsePacket.WelcomeCode;
 
-            if (data.Error == CharacterLoginReply.RequestDenied)
-            {
-                return data.Error;
-            }
+            var data = (WelcomeReplyServerPacket.WelcomeCodeDataEnterGame)responsePacket.WelcomeCodeData;
 
             _newsRepository.NewsHeader = data.News.First();
-            _newsRepository.NewsText = data.News.Except(new[] { data.News.First() }).ToList();
+            _newsRepository.NewsText = data.News.Skip(1).ToList();
 
-            var mainCharacter = data.MapCharacters.Single(
-                x => x.Name.ToLower() == _characterRepository.MainCharacter.Name.ToLower());
+            var mainCharacter = data.Nearby.Characters.Single(
+                x => x.Name.Equals(_characterRepository.MainCharacter.Name, StringComparison.OrdinalIgnoreCase));
 
             var stats = _characterRepository.MainCharacter.Stats
-                .WithNewStat(CharacterStat.Weight, data.CharacterWeight)
-                .WithNewStat(CharacterStat.MaxWeight, data.CharacterMaxWeight)
-                .WithNewStat(CharacterStat.Level, mainCharacter.Stats[CharacterStat.Level])
-                .WithNewStat(CharacterStat.HP, mainCharacter.Stats[CharacterStat.HP])
-                .WithNewStat(CharacterStat.MaxHP, mainCharacter.Stats[CharacterStat.MaxHP])
-                .WithNewStat(CharacterStat.TP, mainCharacter.Stats[CharacterStat.TP])
-                .WithNewStat(CharacterStat.MaxTP, mainCharacter.Stats[CharacterStat.MaxTP]);
+                .WithNewStat(CharacterStat.Weight, data.Weight.Current)
+                .WithNewStat(CharacterStat.MaxWeight, data.Weight.Max)
+                .WithNewStat(CharacterStat.Level, mainCharacter.Level)
+                .WithNewStat(CharacterStat.HP, mainCharacter.Hp)
+                .WithNewStat(CharacterStat.MaxHP, mainCharacter.MaxHp)
+                .WithNewStat(CharacterStat.TP, mainCharacter.Tp)
+                .WithNewStat(CharacterStat.MaxTP, mainCharacter.MaxTp);
 
             _characterRepository.MainCharacter = _characterRepository.MainCharacter
                 .WithID(_playerInfoRepository.PlayerID)
                 .WithName(mainCharacter.Name)
-                .WithMapID(mainCharacter.MapID)
+                .WithMapID(mainCharacter.MapId)
                 .WithGuildTag(mainCharacter.GuildTag)
+                .WithClassID(mainCharacter.ClassId)
                 .WithStats(stats)
-                .WithRenderProperties(mainCharacter.RenderProperties);
+                .WithRenderProperties(CharacterRenderProperties.FromCharacterMapInfo(mainCharacter));
 
-            _characterInventoryRepository.ItemInventory = new HashSet<InventoryItem>(data.CharacterItemInventory);
-            _characterInventoryRepository.SpellInventory = new HashSet<InventorySpell>(data.CharacterSpellInventory);
+            _characterInventoryRepository.ItemInventory = new HashSet<InventoryItem>(data.Items.Select(InventoryItem.FromNet));
+            _characterInventoryRepository.SpellInventory = new HashSet<InventorySpell>(data.Spells.Select(InventorySpell.FromNet));
 
-            _currentMapStateRepository.Characters = new MapEntityCollectionHashSet<Character.Character>(c => c.ID, c => new MapCoordinate(c.X, c.Y), data.MapCharacters.Except(new[] { mainCharacter }));
-            _currentMapStateRepository.NPCs = new MapEntityCollectionHashSet<NPC.NPC>(n => n.Index, n => new MapCoordinate(n.X, n.Y), data.MapNPCs);
-            _currentMapStateRepository.MapItems = new MapEntityCollectionHashSet<MapItem>(item => item.UniqueID, item => new MapCoordinate(item.X, item.Y), data.MapItems);
+            _currentMapStateRepository.Characters = new MapEntityCollectionHashSet<Character.Character>(
+                c => c.ID,
+                c => new MapCoordinate(c.X, c.Y),
+                data.Nearby.Characters.Except(new[] { mainCharacter }).Where(x => x.ByteSize >= 42).Select(Character.Character.FromNearby)
+            );
+            _currentMapStateRepository.NPCs = new MapEntityCollectionHashSet<NPC.NPC>(
+                n => n.Index,
+                n => new MapCoordinate(n.X, n.Y),
+                data.Nearby.Npcs.Select(NPC.NPC.FromNearby)
+            );
+            _currentMapStateRepository.MapItems = new MapEntityCollectionHashSet<MapItem>(
+                item => item.UniqueID,
+                item => new MapCoordinate(item.X, item.Y),
+                data.Nearby.Items.Select(MapItem.FromNearby)
+            );
 
             _playerInfoRepository.PlayerIsInGame = true;
             _characterSessionRepository.ResetState();
 
-            return CharacterLoginReply.RequestCompleted;
+            return WelcomeCode.EnterGame;
         }
 
-        private bool IsInvalidResponse(IPacket response)
+        private static bool IsInvalidResponse(IPacket response, out LoginReplyServerPacket responsePacket)
         {
-            return !(response.Family == PacketFamily.Login && response.Action == PacketAction.Reply)
-                && !(response.Family == PacketFamily.Init && response.Action == PacketAction.Init && response.PeekByte() == (byte)InitReply.BannedFromServer);
+            responsePacket = response as LoginReplyServerPacket;
+            if (responsePacket == null && response is InitInitServerPacket initPacket && initPacket.ReplyCode == InitReply.Banned)
+            {
+                responsePacket = new LoginReplyServerPacket
+                {
+                    ReplyCode = LoginReply.Banned,
+                    ReplyCodeData = new LoginReplyServerPacket.ReplyCodeDataBanned()
+                };
+                return true;
+            }
+
+            return !(response.Family == PacketFamily.Login && response.Action == PacketAction.Reply);
         }
 
-        private bool IsInvalidWelcome(IPacket response)
+        private static bool IsInvalidWelcome(IPacket response, out WelcomeReplyServerPacket responsePacket)
         {
+            responsePacket = response as WelcomeReplyServerPacket;
             return response.Family != PacketFamily.Welcome || response.Action != PacketAction.Reply;
         }
     }
@@ -215,6 +231,6 @@ namespace EOLib.Domain.Login
 
         Task<int> RequestCharacterLogin(Character.Character character);
 
-        Task<CharacterLoginReply> CompleteCharacterLogin(int sessionID);
+        Task<WelcomeCode> CompleteCharacterLogin(int sessionID);
     }
 }

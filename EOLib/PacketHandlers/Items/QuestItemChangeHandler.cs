@@ -1,7 +1,7 @@
 ﻿using EOLib.Domain.Character;
 using EOLib.Domain.Login;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Optional.Collections;
 
 namespace EOLib.PacketHandlers.Items
@@ -9,7 +9,8 @@ namespace EOLib.PacketHandlers.Items
     /// <summary>
     /// Base handler for when a quest gives/takes items from the main character
     /// </summary>
-    public abstract class QuestItemChangeHandler : InGameOnlyPacketHandler
+    public abstract class QuestItemChangeHandler<TPacket> : InGameOnlyPacketHandler<TPacket>
+        where TPacket : IPacket
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly ICharacterInventoryRepository _inventoryRepository;
@@ -25,12 +26,8 @@ namespace EOLib.PacketHandlers.Items
             _inventoryRepository = inventoryRepository;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        protected void Handle(int id, int amount, int weight)
         {
-            var id = packet.ReadShort();
-            var amount = Action == PacketAction.Obtain ? packet.ReadThree() : packet.ReadInt();
-            var weight = packet.ReadChar();
-
             var inventoryItem = _inventoryRepository.ItemInventory
                 .SingleOrNone(x => x.ItemID == id)
                 .Match(x => x, () => new InventoryItem(id, 0));
@@ -51,8 +48,6 @@ namespace EOLib.PacketHandlers.Items
             var stats = _characterRepository.MainCharacter.Stats;
             stats = stats.WithNewStat(CharacterStat.Weight, weight);
             _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);
-
-            return true;
         }
     }
 }

@@ -1,16 +1,17 @@
-﻿using System.Collections.Generic;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Chat
 {
     [AutoMappedType]
-    public class GroupChatHandler : PlayerChatByIDHandler
+    public class GroupChatHandler : PlayerChatByIDHandler<TalkOpenServerPacket>
     {
         private readonly IChatRepository _chatRepository;
         private readonly IEnumerable<IOtherCharacterEventNotifier> _otherCharacterEventNotifiers;
@@ -31,18 +32,21 @@ namespace EOLib.PacketHandlers.Chat
             _chatEventNotifiers = chatEventNotifiers;
         }
 
-        protected override void DoTalk(IPacket packet, Character character)
+        public override bool HandlePacket(TalkOpenServerPacket packet)
         {
-            var message = packet.ReadBreakString();
+            return Handle(packet, packet.PlayerId);
+        }
 
-            var localChatData = new ChatData(ChatTab.Local, character.Name, message, ChatIcon.PlayerPartyDark, ChatColor.PM);
+        protected override void DoTalk(TalkOpenServerPacket packet, Character character)
+        {
+            var localChatData = new ChatData(ChatTab.Local, character.Name, packet.Message, ChatIcon.PlayerPartyDark, ChatColor.PM);
             _chatRepository.AllChat[ChatTab.Local].Add(localChatData);
 
-            var chatData = new ChatData(ChatTab.Group, character.Name, message, ChatIcon.PlayerPartyDark);
+            var chatData = new ChatData(ChatTab.Group, character.Name, packet.Message, ChatIcon.PlayerPartyDark);
             _chatRepository.AllChat[ChatTab.Group].Add(chatData);
 
             foreach (var notifier in _otherCharacterEventNotifiers)
-                notifier.OtherCharacterSaySomethingToGroup(character.ID, message);
+                notifier.OtherCharacterSaySomethingToGroup(character.ID, packet.Message);
 
             foreach (var notifier in _chatEventNotifiers)
                 notifier.NotifyChatReceived(ChatEventType.Group);

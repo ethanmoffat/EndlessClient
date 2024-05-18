@@ -1,7 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using NUnit.Framework;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using EOLib.IO.Services;
-using NUnit.Framework;
 
 namespace EOLib.Localization.Test
 {
@@ -16,7 +15,7 @@ namespace EOLib.Localization.Test
         public void SetUp()
         {
             _dataFileRepository = new DataFileRepository();
-            _edfLoaderService = new EDFLoaderService(new DataEncoderService());
+            _edfLoaderService = new EDFLoaderService();
             _actions = new DataFileLoadActions(_dataFileRepository, _edfLoaderService);
         }
 

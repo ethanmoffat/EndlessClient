@@ -1,8 +1,9 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Arena
@@ -11,7 +12,7 @@ namespace EOLib.PacketHandlers.Arena
     /// Arena win message
     /// </summary>
     [AutoMappedType]
-    public class ArenaAcceptHandler : InGameOnlyPacketHandler
+    public class ArenaAcceptHandler : InGameOnlyPacketHandler<ArenaAcceptServerPacket>
     {
         private readonly IEnumerable<IArenaNotifier> _arenaNotifiers;
 
@@ -26,20 +27,12 @@ namespace EOLib.PacketHandlers.Arena
             _arenaNotifiers = arenaNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(ArenaAcceptServerPacket packet)
         {
-            var winnerName = packet.ReadBreakString();
-
-            var killsCount = packet.ReadInt();
-            packet.ReadByte();
-
-            var killerName = packet.ReadBreakString();
-            var victimName = packet.ReadBreakString();
-
             foreach (var notifier in _arenaNotifiers)
             {
-                notifier.NotifyArenaKill(killsCount, killerName, victimName);
-                notifier.NotifyArenaWin(winnerName);
+                notifier.NotifyArenaKill(packet.KillsCount, packet.KillerName, packet.VictimName);
+                notifier.NotifyArenaWin(packet.WinnerName);
             }
 
             return true;

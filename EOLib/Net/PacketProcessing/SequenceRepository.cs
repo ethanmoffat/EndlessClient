@@ -1,17 +1,23 @@
 ﻿using AutomaticTypeMapper;
+using Moffat.EndlessOnline.SDK.Packet;
 
 namespace EOLib.Net.PacketProcessing
 {
     [AutoMappedType(IsSingleton = true)]
     public class SequenceRepository : ISequenceRepository
     {
-        public int SequenceStart { get; set; }
-        public int SequenceIncrement { get; set; }
+        public PacketSequencer Sequencer { get; set; }
+
+        public SequenceRepository() => ResetState();
+
+        public void ResetState()
+        {
+             Sequencer = new PacketSequencer(ZeroSequence.Instance);
+        }
     }
 
-    public interface ISequenceRepository
+    public interface ISequenceRepository : IResettable
     {
-        int SequenceStart { get; set; }
-        int SequenceIncrement { get; set; }
+        PacketSequencer Sequencer { get; set; }
     }
 }

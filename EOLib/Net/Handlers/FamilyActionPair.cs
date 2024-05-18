@@ -1,16 +1,18 @@
-﻿using System.Collections;
+﻿using Moffat.EndlessOnline.SDK.Protocol.Net;
+using System;
+using System.Collections;
 
 namespace EOLib.Net.Handlers
 {
-    public struct FamilyActionPair : IEqualityComparer
+    public readonly struct FamilyActionPair : IEqualityComparer
     {
-        private readonly PacketFamily fam;
-        private readonly PacketAction act;
+        public PacketFamily Family { get; }
+        public PacketAction Action { get; }
 
         public FamilyActionPair(PacketFamily family, PacketAction action)
         {
-            fam = family;
-            act = action;
+            Family = family;
+            Action = action;
         }
 
         bool IEqualityComparer.Equals(object obj1, object obj2)
@@ -20,7 +22,7 @@ namespace EOLib.Net.Handlers
 
             var fap1 = (FamilyActionPair) obj1;
             var fap2 = (FamilyActionPair)obj2;
-            return fap1.fam == fap2.fam && fap1.act == fap2.act;
+            return fap1.Family == fap2.Family && fap1.Action == fap2.Action;
         }
 
         public int GetHashCode(object obj)
@@ -29,7 +31,15 @@ namespace EOLib.Net.Handlers
 
             var fap /*lol*/ = (FamilyActionPair)obj;
 
-            return (int)fap.fam << 8 & (byte)fap.act;
+            return (int)fap.Family << 8 & (byte)fap.Action;
+        }
+
+        public static FamilyActionPair From(byte[] array)
+        {
+            if (array.Length < 2)
+                throw new ArgumentException("Unable to determine packet ID from input array");
+
+            return new FamilyActionPair((PacketFamily)array[1], (PacketAction)array[0]);
         }
     }
 }

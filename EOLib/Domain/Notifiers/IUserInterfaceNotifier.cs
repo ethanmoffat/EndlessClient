@@ -1,7 +1,7 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
-using EOLib.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
 using System.Collections.Generic;
 
 namespace EOLib.Domain.Notifiers

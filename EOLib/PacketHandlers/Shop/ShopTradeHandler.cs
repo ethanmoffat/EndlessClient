@@ -4,12 +4,15 @@ using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
 using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional.Collections;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Shop
 {
-    public abstract class ShopTradeHandler : InGameOnlyPacketHandler
+    public abstract class ShopTradeHandler<TPacket> : InGameOnlyPacketHandler<TPacket>
+        where TPacket : IPacket
     {
         private const byte BuySellSfxId = 26;
 
@@ -30,14 +33,8 @@ namespace EOLib.PacketHandlers.Shop
             _soundNotifiers = soundNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        protected void Handle(int remaining, int itemId, int acquired, Weight weight)
         {
-            var remaining = packet.ReadInt(); // character gold remaining on buy; item amount remaining on sell
-            var itemId = packet.ReadShort();
-            var acquired = packet.ReadInt(); // amount acquired on buy; gold acquired on sell
-            var weight = packet.ReadChar();
-            var maxWeight = packet.ReadChar();
-
             if (Action == PacketAction.Buy)
             {
                 var gold = new InventoryItem(1, remaining);
@@ -67,23 +64,21 @@ namespace EOLib.PacketHandlers.Shop
             }
             else
             {
-                return false;
+                return;
             }
 
             foreach (var notifier in _soundNotifiers)
                 notifier.NotifySoundEffect(BuySellSfxId);
 
             var stats = _characterRepository.MainCharacter.Stats;
-            stats = stats.WithNewStat(CharacterStat.Weight, weight)
-                .WithNewStat(CharacterStat.MaxWeight, maxWeight);
+            stats = stats.WithNewStat(CharacterStat.Weight, weight.Current)
+                .WithNewStat(CharacterStat.MaxWeight, weight.Max);
             _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);
-
-            return true;
         }
     }
 
     [AutoMappedType]
-    public class ShopBuyHandler : ShopTradeHandler
+    public class ShopBuyHandler : ShopTradeHandler<ShopBuyServerPacket>
     {
         public override PacketAction Action => PacketAction.Buy;
 
@@ -94,10 +89,16 @@ namespace EOLib.PacketHandlers.Shop
             : base(playerInfoProvider, characterRepository, characterInventoryRepository, soundNotifiers)
         {
         }
+
+        public override bool HandlePacket(ShopBuyServerPacket packet)
+        {
+            Handle(packet.GoldAmount, packet.BoughtItem.Id, packet.BoughtItem.Amount, packet.Weight);
+            return true;
+        }
     }
 
     [AutoMappedType]
-    public class ShopSellHandler : ShopTradeHandler
+    public class ShopSellHandler : ShopTradeHandler<ShopSellServerPacket>
     {
         public override PacketAction Action => PacketAction.Sell;
 
@@ -107,6 +108,12 @@ namespace EOLib.PacketHandlers.Shop
                               IEnumerable<ISoundNotifier> soundNotifiers)
             : base(playerInfoProvider, characterRepository, characterInventoryRepository, soundNotifiers)
         {
+        }
+
+        public override bool HandlePacket(ShopSellServerPacket packet)
+        {
+            Handle(packet.SoldItem.Amount, packet.SoldItem.Id, packet.GoldAmount, packet.Weight);
+            return true;
         }
     }
 }

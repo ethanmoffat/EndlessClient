@@ -1,4 +1,4 @@
-﻿using EOLib.Domain.Online;
+﻿using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOLib.Domain.Character
 {
@@ -22,6 +22,6 @@ namespace EOLib.Domain.Character
 
         int Gender { get; }
 
-        OnlineIcon Icon { get; }
+        CharacterIcon Icon { get; }
     }
 }

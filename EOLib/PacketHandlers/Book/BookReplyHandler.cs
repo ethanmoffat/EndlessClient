@@ -1,11 +1,9 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
-using EOLib.Domain.Online;
-using EOLib.Net;
 using EOLib.Net.Handlers;
-using System;
-using System.Collections.Generic;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOLib.PacketHandlers.Paperdoll
 {
@@ -13,7 +11,7 @@ namespace EOLib.PacketHandlers.Paperdoll
     /// Sets book information for a given player
     /// </summary>
     [AutoMappedType]
-    internal class BookReplyHandler : InGameOnlyPacketHandler
+    internal class BookReplyHandler : InGameOnlyPacketHandler<BookReplyServerPacket>
     {
         private readonly IPaperdollRepository _paperdollRepository;
 
@@ -28,49 +26,27 @@ namespace EOLib.PacketHandlers.Paperdoll
             _paperdollRepository = paperdollRepository;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(BookReplyServerPacket packet)
         {
-            var name = packet.ReadBreakString();
-            var home = packet.ReadBreakString();
-            var partner = packet.ReadBreakString();
-            var title = packet.ReadBreakString();
-            var guild = packet.ReadBreakString();
-            var rank = packet.ReadBreakString();
-
-            var playerID = packet.ReadShort();
-            var clas = packet.ReadChar();
-            var gender = packet.ReadChar();
-
-            var adminLevel = packet.ReadChar();
-
-            var iconType = (OnlineIcon)packet.ReadChar();
-
-            if (packet.ReadByte() != 255)
-                return false;
-
-            var questNames = new List<string>();
-            while (packet.ReadPosition < packet.Length)
-                questNames.Add(packet.ReadBreakString());
-
-            var paperdollData = _paperdollRepository.VisibleCharacterPaperdolls.ContainsKey(playerID)
-                ? _paperdollRepository.VisibleCharacterPaperdolls[playerID]
+            var paperdollData = _paperdollRepository.VisibleCharacterPaperdolls.ContainsKey(packet.Details.PlayerId)
+                ? _paperdollRepository.VisibleCharacterPaperdolls[packet.Details.PlayerId]
                 : new PaperdollData();
 
             paperdollData = paperdollData
-                .WithName(name)
-                .WithHome(home)
-                .WithPartner(partner)
-                .WithTitle(title)
-                .WithGuild(guild)
-                .WithRank(rank)
-                .WithPlayerID(playerID)
-                .WithClass(clas)
-                .WithGender(gender)
-                .WithAdminLevel((AdminLevel)adminLevel)
-                .WithIcon(iconType)
-                .WithQuestNames(questNames);
+                .WithName(packet.Details.Name)
+                .WithHome(packet.Details.Home)
+                .WithPartner(packet.Details.Partner)
+                .WithTitle(packet.Details.Title)
+                .WithGuild(packet.Details.Guild)
+                .WithRank(packet.Details.GuildRank)
+                .WithPlayerID(packet.Details.PlayerId)
+                .WithClass(packet.Details.ClassId)
+                .WithGender((int)packet.Details.Gender)
+                .WithAdminLevel(packet.Details.Admin)
+                .WithIcon(packet.Icon)
+                .WithQuestNames(packet.QuestNames);
 
-            _paperdollRepository.VisibleCharacterPaperdolls[playerID] = paperdollData;
+            _paperdollRepository.VisibleCharacterPaperdolls[packet.Details.PlayerId] = paperdollData;
 
             return true;
         }
