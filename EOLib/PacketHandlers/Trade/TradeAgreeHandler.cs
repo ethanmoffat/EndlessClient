@@ -1,8 +1,9 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Trade;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
 
 namespace EOLib.PacketHandlers.Trade
@@ -11,7 +12,7 @@ namespace EOLib.PacketHandlers.Trade
     /// Other party agrees to a trade
     /// </summary>
     [AutoMappedType]
-    public class TradeAgreeHandler : InGameOnlyPacketHandler
+    public class TradeAgreeHandler : InGameOnlyPacketHandler<TradeAgreeServerPacket>
     {
         private readonly ITradeRepository _tradeRepository;
 
@@ -26,15 +27,11 @@ namespace EOLib.PacketHandlers.Trade
             _tradeRepository = tradeRepository;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(TradeAgreeServerPacket packet)
         {
-            var mainPlayerId = packet.ReadShort();
-            var otherPlayerAgrees = packet.ReadChar() != 0;
-
-            _tradeRepository.SomeWhen(x => x.PlayerOneOffer.PlayerID == mainPlayerId)
-                .Map(x => x.PlayerOneOffer = x.PlayerOneOffer.WithAgrees(otherPlayerAgrees))
-                .Or(() => _tradeRepository.PlayerTwoOffer = _tradeRepository.PlayerTwoOffer.WithAgrees(otherPlayerAgrees));
-
+            _tradeRepository.SomeWhen(x => x.PlayerOneOffer.PlayerID == packet.PartnerPlayerId)
+                .Map(x => x.PlayerOneOffer = x.PlayerOneOffer.WithAgrees(packet.Agree))
+                .Or(() => _tradeRepository.PlayerTwoOffer = _tradeRepository.PlayerTwoOffer.WithAgrees(packet.Agree));
             return true;
         }
     }

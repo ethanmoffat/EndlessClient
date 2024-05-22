@@ -3,8 +3,9 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.PacketHandlers.NPC;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Cast
@@ -13,7 +14,7 @@ namespace EOLib.PacketHandlers.Cast
     /// Sent when an NPC takes damage from a spell cast
     /// </summary>
     [AutoMappedType]
-    public class CastReplyHandler : NPCTakeDamageHandler
+    public class CastReplyHandler : NPCTakeDamageHandler<CastReplyServerPacket>
     {
         public override PacketFamily Family => PacketFamily.Cast;
 
@@ -23,5 +24,13 @@ namespace EOLib.PacketHandlers.Cast
                                 IEnumerable<INPCActionNotifier> npcNotifiers,
                                 IEnumerable<IOtherCharacterAnimationNotifier> otherCharacterAnimationNotifiers)
             : base(playerInfoProvider, characterRepository, currentMapStateRepository, npcNotifiers, otherCharacterAnimationNotifiers) { }
+
+        public override bool HandlePacket(CastReplyServerPacket packet)
+        {
+            Handle(packet.CasterId, (EODirection)packet.CasterDirection,
+                packet.NpcIndex, packet.Damage, packet.HpPercentage,
+                packet.SpellId, packet.CasterTp);
+            return true;
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace EOLib.IO.Map
 {
@@ -10,8 +11,7 @@ namespace EOLib.IO.Map
         public int MapID { get; private set; }
         public int FileSize { get; private set; }
 
-        public byte[] Checksum { get; private set; }
-        public int ChecksumInt { get; private set; }
+        public IReadOnlyList<int> Checksum { get; private set; }
         public string Name { get; private set; }
 
         public int Width { get; private set; }
@@ -37,7 +37,7 @@ namespace EOLib.IO.Map
         public MapFileProperties()
         {
             Name = "";
-            Checksum = new byte[4];
+            Checksum = new List<int> { 0, 0 };
         }
 
         public IMapFileProperties WithMapID(int id)
@@ -54,11 +54,13 @@ namespace EOLib.IO.Map
             return clone;
         }
 
-        public IMapFileProperties WithChecksum(byte[] checksum)
+        public IMapFileProperties WithChecksum(IReadOnlyList<int> checksum)
         {
+            if (checksum.Count != 2)
+                throw new ArgumentException("Checksum should be 2 eo 'short' values", nameof(checksum));
+
             var clone = Clone();
-            clone.Checksum = checksum;
-            clone.ChecksumInt = BitConverter.ToInt32(checksum, 0);
+            clone.Checksum = new List<int>(checksum);
             return clone;
         }
 
@@ -169,12 +171,11 @@ namespace EOLib.IO.Map
 
         private MapFileProperties Clone()
         {
-            var props = new MapFileProperties
+            return new MapFileProperties
             {
                 MapID = MapID,
                 FileSize = FileSize,
-                Checksum = new byte[Checksum.Length],
-                ChecksumInt = ChecksumInt,
+                Checksum = new List<int>(Checksum),
                 Name = Name,
                 Width = Width,
                 Height = Height,
@@ -191,9 +192,6 @@ namespace EOLib.IO.Map
                 PKAvailable = PKAvailable,
                 HasTimedSpikes = HasTimedSpikes
             };
-            Array.Copy(Checksum, props.Checksum, props.Checksum.Length);
-
-            return props;
         }
     }
 }

@@ -26,7 +26,8 @@ namespace EOLib.IO.Services.Serializers
             var ret = new List<byte>();
 
             ret.AddRange(Encoding.ASCII.GetBytes(mapEntity.FileType));
-            ret.AddRange(mapEntity.Checksum);
+            foreach (int value in mapEntity.Checksum)
+                ret.AddRange(_numberEncoderService.EncodeNumber(value, 2));
 
             var mapNameBytes = EncodeMapName(mapEntity);
             ret.AddRange(mapNameBytes);
@@ -58,7 +59,7 @@ namespace EOLib.IO.Services.Serializers
             if (typeString != properties.FileType)
                 throw new FormatException("Data is not correctly formatted! Must be an EMF file header");
 
-            var checksumArray = data.Skip(3).Take(4).ToArray();
+            var checksumArray = data.Skip(3).Take(4).Cast<int>().ToList();
             var mapNameArray = data.Skip(7).Take(24).ToArray();
             var mapName = _mapStringEncoderService.DecodeMapString(mapNameArray);
 

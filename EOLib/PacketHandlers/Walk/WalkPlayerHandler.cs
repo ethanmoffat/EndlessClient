@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Walk
 {
@@ -14,7 +15,7 @@ namespace EOLib.PacketHandlers.Walk
     /// Sent in response to another player walking successfully
     /// </summary>
     [AutoMappedType]
-    public class WalkPlayerHandler : InGameOnlyPacketHandler
+    public class WalkPlayerHandler : InGameOnlyPacketHandler<WalkPlayerServerPacket>
     {
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IEnumerable<IOtherCharacterAnimationNotifier> _otherCharacterAnimationNotifiers;
@@ -32,30 +33,26 @@ namespace EOLib.PacketHandlers.Walk
             _otherCharacterAnimationNotifiers = otherCharacterAnimationNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(WalkPlayerServerPacket packet)
         {
-            var characterID = packet.ReadShort();
 
-            if (_currentMapStateRepository.Characters.TryGetValue(characterID, out var character))
+            if (_currentMapStateRepository.Characters.TryGetValue(packet.PlayerId, out var character))
             {
-                var dir = (EODirection)packet.ReadChar();
-                var x = packet.ReadChar();
-                var y = packet.ReadChar();
 
                 // if character is walking, that means animator is handling position of character
                 // if character is not walking (this is true in EOBot), update the domain model here
                 if (!character.RenderProperties.IsActing(CharacterActionState.Walking))
                 {
-                    var renderProperties = EnsureCorrectXAndY(character.RenderProperties.WithDirection(dir), x, y);
+                    var renderProperties = EnsureCorrectXAndY(character.RenderProperties.WithDirection((EODirection)packet.Direction), packet.Coords.X, packet.Coords.Y);
                     _currentMapStateRepository.Characters.Update(character, character.WithRenderProperties(renderProperties));
                 }
 
                 foreach (var notifier in _otherCharacterAnimationNotifiers)
-                    notifier.StartOtherCharacterWalkAnimation(characterID, new MapCoordinate(x, y), dir);
+                    notifier.StartOtherCharacterWalkAnimation(packet.PlayerId, new MapCoordinate(packet.Coords.X, packet.Coords.Y), (EODirection)packet.Direction);
             }
             else
             {
-                _currentMapStateRepository.UnknownPlayerIDs.Add(characterID);
+                _currentMapStateRepository.UnknownPlayerIDs.Add(packet.PlayerId);
             }
 
             return true;

@@ -1,6 +1,6 @@
 ﻿using AutomaticTypeMapper;
-using EOLib.Net;
 using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 
 namespace EOLib.Domain.Interact.Board
 {
@@ -21,13 +21,13 @@ namespace EOLib.Domain.Interact.Board
         {
             _boardProvider.BoardId.MatchSome(boardId =>
             {
-                var packet = new PacketBuilder(PacketFamily.Board, PacketAction.Create)
-                    .AddShort(boardId)
-                    .AddByte(255)
-                    .AddBreakString(subject.Replace('y', (char)255)) // this is in EOSERV for some reason. Probably due to chunking (see Sanitization here: https://github.com/Cirras/eo-protocol/blob/master/docs/chunks.md)
-                    .AddBreakString(body.Replace('\n', '\r')) // original EO client uses \r as newline separator. XNAControls uses \n.
-                    .Build();
-
+                var packet = new BoardCreateClientPacket
+                {
+                    BoardId = boardId,
+                    PostSubject = subject,
+                    // original EO client uses \r as newline separator. XNAControls uses \n.
+                    PostBody = body.Replace('\n', '\r')
+                };
                 _packetSendService.SendPacket(packet);
             });
         }
@@ -36,11 +36,11 @@ namespace EOLib.Domain.Interact.Board
         {
             _boardProvider.BoardId.MatchSome(boardId =>
             {
-                var packet = new PacketBuilder(PacketFamily.Board, PacketAction.Remove)
-                .AddShort(boardId)
-                .AddShort(postId)
-                .Build();
-
+                var packet = new BoardRemoveClientPacket
+                {
+                    BoardId = boardId,
+                    PostId = postId
+                };
                 _packetSendService.SendPacket(packet);
             });
         }
@@ -49,11 +49,11 @@ namespace EOLib.Domain.Interact.Board
         {
             _boardProvider.BoardId.MatchSome(boardId =>
             {
-                var packet = new PacketBuilder(PacketFamily.Board, PacketAction.Take)
-                .AddShort(boardId)
-                .AddShort(postId)
-                .Build();
-
+                var packet = new BoardTakeClientPacket
+                {
+                    BoardId = boardId,
+                    PostId = postId
+                };
                 _packetSendService.SendPacket(packet);
             });
         }

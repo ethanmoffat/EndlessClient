@@ -10,7 +10,7 @@ namespace EOLib.IO.Pub
         {
         }
 
-        public ENFFile(int id, int checksum, int totalLength, List<ENFRecord> data)
+        public ENFFile(int id, IReadOnlyList<int> checksum, int totalLength, List<ENFRecord> data)
             : base(id, checksum, totalLength, data)
         {
         }

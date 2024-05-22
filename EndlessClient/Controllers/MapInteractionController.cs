@@ -127,7 +127,7 @@ namespace EndlessClient.Controllers
             // vanilla client prioritizes standing first, then board interaction
             else if (_characterProvider.MainCharacter.RenderProperties.SitState != SitState.Standing)
             {
-                _characterActions.ToggleSit();
+                _characterActions.Sit();
             }
             else if (InteractableTileSpec(cellState.TileSpec) && (cellState.TileSpec.IsBoard() || CharacterIsCloseEnough(cellState.Coordinate)))
             {

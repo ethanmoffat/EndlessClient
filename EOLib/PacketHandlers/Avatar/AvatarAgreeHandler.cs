@@ -13,9 +13,6 @@ namespace EOLib.PacketHandlers.Avatar
     [AutoMappedType]
     public class AvatarAgreeHandler : AvatarChangeHandler<AvatarAgreeServerPacket>
     {
-        protected readonly ICurrentMapStateRepository _currentMapStateRepository;
-        protected readonly ICharacterRepository _characterRepository;
-
         public override PacketFamily Family => PacketFamily.Avatar;
 
         public override PacketAction Action => PacketAction.Agree;
@@ -25,8 +22,6 @@ namespace EOLib.PacketHandlers.Avatar
                                   ICharacterRepository characterRepository)
             : base(playerInfoProvider, currentMapStateRepository, characterRepository)
         {
-            _currentMapStateRepository = currentMapStateRepository;
-            _characterRepository = characterRepository;
         }
 
         public override bool HandlePacket(AvatarAgreeServerPacket packet)

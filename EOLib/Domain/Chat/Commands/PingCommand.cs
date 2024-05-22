@@ -1,8 +1,7 @@
-﻿using System;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Protocol;
-using EOLib.Net;
 using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 
 namespace EOLib.Domain.Chat.Commands
 {
@@ -11,7 +10,6 @@ namespace EOLib.Domain.Chat.Commands
     {
         private readonly IPacketSendService _packetSendService;
         private readonly IPingTimeRepository _pingTimeRepository;
-        private readonly Random _random;
 
         public const string Text = "ping";
 
@@ -22,24 +20,12 @@ namespace EOLib.Domain.Chat.Commands
         {
             _packetSendService = packetSendService;
             _pingTimeRepository = pingTimeRepository;
-            _random = new Random();
         }
 
         public bool Execute(string parameter)
         {
-            int requestID;
-            do
-            {
-                requestID = _random.Next(0, short.MaxValue - 1);
-            } while (_pingTimeRepository.PingRequests.ContainsKey(requestID));
-
-            _pingTimeRepository.PingRequests.Add(requestID, DateTime.Now);
-
-            var packet = new PacketBuilder(PacketFamily.Message, PacketAction.Ping)
-                .AddShort(requestID)
-                .Build();
-
-            _packetSendService.SendPacketAsync(packet);
+            _packetSendService.SendPacket(new MessagePingClientPacket());
+            _pingTimeRepository.RequestTimer.Start();
             return true;
         }
     }

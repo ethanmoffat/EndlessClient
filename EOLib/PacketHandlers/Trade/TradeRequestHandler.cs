@@ -1,8 +1,9 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Trade
@@ -11,7 +12,7 @@ namespace EOLib.PacketHandlers.Trade
     /// Another player requests a trade
     /// </summary>
     [AutoMappedType]
-    public class TradeRequestHandler : InGameOnlyPacketHandler
+    public class TradeRequestHandler : InGameOnlyPacketHandler<TradeRequestServerPacket>
     {
         private readonly IEnumerable<ITradeEventNotifier> _tradeEventNotifiers;
 
@@ -26,14 +27,10 @@ namespace EOLib.PacketHandlers.Trade
             _tradeEventNotifiers = tradeEventNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(TradeRequestServerPacket packet)
         {
-            packet.ReadChar(); // ?
-            var playerId = packet.ReadShort();
-            var name = packet.ReadEndString();
-
             foreach (var notifier in _tradeEventNotifiers)
-                notifier.NotifyTradeRequest(playerId, name);
+                notifier.NotifyTradeRequest(packet.PartnerPlayerId, packet.PartnerPlayerName);
 
             return true;
         }

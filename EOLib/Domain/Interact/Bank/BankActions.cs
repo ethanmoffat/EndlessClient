@@ -1,6 +1,7 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Net;
 using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 
 namespace EOLib.Domain.Interact.Bank
 {
@@ -8,37 +9,28 @@ namespace EOLib.Domain.Interact.Bank
     public class BankActions : IBankActions
     {
         private readonly IPacketSendService _packetSendService;
+        private readonly IBankDataProvider _bankDataProvider;
 
-        public BankActions(IPacketSendService packetSendService)
+        public BankActions(IPacketSendService packetSendService,
+                           IBankDataProvider bankDataProvider)
         {
             _packetSendService = packetSendService;
+            _bankDataProvider = bankDataProvider;
         }
 
         public void Deposit(int amount)
         {
-            var packet = new PacketBuilder(PacketFamily.Bank, PacketAction.Add)
-                .AddInt(amount)
-                .Build();
-
+            var packet = new BankAddClientPacket { Amount = amount, SessionId = _bankDataProvider.SessionID };
             _packetSendService.SendPacket(packet);
         }
 
         public void Withdraw(int amount)
         {
-            var packet = new PacketBuilder(PacketFamily.Bank, PacketAction.Take)
-                .AddInt(amount)
-                .Build();
-
+            var packet = new BankTakeClientPacket { Amount = amount, SessionId = _bankDataProvider.SessionID };
             _packetSendService.SendPacket(packet);
         }
 
-        public void BuyStorageUpgrade()
-        {
-            var packet = new PacketBuilder(PacketFamily.Locker, PacketAction.Buy)
-                .Build();
-
-            _packetSendService.SendPacket(packet);
-        }
+        public void BuyStorageUpgrade() => _packetSendService.SendPacket(new LockerBuyClientPacket());
     }
 
     public interface IBankActions

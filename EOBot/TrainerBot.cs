@@ -379,7 +379,7 @@ namespace EOBot
             var renderProps = _characterRepository.MainCharacter.RenderProperties;
             var nextState = renderProps.SitState == SitState.Standing ? "Floor" : "Stand";
             ConsoleHelper.WriteMessage(ConsoleHelper.Type.Sit, $"{nextState,7} - Toggling from: {Enum.GetName(typeof(SitState), renderProps.SitState)}");
-            await TrySend(_characterActions.ToggleSit);
+            await TrySend(_characterActions.Sit);
         }
 
         private async Task TrySend(Action action, uint attempts = 3)

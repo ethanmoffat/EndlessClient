@@ -4,8 +4,9 @@ using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
 using EOLib.Domain.Trade;
 using EOLib.IO.Repositories;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
 using Optional.Collections;
 using System.Collections.Generic;
@@ -13,7 +14,8 @@ using System.Linq;
 
 namespace EOLib.PacketHandlers.Trade
 {
-    public abstract class TradeOfferUpdateHandler : InGameOnlyPacketHandler
+    public abstract class TradeOfferUpdateHandler<TPacket> : InGameOnlyPacketHandler<TPacket>
+        where TPacket : IPacket
     {
         protected readonly ITradeRepository _tradeRepository;
 
@@ -26,23 +28,13 @@ namespace EOLib.PacketHandlers.Trade
             _tradeRepository = tradeRepository;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        protected void Handle(TradeItemData data)
         {
-            var player1Id = packet.ReadShort();
-            var player1Items = new List<InventoryItem>();
-            while (packet.PeekByte() != 255)
-            {
-                player1Items.Add(new InventoryItem(packet.ReadShort(), packet.ReadInt()));
-            }
-            packet.ReadByte();
+            var player1Id = data.PartnerPlayerId;
+            var player1Items = data.PartnerItems.Select(x => new InventoryItem(x.Id, x.Amount)).ToList();
 
-            var player2Id = packet.ReadShort();
-            var player2Items = new List<InventoryItem>();
-            while (packet.PeekByte() != 255)
-            {
-                player2Items.Add(new InventoryItem(packet.ReadShort(), packet.ReadInt()));
-            }
-            packet.ReadByte();
+            var player2Id = data.YourPlayerId;
+            var player2Items = data.YourItems.Select(x => new InventoryItem(x.Id, x.Amount)).ToList();
 
             _tradeRepository.SomeWhen(x => x.PlayerOneOffer.PlayerID == player1Id)
                 .Match(some: x =>
@@ -59,8 +51,6 @@ namespace EOLib.PacketHandlers.Trade
 
             _tradeRepository.PlayerOneOffer = _tradeRepository.PlayerOneOffer.WithAgrees(false);
             _tradeRepository.PlayerTwoOffer = _tradeRepository.PlayerTwoOffer.WithAgrees(false);
-
-            return true;
         }
     }
 
@@ -68,7 +58,7 @@ namespace EOLib.PacketHandlers.Trade
     /// Either player makes an update to their offer
     /// </summary>
     [AutoMappedType]
-    public class TradeReplyHandler : TradeOfferUpdateHandler
+    public class TradeReplyHandler : TradeOfferUpdateHandler<TradeReplyServerPacket>
     {
         public override PacketAction Action => PacketAction.Reply;
 
@@ -77,13 +67,19 @@ namespace EOLib.PacketHandlers.Trade
             : base(playerInfoProvider, tradeRepository)
         {
         }
+
+        public override bool HandlePacket(TradeReplyServerPacket packet)
+        {
+            Handle(packet.TradeData);
+            return true;
+        }
     }
 
     /// <summary>
     /// Trade completed
     /// </summary>
     [AutoMappedType]
-    public class TradeUseHandler : TradeOfferUpdateHandler
+    public class TradeUseHandler : TradeOfferUpdateHandler<TradeUseServerPacket>
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly ICharacterInventoryRepository _characterInventoryRepository;
@@ -106,9 +102,9 @@ namespace EOLib.PacketHandlers.Trade
             _tradeEventNotifiers = tradeEventNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(TradeUseServerPacket packet)
         {
-            base.HandlePacket(packet);
+            Handle(packet.TradeData);
 
             var (removeItems, addItems) = _tradeRepository
                 .SomeWhen(x => x.PlayerOneOffer.PlayerID == _characterRepository.MainCharacter.ID)

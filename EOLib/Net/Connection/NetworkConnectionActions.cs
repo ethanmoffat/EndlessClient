@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Config;
 using EOLib.Domain.Login;
 using EOLib.Net.Communication;
@@ -8,6 +6,9 @@ using EOLib.Net.PacketProcessing;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using System;
+using System.Threading.Tasks;
+using Version = Moffat.EndlessOnline.SDK.Protocol.Net.Version;
 
 namespace EOLib.Net.Connection
 {
@@ -73,13 +74,12 @@ namespace EOLib.Net.Connection
             var initPacket = new InitInitClientPacket
             {
                 Challenge = challenge,
-                Version = new Protocol.Net.Version
+                Version = new Version
                 {
                     Major = _configurationProvider.VersionMajor,
                     Minor = _configurationProvider.VersionMinor,
                     Patch = _configurationProvider.VersionBuild,
                 },
-                HdidLength = hdSerialNumber.Length,
                 Hdid = hdSerialNumber
             };
 
@@ -92,7 +92,7 @@ namespace EOLib.Net.Connection
 
         public void CompleteHandshake(InitInitServerPacket serverPacket)
         {
-            if (serverPacket.ReplyCode != Protocol.Net.Server.InitReply.Ok || !(serverPacket.ReplyCodeData is InitInitServerPacket.ReplyCodeDataOk okData))
+            if (serverPacket.ReplyCode != InitReply.Ok || !(serverPacket.ReplyCodeData is InitInitServerPacket.ReplyCodeDataOk okData))
                 throw new InvalidOperationException($"Unable to complete handshake for response code: {serverPacket.ReplyCode}");
 
             _playerInfoRepository.PlayerID = okData.PlayerId;

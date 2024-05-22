@@ -5,6 +5,7 @@ using EOLib.IO;
 using EOLib.IO.Repositories;
 using EOLib.Net;
 using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 using Optional.Collections;
 using System;
 
@@ -35,23 +36,19 @@ namespace EOLib.Domain.Interact.Jukebox
             _eifFileProvider.EIFFile.SingleOrNone(x => x.Type == ItemType.Weapon && x.DollGraphic == weapon)
                 .MatchSome(rec =>
                 {
-                    var packet = new PacketBuilder(PacketFamily.JukeBox, PacketAction.Use)
-                        .AddChar(rec.DollGraphic) // todo: determine what GameServer expects; eoserv sends DollGraphic as a response in Character::PlayBard
-                        .AddChar(noteIndex + 1)
-                        .Build();
-
+                    // todo: determine what GameServer expects; eoserv sends DollGraphic as a response in Character::PlayBard
+                    var packet = new JukeboxUseClientPacket
+                    {
+                        InstrumentId = rec.DollGraphic,
+                        NoteId = noteIndex + 1,
+                    };
                     _packetSendService.SendPacket(packet);
                 });
         }
 
-        public void RequestSong(MapCoordinate coordinate, int songIndex)
+        public void RequestSong(int songIndex)
         {
-            var packet = new PacketBuilder(PacketFamily.JukeBox, PacketAction.Message)
-                .AddChar(coordinate.X)
-                .AddChar(coordinate.Y)
-                .AddShort(songIndex)
-                .Build();
-
+            var packet = new JukeboxMsgClientPacket { TrackId = songIndex };
             _packetSendService.SendPacket(packet);
         }
     }
@@ -60,6 +57,6 @@ namespace EOLib.Domain.Interact.Jukebox
     {
         void PlayNote(int noteIndex);
 
-        void RequestSong(MapCoordinate coordinate, int songIndex);
+        void RequestSong(int songIndex);
     }
 }

@@ -1,9 +1,10 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
-using EOLib.Net;
 using EOLib.Net.Handlers;
-using EOLib.Net.Translators;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using System.Linq;
 
 namespace EOLib.PacketHandlers.NPC
 {
@@ -11,31 +12,25 @@ namespace EOLib.PacketHandlers.NPC
     /// Sent in response to an NpcMapInfo request
     /// </summary>
     [AutoMappedType]
-    public class NPCAgreeHandler : InGameOnlyPacketHandler
+    public class NPCAgreeHandler : InGameOnlyPacketHandler<NpcAgreeServerPacket>
     {
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
-        private readonly INPCFromPacketFactory _npcFromPacketFactory;
 
-        public override PacketFamily Family => PacketFamily.NPC;
+        public override PacketFamily Family => PacketFamily.Npc;
 
         public override PacketAction Action => PacketAction.Agree;
 
         public NPCAgreeHandler(IPlayerInfoProvider playerInfoProvider,
-                               ICurrentMapStateRepository currentMapStateRepository,
-                               INPCFromPacketFactory npcFromPacketFactory)
+                               ICurrentMapStateRepository currentMapStateRepository)
             : base(playerInfoProvider)
         {
             _currentMapStateRepository = currentMapStateRepository;
-            _npcFromPacketFactory = npcFromPacketFactory;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(NpcAgreeServerPacket packet)
         {
-            var length = packet.ReadChar();
-
-            for (int i = 0; i < length; i++)
+            foreach (var npc in packet.Npcs.Select(Domain.NPC.NPC.FromNearby))
             {
-                var npc = _npcFromPacketFactory.CreateNPC(packet);
                 if (_currentMapStateRepository.NPCs.TryGetValue(npc.Index, out var oldNpc))
                 {
                     _currentMapStateRepository.NPCs.Update(oldNpc, npc);

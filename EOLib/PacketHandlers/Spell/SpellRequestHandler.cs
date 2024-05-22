@@ -1,8 +1,9 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Spell
@@ -11,7 +12,7 @@ namespace EOLib.PacketHandlers.Spell
     /// Sent when a player starts a spell chant
     /// </summary>
     [AutoMappedType]
-    public class SpellRequestHandler : InGameOnlyPacketHandler
+    public class SpellRequestHandler : InGameOnlyPacketHandler<SpellRequestServerPacket>
     {
         private readonly IEnumerable<IOtherCharacterAnimationNotifier> animationNotifiers;
 
@@ -25,13 +26,10 @@ namespace EOLib.PacketHandlers.Spell
             this.animationNotifiers = animationNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(SpellRequestServerPacket packet)
         {
-            var playerId = packet.ReadShort();
-            var spellId = packet.ReadShort();
-
             foreach (var notifier in animationNotifiers)
-                notifier.NotifyStartSpellCast(playerId, spellId);
+                notifier.NotifyStartSpellCast(packet.PlayerId, packet.SpellId);
 
             return true;
         }

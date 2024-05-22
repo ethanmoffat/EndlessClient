@@ -10,7 +10,7 @@ namespace EOLib.IO.Pub
         {
         }
 
-        public ESFFile(int id, int checksum, int totalLength, List<ESFRecord> data)
+        public ESFFile(int id, IReadOnlyList<int> checksum, int totalLength, List<ESFRecord> data)
             : base(id, checksum, totalLength, data)
         {
         }

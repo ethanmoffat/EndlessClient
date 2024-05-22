@@ -10,7 +10,7 @@ namespace EOLib.IO.Pub
         {
         }
 
-        public ECFFile(int id, int checksum, int totalLength, List<ECFRecord> data)
+        public ECFFile(int id, IReadOnlyList<int> checksum, int totalLength, List<ECFRecord> data)
             : base(id, checksum, totalLength, data)
         {
         }

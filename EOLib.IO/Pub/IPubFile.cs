@@ -55,9 +55,9 @@ namespace EOLib.IO.Pub
         string FileType { get; }
 
         /// <summary>
-        /// The file checksum. This is really two shorts encoded next to each other but is represented as an int.
+        /// The file checksum; two EO shorts
         /// </summary>
-        int CheckSum { get; }
+        IReadOnlyList<int> CheckSum { get; }
 
         /// <summary>
         /// The length of the file (number of records)
@@ -82,7 +82,7 @@ namespace EOLib.IO.Pub
         /// </summary>
         /// <param name="checkSum">The new checksum.</param>
         /// <returns>The updated pub file.</returns>
-        IPubFile WithCheckSum(int checkSum);
+        IPubFile WithCheckSum(IReadOnlyList<int> checkSum);
 
         /// <summary>
         /// Create a copy of this pub file with the specified total length.

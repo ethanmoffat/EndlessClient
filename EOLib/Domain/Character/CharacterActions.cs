@@ -1,12 +1,15 @@
-﻿using System;
-using System.Linq;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Extensions;
-using EOLib.Domain.NPC;
+using EOLib.Domain.Map;
 using EOLib.Domain.Spells;
 using EOLib.IO.Repositories;
-using EOLib.Net;
 using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Data;
+using Moffat.EndlessOnline.SDK.Protocol;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
+using System;
+using System.Linq;
 
 namespace EOLib.Domain.Character
 {
@@ -31,10 +34,7 @@ namespace EOLib.Domain.Character
 
         public void Face(EODirection direction)
         {
-            var packet = new PacketBuilder(PacketFamily.Face, PacketAction.Player)
-                .AddChar((int)direction)
-                .Build();
-
+            var packet = new FacePlayerClientPacket { Direction = (Direction)direction };
             _packetSendService.SendPacket(packet);
         }
 
@@ -43,14 +43,20 @@ namespace EOLib.Domain.Character
             var admin = _characterRepository.MainCharacter.NoWall &&
                         _characterRepository.MainCharacter.AdminLevel != AdminLevel.Player;
             var renderProperties = _characterRepository.MainCharacter.RenderProperties;
+            var walkAction = new WalkAction
+            {
+                Direction = (Direction)renderProperties.Direction,
+                Timestamp = (int)_fixedTimeStepRepository.TickCount,
+                Coords = new Coords
+                {
+                    X = renderProperties.GetDestinationX(),
+                    Y = renderProperties.GetDestinationY()
+                }
+            };
 
-            var packet = new PacketBuilder(PacketFamily.Walk, admin ? PacketAction.Admin : PacketAction.Player)
-                .AddChar((int)renderProperties.Direction)
-                .AddThree((int)_fixedTimeStepRepository.TickCount)
-                .AddChar(renderProperties.GetDestinationX())
-                .AddChar(renderProperties.GetDestinationY())
-                .Build();
-
+            var packet = admin
+                ? (IPacket)new WalkAdminClientPacket { WalkAction = walkAction }
+                : (IPacket)new WalkPlayerClientPacket { WalkAction = walkAction };
             _packetSendService.SendPacket(packet);
         }
 
@@ -60,52 +66,54 @@ namespace EOLib.Domain.Character
             var sp = Math.Max(0, c.Stats[CharacterStat.SP] - 1);
             _characterRepository.MainCharacter = c.WithStats(c.Stats.WithNewStat(CharacterStat.SP, sp));
 
-            var packet = new PacketBuilder(PacketFamily.Attack, PacketAction.Use)
-                .AddChar((int) _characterRepository.MainCharacter.RenderProperties.Direction)
-                .AddThree((int)_fixedTimeStepRepository.TickCount)
-                .Build();
-
+            var packet = new AttackUseClientPacket
+            {
+                Direction = (Direction)_characterRepository.MainCharacter.RenderProperties.Direction,
+                Timestamp = (int)_fixedTimeStepRepository.TickCount
+            };
             _packetSendService.SendPacket(packet);
         }
 
-        public void ToggleSit()
+        public void Sit(MapCoordinate coords)
         {
             var renderProperties = _characterRepository.MainCharacter.RenderProperties;
             var sitAction = renderProperties.SitState == SitState.Standing
                 ? SitAction.Sit
                 : SitAction.Stand;
 
-            var packetFamily = renderProperties.SitState == SitState.Chair
-                ? PacketFamily.Chair
-                : PacketFamily.Sit;
-
-            var packet = new PacketBuilder(packetFamily, PacketAction.Request)
-                .AddChar((int)sitAction)
-                .Build();
-
-            _packetSendService.SendPacket(packet);
-        }
-
-        public void SitInChair()
-        {
-            var rp = _characterRepository.MainCharacter.RenderProperties;
-            var action = rp.SitState == SitState.Chair ? SitAction.Stand : SitAction.Sit;
-            var packet = new PacketBuilder(PacketFamily.Chair, PacketAction.Request)
-                .AddChar((int)action)
-                .AddChar(rp.GetDestinationX())
-                .AddChar(rp.GetDestinationY())
-                .Build();
-
+            IPacket packet = renderProperties.SitState switch
+            {
+                SitState.Chair => new ChairRequestClientPacket
+                {
+                    SitAction = sitAction,
+                    SitActionData = sitAction == SitAction.Sit
+                        ? new ChairRequestClientPacket.SitActionDataSit
+                        {
+                            Coords = new Coords { X = coords.X, Y = coords.Y },
+                        }
+                        : null
+                },
+                _ => new SitRequestClientPacket
+                {
+                    SitAction = sitAction,
+                    SitActionData = sitAction == SitAction.Sit
+                        ? new SitRequestClientPacket.SitActionDataSit
+                        {
+                            CursorCoords = new Coords { X = coords.X, Y = coords.Y },
+                        }
+                        : null
+                }
+            };
             _packetSendService.SendPacket(packet);
         }
 
         public void PrepareCastSpell(int spellId)
         {
-            var packet = new PacketBuilder(PacketFamily.Spell, PacketAction.Request)
-                .AddShort(spellId)
-                .AddThree((int)_fixedTimeStepRepository.TickCount)
-                .Build();
-
+            var packet = new SpellRequestClientPacket
+            {
+                SpellId = spellId,
+                Timestamp = (int)_fixedTimeStepRepository.TickCount
+            };
             _packetSendService.SendPacket(packet);
         }
 
@@ -117,57 +125,40 @@ namespace EOLib.Domain.Character
             var sp = Math.Max(0, c.Stats[CharacterStat.SP] - data.SP);
             _characterRepository.MainCharacter = c.WithStats(c.Stats.WithNewStat(CharacterStat.SP, sp));
 
-            var action = data.Target == IO.SpellTarget.Self
-                ? PacketAction.TargetSelf
-                : data.Target == IO.SpellTarget.Normal
-                    ? PacketAction.TargetOther
-                    : data.Target == IO.SpellTarget.Group
-                        ? PacketAction.TargetGroup
-                        : throw new InvalidOperationException("Spell ID has unknown spell target");
-
-            IPacketBuilder builder = new PacketBuilder(PacketFamily.Spell, action);
-
-            if (data.Target == IO.SpellTarget.Group)
+            IPacket packet = data.Target switch
             {
-                builder = builder
-                    .AddShort(spellId)
-                    .AddThree((int)_fixedTimeStepRepository.TickCount);
-            }
-            else
-            {
-                var spellTargetType = target is NPC.NPC
-                    ? SpellTargetType.NPC
-                    : target is Character
-                        ? SpellTargetType.Player
-                        : throw new InvalidOperationException("Invalid spell target specified, must be player or character");
-                builder = builder.AddChar((int)spellTargetType);
-
-                if (data.Target == IO.SpellTarget.Normal)
+                IO.SpellTarget.Self => new SpellTargetSelfClientPacket
                 {
-                    builder = builder
-                        .AddChar(1) // unknown
-                        .AddShort(1) // unknown
-                        .AddShort(spellId)
-                        .AddShort(target.Index)
-                        .AddThree((int)_fixedTimeStepRepository.TickCount);
-                }
-                else
+                    SpellId = spellId,
+                    Direction = (Direction)c.RenderProperties.Direction,
+                    Timestamp = (int)_fixedTimeStepRepository.TickCount,
+                },
+                IO.SpellTarget.Normal => new SpellTargetOtherClientPacket
                 {
-                    builder = builder
-                        .AddShort(spellId)
-                        .AddInt((int)_fixedTimeStepRepository.TickCount);
-                }
-            }
-
-            _packetSendService.SendPacket(builder.Build());
+                    SpellId = spellId,
+                    VictimId = target.Index,
+                    TargetType = target is NPC.NPC
+                        ? SpellTargetType.Npc
+                        : target is Character
+                            ? SpellTargetType.Player
+                            : throw new InvalidOperationException("Unknown SpellTargetType (must be character or NPC)"),
+                    // todo: previous time stamp tracking. this was previously sent to eoserv as a char(1) and short (1)
+                    PreviousTimestamp = NumberEncoder.DecodeNumber(new byte[] { 2, 2, 254 }),
+                    Timestamp = (int)_fixedTimeStepRepository.TickCount,
+                },
+                IO.SpellTarget.Group => new SpellTargetGroupClientPacket
+                {
+                    SpellId = spellId,
+                    Timestamp = (int)_fixedTimeStepRepository.TickCount,
+                },
+                _ => throw new ArgumentOutOfRangeException("Unknown spell target (should be Self, Normal, or Group)")
+            };
+            _packetSendService.SendPacket(packet);
         }
 
         public void Emote(Emote whichEmote)
         {
-            var packet = new PacketBuilder(PacketFamily.Emote, PacketAction.Report)
-                .AddChar((int)whichEmote)
-                .Build();
-
+            var packet = new EmoteReportClientPacket { Emote = (Moffat.EndlessOnline.SDK.Protocol.Emote)whichEmote };
             _packetSendService.SendPacket(packet);
         }
     }
@@ -180,9 +171,11 @@ namespace EOLib.Domain.Character
 
         void Attack();
 
-        void ToggleSit();
-
-        void SitInChair();
+        /// <summary>
+        /// Request sit action
+        /// </summary>
+        /// <param name="coord">The chair coordinate for sitting in a chair, the mouse cursor coordinates for floor sit.</param>
+        void Sit(MapCoordinate coord);
 
         void PrepareCastSpell(int spellId);
 

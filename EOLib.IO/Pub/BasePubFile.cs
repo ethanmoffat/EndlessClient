@@ -17,7 +17,7 @@ namespace EOLib.IO.Pub
         public int ID { get; private set; }
 
         /// <inheritdoc />
-        public int CheckSum { get; private set; }
+        public IReadOnlyList<int> CheckSum { get; private set; }
 
         /// <inheritdoc />
         public int Length => _data.Count;
@@ -33,8 +33,11 @@ namespace EOLib.IO.Pub
             _data = new List<TRecord>();
         }
 
-        protected BasePubFile(int id, int checksum, int totalLength, List<TRecord> data)
+        protected BasePubFile(int id, IReadOnlyList<int> checksum, int totalLength, List<TRecord> data)
         {
+            if (checksum.Count != 2)
+                throw new ArgumentException("Checksum should be 2 eo 'short' values", nameof(checksum));
+
             ID = id;
             CheckSum = checksum;
             TotalLength = totalLength;
@@ -49,8 +52,11 @@ namespace EOLib.IO.Pub
         }
 
         /// <inheritdoc />
-        public IPubFile WithCheckSum(int checksum)
+        public IPubFile WithCheckSum(IReadOnlyList<int> checksum)
         {
+            if (checksum.Count != 2)
+                throw new ArgumentException("Checksum should be 2 eo 'short' values", nameof(checksum));
+
             var copy = MakeCopy();
             copy.CheckSum = checksum;
             return copy;

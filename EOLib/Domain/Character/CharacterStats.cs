@@ -91,5 +91,30 @@ namespace EOLib.Domain.Character
                 [CharacterStat.Armor] = characterStatsUpdate.SecondaryStats.Armor,
             });
         }
+
+        public static CharacterStats FromStatReset(CharacterStatsReset characterStatsUpdate)
+        {
+            return new CharacterStats(new Dictionary<CharacterStat, int>
+            {
+                [CharacterStat.StatPoints] = characterStatsUpdate.StatPoints,
+                [CharacterStat.SkillPoints] = characterStatsUpdate.SkillPoints,
+                [CharacterStat.HP] = characterStatsUpdate.Hp,
+                [CharacterStat.MaxHP] = characterStatsUpdate.MaxHp,
+                [CharacterStat.TP] = characterStatsUpdate.Tp,
+                [CharacterStat.MaxTP] = characterStatsUpdate.MaxTp,
+                [CharacterStat.MaxSP] = characterStatsUpdate.MaxSp,
+                [CharacterStat.Strength] = characterStatsUpdate.Base.Str,
+                [CharacterStat.Intelligence] = characterStatsUpdate.Base.Intl,
+                [CharacterStat.Wisdom] = characterStatsUpdate.Base.Wis,
+                [CharacterStat.Agility] = characterStatsUpdate.Base.Agi,
+                [CharacterStat.Constitution] = characterStatsUpdate.Base.Con,
+                [CharacterStat.Charisma] = characterStatsUpdate.Base.Cha,
+                [CharacterStat.MinDam] = characterStatsUpdate.Secondary.MinDamage,
+                [CharacterStat.MaxDam] = characterStatsUpdate.Secondary.MaxDamage,
+                [CharacterStat.Accuracy] = characterStatsUpdate.Secondary.Accuracy,
+                [CharacterStat.Evade] = characterStatsUpdate.Secondary.Evade,
+                [CharacterStat.Armor] = characterStatsUpdate.Secondary.Armor,
+            });
+        }
     }
 }

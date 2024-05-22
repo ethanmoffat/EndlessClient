@@ -2,10 +2,10 @@
 using EOLib.Domain.Character;
 using EOLib.Domain.Interact;
 using EOLib.Domain.Login;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace EOLib.PacketHandlers.StatSkill
 {
@@ -13,7 +13,7 @@ namespace EOLib.PacketHandlers.StatSkill
     /// Sent when forgetting a skill
     /// </summary>
     [AutoMappedType]
-    public class StatskillRemoveHandler : InGameOnlyPacketHandler
+    public class StatskillRemoveHandler : InGameOnlyPacketHandler<StatSkillRemoveServerPacket>
     {
         private readonly ICharacterInventoryRepository _characterInventoryRepository;
         private readonly IEnumerable<INPCInteractionNotifier> _npcInteractionNotifiers;
@@ -31,10 +31,9 @@ namespace EOLib.PacketHandlers.StatSkill
             _npcInteractionNotifiers = npcInteractionNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(StatSkillRemoveServerPacket packet)
         {
-            var spellId = packet.ReadShort();
-            _characterInventoryRepository.SpellInventory.RemoveWhere(x => x.ID == spellId);
+            _characterInventoryRepository.SpellInventory.RemoveWhere(x => x.ID == packet.SpellId);
 
             foreach (var notifier in _npcInteractionNotifiers)
                 notifier.NotifySkillForget();

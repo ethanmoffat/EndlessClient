@@ -10,7 +10,9 @@ using EOLib.IO.Services;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 using Optional;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace EOLib.Net.FileTransfer
@@ -51,18 +53,14 @@ namespace EOLib.Net.FileTransfer
 
         public bool NeedsFileForLogin(FileType fileType, int optionalID = 0)
         {
-            var expectedChecksum = _numberEncoderService.DecodeNumber(_loginFileChecksumProvider.MapChecksum);
-            var expectedLength = _loginFileChecksumProvider.MapLength;
-
             return fileType == FileType.Emf
-                ? NeedMap(optionalID, expectedChecksum, expectedLength)
+                ? NeedMap(optionalID, _loginFileChecksumProvider.MapChecksum, _loginFileChecksumProvider.MapLength)
                 : NeedPub(fileType);
         }
 
-        public bool NeedsMapForWarp(int mapID, byte[] mapRid, int fileSize)
+        public bool NeedsMapForWarp(int mapID, IReadOnlyList<int> mapRid, int fileSize)
         {
-            var expectedChecksum = _numberEncoderService.DecodeNumber(mapRid);
-            return NeedMap(mapID, expectedChecksum, fileSize);
+            return NeedMap(mapID, mapRid, fileSize);
         }
 
         public void RequestMapForWarp(int mapID, int sessionID)
@@ -128,15 +126,15 @@ namespace EOLib.Net.FileTransfer
             _pubFileRepository.ECFFile = PubFileExtensions.Merge(classFiles);
         }
 
-        private bool NeedMap(int mapID, int expectedChecksum, int expectedLength)
+        private bool NeedMap(int mapID, IReadOnlyList<int> expectedChecksum, int expectedLength)
         {
             if (!_mapFileRepository.MapFiles.ContainsKey(mapID))
                 return true; //map with that ID is not in the cache, need to get it from the server
 
-            var actualChecksum = _numberEncoderService.DecodeNumber(_mapFileRepository.MapFiles[mapID].Properties.Checksum);
             var actualLength = _mapFileRepository.MapFiles[mapID].Properties.FileSize;
 
-            return expectedChecksum != actualChecksum || expectedLength != actualLength;
+            return expectedChecksum.SequenceEqual(_mapFileRepository.MapFiles[mapID].Properties.Checksum) ||
+                expectedLength != actualLength;
         }
 
         private bool NeedPub(FileType fileType)
@@ -145,19 +143,19 @@ namespace EOLib.Net.FileTransfer
             {
                 case FileType.Eif:
                     return _pubFileRepository.EIFFile == null ||
-                           _loginFileChecksumProvider.EIFChecksum != _pubFileRepository.EIFFile.CheckSum ||
+                           !_loginFileChecksumProvider.EIFChecksum.SequenceEqual(_pubFileRepository.EIFFile.CheckSum) ||
                            _loginFileChecksumProvider.EIFLength != _pubFileRepository.EIFFile.Length;
                 case FileType.Enf:
                     return _pubFileRepository.ENFFile == null ||
-                           _loginFileChecksumProvider.ENFChecksum != _pubFileRepository.ENFFile.CheckSum ||
+                           !_loginFileChecksumProvider.ENFChecksum.SequenceEqual(_pubFileRepository.ENFFile.CheckSum) ||
                            _loginFileChecksumProvider.ENFLength != _pubFileRepository.ENFFile.Length;
                 case FileType.Esf:
                     return _pubFileRepository.ESFFile == null ||
-                           _loginFileChecksumProvider.ESFChecksum != _pubFileRepository.ESFFile.CheckSum ||
+                           !_loginFileChecksumProvider.ESFChecksum.SequenceEqual(_pubFileRepository.ESFFile.CheckSum) ||
                            _loginFileChecksumProvider.ESFLength != _pubFileRepository.ESFFile.Length;
                 case FileType.Ecf:
                     return _pubFileRepository.ECFFile == null ||
-                           _loginFileChecksumProvider.ECFChecksum != _pubFileRepository.ECFFile.CheckSum ||
+                           !_loginFileChecksumProvider.ECFChecksum.SequenceEqual(_pubFileRepository.ECFFile.CheckSum) ||
                            _loginFileChecksumProvider.ECFLength != _pubFileRepository.ECFFile.Length;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(fileType), fileType, null);
@@ -179,7 +177,7 @@ namespace EOLib.Net.FileTransfer
     {
         bool NeedsFileForLogin(FileType fileType, int optionalID = 0);
 
-        bool NeedsMapForWarp(int mapID, byte[] mapRid, int fileSize);
+        bool NeedsMapForWarp(int mapID, IReadOnlyList<int> mapRid, int fileSize);
 
         void RequestMapForWarp(int mapID, int sessionID);
 
