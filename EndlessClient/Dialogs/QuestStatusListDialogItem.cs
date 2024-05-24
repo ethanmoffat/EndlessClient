@@ -1,8 +1,8 @@
 ﻿using EOLib;
-using EOLib.Domain.Interact.Quest;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
 using XNAControls;
 
 namespace EndlessClient.Dialogs

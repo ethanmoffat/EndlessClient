@@ -2,6 +2,7 @@
 using EndlessClient.Dialogs.Factories;
 using EOLib.Domain.Account;
 using EOLib.Localization;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
 using System;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ using XNAControls;
 
 namespace EndlessClient.Dialogs.Actions
 {
-    [MappedType(BaseType = typeof(IAccountDialogDisplayActions))]
+    [AutoMappedType]
     public class AccountDialogDisplayActions : IAccountDialogDisplayActions
     {
         private readonly ILocalizedStringFinder _localizedStringFinder;
@@ -71,7 +72,8 @@ namespace EndlessClient.Dialogs.Actions
                 case AccountReply.NotApproved: message = DialogResourceID.ACCOUNT_CREATE_NAME_NOT_APPROVED; break;
                 case AccountReply.Created: message = DialogResourceID.ACCOUNT_CREATE_SUCCESS_WELCOME; break;
                 case AccountReply.ChangeFailed: message = DialogResourceID.CHANGE_PASSWORD_MISMATCH; break;
-                case AccountReply.ChangeSuccess: message = DialogResourceID.CHANGE_PASSWORD_SUCCESS; break;
+                case AccountReply.Changed: message = DialogResourceID.CHANGE_PASSWORD_SUCCESS; break;
+                case AccountReply.RequestDenied: message = DialogResourceID.LOGIN_SERVER_COULD_NOT_PROCESS; break;
                 default: throw new ArgumentOutOfRangeException(nameof(serverError), serverError, null);
             }
 

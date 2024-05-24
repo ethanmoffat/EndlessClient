@@ -33,10 +33,7 @@ namespace EOLib.Net.FileTransfer
             var request = new WelcomeAgreeClientPacket
             {
                 FileType = FileType.Emf,
-                FileTypeData = new WelcomeAgreeClientPacket.FileTypeDataEmf
-                {
-                    FileId = mapID
-                },
+                FileTypeData = new WelcomeAgreeClientPacket.FileTypeDataEmf { FileId = mapID },
                 SessionId = sessionID
             };
 

@@ -6,14 +6,19 @@ using EOLib.Domain;
 using EOLib.Net.Communication;
 using EOLib.Net.Connection;
 using EOLib.Net.PacketProcessing;
+using Moffat.EndlessOnline.SDK.Packet;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace EndlessClient.Controllers
 {
-    [AutoMappedType]
+    [AutoMappedType(IsSingleton = true)]
     public class MainButtonController : IMainButtonController
     {
+        private const int MAX_CHALLENGE_VALUE = 11_092_110;
+
         private readonly INetworkConnectionActions _networkConnectionActions;
         private readonly IErrorDialogDisplayAction _errorDialogDisplayAction;
         private readonly IPacketProcessActions _packetProcessActions;
@@ -22,6 +27,8 @@ namespace EndlessClient.Controllers
         private readonly IAccountDialogDisplayActions _accountDialogDisplayActions;
         private readonly IResetStateAction _resetStateAction;
         private readonly ISafeNetworkOperationFactory _networkOperationFactory;
+
+        private readonly Random _random;
 
         private int _numberOfConnectionRequests;
 
@@ -42,6 +49,8 @@ namespace EndlessClient.Controllers
             _accountDialogDisplayActions = accountDialogDisplayActions;
             _resetStateAction = resetStateAction;
             _networkOperationFactory = networkOperationFactory;
+
+            _random = new Random();
         }
 
         public void GoToInitialState()
@@ -115,7 +124,7 @@ namespace EndlessClient.Controllers
                 _backgroundReceiveActions.RunBackgroundReceiveLoop();
 
                 var beginHandshakeOperation = _networkOperationFactory.CreateSafeBlockingOperation(
-                    _networkConnectionActions.BeginHandshake,
+                    async () => await _networkConnectionActions.BeginHandshake(_random.Next(MAX_CHALLENGE_VALUE)),
                     ex => _errorDialogDisplayAction.ShowException(ex),
                     ex => _errorDialogDisplayAction.ShowException(ex));
 
@@ -125,20 +134,21 @@ namespace EndlessClient.Controllers
                     return false;
                 }
 
-                var initData = beginHandshakeOperation.Result;
+                var serverPacket = beginHandshakeOperation.Result;
 
-                if (initData.Response != InitReply.Success)
+                if (serverPacket.ReplyCode != InitReply.Ok)
                 {
-                    _errorDialogDisplayAction.ShowError(initData);
+                    _errorDialogDisplayAction.ShowError(serverPacket.ReplyCode, serverPacket.ReplyCodeData);
                     StopReceivingAndDisconnect();
                     return false;
                 }
 
-                _packetProcessActions.SetInitialSequenceNumber(initData[InitializationDataKey.SequenceByte1],
-                    initData[InitializationDataKey.SequenceByte2]);
-                _packetProcessActions.SetEncodeMultiples(initData[InitializationDataKey.ReceiveMultiple], initData[InitializationDataKey.SendMultiple]);
+                var okData = (InitInitServerPacket.ReplyCodeDataOk)serverPacket.ReplyCodeData;
+                var sequenceStart = InitSequenceStart.FromInitValues(okData.Seq1, okData.Seq2);
+                _packetProcessActions.SetSequenceStart(sequenceStart);
+                _packetProcessActions.SetEncodeMultiples(okData.ServerEncryptionMultiple, okData.ClientEncryptionMultiple);
 
-                _networkConnectionActions.CompleteHandshake(initData);
+                _networkConnectionActions.CompleteHandshake(serverPacket);
                 return true;
             }
             finally

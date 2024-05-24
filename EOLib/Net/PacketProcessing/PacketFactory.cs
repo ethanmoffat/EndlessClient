@@ -1,4 +1,5 @@
 ﻿using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Data;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using System;
 using System.Collections.Generic;
@@ -34,7 +35,10 @@ namespace EOLib.Net.PacketProcessing
             if (!_map.ContainsKey(fap))
                 throw new InvalidOperationException($"Unknown packet identifier: {fap}");
 
-            return (IPacket)Activator.CreateInstance(_map[fap]);
+            var instance = (IPacket)Activator.CreateInstance(_map[fap]);
+            var eoReader = new EoReader(array);
+            instance.Deserialize(eoReader.Slice(2));
+            return instance;
         }
 
         private static IReadOnlyDictionary<FamilyActionPair, Type> MapTypesFrom(Assembly assembly, string name_space)

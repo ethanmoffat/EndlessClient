@@ -16,6 +16,7 @@ using MonoGame.Extended.BitmapFonts;
 using Optional;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace EndlessClient.Rendering.Map
 {
@@ -45,7 +46,7 @@ namespace EndlessClient.Rendering.Map
         private RenderTarget2D _mapBaseTarget, _mapObjectTarget;
         private SpriteBatch _sb;
         private MapTransitionState _mapTransitionState = MapTransitionState.Default;
-        private int? _lastMapChecksum;
+        private IReadOnlyList<int> _lastMapChecksum;
         private bool _groundDrawn;
 
         private Option<MapQuakeState> _quakeState;
@@ -122,7 +123,7 @@ namespace EndlessClient.Rendering.Map
         {
             if (_currentMapStateProvider.IsSleepWarp) return;
 
-            if (!_lastMapChecksum.HasValue || _lastMapChecksum != _currentMapProvider.CurrentMap.Properties.ChecksumInt)
+            if (_lastMapChecksum == null || !_lastMapChecksum.SequenceEqual(_currentMapProvider.CurrentMap.Properties.Checksum))
             {
                 // The dimensions of the map are 0-based in the properties. Adjust to 1-based for RT creation
                 var widthPlus1 = _currentMapProvider.CurrentMap.Properties.Width + 1;
@@ -163,7 +164,7 @@ namespace EndlessClient.Rendering.Map
                 }
             }
 
-            _lastMapChecksum = _currentMapProvider.CurrentMap.Properties.ChecksumInt;
+            _lastMapChecksum = _currentMapProvider.CurrentMap.Properties.Checksum;
 
             base.Update(gameTime);
         }
@@ -270,7 +271,7 @@ namespace EndlessClient.Rendering.Map
 
         private void DrawGroundLayerToRenderTarget()
         {
-            if (_groundDrawn && (!_mapTransitionState.StartTime.HasValue && _lastMapChecksum == _currentMapProvider.CurrentMap.Properties.ChecksumInt))
+            if (_groundDrawn && !_mapTransitionState.StartTime.HasValue && _lastMapChecksum == _currentMapProvider.CurrentMap.Properties.Checksum)
                 return;
 
             _groundDrawn = true;

@@ -1,4 +1,5 @@
 ﻿using EOLib.Domain.Character;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
 using System.Threading.Tasks;
 using XNAControls;

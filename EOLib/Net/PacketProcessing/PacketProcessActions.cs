@@ -4,6 +4,7 @@ using Moffat.EndlessOnline.SDK.Data;
 using EOLib.Logger;
 using Moffat.EndlessOnline.SDK.Packet;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
+using System.Net.Sockets;
 
 namespace EOLib.Net.PacketProcessing
 {
@@ -30,6 +31,10 @@ namespace EOLib.Net.PacketProcessing
         public void SetSequenceStart(ISequenceStart sequenceStart)
         {
             _sequenceRepository.Sequencer = _sequenceRepository.Sequencer.WithSequenceStart(sequenceStart);
+            if (sequenceStart is InitSequenceStart)
+            {
+                _sequenceRepository.Sequencer.NextSequence();
+            }
         }
 
         public void SetEncodeMultiples(int emulti_d, int emulti_e)
@@ -51,6 +56,8 @@ namespace EOLib.Net.PacketProcessing
         public byte[] EncodeRawPacket(IPacket pkt)
         {
             var eoWriter = new EoWriter();
+            eoWriter.AddByte((byte)pkt.Action);
+            eoWriter.AddByte((byte)pkt.Family);
             pkt.Serialize(eoWriter);
             return PrependLengthBytes(eoWriter.ToByteArray());
         }

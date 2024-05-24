@@ -46,6 +46,7 @@
         AdminWarp = 32,
         NoWallWalk,
         GhostPlayer = NoWallWalk,
+        ScrollTeleport = NoWallWalk,
         PotionOfEvilTerrorEffect,
         PotionOfFireworksEffect,
         PotionOfSparklesEffect = 36,

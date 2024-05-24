@@ -62,7 +62,7 @@ namespace EndlessClient.HUD.Controls
         private readonly ICharacterActions _characterActions;
         private readonly IWalkValidationActions _walkValidationActions;
         private readonly IChatBubbleActions _chatBubbleActions;
-        private readonly IPacketSendService _packetSendService;
+        private readonly IUnknownEntitiesRequestActions _unknownEntitiesRequestActions;
         private readonly IUserInputTimeProvider _userInputTimeProvider;
         private readonly ISpellSlotDataRepository _spellSlotDataRepository;
         private readonly ISfxPlayer _sfxPlayer;
@@ -97,7 +97,7 @@ namespace EndlessClient.HUD.Controls
                                   ICharacterActions characterActions,
                                   IWalkValidationActions walkValidationActions,
                                   IChatBubbleActions chatBubbleActions,
-                                  IPacketSendService packetSendService,
+                                  IUnknownEntitiesRequestActions unknownEntitiesRequestActions,
                                   IUserInputTimeProvider userInputTimeProvider,
                                   ISpellSlotDataRepository spellSlotDataRepository,
                                   ISfxPlayer sfxPlayer,
@@ -130,7 +130,7 @@ namespace EndlessClient.HUD.Controls
             _characterActions = characterActions;
             _walkValidationActions = walkValidationActions;
             _chatBubbleActions = chatBubbleActions;
-            _packetSendService = packetSendService;
+            _unknownEntitiesRequestActions = unknownEntitiesRequestActions;
             _userInputTimeProvider = userInputTimeProvider;
             _spellSlotDataRepository = spellSlotDataRepository;
             _sfxPlayer = sfxPlayer;
@@ -547,7 +547,7 @@ namespace EndlessClient.HUD.Controls
 
         private UnknownEntitiesRequester CreateUnknownEntitiesRequester()
         {
-            return new UnknownEntitiesRequester(_endlessGameProvider, _clientWindowSizeRepository, (ICharacterProvider)_characterRepository, _currentMapStateRepository, _packetSendService);
+            return new UnknownEntitiesRequester(_endlessGameProvider, _clientWindowSizeRepository, (ICharacterProvider)_characterRepository, _currentMapStateRepository, _unknownEntitiesRequestActions);
         }
 
         private StatusBarLabel CreateStatusLabel()

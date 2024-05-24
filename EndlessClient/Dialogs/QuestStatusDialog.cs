@@ -4,6 +4,7 @@ using EOLib.Domain.Interact.Quest;
 using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
 using System.Collections.Generic;
 
 namespace EndlessClient.Dialogs

@@ -2,10 +2,10 @@
 using EndlessClient.Dialogs.Services;
 using EOLib;
 using EOLib.Domain.Interact.Quest;
-using EOLib.Domain.NPC;
 using EOLib.Graphics;
 using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 using Optional;
 using System;
 using System.Collections.Generic;

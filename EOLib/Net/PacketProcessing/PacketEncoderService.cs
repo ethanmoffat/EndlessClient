@@ -7,7 +7,7 @@ namespace EOLib.Net.PacketProcessing
     [AutoMappedType]
     public sealed class PacketEncoderService : IPacketEncoderService
     {
-        private const string PACKET_NAMESPACE = "EOLib.Protocol.Net.Server";
+        private const string PACKET_NAMESPACE = "Moffat.EndlessOnline.SDK.Protocol.Net.Server";
 
         private readonly IPacketFactory _packetFactory;
 
@@ -35,7 +35,7 @@ namespace EOLib.Net.PacketProcessing
         {
             var decodedBytes = original;
 
-            if (decodeMultiplier > 0 && !PacketValidForDecode(original))
+            if (decodeMultiplier > 0 && PacketValidForDecode(original))
             {
                 decodedBytes = DataEncrypter.FlipMSB(decodedBytes);
                 decodedBytes = DataEncrypter.Deinterleave(decodedBytes);

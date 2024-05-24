@@ -7,6 +7,7 @@ using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
 using System.Linq;
 using XNAControls;
 
@@ -42,7 +43,7 @@ namespace EndlessClient.Rendering.Map
         private readonly Texture2D _miniMapTexture;
 
         private RenderTarget2D _miniMapTarget;
-        private int? _lastMapChecksum;
+        private IReadOnlyList<int> _lastMapChecksum;
 
         public MiniMapRenderer(INativeGraphicsManager nativeGraphicsManager,
                                IRenderTargetFactory renderTargetFactory,
@@ -78,7 +79,7 @@ namespace EndlessClient.Rendering.Map
 
         protected override void OnUpdateControl(GameTime gameTime)
         {
-            if (_lastMapChecksum == null || _lastMapChecksum != _currentMapProvider.CurrentMap.Properties.ChecksumInt)
+            if (_lastMapChecksum == null || !_lastMapChecksum.SequenceEqual(_currentMapProvider.CurrentMap.Properties.Checksum))
             {
                 // The dimensions of the map are 0-based in the properties. Adjust to 1-based for RT creation
                 var widthPlus1 = _currentMapProvider.CurrentMap.Properties.Width + 1;
@@ -95,7 +96,7 @@ namespace EndlessClient.Rendering.Map
                 DrawFixedMapElementsToRenderTarget();
             }
 
-            _lastMapChecksum = _currentMapProvider.CurrentMap.Properties.ChecksumInt;
+            _lastMapChecksum = _currentMapProvider.CurrentMap.Properties.Checksum;
 
             base.OnUpdateControl(gameTime);
         }
@@ -207,7 +208,7 @@ namespace EndlessClient.Rendering.Map
 
         private void DrawFixedMapElementsToRenderTarget()
         {
-            if (_lastMapChecksum.HasValue && _lastMapChecksum == _currentMapProvider.CurrentMap.Properties.ChecksumInt)
+            if (_lastMapChecksum != null && _lastMapChecksum.SequenceEqual(_currentMapProvider.CurrentMap.Properties.Checksum))
                 return;
 
             GraphicsDevice.SetRenderTarget(_miniMapTarget);

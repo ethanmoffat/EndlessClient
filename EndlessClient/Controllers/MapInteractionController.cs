@@ -127,7 +127,8 @@ namespace EndlessClient.Controllers
             // vanilla client prioritizes standing first, then board interaction
             else if (_characterProvider.MainCharacter.RenderProperties.SitState != SitState.Standing)
             {
-                _characterActions.Sit();
+                var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
+                _characterActions.Sit(mapRenderer.GridCoordinates);
             }
             else if (InteractableTileSpec(cellState.TileSpec) && (cellState.TileSpec.IsBoard() || CharacterIsCloseEnough(cellState.Coordinate)))
             {
@@ -163,7 +164,7 @@ namespace EndlessClient.Controllers
                             if (unwalkableAction == UnwalkableTileAction.Jukebox)
                             {
                                 _mapActions.OpenJukebox(cellState.Coordinate);
-                                _inGameDialogActions.ShowJukeboxDialog(cellState.Coordinate);
+                                _inGameDialogActions.ShowJukeboxDialog();
                             }
                             break;
                     }

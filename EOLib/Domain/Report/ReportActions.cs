@@ -1,6 +1,6 @@
 ﻿using AutomaticTypeMapper;
-using EOLib.Net;
 using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 
 namespace EOLib.Domain.Report
 {
@@ -16,19 +16,17 @@ namespace EOLib.Domain.Report
 
         public void ReportPlayer(string player, string message)
         {
-            var packet = new PacketBuilder(PacketFamily.AdminInteract, PacketAction.Report)
-                .AddString(player)
-                .AddByte(255)
-                .AddString(message)
-                .Build();
+            var packet = new AdminInteractReportClientPacket
+            {
+                Reportee = player,
+                Message = message
+            };
             _packetSendService.SendPacket(packet);
         }
 
         public void SpeakToAdmin(string message)
         {
-            var packet = new PacketBuilder(PacketFamily.AdminInteract, PacketAction.Tell)
-                .AddString(message)
-                .Build();
+            var packet = new AdminInteractTellClientPacket { Message = message };
             _packetSendService.SendPacket(packet);
         }
     }

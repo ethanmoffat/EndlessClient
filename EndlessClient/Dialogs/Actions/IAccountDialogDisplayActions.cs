@@ -1,7 +1,7 @@
-﻿using System.Threading.Tasks;
-using EOLib;
-using EOLib.Domain.Account;
+﻿using EOLib.Domain.Account;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
+using System.Threading.Tasks;
 using XNAControls;
 
 namespace EndlessClient.Dialogs.Actions

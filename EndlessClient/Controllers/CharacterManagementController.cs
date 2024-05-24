@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.GameExecution;
@@ -8,7 +7,9 @@ using EOLib.Domain.Login;
 using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.Connection;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
+using System.Threading.Tasks;
 using XNAControls;
 
 namespace EndlessClient.Controllers

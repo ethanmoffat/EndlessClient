@@ -6,7 +6,6 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Interact.Quest;
 using EOLib.Domain.Interact.Shop;
 using EOLib.Domain.Interact.Skill;
-using EOLib.Domain.Map;
 using EOLib.Localization;
 using Optional;
 using System;
@@ -390,11 +389,11 @@ namespace EndlessClient.Dialogs.Actions
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.BOARD_TOWN_BOARD_NOW_VIEWED);
         }
 
-        public void ShowJukeboxDialog(MapCoordinate mapCoordinate)
+        public void ShowJukeboxDialog()
         {
             _activeDialogRepository.JukeboxDialog.MatchNone(() =>
             {
-                var dlg = _jukeboxDialogFactory.Create(mapCoordinate);
+                var dlg = _jukeboxDialogFactory.Create();
                 dlg.DialogClosed += (_, _) => _activeDialogRepository.JukeboxDialog = Option.None<JukeboxDialog>();
                 _activeDialogRepository.JukeboxDialog = Option.Some(dlg);
 
@@ -515,7 +514,7 @@ namespace EndlessClient.Dialogs.Actions
 
         void ShowBoardDialog();
 
-        void ShowJukeboxDialog(MapCoordinate mapCoordinate);
+        void ShowJukeboxDialog();
 
         void ShowInnkeeperDialog();
 

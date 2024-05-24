@@ -2,7 +2,6 @@
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.Dialogs.Services;
 using EOLib.Domain.Interact.Jukebox;
-using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
@@ -23,8 +22,6 @@ namespace EndlessClient.Dialogs
         private readonly IJukeboxRepository _jukeboxRepository;
         private readonly ISfxPlayer _sfxPlayer;
 
-        private readonly MapCoordinate _jukeboxCoordinate;
-
         private readonly IEDFFile _songNames;
 
         private ListDialogItem _changeSongItem, _playSongItem;
@@ -42,8 +39,7 @@ namespace EndlessClient.Dialogs
                              IEOMessageBoxFactory messageBoxFactory,
                              IJukeboxActions jukeboxActions,
                              IJukeboxRepository jukeboxRepository,
-                             ISfxPlayer sfxPlayer,
-                             MapCoordinate jukeboxCoordinate)
+                             ISfxPlayer sfxPlayer)
             : base(nativeGraphicsManager, dialogButtonService, DialogType.Jukebox)
         {
             _dialogIconService = dialogIconService;
@@ -52,7 +48,6 @@ namespace EndlessClient.Dialogs
             _jukeboxActions = jukeboxActions;
             _jukeboxRepository = jukeboxRepository;
             _sfxPlayer = sfxPlayer;
-            _jukeboxCoordinate = jukeboxCoordinate;
 
             ListItemType = ListDialogItem.ListItemStyle.Large;
             Buttons = ScrollingListDialogButtons.Cancel;
@@ -150,7 +145,7 @@ namespace EndlessClient.Dialogs
             {
                 if (e.Result == XNADialogResult.OK)
                 {
-                    _jukeboxActions.RequestSong(_jukeboxCoordinate, _songIndex);
+                    _jukeboxActions.RequestSong(_songIndex);
                     _sfxPlayer.PlaySfx(SoundEffectID.BuySell);
 
                     Close(XNADialogResult.NO_BUTTON_PRESSED);

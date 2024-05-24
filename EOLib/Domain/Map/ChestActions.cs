@@ -1,7 +1,9 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
-using EOLib.Net;
 using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Protocol;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 
 namespace EOLib.Domain.Map
 {
@@ -20,24 +22,33 @@ namespace EOLib.Domain.Map
 
         public void AddItemToChest(InventoryItem item)
         {
-            var packet = new PacketBuilder(PacketFamily.Chest, PacketAction.Add)
-                .AddChar(_chestDataProvider.Location.X)
-                .AddChar(_chestDataProvider.Location.Y)
-                .AddShort(item.ItemID)
-                .AddThree(item.Amount)
-                .Build();
-
+            var packet = new ChestAddClientPacket
+            {
+                Coords = new Coords
+                {
+                    X = _chestDataProvider.Location.X,
+                    Y = _chestDataProvider.Location.Y,
+                },
+                AddItem = new ThreeItem
+                {
+                    Id = item.ItemID,
+                    Amount = item.Amount
+                }
+            };
             _packetSendService.SendPacket(packet);
         }
 
         public void TakeItemFromChest(int itemId)
         {
-            var packet = new PacketBuilder(PacketFamily.Chest, PacketAction.Take)
-                .AddChar(_chestDataProvider.Location.X)
-                .AddChar(_chestDataProvider.Location.Y)
-                .AddShort(itemId)
-                .Build();
-
+            var packet = new ChestTakeClientPacket
+            {
+                Coords = new Coords
+                {
+                    X = _chestDataProvider.Location.X,
+                    Y = _chestDataProvider.Location.Y,
+                },
+                TakeItemId = itemId
+            };
             _packetSendService.SendPacket(packet);
         }
     }

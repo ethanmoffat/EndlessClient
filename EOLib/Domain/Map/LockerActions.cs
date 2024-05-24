@@ -1,7 +1,9 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
-using EOLib.Net;
 using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Protocol;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 using Optional.Collections;
 
 namespace EOLib.Domain.Map
@@ -21,24 +23,33 @@ namespace EOLib.Domain.Map
 
         public void AddItemToLocker(InventoryItem item)
         {
-            var packet = new PacketBuilder(PacketFamily.Locker, PacketAction.Add)
-                .AddChar(_lockerDataProvider.Location.X)
-                .AddChar(_lockerDataProvider.Location.Y)
-                .AddShort(item.ItemID)
-                .AddThree(item.Amount)
-                .Build();
-
+            var packet = new LockerAddClientPacket
+            {
+                LockerCoords = new Coords
+                {
+                    X = _lockerDataProvider.Location.X,
+                    Y = _lockerDataProvider.Location.Y,
+                },
+                DepositItem = new ThreeItem
+                {
+                    Id = item.ItemID,
+                    Amount = item.Amount,
+                }
+            };
             _packetSendService.SendPacket(packet);
         }
 
         public void TakeItemFromLocker(int itemId)
         {
-            var packet = new PacketBuilder(PacketFamily.Locker, PacketAction.Take)
-                .AddChar(_lockerDataProvider.Location.X)
-                .AddChar(_lockerDataProvider.Location.Y)
-                .AddShort(itemId)
-                .Build();
-
+            var packet = new LockerTakeClientPacket
+            {
+                LockerCoords = new Coords
+                {
+                    X = _lockerDataProvider.Location.X,
+                    Y = _lockerDataProvider.Location.Y,
+                },
+                TakeItemId = itemId
+            };
             _packetSendService.SendPacket(packet);
         }
 

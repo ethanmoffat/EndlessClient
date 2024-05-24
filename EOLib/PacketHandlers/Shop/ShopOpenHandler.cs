@@ -31,7 +31,7 @@ namespace EOLib.PacketHandlers.Shop
 
         public override bool HandlePacket(ShopOpenServerPacket packet)
         {
-            _shopDataRepository.ShopID = packet.SessionId;
+            _shopDataRepository.SessionID = packet.SessionId;
             _shopDataRepository.ShopName = packet.ShopName;
 
             _shopDataRepository.TradeItems = packet.TradeItems.Select(x => new ShopItem(x.ItemId, x.BuyPrice, x.SellPrice, x.MaxBuyAmount)).ToList<IShopItem>();

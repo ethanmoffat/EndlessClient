@@ -3,6 +3,7 @@ using EndlessClient.Dialogs.Actions;
 using EOLib.Domain.Interact.Quest;
 using EOLib.Domain.Online;
 using EOLib.Localization;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
 
 namespace EndlessClient.HUD
 {

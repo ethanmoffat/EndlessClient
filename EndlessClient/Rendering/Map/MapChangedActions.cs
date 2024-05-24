@@ -15,6 +15,7 @@ using EOLib.Domain.Notifiers;
 using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Linq;
 
 namespace EndlessClient.Rendering.Map
@@ -84,7 +85,7 @@ namespace EndlessClient.Rendering.Map
             ShowPkWarning(differentMapId: true);
         }
 
-        public void NotifyMapChanged(WarpAnimation warpAnimation, bool differentMapID)
+        public void NotifyMapChanged(WarpEffect warpAnimation, bool differentMapID)
         {
             StopAllAnimations();
             ClearCharacterRenderersAndCache();
@@ -214,11 +215,11 @@ namespace EndlessClient.Rendering.Map
             }
         }
 
-        private void ShowWarpBubbles(WarpAnimation animation)
+        private void ShowWarpBubbles(WarpEffect animation)
         {
             _characterRendererRepository.MainCharacterRenderer.MatchSome(r =>
             {
-                if (animation == WarpAnimation.Admin)
+                if (animation == WarpEffect.Admin)
                     r.PlayEffect((int)HardCodedEffect.WarpArrive);
             });
         }

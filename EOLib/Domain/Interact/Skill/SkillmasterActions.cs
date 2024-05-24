@@ -1,6 +1,6 @@
 ﻿using AutomaticTypeMapper;
-using EOLib.Net;
 using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 
 namespace EOLib.Domain.Interact.Skill
 {
@@ -19,30 +19,30 @@ namespace EOLib.Domain.Interact.Skill
 
         public void LearnSkill(int spellId)
         {
-            var packet = new PacketBuilder(PacketFamily.StatSkill, PacketAction.Take)
-                .AddInt(_skillDataProvider.ID)
-                .AddShort(spellId)
-                .Build();
-
+            var packet = new StatSkillTakeClientPacket
+            {
+                SessionId = _skillDataProvider.ID,
+                SpellId = spellId
+            };
             _packetSendService.SendPacket(packet);
         }
 
         public void ForgetSkill(int spellId)
         {
-            var packet = new PacketBuilder(PacketFamily.StatSkill, PacketAction.Remove)
-                .AddInt(_skillDataProvider.ID)
-                .AddShort(spellId)
-                .Build();
-
+            var packet = new StatSkillRemoveClientPacket
+            {
+                SessionId = _skillDataProvider.ID,
+                SpellId = spellId
+            };
             _packetSendService.SendPacket(packet);
         }
 
         public void ResetCharacter()
         {
-            var packet = new PacketBuilder(PacketFamily.StatSkill, PacketAction.Junk)
-                .AddInt(_skillDataProvider.ID)
-                .Build();
-
+            var packet = new StatSkillJunkClientPacket
+            {
+                SessionId = _skillDataProvider.ID,
+            };
             _packetSendService.SendPacket(packet);
         }
     }

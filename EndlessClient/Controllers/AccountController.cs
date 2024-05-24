@@ -4,6 +4,7 @@ using EndlessClient.GameExecution;
 using EOLib.Domain.Account;
 using EOLib.Net;
 using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Threading.Tasks;
 using XNAControls;
 
@@ -48,7 +49,7 @@ namespace EndlessClient.Controllers
                 return;
 
             var nameResult = checkNameOperation.Result;
-            if (nameResult < AccountReply.OK_CodeRange)
+            if (nameResult < (AccountReply)10)
             {
                 _accountDialogDisplayActions.ShowCreateAccountServerError(nameResult);
                 return;

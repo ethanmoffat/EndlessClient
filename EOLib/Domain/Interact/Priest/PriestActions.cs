@@ -1,6 +1,6 @@
 ﻿using AutomaticTypeMapper;
-using EOLib.Net;
 using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 
 namespace EOLib.Domain.Interact.Priest
 {
@@ -19,30 +19,19 @@ namespace EOLib.Domain.Interact.Priest
 
         public void AcceptRequest()
         {
-            var packet = new PacketBuilder(PacketFamily.Priest, PacketAction.Accept)
-                .AddShort(_priestSessionProvider.SessionID)
-                .Build();
-
+            var packet = new PriestAcceptClientPacket { SessionId = _priestSessionProvider.SessionID };
             _packetSendService.SendPacket(packet);
         }
 
         public void RequestMarriage(string partner)
         {
-            var packet = new PacketBuilder(PacketFamily.Priest, PacketAction.Request)
-                .AddInt(_priestSessionProvider.SessionID)
-                .AddByte(255)
-                .AddString(partner)
-                .Build();
-
+            var packet = new PriestRequestClientPacket { SessionId = _priestSessionProvider.SessionID, Name = partner };
             _packetSendService.SendPacket(packet);
         }
 
         public void ConfirmMarriage()
         {
-            var packet = new PacketBuilder(PacketFamily.Priest, PacketAction.Use)
-                .AddInt(_priestSessionProvider.SessionID)
-                .Build();
-
+            var packet = new PriestUseClientPacket { SessionId = _priestSessionProvider.SessionID };
             _packetSendService.SendPacket(packet);
         }
     }

@@ -2,7 +2,6 @@
 using EndlessClient.Audio;
 using EndlessClient.Dialogs.Services;
 using EOLib.Domain.Interact.Jukebox;
-using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.Localization;
 
@@ -42,7 +41,7 @@ namespace EndlessClient.Dialogs.Factories
             _sfxPlayer = sfxPlayer;
         }
 
-        public JukeboxDialog Create(MapCoordinate mapCoordinate)
+        public JukeboxDialog Create()
         {
             return new JukeboxDialog(_nativeGraphicsManager,
                                      _dialogButtonService,
@@ -52,13 +51,12 @@ namespace EndlessClient.Dialogs.Factories
                                      _messageBoxFactory,
                                      _jukeboxActions,
                                      _jukeboxRepository,
-                                     _sfxPlayer,
-                                     mapCoordinate);
+                                     _sfxPlayer);
         }
     }
 
     public interface IJukeboxDialogFactory
     {
-        JukeboxDialog Create(MapCoordinate mapCoordinate);
+        JukeboxDialog Create();
     }
 }

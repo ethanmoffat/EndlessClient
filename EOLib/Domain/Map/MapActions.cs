@@ -2,8 +2,9 @@
 using EOLib.Domain.Character;
 using EOLib.Domain.Item;
 using EOLib.IO.Map;
-using EOLib.Net;
 using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Protocol;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 
 namespace EOLib.Domain.Map
 {
@@ -26,23 +27,14 @@ namespace EOLib.Domain.Map
             _currentMapStateRepository = currentMapStateRepository;
         }
 
-        public void RequestRefresh()
-        {
-            var packet = new PacketBuilder(PacketFamily.Refresh, PacketAction.Request)
-                .AddByte(255)
-                .Build();
-            _packetSendService.SendPacket(packet);
-        }
+        public void RequestRefresh() => _packetSendService.SendPacket(new RefreshRequestClientPacket());
 
         public ItemPickupResult PickUpItem(MapItem item)
         {
             var pickupResult = _itemPickupValidator.ValidateItemPickup(_characterProvider.MainCharacter, item);
             if (pickupResult == ItemPickupResult.Ok)
             {
-                var packet = new PacketBuilder(PacketFamily.Item, PacketAction.Get)
-                    .AddShort(item.UniqueID)
-                    .Build();
-
+                var packet = new ItemGetClientPacket { ItemIndex = item.UniqueID };
                 _packetSendService.SendPacket(packet);
             }
 
@@ -54,51 +46,32 @@ namespace EOLib.Domain.Map
             if (_currentMapStateRepository.PendingDoors.Contains(warp))
                 return;
 
-            var packet = new PacketBuilder(PacketFamily.Door, PacketAction.Open)
-                .AddChar(warp.X)
-                .AddChar(warp.Y)
-                .Build();
-
+            var packet = new DoorOpenClientPacket { Coords = new Coords { X = warp.X, Y = warp.Y } };
             _packetSendService.SendPacket(packet);
             _currentMapStateRepository.PendingDoors.Add(warp);
         }
 
         public void OpenChest(MapCoordinate location)
         {
-            var packet = new PacketBuilder(PacketFamily.Chest, PacketAction.Open)
-                .AddChar(location.X)
-                .AddChar(location.Y)
-                .Build();
-
+            var packet = new ChestOpenClientPacket { Coords = new Coords { X = location.X, Y = location.Y } };
             _packetSendService.SendPacket(packet);
         }
 
         public void OpenLocker(MapCoordinate location)
         {
-            var packet = new PacketBuilder(PacketFamily.Locker, PacketAction.Open)
-                .AddChar(location.X)
-                .AddChar(location.Y)
-                .Build();
-
+            var packet = new LockerOpenClientPacket { LockerCoords = new Coords { X = location.X, Y = location.Y } };
             _packetSendService.SendPacket(packet);
         }
 
         public void OpenBoard(TileSpec boardSpec)
         {
-            var packet = new PacketBuilder(PacketFamily.Board, PacketAction.Open)
-                .AddShort(boardSpec - TileSpec.Board1)
-                .Build();
-
+            var packet = new BoardOpenClientPacket { BoardId = boardSpec - TileSpec.Board1 };
             _packetSendService.SendPacket(packet);
         }
 
         public void OpenJukebox(MapCoordinate location)
         {
-            var packet = new PacketBuilder(PacketFamily.JukeBox, PacketAction.Open)
-                .AddChar(location.X)
-                .AddChar(location.Y)
-                .Build();
-
+            var packet = new JukeboxOpenClientPacket { Coords = new Coords { X = location.X, Y = location.Y } };
             _packetSendService.SendPacket(packet);
         }
     }

@@ -83,10 +83,10 @@ namespace EndlessClient.Dialogs
         {
             _cachedShopId.MatchNone(() =>
             {
-                _shopDataProvider.ShopID.SomeWhen(x => x > 0)
+                _shopDataProvider.SessionID.SomeWhen(x => x > 0)
                     .MatchSome(x =>
                     {
-                        _cachedShopId = Option.Some(_shopDataProvider.ShopID);
+                        _cachedShopId = Option.Some(_shopDataProvider.SessionID);
 
                         Title = _shopDataProvider.ShopName;
 

@@ -37,7 +37,7 @@ namespace EndlessClient.Input
                         _inGameDialogActions.ShowLockerDialog();
                         break;
                     case UnwalkableTileAction.Chair:
-                        _characterActions.SitInChair();
+                        _characterActions.Sit(cellState.Coordinate);
                         break;
                     case UnwalkableTileAction.Door:
                         cellState.Warp.MatchSome(w => _mapActions.OpenDoor(w));
@@ -48,7 +48,7 @@ namespace EndlessClient.Input
                         break;
                     case UnwalkableTileAction.Jukebox:
                         _mapActions.OpenJukebox(cellState.Coordinate);
-                        _inGameDialogActions.ShowJukeboxDialog(cellState.Coordinate);
+                        _inGameDialogActions.ShowJukeboxDialog();
                         break;
                 }
             }

@@ -1,7 +1,6 @@
-﻿using EOLib.Domain.Login;
-using EOLib.Domain.Protocol;
-using EOLib.Net;
+﻿using EOLib.Net;
 using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EndlessClient.Dialogs.Actions
 {
@@ -9,7 +8,7 @@ namespace EndlessClient.Dialogs.Actions
     {
         void ShowError(ConnectResult connectResult);
 
-        void ShowError(IInitializationData initializationData);
+        void ShowError(InitReply replyCode, InitInitServerPacket.IReplyCodeData initializationData);
 
         void ShowException(NoDataSentException ex);
 
