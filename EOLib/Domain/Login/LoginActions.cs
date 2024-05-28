@@ -210,7 +210,7 @@ namespace EOLib.Domain.Login
                     ReplyCode = LoginReply.Banned,
                     ReplyCodeData = new LoginReplyServerPacket.ReplyCodeDataBanned()
                 };
-                return true;
+                return false;
             }
 
             return !(response.Family == PacketFamily.Login && response.Action == PacketAction.Reply);

@@ -26,7 +26,7 @@ namespace EOLib.Domain.Character
         public async Task<int> RequestCharacterCreation()
         {
             var packet = new CharacterRequestClientPacket();
-            var response= await _packetSendService.SendEncodedPacketAndWaitAsync(packet);
+            var response = await _packetSendService.SendEncodedPacketAndWaitAsync(packet);
 
             if (response is CharacterReplyServerPacket responsePacket)
                 return (int)responsePacket.ReplyCode;
@@ -69,7 +69,7 @@ namespace EOLib.Domain.Character
             if (!(response is CharacterPlayerServerPacket responsePacket))
                 throw new EmptyPacketReceivedException();
 
-            return responsePacket.CharacterId;
+            return responsePacket.SessionId;
         }
 
         public async Task<CharacterReply> DeleteCharacter(int deleteRequestID)
@@ -86,7 +86,7 @@ namespace EOLib.Domain.Character
             if (!(response is CharacterReplyServerPacket responsePacket))
                 throw new EmptyPacketReceivedException();
 
-            if (responsePacket.ReplyCodeData is CharacterReplyServerPacket.ReplyCodeDataDeleted dataDeleted && dataDeleted.Characters.Any())
+            if (responsePacket.ReplyCodeData is CharacterReplyServerPacket.ReplyCodeDataDeleted dataDeleted)
             {
                 _characterSelectorRepository.Characters = dataDeleted.Characters
                     .Select(Character.FromCharacterSelectionListEntry).ToList();
