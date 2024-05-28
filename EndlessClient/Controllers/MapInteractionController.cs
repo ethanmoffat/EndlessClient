@@ -136,37 +136,41 @@ namespace EndlessClient.Controllers
 
                 foreach (var unwalkableAction in unwalkableActions)
                 {
-
                     if (cellState.TileSpec.IsBoard())
                     {
                         _mapActions.OpenBoard(cellState.TileSpec);
                         _inGameDialogActions.ShowBoardDialog();
-                        continue;
                     }
-
-                    switch (cellState.TileSpec)
+                    else if (cellState.TileSpec.IsChair())
                     {
-                        case TileSpec.Chest:
-                            if (unwalkableAction == UnwalkableTileAction.Chest)
-                            {
-                                _mapActions.OpenChest(cellState.Coordinate);
-                                _inGameDialogActions.ShowChestDialog();
-                            }
-                            break;
-                        case TileSpec.BankVault:
-                            if (unwalkableAction == UnwalkableTileAction.Locker)
-                            {
-                                _mapActions.OpenLocker(cellState.Coordinate);
-                                _inGameDialogActions.ShowLockerDialog();
-                            }
-                            break;
-                        case TileSpec.Jukebox:
-                            if (unwalkableAction == UnwalkableTileAction.Jukebox)
-                            {
-                                _mapActions.OpenJukebox(cellState.Coordinate);
-                                _inGameDialogActions.ShowJukeboxDialog();
-                            }
-                            break;
+                        _characterActions.Sit(cellState.Coordinate, isChair: true);
+                    }
+                    else
+                    {
+                        switch (cellState.TileSpec)
+                        {
+                            case TileSpec.Chest:
+                                if (unwalkableAction == UnwalkableTileAction.Chest)
+                                {
+                                    _mapActions.OpenChest(cellState.Coordinate);
+                                    _inGameDialogActions.ShowChestDialog();
+                                }
+                                break;
+                            case TileSpec.BankVault:
+                                if (unwalkableAction == UnwalkableTileAction.Locker)
+                                {
+                                    _mapActions.OpenLocker(cellState.Coordinate);
+                                    _inGameDialogActions.ShowLockerDialog();
+                                }
+                                break;
+                            case TileSpec.Jukebox:
+                                if (unwalkableAction == UnwalkableTileAction.Jukebox)
+                                {
+                                    _mapActions.OpenJukebox(cellState.Coordinate);
+                                    _inGameDialogActions.ShowJukeboxDialog();
+                                }
+                                break;
+                        }
                     }
                 }
             }
@@ -294,23 +298,10 @@ namespace EndlessClient.Controllers
 
         private static bool InteractableTileSpec(TileSpec tileSpec)
         {
-            switch (tileSpec)
-            {
-                case TileSpec.Chest:
-                case TileSpec.BankVault:
-                case TileSpec.Board1:
-                case TileSpec.Board2:
-                case TileSpec.Board3:
-                case TileSpec.Board4:
-                case TileSpec.Board5:
-                case TileSpec.Board6:
-                case TileSpec.Board7:
-                case TileSpec.Board8:
-                case TileSpec.Jukebox:
-                    return true;
-                default:
-                    return false;
-            }
+            return tileSpec.IsBoard() || tileSpec.IsChair()
+                || tileSpec == TileSpec.Chest
+                || tileSpec == TileSpec.BankVault
+                || tileSpec == TileSpec.Jukebox;
         }
 
         private bool CharacterIsCloseEnough(MapCoordinate coordinate)

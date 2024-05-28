@@ -37,7 +37,7 @@ namespace EndlessClient.Input
                         _inGameDialogActions.ShowLockerDialog();
                         break;
                     case UnwalkableTileAction.Chair:
-                        _characterActions.Sit(cellState.Coordinate);
+                        _characterActions.Sit(cellState.Coordinate, isChair: true);
                         break;
                     case UnwalkableTileAction.Door:
                         cellState.Warp.MatchSome(w => _mapActions.OpenDoor(w));

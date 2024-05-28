@@ -74,16 +74,16 @@ namespace EOLib.Domain.Character
             _packetSendService.SendPacket(packet);
         }
 
-        public void Sit(MapCoordinate coords)
+        /// <inheritdoc />
+        public void Sit(MapCoordinate coords, bool isChair = false)
         {
             var renderProperties = _characterRepository.MainCharacter.RenderProperties;
             var sitAction = renderProperties.SitState == SitState.Standing
                 ? SitAction.Sit
                 : SitAction.Stand;
 
-            IPacket packet = renderProperties.SitState switch
-            {
-                SitState.Chair => new ChairRequestClientPacket
+            IPacket packet = isChair || renderProperties.SitState == SitState.Chair
+                ? new ChairRequestClientPacket
                 {
                     SitAction = sitAction,
                     SitActionData = sitAction == SitAction.Sit
@@ -92,8 +92,8 @@ namespace EOLib.Domain.Character
                             Coords = new Coords { X = coords.X, Y = coords.Y },
                         }
                         : null
-                },
-                _ => new SitRequestClientPacket
+                }
+                : (IPacket)new SitRequestClientPacket
                 {
                     SitAction = sitAction,
                     SitActionData = sitAction == SitAction.Sit
@@ -102,8 +102,7 @@ namespace EOLib.Domain.Character
                             CursorCoords = new Coords { X = coords.X, Y = coords.Y },
                         }
                         : null
-                }
-            };
+                };
             _packetSendService.SendPacket(packet);
         }
 
@@ -175,7 +174,8 @@ namespace EOLib.Domain.Character
         /// Request sit action
         /// </summary>
         /// <param name="coord">The chair coordinate for sitting in a chair, the mouse cursor coordinates for floor sit.</param>
-        void Sit(MapCoordinate coord);
+        /// <param name="isChair">True if the sit action is for a chair.</param>
+        void Sit(MapCoordinate coord, bool isChair = false);
 
         void PrepareCastSpell(int spellId);
 
