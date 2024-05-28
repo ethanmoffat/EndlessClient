@@ -62,8 +62,8 @@ namespace EOLib.IO.Services.Serializers
 
             var checksumArray = new List<int>
             {
-                NumberEncoder.DecodeNumber(new byte[] { data[3], data[4] }),
-                NumberEncoder.DecodeNumber(new byte[] { data[5], data[6] }),
+                _numberEncoderService.DecodeNumber(data[3], data[4]),
+                _numberEncoderService.DecodeNumber(data[5], data[6]),
             };
             var mapNameArray = data.Skip(7).Take(24).ToArray();
             var mapName = _mapStringEncoderService.DecodeMapString(mapNameArray);

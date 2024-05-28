@@ -133,7 +133,7 @@ namespace EOLib.Net.FileTransfer
 
             var actualLength = _mapFileRepository.MapFiles[mapID].Properties.FileSize;
 
-            return expectedChecksum.SequenceEqual(_mapFileRepository.MapFiles[mapID].Properties.Checksum) ||
+            return !expectedChecksum.SequenceEqual(_mapFileRepository.MapFiles[mapID].Properties.Checksum) ||
                 expectedLength != actualLength;
         }
 
