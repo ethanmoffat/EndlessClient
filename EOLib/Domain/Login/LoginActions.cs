@@ -94,7 +94,7 @@ namespace EOLib.Domain.Login
 
             _characterRepository.MainCharacter = character
                 .WithID(data.CharacterId)
-                .WithName(data.Name)
+                .WithName(char.ToUpper(data.Name[0]) + data.Name.Substring(1))
                 .WithTitle(data.Title)
                 .WithGuildName(data.GuildName)
                 .WithGuildRank(data.GuildRankName)
@@ -111,7 +111,7 @@ namespace EOLib.Domain.Login
             _currentMapStateRepository.JailMapID = data.Settings.JailMap;
 
             _paperdollRepository.VisibleCharacterPaperdolls[data.SessionId] = new PaperdollData()
-                .WithName(data.Name)
+                .WithName(char.ToUpper(data.Name[0]) + data.Name.Substring(1))
                 .WithTitle(data.Title)
                 .WithGuild(data.GuildName)
                 .WithRank(data.GuildRankName)
@@ -168,10 +168,11 @@ namespace EOLib.Domain.Login
 
             _characterRepository.MainCharacter = _characterRepository.MainCharacter
                 .WithID(_playerInfoRepository.PlayerID)
-                .WithName(mainCharacter.Name)
+                .WithName(char.ToUpper(mainCharacter.Name[0]) + mainCharacter.Name.Substring(1))
                 .WithMapID(mainCharacter.MapId)
                 .WithGuildTag(mainCharacter.GuildTag)
-                .WithClassID(mainCharacter.ClassId)
+                // classId is sent in the "enter game" data but eoserv hard-codes this to 6 (with no apparent impact on game function for main player)
+                //.WithClassID(mainCharacter.ClassId) 
                 .WithStats(stats)
                 .WithRenderProperties(CharacterRenderProperties.FromCharacterMapInfo(mainCharacter));
 
@@ -181,7 +182,9 @@ namespace EOLib.Domain.Login
             _currentMapStateRepository.Characters = new MapEntityCollectionHashSet<Character.Character>(
                 c => c.ID,
                 c => new MapCoordinate(c.X, c.Y),
-                data.Nearby.Characters.Except(new[] { mainCharacter }).Where(x => x.ByteSize >= 42).Select(Character.Character.FromNearby)
+                data.Nearby.Characters
+                    .Where(x => x.ByteSize >= 42 && x.PlayerId != mainCharacter.PlayerId)
+                    .Select(Character.Character.FromNearby)
             );
             _currentMapStateRepository.NPCs = new MapEntityCollectionHashSet<NPC.NPC>(
                 n => n.Index,

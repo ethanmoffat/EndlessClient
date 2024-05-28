@@ -79,7 +79,7 @@ namespace EOLib.Domain.Character
         {
             return new Builder
             {
-                Name = characterMapInfo.Name,
+                Name = char.ToUpper(characterMapInfo.Name[0]) + characterMapInfo.Name.Substring(1),
                 ID = characterMapInfo.PlayerId,
                 ClassID = characterMapInfo.ClassId,
                 MapID = characterMapInfo.MapId,
