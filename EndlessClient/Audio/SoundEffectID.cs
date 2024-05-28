@@ -17,7 +17,7 @@
         ServerMessage = Login,
         DeleteCharacter,
         MapMutation = DeleteCharacter,
-        UnknownStaticSound,
+        Banned,
         ScreenCapture = 8,
         PrivateMessageReceived,
         PunchAttack,

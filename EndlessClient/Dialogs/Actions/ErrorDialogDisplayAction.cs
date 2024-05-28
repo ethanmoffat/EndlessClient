@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.Dialogs.Factories;
 using EOLib.Localization;
 using EOLib.Net;
@@ -14,10 +15,13 @@ namespace EndlessClient.Dialogs.Actions
     public class ErrorDialogDisplayAction : IErrorDialogDisplayAction
     {
         private readonly IEOMessageBoxFactory _messageBoxFactory;
+        private readonly ISfxPlayer _sfxPlayer;
 
-        public ErrorDialogDisplayAction(IEOMessageBoxFactory messageBoxFactory)
+        public ErrorDialogDisplayAction(IEOMessageBoxFactory messageBoxFactory,
+                                        ISfxPlayer sfxPlayer)
         {
             _messageBoxFactory = messageBoxFactory;
+            _sfxPlayer = sfxPlayer;
         }
 
         public void ShowError(ConnectResult connectResult)
@@ -112,6 +116,8 @@ namespace EndlessClient.Dialogs.Actions
                                 EOMessageBoxStyle.SmallDialogLargeHeader);
                             messageBox.ShowDialog();
                         }
+
+                        _sfxPlayer.PlaySfx(SoundEffectID.Banned);
                     }
                     break;
                 case 0:
