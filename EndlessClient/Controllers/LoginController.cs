@@ -27,7 +27,7 @@ using System.Threading.Tasks;
 
 namespace EndlessClient.Controllers
 {
-    [MappedType(BaseType = typeof(ILoginController))]
+    [AutoMappedType]
     public class LoginController : ILoginController
     {
         private readonly ILoginActions _loginActions;
@@ -42,6 +42,7 @@ namespace EndlessClient.Controllers
         private readonly IUserInputTimeRepository _userInputTimeRepository;
         private readonly IClientWindowSizeRepository _clientWindowSizeRepository;
         private readonly IConfigurationProvider _configurationProvider;
+        private readonly IPlayerInfoRepository _playerInfoRepository;
         private readonly IErrorDialogDisplayAction _errorDisplayAction;
         private readonly ISafeNetworkOperationFactory _networkOperationFactory;
         private readonly IGameLoadingDialogFactory _gameLoadingDialogFactory;
@@ -66,7 +67,8 @@ namespace EndlessClient.Controllers
                                INewsProvider newsProvider,
                                IUserInputTimeRepository userInputTimeRepository,
                                IClientWindowSizeRepository clientWindowSizeRepository,
-                               IConfigurationProvider configurationProvider)
+                               IConfigurationProvider configurationProvider,
+                               IPlayerInfoRepository playerInfoRepository)
         {
             _loginActions = loginActions;
             _mapFileLoadActions = mapFileLoadActions;
@@ -86,6 +88,7 @@ namespace EndlessClient.Controllers
             _userInputTimeRepository = userInputTimeRepository;
             _clientWindowSizeRepository = clientWindowSizeRepository;
             _configurationProvider = configurationProvider;
+            _playerInfoRepository = playerInfoRepository;
         }
 
         public async Task LoginToAccount(ILoginParameters loginParameters)
@@ -107,8 +110,18 @@ namespace EndlessClient.Controllers
             }
             else
             {
+                if (reply == LoginReply.WrongUser || reply == LoginReply.WrongUserPassword)
+                    _playerInfoRepository.LoginAttempts++;
+                else
+                    _playerInfoRepository.LoginAttempts = 3;
+
                 _errorDisplayAction.ShowLoginError(reply);
-                _gameStateActions.ChangeToState(GameStates.Initial);
+
+                if (_playerInfoRepository.LoginAttempts >= 3)
+                {
+                    _gameStateActions.ChangeToState(GameStates.Initial);
+                    _playerInfoRepository.LoginAttempts = 0;
+                }
             }
         }
 

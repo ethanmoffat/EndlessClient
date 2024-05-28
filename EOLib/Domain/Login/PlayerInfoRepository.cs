@@ -4,6 +4,8 @@ namespace EOLib.Domain.Login
 {
     public interface IPlayerInfoRepository
     {
+        int LoginAttempts { get; set; }
+
         string LoggedInAccountName { get; set; }
 
         string PlayerPassword { get; set; }
@@ -19,6 +21,8 @@ namespace EOLib.Domain.Login
 
     public interface IPlayerInfoProvider
     {
+        int LoginAttempts { get; }
+
         string LoggedInAccountName { get; }
 
         string PlayerPassword { get; }
@@ -35,6 +39,8 @@ namespace EOLib.Domain.Login
     [AutoMappedType(IsSingleton = true)]
     public sealed class PlayerInfoRepository : IPlayerInfoRepository, IPlayerInfoProvider, IResettable
     {
+        public int LoginAttempts { get; set; }
+
         public string LoggedInAccountName { get; set; }
 
         public string PlayerPassword { get; set; }
@@ -47,8 +53,11 @@ namespace EOLib.Domain.Login
 
         public bool PlayerHasAdminCharacter { get; set; }
 
+        public PlayerInfoRepository() => ResetState();
+
         public void ResetState()
         {
+            LoginAttempts = 0;
             LoggedInAccountName = "";
             PlayerPassword = "";
             PlayerID = 0;
