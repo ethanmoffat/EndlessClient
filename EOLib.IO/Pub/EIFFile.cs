@@ -7,6 +7,7 @@ namespace EOLib.IO.Pub
         public override string FileType => "EIF";
 
         public EIFFile()
+            : this(0, new List<int> { 0, 0 }, 0, new List<EIFRecord>())
         {
         }
 

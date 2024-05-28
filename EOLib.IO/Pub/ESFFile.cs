@@ -7,6 +7,7 @@ namespace EOLib.IO.Pub
         public override string FileType => "ESF";
 
         public ESFFile()
+            : this(0, new List<int> { 0, 0 }, 0, new List<ESFRecord>())
         {
         }
 
