@@ -112,16 +112,13 @@ namespace EOLib.Graphics
                     : new Color[] { Color.Black, new Color(0xff000008) } // isHat: make both colors transparent
                 : new Color[] { Color.Black }; // default: make only black transparent
 
-            //if (!isHat || (isHat && !checkClip) || shouldClip)
+            fixed (byte* ptr = data)
             {
-                fixed (byte* ptr = data)
+                for (int i = 0; i < data.Length; i += 4)
                 {
-                    for (int i = 0; i < data.Length; i += 4)
-                    {
-                        uint* addr = (uint*)(ptr + i);
-                        if (transparentColors.Contains(new Color(*addr)))
-                            *addr = 0;
-                    }
+                    uint* addr = (uint*)(ptr + i);
+                    if (transparentColors.Contains(new Color(*addr)))
+                        *addr = 0;
                 }
             }
         }
