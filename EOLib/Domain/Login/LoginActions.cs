@@ -177,6 +177,9 @@ namespace EOLib.Domain.Login
                 .WithRenderProperties(CharacterRenderProperties.FromCharacterMapInfo(mainCharacter));
 
             _characterInventoryRepository.ItemInventory = new HashSet<InventoryItem>(data.Items.Select(InventoryItem.FromNet));
+            if (!_characterInventoryRepository.ItemInventory.Any(x => x.ItemID == 1))
+                _characterInventoryRepository.ItemInventory.Add(new InventoryItem(1, 0));
+
             _characterInventoryRepository.SpellInventory = new HashSet<InventorySpell>(data.Spells.Select(InventorySpell.FromNet));
 
             _currentMapStateRepository.Characters = new MapEntityCollectionHashSet<Character.Character>(
