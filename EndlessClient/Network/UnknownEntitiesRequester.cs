@@ -1,5 +1,7 @@
 ﻿using EndlessClient.GameExecution;
 using EndlessClient.Rendering;
+using EndlessClient.Rendering.Character;
+using EndlessClient.Rendering.NPC;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
@@ -21,6 +23,8 @@ namespace EndlessClient.Network
         private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
+        private readonly INPCRendererProvider _npcRendererProvider;
+        private readonly ICharacterRendererProvider _characterRendererProvider;
         private readonly IUnknownEntitiesRequestActions _unknownEntitiesRequestActions;
 
         private DateTime _lastRequestTime;
@@ -30,12 +34,16 @@ namespace EndlessClient.Network
                                         IClientWindowSizeProvider clientWindowSizeProvider,
                                         ICharacterProvider characterProvider,
                                         ICurrentMapStateRepository currentMapStateRepository,
+                                        INPCRendererProvider npcRendererProvider,
+                                        ICharacterRendererProvider characterRendererProvider,
                                         IUnknownEntitiesRequestActions unknownEntitiesRequestActions)
             : base((Game) gameProvider.Game)
         {
             _clientWindowSizeProvider = clientWindowSizeProvider;
             _characterProvider = characterProvider;
             _currentMapStateRepository = currentMapStateRepository;
+            _npcRendererProvider = npcRendererProvider;
+            _characterRendererProvider = characterRendererProvider;
             _unknownEntitiesRequestActions = unknownEntitiesRequestActions;
             _lastRequestTime = DateTime.Now;
         }
@@ -93,9 +101,9 @@ namespace EndlessClient.Network
 
             foreach (var entity in entitiesToRemove)
             {
-                if (entity is Character c)
+                if (entity is Character c && _characterRendererProvider.CharacterRenderers.ContainsKey(c.ID))
                     _currentMapStateRepository.Characters.Remove(c);
-                else if (entity is NPC n)
+                else if (entity is NPC n && _npcRendererProvider.NPCRenderers.ContainsKey(n.Index))
                     _currentMapStateRepository.NPCs.Remove(n);
                 else if (entity is MapItem i)
                     _currentMapStateRepository.MapItems.Remove(i);

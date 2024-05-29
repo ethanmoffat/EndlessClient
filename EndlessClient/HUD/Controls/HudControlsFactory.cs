@@ -25,7 +25,6 @@ using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.Localization;
-using EOLib.Net.Communication;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
@@ -72,6 +71,8 @@ namespace EndlessClient.HUD.Controls
         private readonly IClickDispatcherFactory _clickDispatcherFactory;
         private readonly IMetadataProvider<WeaponMetadata> _weaponMetadataProvider;
         private readonly ILocalizedStringFinder _localizedStringFinder;
+        private readonly ICharacterRendererProvider _characterRendererProvider;
+        private readonly INPCRendererProvider _npcRendererProvider;
         private IChatController _chatController;
         private IMainButtonController _mainButtonController;
 
@@ -106,7 +107,9 @@ namespace EndlessClient.HUD.Controls
                                   IFixedTimeStepRepository fixedTimeStepRepository,
                                   IClickDispatcherFactory clickDispatcherFactory,
                                   IMetadataProvider<WeaponMetadata> weaponMetadataProvider,
-                                  ILocalizedStringFinder localizedStringFinder)
+                                  ILocalizedStringFinder localizedStringFinder,
+                                  ICharacterRendererProvider characterRendererProvider,
+                                  INPCRendererProvider npcRendererProvider)
         {
             _hudButtonController = hudButtonController;
             _hudPanelFactory = hudPanelFactory;
@@ -140,6 +143,8 @@ namespace EndlessClient.HUD.Controls
             _clickDispatcherFactory = clickDispatcherFactory;
             _weaponMetadataProvider = weaponMetadataProvider;
             _localizedStringFinder = localizedStringFinder;
+            _characterRendererProvider = characterRendererProvider;
+            _npcRendererProvider = npcRendererProvider;
         }
 
         public void InjectChatController(IChatController chatController,
@@ -547,7 +552,8 @@ namespace EndlessClient.HUD.Controls
 
         private UnknownEntitiesRequester CreateUnknownEntitiesRequester()
         {
-            return new UnknownEntitiesRequester(_endlessGameProvider, _clientWindowSizeRepository, (ICharacterProvider)_characterRepository, _currentMapStateRepository, _unknownEntitiesRequestActions);
+            return new UnknownEntitiesRequester(_endlessGameProvider, _clientWindowSizeRepository, (ICharacterProvider)_characterRepository, _currentMapStateRepository,
+                _npcRendererProvider, _characterRendererProvider, _unknownEntitiesRequestActions);
         }
 
         private StatusBarLabel CreateStatusLabel()
