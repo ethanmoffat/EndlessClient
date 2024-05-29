@@ -9,16 +9,17 @@ using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace EndlessClient.Network
 {
     public class UnknownEntitiesRequester : GameComponent
     {
-        private const int UPPER_SEE_DISTANCE = 11;
-        private const int LOWER_SEE_DISTANCE = 14;
+        private const int UPPER_SEE_DISTANCE = 12;
+        private const int LOWER_SEE_DISTANCE = 15;
 
-        private const double REQUEST_INTERVAL_SECONDS = 1.0;
+        private const int REQUEST_INTERVAL_MS = 1000;
 
         private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
         private readonly ICharacterProvider _characterProvider;
@@ -27,8 +28,7 @@ namespace EndlessClient.Network
         private readonly ICharacterRendererProvider _characterRendererProvider;
         private readonly IUnknownEntitiesRequestActions _unknownEntitiesRequestActions;
 
-        private DateTime _lastRequestTime;
-        
+        private readonly Stopwatch _requestTimer;
 
         public UnknownEntitiesRequester(IEndlessGameProvider gameProvider,
                                         IClientWindowSizeProvider clientWindowSizeProvider,
@@ -45,13 +45,15 @@ namespace EndlessClient.Network
             _npcRendererProvider = npcRendererProvider;
             _characterRendererProvider = characterRendererProvider;
             _unknownEntitiesRequestActions = unknownEntitiesRequestActions;
-            _lastRequestTime = DateTime.Now;
+            _requestTimer = Stopwatch.StartNew();
         }
 
         public override void Update(GameTime gameTime)
         {
-            if ((DateTime.Now - _lastRequestTime).TotalSeconds >= REQUEST_INTERVAL_SECONDS)
+            if (_requestTimer.ElapsedMilliseconds >= REQUEST_INTERVAL_MS)
             {
+                ClearOutOfRangeActors();
+
                 if (_currentMapStateRepository.UnknownNPCIndexes.Count > 0 && _currentMapStateRepository.UnknownPlayerIDs.Count > 0)
                 {
                     _unknownEntitiesRequestActions.RequestAll();
@@ -65,7 +67,7 @@ namespace EndlessClient.Network
                     _unknownEntitiesRequestActions.RequestUnknownPlayers();
                 }
 
-                ClearOutOfRangeActors();
+                _requestTimer.Restart();
             }
 
             base.Update(gameTime);
