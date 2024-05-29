@@ -61,23 +61,15 @@ namespace EOLib.Graphics
 
             if (transparent)
             {
-                // for all gfx: 0x000000 is transparent
-                processAction = data => CrossPlatformMakeTransparent(data, Color.Black);
+                processAction = data => CrossPlatformMakeTransparent(data);
 
-                // for hats: R=8 G=0 B=0 is transparent
-                // some default gfx use R=0 G=8 B=0 as black
-                // 0,0,0 clips pixels below it
-                if (file == GFXTypes.FemaleHat || file == GFXTypes.MaleHat)
-                {
-                    processAction = data => CrossPlatformMakeTransparent(data, new Color(0xff000008));
-                }
-
-                // for hats: some hat gfx use multiple masking colors but don't have clipping behavior
                 if (fullTransparent)
                 {
-                    processAction = data => CrossPlatformMakeTransparent(data,
-                        new Color(0xff000000),
-                        new Color(0xff000008));
+                    processAction = data => CrossPlatformMakeTransparent(data, isHat: true);
+                }
+                else if (file == GFXTypes.FemaleHat || file == GFXTypes.MaleHat)
+                {
+                    processAction = data => CrossPlatformMakeTransparent(data, checkClip: true, isHat: true);
                 }
             }
 
@@ -87,15 +79,49 @@ namespace EOLib.Graphics
             return ret;
         }
 
-        private static unsafe void CrossPlatformMakeTransparent(byte[] data, params Color[] transparentColors)
+        private static unsafe void CrossPlatformMakeTransparent(byte[] data, bool isHat = false, bool checkClip = false)
         {
-            fixed (byte* ptr = data)
+            var shouldClip = false;
+            if (checkClip)
             {
-                for (int i = 0; i < data.Length; i += 4)
+                fixed (byte* ptr = data)
                 {
-                    uint* addr = (uint*)(ptr + i);
-                    if (transparentColors.Contains(new Color(*addr)))
-                        *addr = 0;
+                    for (int i = 0; i < data.Length; i += 4)
+                    {
+                        uint* addr = (uint*)(ptr + i);
+                        if (*addr == 0xff000008)
+                        {
+                            shouldClip = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // for all gfx: 0,0,0 is transparent
+
+            // for some hats: 8,0,0 and 0,0,0 are both transparent
+
+            // for hats: R=8 G=0 B=0 is transparent
+            // some default gfx use R=0 G=8 B=0 as black
+            // 0,0,0 clips pixels below it if 8,0,0 is present on the frame
+
+            var transparentColors = isHat
+                ? shouldClip
+                    ? new Color[] { new Color(0xff000008) } // check clip: make ff000008 transparent only, use black for clipping if present
+                    : new Color[] { Color.Black, new Color(0xff000008) } // isHat: make both colors transparent
+                : new Color[] { Color.Black }; // default: make only black transparent
+
+            //if (!isHat || (isHat && !checkClip) || shouldClip)
+            {
+                fixed (byte* ptr = data)
+                {
+                    for (int i = 0; i < data.Length; i += 4)
+                    {
+                        uint* addr = (uint*)(ptr + i);
+                        if (transparentColors.Contains(new Color(*addr)))
+                            *addr = 0;
+                    }
                 }
             }
         }
