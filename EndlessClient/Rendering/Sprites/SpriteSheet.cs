@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Diagnostics;
 
 namespace EndlessClient.Rendering.Sprites
 {
@@ -41,6 +42,8 @@ namespace EndlessClient.Rendering.Sprites
         public Texture2D GetSourceTexture()
         {
             var colorData = GetSourceTextureData<Color>();
+
+            Debug.WriteLine("Creating new texture from source rectangle.");
 
             var retText = new Texture2D(SheetTexture.GraphicsDevice, SourceRectangle.Width, SourceRectangle.Height);
             retText.SetData(colorData);

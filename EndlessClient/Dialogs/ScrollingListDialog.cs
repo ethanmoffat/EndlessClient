@@ -74,7 +74,7 @@ namespace EndlessClient.Dialogs
         BankAccountDialog,
 
         Jukebox,
-        Barber,
+       
     }
 
     public class ScrollingListDialog : BaseEODialog
@@ -121,7 +121,7 @@ namespace EndlessClient.Dialogs
             }
         }
 
-        public ListDialogItem.ListItemStyle ListItemType
+        public new ListDialogItem.ListItemStyle ListItemType
         {
             get => _listItemType;
             set
@@ -133,6 +133,7 @@ namespace EndlessClient.Dialogs
                 _scrollBar.LinesToRender = ItemsToShow;
             }
         }
+
 
         public ScrollingListDialogButtons Buttons
         {
@@ -518,10 +519,10 @@ namespace EndlessClient.Dialogs
             switch (size)
             {
                 case DialogType.Shop: return 52;
-                case DialogType.Help: return 64;
+                case DialogType.Help: return 56; // Barber 56
                 case DialogType.Chest: return 51;
                 case DialogType.QuestProgressHistory: return 59;
-                case DialogType.Jukebox: return 60;
+                case DialogType.Jukebox: return 56;
                 case DialogType.NpcQuestDialog: return 67;
                 case DialogType.BankAccountDialog: return 53;
                 default: throw new NotImplementedException();

@@ -70,6 +70,9 @@ namespace EndlessClient.Controllers
                 case EOLib.IO.NPCType.Priest:
                     _mapNpcActions.RequestPriest(npc);
                     break;
+                case EOLib.IO.NPCType.Barber:
+                    _mapNpcActions.RequestBarber(npc);
+                    break;
             }
         }
     }

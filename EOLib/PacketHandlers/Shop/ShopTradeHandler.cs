@@ -14,7 +14,6 @@ namespace EOLib.PacketHandlers.Shop
         private const byte BuySellSfxId = 26;
 
         private readonly ICharacterRepository _characterRepository;
-        private readonly ICharacterInventoryRepository _characterInventoryRepository;
         private readonly IEnumerable<ISoundNotifier> _soundNotifiers;
 
         public override PacketFamily Family => PacketFamily.Shop;
@@ -28,6 +27,7 @@ namespace EOLib.PacketHandlers.Shop
             _characterRepository = characterRepository;
             _characterInventoryRepository = characterInventoryRepository;
             _soundNotifiers = soundNotifiers;
+            _characterInventoryRepository = characterInventoryRepository;
         }
 
         public override bool HandlePacket(IPacket packet)

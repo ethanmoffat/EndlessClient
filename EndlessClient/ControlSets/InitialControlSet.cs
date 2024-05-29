@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Threading.Tasks;
+using System.Diagnostics;
 using XNAControls;
 
 namespace EndlessClient.ControlSets
@@ -159,6 +160,8 @@ namespace EndlessClient.ControlSets
         private IXNAPictureBox GetPersonPicture1()
         {
             var texture = _personSet1[_randomGen.Next(4)];
+            Debug.WriteLine("Random person picture: " + texture.Name);
+
             return new XNAPictureBox
             {
                 Texture = texture,

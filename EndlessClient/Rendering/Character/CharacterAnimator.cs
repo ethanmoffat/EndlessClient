@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
+
 namespace EndlessClient.Rendering.Character
 {
     public class CharacterAnimator : GameComponent, ICharacterAnimator
@@ -102,6 +103,8 @@ namespace EndlessClient.Rendering.Character
                 _queuedDirections[_characterRepository.MainCharacter.ID] = direction;
                 return;
             }
+
+
 
             var renderProperties = _characterRepository.MainCharacter.RenderProperties.WithDirection(direction);
             var newMainCharacter = _characterRepository.MainCharacter.WithRenderProperties(renderProperties);

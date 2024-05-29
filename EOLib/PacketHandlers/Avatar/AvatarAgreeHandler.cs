@@ -17,7 +17,7 @@ namespace EOLib.PacketHandlers.Avatar
         protected readonly ICurrentMapStateRepository _currentMapStateRepository;
         protected readonly ICharacterRepository _characterRepository;
         protected readonly IEIFFileProvider _eifFileProvider;
-
+       
         public override PacketFamily Family => PacketFamily.Avatar;
 
         public override PacketAction Action => PacketAction.Agree;

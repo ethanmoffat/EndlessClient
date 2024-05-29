@@ -72,5 +72,17 @@ namespace EndlessClient.UIControls
         {
             return new CharacterRenderProperties.Builder { HairStyle = 1 }.ToImmutable();
         }
+      
+        
+        public void UpdateRenderProperties(int hairStyle, int hairColor, int race, int gender)
+        {
+            RenderProperties = new CharacterRenderProperties.Builder
+            {
+                HairStyle = hairStyle,
+                HairColor = hairColor,
+                Race = race,
+                Gender = gender
+            }.ToImmutable();
+        }
     }
 }

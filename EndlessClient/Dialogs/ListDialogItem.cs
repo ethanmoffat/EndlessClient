@@ -250,7 +250,13 @@ namespace EndlessClient.Dialogs
             _spriteBatch.Begin();
             if (_drawBackground)
             {
-                _spriteBatch.Draw(_backgroundColor, DrawAreaWithParentOffset, Color.FromNonPremultiplied(255, 255, 255, 16));
+                int xOffset = 10;  // Set your desired X offset here
+
+                _spriteBatch.Draw(_backgroundColor,
+                    new Rectangle(DrawAreaWithParentOffset.X + xOffset, DrawAreaWithParentOffset.Y, 180, DrawAreaWithParentOffset.Height),
+                    Color.FromNonPremultiplied(255, 255, 255, 16));
+
+
             }
 
             if (Style == ListItemStyle.Large)

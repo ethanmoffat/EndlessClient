@@ -47,6 +47,8 @@ namespace EndlessClient.Dialogs
 
         Option<LawDialog> LawDialog { get; }
 
+        Option<BarberDialog> BarberDialog { get; }
+
         Option<ScrollingListDialog> HelpDialog { get; }
 
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs { get; }
@@ -92,6 +94,8 @@ namespace EndlessClient.Dialogs
 
         Option<LawDialog> LawDialog { get; set; }
 
+        Option<BarberDialog> BarberDialog { get; set; }
+        
         Option<ScrollingListDialog> HelpDialog { get; set; }
 
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs { get; }
@@ -138,6 +142,8 @@ namespace EndlessClient.Dialogs
 
         public Option<LawDialog> LawDialog { get; set; }
 
+        public Option<BarberDialog> BarberDialog { get; set; }
+        
         public Option<ScrollingListDialog> HelpDialog { get; set;  }
 
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs
@@ -165,6 +171,8 @@ namespace EndlessClient.Dialogs
                     JukeboxDialog.Map(Map),
                     InnkeeperDialog.Map(Map),
                     LawDialog.Map(Map),
+                    BarberDialog.Map(Map),
+                    BardDialog.Map(Map),
                     HelpDialog.Map(Map),
                 }.ToList();
 
@@ -203,6 +211,7 @@ namespace EndlessClient.Dialogs
             JukeboxDialog = Option.None<JukeboxDialog>();
             InnkeeperDialog = Option.None<InnkeeperDialog>();
             LawDialog = Option.None<LawDialog>();
+            BarberDialog = Option.None<BarberDialog>();
             HelpDialog = Option.None<ScrollingListDialog>();
         }
     }
