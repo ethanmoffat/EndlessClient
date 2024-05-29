@@ -12,7 +12,8 @@ namespace EOLib.Domain.Interact.Barber
         private readonly IBarberDataRepository _barberDataRepository;
 
         public BarberActions(IPacketSendService packetSendService,
-                             IBarberDataRepository barberDataRepository) 
+                             IBarberDataRepository barberDataRepository)
+        {
             _packetSendService = packetSendService;
             _barberDataRepository = barberDataRepository;
         }

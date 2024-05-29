@@ -57,8 +57,6 @@ namespace EOLib.PacketHandlers.Barber
 
             var slot = (AvatarSlot)packet.ReadChar();
 
-
-            if(amount )
             switch (slot)
             {
                 case AvatarSlot.Hair:

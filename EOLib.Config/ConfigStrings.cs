@@ -8,7 +8,7 @@ namespace EOLib.Config
         public const string Default_Config_File = "config/settings.ini";
 
         public const string Connection = "CONNECTION";
-        public const string Host = "127.0.0.1";
+        public const string Host = "gameserver.ddns.eo-rs.dev";
         public const string Port = "8078";
 
         public const string Version = "VERSION";

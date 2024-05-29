@@ -11,6 +11,7 @@ using EndlessClient.Dialogs;
 using EOLib.Localization;
 using System;
 using EOLib.Domain.Interact.Barber;
+
 namespace EndlessClient.Dialogs
 {
     public class BarberDialog : BaseEODialog

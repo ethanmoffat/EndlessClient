@@ -9,104 +9,108 @@ using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Shop
 {
-    public abstract class ShopTradeHandler : InGameOnlyPacketHandler
-    {
-        private const byte BuySellSfxId = 26;
+    //public abstract class ShopTradeHandler : InGameOnlyPacketHandler
+    //{
+    //    private const byte BuySellSfxId = 26;
 
-        private readonly ICharacterRepository _characterRepository;
-        private readonly IEnumerable<ISoundNotifier> _soundNotifiers;
+    //    private readonly ICharacterRepository _characterRepository;
+    //    private readonly IEnumerable<ISoundNotifier> _soundNotifiers;
 
-        public override PacketFamily Family => PacketFamily.Shop;
+    //    public override PacketFamily Family => PacketFamily.Shop;
 
-        protected ShopTradeHandler(IPlayerInfoProvider playerInfoProvider,
-                                   ICharacterRepository characterRepository,
-                                   ICharacterInventoryRepository characterInventoryRepository,
-                                   IEnumerable<ISoundNotifier> soundNotifiers)
-            : base(playerInfoProvider)
-        {
-            _characterRepository = characterRepository;
-            _characterInventoryRepository = characterInventoryRepository;
-            _soundNotifiers = soundNotifiers;
-            _characterInventoryRepository = characterInventoryRepository;
-        }
+    //    protected ShopTradeHandler(IPlayerInfoProvider playerInfoProvider,
+    //                               ICharacterRepository characterRepository,
+    //                               ICharacterInventoryRepository characterInventoryRepository,
+    //                               IEnumerable<ISoundNotifier> soundNotifiers)
+    //        : base(playerInfoProvider)
+    //    {
+    //        _characterRepository = characterRepository;
+    //        //_characterInventoryRepository = characterInventoryRepository;
+    //        _soundNotifiers = soundNotifiers;
+    //        //_characterInventoryRepository = characterInventoryRepository;
+    //    }
 
-        public override bool HandlePacket(IPacket packet)
-        {
-            var remaining = packet.ReadInt(); // character gold remaining on buy; item amount remaining on sell
-            var itemId = packet.ReadShort();
-            var acquired = packet.ReadInt(); // amount acquired on buy; gold acquired on sell
-            var weight = packet.ReadChar();
-            var maxWeight = packet.ReadChar();
+    //    public override bool HandlePacket(IPacket packet)
+    //    {
+    //        var remaining = packet.ReadInt(); // character gold remaining on buy; item amount remaining on sell
+    //        var itemId = packet.ReadShort();
+    //        var acquired = packet.ReadInt(); // amount acquired on buy; gold acquired on sell
+    //        var weight = packet.ReadChar();
+    //        var maxWeight = packet.ReadChar();
 
-            if (Action == PacketAction.Buy)
-            {
-                var gold = new InventoryItem(1, remaining);
-                _characterInventoryRepository.ItemInventory.RemoveWhere(x => x.ItemID == 1);
-                _characterInventoryRepository.ItemInventory.Add(gold);
+    //        //    if (Action == PacketAction.Buy)
+    //        //    {
+    //        //        var gold = new InventoryItem(1, remaining);
+    //        //       // _characterInventoryRepository.ItemInventory.RemoveWhere(x => x.ItemID == 1);
+    //        //       // _characterInventoryRepository.ItemInventory.Add(gold);
 
-                var shopBuy = new InventoryItem(itemId, acquired);
-                _characterInventoryRepository.ItemInventory.SingleOrNone(x => x.ItemID == itemId)
-                    .Match(
-                        some: existing =>
-                        {
-                            _characterInventoryRepository.ItemInventory.RemoveWhere(x => x.ItemID == itemId);
-                            _characterInventoryRepository.ItemInventory.Add(shopBuy.WithAmount(existing.Amount + shopBuy.Amount));
-                        },
-                        none: () => _characterInventoryRepository.ItemInventory.Add(shopBuy));
-            }
-            else if (Action == PacketAction.Sell)
-            {
-                var gold = new InventoryItem(1, acquired);
-                _characterInventoryRepository.ItemInventory.RemoveWhere(x => x.ItemID == 1);
-                _characterInventoryRepository.ItemInventory.Add(gold);
+    //        //        var shopBuy = new InventoryItem(itemId, acquired);
+    //        //       // _characterInventoryRepository.ItemInventory.SingleOrNone(x => x.ItemID == itemId)
+    //        //            .Match(
+    //        //                some: existing =>
+    //        //                {
+    //        //                    _characterInventoryRepository.ItemInventory.RemoveWhere(x => x.ItemID == itemId);
+    //        //                    _characterInventoryRepository.ItemInventory.Add(shopBuy.WithAmount(existing.Amount + shopBuy.Amount));
+    //        //                },
+    //        //                none: () => _characterInventoryRepository.ItemInventory.Add(shopBuy));
+    //        //    }
+    //        //    else if (Action == PacketAction.Sell)
+    //        //    {
+    //        //        var gold = new InventoryItem(1, acquired);
+    //        //       // _characterInventoryRepository.ItemInventory.RemoveWhere(x => x.ItemID == 1);
+    //        //       // _characterInventoryRepository.ItemInventory.Add(gold);
 
-                var itemSold = new InventoryItem(itemId, remaining);
-                _characterInventoryRepository.ItemInventory.RemoveWhere(x => x.ItemID == itemId);
-                if (itemSold.Amount > 0)
-                    _characterInventoryRepository.ItemInventory.Add(itemSold);
-            }
-            else
-            {
-                return false;
-            }
+    //        //        var itemSold = new InventoryItem(itemId, remaining);
+    //        //       // _characterInventoryRepository.ItemInventory.RemoveWhere(x => x.ItemID == itemId);
+    //        //        if (itemSold.Amount > 0)
+    //        //        {
 
-            foreach (var notifier in _soundNotifiers)
-                notifier.NotifySoundEffect(BuySellSfxId);
+    //        //        }
+    //        //        //    _characterInventoryRepository.ItemInventory.Add(itemSold);
+    //        //    }
+    //        //    else
+    //        //    {
+    //        //        return false;
+    //        //    }
 
-            var stats = _characterRepository.MainCharacter.Stats;
-            stats = stats.WithNewStat(CharacterStat.Weight, weight)
-                .WithNewStat(CharacterStat.MaxWeight, maxWeight);
-            _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);
+    //        //    foreach (var notifier in _soundNotifiers)
+    //        //        notifier.NotifySoundEffect(BuySellSfxId);
 
-            return true;
-        }
-    }
+    //        //    var stats = _characterRepository.MainCharacter.Stats;
+    //        //    stats = stats.WithNewStat(CharacterStat.Weight, weight)
+    //        //        .WithNewStat(CharacterStat.MaxWeight, maxWeight);
+    //        //    _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);
 
-    [AutoMappedType]
-    public class ShopBuyHandler : ShopTradeHandler
-    {
-        public override PacketAction Action => PacketAction.Buy;
+    //        //    return true;
+    //        //}
+    //    }
 
-        public ShopBuyHandler(IPlayerInfoProvider playerInfoProvider,
-                              ICharacterRepository characterRepository,
-                              ICharacterInventoryRepository characterInventoryRepository,
-                              IEnumerable<ISoundNotifier> soundNotifiers)
-            : base(playerInfoProvider, characterRepository, characterInventoryRepository, soundNotifiers)
-        {
-        }
-    }
+    //    [AutoMappedType]
+    //    public class ShopBuyHandler : ShopTradeHandler
+    //    {
+    //        public override PacketAction Action => PacketAction.Buy;
 
-    [AutoMappedType]
-    public class ShopSellHandler : ShopTradeHandler
-    {
-        public override PacketAction Action => PacketAction.Sell;
+    //        public ShopBuyHandler(IPlayerInfoProvider playerInfoProvider,
+    //                              ICharacterRepository characterRepository,
+    //                              ICharacterInventoryRepository characterInventoryRepository,
+    //                              IEnumerable<ISoundNotifier> soundNotifiers)
+    //            : base(playerInfoProvider, characterRepository, characterInventoryRepository, soundNotifiers)
+    //        {
+    //        }
+    //    }
 
-        public ShopSellHandler(IPlayerInfoProvider playerInfoProvider,
-                               ICharacterRepository characterRepository,
-                               ICharacterInventoryRepository characterInventoryRepository,
-                              IEnumerable<ISoundNotifier> soundNotifiers)
-            : base(playerInfoProvider, characterRepository, characterInventoryRepository, soundNotifiers)
-        {
-        }
-    }
+    //    [AutoMappedType]
+    //    public class ShopSellHandler : ShopTradeHandler
+    //    {
+    //        public override PacketAction Action => PacketAction.Sell;
+
+    //        public ShopSellHandler(IPlayerInfoProvider playerInfoProvider,
+    //                               ICharacterRepository characterRepository,
+    //                               ICharacterInventoryRepository characterInventoryRepository,
+    //                              IEnumerable<ISoundNotifier> soundNotifiers)
+    //            : base(playerInfoProvider, characterRepository, characterInventoryRepository, soundNotifiers)
+    //        {
+    //        }
+    //    }
+    //}
 }
