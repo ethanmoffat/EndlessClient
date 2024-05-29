@@ -28,7 +28,7 @@ namespace EOLib.PacketHandlers.Recover
         public override bool HandlePacket(RecoverListServerPacket packet)
         {
             var stats = _characterRepository.MainCharacter.Stats
-                .Merge(CharacterStats.FromStatUpdate(packet.Stats));
+                .Apply(CharacterStats.FromStatUpdate(packet.Stats));
 
             _characterRepository.MainCharacter = _characterRepository.MainCharacter
                 .WithClassID(packet.ClassId)

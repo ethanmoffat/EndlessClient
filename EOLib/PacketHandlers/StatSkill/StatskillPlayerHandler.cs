@@ -29,7 +29,7 @@ namespace EOLib.PacketHandlers.StatSkill
         {
             var stats = _characterRepository.MainCharacter.Stats
                 .WithNewStat(CharacterStat.StatPoints, packet.StatPoints)
-                .Merge(CharacterStats.FromStatUpdate(packet.Stats));
+                .Apply(CharacterStats.FromStatUpdate(packet.Stats));
 
             _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);
 

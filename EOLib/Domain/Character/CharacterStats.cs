@@ -23,7 +23,13 @@ namespace EOLib.Domain.Character
             return new CharacterStats(newStats);
         }
 
-        public CharacterStats Merge(CharacterStats other) => new CharacterStats(Stats.Concat(other.Stats).ToDictionary(k => k.Key, v => v.Value));
+        public CharacterStats Apply(CharacterStats other)
+        {
+            var dict = Stats.ToDictionary(k => k.Key, v => v.Value);
+            foreach (var pair in other.Stats)
+                dict[pair.Key] = pair.Value;
+            return new CharacterStats(dict);
+        }
 
         public static CharacterStats FromSelectCharacterData(WelcomeReplyServerPacket.WelcomeCodeDataSelectCharacter selectCharacterData)
         {

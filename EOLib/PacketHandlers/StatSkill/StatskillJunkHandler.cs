@@ -36,7 +36,7 @@ namespace EOLib.PacketHandlers.StatSkill
 
         public override bool HandlePacket(StatSkillJunkServerPacket packet)
         {
-            var stats = _characterRepository.MainCharacter.Stats.Merge(CharacterStats.FromStatReset(packet.Stats));
+            var stats = _characterRepository.MainCharacter.Stats.Apply(CharacterStats.FromStatReset(packet.Stats));
             _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);
 
             _characterInventoryRepository.SpellInventory.Clear();
