@@ -16,7 +16,7 @@ namespace EOLib.PacketHandlers.Party
     public class PartyAgreeHandler : InGameOnlyPacketHandler<PartyAgreeServerPacket>
     {
         private readonly IPartyDataRepository _partyDataRepository;
-        private readonly ICurrentMapStateProvider _currentMapStateProvider;
+        private readonly ICurrentMapStateRepository _currentMapStateRepository;
 
         public override PacketFamily Family => PacketFamily.Party;
 
@@ -24,11 +24,11 @@ namespace EOLib.PacketHandlers.Party
 
         public PartyAgreeHandler(IPlayerInfoProvider playerInfoProvider,
                                  IPartyDataRepository partyDataRepository,
-                                 ICurrentMapStateProvider currentMapStateProvider)
+                                 ICurrentMapStateRepository currentMapStateRepository)
             : base(playerInfoProvider)
         {
             _partyDataRepository = partyDataRepository;
-            _currentMapStateProvider = currentMapStateProvider;
+            _currentMapStateRepository = currentMapStateRepository;
         }
 
         public override bool HandlePacket(PartyAgreeServerPacket packet)
@@ -40,7 +40,7 @@ namespace EOLib.PacketHandlers.Party
                         _partyDataRepository.Members.Remove(x);
                         _partyDataRepository.Members.Add(x.WithPercentHealth(packet.HpPercentage));
                     },
-                    none: () => _currentMapStateProvider.UnknownPlayerIDs.Add(packet.PlayerId));
+                    none: () => _currentMapStateRepository.UnknownPlayerIDs.Add(packet.PlayerId));
 
             return true;
         }

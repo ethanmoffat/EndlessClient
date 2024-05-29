@@ -9,26 +9,26 @@ namespace EOLib.PacketHandlers.Chat
     public abstract class PlayerChatByIDHandler<TPacket> : InGameOnlyPacketHandler<TPacket>
         where TPacket : IPacket
     {
-        private readonly ICurrentMapStateProvider _currentMapStateProvider;
+        private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly ICharacterProvider _characterProvider;
 
         public override PacketFamily Family => PacketFamily.Talk;
 
         protected PlayerChatByIDHandler(IPlayerInfoProvider playerInfoProvider,
-                                        ICurrentMapStateProvider currentMapStateProvider,
+                                        ICurrentMapStateRepository currentMapStateRepository,
                                         ICharacterProvider characterProvider)
             : base(playerInfoProvider)
         {
-            _currentMapStateProvider = currentMapStateProvider;
+            _currentMapStateRepository = currentMapStateRepository;
             _characterProvider = characterProvider;
         }
 
         protected bool Handle(TPacket packet, int fromPlayerID)
         {
-            if (!_currentMapStateProvider.Characters.TryGetValue(fromPlayerID, out var character) &&
+            if (!_currentMapStateRepository.Characters.TryGetValue(fromPlayerID, out var character) &&
                 _characterProvider.MainCharacter.ID != fromPlayerID)
             {
-                _currentMapStateProvider.UnknownPlayerIDs.Add(fromPlayerID);
+                _currentMapStateRepository.UnknownPlayerIDs.Add(fromPlayerID);
                 return true;
             }
 

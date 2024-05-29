@@ -74,9 +74,9 @@ namespace EOLib.Domain.Map
 
         bool IsSleepWarp { get; }
 
-        HashSet<int> UnknownPlayerIDs { get; }
+        IReadOnlyCollection<int> UnknownPlayerIDs { get; }
 
-        HashSet<int> UnknownNPCIndexes { get; }
+        IReadOnlyCollection<int> UnknownNPCIndexes { get; }
     }
 
     [AutoMappedType(IsSingleton = true)]
@@ -127,6 +127,10 @@ namespace EOLib.Domain.Map
         IReadOnlyCollection<Warp> ICurrentMapStateProvider.PendingDoors => PendingDoors;
 
         IReadOnlyCollection<MapCoordinate> ICurrentMapStateProvider.VisibleSpikeTraps => VisibleSpikeTraps;
+
+        IReadOnlyCollection<int> ICurrentMapStateProvider.UnknownPlayerIDs => UnknownPlayerIDs;
+
+        IReadOnlyCollection<int> ICurrentMapStateProvider.UnknownNPCIndexes => UnknownNPCIndexes;
 
         public CurrentMapStateRepository()
         {

@@ -260,10 +260,6 @@ namespace EndlessClient.Rendering.Character
                 Animator.StartOtherCharacterSpellCast(playerId);
                 _characterRendererProvider.CharacterRenderers[playerId].ShoutSpellCast();
             }
-            else
-            {
-                _currentMapStateProvider.UnknownPlayerIDs.Add(playerId);
-            }
 
             var spellData = _pubFileProvider.ESFFile[spellId];
 
