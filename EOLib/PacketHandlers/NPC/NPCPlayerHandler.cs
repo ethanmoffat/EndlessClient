@@ -126,7 +126,7 @@ namespace EOLib.PacketHandlers.NPC
                     foreach (var notifier in _otherCharacterNotifiers)
                         notifier.OtherCharacterTakeDamage(characterID, playerPercentHealth, damageTaken, isHeal: false);
                 }
-                else
+                else if (characterID > 0)
                 {
                     _currentMapStateRepository.UnknownPlayerIDs.Add(characterID);
                 }
