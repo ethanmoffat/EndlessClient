@@ -34,11 +34,16 @@ namespace EOLib.PacketHandlers.Shop
             _shopDataRepository.SessionID = packet.SessionId;
             _shopDataRepository.ShopName = packet.ShopName;
 
-            _shopDataRepository.TradeItems = packet.TradeItems.Select(x => new ShopItem(x.ItemId, x.BuyPrice, x.SellPrice, x.MaxBuyAmount)).ToList<IShopItem>();
+            _shopDataRepository.TradeItems = packet.TradeItems
+                .Where(x => x.ItemId > 0)
+                .Select(x => new ShopItem(x.ItemId, x.BuyPrice, x.SellPrice, x.MaxBuyAmount))
+                .ToList<IShopItem>();
+
             _shopDataRepository.CraftItems = packet.CraftItems
+                .Where(x => x.ItemId > 0)
                 .Select(x => new Domain.Interact.Shop.ShopCraftItem(
                     x.ItemId,
-                    x.Ingredients.Select(ing => new ShopCraftIngredient(ing.Id, ing.Amount)).ToList<IShopCraftIngredient>()))
+                    x.Ingredients.Where(x => x.Id > 0).Select(ing => new ShopCraftIngredient(ing.Id, ing.Amount)).ToList<IShopCraftIngredient>()))
                 .ToList<IShopCraftItem>();
 
             foreach (var notifier in _npcInteractionNotifiers)
