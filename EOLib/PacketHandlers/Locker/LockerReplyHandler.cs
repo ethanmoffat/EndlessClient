@@ -11,7 +11,7 @@ namespace EOLib.PacketHandlers.Locker
     /// Handles LOCKER_REPLY from server for adding an item to locker
     /// </summary>
     [AutoMappedType]
-    public class LockerReplyHandler : LockerGetHandler
+    public class LockerReplyHandler : LockerModifyHandler<LockerReplyServerPacket>
     {
         public override PacketAction Action => PacketAction.Reply;
 
@@ -23,9 +23,9 @@ namespace EOLib.PacketHandlers.Locker
         {
         }
 
-        public override bool HandlePacket(LockerGetServerPacket packet)
+        public override bool HandlePacket(LockerReplyServerPacket packet)
         {
-            Handle(packet.TakenItem.Id, packet.TakenItem.Amount, packet.Weight, packet.LockerItems);
+            Handle(packet.DepositedItem.Id, packet.DepositedItem.Amount, packet.Weight, packet.LockerItems);
             return true;
         }
     }
