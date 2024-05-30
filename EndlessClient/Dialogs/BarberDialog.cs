@@ -82,6 +82,7 @@ namespace EndlessClient.Dialogs
                 IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.BarberHairModel),
                 OffsetX = -2,
                 OffsetY = 25,
+                DrawingOffsetX = 3,
                 ShowIconBackGround = false,
             };
             _changeHairItem.LeftClick += Hair;
@@ -94,6 +95,7 @@ namespace EndlessClient.Dialogs
                 IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.BarberChangeHairColor),
                 OffsetX = -2,
                 OffsetY = 60,
+                DrawingOffsetX = 3,
                 ShowIconBackGround = false,
             };
             _changeHairColor.LeftClick += HairColor;
@@ -106,6 +108,7 @@ namespace EndlessClient.Dialogs
                 IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.BarberOk),
                 OffsetX = -2,
                 OffsetY = 95,
+                DrawingOffsetX = 3,
                 ShowIconBackGround = false,
             };
 

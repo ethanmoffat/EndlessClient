@@ -43,7 +43,7 @@ namespace EndlessClient.Rendering.Sprites
         {
             var colorData = GetSourceTextureData<Color>();
 
-            Debug.WriteLine("Creating new texture from source rectangle.");
+          
 
             var retText = new Texture2D(SheetTexture.GraphicsDevice, SourceRectangle.Width, SourceRectangle.Height);
             retText.SetData(colorData);

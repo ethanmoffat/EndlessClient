@@ -519,10 +519,10 @@ namespace EndlessClient.Dialogs
             switch (size)
             {
                 case DialogType.Shop: return 52;
-                case DialogType.Help: return 56; // Barber 56
+                case DialogType.Help: return 64; // Barber 56
                 case DialogType.Chest: return 51;
                 case DialogType.QuestProgressHistory: return 59;
-                case DialogType.Jukebox: return 56;
+                case DialogType.Jukebox: return 60;
                 case DialogType.NpcQuestDialog: return 67;
                 case DialogType.BankAccountDialog: return 53;
                 default: throw new NotImplementedException();

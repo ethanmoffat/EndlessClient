@@ -69,6 +69,15 @@ namespace EndlessClient.Dialogs
             }
         }
 
+        // Placeholder for the barber
+        private int _drawingOffsetX = 0;
+
+        public int DrawingOffsetX
+        {
+            get { return _drawingOffsetX; }
+            set { _drawingOffsetX = value; }
+        }
+
         public ListItemStyle Style { get; set; }
 
         public string PrimaryText
@@ -250,10 +259,10 @@ namespace EndlessClient.Dialogs
             _spriteBatch.Begin();
             if (_drawBackground)
             {
-                int xOffset = 10;  // Set your desired X offset here
+              
 
                 _spriteBatch.Draw(_backgroundColor,
-                    new Rectangle(DrawAreaWithParentOffset.X + xOffset, DrawAreaWithParentOffset.Y, 180, DrawAreaWithParentOffset.Height),
+                    new Rectangle(DrawAreaWithParentOffset.X, DrawAreaWithParentOffset.Y, 180, DrawAreaWithParentOffset.Height),
                     Color.FromNonPremultiplied(255, 255, 255, 16));
 
 
