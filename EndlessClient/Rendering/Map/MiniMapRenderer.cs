@@ -253,13 +253,10 @@ namespace EndlessClient.Rendering.Map
 
         private Vector2 GetMiniMapDrawCoordinates(int x, int y)
         {
-            // these are the same as in MouseCursorRenderer
-            var widthFactor = _clientWindowSizeProvider.Resizable
-                ? _clientWindowSizeProvider.Width / 2 // 288 = 640 * .45, viewport width factor
-                : _clientWindowSizeProvider.Width * 9 / 10; // 288 = 640 * .45, 576 = 640 * .9
+            var widthFactor = _clientWindowSizeProvider.Width / 2;
             var heightFactor = _clientWindowSizeProvider.Resizable
                 ? _clientWindowSizeProvider.Height / 2 // 144 = 480 * .45, viewport height factor
-                : _clientWindowSizeProvider.Height * 3 / 10;
+                : _clientWindowSizeProvider.Height * 3 / 10 - 2;
 
             var tileWidthFactor = TileWidth / 2;
             var tileHeightFactor = TileHeight / 2;
