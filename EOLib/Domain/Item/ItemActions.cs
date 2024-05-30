@@ -1,8 +1,10 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Map;
 using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Data;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
+using System.IO;
 
 namespace EOLib.Domain.Item
 {
@@ -44,6 +46,10 @@ namespace EOLib.Domain.Item
 
         public void DropItem(int itemId, int amount, MapCoordinate dropPoint)
         {
+            // The drop point coordinates are extra encoded. See ItemDropClientPacket::Coords.
+            var dropX = dropPoint.X == 255 ? dropPoint.X : NumberEncoder.EncodeNumber(dropPoint.X)[0];
+            var dropY = dropPoint.Y == 255 ? dropPoint.Y : NumberEncoder.EncodeNumber(dropPoint.Y)[0];
+
             var packet = new ItemDropClientPacket
             {
                 Item = new ThreeItem
@@ -51,7 +57,7 @@ namespace EOLib.Domain.Item
                     Id = itemId,
                     Amount = amount,
                 },
-                Coords = new ByteCoords { X = dropPoint.X, Y = dropPoint.Y },
+                Coords = new ByteCoords { X = dropX, Y = dropY },
             };
             _packetSendService.SendPacket(packet);
         }

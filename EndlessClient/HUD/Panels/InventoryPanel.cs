@@ -11,6 +11,7 @@ using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Item;
 using EOLib.Domain.Login;
+using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.IO.Extensions;
@@ -407,7 +408,7 @@ namespace EndlessClient.HUD.Panels
                     e.ContinueDrag = !fitsInOldSlot;
                     e.RestoreOriginalSlot = fitsInOldSlot;
 
-                    _inventoryController.DropItem(item.Data, item.InventoryItem);
+                    _inventoryController.DropItem(item.Data, item.InventoryItem, mapRenderer.GridCoordinates);
                     return;
                 }
             }
@@ -417,7 +418,7 @@ namespace EndlessClient.HUD.Panels
                 e.ContinueDrag = !fitsInOldSlot;
                 e.RestoreOriginalSlot = fitsInOldSlot;
 
-                _inventoryController.DropItem(item.Data, item.InventoryItem);
+                _inventoryController.DropItem(item.Data, item.InventoryItem, MapCoordinate.Max);
                 return;
             }
             else if (_junk.MouseOver)

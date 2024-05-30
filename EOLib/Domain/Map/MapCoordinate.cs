@@ -7,6 +7,8 @@ namespace EOLib.Domain.Map
     {
         public static MapCoordinate Zero { get; } = new MapCoordinate(0, 0);
 
+        public static MapCoordinate Max { get; } = new MapCoordinate(255, 255);
+
         public int X { get; }
 
         public int Y { get; }

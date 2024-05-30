@@ -40,7 +40,7 @@ namespace EOLib.Domain.Item
                 return ItemDropResult.Jail;
 
             var rp = mainCharacter.RenderProperties;
-            if (Math.Max(Math.Abs(rp.MapX - dropPoint.X), Math.Abs(rp.MapY - dropPoint.Y)) > 2)
+            if (dropPoint != MapCoordinate.Max && Math.Max(Math.Abs(rp.MapX - dropPoint.X), Math.Abs(rp.MapY - dropPoint.Y)) > 2)
                 return ItemDropResult.TooFar;
 
             return ItemDropResult.Ok;
