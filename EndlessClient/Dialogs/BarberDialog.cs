@@ -16,6 +16,10 @@ namespace EndlessClient.Dialogs
 {
     public class BarberDialog : BaseEODialog
     {
+        private readonly string[] _hairColorNames = new string[] {
+        "brown", "green", "pink", "red", "blonde", "blue", "purple", "luna", "white", "black"
+    };
+
         private readonly CreateCharacterControl _characterControl;
         private readonly ICharacterRepository _characterRepository; 
         private readonly IEODialogIconService _dialogIconService;
@@ -85,7 +89,7 @@ namespace EndlessClient.Dialogs
             _changeHairColor = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
             {
                 PrimaryText = _localizedStringFinder.GetString(EOResourceID.DIALOG_BARBER_CHANGE_HAIR_COLOR),
-                SubText = _localizedStringFinder.GetString(EOResourceID.DIALOG_WORD_CURRENT) + $": Brown",
+                SubText = _localizedStringFinder.GetString(EOResourceID.DIALOG_WORD_CURRENT) + $": {_hairColorNames[currentProperties.HairColor % _hairColorNames.Length]}",
                 IconGraphic = _dialogIconService.IconSheet,
                 IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.BarberChangeHairColor),
                 OffsetX = -2,
@@ -135,6 +139,7 @@ namespace EndlessClient.Dialogs
             var newHairColor = (currentProperties.HairColor + 1) % 10;
 
             _characterControl.UpdateRenderProperties(currentProperties.HairStyle, newHairColor, currentProperties.Race, currentProperties.Gender);
+            _changeHairColor.SubText = _localizedStringFinder.GetString(EOResourceID.DIALOG_WORD_CURRENT) + $": {_hairColorNames[newHairColor]}";
         }
 
         private void BuyHairStyleOrColor(object sender, EventArgs e)

@@ -4,7 +4,7 @@ using EndlessClient.Dialogs.Services;
 using EndlessClient.Rendering.Character;
 using EOLib.Graphics;
 using EndlessClient.Content;
-using EndlessClient.Rendering.Factories;  // This using directive is required for ICharacterRendererFactory
+using EndlessClient.Rendering.Factories;
 using EOLib.Domain.Character;
 using EOLib.Localization;
 using EOLib.Domain.Interact.Barber;
@@ -22,13 +22,10 @@ namespace EndlessClient.Dialogs.Factories
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly IBarberActions _barberActions;
 
-
-
-        // private readonly ICharacterRepository _characterRepository;
         public BarberDialogFactory(INativeGraphicsManager nativeGraphicsManager,
                                    ICharacterRendererFactory characterRendererFactory,
                                    IEODialogButtonService dialogButtonService,
-                                   ICharacterRepository characterRepository,  // Corrected parameter name
+                                   ICharacterRepository characterRepository,  
                                    IEODialogIconService dialogIconService,
                                    ILocalizedStringFinder localizedStringFinder,
                                    IBarberActions barberActions)
@@ -46,7 +43,7 @@ namespace EndlessClient.Dialogs.Factories
         public BarberDialog Create()
         {
         return new BarberDialog(_nativeGraphicsManager, _characterRendererFactory, _dialogButtonService, _characterRepository, _dialogIconService,_localizedStringFinder,_barberActions);
-    }
+        }
     }
 
     public interface IBarberDialogFactory

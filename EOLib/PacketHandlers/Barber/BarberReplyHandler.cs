@@ -42,8 +42,13 @@ namespace EOLib.PacketHandlers.Barber
         public override bool HandlePacket(IPacket packet)
         {
             var amount = packet.ReadInt();
+            var gold = new InventoryItem(1, amount);
+           
             var playerID = packet.ReadShort();
-            
+
+            _characterInventoryRepository.ItemInventory.RemoveWhere(x => x.ItemID == 1);
+            _characterInventoryRepository.ItemInventory.Add(gold);
+
             Character currentCharacter = _characterRepository.MainCharacter.ID == playerID 
                 ? _characterRepository.MainCharacter 
                 : null;

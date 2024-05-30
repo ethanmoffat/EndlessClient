@@ -11,6 +11,7 @@ namespace EndlessClient.UIControls
     public class CreateCharacterControl : CharacterControl
     {
         private Vector2 _lastPosition;
+        private bool _positionInitialized = false;
 
         public event EventHandler Clicked;
 
@@ -26,15 +27,15 @@ namespace EndlessClient.UIControls
             if (!ShouldUpdate())
                 return;
 
-            var actualDrawPosition = new Vector2(DrawPositionWithParentOffset.X + 40,
-                                                 DrawPositionWithParentOffset.Y + 36);
+            if (!_positionInitialized)
+            {
+                _lastPosition = new Vector2(DrawPositionWithParentOffset.X + 40, DrawPositionWithParentOffset.Y + 36);
+                _positionInitialized = true;
+            }
 
-            if (_lastPosition != actualDrawPosition)
-                _characterRenderer.SetAbsoluteScreenPosition((int)actualDrawPosition.X, (int)actualDrawPosition.Y);
-
+            var actualDrawPosition = _lastPosition; 
+            _characterRenderer.SetAbsoluteScreenPosition((int)actualDrawPosition.X, (int)actualDrawPosition.Y);
             base.OnUpdateControl(gameTime);
-
-            _lastPosition = actualDrawPosition;
         }
 
         protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
@@ -43,6 +44,7 @@ namespace EndlessClient.UIControls
             var nextDirection = (EODirection)(nextDirectionInt % 4);
             RenderProperties = RenderProperties.WithDirection(nextDirection);
 
+            
             Clicked?.Invoke(this, EventArgs.Empty);
 
             return true;
@@ -70,10 +72,9 @@ namespace EndlessClient.UIControls
 
         private static CharacterRenderProperties GetDefaultProperties()
         {
-            return new CharacterRenderProperties.Builder { HairStyle = 1 }.ToImmutable();
+            return new CharacterRenderProperties.Builder { HairStyle = 1, Direction = EODirection.Down }.ToImmutable();
         }
-      
-        
+
         public void UpdateRenderProperties(int hairStyle, int hairColor, int race, int gender)
         {
             RenderProperties = new CharacterRenderProperties.Builder
@@ -81,7 +82,8 @@ namespace EndlessClient.UIControls
                 HairStyle = hairStyle,
                 HairColor = hairColor,
                 Race = race,
-                Gender = gender
+                Gender = gender,
+                Direction = RenderProperties.Direction 
             }.ToImmutable();
         }
     }
