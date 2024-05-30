@@ -124,17 +124,7 @@ namespace EndlessClient.Rendering.Character
 
             _chatBubble = new Lazy<IChatBubble>(() => _chatBubbleFactory.CreateChatBubble(this));
 
-            _clientWindowSizeRepository.GameWindowSizeChanged += (_, _) =>
-            {
-                lock (_rt_locker_)
-                {
-                    _charRenderTarget.Dispose();
-                    _charRenderTarget = _renderTargetFactory.CreateRenderTarget();
-                }
-            };
-
-            if (_character == _characterProvider.MainCharacter)
-                _clientWindowSizeRepository.GameWindowSizeChanged += (_, _) => SetToCenterScreenPosition();
+            _clientWindowSizeRepository.GameWindowSizeChanged += RecreateRenderTarget;
         }
 
         #region Game Component
@@ -517,6 +507,18 @@ namespace EndlessClient.Rendering.Character
             _chatBubble.Value.SetMessage(message, isGroupChat);
         }
 
+        private void RecreateRenderTarget(object sender, EventArgs e)
+        {
+            lock (_rt_locker_)
+            {
+                _charRenderTarget.Dispose();
+                _charRenderTarget = _renderTargetFactory.CreateRenderTarget();
+            }
+
+            if (_character == _characterProvider.MainCharacter)
+                SetToCenterScreenPosition();
+        }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -531,6 +533,8 @@ namespace EndlessClient.Rendering.Character
                     _chatBubble.Value?.Dispose();
 
                 _sb?.Dispose();
+
+                _clientWindowSizeRepository.GameWindowSizeChanged -= RecreateRenderTarget;
 
                 lock(_rt_locker_)
                     _charRenderTarget?.Dispose();
