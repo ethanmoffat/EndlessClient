@@ -38,6 +38,9 @@ namespace EOLib.Domain.Extensions
 
         public static NPC.NPC WithNextWalkFrame(this NPC.NPC npc)
         {
+            if (npc.IsActing(NPCActionState.Attacking))
+                return npc;
+
             if (npc.Frame == NPCFrame.WalkFrame4)
             {
                 return npc.WithFrame(NPCFrame.Standing);
@@ -52,6 +55,9 @@ namespace EOLib.Domain.Extensions
 
         public static NPC.NPC WithNextAttackFrame(this NPC.NPC npc)
         {
+            if (npc.IsActing(NPCActionState.Walking))
+                return npc;
+
             var retNpc = npc.WithActualAttackFrame((npc.ActualAttackFrame + 1) % 5);
 
             if (npc.ActualAttackFrame == 0)
