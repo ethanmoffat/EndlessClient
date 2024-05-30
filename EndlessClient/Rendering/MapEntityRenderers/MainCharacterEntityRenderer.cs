@@ -31,7 +31,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         protected override bool ElementExistsAt(int row, int col)
         {
             var rp = _characterProvider.MainCharacter.RenderProperties;
-            if (!rp.IsActing(CharacterActionState.Walking))
+            if (rp.CurrentAction != CharacterActionState.Walking)
             {
                 return row == rp.MapY && col == rp.MapX;
             }

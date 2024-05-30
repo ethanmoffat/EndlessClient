@@ -373,8 +373,10 @@ namespace EndlessClient.Rendering.Map
             {
                 var alpha = GetAlphaForCoordinates(col, row, immutableCharacter);
 
-                foreach (var renderer in _mapEntityRendererProvider.MapEntityRenderers)
+                for (int i = 0; i < _mapEntityRendererProvider.MapEntityRenderers.Count; i++)
                 {
+                    var renderer = _mapEntityRendererProvider.MapEntityRenderers[i];
+
                     if (!renderer.CanRender(row, col))
                         continue;
 
@@ -432,8 +434,9 @@ namespace EndlessClient.Rendering.Map
                 {
                     var alpha = GetAlphaForCoordinates(col, row, _characterProvider.MainCharacter);
 
-                    foreach (var renderer in _mapEntityRendererProvider.BaseRenderers)
+                    for (int i = 0; i < _mapEntityRendererProvider.BaseRenderers.Count; i++)
                     {
+                        var renderer = _mapEntityRendererProvider.BaseRenderers[i];
                         if (renderer.CanRender(row, col))
                             renderer.RenderElementAt(spriteBatch, row, col, alpha, new Vector2(offset, 0));
                     }
