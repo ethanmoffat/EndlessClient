@@ -18,6 +18,8 @@ namespace EndlessClient.Dialogs
             Large
         }
 
+        public bool _barber = false;
+
         private int _index;
         private int _xOffset, _yOffset;
 
@@ -256,16 +258,16 @@ namespace EndlessClient.Dialogs
         {
             base.OnDrawControl(gameTime);
 
+            
             _spriteBatch.Begin();
+            int rectWidth = _barber ? 175 : (int) DrawAreaWithParentOffset.Width;
+            int rectX = _barber ? DrawAreaWithParentOffset.X + 5 : DrawAreaWithParentOffset.X;
+
             if (_drawBackground)
             {
-              
-
                 _spriteBatch.Draw(_backgroundColor,
-                    new Rectangle(DrawAreaWithParentOffset.X, DrawAreaWithParentOffset.Y, 180, DrawAreaWithParentOffset.Height),
+                    new Rectangle(rectX, DrawAreaWithParentOffset.Y, rectWidth, DrawAreaWithParentOffset.Height),
                     Color.FromNonPremultiplied(255, 255, 255, 16));
-
-
             }
 
             if (Style == ListItemStyle.Large)

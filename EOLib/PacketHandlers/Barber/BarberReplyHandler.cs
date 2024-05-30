@@ -8,17 +8,21 @@ using EOLib.Domain.Interact.Barber;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
+using EOLib.Domain.Notifiers;
 
 namespace EOLib.PacketHandlers.Barber
 {
     [AutoMappedType]
     public class BarberReplyHandler : InGameOnlyPacketHandler
     {
+
+        private const byte BuySellSfxId = 26;
         private readonly IBarberDataRepository _barberDataRepository;
         private readonly IEnumerable<INPCInteractionNotifier> _npcInteractionNotifiers;
         protected readonly ICharacterRepository _characterRepository;
         protected readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly ICharacterInventoryRepository _characterInventoryRepository;
+        private readonly IEnumerable<ISoundNotifier> _soundNotifiers;
 
 
         public override PacketFamily Family => PacketFamily.Barber;
@@ -29,7 +33,8 @@ namespace EOLib.PacketHandlers.Barber
                                   IBarberDataRepository barberDataRepository,
                                   ICharacterRepository characterRepository,
                                   ICurrentMapStateRepository currentMapStateRepository,
-                                  ICharacterInventoryRepository characterInventoryRepository)
+                                  ICharacterInventoryRepository characterInventoryRepository,
+                                  IEnumerable<ISoundNotifier> soundNotifiers)
             : base(playerInfoProvider)
         {
             _npcInteractionNotifiers = npcInteractionNotifiers;
@@ -37,6 +42,7 @@ namespace EOLib.PacketHandlers.Barber
             _characterRepository = characterRepository;
             _currentMapStateRepository = currentMapStateRepository;
             _characterInventoryRepository = characterInventoryRepository;
+            _soundNotifiers = soundNotifiers;
         }
 
         public override bool HandlePacket(IPacket packet)
@@ -92,7 +98,10 @@ namespace EOLib.PacketHandlers.Barber
             {
                 _currentMapStateRepository.Characters.Update(currentCharacter, updatedCharacter);
             }
-            
+
+            foreach (var notifier in _soundNotifiers)
+                notifier.NotifySoundEffect(BuySellSfxId);
+
             return true;
         }
     }

@@ -83,6 +83,7 @@ namespace EndlessClient.Dialogs
                 OffsetX = -2,
                 OffsetY = 25,
                 DrawingOffsetX = 3,
+                _barber = true,
                 ShowIconBackGround = false,
             };
             _changeHairItem.LeftClick += Hair;
@@ -95,7 +96,7 @@ namespace EndlessClient.Dialogs
                 IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.BarberChangeHairColor),
                 OffsetX = -2,
                 OffsetY = 60,
-                DrawingOffsetX = 3,
+                _barber = true,
                 ShowIconBackGround = false,
             };
             _changeHairColor.LeftClick += HairColor;
@@ -103,12 +104,12 @@ namespace EndlessClient.Dialogs
             _changeBuyHairStyleOrColor = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
             {
                 PrimaryText = _localizedStringFinder.GetString(EOResourceID.DIALOG_BARBER_BUY_HAIRSTYLE),
-                SubText = _localizedStringFinder.GetString(EOResourceID.DIALOG_WORD_CURRENT) + $": {base_cost + Math.Max(level - 1, 0) * cost_per_level}",
+                SubText = _localizedStringFinder.GetString(EOResourceID.DIALOG_WORD_CURRENT) + $": {base_cost + Math.Max(level - 1, 0) * cost_per_level} gold",
                 IconGraphic = _dialogIconService.IconSheet,
                 IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.BarberOk),
                 OffsetX = -2,
                 OffsetY = 95,
-                DrawingOffsetX = 3,
+                _barber = true,
                 ShowIconBackGround = false,
             };
 
