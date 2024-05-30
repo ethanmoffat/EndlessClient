@@ -1,6 +1,7 @@
 ﻿using AutomaticTypeMapper;
 using Moffat.EndlessOnline.SDK.Data;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Optional;
 
 namespace EOLib.Net.PacketProcessing
 {
@@ -31,7 +32,7 @@ namespace EOLib.Net.PacketProcessing
             return encodedBytes;
         }
 
-        public IPacket Decode(byte[] original, int decodeMultiplier)
+        public Option<IPacket> Decode(byte[] original, int decodeMultiplier)
         {
             var decodedBytes = original;
 
@@ -74,6 +75,6 @@ namespace EOLib.Net.PacketProcessing
     {
         byte[] Encode(IPacket original, int encodeMultiplier, int sequenceNumber);
 
-        IPacket Decode(byte[] original, int decodeMultiplier);
+        Option<IPacket> Decode(byte[] original, int decodeMultiplier);
     }
 }

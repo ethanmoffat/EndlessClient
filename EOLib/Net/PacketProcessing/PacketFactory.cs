@@ -1,8 +1,10 @@
 ﻿using EOLib.Net.Handlers;
 using Moffat.EndlessOnline.SDK.Data;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Optional;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
@@ -29,16 +31,19 @@ namespace EOLib.Net.PacketProcessing
             }
         }
 
-        public IPacket Create(byte[] array)
+        public Option<IPacket> Create(byte[] array)
         {
             var fap = FamilyActionPair.From(array);
             if (!_map.ContainsKey(fap))
-                throw new InvalidOperationException($"Unknown packet identifier: {fap}");
+            {
+                Debug.WriteLine($"Unrecognized packet id: {fap.Family}_{fap.Action}");
+                return Option.None<IPacket>();
+            }
 
             var instance = (IPacket)Activator.CreateInstance(_map[fap]);
             var eoReader = new EoReader(array);
             instance.Deserialize(eoReader.Slice(2));
-            return instance;
+            return Option.Some(instance);
         }
 
         private static IReadOnlyDictionary<FamilyActionPair, Type> MapTypesFrom(Assembly assembly, string name_space)
@@ -61,6 +66,6 @@ namespace EOLib.Net.PacketProcessing
 
     public interface IPacketFactory
     {
-        IPacket Create(byte[] array);
+        Option<IPacket> Create(byte[] array);
     }
 }

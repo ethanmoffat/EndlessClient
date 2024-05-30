@@ -90,9 +90,10 @@ namespace EOLib.Net.Communication
                 {
                     break;
                 }
-                var packet = _packetProcessActions.DecodeData(packetData);
 
-                _packetHandlingActions.EnqueuePacketForHandling(packet);
+                _packetProcessActions
+                    .DecodeData(packetData)
+                    .MatchSome(_packetHandlingActions.EnqueuePacketForHandling);
             }
         }
 

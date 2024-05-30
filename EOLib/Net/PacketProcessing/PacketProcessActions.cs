@@ -5,6 +5,7 @@ using EOLib.Logger;
 using Moffat.EndlessOnline.SDK.Packet;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using System.Net.Sockets;
+using Optional;
 
 namespace EOLib.Net.PacketProcessing
 {
@@ -62,7 +63,7 @@ namespace EOLib.Net.PacketProcessing
             return PrependLengthBytes(eoWriter.ToByteArray());
         }
 
-        public IPacket DecodeData(byte[] rawData)
+        public Option<IPacket> DecodeData(byte[] rawData)
         {
             return _encoderService.Decode(rawData, _encoderRepository.ReceiveMultiplier);
         }
@@ -86,6 +87,6 @@ namespace EOLib.Net.PacketProcessing
 
         byte[] EncodeRawPacket(IPacket pkt);
 
-        IPacket DecodeData(byte[] rawData);
+        Option<IPacket> DecodeData(byte[] rawData);
     }
 }
