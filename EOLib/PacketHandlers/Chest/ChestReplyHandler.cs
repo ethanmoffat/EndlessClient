@@ -11,8 +11,10 @@ namespace EOLib.PacketHandlers.Chest
     /// Handler for CHEST_REPLY packet, sent in response to main player adding an item to a chest
     /// </summary>
     [AutoMappedType]
-    public class ChestReplyHandler : ChestGetHandler
+    public class ChestReplyHandler : ChestItemUpdateHandler<ChestReplyServerPacket>
     {
+        public override PacketFamily Family => PacketFamily.Chest;
+
         public override PacketAction Action => PacketAction.Reply;
 
         public ChestReplyHandler(IPlayerInfoProvider playerInfoProvider,
@@ -23,9 +25,14 @@ namespace EOLib.PacketHandlers.Chest
         {
         }
 
-        public override bool HandlePacket(ChestGetServerPacket packet)
+        public override bool HandlePacket(ChestReplyServerPacket packet)
         {
-            Handle(packet.Items, packet.TakenItem, packet.Weight, addingItemFromInventory: true);
+            var item = new ThreeItem
+            {
+                Id = packet.AddedItemId,
+                Amount = packet.RemainingAmount,
+            };
+            Handle(packet.Items, item, packet.Weight, addingItemFromInventory: true);
             return true;
         }
     }
