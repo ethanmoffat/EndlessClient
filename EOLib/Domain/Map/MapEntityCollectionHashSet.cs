@@ -78,7 +78,7 @@ namespace EOLib.Domain.Map
 
         public bool ContainsKey(int uniqueId) => _uniqueIdToHash.ContainsKey(uniqueId);
 
-        public bool ContainsKey(MapCoordinate coordinate) => _mapCoordinateToHashList.ContainsKey(coordinate);
+        public bool ContainsKey(MapCoordinate coordinate) => _mapCoordinateToHashList.ContainsKey(coordinate) && _mapCoordinateToHashList[coordinate].Count > 0;
 
         public bool TryGetValue(int uniqueId, out TValue value)
         {
