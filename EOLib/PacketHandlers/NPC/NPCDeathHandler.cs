@@ -111,15 +111,19 @@ namespace EOLib.PacketHandlers.NPC
         protected void UpdatePlayerExperience(int experienceValue)
         {
             var expDifference = experienceValue - _characterRepository.MainCharacter.Stats[CharacterStat.Experience];
-            foreach (var notifier in _mainCharacterEventNotifiers)
-                notifier.NotifyGainedExp(expDifference);
 
-            UpdateCharacterStat(CharacterStat.Experience, experienceValue);
+            if (expDifference > 0)
+            {
+                foreach (var notifier in _mainCharacterEventNotifiers)
+                    notifier.NotifyGainedExp(expDifference);
 
-            _characterSessionRepository.LastKillExp = expDifference;
-            if (expDifference > _characterSessionRepository.BestKillExp)
-                _characterSessionRepository.BestKillExp = expDifference;
-            _characterSessionRepository.TodayTotalExp += Convert.ToUInt64(Math.Max(expDifference, 0));
+                UpdateCharacterStat(CharacterStat.Experience, experienceValue);
+
+                _characterSessionRepository.LastKillExp = expDifference;
+                if (expDifference > _characterSessionRepository.BestKillExp)
+                    _characterSessionRepository.BestKillExp = expDifference;
+                _characterSessionRepository.TodayTotalExp += Convert.ToUInt64(Math.Max(expDifference, 0));
+            }
         }
 
         protected void ApplyStats(LevelUpStats levelUpStats)
