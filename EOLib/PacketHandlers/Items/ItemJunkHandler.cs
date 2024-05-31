@@ -40,7 +40,7 @@ namespace EOLib.PacketHandlers.Items
             var inventoryItem = _inventoryRepository.ItemInventory.SingleOrNone(x => x.ItemID == packet.JunkedItem.Id);
             inventoryItem.MatchSome(x => _inventoryRepository.ItemInventory.Remove(x));
 
-            if (packet.RemainingAmount > 0)
+            if (packet.RemainingAmount > 0 || packet.JunkedItem.Id == 1)
             {
                 inventoryItem.Map(x => x.WithAmount(packet.RemainingAmount))
                     .MatchSome(x => _inventoryRepository.ItemInventory.Add(x));

@@ -3,6 +3,7 @@ using EOLib.Domain.Login;
 using EOLib.Net.Handlers;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Optional.Collections;
+using System;
 
 namespace EOLib.PacketHandlers.Items
 {
@@ -33,16 +34,10 @@ namespace EOLib.PacketHandlers.Items
                 .Match(x => x, () => new InventoryItem(id, 0));
             _inventoryRepository.ItemInventory.Remove(inventoryItem);
 
-            if (amount > 0)
+            var amountRemaining = Math.Max(0, Action == PacketAction.Kick ? amount : inventoryItem.Amount + amount);
+            if (amountRemaining > 0 || id == 1)
             {
-                var amountRemaining = Action == PacketAction.Kick
-                    ? amount
-                    : inventoryItem.Amount + amount;
-
-                if (amountRemaining > 0)
-                {
-                    _inventoryRepository.ItemInventory.Add(inventoryItem.WithAmount(amountRemaining));
-                }
+                _inventoryRepository.ItemInventory.Add(inventoryItem.WithAmount(amountRemaining));
             }
 
             var stats = _characterRepository.MainCharacter.Stats;

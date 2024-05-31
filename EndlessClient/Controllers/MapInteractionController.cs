@@ -251,14 +251,6 @@ namespace EndlessClient.Controllers
             }
         }
 
-        private void PlayMainCharacterWalkSfx()
-        {
-            if (_characterProvider.MainCharacter.NoWall)
-                _sfxPlayer.PlaySfx(SoundEffectID.NoWallWalk);
-            else if (IsSteppingStone(_characterProvider.MainCharacter.RenderProperties))
-                _sfxPlayer.PlaySfx(SoundEffectID.JumpStone);
-        }
-
         private bool IsSteppingStone(CharacterRenderProperties renderProps)
         {
             return _currentMapProvider.CurrentMap.Tiles[renderProps.MapY, renderProps.MapX] == TileSpec.Jump

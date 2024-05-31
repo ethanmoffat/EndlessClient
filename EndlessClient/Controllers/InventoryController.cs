@@ -1,17 +1,16 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Controls;
-using EndlessClient.HUD.Panels;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Map;
-using EndlessClient.Audio;
 using EOLib;
-using EOLib.Domain.Chat;
 using EOLib.Domain.Character;
+using EOLib.Domain.Chat;
 using EOLib.Domain.Interact;
 using EOLib.Domain.Interact.Bank;
 using EOLib.Domain.Item;
@@ -377,7 +376,6 @@ namespace EndlessClient.Controllers
                                 if (warningArgs.Result == XNADialogResult.OK)
                                 {
                                     _goldWarningShown = true;
-                                    dropAction(transferDialog.SelectedAmount);
                                 }
                             };
                             warningMsg.ShowDialog();
