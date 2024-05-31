@@ -1,18 +1,20 @@
 ﻿using EOBot.Interpreter.States;
 using EOBot.Interpreter.Variables;
+using EOLib;
 using EOLib.Config;
-using EOLib.Domain.Account;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
 using EOLib.Domain.Party;
-using EOLib.Domain.Protocol;
 using EOLib.IO.Repositories;
 using EOLib.Net.Communication;
 using EOLib.Net.Connection;
 using EOLib.Net.PacketProcessing;
+using Moffat.EndlessOnline.SDK.Packet;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,6 +29,7 @@ namespace EOBot.Interpreter
         private readonly int _botIndex;
         private readonly ArgumentsParser _parsedArgs;
         private readonly BotHelper _botHelper;
+        private readonly Random _random;
 
         public BuiltInIdentifierConfigurator(ProgramState state, int botIndex, ArgumentsParser parsedArgs)
         {
@@ -34,6 +37,7 @@ namespace EOBot.Interpreter
             _botIndex = botIndex;
             _parsedArgs = parsedArgs;
             _botHelper = new BotHelper(_botIndex);
+            _random = new Random();
         }
 
         public void SetupBuiltInFunctions()
@@ -119,17 +123,16 @@ namespace EOBot.Interpreter
             var backgroundReceiveActions = c.Resolve<IBackgroundReceiveActions>();
             backgroundReceiveActions.RunBackgroundReceiveLoop();
 
-            var handshakeResult = await connectionActions.BeginHandshake();
+            var handshakeResult = await connectionActions.BeginHandshake(_random.Next(Constants.MaxChallenge));
 
-            if (handshakeResult.Response != InitReply.Success)
+            if (handshakeResult.ReplyCode != InitReply.Ok)
                 throw new InvalidOperationException($"Bot {_botIndex}: Invalid response from server or connection failed! Must receive an OK reply.");
 
-            var packetProcessActions = c.Resolve<IPacketProcessActions>();
+            var handshakeData = (InitInitServerPacket.ReplyCodeDataOk)handshakeResult.ReplyCodeData;
 
-            packetProcessActions.SetInitialSequenceNumber(handshakeResult[InitializationDataKey.SequenceByte1],
-                handshakeResult[InitializationDataKey.SequenceByte2]);
-            packetProcessActions.SetEncodeMultiples(handshakeResult[InitializationDataKey.ReceiveMultiple],
-                handshakeResult[InitializationDataKey.SendMultiple]);
+            var packetProcessActions = c.Resolve<IPacketProcessActions>();
+            packetProcessActions.SetSequenceStart(InitSequenceStart.FromInitValues(handshakeData.Seq1, handshakeData.Seq2));
+            packetProcessActions.SetEncodeMultiples(handshakeData.ServerEncryptionMultiple, handshakeData.ClientEncryptionMultiple);
 
             connectionActions.CompleteHandshake(handshakeResult);
         }

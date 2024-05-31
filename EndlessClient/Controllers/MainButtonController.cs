@@ -2,6 +2,7 @@
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering;
+using EOLib;
 using EOLib.Domain;
 using EOLib.Net.Communication;
 using EOLib.Net.Connection;
@@ -17,8 +18,6 @@ namespace EndlessClient.Controllers
     [AutoMappedType(IsSingleton = true)]
     public class MainButtonController : IMainButtonController
     {
-        private const int MAX_CHALLENGE_VALUE = 11_092_110;
-
         private readonly INetworkConnectionActions _networkConnectionActions;
         private readonly IErrorDialogDisplayAction _errorDialogDisplayAction;
         private readonly IPacketProcessActions _packetProcessActions;
@@ -124,7 +123,7 @@ namespace EndlessClient.Controllers
                 _backgroundReceiveActions.RunBackgroundReceiveLoop();
 
                 var beginHandshakeOperation = _networkOperationFactory.CreateSafeBlockingOperation(
-                    async () => await _networkConnectionActions.BeginHandshake(_random.Next(MAX_CHALLENGE_VALUE)),
+                    async () => await _networkConnectionActions.BeginHandshake(_random.Next(Constants.MaxChallenge)),
                     ex => _errorDialogDisplayAction.ShowException(ex),
                     ex => _errorDialogDisplayAction.ShowException(ex));
 

@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using EOLib;
 using EOLib.Config;
 using EOLib.Domain.Protocol;
 using EOLib.Net.Communication;
 using EOLib.Net.Connection;
 using EOLib.Net.PacketProcessing;
+using Moffat.EndlessOnline.SDK.Packet;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOBot
 {
@@ -17,9 +20,12 @@ namespace EOBot
 
         public event Action WorkCompleted;
 
+        protected Random _random;
+
         protected BotBase(int botIndex)
         {
             _index = botIndex;
+            _random = new Random();
         }
 
         //all bots are going to want to do the init handshake with the server
@@ -52,17 +58,16 @@ namespace EOBot
                 connectionActions.DisconnectFromServer();
             };
 
-            var handshakeResult = await connectionActions.BeginHandshake();
+            var handshakeResult = await connectionActions.BeginHandshake(_random.Next(Constants.MaxChallenge));
 
-            if (handshakeResult.Response != InitReply.Success)
+            if (handshakeResult.ReplyCode != InitReply.Ok)
                 throw new InvalidOperationException(string.Format("Bot {0}: Invalid response from server or connection failed! Must receive an OK reply.", _index));
 
-            var packetProcessActions = c.Resolve<IPacketProcessActions>();
+            var handshakeData = (InitInitServerPacket.ReplyCodeDataOk)handshakeResult.ReplyCodeData;
 
-            packetProcessActions.SetInitialSequenceNumber(handshakeResult[InitializationDataKey.SequenceByte1],
-                handshakeResult[InitializationDataKey.SequenceByte2]);
-            packetProcessActions.SetEncodeMultiples(handshakeResult[InitializationDataKey.ReceiveMultiple],
-                handshakeResult[InitializationDataKey.SendMultiple]);
+            var packetProcessActions = c.Resolve<IPacketProcessActions>();
+            packetProcessActions.SetSequenceStart(InitSequenceStart.FromInitValues(handshakeData.Seq1, handshakeData.Seq2));
+            packetProcessActions.SetEncodeMultiples(handshakeData.ServerEncryptionMultiple, handshakeData.ClientEncryptionMultiple);
 
             connectionActions.CompleteHandshake(handshakeResult);
 
