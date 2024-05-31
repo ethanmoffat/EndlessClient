@@ -1,6 +1,5 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
-using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
@@ -47,16 +46,10 @@ namespace EOLib.PacketHandlers.Avatar
             if (_characterRepository.MainCharacter.ID == packet.PlayerId)
             {
                 _characterRepository.HasAvatar = false;
-                _currentMapStateRepository.VisibleSpikeTraps.Remove(_characterRepository.MainCharacter.RenderProperties.Coordinates());
             }
             else if (_currentMapStateRepository.Characters.TryGetValue(packet.PlayerId, out var character))
             {
                 _currentMapStateRepository.Characters.Remove(character);
-                _currentMapStateRepository.VisibleSpikeTraps.Remove(character.RenderProperties.Coordinates());
-            }
-            else
-            {
-                _currentMapStateRepository.UnknownPlayerIDs.Add(packet.PlayerId);
             }
 
             return true;

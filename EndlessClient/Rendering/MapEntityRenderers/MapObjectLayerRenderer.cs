@@ -1,12 +1,16 @@
 ﻿using System;
+using System.DirectoryServices.ActiveDirectory;
 using System.Linq;
 using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
+using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+
+using DomainCharacter = EOLib.Domain.Character.Character;
 
 namespace EndlessClient.Rendering.MapEntityRenderers
 {
@@ -35,13 +39,29 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         protected override bool ElementExistsAt(int row, int col)
         {
-            return MapFile.GFX[MapLayer.Objects][row, col] > 0 &&
-                (MapFile.Tiles[row, col] != TileSpec.SpikesTrap ||
-                _currentMapStateProvider.VisibleSpikeTraps.Contains(new MapCoordinate(col, row)));
+            return MapFile.GFX[MapLayer.Objects][row, col] > 0;
         }
 
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
         {
+            if (MapFile.Tiles[row, col] == TileSpec.SpikesTrap)
+            {
+                var loc = new MapCoordinate(col, row);
+                var mainCharacterAt = CharacterAt(_characterProvider.MainCharacter, loc);
+                if (!mainCharacterAt && _currentMapStateProvider.Characters.ContainsKey(loc))
+                {
+                    var anyOtherCharactersAt = _currentMapStateProvider.Characters[loc].Any(x => CharacterAt(x, loc));
+                    if (!anyOtherCharactersAt)
+                    {
+                        return;
+                    }
+                }
+                else if (!mainCharacterAt)
+                {
+                    return;
+                }
+            }
+
             int gfxNum = MapFile.GFX[MapLayer.Objects][row, col];
             var gfx = _nativeGraphicsManager.TextureFromResource(GFXTypes.MapObjects, gfxNum, true);
 
@@ -52,5 +72,12 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         }
 
         private IMapFile MapFile => _currentMapProvider.CurrentMap;
+
+        private static bool CharacterAt(DomainCharacter c, MapCoordinate tile)
+        {
+            return c.RenderProperties.CurrentAction != CharacterActionState.Walking
+                ? tile == c.RenderProperties.Coordinates()
+                : tile == c.RenderProperties.DestinationCoordinates();
+        }
     }
 }

@@ -3,7 +3,6 @@ using EndlessClient.Audio;
 using EndlessClient.HUD;
 using EndlessClient.Input;
 using EndlessClient.Rendering.Character;
-using EndlessClient.Rendering.Map;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
@@ -20,7 +19,6 @@ namespace EndlessClient.Controllers
         private readonly ICharacterAnimationActions _characterAnimationActions;
         private readonly ICharacterProvider _characterProvider;
         private readonly IUnwalkableTileActions _unwalkableTileActions;
-        private readonly ISpikeTrapActions _spikeTrapActions;
         private readonly IUnwalkableTileActionsHandler _unwalkableTileActionsHandler;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IGhostingRepository _ghostingRepository;
@@ -30,7 +28,6 @@ namespace EndlessClient.Controllers
                                   ICharacterAnimationActions characterAnimationActions,
                                   ICharacterProvider characterProvider,
                                   IUnwalkableTileActions walkErrorHandler,
-                                  ISpikeTrapActions spikeTrapActions,
                                   IUnwalkableTileActionsHandler unwalkableTileActionsHandler,
                                   IStatusLabelSetter statusLabelSetter,
                                   IGhostingRepository ghostingRepository,
@@ -40,7 +37,6 @@ namespace EndlessClient.Controllers
             _characterAnimationActions = characterAnimationActions;
             _characterProvider = characterProvider;
             _unwalkableTileActions = walkErrorHandler;
-            _spikeTrapActions = spikeTrapActions;
             _unwalkableTileActionsHandler = unwalkableTileActionsHandler;
             _statusLabelSetter = statusLabelSetter;
             _ghostingRepository = ghostingRepository;
@@ -134,12 +130,6 @@ namespace EndlessClient.Controllers
                 case WalkValidationResult.GhostComplete:
                 case WalkValidationResult.Walkable:
                     _characterAnimationActions.StartWalking(Option.None<MapCoordinate>());
-
-                    var coordinate = _characterProvider.MainCharacter.RenderProperties.Coordinates();
-                    _spikeTrapActions.HideSpikeTrap(coordinate);
-
-                    coordinate = _characterProvider.MainCharacter.RenderProperties.DestinationCoordinates();
-                    _spikeTrapActions.ShowSpikeTrap(coordinate, isMainCharacter: true);
                     break;
             }
         }

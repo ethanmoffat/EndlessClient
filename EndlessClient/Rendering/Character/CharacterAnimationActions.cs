@@ -35,7 +35,6 @@ namespace EndlessClient.Rendering.Character
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly ICharacterRendererProvider _characterRendererProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
-        private readonly ISpikeTrapActions _spikeTrapActions;
         private readonly IPubFileProvider _pubFileProvider;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly ISfxPlayer _sfxPlayer;
@@ -48,7 +47,6 @@ namespace EndlessClient.Rendering.Character
                                          ICurrentMapStateProvider currentMapStateProvider,
                                          ICharacterRendererProvider characterRendererProvider,
                                          ICurrentMapProvider currentMapProvider,
-                                         ISpikeTrapActions spikeTrapActions,
                                          IPubFileProvider pubFileProvider,
                                          IStatusLabelSetter statusLabelSetter,
                                          ISfxPlayer sfxPlayer,
@@ -59,7 +57,6 @@ namespace EndlessClient.Rendering.Character
             _currentMapStateProvider = currentMapStateProvider;
             _characterRendererProvider = characterRendererProvider;
             _currentMapProvider = currentMapProvider;
-            _spikeTrapActions = spikeTrapActions;
             _pubFileProvider = pubFileProvider;
             _statusLabelSetter = statusLabelSetter;
             _sfxPlayer = sfxPlayer;
@@ -135,8 +132,6 @@ namespace EndlessClient.Rendering.Character
             Animator.StartOtherCharacterWalkAnimation(characterID, destination, direction);
             
             ShowWaterSplashiesIfNeeded(CharacterActionState.Walking, characterID);
-            _spikeTrapActions.HideSpikeTrap(characterID);
-            _spikeTrapActions.ShowSpikeTrap(characterID);
 
             if (IsSteppingStone(character.RenderProperties))
                 _sfxPlayer.PlaySfx(SoundEffectID.JumpStone);

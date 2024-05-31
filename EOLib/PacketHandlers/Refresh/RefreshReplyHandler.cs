@@ -59,7 +59,6 @@ namespace EOLib.PacketHandlers.Refresh
 
             _currentMapStateRepository.OpenDoors.Clear();
             _currentMapStateRepository.PendingDoors.Clear();
-            _currentMapStateRepository.VisibleSpikeTraps.Clear();
 
             _currentMapStateRepository.MapWarpTime = Optional.Option.Some(System.DateTime.Now.AddMilliseconds(-100));
 

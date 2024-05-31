@@ -80,7 +80,7 @@ namespace EOLib.PacketHandlers.Warp
             _currentMapStateRepository.NPCs = new MapEntityCollectionHashSet<DomainNPC>(n => n.Index, n => new MapCoordinate(n.X, n.Y), npcs);
             _currentMapStateRepository.MapItems = new MapEntityCollectionHashSet<MapItem>(item => item.UniqueID, item => new MapCoordinate(item.X, item.Y), items);
             _currentMapStateRepository.OpenDoors.Clear();
-            _currentMapStateRepository.VisibleSpikeTraps.Clear();
+            _currentMapStateRepository.PendingDoors.Clear();
             _currentMapStateRepository.ShowMiniMap = _currentMapStateRepository.ShowMiniMap &&
                                                      _currentMapProvider.CurrentMap.Properties.MapAvailable;
 
