@@ -77,6 +77,9 @@ namespace EOLib.Domain.Character
         /// <inheritdoc />
         public void Sit(MapCoordinate coords, bool isChair = false)
         {
+            if (coords.X < 0 || coords.Y < 0)
+                coords = MapCoordinate.Zero;
+
             var renderProperties = _characterRepository.MainCharacter.RenderProperties;
             var sitAction = renderProperties.SitState == SitState.Standing
                 ? SitAction.Sit
