@@ -82,7 +82,7 @@ namespace EndlessClient.HUD.Panels
             {
                 var added = _partyDataProvider.Members.Where(x => !_cachedParty.Any(y => y.CharacterID == x.CharacterID)).ToList();
                 var removed = _cachedParty.Where(x => !_partyDataProvider.Members.Any(y => y.CharacterID == x.CharacterID)).ToList();
-                var updated = _cachedParty.Where(x => _partyDataProvider.Members.Any(y => y.CharacterID == x.CharacterID && !y.Equals(x))).ToList();
+                var updated = _partyDataProvider.Members.Where(x => _cachedParty.Any(y => y.CharacterID == x.CharacterID && !y.Equals(x))).ToList();
                 _cachedParty = _partyDataProvider.Members.ToHashSet();
 
                 var mainCharacterIsLeader = _cachedParty.Any(x => x.IsLeader && x.CharacterID == _characterProvider.MainCharacter.ID);
