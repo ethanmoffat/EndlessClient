@@ -1,6 +1,7 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Dialogs.Services;
+using EOLib.Domain.Character;
 using EOLib.Domain.Interact.Jukebox;
 using EOLib.Graphics;
 using EOLib.Localization;
@@ -18,6 +19,7 @@ namespace EndlessClient.Dialogs.Factories
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly IJukeboxActions _jukeboxActions;
         private readonly IJukeboxRepository _jukeboxRepository;
+        private readonly ICharacterInventoryProvider _characterInventoryProvider;
         private readonly ISfxPlayer _sfxPlayer;
 
         public JukeboxDialogFactory(INativeGraphicsManager nativeGraphicsManager,
@@ -28,6 +30,7 @@ namespace EndlessClient.Dialogs.Factories
                                     IEOMessageBoxFactory messageBoxFactory,
                                     IJukeboxActions jukeboxActions,
                                     IJukeboxRepository jukeboxRepository,
+                                    ICharacterInventoryProvider characterInventoryProvider,
                                     ISfxPlayer sfxPlayer)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
@@ -38,6 +41,7 @@ namespace EndlessClient.Dialogs.Factories
             _messageBoxFactory = messageBoxFactory;
             _jukeboxActions = jukeboxActions;
             _jukeboxRepository = jukeboxRepository;
+            _characterInventoryProvider = characterInventoryProvider;
             _sfxPlayer = sfxPlayer;
         }
 
@@ -51,6 +55,7 @@ namespace EndlessClient.Dialogs.Factories
                                      _messageBoxFactory,
                                      _jukeboxActions,
                                      _jukeboxRepository,
+                                     _characterInventoryProvider,
                                      _sfxPlayer);
         }
     }

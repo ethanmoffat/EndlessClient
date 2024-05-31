@@ -1,12 +1,14 @@
 ﻿using EndlessClient.Audio;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.Dialogs.Services;
+using EOLib.Domain.Character;
 using EOLib.Domain.Interact.Jukebox;
 using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended.Input.InputListeners;
 using Optional;
+using Optional.Collections;
 using System;
 using System.Collections.Generic;
 using XNAControls;
@@ -20,6 +22,7 @@ namespace EndlessClient.Dialogs
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly IJukeboxActions _jukeboxActions;
         private readonly IJukeboxRepository _jukeboxRepository;
+        private readonly ICharacterInventoryProvider _characterInventoryProvider;
         private readonly ISfxPlayer _sfxPlayer;
 
         private readonly IEDFFile _songNames;
@@ -39,6 +42,7 @@ namespace EndlessClient.Dialogs
                              IEOMessageBoxFactory messageBoxFactory,
                              IJukeboxActions jukeboxActions,
                              IJukeboxRepository jukeboxRepository,
+                             ICharacterInventoryProvider characterInventoryProvider,
                              ISfxPlayer sfxPlayer)
             : base(nativeGraphicsManager, dialogButtonService, DialogType.Jukebox)
         {
@@ -47,6 +51,7 @@ namespace EndlessClient.Dialogs
             _messageBoxFactory = messageBoxFactory;
             _jukeboxActions = jukeboxActions;
             _jukeboxRepository = jukeboxRepository;
+            _characterInventoryProvider = characterInventoryProvider;
             _sfxPlayer = sfxPlayer;
 
             ListItemType = ListDialogItem.ListItemStyle.Large;
@@ -132,6 +137,13 @@ namespace EndlessClient.Dialogs
             if (_jukeboxRepository.PlayingRequestName.HasValue)
             {
                 var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.JUKEBOX_REQUESTED_RECENTLY);
+                dlg.ShowDialog();
+                return;
+            }
+
+            if (_characterInventoryProvider.ItemInventory.SingleOrNone(x => x.ItemID == 1).Map(x => x.Amount < 25).ValueOr(true))
+            {
+                var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.WARNING_YOU_HAVE_NOT_ENOUGH, " gold");
                 dlg.ShowDialog();
                 return;
             }

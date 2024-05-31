@@ -130,7 +130,7 @@ namespace EndlessClient.Controllers
                 var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
                 _characterActions.Sit(mapRenderer.GridCoordinates);
             }
-            else if (InteractableTileSpec(cellState.TileSpec) && (cellState.TileSpec.IsBoard() || CharacterIsCloseEnough(cellState.Coordinate)))
+            else if (InteractableTileSpec(cellState.TileSpec) && (cellState.TileSpec.IsBoard() || cellState.TileSpec == TileSpec.Jukebox || CharacterIsCloseEnough(cellState.Coordinate)))
             {
                 var unwalkableActions = _unwalkableTileActions.GetUnwalkableTileActions(cellState);
 

@@ -31,7 +31,7 @@ namespace EOLib.PacketHandlers.Jukebox
 
         public override bool HandlePacket(JukeboxOpenServerPacket packet)
         {
-            _jukeboxRepository.PlayingRequestName = packet.JukeboxPlayer.SomeNotNull();
+            _jukeboxRepository.PlayingRequestName = packet.JukeboxPlayer.SomeWhen(x => !string.IsNullOrWhiteSpace(x));
 
             foreach (var notifier in _userInterfaceNotifiers)
                 notifier.NotifyPacketDialog(PacketFamily.Jukebox);
