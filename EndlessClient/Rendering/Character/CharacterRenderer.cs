@@ -420,7 +420,7 @@ namespace EndlessClient.Rendering.Character
 
         private void CheckForDead()
         {
-            if (_character == _characterProvider.MainCharacter && _lastIsDead != _character.RenderProperties.IsDead)
+            if (_lastIsDead != _character.RenderProperties.IsDead)
             {
                 _lastIsDead = _character.RenderProperties.IsDead;
                 if (_lastIsDead)
