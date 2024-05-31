@@ -156,7 +156,7 @@ namespace EndlessClient.Rendering.Character
 
         public void NotifyWarpLeaveEffect(int characterId, WarpEffect anim)
         {
-            if (anim == WarpEffect.Admin)
+            if (anim == WarpEffect.Admin && _characterRendererProvider.CharacterRenderers.ContainsKey(characterId))
                 _characterRendererProvider.CharacterRenderers[characterId].PlayEffect((int)HardCodedEffect.WarpLeave);
             else if (characterId != _characterRepository.MainCharacter.ID && anim == WarpEffect.Scroll)
                 _sfxPlayer.PlaySfx(SoundEffectID.ScrollTeleport);
