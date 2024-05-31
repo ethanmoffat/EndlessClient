@@ -8,6 +8,8 @@ using EOLib.IO.Map;
 using EOLib.Net.Handlers;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using Optional;
+using System;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Effects
@@ -17,6 +19,7 @@ namespace EOLib.PacketHandlers.Effects
     {
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly ICharacterProvider _characterProvider;
+        private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IEnumerable<IEffectNotifier> _effectNotifiers;
 
         public override PacketFamily Family => PacketFamily.Effect;
@@ -26,16 +29,20 @@ namespace EOLib.PacketHandlers.Effects
         public TimedSpikeEffectHandler(IPlayerInfoProvider playerInfoProvider,
                                        ICurrentMapProvider currentMapProvider,
                                        ICharacterProvider characterProvider,
+                                       ICurrentMapStateRepository currentMapStateRepository,
                                        IEnumerable<IEffectNotifier> effectNotifiers)
             : base(playerInfoProvider)
         {
             _currentMapProvider = currentMapProvider;
             _characterProvider = characterProvider;
+            _currentMapStateRepository = currentMapStateRepository;
             _effectNotifiers = effectNotifiers;
         }
 
         public override bool HandlePacket(EffectReportServerPacket packet)
         {
+            _currentMapStateRepository.LastTimedSpikeEvent = Option.Some(DateTime.Now);
+
             var characterPosition = _characterProvider.MainCharacter.RenderProperties.Coordinates();
             var distanceToSpikes = _currentMapProvider.CurrentMap.GetDistanceToClosestTileSpec(TileSpec.SpikesTimed, characterPosition);
 

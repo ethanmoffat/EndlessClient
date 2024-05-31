@@ -25,6 +25,8 @@ namespace EOLib.Domain.Map
 
         HashSet<Warp> PendingDoors { get; set; }
 
+        Option<DateTime> LastTimedSpikeEvent { get; set; }
+
         WarpState MapWarpState { get; set; }
 
         Option<int> MapWarpSession { get; set; }
@@ -59,6 +61,8 @@ namespace EOLib.Domain.Map
         IReadOnlyCollection<Warp> OpenDoors { get; }
 
         IReadOnlyCollection<Warp> PendingDoors { get; }
+
+        Option<DateTime> LastTimedSpikeEvent { get; set; }
 
         WarpState MapWarpState { get; }
 
@@ -96,7 +100,7 @@ namespace EOLib.Domain.Map
 
         public HashSet<Warp> PendingDoors { get; set; }
 
-        public HashSet<MapCoordinate> VisibleSpikeTraps { get; set;  }
+        public Option<DateTime> LastTimedSpikeEvent { get; set; }
 
         public WarpState MapWarpState { get; set; }
 
@@ -142,6 +146,7 @@ namespace EOLib.Domain.Map
             MapItems = new MapEntityCollectionHashSet<MapItem>(x => x.UniqueID, x => new MapCoordinate(x.X, x.Y));
             OpenDoors = new HashSet<Warp>();
             PendingDoors = new HashSet<Warp>();
+            LastTimedSpikeEvent = Option.None<DateTime>();
             UnknownPlayerIDs = new HashSet<int>();
             UnknownNPCIndexes = new HashSet<int>();
 

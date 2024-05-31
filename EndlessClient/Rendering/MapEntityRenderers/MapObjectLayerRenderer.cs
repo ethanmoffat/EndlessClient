@@ -16,6 +16,8 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 {
     public class MapObjectLayerRenderer : BaseMapEntityRenderer
     {
+        private const int TIMED_SPIKE_DURATION_MS = 1000;
+
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
@@ -60,6 +62,14 @@ namespace EndlessClient.Rendering.MapEntityRenderers
                 {
                     return;
                 }
+            }
+            else if (MapFile.Tiles[row, col] == TileSpec.SpikesTimed)
+            {
+                var shouldRender = _currentMapStateProvider.LastTimedSpikeEvent
+                    .Map(time => (DateTime.Now - time).TotalMilliseconds <= TIMED_SPIKE_DURATION_MS)
+                    .ValueOr(false);
+                if (!shouldRender)
+                    return;
             }
 
             int gfxNum = MapFile.GFX[MapLayer.Objects][row, col];
