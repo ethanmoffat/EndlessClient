@@ -1,5 +1,4 @@
 ﻿using AutomaticTypeMapper;
-using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Trade;
 using EOLib.Net.Handlers;
@@ -15,7 +14,7 @@ namespace EOLib.PacketHandlers.Trade
     [AutoMappedType]
     public class TradeSpecHandler : InGameOnlyPacketHandler<TradeSpecServerPacket>
     {
-        private readonly ICharacterProvider _characterProvider;
+        private readonly IPlayerInfoProvider _playerInfoProvider;
         private readonly ITradeRepository _tradeRepository;
 
         public override PacketFamily Family => PacketFamily.Trade;
@@ -23,17 +22,16 @@ namespace EOLib.PacketHandlers.Trade
         public override PacketAction Action => PacketAction.Spec;
 
         public TradeSpecHandler(IPlayerInfoProvider playerInfoProvider,
-                                ICharacterProvider characterProvider,
                                 ITradeRepository tradeRepository)
             : base(playerInfoProvider)
         {
-            _characterProvider = characterProvider;
+            _playerInfoProvider = playerInfoProvider;
             _tradeRepository = tradeRepository;
         }
 
         public override bool HandlePacket(TradeSpecServerPacket packet)
         {
-            _tradeRepository.SomeWhen(x => x.PlayerOneOffer.PlayerID == _characterProvider.MainCharacter.ID)
+            _tradeRepository.SomeWhen(x => x.PlayerOneOffer.PlayerID == _playerInfoProvider.PlayerID)
                 .Map(x => x.PlayerOneOffer = x.PlayerOneOffer.WithAgrees(packet.Agree))
                 .Or(() => _tradeRepository.PlayerTwoOffer = _tradeRepository.PlayerTwoOffer.WithAgrees(packet.Agree));
 

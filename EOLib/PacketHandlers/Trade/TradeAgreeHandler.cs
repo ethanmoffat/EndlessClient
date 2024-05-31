@@ -14,6 +14,7 @@ namespace EOLib.PacketHandlers.Trade
     [AutoMappedType]
     public class TradeAgreeHandler : InGameOnlyPacketHandler<TradeAgreeServerPacket>
     {
+        private readonly IPlayerInfoProvider _playerInfoProvider;
         private readonly ITradeRepository _tradeRepository;
 
         public override PacketFamily Family => PacketFamily.Trade;
@@ -24,12 +25,13 @@ namespace EOLib.PacketHandlers.Trade
                                  ITradeRepository tradeRepository)
             : base(playerInfoProvider)
         {
+            _playerInfoProvider = playerInfoProvider;
             _tradeRepository = tradeRepository;
         }
 
         public override bool HandlePacket(TradeAgreeServerPacket packet)
         {
-            _tradeRepository.SomeWhen(x => x.PlayerOneOffer.PlayerID == packet.PartnerPlayerId)
+            _tradeRepository.SomeWhen(x => x.PlayerOneOffer.PlayerID != _playerInfoProvider.PlayerID)
                 .Map(x => x.PlayerOneOffer = x.PlayerOneOffer.WithAgrees(packet.Agree))
                 .Or(() => _tradeRepository.PlayerTwoOffer = _tradeRepository.PlayerTwoOffer.WithAgrees(packet.Agree));
             return true;

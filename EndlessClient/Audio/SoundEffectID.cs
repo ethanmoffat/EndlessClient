@@ -13,6 +13,7 @@
         ChestOpen = TextBoxFocus,
         SpellActivate = TextBoxFocus,
         ServerCommand = TextBoxFocus,
+        TradeItemOfferChanged = TextBoxFocus,
         Login,
         ServerMessage = Login,
         DeleteCharacter,
