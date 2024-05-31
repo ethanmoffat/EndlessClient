@@ -1,8 +1,10 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
-using EOLib.Net;
-using EOLib.Net.Communication;
+﻿using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Data;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moq;
+using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 
 namespace EOLib.Test.TestHelpers
 {
@@ -13,18 +15,12 @@ namespace EOLib.Test.TestHelpers
         /// Setup the PacketSendService mock to return a packet with the specified family/action/data from SendEncodedPacketAndWaitAsync
         /// </summary>
         /// <param name="packetSendServiceMock">The mocked packet send service</param>
-        /// <param name="family">Packet family for the "received" packet</param>
-        /// <param name="action">Packet action for the "received" packet</param>
         /// <param name="data">Packet data payload (any additional data that should be in the packet)</param>
-        internal static void SetupReceivedPacketHasHeader(this Mock<IPacketSendService> packetSendServiceMock,
-                                                          PacketFamily family,
-                                                          PacketAction action,
-                                                          params byte[] data)
+        internal static void SetupReceivedPacketHasHeader<T>(this Mock<IPacketSendService> packetSendServiceMock, params byte[] data)
+            where T : IPacket
         {
-            var receivedPacket = new PacketBuilder(family, action)
-                .AddBytes(data)
-                .Build();
-
+            IPacket receivedPacket = (IPacket)Activator.CreateInstance(typeof(T));
+            receivedPacket.Deserialize(new EoReader(data));
             packetSendServiceMock.Setup(x => x.SendEncodedPacketAndWaitAsync(It.IsAny<IPacket>()))
                                  .Returns(Task.FromResult(receivedPacket));
         }

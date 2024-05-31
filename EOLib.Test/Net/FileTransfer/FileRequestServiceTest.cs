@@ -13,6 +13,11 @@ using EOLib.Test.TestHelpers;
 using NUnit.Framework;
 using Moq;
 using System.Collections.Generic;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using System.Text;
+using Moffat.EndlessOnline.SDK.Data;
 
 namespace EOLib.Test.Net.FileTransfer
 {
@@ -44,21 +49,21 @@ namespace EOLib.Test.Net.FileTransfer
         [Test]
         public void RequestFile_ResponsePacketHasInvalidHeader_ThrowsEmptyPacketReceivedException()
         {
-            Mock.Get(_packetSendService).SetupReceivedPacketHasHeader(PacketFamily.Account, PacketAction.Accept);
-            Assert.ThrowsAsync<EmptyPacketReceivedException>(async () => await _fileRequestService.RequestFile<EIFRecord>(InitFileType.Item, 1));
+            Mock.Get(_packetSendService).SetupReceivedPacketHasHeader<AccountReplyServerPacket>();
+            Assert.ThrowsAsync<EmptyPacketReceivedException>(async () => await _fileRequestService.RequestFile<EIFRecord>(FileType.Eif, 1));
         }
 
         [Test]
         public void RequestFile_ResponsePacketInvalidExtraByte_ThrowsMalformedPacketException()
         {
-            Mock.Get(_packetSendService).SetupReceivedPacketHasHeader(PacketFamily.Init, PacketAction.Init, (byte)InitReply.ItemFile, 33);
-            Assert.ThrowsAsync<MalformedPacketException>(async () => await _fileRequestService.RequestFile<EIFRecord>(InitFileType.Item, 1));
+            Mock.Get(_packetSendService).SetupReceivedPacketHasHeader<InitInitServerPacket>((byte)InitReply.FileEif, 33);
+            Assert.ThrowsAsync<InvalidOperationException>(async () => await _fileRequestService.RequestFile<EIFRecord>(FileType.Eif, 1));
         }
 
         [Test]
         public void RequestFile_SendsPacket_BasedOnSpecifiedType()
         {
-            var types = new[] { InitFileType.Item, InitFileType.Npc, InitFileType.Spell, InitFileType.Class };
+            var types = new[] { FileType.Eif, FileType.Enf, FileType.Esf, FileType.Ecf };
             foreach (var type in types)
             {
                 var packetIsCorrect = false;
@@ -75,33 +80,33 @@ namespace EOLib.Test.Net.FileTransfer
         [Test]
         public void RequestFile_CorrectResponse_ExecutesWithoutFault()
         {
-            var types = new[] { InitFileType.Item, InitFileType.Npc, InitFileType.Spell, InitFileType.Class };
+            var types = new[] { FileType.Eif, FileType.Enf, FileType.Esf, FileType.Ecf };
             foreach (var type in types)
             {
-                Mock.Get(_packetSendService).SetupReceivedPacketHasHeader(PacketFamily.Init, PacketAction.Init, CreateFilePacket(type));
+                Mock.Get(_packetSendService).SetupReceivedPacketHasHeader<InitInitServerPacket>(CreateFilePacket(type));
 
                 AggregateException aggEx = null;
                 switch (type)
                 {
-                    case InitFileType.Item:
+                    case FileType.Eif:
                         Mock.Get(_pubFileDeserializer)
                             .Setup(x => x.DeserializeFromByteArray(1, It.IsAny<byte[]>(), It.IsAny<Func<IPubFile<EIFRecord>>>()))
                             .Returns(new EIFFile());
                         aggEx = _fileRequestService.RequestFile<EIFRecord>(type, 1).Exception;
                         break;
-                    case InitFileType.Npc:
+                    case FileType.Enf:
                         Mock.Get(_pubFileDeserializer)
                             .Setup(x => x.DeserializeFromByteArray(1, It.IsAny<byte[]>(), It.IsAny<Func<IPubFile<ENFRecord>>>()))
                             .Returns(new ENFFile());
                         aggEx = _fileRequestService.RequestFile<ENFRecord>(type, 1).Exception;
                         break;
-                    case InitFileType.Spell:
+                    case FileType.Esf:
                         Mock.Get(_pubFileDeserializer)
                             .Setup(x => x.DeserializeFromByteArray(1, It.IsAny<byte[]>(), It.IsAny<Func<IPubFile<ESFRecord>>>()))
                             .Returns(new ESFFile());
                         aggEx = _fileRequestService.RequestFile<ESFRecord>(type, 1).Exception;
                         break;
-                    case InitFileType.Class:
+                    case FileType.Ecf:
                         Mock.Get(_pubFileDeserializer)
                             .Setup(x => x.DeserializeFromByteArray(1, It.IsAny<byte[]>(), It.IsAny<Func<IPubFile<ECFRecord>>>()))
                             .Returns(new ECFFile());
@@ -121,22 +126,22 @@ namespace EOLib.Test.Net.FileTransfer
         [Test]
         public void RequestMapFile_ResponsePacketHasInvalidHeader_ThrowsEmptyPacketReceivedException()
         {
-            Mock.Get(_packetSendService).SetupReceivedPacketHasHeader(PacketFamily.Account, PacketAction.Accept);
+            Mock.Get(_packetSendService).SetupReceivedPacketHasHeader<AccountReplyServerPacket>();
             Assert.ThrowsAsync<EmptyPacketReceivedException>(async () => await _fileRequestService.RequestMapFile(1, 1));
         }
 
         [Test]
         public void RequestMapFile_ResponsePacketHasIncorrectFileType_ThrowsMalformedPacketException()
         {
-            Mock.Get(_packetSendService).SetupReceivedPacketHasHeader(PacketFamily.Init, PacketAction.Init, (byte) InitReply.SpellFile, 33);
-            Assert.ThrowsAsync<MalformedPacketException>(async () => await _fileRequestService.RequestMapFile(1, 1));
+            Mock.Get(_packetSendService).SetupReceivedPacketHasHeader<InitInitServerPacket>((byte) InitReply.FileEsf, 33);
+            Assert.ThrowsAsync<InvalidOperationException>(async () => await _fileRequestService.RequestMapFile(1, 1));
         }
 
         [Test]
         public void RequestMapFile_SendsPacket_BasedOnSpecifiedMap()
         {
             var packetIsCorrect = false;
-            Mock.Get(_packetSendService).Setup(x => x.SendEncodedPacketAndWaitAsync(It.IsAny<IPacket>())).Callback((IPacket packet) => packetIsCorrect = IsCorrectFileRequestPacket(packet, InitFileType.Map));
+            Mock.Get(_packetSendService).Setup(x => x.SendEncodedPacketAndWaitAsync(It.IsAny<IPacket>())).Callback((IPacket packet) => packetIsCorrect = IsCorrectFileRequestPacket(packet, FileType.Emf));
 
             _fileRequestService.RequestMapFile(1, 1);
 
@@ -152,7 +157,7 @@ namespace EOLib.Test.Net.FileTransfer
             var packetIsCorrect = false;
             Mock.Get(_packetSendService)
                 .Setup(x => x.SendEncodedPacketAndWaitAsync(It.IsAny<IPacket>()))
-                .Callback((IPacket p) => packetIsCorrect = IsCorrectFileRequestPacket(p, InitFileType.Map, PlayerID, MapID));
+                .Callback((IPacket p) => packetIsCorrect = IsCorrectFileRequestPacket(p, FileType.Emf, PlayerID, MapID));
 
             _fileRequestService.RequestMapFile(MapID, PlayerID);
 
@@ -163,67 +168,112 @@ namespace EOLib.Test.Net.FileTransfer
 
         #region Helper Methods
 
-        private static bool IsCorrectFileRequestPacket(IPacket packet, InitFileType type, short playerId = 0, short mapId = 0)
+        private static bool IsCorrectFileRequestPacket(IPacket packet, FileType type, short sessionId = 0, short mapId = 0)
         {
-            var correctTyping = packet.Family == PacketFamily.Welcome && packet.Action == PacketAction.Agree && packet.ReadChar() == (byte) type;
+            var waPacket = packet as WelcomeAgreeClientPacket;
+            var correctTyping = waPacket.FileType == type;
             
             var correctData = true;
-            if (mapId > 0 && playerId > 0)
+            if (mapId > 0 && sessionId > 0)
             {
-                correctData = packet.ReadShort() == playerId && packet.ReadShort() == mapId;
+                var emfData = waPacket.FileTypeData as WelcomeAgreeClientPacket.FileTypeDataEmf;
+                correctData = emfData.FileId == mapId && waPacket.SessionId == sessionId;
             }
 
             return correctTyping && correctData;
         }
 
-        private static byte[] CreateFilePacket(InitFileType type)
+        private static byte[] CreateFilePacket(FileType type)
         {
-            IPacketBuilder packetBuilder = new PacketBuilder();
+            var ret = new InitInitServerPacket();
 
             var nes = new NumberEncoderService();
             var rs = new PubRecordSerializer(nes);
 
+            var eoWriter = new EoWriter();
             switch (type)
             {
-                case InitFileType.Item:
-                    packetBuilder = packetBuilder
-                        .AddByte((byte) InitReply.ItemFile).AddChar(1) //spacer
-                        .AddString("EIF").AddInt(1) //RID
-                        .AddShort(2) //Len
-                        .AddByte(1) //filler byte
-                        .AddBytes(rs.SerializeToByteArray(new EIFRecord().WithID(1).WithName("Test1")))
-                        .AddBytes(rs.SerializeToByteArray(new EIFRecord().WithID(2).WithName("eof")));
+                case FileType.Eif:
+                    ret.ReplyCode = InitReply.FileEif;
+
+                    eoWriter.AddString("EIF");
+                    eoWriter.AddInt(1); // RID
+                    eoWriter.AddShort(2); // length
+                    eoWriter.AddByte(1); // version
+                    eoWriter.AddBytes(rs.SerializeToByteArray(new EIFRecord().WithID(1).WithName("Test1")));
+                    eoWriter.AddBytes(rs.SerializeToByteArray(new EIFRecord().WithID(2).WithName("eof")));
+
+                    ret.ReplyCodeData = new InitInitServerPacket.ReplyCodeDataFileEif
+                    {
+                        PubFile = new PubFile
+                        {
+                            FileId = 1,
+                            Content = eoWriter.ToByteArray()
+                        }
+                    };
                     break;
-                case InitFileType.Npc:
-                    packetBuilder = packetBuilder
-                        .AddByte((byte) InitReply.NpcFile).AddChar(1) //spacer
-                        .AddString("ENF").AddInt(1) //RID
-                        .AddShort(2) //Len
-                        .AddByte(1) //filler byte
-                        .AddBytes(rs.SerializeToByteArray(new ENFRecord().WithID(1).WithName("Test1")))
-                        .AddBytes(rs.SerializeToByteArray(new ENFRecord().WithID(2).WithName("eof")));
+                case FileType.Enf:
+                    ret.ReplyCode = InitReply.FileEnf;
+
+                    eoWriter.AddString("ENF");
+                    eoWriter.AddInt(1); // RID
+                    eoWriter.AddShort(2); // length
+                    eoWriter.AddByte(1); // version
+                    eoWriter.AddBytes(rs.SerializeToByteArray(new ENFRecord().WithID(1).WithName("Test1")));
+                    eoWriter.AddBytes(rs.SerializeToByteArray(new ENFRecord().WithID(2).WithName("eof")));
+
+                    ret.ReplyCodeData = new InitInitServerPacket.ReplyCodeDataFileEnf
+                    {
+                        PubFile = new PubFile
+                        {
+                            FileId = 1,
+                            Content = eoWriter.ToByteArray()
+                        }
+                    };
                     break;
-                case InitFileType.Spell:
-                    packetBuilder = packetBuilder
-                        .AddByte((byte) InitReply.SpellFile).AddChar(1) //spacer
-                        .AddString("ESF").AddInt(1) //RID
-                        .AddShort(2) //Len
-                        .AddByte(1) //filler byte
-                        .AddBytes(rs.SerializeToByteArray(new ESFRecord().WithID(1).WithNames(new List<string> { "Test1", "" })))
-                        .AddBytes(rs.SerializeToByteArray(new ESFRecord().WithID(2).WithNames(new List<string> { "eof", "" })));
+                case FileType.Esf:
+                    ret.ReplyCode = InitReply.FileEsf;
+
+                    eoWriter.AddString("ESF");
+                    eoWriter.AddInt(1); // RID
+                    eoWriter.AddShort(2); // length
+                    eoWriter.AddByte(1); // version
+                    eoWriter.AddBytes(rs.SerializeToByteArray(new ESFRecord().WithID(1).WithName("Test1")));
+                    eoWriter.AddBytes(rs.SerializeToByteArray(new ESFRecord().WithID(2).WithName("eof")));
+
+                    ret.ReplyCodeData = new InitInitServerPacket.ReplyCodeDataFileEsf
+                    {
+                        PubFile = new PubFile
+                        {
+                            FileId = 1,
+                            Content = eoWriter.ToByteArray()
+                        }
+                    };
                     break;
-                case InitFileType.Class:
-                    packetBuilder = packetBuilder
-                        .AddByte((byte) InitReply.ClassFile).AddChar(1) //spacer
-                        .AddString("ECF").AddInt(1) //RID
-                        .AddShort(2) //Len
-                        .AddByte(1) //filler byte
-                        .AddBytes(rs.SerializeToByteArray(new ECFRecord().WithID(1).WithName("Test1")))
-                        .AddBytes(rs.SerializeToByteArray(new ECFRecord().WithID(2).WithName("eof")));
+                case FileType.Ecf:
+                    ret.ReplyCode = InitReply.FileEcf;
+
+                    eoWriter.AddString("ECF");
+                    eoWriter.AddInt(1); // RID
+                    eoWriter.AddShort(2); // length
+                    eoWriter.AddByte(1); // version
+                    eoWriter.AddBytes(rs.SerializeToByteArray(new ECFRecord().WithID(1).WithName("Test1")));
+                    eoWriter.AddBytes(rs.SerializeToByteArray(new ECFRecord().WithID(2).WithName("eof")));
+
+                    ret.ReplyCodeData = new InitInitServerPacket.ReplyCodeDataFileEcf
+                    {
+                        PubFile = new PubFile
+                        {
+                            FileId = 1,
+                            Content = eoWriter.ToByteArray()
+                        }
+                    };
                     break;
             }
 
-            return packetBuilder.Build().RawData.ToArray();
+            eoWriter = new EoWriter();
+            ret.Serialize(eoWriter);
+            return eoWriter.ToByteArray();
         }
 
         #endregion

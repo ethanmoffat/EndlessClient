@@ -30,8 +30,11 @@ namespace EOLib.IO.Test.Services.Serializers
         [Test]
         public void DeserializeFromByteArray_WrongLength_Throws()
         {
-            const int ExpectedChecksum = 1234567890;
+            const int ExpectedChecksum1 = 12345;
+            const int ExpectedChecksum2 = 6789;
             const int ExpectedLength = 4;
+
+            var expectedChecksum = new List<int> { ExpectedChecksum1, ExpectedChecksum2 };
 
             var records = new[]
             {
@@ -41,15 +44,18 @@ namespace EOLib.IO.Test.Services.Serializers
                 new U().WithID(4).WithName("Rec_4"),
             };
 
-            var pubBytesShort = MakePubFileBytes(ExpectedChecksum, ExpectedLength - 1, records);
+            var pubBytesShort = MakePubFileBytes(expectedChecksum, ExpectedLength - 1, records);
             Assert.That(() => CreateSerializer().DeserializeFromByteArray(1, pubBytesShort, () => new T()), Throws.InstanceOf<IOException>());
         }
 
         [Test]
         public void DeserializeFromByteArray_HasExpectedHeader()
         {
-            const int ExpectedChecksum = 1234567890;
+            const int ExpectedChecksum1 = 12345;
+            const int ExpectedChecksum2 = 6789;
             const int ExpectedLength = 4;
+
+            var expectedChecksum = new List<int> { ExpectedChecksum1, ExpectedChecksum2 };
 
             var records = new[]
             {
@@ -59,17 +65,17 @@ namespace EOLib.IO.Test.Services.Serializers
                 new U().WithID(4).WithName("Rec_4"),
             };
 
-            var pubBytes = MakePubFileBytes(ExpectedChecksum, ExpectedLength, records);
+            var pubBytes = MakePubFileBytes(expectedChecksum, ExpectedLength, records);
             var file = CreateSerializer().DeserializeFromByteArray(1, pubBytes, () => new T());
 
-            Assert.That(file.CheckSum, Is.EqualTo(ExpectedChecksum));
+            Assert.That(file.CheckSum, Is.EqualTo(expectedChecksum));
             Assert.That(file.Length, Is.EqualTo(ExpectedLength));
         }
 
         [Test]
         public void SerializeToByteArray_ReturnsExpectedBytes()
         {
-            var expectedBytes = MakePubFileBytes(55565554,
+            var expectedBytes = MakePubFileBytes(new List<int> { 5556, 5554 },
                 9,
                 new U().WithID(1).WithName("TestFixture"),
                 new U().WithID(2).WithName("Test2"),
@@ -104,7 +110,7 @@ namespace EOLib.IO.Test.Services.Serializers
                 new U().WithID(8).WithName("Test8"),
                 new U().WithID(9).WithName("eof")
             };
-            var bytes = MakePubFileBytes(55565554, 9, records);
+            var bytes = MakePubFileBytes(new List<int> { 5556, 5554 }, 9, records);
 
             var serializer = CreateSerializer();
             var file = serializer.DeserializeFromByteArray(1, bytes, () => new T());
@@ -113,14 +119,14 @@ namespace EOLib.IO.Test.Services.Serializers
                                       file.Select(x => new { x.ID, x.Name }).ToList());
         }
 
-        private byte[] MakePubFileBytes(int checksum, int length, params IPubRecord[] records)
+        private byte[] MakePubFileBytes(List<int> checksum, int length, params IPubRecord[] records)
         {
             var numberEncoderService = new NumberEncoderService();
             var recordSerializer = new PubRecordSerializer(numberEncoderService);
 
             var bytes = new List<byte>();
             bytes.AddRange(Encoding.ASCII.GetBytes(new T().FileType));
-            bytes.AddRange(numberEncoderService.EncodeNumber(checksum, 4));
+            bytes.AddRange(checksum.SelectMany(x => numberEncoderService.EncodeNumber(x, 2)));
             bytes.AddRange(numberEncoderService.EncodeNumber(length, 2));
             bytes.Add(numberEncoderService.EncodeNumber(1, 1)[0]);
             foreach (var record in records)

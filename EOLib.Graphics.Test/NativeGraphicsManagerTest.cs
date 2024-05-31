@@ -155,7 +155,7 @@ namespace EOLib.Graphics.Test
 
             Texture2D resultTexture;
             var bmp = LoadGFXReturnsBitmap(GFXTypes.MaleHat, requestedResource);
-            FillBitmapWithColor(bmp, new Color(0x08, 0x00, 0x00, 0xff));
+            FillBitmapWithColor(bmp, new Color(0xff000008));
             resultTexture = _nativeGraphicsManager.TextureFromResource(GFXTypes.MaleHat, requestedResource, true);
 
             var data = new Microsoft.Xna.Framework.Color[resultTexture.Width * resultTexture.Height];
@@ -171,7 +171,7 @@ namespace EOLib.Graphics.Test
 
             Texture2D resultTexture;
             var bmp = LoadGFXReturnsBitmap(GFXTypes.FemaleHat, requestedResource);
-            FillBitmapWithColor(bmp, new Color(0x08, 0x00, 0x00, 0xff));
+            FillBitmapWithColor(bmp, new Color(0xff000008));
             resultTexture = _nativeGraphicsManager.TextureFromResource(GFXTypes.FemaleHat, requestedResource, true);
 
             var data = new Color[resultTexture.Width * resultTexture.Height];
@@ -221,9 +221,9 @@ namespace EOLib.Graphics.Test
         {
             for (int i = 54; i < image.Length; i+=4)
             {
-                image.Span[i] = color.R;
+                image.Span[i] = color.B;
                 image.Span[i + 1] = color.G;
-                image.Span[i + 2] = color.B;
+                image.Span[i + 2] = color.R;
                 image.Span[i + 3] = color.A;
             }
         }
