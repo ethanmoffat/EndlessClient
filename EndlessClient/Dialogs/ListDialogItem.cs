@@ -6,7 +6,7 @@ using MonoGame.Extended.Input;
 using MonoGame.Extended.Input.InputListeners;
 using System;
 using XNAControls;
-
+using System.Diagnostics;
 namespace EndlessClient.Dialogs
 {
     public class ListDialogItem : XNAControl
@@ -18,7 +18,9 @@ namespace EndlessClient.Dialogs
             Large
         }
 
-        public bool _barber = false;
+
+        public bool EnableBarberMode = false;
+
 
         private int _index;
         private int _xOffset, _yOffset;
@@ -69,15 +71,6 @@ namespace EndlessClient.Dialogs
                 _yOffset = value;
                 DrawPosition += new Vector2(0, _yOffset - oldOff);
             }
-        }
-
-        // Placeholder for the barber
-        private int _drawingOffsetX = 0;
-
-        public int DrawingOffsetX
-        {
-            get { return _drawingOffsetX; }
-            set { _drawingOffsetX = value; }
         }
 
         public ListItemStyle Style { get; set; }
@@ -258,10 +251,12 @@ namespace EndlessClient.Dialogs
         {
             base.OnDrawControl(gameTime);
 
-            
             _spriteBatch.Begin();
-            int rectWidth = _barber ? 175 : (int) DrawAreaWithParentOffset.Width;
-            int rectX = _barber ? DrawAreaWithParentOffset.X + 5 : DrawAreaWithParentOffset.X;
+
+            int rectWidth = EnableBarberMode ? 175 : (int)DrawAreaWithParentOffset.Width;
+            int rectX = EnableBarberMode ? DrawAreaWithParentOffset.X + 5 : DrawAreaWithParentOffset.X;
+
+          
 
             if (_drawBackground)
             {

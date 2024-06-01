@@ -28,7 +28,6 @@ namespace EOLib.Domain.Interact.Bank
             set
             {
                 _accountValue = value;
-                Debug.WriteLine($"AccountValue updated to: {_accountValue}");
             }
         }
 
@@ -41,7 +40,6 @@ namespace EOLib.Domain.Interact.Bank
             set
             {
                 _lockerUpgrades = value;
-                Debug.WriteLine($"LockerUpgrades updated: {value.Match(val => val.ToString(), () => "None")}");
             }
         }
 

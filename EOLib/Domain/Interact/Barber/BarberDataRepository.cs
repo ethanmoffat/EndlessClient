@@ -1,5 +1,4 @@
 using AutomaticTypeMapper;
-using System.Diagnostics;
 
 namespace EOLib.Domain.Interact.Barber
 {
@@ -24,7 +23,6 @@ namespace EOLib.Domain.Interact.Barber
             set
             {
                 _sessionID = value;
-                Debug.WriteLine($"Barber SessionID updated to: {_sessionID}");
             }
         }
 

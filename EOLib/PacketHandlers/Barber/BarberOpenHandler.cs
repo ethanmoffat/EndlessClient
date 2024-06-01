@@ -3,7 +3,6 @@ using EOLib.Domain.Interact;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 using System.Collections.Generic;
-using System.Diagnostics;
 using EOLib.Domain.Interact.Barber;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
@@ -19,7 +18,8 @@ namespace EOLib.PacketHandlers.Barber
         public override PacketFamily Family => PacketFamily.Barber;
         public override PacketAction Action => PacketAction.Open;
 
-        public BarberOpenHandler(IPlayerInfoProvider playerInfoProvider,
+        public BarberOpenHandler(
+            IPlayerInfoProvider playerInfoProvider,
             IEnumerable<INPCInteractionNotifier> npcInteractionNotifiers,
             IBarberDataRepository barberDataRepository)
             : base(playerInfoProvider)
@@ -30,11 +30,8 @@ namespace EOLib.PacketHandlers.Barber
 
         public override bool HandlePacket(IPacket packet)
         {
-            var sessionId = packet.ReadInt(); 
+            var sessionId = packet.ReadInt();
             _barberDataRepository.SessionID = sessionId;
-
-          
-            Debug.WriteLine($"[BarberOpenHandler] SessionID set to: {sessionId}");
 
             foreach (var notifier in _npcInteractionNotifiers)
             {

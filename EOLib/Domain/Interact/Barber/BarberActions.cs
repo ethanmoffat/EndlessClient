@@ -18,7 +18,7 @@ namespace EOLib.Domain.Interact.Barber
             _barberDataRepository = barberDataRepository;
         }
 
-        public void SayHello(int hairStyle, int hairColor)
+        public void Purchase(int hairStyle, int hairColor)
         {
             var packet = new PacketBuilder(PacketFamily.Barber, PacketAction.Buy)
                 .AddChar((char)hairStyle)
@@ -32,6 +32,6 @@ namespace EOLib.Domain.Interact.Barber
 
     public interface IBarberActions
     {
-        void SayHello(int hairStyle, int hairColor);
+        void Purchase(int hairStyle, int hairColor);
     }
 }
