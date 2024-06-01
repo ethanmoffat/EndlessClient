@@ -120,6 +120,7 @@ namespace EndlessClient.GameExecution
             IsFixedTimeStep = false;
 
             TargetElapsedTime = TimeSpan.FromMilliseconds(FixedTimeStepRepository.TICK_TIME_MS);
+            InactiveSleepTime = TimeSpan.FromMilliseconds(0);
 
             _previousKeyState = Keyboard.GetState();
 
