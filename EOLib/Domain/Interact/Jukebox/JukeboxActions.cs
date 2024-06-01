@@ -1,9 +1,7 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
-using EOLib.Domain.Map;
 using EOLib.IO;
 using EOLib.IO.Repositories;
-using EOLib.Net;
 using EOLib.Net.Communication;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 using Optional.Collections;
