@@ -158,13 +158,13 @@ namespace EndlessClient.Dialogs
 
         private void HairColor(object sender, MonoGame.Extended.Input.InputListeners.MouseEventArgs e)
         {
-            UpdateHairColor(1);
+            UpdateHairColor();
         }
         private void UpdateHighlightWidth(ListDialogItem item)
         {
             item.HighlightWidthOverride = 175;
         }
-        private void UpdateHairColor(int offset)
+        private void UpdateHairColor()
         {
             var currentProperties = _characterControl.RenderProperties;
             _characterControl.NextHairColor();
