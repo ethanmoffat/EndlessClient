@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using Optional;
 
 namespace EOLib.Domain.Interact.Bank
@@ -7,41 +6,29 @@ namespace EOLib.Domain.Interact.Bank
     public interface IBankDataRepository : IResettable
     {
         int AccountValue { get; set; }
+
         int SessionID { get; set; }
+
         Option<int> LockerUpgrades { get; set; }
     }
 
     public interface IBankDataProvider : IResettable
     {
         int AccountValue { get; }
+
         int SessionID { get; }
+
         Option<int> LockerUpgrades { get; }
     }
 
     [AutoMappedType(IsSingleton = true)]
     public class BankDataRepository : IBankDataRepository, IBankDataProvider
     {
-        private int _accountValue;
-        public int AccountValue
-        {
-            get => _accountValue;
-            set
-            {
-                _accountValue = value;
-            }
-        }
+        public int AccountValue { get; set; }
 
         public int SessionID { get; set; }
 
-        private Option<int> _lockerUpgrades;
-        public Option<int> LockerUpgrades
-        {
-            get => _lockerUpgrades;
-            set
-            {
-                _lockerUpgrades = value;
-            }
-        }
+        public Option<int> LockerUpgrades { get; set; }
 
         public BankDataRepository()
         {

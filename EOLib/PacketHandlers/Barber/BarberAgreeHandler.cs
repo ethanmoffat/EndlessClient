@@ -12,7 +12,7 @@ using EOLib.Domain.Notifiers;
 namespace EOLib.PacketHandlers.Barber
 {
     [AutoMappedType]
-    public class BarberReplyHandler : InGameOnlyPacketHandler
+    public class BarberAgreeHandler : InGameOnlyPacketHandler
     {
         private readonly IBarberDataRepository _barberDataRepository;
         private readonly IEnumerable<INPCInteractionNotifier> _npcInteractionNotifiers;
@@ -23,7 +23,7 @@ namespace EOLib.PacketHandlers.Barber
         public override PacketFamily Family => PacketFamily.Barber;
         public override PacketAction Action => PacketAction.Agree;
 
-        public BarberReplyHandler(
+        public BarberAgreeHandler(
             IPlayerInfoProvider playerInfoProvider,
             IEnumerable<INPCInteractionNotifier> npcInteractionNotifiers,
             IBarberDataRepository barberDataRepository,

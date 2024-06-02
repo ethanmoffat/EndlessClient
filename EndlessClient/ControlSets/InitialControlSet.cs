@@ -159,8 +159,6 @@ namespace EndlessClient.ControlSets
         private IXNAPictureBox GetPersonPicture1()
         {
             var texture = _personSet1[_randomGen.Next(4)];
-         
-
             return new XNAPictureBox
             {
                 Texture = texture,

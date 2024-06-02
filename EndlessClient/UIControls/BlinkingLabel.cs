@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using XNAControls;
 
@@ -37,37 +36,25 @@ namespace EndlessClient.UIControls
 
         public override void Update(GameTime gameTime)
         {
-            try
+            // Ensure text is not null or empty before updating
+            if (string.IsNullOrEmpty(Text))
             {
-                if (_callbackStartTime.HasValue && (DateTime.Now - _callbackStartTime.Value).TotalMilliseconds > _callbackDueTime)
-                {
-                    _callback?.Invoke();
-                    _callbackStartTime = null;
-                }
-
-                if (BlinkRate.HasValue && (DateTime.Now - _lastToggleTime > TimeSpan.FromMilliseconds(BlinkRate.Value)))
-                {
-                    _lastToggleTime = DateTime.Now;
-                    Visible = !Visible;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Update error: {ex.Message}");
+                Text = string.Empty;
             }
 
-            try
+            if (_callbackStartTime.HasValue && (DateTime.Now - _callbackStartTime.Value).TotalMilliseconds > _callbackDueTime)
             {
-                base.Update(gameTime);
+                _callback();
+                _callbackStartTime = null;
             }
-            catch (Exception ex)
+
+            if (BlinkRate.HasValue && (DateTime.Now - _lastToggleTime).TotalMilliseconds > BlinkRate)
             {
-                Console.WriteLine($"Base Update error: {ex.Message}"); // Catching and logging base class update errors
+                _lastToggleTime = DateTime.Now;
+                Visible = !Visible;
             }
+
+            base.Update(gameTime);
         }
-
-
-
-
     }
 }

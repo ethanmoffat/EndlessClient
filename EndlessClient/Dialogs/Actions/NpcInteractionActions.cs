@@ -11,7 +11,7 @@ using EOLib.IO.Repositories;
 using EOLib.Localization;
 using System;
 using XNAControls;
-using System.Diagnostics;
+
 
 namespace EndlessClient.Dialogs.Actions
 {

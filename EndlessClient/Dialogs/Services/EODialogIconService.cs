@@ -15,38 +15,18 @@ namespace EndlessClient.Dialogs.Services
         Craft,
         BankLockerUpgrade,
 
-
-        // Barber
         BarberHairModel = 6,
         BarberChangeHairColor = 7,
         BarberOk = 8,
 
         JukeboxPlay = 8,
         Registration = 9,
-        
-        HappyPerson = 10,
-        Mechanic = 11,
-        MoneyBags = 12,
-        JoinParty = 13,
-        WalkingPerson = 14,
-        Scroll = 15,
-        SignUps = 16,
-        Winner = 17,
-        Elimination = 18,
-        RemoveMember = 19,
-        
-
 
         Learn = 20,
         Forget = 21,
         InnSleep = 22,
         SignUp = 23,
-        Unsubscribe = 24,
-        Join = 25,
-        Bob = 26,
-        Bill = 27,
-        Harry = 28
-        
+        Unsubscribe = 24
     }
 
     [AutoMappedType]

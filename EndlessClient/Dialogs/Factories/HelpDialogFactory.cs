@@ -53,11 +53,13 @@ namespace EndlessClient.Dialogs.Factories
         {
             return new[]
             {
-              
+                _localizedStringFinder.GetString(EOResourceID.ENDLESS_HELP_SUMMARY_1),
                 string.Empty,
-                
+                _localizedStringFinder.GetString(EOResourceID.ENDLESS_HELP_SUMMARY_2),
                 string.Empty,
-               
+                _localizedStringFinder.GetString(EOResourceID.ENDLESS_HELP_LINK_RESET_PASSWORD),
+                _localizedStringFinder.GetString(EOResourceID.ENDLESS_HELP_LINK_REPORT_SOMEONE),
+                _localizedStringFinder.GetString(EOResourceID.ENDLESS_HELP_LINK_SPEAK_TO_ADMIN),
             };
         }
 

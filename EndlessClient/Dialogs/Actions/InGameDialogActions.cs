@@ -12,7 +12,6 @@ using Optional;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Diagnostics;
 using XNAControls;
 
 namespace EndlessClient.Dialogs.Actions
@@ -72,8 +71,7 @@ namespace EndlessClient.Dialogs.Actions
                                    IHelpDialogFactory helpDialogFactory,
                                    ISfxPlayer sfxPlayer,
                                    IStatusLabelSetter statusLabelSetter,
-                                   IBarberDialogFactory barberDialogFactory)
-                              
+                                   IBarberDialogFactory barberDialogFactory)               
         {
             _friendIgnoreListDialogFactory = friendIgnoreListDialogFactory;
             _paperdollDialogFactory = paperdollDialogFactory;

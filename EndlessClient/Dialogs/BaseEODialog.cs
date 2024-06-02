@@ -12,8 +12,6 @@ namespace EndlessClient.Dialogs
 
         public INativeGraphicsManager GraphicsManager { get; }
 
-        public ListDialogItem.ListItemStyle ListItemType { get; set; }
-
         protected BaseEODialog(INativeGraphicsManager graphicsManager,
                                IGameStateProvider gameStateProvider)
         {

@@ -7,6 +7,7 @@ using MonoGame.Extended.Input.InputListeners;
 using System;
 using XNAControls;
 using System.Diagnostics;
+
 namespace EndlessClient.Dialogs
 {
     public class ListDialogItem : XNAControl
@@ -18,12 +19,10 @@ namespace EndlessClient.Dialogs
             Large
         }
 
-
-        public bool EnableBarberMode = false;
-
-
         private int _index;
         private int _xOffset, _yOffset;
+        private int _highlightWidthOverride = -1;
+        private int _highlightXOffset = 0;
 
         protected IXNALabel _primaryText;
         protected IXNALabel _subText;
@@ -47,10 +46,7 @@ namespace EndlessClient.Dialogs
 
         public int OffsetX
         {
-            get
-            {
-                return _xOffset;
-            }
+            get { return _xOffset; }
             set
             {
                 int oldOff = _xOffset;
@@ -61,16 +57,25 @@ namespace EndlessClient.Dialogs
 
         public int OffsetY
         {
-            get
-            {
-                return _yOffset;
-            }
+            get { return _yOffset; }
             set
             {
                 int oldOff = _yOffset;
                 _yOffset = value;
                 DrawPosition += new Vector2(0, _yOffset - oldOff);
             }
+        }
+
+        public int HighlightWidthOverride
+        {
+            get { return _highlightWidthOverride; }
+            set { _highlightWidthOverride = value; }
+        }
+
+        public int HighlightXOffset
+        {
+            get { return _highlightXOffset; }
+            set { _highlightXOffset = value; }
         }
 
         public ListItemStyle Style { get; set; }
@@ -253,15 +258,13 @@ namespace EndlessClient.Dialogs
 
             _spriteBatch.Begin();
 
-            int rectWidth = EnableBarberMode ? 175 : (int)DrawAreaWithParentOffset.Width;
-            int rectX = EnableBarberMode ? DrawAreaWithParentOffset.X + 5 : DrawAreaWithParentOffset.X;
-
-          
-
+            int rectWidth = HighlightWidthOverride > 0 ? HighlightWidthOverride : (int)DrawAreaWithParentOffset.Width;
+            
             if (_drawBackground)
             {
+                int adjustedX = DrawAreaWithParentOffset.X + HighlightXOffset;
                 _spriteBatch.Draw(_backgroundColor,
-                    new Rectangle(rectX, DrawAreaWithParentOffset.Y, rectWidth, DrawAreaWithParentOffset.Height),
+                    new Rectangle(adjustedX, DrawAreaWithParentOffset.Y, rectWidth, DrawAreaWithParentOffset.Height),
                     Color.FromNonPremultiplied(255, 255, 255, 16));
             }
 

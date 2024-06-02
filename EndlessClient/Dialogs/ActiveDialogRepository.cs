@@ -172,7 +172,6 @@ namespace EndlessClient.Dialogs
                     InnkeeperDialog.Map(Map),
                     LawDialog.Map(Map),
                     BarberDialog.Map(Map),
-                    BardDialog.Map(Map),
                     HelpDialog.Map(Map),
                 }.ToList();
 

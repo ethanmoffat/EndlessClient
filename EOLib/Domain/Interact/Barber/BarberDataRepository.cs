@@ -12,19 +12,10 @@ namespace EOLib.Domain.Interact.Barber
         int SessionID { get; }
     }
 
-
     [AutoMappedType(IsSingleton = true)]
     public class BarberDataRepository : IBarberDataRepository, IBarberDataProvider
     {
-        private int _sessionID;
-        public int SessionID
-        {
-            get => _sessionID;
-            set
-            {
-                _sessionID = value;
-            }
-        }
+        public int SessionID { get; set; }
 
         public BarberDataRepository()
         {
@@ -36,5 +27,4 @@ namespace EOLib.Domain.Interact.Barber
             SessionID = 0;
         }
     }
-
 }

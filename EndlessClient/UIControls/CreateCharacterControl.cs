@@ -10,12 +10,17 @@ namespace EndlessClient.UIControls
 {
     public class CreateCharacterControl : CharacterControl
     {
-        private Vector2 _lastPosition;
+        private Vector2 _lastPosition; 
 
-        public event EventHandler Clicked;
+        public event EventHandler Clicked; 
 
+        // default properties
         public CreateCharacterControl(ICharacterRendererFactory characterRendererFactory)
-            : base(Character.Default.WithRenderProperties(GetDefaultProperties()), characterRendererFactory)
+            : this(GetDefaultProperties(), characterRendererFactory) { }
+
+        // custom render properties
+        public CreateCharacterControl(CharacterRenderProperties renderProperties, ICharacterRendererFactory characterRendererFactory)
+            : base(Character.Default.WithRenderProperties(renderProperties), characterRendererFactory)
         {
             SetSize(99, 123);
             _lastPosition = Vector2.Zero;
@@ -72,22 +77,5 @@ namespace EndlessClient.UIControls
         {
             return new CharacterRenderProperties.Builder { HairStyle = 1 }.ToImmutable();
         }
-
-        public void UpdateRenderProperties(int hairStyle, int hairColor, int race, int gender, int armorgraphic, int weapongraphic, int bootgraphic, int shieldgraphic)
-        {
-            RenderProperties = new CharacterRenderProperties.Builder
-            {
-                HairStyle = hairStyle,
-                HairColor = hairColor,
-                Race = race,
-                Gender = gender,
-                ArmorGraphic = armorgraphic,
-                WeaponGraphic = weapongraphic,
-                BootsGraphic = bootgraphic,
-                ShieldGraphic = shieldgraphic,
-                Direction = RenderProperties.Direction,
-            }.ToImmutable();
-        }
-
     }
 }

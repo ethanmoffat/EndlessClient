@@ -11,6 +11,7 @@ using EOLib.Domain.Interact.Barber;
 using EOLib.IO.Repositories;
 using EOLib.Domain.Notifiers;
 using System.Collections.Generic;
+using EndlessClient.Audio;
 
 namespace EndlessClient.Dialogs.Factories
 {
@@ -27,7 +28,7 @@ namespace EndlessClient.Dialogs.Factories
         private readonly ICharacterInventoryProvider _characterInventoryProvider;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly IEIFFileProvider _eifFileProvider;
-        private readonly IEnumerable<ISoundNotifier> _soundNotifiers;
+        private readonly ISfxPlayer _sfxPlayer;
 
         public BarberDialogFactory(INativeGraphicsManager nativeGraphicsManager,
                                    ICharacterRendererFactory characterRendererFactory,
@@ -39,7 +40,7 @@ namespace EndlessClient.Dialogs.Factories
                                    ICharacterInventoryProvider characterInventoryProvider,
                                    IEOMessageBoxFactory messageBoxFactory,
                                    IEIFFileProvider eifFileProvider,
-                                   IEnumerable<ISoundNotifier> soundNotifiers)
+                                   ISfxPlayer sfxPlayer)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _characterRendererFactory = characterRendererFactory;
@@ -51,7 +52,7 @@ namespace EndlessClient.Dialogs.Factories
             _characterInventoryProvider = characterInventoryProvider;
             _messageBoxFactory = messageBoxFactory;
             _eifFileProvider = eifFileProvider;
-            _soundNotifiers = soundNotifiers;
+            _sfxPlayer = sfxPlayer;
         }
 
         public BarberDialog Create()
@@ -66,7 +67,7 @@ namespace EndlessClient.Dialogs.Factories
                                     _characterInventoryProvider,
                                     _messageBoxFactory,
                                     _eifFileProvider,
-                                    _soundNotifiers);
+                                    _sfxPlayer);
         }
     }
 

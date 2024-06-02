@@ -13,11 +13,14 @@ using EOLib.IO.Repositories;
 using System;
 using EOLib.Domain.Notifiers;
 using System.Collections.Generic;
-using EndlessClient.GameExecution;
+using EndlessClient.Audio;
+
 namespace EndlessClient.Dialogs
 {
     public class BarberDialog : BaseEODialog
     {
+        private const int InitialHighlightWidth = 175;
+        private const int AdjustedHighlightXOffset = 3;
         private readonly string[] _hairColorNames = { "brown", "green", "pink", "red", "blonde", "blue", "purple", "luna", "white", "black" };
         private readonly CreateCharacterControl _characterControl;
         private readonly ICharacterRepository _characterRepository;
@@ -27,9 +30,8 @@ namespace EndlessClient.Dialogs
         private readonly ICharacterInventoryProvider _characterInventoryProvider;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly IEIFFileProvider _eifFileProvider;
-        private readonly IEnumerable<ISoundNotifier> _soundNotifiers;
-        private const byte BuySellSfxId = 26;
-
+        private readonly ISfxPlayer _sfxPlayer;
+       
         private CharacterRenderProperties RenderProperties => _characterControl.RenderProperties;
         private ListDialogItem _changeHairItem, _changeHairColor, _changeBuyHairStyleOrColor;
 
@@ -43,7 +45,7 @@ namespace EndlessClient.Dialogs
                             ICharacterInventoryProvider characterInventoryProvider,
                             IEOMessageBoxFactory messageBoxFactory,
                             IEIFFileProvider eifFileProvider,
-                            IEnumerable<ISoundNotifier> soundNotifiers)
+                            ISfxPlayer sfxPlayer)
             : base(nativeGraphicsManager, isInGame: true)
         {
             _characterRepository = characterLvRepository;
@@ -53,10 +55,11 @@ namespace EndlessClient.Dialogs
             _characterInventoryProvider = characterInventoryProvider;
             _messageBoxFactory = messageBoxFactory;
             _eifFileProvider = eifFileProvider;
-            _soundNotifiers = soundNotifiers;
+            _sfxPlayer = sfxPlayer;
 
             BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 56);
-            _characterControl = new CreateCharacterControl(rendererFactory)
+            var mainCharacterRenderProperties = _characterRepository.MainCharacter.RenderProperties;
+            _characterControl = new CreateCharacterControl(mainCharacterRenderProperties, rendererFactory)
             {
                 DrawPosition = new Vector2(210, 20)
             };
@@ -68,12 +71,7 @@ namespace EndlessClient.Dialogs
 
         private void InitializeCharacterControl()
         {
-            var currentProperties = _characterRepository.MainCharacter.RenderProperties;
             _characterControl.SetParentControl(this);
-            _characterControl.UpdateRenderProperties(currentProperties.HairStyle, currentProperties.HairColor,
-                                                     currentProperties.Race, currentProperties.Gender,
-                                                     currentProperties.ArmorGraphic, currentProperties.WeaponGraphic,
-                                                     currentProperties.BootsGraphic, currentProperties.ShieldGraphic);
         }
 
         private void InitializeDialogItems(IEODialogButtonService dialogButtonService)
@@ -89,11 +87,10 @@ namespace EndlessClient.Dialogs
             base.Initialize();
             _characterControl.Initialize();
             UpdateListItems(_characterRepository.MainCharacter.RenderProperties);
-
         }
-        public override void Update(GameTime gameTime)
-        {
 
+        public void Update(GameTime gameTime)
+        {
             base.Update(gameTime);
         }
 
@@ -102,6 +99,12 @@ namespace EndlessClient.Dialogs
             _changeHairItem = CreateListDialogItem(DialogIcon.BarberHairModel, 25, Hair);
             _changeHairColor = CreateListDialogItem(DialogIcon.BarberChangeHairColor, 60, HairColor);
             _changeBuyHairStyleOrColor = CreateListDialogItem(DialogIcon.BarberOk, 95, BuyHairStyleOrColor);
+            _changeHairItem.HighlightWidthOverride = InitialHighlightWidth;
+            _changeHairColor.HighlightWidthOverride = InitialHighlightWidth;
+            _changeBuyHairStyleOrColor.HighlightWidthOverride = InitialHighlightWidth;
+            _changeHairItem.HighlightXOffset = AdjustedHighlightXOffset;
+            _changeHairColor.HighlightXOffset = AdjustedHighlightXOffset;
+            _changeBuyHairStyleOrColor.HighlightXOffset = AdjustedHighlightXOffset;
         }
 
         private ListDialogItem CreateListDialogItem(DialogIcon icon, int offsetY, EventHandler<MonoGame.Extended.Input.InputListeners.MouseEventArgs> clickHandler)
@@ -112,7 +115,6 @@ namespace EndlessClient.Dialogs
                 IconGraphic = _dialogIconService.IconSheet,
                 IconGraphicSource = _dialogIconService.GetDialogIconSource(icon),
                 ShowIconBackGround = false,
-                EnableBarberMode = true,
             };
             item.LeftClick += clickHandler;
             return item;
@@ -150,29 +152,25 @@ namespace EndlessClient.Dialogs
             return 200 + Math.Max(level - 1, 0) * 200;
         }
 
-        private void Hair(object sender, MonoGame.Extended.Input.InputListeners.MouseEventArgs e) => UpdateHairStyle(1);
-        private void HairColor(object sender, MonoGame.Extended.Input.InputListeners.MouseEventArgs e) => UpdateHairColor(1);
-
-        private void UpdateHairStyle(int offset)
+        private void Hair(object sender, MonoGame.Extended.Input.InputListeners.MouseEventArgs e)
         {
-            var currentProperties = _characterControl.RenderProperties;
-            var newHairStyle = (currentProperties.HairStyle + offset) % 21;
-            _characterControl.UpdateRenderProperties(newHairStyle, currentProperties.HairColor,
-                                                     currentProperties.Race, currentProperties.Gender,
-                                                     currentProperties.ArmorGraphic, currentProperties.WeaponGraphic,
-                                                     currentProperties.BootsGraphic, currentProperties.ShieldGraphic);
-            _changeHairItem.SubText = GetCurrentHairStyleText(newHairStyle);
+            _characterControl.NextHairStyle();
+            _changeHairItem.SubText = GetCurrentHairStyleText(_characterControl.RenderProperties.HairStyle);
         }
 
+        private void HairColor(object sender, MonoGame.Extended.Input.InputListeners.MouseEventArgs e)
+        {
+            UpdateHairColor(1);
+        }
+        private void UpdateHighlightWidth(ListDialogItem item)
+        {
+            item.HighlightWidthOverride = 175;
+        }
         private void UpdateHairColor(int offset)
         {
             var currentProperties = _characterControl.RenderProperties;
-            var newHairColor = (currentProperties.HairColor + offset) % _hairColorNames.Length;
-            _characterControl.UpdateRenderProperties(currentProperties.HairStyle, newHairColor,
-                                                     currentProperties.Race, currentProperties.Gender,
-                                                     currentProperties.ArmorGraphic, currentProperties.WeaponGraphic,
-                                                     currentProperties.BootsGraphic, currentProperties.ShieldGraphic);
-            _changeHairColor.SubText = GetCurrentHairColorText(newHairColor);
+            _characterControl.NextHairColor();
+            _changeHairColor.SubText = GetCurrentHairColorText(_characterControl.RenderProperties.HairColor);
         }
 
         private void BuyHairStyleOrColor(object sender, MonoGame.Extended.Input.InputListeners.MouseEventArgs e) => PurchaseHairStyleOrColor(_characterControl.RenderProperties.HairStyle, _characterControl.RenderProperties.HairColor);
@@ -205,8 +203,7 @@ namespace EndlessClient.Dialogs
                 if (e.Result == XNADialogResult.OK)
                 {
                     _barberActions.Purchase(hairStyle, hairColor);
-                    foreach (var notifier in _soundNotifiers)
-                        notifier.NotifySoundEffect(BuySellSfxId);
+                    _sfxPlayer.PlaySfx(SoundEffectID.BuySell);
                 }
             };
 
@@ -218,6 +215,5 @@ namespace EndlessClient.Dialogs
             var msgBox = _messageBoxFactory.CreateMessageBox(DialogResourceID.WARNING_YOU_HAVE_NOT_ENOUGH, $" {_eifFileProvider.EIFFile[1].Name}");
             msgBox.ShowDialog();
         }
-
     }
 }

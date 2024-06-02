@@ -17,7 +17,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-
 namespace EndlessClient.Rendering.Character
 {
     public class CharacterAnimator : GameComponent, ICharacterAnimator
@@ -61,7 +60,7 @@ namespace EndlessClient.Rendering.Character
                                  IPathFinder pathFinder,
                                  IFixedTimeStepRepository fixedTimeStepRepository,
                                  IMetadataProvider<WeaponMetadata> weaponMetadataProvider)
-            : base((Game) gameProvider.Game)
+            : base((Game)gameProvider.Game)
         {
             _characterRepository = characterRepository;
             _currentMapStateRepository = currentMapStateRepository;
@@ -104,8 +103,6 @@ namespace EndlessClient.Rendering.Character
                 return;
             }
 
-
-
             var renderProperties = _characterRepository.MainCharacter.RenderProperties.WithDirection(direction);
             var newMainCharacter = _characterRepository.MainCharacter.WithRenderProperties(renderProperties);
             _characterRepository.MainCharacter = newMainCharacter;
@@ -134,7 +131,7 @@ namespace EndlessClient.Rendering.Character
                         rp = FaceTarget(characterCoord, _walkPath.Peek(), rp);
                         _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithRenderProperties(rp);
                     }
-                    
+
                     doTheWalk();
                 },
                 none: doTheWalk);
