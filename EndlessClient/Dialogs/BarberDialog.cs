@@ -11,8 +11,6 @@ using EndlessClient.Dialogs.Factories;
 using Optional.Collections;
 using EOLib.IO.Repositories;
 using System;
-using EOLib.Domain.Notifiers;
-using System.Collections.Generic;
 using EndlessClient.Audio;
 
 namespace EndlessClient.Dialogs
@@ -61,7 +59,7 @@ namespace EndlessClient.Dialogs
             var mainCharacterRenderProperties = _characterRepository.MainCharacter.RenderProperties;
             _characterControl = new CreateCharacterControl(mainCharacterRenderProperties, rendererFactory)
             {
-                DrawPosition = new Vector2(210, 20)
+                DrawPosition = new Vector2(210, 19)
             };
 
             InitializeCharacterControl();
