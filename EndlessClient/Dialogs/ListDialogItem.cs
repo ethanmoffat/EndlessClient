@@ -6,6 +6,7 @@ using MonoGame.Extended.Input;
 using MonoGame.Extended.Input.InputListeners;
 using System;
 using XNAControls;
+using System.Diagnostics;
 
 namespace EndlessClient.Dialogs
 {
@@ -20,6 +21,8 @@ namespace EndlessClient.Dialogs
 
         private int _index;
         private int _xOffset, _yOffset;
+        private int _highlightWidthOverride = -1;
+        private int _highlightXOffset = 0;
 
         protected IXNALabel _primaryText;
         protected IXNALabel _subText;
@@ -43,10 +46,7 @@ namespace EndlessClient.Dialogs
 
         public int OffsetX
         {
-            get
-            {
-                return _xOffset;
-            }
+            get { return _xOffset; }
             set
             {
                 int oldOff = _xOffset;
@@ -57,10 +57,7 @@ namespace EndlessClient.Dialogs
 
         public int OffsetY
         {
-            get
-            {
-                return _yOffset;
-            }
+            get { return _yOffset; }
             set
             {
                 int oldOff = _yOffset;
@@ -69,6 +66,13 @@ namespace EndlessClient.Dialogs
             }
         }
 
+        public int HighlightWidthOverride
+        {
+            get { return _highlightWidthOverride; }
+            set { _highlightWidthOverride = value; }
+        }
+
+       
         public ListItemStyle Style { get; set; }
 
         public string PrimaryText
@@ -248,9 +252,15 @@ namespace EndlessClient.Dialogs
             base.OnDrawControl(gameTime);
 
             _spriteBatch.Begin();
+
+            int rectWidth = HighlightWidthOverride > 0 ? HighlightWidthOverride : (int)DrawAreaWithParentOffset.Width;
+            
             if (_drawBackground)
             {
-                _spriteBatch.Draw(_backgroundColor, DrawAreaWithParentOffset, Color.FromNonPremultiplied(255, 255, 255, 16));
+                int adjustedX = DrawAreaWithParentOffset.X + OffsetX;
+                _spriteBatch.Draw(_backgroundColor,
+                    new Rectangle(adjustedX, DrawAreaWithParentOffset.Y, rectWidth, DrawAreaWithParentOffset.Height),
+                    Color.FromNonPremultiplied(255, 255, 255, 16));
             }
 
             if (Style == ListItemStyle.Large)

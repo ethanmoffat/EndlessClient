@@ -12,6 +12,7 @@ using EOLib.Localization;
 using System;
 using XNAControls;
 
+
 namespace EndlessClient.Dialogs.Actions
 {
     [AutoMappedType]
@@ -58,6 +59,7 @@ namespace EndlessClient.Dialogs.Actions
                 case NPCType.Skills: _inGameDialogActions.ShowSkillmasterDialog(); break;
                 case NPCType.Inn: _inGameDialogActions.ShowInnkeeperDialog(); break;
                 case NPCType.Law: _inGameDialogActions.ShowLawDialog(); break;
+                case NPCType.Barber: _inGameDialogActions.ShowBarberDialog(); break;
                 case NPCType.Priest: ShowPriestDialog(); break;
             }
         }

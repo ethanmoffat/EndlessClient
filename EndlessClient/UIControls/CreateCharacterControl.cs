@@ -14,8 +14,13 @@ namespace EndlessClient.UIControls
 
         public event EventHandler Clicked;
 
+        // default properties
         public CreateCharacterControl(ICharacterRendererFactory characterRendererFactory)
-            : base(Character.Default.WithRenderProperties(GetDefaultProperties()), characterRendererFactory)
+            : this(GetDefaultProperties(), characterRendererFactory) { }
+
+        // custom render properties
+        public CreateCharacterControl(CharacterRenderProperties renderProperties, ICharacterRendererFactory characterRendererFactory)
+            : base(Character.Default.WithRenderProperties(renderProperties.WithDirection(EODirection.Down)), characterRendererFactory)
         {
             SetSize(99, 123);
             _lastPosition = Vector2.Zero;
@@ -70,7 +75,7 @@ namespace EndlessClient.UIControls
 
         private static CharacterRenderProperties GetDefaultProperties()
         {
-            return new CharacterRenderProperties.Builder { HairStyle = 1 }.ToImmutable();
+            return new CharacterRenderProperties.Builder { HairStyle = 0 }.ToImmutable();
         }
     }
 }

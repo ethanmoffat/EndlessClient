@@ -15,6 +15,10 @@ namespace EndlessClient.Dialogs.Services
         Craft,
         BankLockerUpgrade,
 
+        BarberHairModel = 6,
+        BarberChangeHairColor = 7,
+        BarberOk = 8,
+
         JukeboxPlay = 8,
         Registration = 9,
 
