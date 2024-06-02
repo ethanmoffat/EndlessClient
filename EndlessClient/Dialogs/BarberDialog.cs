@@ -100,9 +100,9 @@ namespace EndlessClient.Dialogs
             _changeHairItem.HighlightWidthOverride = InitialHighlightWidth;
             _changeHairColor.HighlightWidthOverride = InitialHighlightWidth;
             _changeBuyHairStyleOrColor.HighlightWidthOverride = InitialHighlightWidth;
-            _changeHairItem.HighlightXOffset = AdjustedHighlightXOffset;
-            _changeHairColor.HighlightXOffset = AdjustedHighlightXOffset;
-            _changeBuyHairStyleOrColor.HighlightXOffset = AdjustedHighlightXOffset;
+            _changeHairItem.OffsetX = AdjustedHighlightXOffset;
+            _changeHairColor.OffsetX = AdjustedHighlightXOffset;
+            _changeBuyHairStyleOrColor.OffsetX = AdjustedHighlightXOffset;
         }
 
         private ListDialogItem CreateListDialogItem(DialogIcon icon, int offsetY, EventHandler<MonoGame.Extended.Input.InputListeners.MouseEventArgs> clickHandler)

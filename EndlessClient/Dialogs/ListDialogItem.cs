@@ -72,12 +72,7 @@ namespace EndlessClient.Dialogs
             set { _highlightWidthOverride = value; }
         }
 
-        public int HighlightXOffset
-        {
-            get { return _highlightXOffset; }
-            set { _highlightXOffset = value; }
-        }
-
+       
         public ListItemStyle Style { get; set; }
 
         public string PrimaryText
@@ -262,7 +257,7 @@ namespace EndlessClient.Dialogs
             
             if (_drawBackground)
             {
-                int adjustedX = DrawAreaWithParentOffset.X + HighlightXOffset;
+                int adjustedX = DrawAreaWithParentOffset.X + OffsetX;
                 _spriteBatch.Draw(_backgroundColor,
                     new Rectangle(adjustedX, DrawAreaWithParentOffset.Y, rectWidth, DrawAreaWithParentOffset.Height),
                     Color.FromNonPremultiplied(255, 255, 255, 16));
