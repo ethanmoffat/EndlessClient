@@ -6,7 +6,6 @@ using MonoGame.Extended.Input;
 using MonoGame.Extended.Input.InputListeners;
 using System;
 using XNAControls;
-using System.Diagnostics;
 
 namespace EndlessClient.Dialogs
 {
@@ -21,9 +20,7 @@ namespace EndlessClient.Dialogs
 
         private int _index;
         private int _xOffset, _yOffset;
-        private int _highlightWidthOverride = -1;
-        private int _highlightXOffset = 0;
-
+        
         protected IXNALabel _primaryText;
         protected IXNALabel _subText;
 
@@ -66,13 +63,8 @@ namespace EndlessClient.Dialogs
             }
         }
 
-        public int HighlightWidthOverride
-        {
-            get { return _highlightWidthOverride; }
-            set { _highlightWidthOverride = value; }
-        }
+        public int? HighlightWidthOverride { get; set; }
 
-       
         public ListItemStyle Style { get; set; }
 
         public string PrimaryText
@@ -253,8 +245,8 @@ namespace EndlessClient.Dialogs
 
             _spriteBatch.Begin();
 
-            int rectWidth = HighlightWidthOverride > 0 ? HighlightWidthOverride : (int)DrawAreaWithParentOffset.Width;
-            
+            int rectWidth = HighlightWidthOverride.HasValue ? HighlightWidthOverride.Value : (int)DrawAreaWithParentOffset.Width;
+
             if (_drawBackground)
             {
                 int adjustedX = DrawAreaWithParentOffset.X + OffsetX;
@@ -282,16 +274,23 @@ namespace EndlessClient.Dialogs
 
         protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
         {
-            if (eventArgs.Button == MouseButton.Left)
+            int rectWidth = HighlightWidthOverride ?? (int)DrawAreaWithParentOffset.Width;
+            Rectangle highlightRect = new Rectangle((int)DrawPositionWithParentOffset.X, (int)DrawPositionWithParentOffset.Y, rectWidth, (int)DrawAreaWithParentOffset.Height);
+
+            if (highlightRect.Contains(eventArgs.Position))
             {
-                LeftClick?.Invoke(this, eventArgs);
-            }
-            else if (eventArgs.Button == MouseButton.Right)
-            {
-                RightClick?.Invoke(this, eventArgs);
+                if (eventArgs.Button == MouseButton.Left)
+                {
+                    LeftClick?.Invoke(this, eventArgs);
+                }
+                else if (eventArgs.Button == MouseButton.Right)
+                {
+                    RightClick?.Invoke(this, eventArgs);
+                }
+                return true;
             }
 
-            return true;
+            return false;
         }
 
         private static Vector2 GetCoordsFromGraphic(Rectangle sourceTextureArea)

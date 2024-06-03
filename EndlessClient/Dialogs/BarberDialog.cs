@@ -3,6 +3,8 @@ using EOLib.Graphics;
 using EndlessClient.UIControls;
 using EndlessClient.Rendering.Factories;
 using Microsoft.Xna.Framework;
+using MonoGame.Extended.Input.InputListeners;
+using System;
 using XNAControls;
 using EOLib.Domain.Character;
 using EOLib.Localization;
@@ -10,7 +12,6 @@ using EOLib.Domain.Interact.Barber;
 using EndlessClient.Dialogs.Factories;
 using Optional.Collections;
 using EOLib.IO.Repositories;
-using System;
 using EndlessClient.Audio;
 
 namespace EndlessClient.Dialogs
@@ -29,7 +30,7 @@ namespace EndlessClient.Dialogs
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly IEIFFileProvider _eifFileProvider;
         private readonly ISfxPlayer _sfxPlayer;
-       
+
         private CharacterRenderProperties RenderProperties => _characterControl.RenderProperties;
         private ListDialogItem _changeHairItem, _changeHairColor, _changeBuyHairStyleOrColor;
 
@@ -59,8 +60,16 @@ namespace EndlessClient.Dialogs
             var mainCharacterRenderProperties = _characterRepository.MainCharacter.RenderProperties;
             _characterControl = new CreateCharacterControl(mainCharacterRenderProperties, rendererFactory)
             {
-                DrawPosition = new Vector2(210, 19)
+                DrawPosition = new Vector2(210, 19),
+           
             };
+
+            var characterBounds = new Rectangle(
+                (int)_characterControl.DrawPositionWithParentOffset.X,
+                (int)_characterControl.DrawPositionWithParentOffset.Y,
+                (int)(_characterControl.DrawArea.Width),
+                (int)_characterControl.DrawArea.Height
+            );
 
             InitializeCharacterControl();
             InitializeDialogItems(dialogButtonService);
@@ -74,7 +83,7 @@ namespace EndlessClient.Dialogs
 
         private void InitializeDialogItems(IEODialogButtonService dialogButtonService)
         {
-            var cancel = CreateButton(dialogButtonService, new Vector2(215, 150), SmallButton.Cancel);
+            var cancel = CreateButton(dialogButtonService, new Vector2(215, 151), SmallButton.Cancel);
             cancel.OnClick += (_, _) => Close(XNADialogResult.Cancel);
 
             CreateListItems();
@@ -87,16 +96,11 @@ namespace EndlessClient.Dialogs
             UpdateListItems(_characterRepository.MainCharacter.RenderProperties);
         }
 
-        public void Update(GameTime gameTime)
-        {
-            base.Update(gameTime);
-        }
-
         private void CreateListItems()
         {
-            _changeHairItem = CreateListDialogItem(DialogIcon.BarberHairModel, 25, Hair);
-            _changeHairColor = CreateListDialogItem(DialogIcon.BarberChangeHairColor, 60, HairColor);
-            _changeBuyHairStyleOrColor = CreateListDialogItem(DialogIcon.BarberOk, 95, BuyHairStyleOrColor);
+            _changeHairItem = CreateListDialogItem(DialogIcon.BarberHairModel, 25, ChangeHairStyle_Click);
+            _changeHairColor = CreateListDialogItem(DialogIcon.BarberChangeHairColor, 60, ChangeHairColor_Click);
+            _changeBuyHairStyleOrColor = CreateListDialogItem(DialogIcon.BarberOk, 95, BuyHair_Click);
             _changeHairItem.HighlightWidthOverride = InitialHighlightWidth;
             _changeHairColor.HighlightWidthOverride = InitialHighlightWidth;
             _changeBuyHairStyleOrColor.HighlightWidthOverride = InitialHighlightWidth;
@@ -150,31 +154,24 @@ namespace EndlessClient.Dialogs
             return 200 + Math.Max(level - 1, 0) * 200;
         }
 
-        private void Hair(object sender, MonoGame.Extended.Input.InputListeners.MouseEventArgs e)
+        private void ChangeHairStyle_Click(object sender, MonoGame.Extended.Input.InputListeners.MouseEventArgs e)
         {
             _characterControl.NextHairStyle();
             _changeHairItem.SubText = GetCurrentHairStyleText(_characterControl.RenderProperties.HairStyle);
         }
 
-        private void HairColor(object sender, MonoGame.Extended.Input.InputListeners.MouseEventArgs e)
-        {
-            UpdateHairColor();
-        }
-        private void UpdateHighlightWidth(ListDialogItem item)
-        {
-            item.HighlightWidthOverride = 175;
-        }
-        private void UpdateHairColor()
+        private void ChangeHairColor_Click(object sender, MonoGame.Extended.Input.InputListeners.MouseEventArgs e)
         {
             var currentProperties = _characterControl.RenderProperties;
             _characterControl.NextHairColor();
             _changeHairColor.SubText = GetCurrentHairColorText(_characterControl.RenderProperties.HairColor);
         }
 
-        private void BuyHairStyleOrColor(object sender, MonoGame.Extended.Input.InputListeners.MouseEventArgs e) => PurchaseHairStyleOrColor(_characterControl.RenderProperties.HairStyle, _characterControl.RenderProperties.HairColor);
-
-        private void PurchaseHairStyleOrColor(int hairStyle, int hairColor)
+        private void BuyHair_Click(object sender, MonoGame.Extended.Input.InputListeners.MouseEventArgs e)
         {
+            int hairStyle = _characterControl.RenderProperties.HairStyle;
+            int hairColor = _characterControl.RenderProperties.HairColor;
+
             int totalCost = CalculateCost();
             int currentGold = _characterInventoryProvider.ItemInventory.SingleOrNone(i => i.ItemID == 1)
                                          .Map(i => i.Amount)
@@ -182,36 +179,43 @@ namespace EndlessClient.Dialogs
 
             if (currentGold >= totalCost)
             {
-                ShowConfirmationDialog(hairStyle, hairColor, totalCost);
+                var message = $"{_localizedStringFinder.GetString(EOResourceID.DIALOG_BARBER_DO_YOU_WANT_TO_BUY_A_NEW_HAIRSTYLE)}, {totalCost} {_eifFileProvider.EIFFile[1].Name}";
+                var title = _localizedStringFinder.GetString(EOResourceID.DIALOG_BARBER_BUY_HAIRSTYLE);
+                var msgBox = _messageBoxFactory.CreateMessageBox(message, title, EODialogButtons.OkCancel);
+
+                msgBox.DialogClosing += (_, e) =>
+                {
+                    if (e.Result == XNADialogResult.OK)
+                    {
+                        _barberActions.Purchase(hairStyle, hairColor);
+                        _sfxPlayer.PlaySfx(SoundEffectID.BuySell);
+                    }
+                };
+
+                msgBox.ShowDialog();
             }
             else
             {
-                ShowInsufficientFundsDialog();
+                var msgBox = _messageBoxFactory.CreateMessageBox(DialogResourceID.WARNING_YOU_HAVE_NOT_ENOUGH, $" {_eifFileProvider.EIFFile[1].Name}");
+                msgBox.ShowDialog();
             }
         }
-
-        private void ShowConfirmationDialog(int hairStyle, int hairColor, int cost)
+        // Possibly a better way than this?
+        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
         {
-            var message = $"{_localizedStringFinder.GetString(EOResourceID.DIALOG_BARBER_DO_YOU_WANT_TO_BUY_A_NEW_HAIRSTYLE)}, {cost} {_eifFileProvider.EIFFile[1].Name}";
-            var title = _localizedStringFinder.GetString(EOResourceID.DIALOG_BARBER_BUY_HAIRSTYLE);
-            var msgBox = _messageBoxFactory.CreateMessageBox(message, title, EODialogButtons.OkCancel);
+            var characterBounds = new Rectangle(
+                (int)_characterControl.DrawPositionWithParentOffset.X,
+                (int)_characterControl.DrawPositionWithParentOffset.Y,
+                (int)(_characterControl.DrawArea.Width),
+                (int)_characterControl.DrawArea.Height
+            );
 
-            msgBox.DialogClosing += (_, e) =>
-            {
-                if (e.Result == XNADialogResult.OK)
-                {
-                    _barberActions.Purchase(hairStyle, hairColor);
-                    _sfxPlayer.PlaySfx(SoundEffectID.BuySell);
-                }
-            };
+            if (!characterBounds.Contains(eventArgs.Position))
+                return base.HandleClick(control, eventArgs);
 
-            msgBox.ShowDialog();
-        }
+            _characterControl.NextDirection();
 
-        private void ShowInsufficientFundsDialog()
-        {
-            var msgBox = _messageBoxFactory.CreateMessageBox(DialogResourceID.WARNING_YOU_HAVE_NOT_ENOUGH, $" {_eifFileProvider.EIFFile[1].Name}");
-            msgBox.ShowDialog();
+            return base.HandleClick(control, eventArgs);
         }
     }
 }

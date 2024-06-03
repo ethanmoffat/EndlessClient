@@ -1,16 +1,17 @@
-﻿using EndlessClient.Rendering.Factories;
-using EOLib;
-using EOLib.Domain.Character;
+﻿using System;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended.Input.InputListeners;
-using System;
 using XNAControls;
+using EndlessClient.Rendering.Factories;
+using EOLib;
+using EOLib.Domain.Character;
 
 namespace EndlessClient.UIControls
 {
     public class CreateCharacterControl : CharacterControl
     {
         private Vector2 _lastPosition;
+        
 
         public event EventHandler Clicked;
 
@@ -73,9 +74,16 @@ namespace EndlessClient.UIControls
             RenderProperties = RenderProperties.WithHairColor((RenderProperties.HairColor + 1) % 10);
         }
 
+        public void NextDirection()
+        {
+            var nextDirectionInt = (int)RenderProperties.Direction + 1;
+            var nextDirection = (EODirection)(nextDirectionInt % 4);
+            RenderProperties = RenderProperties.WithDirection(nextDirection);
+        }
+
         private static CharacterRenderProperties GetDefaultProperties()
         {
-            return new CharacterRenderProperties.Builder { HairStyle = 0 }.ToImmutable();
+            return new CharacterRenderProperties.Builder { HairStyle = 1 }.ToImmutable();
         }
     }
 }
