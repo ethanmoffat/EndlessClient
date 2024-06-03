@@ -79,7 +79,7 @@ namespace EndlessClient.Test
             foreach (var displayState in _allDisplayStates)
             {
                 var props = GetRenderPropertiesForState(displayState);
-                _renderersForDifferentStates.Add(_characterRendererFactory.CreateCharacterRenderer(Character.Default.WithRenderProperties(props)));
+                _renderersForDifferentStates.Add(_characterRendererFactory.CreateCharacterRenderer(Character.Default.WithRenderProperties(props), isUiControl: false));
                 _renderersForDifferentStates.OfType<DrawableGameComponent>().Last().DrawOrder = 10;
             }
 
