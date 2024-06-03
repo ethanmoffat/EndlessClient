@@ -177,7 +177,7 @@ namespace EndlessClient.Rendering.Character
 
         private ICharacterRenderer InitializeRendererForCharacter(EOLib.Domain.Character.Character character)
         {
-            var renderer = _characterRendererFactory.CreateCharacterRenderer(character);
+            var renderer = _characterRendererFactory.CreateCharacterRenderer(character, isUiControl: false);
             renderer.Initialize();
             return renderer;
         }

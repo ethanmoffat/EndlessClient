@@ -25,7 +25,6 @@ namespace EndlessClient.Rendering.Factories
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
         private readonly ICharacterPropertyRendererBuilder _characterPropertyRendererBuilder;
         private readonly ICharacterTextures _characterTextures;
-        private readonly IGameStateProvider _gameStateProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IUserInputProvider _userInputProvider;
         private readonly IEffectRendererFactory _effectRendererFactory;
@@ -42,7 +41,6 @@ namespace EndlessClient.Rendering.Factories
                                         IRenderOffsetCalculator renderOffsetCalculator,
                                         ICharacterPropertyRendererBuilder characterPropertyRendererBuilder,
                                         ICharacterTextures characterTextures,
-                                        IGameStateProvider gameStateProvider,
                                         ICurrentMapProvider currentMapProvider,
                                         IUserInputProvider userInputProvider,
                                         IEffectRendererFactory effectRendererFactory,
@@ -59,7 +57,6 @@ namespace EndlessClient.Rendering.Factories
             _renderOffsetCalculator = renderOffsetCalculator;
             _characterPropertyRendererBuilder = characterPropertyRendererBuilder;
             _characterTextures = characterTextures;
-            _gameStateProvider = gameStateProvider;
             _currentMapProvider = currentMapProvider;
             _userInputProvider = userInputProvider;
             _effectRendererFactory = effectRendererFactory;
@@ -69,7 +66,7 @@ namespace EndlessClient.Rendering.Factories
             _clientWindowSizeRepository = clientWindowSizeRepository;
         }
 
-        public ICharacterRenderer CreateCharacterRenderer(EOLib.Domain.Character.Character character)
+        public ICharacterRenderer CreateCharacterRenderer(EOLib.Domain.Character.Character character, bool isUiControl)
         {
             return new CharacterRenderer(
                 (Game) _gameProvider.Game,
@@ -80,15 +77,15 @@ namespace EndlessClient.Rendering.Factories
                 _renderOffsetCalculator,
                 _characterPropertyRendererBuilder,
                 _characterTextures,
-                character,
-                _gameStateProvider,
                 _currentMapProvider,
                 _userInputProvider,
                 _effectRendererFactory,
                 _hatMetadataProvider,
                 _weaponMetadataProvider,
                 _sfxPlayer,
-                _clientWindowSizeRepository);
+                _clientWindowSizeRepository,
+                character,
+                isUiControl);
         }
     }
 }
