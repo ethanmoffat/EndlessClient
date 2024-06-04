@@ -63,7 +63,7 @@ namespace EndlessClient.Dialogs
             }
         }
 
-        public int? HighlightWidthOverride { get; set; }
+        public int? WidthOverride { get; set; }
 
         public ListItemStyle Style { get; set; }
 
@@ -107,6 +107,11 @@ namespace EndlessClient.Dialogs
         public event EventHandler<MouseEventArgs> RightClick;
         public event EventHandler<MouseEventArgs> LeftClick;
 
+        public void SetItemSize(int width, int height)
+        {
+            SetSize(width, height);
+        }
+
         public ListDialogItem(BaseEODialog parent, ListItemStyle style, int listIndex = -1)
         {
             _parentDialog = parent;
@@ -118,7 +123,7 @@ namespace EndlessClient.Dialogs
                 Index = listIndex;
 
             SetSize(232, Style == ListItemStyle.Large ? 36 : 13);
-
+       
             int colorFactor = Style == ListItemStyle.Large ? 0xc8 : 0xb4;
 
             _primaryText = new XNALabel(Constants.FontSize08pt5)
@@ -244,15 +249,9 @@ namespace EndlessClient.Dialogs
             base.OnDrawControl(gameTime);
 
             _spriteBatch.Begin();
-
-            int rectWidth = HighlightWidthOverride.HasValue ? HighlightWidthOverride.Value : (int)DrawAreaWithParentOffset.Width;
-
             if (_drawBackground)
             {
-                int adjustedX = DrawAreaWithParentOffset.X + OffsetX;
-                _spriteBatch.Draw(_backgroundColor,
-                    new Rectangle(adjustedX, DrawAreaWithParentOffset.Y, rectWidth, DrawAreaWithParentOffset.Height),
-                    Color.FromNonPremultiplied(255, 255, 255, 16));
+                _spriteBatch.Draw(_backgroundColor, DrawAreaWithParentOffset, Color.FromNonPremultiplied(255, 255, 255, 16));
             }
 
             if (Style == ListItemStyle.Large)
@@ -274,23 +273,16 @@ namespace EndlessClient.Dialogs
 
         protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
         {
-            int rectWidth = HighlightWidthOverride ?? (int)DrawAreaWithParentOffset.Width;
-            Rectangle highlightRect = new Rectangle((int)DrawPositionWithParentOffset.X, (int)DrawPositionWithParentOffset.Y, rectWidth, (int)DrawAreaWithParentOffset.Height);
-
-            if (highlightRect.Contains(eventArgs.Position))
+            if (eventArgs.Button == MouseButton.Left)
             {
-                if (eventArgs.Button == MouseButton.Left)
-                {
-                    LeftClick?.Invoke(this, eventArgs);
-                }
-                else if (eventArgs.Button == MouseButton.Right)
-                {
-                    RightClick?.Invoke(this, eventArgs);
-                }
-                return true;
+                LeftClick?.Invoke(this, eventArgs);
+            }
+            else if (eventArgs.Button == MouseButton.Right)
+            {
+                RightClick?.Invoke(this, eventArgs);
             }
 
-            return false;
+            return true;
         }
 
         private static Vector2 GetCoordsFromGraphic(Rectangle sourceTextureArea)

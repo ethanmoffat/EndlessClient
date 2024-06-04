@@ -1,10 +1,9 @@
+using System;
 using EndlessClient.Dialogs.Services;
 using EOLib.Graphics;
 using EndlessClient.UIControls;
 using EndlessClient.Rendering.Factories;
 using Microsoft.Xna.Framework;
-using MonoGame.Extended.Input.InputListeners;
-using System;
 using XNAControls;
 using EOLib.Domain.Character;
 using EOLib.Localization;
@@ -18,7 +17,7 @@ namespace EndlessClient.Dialogs
 {
     public class BarberDialog : BaseEODialog
     {
-        private const int InitialHighlightWidth = 175;
+        private const int AdjustedWidth = 175;
         private const int AdjustedHighlightXOffset = 3;
         private readonly string[] _hairColorNames = { "brown", "green", "pink", "red", "blonde", "blue", "purple", "luna", "white", "black" };
         private readonly CreateCharacterControl _characterControl;
@@ -57,19 +56,12 @@ namespace EndlessClient.Dialogs
             _sfxPlayer = sfxPlayer;
 
             BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 56);
+
             var mainCharacterRenderProperties = _characterRepository.MainCharacter.RenderProperties;
             _characterControl = new CreateCharacterControl(mainCharacterRenderProperties, rendererFactory)
             {
                 DrawPosition = new Vector2(210, 19),
-           
             };
-
-            var characterBounds = new Rectangle(
-                (int)_characterControl.DrawPositionWithParentOffset.X,
-                (int)_characterControl.DrawPositionWithParentOffset.Y,
-                (int)(_characterControl.DrawArea.Width),
-                (int)_characterControl.DrawArea.Height
-            );
 
             InitializeCharacterControl();
             InitializeDialogItems(dialogButtonService);
@@ -101,12 +93,25 @@ namespace EndlessClient.Dialogs
             _changeHairItem = CreateListDialogItem(DialogIcon.BarberHairModel, 25, ChangeHairStyle_Click);
             _changeHairColor = CreateListDialogItem(DialogIcon.BarberChangeHairColor, 60, ChangeHairColor_Click);
             _changeBuyHairStyleOrColor = CreateListDialogItem(DialogIcon.BarberOk, 95, BuyHair_Click);
-            _changeHairItem.HighlightWidthOverride = InitialHighlightWidth;
-            _changeHairColor.HighlightWidthOverride = InitialHighlightWidth;
-            _changeBuyHairStyleOrColor.HighlightWidthOverride = InitialHighlightWidth;
-            _changeHairItem.OffsetX = AdjustedHighlightXOffset;
-            _changeHairColor.OffsetX = AdjustedHighlightXOffset;
-            _changeBuyHairStyleOrColor.OffsetX = AdjustedHighlightXOffset;
+
+            ApplyWidthOverride(_changeHairItem);
+            ApplyWidthOverride(_changeHairColor);
+            ApplyWidthOverride(_changeBuyHairStyleOrColor);
+
+            ApplyHighlightOffsetXOverride(_changeHairItem);
+            ApplyHighlightOffsetXOverride(_changeHairColor);
+            ApplyHighlightOffsetXOverride(_changeBuyHairStyleOrColor);
+        }
+
+        private void ApplyWidthOverride(ListDialogItem item)
+        {
+            item.WidthOverride = AdjustedWidth;
+            item.SetItemSize(item.WidthOverride.GetValueOrDefault(232), item.Style == ListDialogItem.ListItemStyle.Large ? 36 : 13); 
+        }
+
+        private void ApplyHighlightOffsetXOverride(ListDialogItem item)
+        {
+            item.OffsetX = AdjustedHighlightXOffset;
         }
 
         private ListDialogItem CreateListDialogItem(DialogIcon icon, int offsetY, EventHandler<MonoGame.Extended.Input.InputListeners.MouseEventArgs> clickHandler)
@@ -199,23 +204,6 @@ namespace EndlessClient.Dialogs
                 var msgBox = _messageBoxFactory.CreateMessageBox(DialogResourceID.WARNING_YOU_HAVE_NOT_ENOUGH, $" {_eifFileProvider.EIFFile[1].Name}");
                 msgBox.ShowDialog();
             }
-        }
-        // Possibly a better way than this?
-        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
-        {
-            var characterBounds = new Rectangle(
-                (int)_characterControl.DrawPositionWithParentOffset.X,
-                (int)_characterControl.DrawPositionWithParentOffset.Y,
-                (int)(_characterControl.DrawArea.Width),
-                (int)_characterControl.DrawArea.Height
-            );
-
-            if (!characterBounds.Contains(eventArgs.Position))
-                return base.HandleClick(control, eventArgs);
-
-            _characterControl.NextDirection();
-
-            return base.HandleClick(control, eventArgs);
         }
     }
 }
