@@ -20,7 +20,7 @@ namespace EndlessClient.Dialogs
 
         private int _index;
         private int _xOffset, _yOffset;
-        
+
         protected IXNALabel _primaryText;
         protected IXNALabel _subText;
 
@@ -43,7 +43,10 @@ namespace EndlessClient.Dialogs
 
         public int OffsetX
         {
-            get { return _xOffset; }
+            get
+            {
+                return _xOffset;
+            }
             set
             {
                 int oldOff = _xOffset;
@@ -54,7 +57,10 @@ namespace EndlessClient.Dialogs
 
         public int OffsetY
         {
-            get { return _yOffset; }
+            get
+            {
+                return _yOffset;
+            }
             set
             {
                 int oldOff = _yOffset;
@@ -62,8 +68,6 @@ namespace EndlessClient.Dialogs
                 DrawPosition += new Vector2(0, _yOffset - oldOff);
             }
         }
-
-        public int? WidthOverride { get; set; }
 
         public ListItemStyle Style { get; set; }
 
@@ -107,11 +111,6 @@ namespace EndlessClient.Dialogs
         public event EventHandler<MouseEventArgs> RightClick;
         public event EventHandler<MouseEventArgs> LeftClick;
 
-        public void SetItemSize(int width, int height)
-        {
-            SetSize(width, height);
-        }
-
         public ListDialogItem(BaseEODialog parent, ListItemStyle style, int listIndex = -1)
         {
             _parentDialog = parent;
@@ -123,7 +122,7 @@ namespace EndlessClient.Dialogs
                 Index = listIndex;
 
             SetSize(232, Style == ListItemStyle.Large ? 36 : 13);
-       
+
             int colorFactor = Style == ListItemStyle.Large ? 0xc8 : 0xb4;
 
             _primaryText = new XNALabel(Constants.FontSize08pt5)

@@ -74,13 +74,6 @@ namespace EndlessClient.UIControls
             RenderProperties = RenderProperties.WithHairColor((RenderProperties.HairColor + 1) % 10);
         }
 
-        public void NextDirection()
-        {
-            var nextDirectionInt = (int)RenderProperties.Direction + 1;
-            var nextDirection = (EODirection)(nextDirectionInt % 4);
-            RenderProperties = RenderProperties.WithDirection(nextDirection);
-        }
-
         private static CharacterRenderProperties GetDefaultProperties()
         {
             return new CharacterRenderProperties.Builder { HairStyle = 1 }.ToImmutable();

@@ -78,7 +78,38 @@ namespace EndlessClient.Dialogs
             var cancel = CreateButton(dialogButtonService, new Vector2(215, 151), SmallButton.Cancel);
             cancel.OnClick += (_, _) => Close(XNADialogResult.Cancel);
 
-            CreateListItems();
+            _changeHairItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
+            {
+                OffsetY = 25,
+                IconGraphic = _dialogIconService.IconSheet,
+                IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.BarberHairModel),
+                ShowIconBackGround = false,
+            };
+            _changeHairItem.DrawArea = new Rectangle(_changeHairItem.DrawArea.X, _changeHairItem.DrawArea.Y, AdjustedWidth, _changeHairItem.DrawArea.Height);
+            _changeHairItem.OffsetX = AdjustedHighlightXOffset;
+            _changeHairItem.LeftClick += ChangeHairStyle_Click;
+
+            _changeHairColor = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
+            {
+                OffsetY = 60,
+                IconGraphic = _dialogIconService.IconSheet,
+                IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.BarberChangeHairColor),
+                ShowIconBackGround = false,
+            };
+            _changeHairColor.DrawArea = new Rectangle(_changeHairColor.DrawArea.X, _changeHairColor.DrawArea.Y, AdjustedWidth, _changeHairColor.DrawArea.Height);
+            _changeHairColor.OffsetX = AdjustedHighlightXOffset;
+            _changeHairColor.LeftClick += ChangeHairColor_Click;
+
+            _changeBuyHairStyleOrColor = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
+            {
+                OffsetY = 95,
+                IconGraphic = _dialogIconService.IconSheet,
+                IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.BarberOk),
+                ShowIconBackGround = false,
+            };
+            _changeBuyHairStyleOrColor.DrawArea = new Rectangle(_changeBuyHairStyleOrColor.DrawArea.X, _changeBuyHairStyleOrColor.DrawArea.Y, AdjustedWidth, _changeBuyHairStyleOrColor.DrawArea.Height);
+            _changeBuyHairStyleOrColor.OffsetX = AdjustedHighlightXOffset;
+            _changeBuyHairStyleOrColor.LeftClick += BuyHair_Click;
         }
 
         public override void Initialize()
@@ -86,55 +117,6 @@ namespace EndlessClient.Dialogs
             base.Initialize();
             _characterControl.Initialize();
             UpdateListItems(_characterRepository.MainCharacter.RenderProperties);
-        }
-
-        private void CreateListItems()
-        {
-            _changeHairItem = CreateListDialogItem(DialogIcon.BarberHairModel, 25, ChangeHairStyle_Click);
-            _changeHairColor = CreateListDialogItem(DialogIcon.BarberChangeHairColor, 60, ChangeHairColor_Click);
-            _changeBuyHairStyleOrColor = CreateListDialogItem(DialogIcon.BarberOk, 95, BuyHair_Click);
-
-            ApplyWidthOverride(_changeHairItem);
-            ApplyWidthOverride(_changeHairColor);
-            ApplyWidthOverride(_changeBuyHairStyleOrColor);
-
-            ApplyHighlightOffsetXOverride(_changeHairItem);
-            ApplyHighlightOffsetXOverride(_changeHairColor);
-            ApplyHighlightOffsetXOverride(_changeBuyHairStyleOrColor);
-        }
-
-        private void ApplyWidthOverride(ListDialogItem item)
-        {
-            item.WidthOverride = AdjustedWidth;
-            item.SetItemSize(item.WidthOverride.GetValueOrDefault(232), item.Style == ListDialogItem.ListItemStyle.Large ? 36 : 13); 
-        }
-
-        private void ApplyHighlightOffsetXOverride(ListDialogItem item)
-        {
-            item.OffsetX = AdjustedHighlightXOffset;
-        }
-
-        private ListDialogItem CreateListDialogItem(DialogIcon icon, int offsetY, EventHandler<MonoGame.Extended.Input.InputListeners.MouseEventArgs> clickHandler)
-        {
-            var item = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
-            {
-                OffsetY = offsetY,
-                IconGraphic = _dialogIconService.IconSheet,
-                IconGraphicSource = _dialogIconService.GetDialogIconSource(icon),
-                ShowIconBackGround = false,
-            };
-            item.LeftClick += clickHandler;
-            return item;
-        }
-
-        private XNAButton CreateButton(IEODialogButtonService dialogButtonService, Vector2 position, SmallButton buttonType)
-        {
-            var button = new XNAButton(dialogButtonService.SmallButtonSheet, position,
-                                       dialogButtonService.GetSmallDialogButtonOutSource(buttonType),
-                                       dialogButtonService.GetSmallDialogButtonOverSource(buttonType));
-            button.Initialize();
-            button.SetParentControl(this);
-            return button;
         }
 
         private void UpdateListItems(CharacterRenderProperties currentProperties)
@@ -167,7 +149,6 @@ namespace EndlessClient.Dialogs
 
         private void ChangeHairColor_Click(object sender, MonoGame.Extended.Input.InputListeners.MouseEventArgs e)
         {
-            var currentProperties = _characterControl.RenderProperties;
             _characterControl.NextHairColor();
             _changeHairColor.SubText = GetCurrentHairColorText(_characterControl.RenderProperties.HairColor);
         }
@@ -204,6 +185,16 @@ namespace EndlessClient.Dialogs
                 var msgBox = _messageBoxFactory.CreateMessageBox(DialogResourceID.WARNING_YOU_HAVE_NOT_ENOUGH, $" {_eifFileProvider.EIFFile[1].Name}");
                 msgBox.ShowDialog();
             }
+        }
+
+        private XNAButton CreateButton(IEODialogButtonService dialogButtonService, Vector2 position, SmallButton buttonType)
+        {
+            var button = new XNAButton(dialogButtonService.SmallButtonSheet, position,
+                                       dialogButtonService.GetSmallDialogButtonOutSource(buttonType),
+                                       dialogButtonService.GetSmallDialogButtonOverSource(buttonType));
+            button.Initialize();
+            button.SetParentControl(this);
+            return button;
         }
     }
 }
