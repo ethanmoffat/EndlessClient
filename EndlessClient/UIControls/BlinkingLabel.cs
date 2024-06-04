@@ -36,12 +36,6 @@ namespace EndlessClient.UIControls
 
         public override void Update(GameTime gameTime)
         {
-            // Ensure text is not null or empty before updating
-            if (string.IsNullOrEmpty(Text))
-            {
-                Text = string.Empty;
-            }
-
             if (_callbackStartTime.HasValue && (DateTime.Now - _callbackStartTime.Value).TotalMilliseconds > _callbackDueTime)
             {
                 _callback();

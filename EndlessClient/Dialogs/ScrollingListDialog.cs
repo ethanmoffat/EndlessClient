@@ -18,28 +18,28 @@ namespace EndlessClient.Dialogs
     [Flags]
     public enum ScrollingListDialogButtons
     {
-        None = 0x00,
-        Add = 0x01,
-        Cancel = 0x02,
-        Back = 0x04,
-        Next = 0x08,
-        Ok = 0x10,
-        History = 0x20,
-        Progress = 0x40,
-        Delete = 0x80,
-        DualButtons = 0x800,
+        None         = 0x00,
+        Add          = 0x01,
+        Cancel       = 0x02,
+        Back         = 0x04,
+        Next         = 0x08,
+        Ok           = 0x10,
+        History      = 0x20,
+        Progress     = 0x40,
+        Delete       = 0x80,
+        DualButtons  = 0x800,
         // indicates a configuration in which a pairing of DualButtons is already defined, but the order is reversed
-        Alternate = 0x1000,
-
-        AddCancel = DualButtons | Add | Cancel,
-        BackCancel = DualButtons | Back | Cancel,
-        BackOk = DualButtons | Back | Ok,
-        CancelOk = DualButtons | Cancel | Ok,
-        OkCancel = DualButtons | Cancel | Ok | Alternate,
-        BackNext = DualButtons | Back | Next,
-        CancelNext = DualButtons | Cancel | Next,
-        HistoryOk = DualButtons | History | Ok,
-        ProgressOk = DualButtons | Progress | Ok,
+        Alternate    = 0x1000,
+                     
+        AddCancel    = DualButtons | Add | Cancel,
+        BackCancel   = DualButtons | Back | Cancel,
+        BackOk       = DualButtons | Back | Ok,
+        CancelOk     = DualButtons | Cancel | Ok,
+        OkCancel     = DualButtons | Cancel | Ok | Alternate,
+        BackNext     = DualButtons | Back | Next,
+        CancelNext   = DualButtons | Cancel | Next,
+        HistoryOk    = DualButtons | History | Ok,
+        ProgressOk   = DualButtons | Progress | Ok,
         DeleteCancel = DualButtons | Delete | Cancel,
 
         // There is only one button, but we want it to show on the right side as if it were a dual button setting
@@ -74,6 +74,7 @@ namespace EndlessClient.Dialogs
         BankAccountDialog,
 
         Jukebox,
+        Barber,
     }
 
     public class ScrollingListDialog : BaseEODialog
@@ -227,7 +228,7 @@ namespace EndlessClient.Dialogs
             _add = new XNAButton(dialogButtonService.SmallButtonSheet, Vector2.Zero,
                 dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Add),
                 dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Add))
-            {
+            { 
                 Visible = false,
                 UpdateOrder = 1,
             };
@@ -482,7 +483,7 @@ namespace EndlessClient.Dialogs
 
         protected static Rectangle GetTitleDrawArea(DialogType size)
         {
-            switch (size)
+            switch(size)
             {
                 case DialogType.Shop:
                 case DialogType.Help:
@@ -538,7 +539,7 @@ namespace EndlessClient.Dialogs
                     return new Rectangle(0, 0, backgroundTexture.Width, backgroundTexture.Height / 2);
                 case DialogType.Jukebox:
                 case DialogType.NpcQuestDialog:
-                case DialogType.BankAccountDialog: return null;
+                case DialogType.BankAccountDialog:  return null;
                 default: throw new NotImplementedException();
             }
         }
