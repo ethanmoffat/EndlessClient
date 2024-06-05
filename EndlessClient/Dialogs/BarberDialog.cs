@@ -80,35 +80,32 @@ namespace EndlessClient.Dialogs
 
             _changeHairItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
             {
-                OffsetY = 25,
                 IconGraphic = _dialogIconService.IconSheet,
                 IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.BarberHairModel),
                 ShowIconBackGround = false,
+                OffsetX = AdjustedHighlightXOffset,
             };
-            _changeHairItem.DrawArea = new Rectangle(_changeHairItem.DrawArea.X, _changeHairItem.DrawArea.Y, AdjustedWidth, _changeHairItem.DrawArea.Height);
-            _changeHairItem.OffsetX = AdjustedHighlightXOffset;
+            _changeHairItem.DrawArea = _changeHairItem.DrawArea.WithSize(AdjustedWidth, _changeHairItem.DrawArea.Size.Y);
             _changeHairItem.LeftClick += ChangeHairStyle_Click;
 
-            _changeHairColor = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
+            _changeHairColor = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 1)
             {
-                OffsetY = 60,
                 IconGraphic = _dialogIconService.IconSheet,
                 IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.BarberChangeHairColor),
                 ShowIconBackGround = false,
+                OffsetX = AdjustedHighlightXOffset,
             };
-            _changeHairColor.DrawArea = new Rectangle(_changeHairColor.DrawArea.X, _changeHairColor.DrawArea.Y, AdjustedWidth, _changeHairColor.DrawArea.Height);
-            _changeHairColor.OffsetX = AdjustedHighlightXOffset;
+            _changeHairColor.DrawArea = _changeHairColor.DrawArea.WithSize(AdjustedWidth, _changeHairColor.DrawArea.Size.Y);
             _changeHairColor.LeftClick += ChangeHairColor_Click;
 
-            _changeBuyHairStyleOrColor = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
+            _changeBuyHairStyleOrColor = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 2)
             {
-                OffsetY = 95,
                 IconGraphic = _dialogIconService.IconSheet,
                 IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.BarberOk),
                 ShowIconBackGround = false,
+                OffsetX = AdjustedHighlightXOffset,
             };
-            _changeBuyHairStyleOrColor.DrawArea = new Rectangle(_changeBuyHairStyleOrColor.DrawArea.X, _changeBuyHairStyleOrColor.DrawArea.Y, AdjustedWidth, _changeBuyHairStyleOrColor.DrawArea.Height);
-            _changeBuyHairStyleOrColor.OffsetX = AdjustedHighlightXOffset;
+            _changeBuyHairStyleOrColor.DrawArea = _changeBuyHairStyleOrColor.DrawArea.WithSize(AdjustedWidth, _changeBuyHairStyleOrColor.DrawArea.Size.Y);
             _changeBuyHairStyleOrColor.LeftClick += BuyHair_Click;
         }
 
