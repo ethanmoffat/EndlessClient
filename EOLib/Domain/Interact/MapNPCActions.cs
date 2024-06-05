@@ -69,22 +69,27 @@ namespace EOLib.Domain.Interact
             var packet = new PriestOpenClientPacket { NpcIndex = npc.Index };
             _packetSendService.SendPacket(packet);
         }
+
+        public void RequestBarber(NPC.NPC npc)
+        {
+            var packet = new PacketBuilder(PacketFamily.Barber, PacketAction.Open)
+                .AddInt(npc.Index)
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+        }
     }
 
     public interface IMapNPCActions
     {
         void RequestShop(NPC.NPC npc);
-
         void RequestQuest(NPC.NPC npc);
-
         void RequestBank(NPC.NPC npc);
-
         void RequestSkillmaster(NPC.NPC npc);
-
         void RequestInnkeeper(NPC.NPC npc);
-
         void RequestLaw(NPC.NPC npc);
-
         void RequestPriest(NPC.NPC npc);
+        void RequestBarber(NPC.NPC npc); // Corrected here
     }
+
 }

@@ -43,6 +43,7 @@ namespace EndlessClient.Dialogs.Actions
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IShopDialogFactory _shopDialogFactory;
         private readonly IQuestDialogFactory _questDialogFactory;
+        private readonly IBarberDialogFactory _barberDialogFactory;
 
         public InGameDialogActions(IFriendIgnoreListDialogFactory friendIgnoreListDialogFactory,
                                    IPaperdollDialogFactory paperdollDialogFactory,
@@ -68,7 +69,8 @@ namespace EndlessClient.Dialogs.Actions
                                    ILawDialogFactory lawDialogFactory,
                                    IHelpDialogFactory helpDialogFactory,
                                    ISfxPlayer sfxPlayer,
-                                   IStatusLabelSetter statusLabelSetter)
+                                   IStatusLabelSetter statusLabelSetter,
+                                   IBarberDialogFactory barberDialogFactory)               
         {
             _friendIgnoreListDialogFactory = friendIgnoreListDialogFactory;
             _paperdollDialogFactory = paperdollDialogFactory;
@@ -95,6 +97,7 @@ namespace EndlessClient.Dialogs.Actions
             _statusLabelSetter = statusLabelSetter;
             _shopDialogFactory = shopDialogFactory;
             _questDialogFactory = questDialogFactory;
+            _barberDialogFactory = barberDialogFactory;
         }
 
         public void ShowFriendListDialog()
@@ -448,6 +451,23 @@ namespace EndlessClient.Dialogs.Actions
                 UseDefaultDialogSounds(dlg);
             });
         }
+        
+        public void ShowBarberDialog()
+        {
+            _activeDialogRepository.BarberDialog.MatchNone(() =>
+            {
+                var dlg = _barberDialogFactory.Create();
+                dlg.DialogClosed += (_, _) =>
+                {
+                    _activeDialogRepository.BarberDialog = Option.None<BarberDialog>();
+                };
+                _activeDialogRepository.BarberDialog = Option.Some(dlg);
+
+                UseDefaultDialogSounds(dlg);
+
+                dlg.Show();
+            });
+        }
 
         private void UseDefaultDialogSounds(ScrollingListDialog dialog)
         {
@@ -521,5 +541,7 @@ namespace EndlessClient.Dialogs.Actions
         void ShowLawDialog();
 
         void ShowHelpDialog();
+
+        void ShowBarberDialog();
     }
 }

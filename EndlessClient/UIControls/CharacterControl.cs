@@ -23,7 +23,7 @@ namespace EndlessClient.UIControls
         public CharacterControl(Character character,
                                 ICharacterRendererFactory characterRendererFactory)
         {
-            _characterRenderer = characterRendererFactory.CreateCharacterRenderer(character);
+            _characterRenderer = characterRendererFactory.CreateCharacterRenderer(character, isUiControl: true);
         }
 
         public override void Initialize()

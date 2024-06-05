@@ -1,21 +1,27 @@
-﻿using EndlessClient.Rendering.Factories;
-using EOLib;
-using EOLib.Domain.Character;
+﻿using System;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended.Input.InputListeners;
-using System;
 using XNAControls;
+using EndlessClient.Rendering.Factories;
+using EOLib;
+using EOLib.Domain.Character;
 
 namespace EndlessClient.UIControls
 {
     public class CreateCharacterControl : CharacterControl
     {
         private Vector2 _lastPosition;
+        
 
         public event EventHandler Clicked;
 
+        // default properties
         public CreateCharacterControl(ICharacterRendererFactory characterRendererFactory)
-            : base(Character.Default.WithRenderProperties(GetDefaultProperties()), characterRendererFactory)
+            : this(GetDefaultProperties(), characterRendererFactory) { }
+
+        // custom render properties
+        public CreateCharacterControl(CharacterRenderProperties renderProperties, ICharacterRendererFactory characterRendererFactory)
+            : base(Character.Default.WithRenderProperties(renderProperties.WithDirection(EODirection.Down)), characterRendererFactory)
         {
             SetSize(99, 123);
             _lastPosition = Vector2.Zero;
