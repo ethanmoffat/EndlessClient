@@ -96,6 +96,8 @@ namespace EndlessClient.Dialogs
 
         Option<BarberDialog> BarberDialog { get; set; }
         
+        Option<GuildDialog> GuildDialog { get; set; }
+
         Option<ScrollingListDialog> HelpDialog { get; set; }
 
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs { get; }
@@ -144,6 +146,8 @@ namespace EndlessClient.Dialogs
 
         public Option<BarberDialog> BarberDialog { get; set; }
         
+        public Option<GuildDialog> GuildDialog { get; set; }
+
         public Option<ScrollingListDialog> HelpDialog { get; set;  }
 
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs
@@ -172,6 +176,7 @@ namespace EndlessClient.Dialogs
                     InnkeeperDialog.Map(Map),
                     LawDialog.Map(Map),
                     BarberDialog.Map(Map),
+                    GuildDialog.Map(Map),
                     HelpDialog.Map(Map),
                 }.ToList();
 
@@ -211,6 +216,7 @@ namespace EndlessClient.Dialogs
             InnkeeperDialog = Option.None<InnkeeperDialog>();
             LawDialog = Option.None<LawDialog>();
             BarberDialog = Option.None<BarberDialog>();
+            GuildDialog = Option.None<GuildDialog>();
             HelpDialog = Option.None<ScrollingListDialog>();
         }
     }
