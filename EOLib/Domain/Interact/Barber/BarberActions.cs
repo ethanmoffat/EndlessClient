@@ -1,8 +1,6 @@
 using AutomaticTypeMapper;
-using EOLib.Net;
 using EOLib.Net.Communication;
-using System.Diagnostics;
-using EOLib.Domain.Character;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 namespace EOLib.Domain.Interact.Barber
 {
     [AutoMappedType]
@@ -20,13 +18,12 @@ namespace EOLib.Domain.Interact.Barber
 
         public void Purchase(int hairStyle, int hairColor)
         {
-            var packet = new PacketBuilder(PacketFamily.Barber, PacketAction.Buy)
-                .AddChar((char)hairStyle)
-                .AddChar((char)hairColor)
-                .AddInt(_barberDataRepository.SessionID) 
-                .Build();
-
-            _packetSendService.SendPacket(packet);
+            _packetSendService.SendPacket(new BarberBuyClientPacket
+            {
+                SessionId = _barberDataRepository.SessionID,
+                HairStyle = hairStyle,
+                HairColor = hairColor,
+            });
         }
     }
 

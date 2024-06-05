@@ -72,10 +72,7 @@ namespace EOLib.Domain.Interact
 
         public void RequestBarber(NPC.NPC npc)
         {
-            var packet = new PacketBuilder(PacketFamily.Barber, PacketAction.Open)
-                .AddInt(npc.Index)
-                .Build();
-
+            var packet = new BarberOpenClientPacket { NpcIndex = npc.Index };
             _packetSendService.SendPacket(packet);
         }
     }
@@ -89,7 +86,7 @@ namespace EOLib.Domain.Interact
         void RequestInnkeeper(NPC.NPC npc);
         void RequestLaw(NPC.NPC npc);
         void RequestPriest(NPC.NPC npc);
-        void RequestBarber(NPC.NPC npc); // Corrected here
+        void RequestBarber(NPC.NPC npc);
     }
 
 }

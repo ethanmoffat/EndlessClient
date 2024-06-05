@@ -1,21 +1,22 @@
 using AutomaticTypeMapper;
 using EOLib.Domain.Interact;
-using EOLib.Net;
-using EOLib.Net.Handlers;
-using System.Collections.Generic;
 using EOLib.Domain.Interact.Barber;
-using EOLib.Domain.Character;
 using EOLib.Domain.Login;
+using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Barber
 {
     [AutoMappedType]
-    public class BarberOpenHandler : InGameOnlyPacketHandler
+    public class BarberOpenHandler : InGameOnlyPacketHandler<BarberOpenServerPacket>
     {
         private readonly IBarberDataRepository _barberDataRepository;
         private readonly IEnumerable<INPCInteractionNotifier> _npcInteractionNotifiers;
 
         public override PacketFamily Family => PacketFamily.Barber;
+
         public override PacketAction Action => PacketAction.Open;
 
         public BarberOpenHandler(
@@ -28,10 +29,9 @@ namespace EOLib.PacketHandlers.Barber
             _barberDataRepository = barberDataRepository;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(BarberOpenServerPacket packet)
         {
-            var sessionId = packet.ReadInt();
-            _barberDataRepository.SessionID = sessionId;
+            _barberDataRepository.SessionID = packet.SessionId;
 
             foreach (var notifier in _npcInteractionNotifiers)
             {
