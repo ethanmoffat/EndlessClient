@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using System.Collections.Generic;
 
 namespace EOLib.Net.FileTransfer
 {
@@ -7,13 +8,13 @@ namespace EOLib.Net.FileTransfer
     /// </summary>
     public interface ILoginFileChecksumRepository
     {
-        int EIFChecksum { get; set; }
+        List<int> EIFChecksum { get; set; }
 
-        int ENFChecksum { get; set; }
+        List<int> ENFChecksum { get; set; }
 
-        int ESFChecksum { get; set; }
+        List<int> ESFChecksum { get; set; }
 
-        int ECFChecksum { get; set; }
+        List<int> ECFChecksum { get; set; }
 
         int EIFLength { get; set; }
 
@@ -23,7 +24,7 @@ namespace EOLib.Net.FileTransfer
 
         int ECFLength { get; set; }
 
-        byte[] MapChecksum { get; set; }
+        List<int> MapChecksum { get; set; }
 
         int MapLength { get; set; }
     }
@@ -33,13 +34,13 @@ namespace EOLib.Net.FileTransfer
     /// </summary>
     public interface ILoginFileChecksumProvider
     {
-        int EIFChecksum { get; }
+        IReadOnlyList<int> EIFChecksum { get; }
 
-        int ENFChecksum { get; }
+        IReadOnlyList<int> ENFChecksum { get; }
 
-        int ESFChecksum { get; }
+        IReadOnlyList<int> ESFChecksum { get; }
 
-        int ECFChecksum { get; }
+        IReadOnlyList<int> ECFChecksum { get; }
 
         int EIFLength { get; }
 
@@ -49,7 +50,7 @@ namespace EOLib.Net.FileTransfer
 
         int ECFLength { get; }
 
-        byte[] MapChecksum { get; }
+        IReadOnlyList<int> MapChecksum { get; }
 
         int MapLength { get; }
     }
@@ -60,13 +61,13 @@ namespace EOLib.Net.FileTransfer
     [AutoMappedType(IsSingleton = true)]
     public class LoginFileChecksumRepository : ILoginFileChecksumRepository, ILoginFileChecksumProvider
     {
-        public int EIFChecksum { get; set; }
+        public List<int> EIFChecksum { get; set; }
 
-        public int ENFChecksum { get; set; }
+        public List<int> ENFChecksum { get; set; }
 
-        public int ESFChecksum { get; set; }
+        public List<int> ESFChecksum { get; set; }
 
-        public int ECFChecksum { get; set; }
+        public List<int> ECFChecksum { get; set; }
 
         public int EIFLength { get; set; }
 
@@ -76,8 +77,18 @@ namespace EOLib.Net.FileTransfer
 
         public int ECFLength { get; set; }
 
-        public byte[] MapChecksum { get; set; }
+        public List<int> MapChecksum { get; set; }
 
         public int MapLength { get; set; }
+
+        IReadOnlyList<int> ILoginFileChecksumProvider.EIFChecksum => EIFChecksum;
+
+        IReadOnlyList<int> ILoginFileChecksumProvider.ENFChecksum => ENFChecksum;
+
+        IReadOnlyList<int> ILoginFileChecksumProvider.ESFChecksum => ESFChecksum;
+
+        IReadOnlyList<int> ILoginFileChecksumProvider.ECFChecksum => ECFChecksum;
+
+        IReadOnlyList<int> ILoginFileChecksumProvider.MapChecksum => MapChecksum;
     }
 }

@@ -3,7 +3,8 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.IO.Repositories;
-using EOLib.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOLib.PacketHandlers.Paperdoll
 {
@@ -11,25 +12,25 @@ namespace EOLib.PacketHandlers.Paperdoll
     /// Handler for unequipping an item
     /// </summary>
     [AutoMappedType]
-    public class PaperdollRemoveHandler : ItemEquipHandler
+    public class PaperdollRemoveHandler : ItemEquipHandler<PaperdollRemoveServerPacket>
     {
-        public override PacketFamily Family => PacketFamily.PaperDoll;
+        public override PacketFamily Family => PacketFamily.Paperdoll;
 
         public override PacketAction Action => PacketAction.Remove;
 
         public PaperdollRemoveHandler(IPlayerInfoProvider playerInfoProvider,
                                       ICurrentMapStateRepository currentMapStateRepository,
                                       ICharacterRepository characterRepository,
-                                      IEIFFileProvider eifFileProvider,
                                       IPaperdollRepository paperdollRepository,
-                                      ICharacterInventoryRepository characterInventoryRepository)
-            : base(playerInfoProvider, currentMapStateRepository, characterRepository, eifFileProvider, paperdollRepository, characterInventoryRepository)
+                                      ICharacterInventoryRepository characterInventoryRepository,
+                                      IEIFFileProvider eifFileProvider)
+            : base(playerInfoProvider, currentMapStateRepository, characterRepository, paperdollRepository, characterInventoryRepository, eifFileProvider)
         {
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(PaperdollRemoveServerPacket packet)
         {
-            return HandlePaperdollPacket(packet, itemUnequipped: true);
+            return HandlePaperdollPacket(packet.Change, packet.ItemId, 1, packet.SubLoc, packet.Stats);
         }
     }
 }

@@ -127,45 +127,50 @@ namespace EndlessClient.Controllers
             // vanilla client prioritizes standing first, then board interaction
             else if (_characterProvider.MainCharacter.RenderProperties.SitState != SitState.Standing)
             {
-                _characterActions.ToggleSit();
+                var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
+                _characterActions.Sit(mapRenderer.GridCoordinates);
             }
-            else if (InteractableTileSpec(cellState.TileSpec) && (cellState.TileSpec.IsBoard() || CharacterIsCloseEnough(cellState.Coordinate)))
+            else if (InteractableTileSpec(cellState.TileSpec) && (cellState.TileSpec.IsBoard() || cellState.TileSpec == TileSpec.Jukebox || CharacterIsCloseEnough(cellState.Coordinate)))
             {
                 var unwalkableActions = _unwalkableTileActions.GetUnwalkableTileActions(cellState);
 
                 foreach (var unwalkableAction in unwalkableActions)
                 {
-
                     if (cellState.TileSpec.IsBoard())
                     {
                         _mapActions.OpenBoard(cellState.TileSpec);
                         _inGameDialogActions.ShowBoardDialog();
-                        continue;
                     }
-
-                    switch (cellState.TileSpec)
+                    else if (cellState.TileSpec.IsChair())
                     {
-                        case TileSpec.Chest:
-                            if (unwalkableAction == UnwalkableTileAction.Chest)
-                            {
-                                _mapActions.OpenChest(cellState.Coordinate);
-                                _inGameDialogActions.ShowChestDialog();
-                            }
-                            break;
-                        case TileSpec.BankVault:
-                            if (unwalkableAction == UnwalkableTileAction.Locker)
-                            {
-                                _mapActions.OpenLocker(cellState.Coordinate);
-                                _inGameDialogActions.ShowLockerDialog();
-                            }
-                            break;
-                        case TileSpec.Jukebox:
-                            if (unwalkableAction == UnwalkableTileAction.Jukebox)
-                            {
-                                _mapActions.OpenJukebox(cellState.Coordinate);
-                                _inGameDialogActions.ShowJukeboxDialog(cellState.Coordinate);
-                            }
-                            break;
+                        _characterActions.Sit(cellState.Coordinate, isChair: true);
+                    }
+                    else
+                    {
+                        switch (cellState.TileSpec)
+                        {
+                            case TileSpec.Chest:
+                                if (unwalkableAction == UnwalkableTileAction.Chest)
+                                {
+                                    _mapActions.OpenChest(cellState.Coordinate);
+                                    _inGameDialogActions.ShowChestDialog();
+                                }
+                                break;
+                            case TileSpec.BankVault:
+                                if (unwalkableAction == UnwalkableTileAction.Locker)
+                                {
+                                    _mapActions.OpenLocker(cellState.Coordinate);
+                                    _inGameDialogActions.ShowLockerDialog();
+                                }
+                                break;
+                            case TileSpec.Jukebox:
+                                if (unwalkableAction == UnwalkableTileAction.Jukebox)
+                                {
+                                    _mapActions.OpenJukebox(cellState.Coordinate);
+                                    _inGameDialogActions.ShowJukeboxDialog();
+                                }
+                                break;
+                        }
                     }
                 }
             }
@@ -246,14 +251,6 @@ namespace EndlessClient.Controllers
             }
         }
 
-        private void PlayMainCharacterWalkSfx()
-        {
-            if (_characterProvider.MainCharacter.NoWall)
-                _sfxPlayer.PlaySfx(SoundEffectID.NoWallWalk);
-            else if (IsSteppingStone(_characterProvider.MainCharacter.RenderProperties))
-                _sfxPlayer.PlaySfx(SoundEffectID.JumpStone);
-        }
-
         private bool IsSteppingStone(CharacterRenderProperties renderProps)
         {
             return _currentMapProvider.CurrentMap.Tiles[renderProps.MapY, renderProps.MapX] == TileSpec.Jump
@@ -293,23 +290,10 @@ namespace EndlessClient.Controllers
 
         private static bool InteractableTileSpec(TileSpec tileSpec)
         {
-            switch (tileSpec)
-            {
-                case TileSpec.Chest:
-                case TileSpec.BankVault:
-                case TileSpec.Board1:
-                case TileSpec.Board2:
-                case TileSpec.Board3:
-                case TileSpec.Board4:
-                case TileSpec.Board5:
-                case TileSpec.Board6:
-                case TileSpec.Board7:
-                case TileSpec.Board8:
-                case TileSpec.Jukebox:
-                    return true;
-                default:
-                    return false;
-            }
+            return tileSpec.IsBoard() || tileSpec.IsChair()
+                || tileSpec == TileSpec.Chest
+                || tileSpec == TileSpec.BankVault
+                || tileSpec == TileSpec.Jukebox;
         }
 
         private bool CharacterIsCloseEnough(MapCoordinate coordinate)

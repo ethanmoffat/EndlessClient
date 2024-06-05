@@ -1,7 +1,7 @@
-﻿using System;
-using AutomaticTypeMapper;
-using EOLib.Net;
+﻿using AutomaticTypeMapper;
 using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
+using System;
 
 namespace EOLib.Domain.Character
 {
@@ -20,21 +20,27 @@ namespace EOLib.Domain.Character
             if (InvalidStat(whichStat))
                 return;
 
-            var packet = new PacketBuilder(PacketFamily.StatSkill, PacketAction.Add)
-                .AddChar((int) TrainType.Stat)
-                .AddShort(GetStatIndex(whichStat))
-                .Build();
-
+            var packet = new StatSkillAddClientPacket
+            {
+                ActionType = TrainType.Stat,
+                ActionTypeData = new StatSkillAddClientPacket.ActionTypeDataStat
+                {
+                    StatId = (StatId)GetStatIndex(whichStat)
+                }
+            };
             _packetSendService.SendPacket(packet);
         }
 
         public void LevelUpSkill(int spellId)
         {
-            var packet = new PacketBuilder(PacketFamily.StatSkill, PacketAction.Add)
-                .AddChar((int)TrainType.Skill)
-                .AddShort(spellId)
-                .Build();
-
+            var packet = new StatSkillAddClientPacket
+            {
+                ActionType = TrainType.Skill,
+                ActionTypeData = new StatSkillAddClientPacket.ActionTypeDataSkill
+                {
+                    SpellId = spellId
+                }
+            };
             _packetSendService.SendPacket(packet);
         }
 
@@ -54,17 +60,16 @@ namespace EOLib.Domain.Character
 
         private static int GetStatIndex(CharacterStat whichStat)
         {
-            switch (whichStat)
+            return whichStat switch
             {
-                case CharacterStat.Strength: return 1;
-                case CharacterStat.Intelligence: return 2;
-                case CharacterStat.Wisdom: return 3;
-                case CharacterStat.Agility: return 4;
-                case CharacterStat.Constitution: return 5;
-                case CharacterStat.Charisma: return 6;
-            }
-
-            throw new ArgumentOutOfRangeException(nameof(whichStat));
+                CharacterStat.Strength => 1,
+                CharacterStat.Intelligence => 2,
+                CharacterStat.Wisdom => 3,
+                CharacterStat.Agility => 4,
+                CharacterStat.Constitution => 5,
+                CharacterStat.Charisma => 6,
+                _ => throw new ArgumentOutOfRangeException(nameof(whichStat)),
+            };
         }
     }
 

@@ -2,6 +2,8 @@
 {
     public static class Constants
     {
+        public const int MaxChallenge = 11_092_110;
+
         public const int ResponseTimeout = 5000;
         public const int ResponseFileTimeout = 10000;
 

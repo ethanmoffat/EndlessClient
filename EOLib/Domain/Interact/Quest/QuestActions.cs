@@ -1,6 +1,7 @@
 ﻿using AutomaticTypeMapper;
-using EOLib.Net;
 using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 
 namespace EOLib.Domain.Interact.Quest
 {
@@ -21,27 +22,27 @@ namespace EOLib.Domain.Interact.Quest
         {
             _questDataProvider.QuestDialogData.MatchSome(data =>
             {
-                var builder = new PacketBuilder(PacketFamily.Quest, PacketAction.Accept)
-                    .AddShort(data.SessionID) // ignored by eoserv
-                    .AddShort(data.DialogID) // ignored by eoserv
-                    .AddShort(data.QuestID)
-                    .AddShort(data.VendorID) // ignored by eoserv
-                    .AddChar((int)reply);
-
-                if (reply == DialogReply.Link)
-                    builder = builder.AddChar(linkId);
-
-                var packet = builder.Build();
+                var packet = new QuestAcceptClientPacket
+                {
+                    SessionId = data.SessionID,
+                    DialogId = data.DialogID,
+                    QuestId = data.QuestID,
+                    NpcIndex = data.VendorID,
+                    ReplyType = reply,
+                    ReplyTypeData = reply == DialogReply.Link
+                        ? new QuestAcceptClientPacket.ReplyTypeDataLink { Action = linkId }
+                        : null
+                };
                 _packetSendService.SendPacket(packet);
             });
         }
 
         public void RequestQuestHistory(QuestPage page)
         {
-            var packet = new PacketBuilder(PacketFamily.Quest, PacketAction.List)
-                .AddChar((int)page)
-                .Build();
-
+            var packet = new QuestListClientPacket
+            {
+                Page = page
+            };
             _packetSendService.SendPacket(packet);
         }
     }

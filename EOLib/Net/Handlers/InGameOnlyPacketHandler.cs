@@ -1,8 +1,10 @@
 ﻿using EOLib.Domain.Login;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
 
 namespace EOLib.Net.Handlers
 {
-    public abstract class InGameOnlyPacketHandler : DefaultAsyncPacketHandler
+    public abstract class InGameOnlyPacketHandler<TPacket> : DefaultAsyncPacketHandler<TPacket>
+        where TPacket : IPacket
     {
         private readonly IPlayerInfoProvider _playerInfoProvider;
 

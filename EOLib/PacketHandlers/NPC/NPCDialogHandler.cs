@@ -4,9 +4,9 @@ using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.IO.Repositories;
-using EOLib.Net;
 using EOLib.Net.Handlers;
-using Optional;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional.Collections;
 using System.Collections.Generic;
 
@@ -16,14 +16,14 @@ namespace EOLib.PacketHandlers.NPC
     /// Special dialog packet for NPC speech. Sent by GameServer when the priest talks.
     /// </summary>
     [AutoMappedType]
-    public class NPCDialogHandler : InGameOnlyPacketHandler
+    public class NPCDialogHandler : InGameOnlyPacketHandler<NpcDialogServerPacket>
     {
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IENFFileProvider _enfFileProvider;
         private readonly IChatRepository _chatRepository;
         private readonly IEnumerable<INPCActionNotifier> _npcActionNotifiers;
 
-        public override PacketFamily Family => PacketFamily.NPC;
+        public override PacketFamily Family => PacketFamily.Npc;
 
         public override PacketAction Action => PacketAction.Dialog;
 
@@ -41,31 +41,24 @@ namespace EOLib.PacketHandlers.NPC
         }
 
         // note: this is the same implementation as NPCPlayerHandler::HandleNPCTalk
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(NpcDialogServerPacket packet)
         {
-            var index = packet.ReadShort();
-            var message = packet.ReadEndString();
+            _currentMapStateRepository.NPCs
+                .SingleOrNone(n => n.Index == packet.NpcIndex)
+                .Match(
+                    some: n =>
+                    {
+                        var npcData = _enfFileProvider.ENFFile[n.ID];
 
-            var npc = GetNPC(index);
-            npc.Match(
-                some: n =>
-                {
-                    var npcData = _enfFileProvider.ENFFile[n.ID];
+                        var chatData = new ChatData(ChatTab.Local, npcData.Name, packet.Message, ChatIcon.Note, filter: false);
+                        _chatRepository.AllChat[ChatTab.Local].Add(chatData);
 
-                    var chatData = new ChatData(ChatTab.Local, npcData.Name, message, ChatIcon.Note, filter: false);
-                    _chatRepository.AllChat[ChatTab.Local].Add(chatData);
-
-                    foreach (var notifier in _npcActionNotifiers)
-                        notifier.ShowNPCSpeechBubble(index, message);
-                },
-                none: () => _currentMapStateRepository.UnknownNPCIndexes.Add(index));
+                        foreach (var notifier in _npcActionNotifiers)
+                            notifier.ShowNPCSpeechBubble(packet.NpcIndex, packet.Message);
+                    },
+                    none: () => _currentMapStateRepository.UnknownNPCIndexes.Add(packet.NpcIndex));
 
             return true;
-        }
-
-        private Option<Domain.NPC.NPC> GetNPC(int index)
-        {
-            return _currentMapStateRepository.NPCs.SingleOrNone(n => n.Index == index);
         }
     }
 }

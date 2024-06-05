@@ -1,6 +1,7 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.IO.Pub;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -28,7 +29,11 @@ namespace EOLib.IO.Services.Serializers
 
                 var checksumBytes = new byte[4];
                 mem.Read(checksumBytes, 0, 4);
-                var checksum = _numberEncoderService.DecodeNumber(checksumBytes);
+                var checksum = new List<int>
+                {
+                    _numberEncoderService.DecodeNumber(checksumBytes[0], checksumBytes[1]),
+                    _numberEncoderService.DecodeNumber(checksumBytes[2], checksumBytes[3])
+                };
 
                 var lenBytes = new byte[2];
                 mem.Read(lenBytes, 0, 2);
@@ -87,14 +92,17 @@ namespace EOLib.IO.Services.Serializers
                 fileBytes = mem.ToArray();
             }
 
-            var checksumBytes = _numberEncoderService.EncodeNumber(file.CheckSum, 4);
+            var checksumBytes = new List<byte>();
+            for (int i = 0; i < file.CheckSum.Count; i++)
+                checksumBytes.AddRange(_numberEncoderService.EncodeNumber(file.CheckSum[i], 2));
+            
             if (rewriteChecksum)
             {
                 var checksum = CRC32.Check(fileBytes);
-                checksumBytes = _numberEncoderService.EncodeNumber((int)checksum, 4);
+                checksumBytes = new List<byte>(_numberEncoderService.EncodeNumber((int)checksum, 4));
             }
 
-            Array.Copy(checksumBytes, 0, fileBytes, 3, 4);
+            Array.Copy(checksumBytes.ToArray(), 0, fileBytes, 3, 4);
             return fileBytes;
         }
     }

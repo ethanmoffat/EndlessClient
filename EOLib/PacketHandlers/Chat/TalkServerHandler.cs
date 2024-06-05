@@ -1,16 +1,15 @@
 ﻿using AutomaticTypeMapper;
-using EOLib.Domain.Chat;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
-using EOLib.Localization;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Chat
 {
     [AutoMappedType]
-    public class TalkServerHandler : InGameOnlyPacketHandler
+    public class TalkServerHandler : InGameOnlyPacketHandler<TalkServerServerPacket>
     {
         private readonly IEnumerable<IChatEventNotifier> _chatEventNotifiers;
 
@@ -25,13 +24,11 @@ namespace EOLib.PacketHandlers.Chat
             _chatEventNotifiers = chatEventNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(TalkServerServerPacket packet)
         {
-            var serverMessage = packet.ReadEndString();
-
             foreach (var notifier in _chatEventNotifiers)
             {
-                notifier.NotifyServerMessage(serverMessage);
+                notifier.NotifyServerMessage(packet.Message);
             }
 
             return true;

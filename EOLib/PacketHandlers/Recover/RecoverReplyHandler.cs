@@ -2,8 +2,9 @@
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Recover
@@ -12,7 +13,7 @@ namespace EOLib.PacketHandlers.Recover
     /// Sent when the main character is given EXP or Karma in a quest
     /// </summary>
     [AutoMappedType]
-    public class RecoverReplyHandler : InGameOnlyPacketHandler
+    public class RecoverReplyHandler : InGameOnlyPacketHandler<RecoverReplyServerPacket>
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly IEnumerable<IEmoteNotifier> _emoteNotifiers;
@@ -30,27 +31,27 @@ namespace EOLib.PacketHandlers.Recover
             _emoteNotifiers = emoteNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(RecoverReplyServerPacket packet)
         {
-            var exp = packet.ReadInt();
-            var karma = packet.ReadShort();
-            var level = packet.ReadChar();
-
             var stats = _characterRepository.MainCharacter.Stats
-                .WithNewStat(CharacterStat.Experience, exp)
-                .WithNewStat(CharacterStat.Karma, karma);
+                .WithNewStat(CharacterStat.Experience, packet.Experience)
+                .WithNewStat(CharacterStat.Karma, packet.Karma);
 
-            if (level > 0)
+            if (packet.LevelUp.HasValue && packet.LevelUp > 0)
             {
-                stats = stats.WithNewStat(CharacterStat.Level, level);
+                stats = stats.WithNewStat(CharacterStat.Level, packet.LevelUp.Value);
                 foreach (var notifier in _emoteNotifiers)
                     notifier.NotifyEmote(_characterRepository.MainCharacter.ID, Domain.Character.Emote.LevelUp);
             }
 
-            if (packet.ReadPosition < packet.Length)
+            if (packet.StatPoints.HasValue)
             {
-                stats = stats.WithNewStat(CharacterStat.StatPoints, packet.ReadShort())
-                    .WithNewStat(CharacterStat.SkillPoints, packet.ReadShort());
+                stats = stats.WithNewStat(CharacterStat.StatPoints, packet.StatPoints.Value);
+            }
+
+            if (packet.SkillPoints.HasValue)
+            {
+                stats = stats.WithNewStat(CharacterStat.SkillPoints, packet.SkillPoints.Value);
             }
 
             _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);

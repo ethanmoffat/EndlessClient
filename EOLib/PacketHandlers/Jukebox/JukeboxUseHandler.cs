@@ -2,8 +2,9 @@
 using EOLib.Domain.Interact.Jukebox;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
 using System.Collections.Generic;
 
@@ -13,12 +14,12 @@ namespace EOLib.PacketHandlers.Jukebox
     /// Sent when a Jukebox track should be played
     /// </summary>
     [AutoMappedType]
-    public class JukeboxUseHandler : InGameOnlyPacketHandler
+    public class JukeboxUseHandler : InGameOnlyPacketHandler<JukeboxUseServerPacket>
     {
         private readonly IJukeboxRepository _jukeboxRepository;
         private readonly IEnumerable<ISoundNotifier> _soundNotifiers;
 
-        public override PacketFamily Family => PacketFamily.JukeBox;
+        public override PacketFamily Family => PacketFamily.Jukebox;
 
         public override PacketAction Action => PacketAction.Use;
 
@@ -31,14 +32,12 @@ namespace EOLib.PacketHandlers.Jukebox
             _soundNotifiers = soundNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(JukeboxUseServerPacket packet)
         {
-            var id = packet.ReadShort();
-
             _jukeboxRepository.PlayingRequestName = Option.Some(string.Empty);
 
             foreach (var notifier in _soundNotifiers)
-                notifier.NotifyMusic(id, isJukebox: true);
+                notifier.NotifyMusic(packet.TrackId, isJukebox: true);
 
             return true;
         }

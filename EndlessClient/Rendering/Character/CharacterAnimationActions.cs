@@ -18,6 +18,7 @@ using EOLib.IO;
 using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
 using Optional.Collections;
 using System;
@@ -34,7 +35,6 @@ namespace EndlessClient.Rendering.Character
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly ICharacterRendererProvider _characterRendererProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
-        private readonly ISpikeTrapActions _spikeTrapActions;
         private readonly IPubFileProvider _pubFileProvider;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly ISfxPlayer _sfxPlayer;
@@ -47,7 +47,6 @@ namespace EndlessClient.Rendering.Character
                                          ICurrentMapStateProvider currentMapStateProvider,
                                          ICharacterRendererProvider characterRendererProvider,
                                          ICurrentMapProvider currentMapProvider,
-                                         ISpikeTrapActions spikeTrapActions,
                                          IPubFileProvider pubFileProvider,
                                          IStatusLabelSetter statusLabelSetter,
                                          ISfxPlayer sfxPlayer,
@@ -58,7 +57,6 @@ namespace EndlessClient.Rendering.Character
             _currentMapStateProvider = currentMapStateProvider;
             _characterRendererProvider = characterRendererProvider;
             _currentMapProvider = currentMapProvider;
-            _spikeTrapActions = spikeTrapActions;
             _pubFileProvider = pubFileProvider;
             _statusLabelSetter = statusLabelSetter;
             _sfxPlayer = sfxPlayer;
@@ -134,8 +132,6 @@ namespace EndlessClient.Rendering.Character
             Animator.StartOtherCharacterWalkAnimation(characterID, destination, direction);
             
             ShowWaterSplashiesIfNeeded(CharacterActionState.Walking, characterID);
-            _spikeTrapActions.HideSpikeTrap(characterID);
-            _spikeTrapActions.ShowSpikeTrap(characterID);
 
             if (IsSteppingStone(character.RenderProperties))
                 _sfxPlayer.PlaySfx(SoundEffectID.JumpStone);
@@ -153,15 +149,17 @@ namespace EndlessClient.Rendering.Character
             ShowWaterSplashiesIfNeeded(CharacterActionState.Attacking, characterID);
         }
 
-        public void NotifyWarpLeaveEffect(int characterId, WarpAnimation anim)
+        public void NotifyWarpLeaveEffect(int characterId, WarpEffect anim)
         {
-            if (anim == WarpAnimation.Admin)
+            if (anim == WarpEffect.Admin && _characterRendererProvider.CharacterRenderers.ContainsKey(characterId))
                 _characterRendererProvider.CharacterRenderers[characterId].PlayEffect((int)HardCodedEffect.WarpLeave);
+            else if (characterId != _characterRepository.MainCharacter.ID && anim == WarpEffect.Scroll)
+                _sfxPlayer.PlaySfx(SoundEffectID.ScrollTeleport);
         }
 
-        public void NotifyWarpEnterEffect(int characterId, WarpAnimation anim)
+        public void NotifyWarpEnterEffect(int characterId, WarpEffect anim)
         {
-            if (anim == WarpAnimation.Admin)
+            if (anim == WarpEffect.Admin)
             {
                 if (!_characterRendererProvider.CharacterRenderers.ContainsKey(characterId))
                     _characterRendererProvider.NeedsWarpArriveAnimation.Add(characterId);
@@ -257,10 +255,6 @@ namespace EndlessClient.Rendering.Character
                 Animator.StartOtherCharacterSpellCast(playerId);
                 _characterRendererProvider.CharacterRenderers[playerId].ShoutSpellCast();
             }
-            else
-            {
-                _currentMapStateProvider.UnknownPlayerIDs.Add(playerId);
-            }
 
             var spellData = _pubFileProvider.ESFFile[spellId];
 
@@ -282,25 +276,25 @@ namespace EndlessClient.Rendering.Character
             }
         }
 
-        public void NotifyMapEffect(MapEffect effect, int strength = 0)
+        public void NotifyMapEffect(EOLib.IO.Map.MapEffect effect, int strength = 0)
         {
             switch (effect)
             {
-                case MapEffect.Quake1:
-                case MapEffect.Quake2:
-                case MapEffect.Quake3:
-                case MapEffect.Quake4:
+                case EOLib.IO.Map.MapEffect.Quake1:
+                case EOLib.IO.Map.MapEffect.Quake2:
+                case EOLib.IO.Map.MapEffect.Quake3:
+                case EOLib.IO.Map.MapEffect.Quake4:
                     var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
                     mapRenderer.StartEarthquake(strength);
                     _sfxPlayer.PlaySfx(SoundEffectID.Earthquake);
                     break;
-                case MapEffect.HPDrain:
+                case EOLib.IO.Map.MapEffect.HPDrain:
                     _sfxPlayer.PlaySfx(SoundEffectID.MapEffectHPDrain);
                     break;
-                case MapEffect.TPDrain:
+                case EOLib.IO.Map.MapEffect.TPDrain:
                     _sfxPlayer.PlaySfx(SoundEffectID.MapEffectTPDrain);
                     break;
-                case MapEffect.Spikes:
+                case EOLib.IO.Map.MapEffect.Spikes:
                     _sfxPlayer.PlaySfx(SoundEffectID.Spikes);
                     break;
             }

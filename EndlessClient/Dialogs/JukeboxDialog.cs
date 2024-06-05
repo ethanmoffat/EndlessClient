@@ -1,13 +1,14 @@
 ﻿using EndlessClient.Audio;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.Dialogs.Services;
+using EOLib.Domain.Character;
 using EOLib.Domain.Interact.Jukebox;
-using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended.Input.InputListeners;
 using Optional;
+using Optional.Collections;
 using System;
 using System.Collections.Generic;
 using XNAControls;
@@ -21,9 +22,8 @@ namespace EndlessClient.Dialogs
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly IJukeboxActions _jukeboxActions;
         private readonly IJukeboxRepository _jukeboxRepository;
+        private readonly ICharacterInventoryProvider _characterInventoryProvider;
         private readonly ISfxPlayer _sfxPlayer;
-
-        private readonly MapCoordinate _jukeboxCoordinate;
 
         private readonly IEDFFile _songNames;
 
@@ -42,8 +42,8 @@ namespace EndlessClient.Dialogs
                              IEOMessageBoxFactory messageBoxFactory,
                              IJukeboxActions jukeboxActions,
                              IJukeboxRepository jukeboxRepository,
-                             ISfxPlayer sfxPlayer,
-                             MapCoordinate jukeboxCoordinate)
+                             ICharacterInventoryProvider characterInventoryProvider,
+                             ISfxPlayer sfxPlayer)
             : base(nativeGraphicsManager, dialogButtonService, DialogType.Jukebox)
         {
             _dialogIconService = dialogIconService;
@@ -51,8 +51,8 @@ namespace EndlessClient.Dialogs
             _messageBoxFactory = messageBoxFactory;
             _jukeboxActions = jukeboxActions;
             _jukeboxRepository = jukeboxRepository;
+            _characterInventoryProvider = characterInventoryProvider;
             _sfxPlayer = sfxPlayer;
-            _jukeboxCoordinate = jukeboxCoordinate;
 
             ListItemType = ListDialogItem.ListItemStyle.Large;
             Buttons = ScrollingListDialogButtons.Cancel;
@@ -141,6 +141,13 @@ namespace EndlessClient.Dialogs
                 return;
             }
 
+            if (_characterInventoryProvider.ItemInventory.SingleOrNone(x => x.ItemID == 1).Map(x => x.Amount < 25).ValueOr(true))
+            {
+                var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.WARNING_YOU_HAVE_NOT_ENOUGH, " gold");
+                dlg.ShowDialog();
+                return;
+            }
+
             var confirmDlg = _messageBoxFactory.CreateMessageBox(
                 $"{_localizedStringFinder.GetString(EOResourceID.JUKEBOX_REQUEST_SONG_FOR)} 25 gold?",
                 _localizedStringFinder.GetString(EOResourceID.JUKEBOX_REQUEST_SONG),
@@ -150,7 +157,7 @@ namespace EndlessClient.Dialogs
             {
                 if (e.Result == XNADialogResult.OK)
                 {
-                    _jukeboxActions.RequestSong(_jukeboxCoordinate, _songIndex);
+                    _jukeboxActions.RequestSong(_songIndex);
                     _sfxPlayer.PlaySfx(SoundEffectID.BuySell);
 
                     Close(XNADialogResult.NO_BUTTON_PRESSED);

@@ -1,22 +1,23 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
+using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.IO.Map;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using Optional;
 using System;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Effects
 {
     [AutoMappedType]
-    public class MapDebuffHandler : InGameOnlyPacketHandler
+    public class MapDebuffHandler : InGameOnlyPacketHandler<EffectSpecServerPacket>
     {
-        private const int EFFECT_DAMAGE_TPDRAIN = 1;
-        private const int EFFECT_DAMAGE_SPIKE = 2;
-
         private readonly ICharacterRepository _characterRepository;
+        private readonly ICurrentMapProvider _currentMapProvider;
+        private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IEnumerable<IMainCharacterEventNotifier> _mainCharacterEventNotifiers;
         private readonly IEnumerable<IEffectNotifier> _effectNotifiers;
 
@@ -26,54 +27,57 @@ namespace EOLib.PacketHandlers.Effects
 
         public MapDebuffHandler(IPlayerInfoProvider playerInfoProvider,
                                 ICharacterRepository characterRepository,
+                                ICurrentMapProvider currentMapProvider,
+                                ICurrentMapStateRepository currentMapStateRepository,
                                 IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers,
                                 IEnumerable<IEffectNotifier> effectNotifiers)
             : base(playerInfoProvider)
         {
             _characterRepository = characterRepository;
+            _currentMapProvider = currentMapProvider;
+            _currentMapStateRepository = currentMapStateRepository;
             _mainCharacterEventNotifiers = mainCharacterEventNotifiers;
             _effectNotifiers = effectNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(EffectSpecServerPacket packet)
         {
             var character = _characterRepository.MainCharacter;
             var originalStats = character.Stats;
 
-            //1 in eoserv Map::TimedDrains - tp
-            //2 in eoserv Character::SpikeDamage
-            var damageType = packet.ReadChar();
-            switch (damageType)
+            switch (packet.MapDamageType)
             {
-                case EFFECT_DAMAGE_TPDRAIN:
+                // todo: show amount in damage counter
+                case MapDamageType.TpDrain:
                     {
-                        // todo: show amount in damage counter
-                        var amount = packet.ReadShort();
-                        var tp = packet.ReadShort();
-                        var maxTp = packet.ReadShort();
+                        var data = (EffectSpecServerPacket.MapDamageTypeDataTpDrain)packet.MapDamageTypeData;
                         _characterRepository.MainCharacter = character.WithStats(
-                            originalStats.WithNewStat(CharacterStat.TP, tp)
-                                .WithNewStat(CharacterStat.MaxTP, maxTp));
+                            originalStats.WithNewStat(CharacterStat.TP, data.Tp)
+                                .WithNewStat(CharacterStat.MaxTP, data.MaxTp));
 
                         foreach (var notifier in _effectNotifiers)
-                            notifier.NotifyMapEffect(MapEffect.TPDrain);
+                            notifier.NotifyMapEffect(IO.Map.MapEffect.TPDrain);
                     }
                     break;
-                case EFFECT_DAMAGE_SPIKE:
+                case MapDamageType.Spikes:
                     {
-                        // todo: show amount in damage counter
-                        var damage = packet.ReadShort();
-                        var hp = packet.ReadShort();
-                        var maxHp = packet.ReadShort();
-                        character = character.WithStats(originalStats.WithNewStat(CharacterStat.HP, hp)
-                                                                     .WithNewStat(CharacterStat.MaxHP, maxHp));
+                        if (_currentMapProvider.CurrentMap.Tiles[character.RenderProperties.MapY, character.RenderProperties.MapX] == IO.Map.TileSpec.SpikesTimed)
+                        {
+                            _currentMapStateRepository.LastTimedSpikeEvent = Option.Some(DateTime.Now);
+                            foreach (var notifier in _effectNotifiers)
+                                notifier.NotifyMapEffect(IO.Map.MapEffect.Spikes);
+                        }
 
-                        character = character.WithRenderProperties(character.RenderProperties.WithIsDead(hp <= 0));
+                        var data = (EffectSpecServerPacket.MapDamageTypeDataSpikes)packet.MapDamageTypeData;
+                        character = character.WithStats(originalStats.WithNewStat(CharacterStat.HP, data.Hp)
+                                                                     .WithNewStat(CharacterStat.MaxHP, data.MaxHp));
+
+                        character = character.WithRenderProperties(character.RenderProperties.WithIsDead(data.Hp <= 0));
 
                         _characterRepository.MainCharacter = character;
 
                         foreach (var notifier in _mainCharacterEventNotifiers)
-                            notifier.NotifyTakeDamage(damage, (int)Math.Round((double)hp / maxHp * 100), isHeal: false);
+                            notifier.NotifyTakeDamage(data.HpDamage, (int)Math.Round((double)data.Hp / data.MaxHp * 100), isHeal: false);
                     }
                     break;
                 default:

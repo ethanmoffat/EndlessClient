@@ -16,6 +16,7 @@ using MonoGame.Extended.BitmapFonts;
 using Optional;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace EndlessClient.Rendering.Map
 {
@@ -45,7 +46,7 @@ namespace EndlessClient.Rendering.Map
         private RenderTarget2D _mapBaseTarget, _mapObjectTarget;
         private SpriteBatch _sb;
         private MapTransitionState _mapTransitionState = MapTransitionState.Default;
-        private int? _lastMapChecksum;
+        private IReadOnlyList<int> _lastMapChecksum;
         private bool _groundDrawn;
 
         private Option<MapQuakeState> _quakeState;
@@ -122,7 +123,7 @@ namespace EndlessClient.Rendering.Map
         {
             if (_currentMapStateProvider.IsSleepWarp) return;
 
-            if (!_lastMapChecksum.HasValue || _lastMapChecksum != _currentMapProvider.CurrentMap.Properties.ChecksumInt)
+            if (_lastMapChecksum == null || !_lastMapChecksum.SequenceEqual(_currentMapProvider.CurrentMap.Properties.Checksum))
             {
                 // The dimensions of the map are 0-based in the properties. Adjust to 1-based for RT creation
                 var widthPlus1 = _currentMapProvider.CurrentMap.Properties.Width + 1;
@@ -163,7 +164,7 @@ namespace EndlessClient.Rendering.Map
                 }
             }
 
-            _lastMapChecksum = _currentMapProvider.CurrentMap.Properties.ChecksumInt;
+            _lastMapChecksum = _currentMapProvider.CurrentMap.Properties.Checksum;
 
             base.Update(gameTime);
         }
@@ -270,7 +271,7 @@ namespace EndlessClient.Rendering.Map
 
         private void DrawGroundLayerToRenderTarget()
         {
-            if (_groundDrawn && (!_mapTransitionState.StartTime.HasValue && _lastMapChecksum == _currentMapProvider.CurrentMap.Properties.ChecksumInt))
+            if (_groundDrawn && !_mapTransitionState.StartTime.HasValue && _lastMapChecksum == _currentMapProvider.CurrentMap.Properties.Checksum)
                 return;
 
             _groundDrawn = true;
@@ -372,8 +373,10 @@ namespace EndlessClient.Rendering.Map
             {
                 var alpha = GetAlphaForCoordinates(col, row, immutableCharacter);
 
-                foreach (var renderer in _mapEntityRendererProvider.MapEntityRenderers)
+                for (int i = 0; i < _mapEntityRendererProvider.MapEntityRenderers.Count; i++)
                 {
+                    var renderer = _mapEntityRendererProvider.MapEntityRenderers[i];
+
                     if (!renderer.CanRender(row, col))
                         continue;
 
@@ -431,8 +434,9 @@ namespace EndlessClient.Rendering.Map
                 {
                     var alpha = GetAlphaForCoordinates(col, row, _characterProvider.MainCharacter);
 
-                    foreach (var renderer in _mapEntityRendererProvider.BaseRenderers)
+                    for (int i = 0; i < _mapEntityRendererProvider.BaseRenderers.Count; i++)
                     {
+                        var renderer = _mapEntityRendererProvider.BaseRenderers[i];
                         if (renderer.CanRender(row, col))
                             renderer.RenderElementAt(spriteBatch, row, col, alpha, new Vector2(offset, 0));
                     }

@@ -1,8 +1,9 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOLib.PacketHandlers.Face
 {
@@ -10,7 +11,7 @@ namespace EOLib.PacketHandlers.Face
     /// Player changing direction
     /// </summary>
     [AutoMappedType]
-    public class FacePlayerHandler : InGameOnlyPacketHandler
+    public class FacePlayerHandler : InGameOnlyPacketHandler<FacePlayerServerPacket>
     {
         private readonly ICurrentMapStateRepository _mapStateRepository;
 
@@ -25,20 +26,17 @@ namespace EOLib.PacketHandlers.Face
             _mapStateRepository = mapStateRepository;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(FacePlayerServerPacket packet)
         {
-            var id = packet.ReadShort();
-            var direction = (EODirection)packet.ReadChar();
-
-            if (!_mapStateRepository.Characters.ContainsKey(id))
+            if (!_mapStateRepository.Characters.ContainsKey(packet.PlayerId))
             {
-                _mapStateRepository.UnknownPlayerIDs.Add(id);
+                _mapStateRepository.UnknownPlayerIDs.Add(packet.PlayerId);
                 return true;
             }
 
-            var character = _mapStateRepository.Characters[id];
+            var character = _mapStateRepository.Characters[packet.PlayerId];
 
-            var newRenderProps = character.RenderProperties.WithDirection(direction);
+            var newRenderProps = character.RenderProperties.WithDirection((EODirection)packet.Direction);
             var newCharacter = character.WithRenderProperties(newRenderProps);
 
             _mapStateRepository.Characters.Update(character, newCharacter);

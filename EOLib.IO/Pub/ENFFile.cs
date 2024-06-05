@@ -7,10 +7,11 @@ namespace EOLib.IO.Pub
         public override string FileType => "ENF";
 
         public ENFFile()
+            : this(0, new List<int> { 0, 0 }, 0, new List<ENFRecord>())
         {
         }
 
-        public ENFFile(int id, int checksum, int totalLength, List<ENFRecord> data)
+        public ENFFile(int id, IReadOnlyList<int> checksum, int totalLength, List<ENFRecord> data)
             : base(id, checksum, totalLength, data)
         {
         }

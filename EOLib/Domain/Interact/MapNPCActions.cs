@@ -1,9 +1,8 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Interact.Quest;
-using EOLib.Domain.NPC;
 using EOLib.IO.Repositories;
-using EOLib.Net;
 using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 
 namespace EOLib.Domain.Interact
 {
@@ -25,10 +24,7 @@ namespace EOLib.Domain.Interact
 
         public void RequestShop(NPC.NPC npc)
         {
-            var packet = new PacketBuilder(PacketFamily.Shop, PacketAction.Open)
-                .AddShort(npc.Index)
-                .Build();
-
+            var packet = new ShopOpenClientPacket { NpcIndex = npc.Index };
             _packetSendService.SendPacket(packet);
         }
 
@@ -36,67 +32,47 @@ namespace EOLib.Domain.Interact
         {
             _questDataRepository.RequestedNPC = npc;
 
-            var data = _enfFileProvider.ENFFile[npc.ID];
-
-            var packet = new PacketBuilder(PacketFamily.Quest, PacketAction.Use)
-                .AddShort(npc.Index)
-                .AddShort(data.VendorID)
-                .Build();
-
+            var packet = new QuestUseClientPacket
+            {
+                NpcIndex = npc.Index,
+                QuestId = _enfFileProvider.ENFFile[npc.ID].VendorID
+            };
             _packetSendService.SendPacket(packet);
         }
 
         public void RequestBank(NPC.NPC npc)
         {
-            var packet = new PacketBuilder(PacketFamily.Bank, PacketAction.Open)
-                .AddShort(npc.Index)
-                .Build();
-
+            var packet = new BankOpenClientPacket { NpcIndex = npc.Index };
             _packetSendService.SendPacket(packet);
         }
 
         public void RequestSkillmaster(NPC.NPC npc)
         {
-            var packet = new PacketBuilder(PacketFamily.StatSkill, PacketAction.Open)
-                .AddShort(npc.Index)
-                .Build();
-
+            var packet = new StatSkillOpenClientPacket { NpcIndex = npc.Index };
             _packetSendService.SendPacket(packet);
         }
 
         public void RequestInnkeeper(NPC.NPC npc)
         {
-            var packet = new PacketBuilder(PacketFamily.Citizen, PacketAction.Open)
-                .AddShort(npc.Index)
-                .Build();
-
+            var packet = new CitizenOpenClientPacket { NpcIndex = npc.Index };
             _packetSendService.SendPacket(packet);
         }
 
         public void RequestLaw(NPC.NPC npc)
         {
-            var packet = new PacketBuilder(PacketFamily.Marriage, PacketAction.Open)
-                .AddShort(npc.Index)
-                .Build();
-
+            var packet = new MarriageOpenClientPacket { NpcIndex = npc.Index };
             _packetSendService.SendPacket(packet);
         }
 
         public void RequestPriest(NPC.NPC npc)
         {
-            var packet = new PacketBuilder(PacketFamily.Priest, PacketAction.Open)
-                .AddInt(npc.Index)
-                .Build();
-
+            var packet = new PriestOpenClientPacket { NpcIndex = npc.Index };
             _packetSendService.SendPacket(packet);
         }
 
         public void RequestBarber(NPC.NPC npc)
         {
-            var packet = new PacketBuilder(PacketFamily.Barber, PacketAction.Open)
-                .AddInt(npc.Index)
-                .Build();
-
+            var packet = new BarberOpenClientPacket { NpcIndex = npc.Index };
             _packetSendService.SendPacket(packet);
         }
     }
@@ -110,7 +86,7 @@ namespace EOLib.Domain.Interact
         void RequestInnkeeper(NPC.NPC npc);
         void RequestLaw(NPC.NPC npc);
         void RequestPriest(NPC.NPC npc);
-        void RequestBarber(NPC.NPC npc); // Corrected here
+        void RequestBarber(NPC.NPC npc);
     }
 
 }

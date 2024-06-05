@@ -1,8 +1,9 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Interact;
 using EOLib.Domain.Login;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Citizen
@@ -11,7 +12,7 @@ namespace EOLib.PacketHandlers.Citizen
     /// Sent when signing up to a town
     /// </summary>
     [AutoMappedType]
-    public class CitizenReplyHandler : InGameOnlyPacketHandler
+    public class CitizenReplyHandler : InGameOnlyPacketHandler<CitizenReplyServerPacket>
     {
         private readonly IEnumerable<INPCInteractionNotifier> _npcInteractionNotifiers;
 
@@ -26,12 +27,10 @@ namespace EOLib.PacketHandlers.Citizen
             _npcInteractionNotifiers = npcInteractionNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(CitizenReplyServerPacket packet)
         {
-            var questionsWrong = packet.ReadChar();
-
             foreach (var notifier in _npcInteractionNotifiers)
-                notifier.NotifyCitizenSignUp(questionsWrong);
+                notifier.NotifyCitizenSignUp(packet.QuestionsWrong);
 
             return true;
         }

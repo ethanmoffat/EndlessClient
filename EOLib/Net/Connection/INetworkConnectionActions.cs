@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
-using EOLib.Domain.Protocol;
 using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOLib.Net.Connection
 {
@@ -10,8 +10,8 @@ namespace EOLib.Net.Connection
 
         void DisconnectFromServer();
 
-        Task<IInitializationData> BeginHandshake();
+        Task<InitInitServerPacket> BeginHandshake(int challenge);
 
-        void CompleteHandshake(IInitializationData initializationData);
+        void CompleteHandshake(InitInitServerPacket initializationData);
     }
 }

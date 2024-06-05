@@ -11,6 +11,7 @@ using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Item;
 using EOLib.Domain.Login;
+using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.IO.Extensions;
@@ -20,7 +21,6 @@ using EOLib.IO.Repositories;
 using EOLib.Localization;
 using Microsoft.Win32;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.Input;
 using Optional;
 using Optional.Collections;
@@ -173,7 +173,7 @@ namespace EndlessClient.HUD.Panels
             }
         }
 
-        protected override void OnUpdateControl(GameTime gameTime)
+        protected override void OnUnconditionalUpdateControl(GameTime gameTime)
         {
             _cachedStats.Match(
                 some: stats =>
@@ -407,7 +407,7 @@ namespace EndlessClient.HUD.Panels
                     e.ContinueDrag = !fitsInOldSlot;
                     e.RestoreOriginalSlot = fitsInOldSlot;
 
-                    _inventoryController.DropItem(item.Data, item.InventoryItem);
+                    _inventoryController.DropItem(item.Data, item.InventoryItem, mapRenderer.GridCoordinates);
                     return;
                 }
             }
@@ -417,7 +417,7 @@ namespace EndlessClient.HUD.Panels
                 e.ContinueDrag = !fitsInOldSlot;
                 e.RestoreOriginalSlot = fitsInOldSlot;
 
-                _inventoryController.DropItem(item.Data, item.InventoryItem);
+                _inventoryController.DropItem(item.Data, item.InventoryItem, MapCoordinate.Max);
                 return;
             }
             else if (_junk.MouseOver)

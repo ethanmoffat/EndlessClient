@@ -7,6 +7,7 @@ using EOLib.Domain.Chat;
 using EOLib.Domain.Notifiers;
 using EOLib.Domain.Party;
 using EOLib.Localization;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
 using XNAControls;
 
 namespace EndlessClient.Dialogs.Actions

@@ -1,34 +1,34 @@
 ﻿using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
 
 namespace EOLib.PacketHandlers.Chat
 {
-    public abstract class PlayerChatByIDHandler : InGameOnlyPacketHandler
+    public abstract class PlayerChatByIDHandler<TPacket> : InGameOnlyPacketHandler<TPacket>
+        where TPacket : IPacket
     {
-        private readonly ICurrentMapStateProvider _currentMapStateProvider;
+        private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly ICharacterProvider _characterProvider;
 
         public override PacketFamily Family => PacketFamily.Talk;
 
         protected PlayerChatByIDHandler(IPlayerInfoProvider playerInfoProvider,
-                                        ICurrentMapStateProvider currentMapStateProvider,
+                                        ICurrentMapStateRepository currentMapStateRepository,
                                         ICharacterProvider characterProvider)
             : base(playerInfoProvider)
         {
-            _currentMapStateProvider = currentMapStateProvider;
+            _currentMapStateRepository = currentMapStateRepository;
             _characterProvider = characterProvider;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        protected bool Handle(TPacket packet, int fromPlayerID)
         {
-            var fromPlayerID = packet.ReadShort();
-            if (!_currentMapStateProvider.Characters.TryGetValue(fromPlayerID, out var character) &&
+            if (!_currentMapStateRepository.Characters.TryGetValue(fromPlayerID, out var character) &&
                 _characterProvider.MainCharacter.ID != fromPlayerID)
             {
-                _currentMapStateProvider.UnknownPlayerIDs.Add(fromPlayerID);
+                _currentMapStateRepository.UnknownPlayerIDs.Add(fromPlayerID);
                 return true;
             }
 
@@ -40,6 +40,6 @@ namespace EOLib.PacketHandlers.Chat
             return true;
         }
 
-        protected abstract void DoTalk(IPacket packet, Character character);
+        protected abstract void DoTalk(TPacket packet, Character character);
     }
 }

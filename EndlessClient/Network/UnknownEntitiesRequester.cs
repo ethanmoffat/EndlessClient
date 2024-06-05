@@ -1,126 +1,76 @@
 ﻿using EndlessClient.GameExecution;
 using EndlessClient.Rendering;
+using EndlessClient.Rendering.Character;
+using EndlessClient.Rendering.NPC;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
 using EOLib.IO.Map;
-using EOLib.Net;
-using EOLib.Net.Communication;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 
 namespace EndlessClient.Network
 {
     public class UnknownEntitiesRequester : GameComponent
     {
-        private const int UPPER_SEE_DISTANCE = 11;
-        private const int LOWER_SEE_DISTANCE = 14;
+        private const int UPPER_SEE_DISTANCE = 12;
+        private const int LOWER_SEE_DISTANCE = 15;
 
-        private const double REQUEST_INTERVAL_SECONDS = 1.0;
+        private const int REQUEST_INTERVAL_MS = 1000;
 
         private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
-        private readonly IPacketSendService _packetSendService;
+        private readonly INPCRendererProvider _npcRendererProvider;
+        private readonly ICharacterRendererProvider _characterRendererProvider;
+        private readonly IUnknownEntitiesRequestActions _unknownEntitiesRequestActions;
 
-        private DateTime _lastRequestTime;
-        
+        private readonly Stopwatch _requestTimer;
 
-        // todo: create actions in EOLib.Domain for requesting unknown entities, instead of using packetsendservice directly
         public UnknownEntitiesRequester(IEndlessGameProvider gameProvider,
                                         IClientWindowSizeProvider clientWindowSizeProvider,
                                         ICharacterProvider characterProvider,
                                         ICurrentMapStateRepository currentMapStateRepository,
-                                        IPacketSendService packetSendService)
+                                        INPCRendererProvider npcRendererProvider,
+                                        ICharacterRendererProvider characterRendererProvider,
+                                        IUnknownEntitiesRequestActions unknownEntitiesRequestActions)
             : base((Game) gameProvider.Game)
         {
             _clientWindowSizeProvider = clientWindowSizeProvider;
             _characterProvider = characterProvider;
             _currentMapStateRepository = currentMapStateRepository;
-            _packetSendService = packetSendService;
-            _lastRequestTime = DateTime.Now;
+            _npcRendererProvider = npcRendererProvider;
+            _characterRendererProvider = characterRendererProvider;
+            _unknownEntitiesRequestActions = unknownEntitiesRequestActions;
+            _requestTimer = Stopwatch.StartNew();
         }
 
         public override void Update(GameTime gameTime)
         {
-            if ((DateTime.Now - _lastRequestTime).TotalSeconds >= REQUEST_INTERVAL_SECONDS)
+            if (_requestTimer.ElapsedMilliseconds >= REQUEST_INTERVAL_MS)
             {
-                IPacket request = null;
+                ClearOutOfRangeActors();
+
                 if (_currentMapStateRepository.UnknownNPCIndexes.Count > 0 && _currentMapStateRepository.UnknownPlayerIDs.Count > 0)
                 {
-                    request = CreateRequestForBoth();
+                    _unknownEntitiesRequestActions.RequestAll();
                 }
                 else if (_currentMapStateRepository.UnknownNPCIndexes.Count > 0)
                 {
-                    request = CreateRequestForNPCs();
+                    _unknownEntitiesRequestActions.RequestUnknownNPCs();
                 }
                 else if (_currentMapStateRepository.UnknownPlayerIDs.Count > 0)
                 {
-                    request = CreateRequestForPlayers();
+                    _unknownEntitiesRequestActions.RequestUnknownPlayers();
                 }
 
-                try
-                {
-                    if (request != null)
-                    {
-                        _packetSendService.SendPacket(request);
-                        _currentMapStateRepository.UnknownNPCIndexes.Clear();
-                        _currentMapStateRepository.UnknownPlayerIDs.Clear();
-                    }
-                }
-                catch (NoDataSentException)
-                { } // Swallow error. Will try again on next interval
-                finally
-                {
-                    _lastRequestTime = DateTime.Now;
-                }
-
-                ClearOutOfRangeActors();
+                _requestTimer.Restart();
             }
 
             base.Update(gameTime);
-        }
-
-        private IPacket CreateRequestForBoth()
-        {
-            IPacketBuilder builder = new PacketBuilder(PacketFamily.MapInfo, PacketAction.Request);
-            foreach (var id in _currentMapStateRepository.UnknownPlayerIDs)
-            {
-                builder = builder.AddShort(id);
-            }
-            builder = builder.AddByte(0xFF);
-            foreach (var index in _currentMapStateRepository.UnknownNPCIndexes)
-            {
-                builder = builder.AddChar(index);
-            }
-
-            return builder.Build();
-        }
-
-        private IPacket CreateRequestForNPCs()
-        {
-            IPacketBuilder builder = new PacketBuilder(PacketFamily.NPCMapInfo, PacketAction.Request)
-                .AddChar(_currentMapStateRepository.UnknownNPCIndexes.Count)
-                .AddByte(0xFF);
-
-            foreach (var index in _currentMapStateRepository.UnknownNPCIndexes)
-            {
-                builder = builder.AddChar(index);
-            }
-            return builder.Build();
-        }
-
-        private IPacket CreateRequestForPlayers()
-        {
-            IPacketBuilder builder = new PacketBuilder(PacketFamily.CharacterMapInfo, PacketAction.Request);
-            foreach (var id in _currentMapStateRepository.UnknownPlayerIDs)
-            {
-                builder = builder.AddShort(id);
-            }
-            return builder.Build();
         }
 
         private void ClearOutOfRangeActors()
@@ -153,9 +103,9 @@ namespace EndlessClient.Network
 
             foreach (var entity in entitiesToRemove)
             {
-                if (entity is Character c)
+                if (entity is Character c && _characterRendererProvider.CharacterRenderers.ContainsKey(c.ID))
                     _currentMapStateRepository.Characters.Remove(c);
-                else if (entity is NPC n)
+                else if (entity is NPC n && _npcRendererProvider.NPCRenderers.ContainsKey(n.Index))
                     _currentMapStateRepository.NPCs.Remove(n);
                 else if (entity is MapItem i)
                     _currentMapStateRepository.MapItems.Remove(i);

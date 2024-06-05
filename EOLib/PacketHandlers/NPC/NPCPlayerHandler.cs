@@ -5,16 +5,14 @@ using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.Domain.NPC;
 using EOLib.IO.Repositories;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
 using Optional.Collections;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 
 using DomainNPC = EOLib.Domain.NPC.NPC;
 
@@ -24,7 +22,7 @@ namespace EOLib.PacketHandlers.NPC
     /// Sent when an NPC does something (walk/attack/talk)
     /// </summary>
     [AutoMappedType]
-    public class NPCPlayerHandler : InGameOnlyPacketHandler
+    public class NPCPlayerHandler : InGameOnlyPacketHandler<NpcPlayerServerPacket>
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly IChatRepository _chatRepository;
@@ -34,7 +32,7 @@ namespace EOLib.PacketHandlers.NPC
         private readonly IEnumerable<IMainCharacterEventNotifier> _mainCharacterNotifiers;
         private readonly IEnumerable<IOtherCharacterEventNotifier> _otherCharacterNotifiers;
 
-        public override PacketFamily Family => PacketFamily.NPC;
+        public override PacketFamily Family => PacketFamily.Npc;
 
         public override PacketAction Action => PacketAction.Player;
 
@@ -57,77 +55,55 @@ namespace EOLib.PacketHandlers.NPC
             _otherCharacterNotifiers = otherCharacterNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(NpcPlayerServerPacket packet)
         {
-            var chunks = new List<IPacket>();
-            while (packet.ReadPosition < packet.Length)
+            HandleNPCWalk(packet.Positions);
+            HandleNPCAttack(packet.Attacks);
+            HandleNPCTalk(packet.Chats);
+
+            var stats = _characterRepository.MainCharacter.Stats;
+            if (packet.Hp.HasValue)
             {
-                var data = packet.RawData.Skip(packet.ReadPosition).TakeWhile(x => x != 255).ToArray();
-                packet.Seek(data.Length, SeekOrigin.Current);
-                if (packet.ReadPosition < packet.Length)
-                    packet.ReadByte();
-
-                chunks.Add(new PacketBuilder(packet.Family, packet.Action).AddBytes(data).Build());
+                stats = stats.WithNewStat(CharacterStat.HP, packet.Hp.Value);
             }
-
-            if (chunks.Count < 3 || chunks.Count > 4)
-                throw new MalformedPacketException($"Expected 3 or 4 chunks in NPC_PLAYER packet, got {chunks.Count}", packet);
-
-            HandleNPCWalk(chunks[0]);
-            HandleNPCAttack(chunks[1]);
-            HandleNPCTalk(chunks[2]);
-
-            if (chunks.Count > 3)
+            if (packet.Tp.HasValue)
             {
-                var hp = chunks[3].ReadShort();
-                var tp = chunks[3].ReadShort();
-
-                var stats = _characterRepository.MainCharacter.Stats
-                    .WithNewStat(CharacterStat.HP, hp)
-                    .WithNewStat(CharacterStat.TP, tp);
-                _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);
+                stats = stats.WithNewStat(CharacterStat.TP, packet.Tp.Value);
             }
+            _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);
 
             return true;
         }
 
-        private void HandleNPCWalk(IPacket packet)
+        private void HandleNPCWalk(IReadOnlyList<NpcUpdatePosition> positions)
         {
-            while (packet.ReadPosition < packet.Length)
+            foreach (var position in positions)
             {
-                var index = packet.ReadChar();
-                var x = packet.ReadChar();
-                var y = packet.ReadChar();
-                var npcDirection = (EODirection)packet.ReadChar();
-
-                var npc = GetNPC(index);
+                var npc = GetNPC(position.NpcIndex);
                 npc.Match(
                     some: n =>
                     {
-                        var updated = n.WithDirection(npcDirection);
-                        updated = EnsureCorrectXAndY(updated, x, y);
-                        ReplaceNPC(n, updated);
+                        var updated = n.WithDirection((EODirection)position.Direction);
+                        updated = EnsureCorrectXAndY(updated, position.Coords.X, position.Coords.Y);
+                        _currentMapStateRepository.NPCs.Update(n, updated);
 
                         foreach (var notifier in _npcAnimationNotifiers)
                             notifier.StartNPCWalkAnimation(n.Index);
                     },
-                    none: () => _currentMapStateRepository.UnknownNPCIndexes.Add(index));
+                    none: () => _currentMapStateRepository.UnknownNPCIndexes.Add(position.NpcIndex));
             }
         }
 
-        private void HandleNPCAttack(IPacket packet)
+        private void HandleNPCAttack(IReadOnlyList<NpcUpdateAttack> attacks)
         {
-            // note: eoserv incorrectly sends playerPercentHealth as a three byte number. GameServer sends a single char.
-            const int DATA_LENGTH = 9;
-
-            while (packet.ReadPosition + DATA_LENGTH < packet.Length)
+            foreach (var attack in attacks)
             {
-                var index = packet.ReadChar();
-                var isDead = packet.ReadChar() == 2; // 2 if target player is dead, 1 if alive
-                var npcDirection = (EODirection)packet.ReadChar();
-                var characterID = packet.ReadShort();
-                var damageTaken = packet.ReadThree();
-                var playerPercentHealth = packet.ReadChar();
+                var index = attack.NpcIndex;
+                var isDead = attack.Killed == PlayerKilledState.Killed;
+                var npcDirection = (EODirection)attack.Direction;
+                var characterID = attack.PlayerId;
+                var damageTaken = attack.Damage;
+                var playerPercentHealth = attack.HpPercentage;
 
                 if (characterID == _characterRepository.MainCharacter.ID)
                 {
@@ -150,7 +126,7 @@ namespace EOLib.PacketHandlers.NPC
                     foreach (var notifier in _otherCharacterNotifiers)
                         notifier.OtherCharacterTakeDamage(characterID, playerPercentHealth, damageTaken, isHeal: false);
                 }
-                else
+                else if (characterID > 0)
                 {
                     _currentMapStateRepository.UnknownPlayerIDs.Add(characterID);
                 }
@@ -160,7 +136,7 @@ namespace EOLib.PacketHandlers.NPC
                     some: n =>
                     {
                         var updated = n.WithDirection(npcDirection);
-                        ReplaceNPC(n, updated);
+                        _currentMapStateRepository.NPCs.Update(n, updated);
 
                         foreach (var notifier in _npcAnimationNotifiers)
                             notifier.StartNPCAttackAnimation(index);
@@ -169,39 +145,29 @@ namespace EOLib.PacketHandlers.NPC
             }
         }
 
-        private void HandleNPCTalk(IPacket packet)
+        private void HandleNPCTalk(IReadOnlyList<NpcUpdateChat> chats)
         {
-            while (packet.ReadPosition < packet.Length)
+            foreach (var chat in chats)
             {
-                var index = packet.ReadChar();
-                var messageLength = packet.ReadChar();
-                var message = packet.ReadString(messageLength);
-
-                var npc = GetNPC(index);
+                var npc = GetNPC(chat.NpcIndex);
                 npc.Match(
                     some: n =>
                     {
                         var npcData = _enfFileProvider.ENFFile[n.ID];
 
-                        var chatData = new ChatData(ChatTab.Local, npcData.Name, message, ChatIcon.Note, filter: false);
+                        var chatData = new ChatData(ChatTab.Local, npcData.Name, chat.Message, ChatIcon.Note, filter: false);
                         _chatRepository.AllChat[ChatTab.Local].Add(chatData);
 
                         foreach (var notifier in _npcAnimationNotifiers)
-                            notifier.ShowNPCSpeechBubble(index, message);
+                            notifier.ShowNPCSpeechBubble(chat.NpcIndex, chat.Message);
                     },
-                    none: () => _currentMapStateRepository.UnknownNPCIndexes.Add(index));
+                    none: () => _currentMapStateRepository.UnknownNPCIndexes.Add(chat.NpcIndex));
             }
         }
 
         private Option<DomainNPC> GetNPC(int index)
         {
             return _currentMapStateRepository.NPCs.SingleOrNone(n => n.Index == index);
-        }
-
-        private void ReplaceNPC(DomainNPC npc, DomainNPC updatedNPC)
-        {
-            _currentMapStateRepository.NPCs.Remove(npc);
-            _currentMapStateRepository.NPCs.Add(updatedNPC);
         }
 
         private static DomainNPC EnsureCorrectXAndY(DomainNPC npc, int destinationX, int destinationY)

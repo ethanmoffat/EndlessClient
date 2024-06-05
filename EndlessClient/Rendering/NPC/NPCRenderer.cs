@@ -93,14 +93,7 @@ namespace EndlessClient.Rendering.NPC
             _lastStandingAnimation = DateTime.Now;
             _fadeAwayAlpha = 255;
 
-            _clientWindowSizeProvider.GameWindowSizeChanged += (_, _) =>
-            {
-                lock (_rt_locker_)
-                {
-                    _npcRenderTarget.Dispose();
-                    _npcRenderTarget = _renderTargetFactory.CreateRenderTarget();
-                }
-            };
+            _clientWindowSizeProvider.GameWindowSizeChanged += RecreateRenderTarget;
 
             _healthBarRenderer = _healthBarRendererFactory.CreateHealthBarRenderer(this);
         }
@@ -203,8 +196,10 @@ namespace EndlessClient.Rendering.NPC
         public void ShowDamageCounter(int damage, int percentHealth, bool isHeal)
         {
             var optionalDamage = damage.SomeWhen(d => d > 0);
-            _healthBarRenderer.SetDamage(optionalDamage, percentHealth, () => _chatBubble?.Show());
+            _healthBarRenderer.SetDamage(optionalDamage, percentHealth, ShowChatBubble);
             _chatBubble?.Hide();
+
+            void ShowChatBubble() => _chatBubble?.Show();
         }
 
         public void ShowChatBubble(string message, bool isGroupChat)
@@ -318,6 +313,15 @@ namespace EndlessClient.Rendering.NPC
             }
         }
 
+        private void RecreateRenderTarget(object sender, EventArgs e)
+        {
+            lock (_rt_locker_)
+            {
+                _npcRenderTarget.Dispose();
+                _npcRenderTarget = _renderTargetFactory.CreateRenderTarget();
+            }
+        }
+
         private Vector2 GetNameLabelPosition()
         {
             return new Vector2(HorizontalCenter - (_nameLabel.ActualWidth / 2f), NameLabelY);
@@ -333,6 +337,8 @@ namespace EndlessClient.Rendering.NPC
 
                 lock (_rt_locker_)
                     _npcRenderTarget?.Dispose();
+
+                _clientWindowSizeProvider.GameWindowSizeChanged -= RecreateRenderTarget;
             }
 
             base.Dispose(disposing);

@@ -4,6 +4,10 @@ using EOLib.Localization;
 using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.PacketProcessing;
+using Moffat.EndlessOnline.SDK.Packet;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -60,68 +64,56 @@ namespace EOLib.Domain.Account
 
         public async Task<AccountReply> CheckAccountNameWithServer(string accountName)
         {
-            var nameCheckPacket = new PacketBuilder(PacketFamily.Account, PacketAction.Request)
-                .AddString(accountName)
-                .Build();
+            var nameCheckPacket = new AccountRequestClientPacket { Username = accountName };
 
             var response = await _packetSendService.SendEncodedPacketAndWaitAsync(nameCheckPacket);
-            if (IsInvalidResponse(response))
+            if (IsInvalidResponse(response, out var responsePacket))
                 throw new EmptyPacketReceivedException();
 
-            var reply = (AccountReply)response.ReadShort();
-            if (reply >= AccountReply.OK_CodeRange)
+            if (responsePacket.ReplyCode > (AccountReply)9)
             {
-                // Based on patch: https://github.com/eoserv/eoserv/commit/80dde6d4e7f440a93503aeec79f4a2f5931dc13d
-                // Account may change sequence start depending on the eoserv build being used
-                // Official software always updates sequence number
-                var hasNewSequence = response.Length == 7;
-                if (hasNewSequence)
-                {
-                    var newSequenceStart = response.ReadChar();
-                    _sequenceRepository.SequenceStart = newSequenceStart;
-                }
-
-                if (response.ReadEndString() != "OK")
-                    reply = AccountReply.NotApproved;
+                var defaultData = (AccountReplyServerPacket.ReplyCodeDataDefault)responsePacket.ReplyCodeData;
+                _sequenceRepository.Sequencer = _sequenceRepository.Sequencer.WithSequenceStart(AccountReplySequenceStart.FromValue(defaultData.SequenceStart));
             }
 
-            return reply;
+            return responsePacket.ReplyCode;
         }
 
         public async Task<AccountReply> CreateAccount(ICreateAccountParameters parameters, int sessionID)
         {
-            var createAccountPacket = new PacketBuilder(PacketFamily.Account, PacketAction.Create)
-                .AddShort(sessionID)
-                .AddByte(255)
-                .AddBreakString(parameters.AccountName)
-                .AddBreakString(parameters.Password)
-                .AddBreakString(parameters.RealName)
-                .AddBreakString(parameters.Location)
-                .AddBreakString(parameters.Email)
-                .AddBreakString(Dns.GetHostName())
-                .AddBreakString(_hdSerialNumberService.GetHDSerialNumber())
-                .Build();
+            var createAccountPacket = new AccountCreateClientPacket
+            {
+                SessionId = sessionID,
+                Username = parameters.AccountName,
+                Password = parameters.Password,
+                FullName = parameters.RealName,
+                Location = parameters.Location,
+                Email = parameters.Email,
+                Computer = Dns.GetHostName(),
+                Hdid = _hdSerialNumberService.GetHDSerialNumber(),
+            };
 
             var response = await _packetSendService.SendEncodedPacketAndWaitAsync(createAccountPacket);
-            if (IsInvalidResponse(response))
+            if (IsInvalidResponse(response, out var responsePacket))
                 throw new EmptyPacketReceivedException();
 
-            return (AccountReply) response.ReadShort();
+            return responsePacket.ReplyCode;
         }
 
         public async Task<AccountReply> ChangePassword(IChangePasswordParameters parameters)
         {
-            var changePasswordPacket = new PacketBuilder(PacketFamily.Account, PacketAction.Agree)
-                .AddBreakString(parameters.AccountName)
-                .AddBreakString(parameters.OldPassword)
-                .AddBreakString(parameters.NewPassword)
-                .Build();
+            var changePasswordPacket = new AccountAgreeClientPacket
+            {
+                Username = parameters.AccountName,
+                OldPassword = parameters.OldPassword,
+                NewPassword = parameters.NewPassword,
+            };
 
             var response = await _packetSendService.SendEncodedPacketAndWaitAsync(changePasswordPacket);
-            if (IsInvalidResponse(response))
+            if (IsInvalidResponse(response, out var responsePacket))
                 throw new EmptyPacketReceivedException();
 
-            return (AccountReply) response.ReadShort();
+            return responsePacket.ReplyCode;
         }
 
         private bool AnyFieldsStillEmpty(ICreateAccountParameters parameters)
@@ -134,12 +126,13 @@ namespace EOLib.Domain.Account
                 parameters.RealName,
                 parameters.Location,
                 parameters.Email
-            }.Any(x => x.Length == 0);
+            }.Any(string.IsNullOrWhiteSpace);
         }
 
-        private bool IsInvalidResponse(IPacket response)
+        private bool IsInvalidResponse(IPacket response, out AccountReplyServerPacket responsePacket)
         {
-            return response.Family != PacketFamily.Account || response.Action != PacketAction.Reply;
+            responsePacket = response as AccountReplyServerPacket;
+            return responsePacket != null && response.Family != PacketFamily.Account || response.Action != PacketAction.Reply;
         }
     }
 

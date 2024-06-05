@@ -1,6 +1,6 @@
 using AutomaticTypeMapper;
-using EOLib.Net;
 using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 
 namespace EOLib.Domain.Chat.Commands
 {
@@ -20,11 +20,8 @@ namespace EOLib.Domain.Chat.Commands
             if (string.IsNullOrEmpty(parameter))
                 return false;
 
-            var packet = new PacketBuilder(PacketFamily.Players, PacketAction.Accept)
-                .AddString(parameter)
-                .Build();
+            _packetSendService.SendPacketAsync(new PlayersAcceptClientPacket { Name = parameter });
 
-            _packetSendService.SendPacketAsync(packet);
             return true;
         }
     }

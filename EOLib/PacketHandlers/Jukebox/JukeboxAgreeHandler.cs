@@ -1,8 +1,9 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional.Collections;
 
 namespace EOLib.PacketHandlers.Jukebox
@@ -11,11 +12,11 @@ namespace EOLib.PacketHandlers.Jukebox
     /// Sent to update character's remaining gold after requesting a song
     /// </summary>
     [AutoMappedType]
-    public class JukeboxAgreeHandler : InGameOnlyPacketHandler
+    public class JukeboxAgreeHandler : InGameOnlyPacketHandler<JukeboxAgreeServerPacket>
     {
         private readonly ICharacterInventoryRepository _characterInventoryRepository;
 
-        public override PacketFamily Family => PacketFamily.JukeBox;
+        public override PacketFamily Family => PacketFamily.Jukebox;
 
         public override PacketAction Action => PacketAction.Agree;
 
@@ -26,12 +27,10 @@ namespace EOLib.PacketHandlers.Jukebox
             _characterInventoryRepository = characterInventoryRepository;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(JukeboxAgreeServerPacket packet)
         {
-            var goldRemaining = packet.ReadInt();
-
             _characterInventoryRepository.ItemInventory.SingleOrNone(x => x.ItemID == 1).MatchSome(x => _characterInventoryRepository.ItemInventory.Remove(x));
-            _characterInventoryRepository.ItemInventory.Add(new InventoryItem(1, goldRemaining));
+            _characterInventoryRepository.ItemInventory.Add(new InventoryItem(1, packet.GoldAmount));
 
             return true;
         }

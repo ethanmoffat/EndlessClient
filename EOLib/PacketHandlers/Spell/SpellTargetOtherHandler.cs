@@ -3,8 +3,9 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Spell
@@ -13,7 +14,7 @@ namespace EOLib.PacketHandlers.Spell
     /// Sent when a player targets another player with a heal spell
     /// </summary>
     [AutoMappedType]
-    public class SpellTargetOtherHandler : InGameOnlyPacketHandler
+    public class SpellTargetOtherHandler : InGameOnlyPacketHandler<SpellTargetOtherServerPacket>
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
@@ -33,40 +34,32 @@ namespace EOLib.PacketHandlers.Spell
             _animationNotifiers = animationNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(SpellTargetOtherServerPacket packet)
         {
-            var targetPlayerId = packet.ReadShort();
-            var sourcePlayerId = packet.ReadShort();
-            var sourcePlayerDirection = (EODirection)packet.ReadChar();
-            var spellId = packet.ReadShort();
-            var recoveredHP = packet.ReadInt();
-            var targetPercentHealth = packet.ReadChar();
-
-            if (sourcePlayerId == _characterRepository.MainCharacter.ID)
+            if (packet.CasterId == _characterRepository.MainCharacter.ID)
             {
-                var renderProps = _characterRepository.MainCharacter.RenderProperties.WithDirection(sourcePlayerDirection);
+                var renderProps = _characterRepository.MainCharacter.RenderProperties.WithDirection((EODirection)packet.CasterDirection);
                 _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithRenderProperties(renderProps);
             }
-            else if (_currentMapStateRepository.Characters.TryGetValue(sourcePlayerId, out var character))
+            else if (_currentMapStateRepository.Characters.TryGetValue(packet.CasterId, out var character))
             {
-                var updatedCharacter = character.WithRenderProperties(character.RenderProperties.WithDirection(sourcePlayerDirection));
+                var updatedCharacter = character.WithRenderProperties(character.RenderProperties.WithDirection((EODirection)packet.CasterDirection));
                 _currentMapStateRepository.Characters.Update(character, updatedCharacter);
             }
             else
             {
-                _currentMapStateRepository.UnknownPlayerIDs.Add(sourcePlayerId);
+                _currentMapStateRepository.UnknownPlayerIDs.Add(packet.CasterId);
                 return true;
             }
 
-            if (packet.ReadPosition != packet.Length)
+            if (packet.Hp.HasValue)
             {
-                var targetPlayerCurrentHp = packet.ReadShort();
-                var stats = _characterRepository.MainCharacter.Stats.WithNewStat(CharacterStat.HP, targetPlayerCurrentHp);
+                var stats = _characterRepository.MainCharacter.Stats.WithNewStat(CharacterStat.HP, packet.Hp.Value);
                 _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);
             }
 
             foreach (var notifier in _animationNotifiers)
-                notifier.NotifyTargetOtherSpellCast(sourcePlayerId, targetPlayerId, spellId, recoveredHP, targetPercentHealth);
+                notifier.NotifyTargetOtherSpellCast(packet.CasterId, packet.VictimId, packet.SpellId, packet.SpellHealHp, packet.HpPercentage);
 
             return true;
         }

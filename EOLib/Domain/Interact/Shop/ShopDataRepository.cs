@@ -5,7 +5,7 @@ namespace EOLib.Domain.Interact.Shop
 {
     public interface IShopDataRepository : IResettable
     {
-        int ShopID { get; set; }
+        int SessionID { get; set; }
 
         string ShopName { get; set; }
 
@@ -16,7 +16,7 @@ namespace EOLib.Domain.Interact.Shop
 
     public interface IShopDataProvider : IResettable
     {
-        int ShopID { get; }
+        int SessionID { get; }
 
         string ShopName { get; }
 
@@ -28,7 +28,7 @@ namespace EOLib.Domain.Interact.Shop
     [AutoMappedType(IsSingleton = true)]
     public class ShopDataRepository : IShopDataProvider, IShopDataRepository
     {
-        public int ShopID { get; set; }
+        public int SessionID { get; set; }
         public string ShopName { get; set; }
 
         public List<IShopItem> TradeItems { get; set; }
@@ -46,7 +46,7 @@ namespace EOLib.Domain.Interact.Shop
 
         public void ResetState()
         {
-            ShopID = 0;
+            SessionID = 0;
             ShopName = string.Empty;
             TradeItems = new List<IShopItem>();
             CraftItems = new List<IShopCraftItem>();

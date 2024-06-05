@@ -2,8 +2,9 @@
 using EOLib.Domain.Character;
 using EOLib.Domain.Interact;
 using EOLib.Domain.Login;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.StatSkill
@@ -12,7 +13,7 @@ namespace EOLib.PacketHandlers.StatSkill
     /// Sent when resetting a character's stats/skills
     /// </summary>
     [AutoMappedType]
-    public class StatskillJunkHandler : InGameOnlyPacketHandler
+    public class StatskillJunkHandler : InGameOnlyPacketHandler<StatSkillJunkServerPacket>
     {
         private readonly ICharacterInventoryRepository _characterInventoryRepository;
         private readonly ICharacterRepository _characterRepository;
@@ -33,27 +34,9 @@ namespace EOLib.PacketHandlers.StatSkill
             _npcInteractionNotifiers = npcInteractionNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(StatSkillJunkServerPacket packet)
         {
-            var stats = _characterRepository.MainCharacter.Stats
-                .WithNewStat(CharacterStat.StatPoints, packet.ReadShort())
-                .WithNewStat(CharacterStat.SkillPoints, packet.ReadShort())
-                .WithNewStat(CharacterStat.HP, packet.ReadShort())
-                .WithNewStat(CharacterStat.MaxHP, packet.ReadShort())
-                .WithNewStat(CharacterStat.TP, packet.ReadShort())
-                .WithNewStat(CharacterStat.MaxTP, packet.ReadShort())
-                .WithNewStat(CharacterStat.MaxSP, packet.ReadShort())
-                .WithNewStat(CharacterStat.Strength, packet.ReadShort())
-                .WithNewStat(CharacterStat.Intelligence, packet.ReadShort())
-                .WithNewStat(CharacterStat.Wisdom, packet.ReadShort())
-                .WithNewStat(CharacterStat.Agility, packet.ReadShort())
-                .WithNewStat(CharacterStat.Constitution, packet.ReadShort())
-                .WithNewStat(CharacterStat.Charisma, packet.ReadShort())
-                .WithNewStat(CharacterStat.MinDam, packet.ReadShort())
-                .WithNewStat(CharacterStat.MaxDam, packet.ReadShort())
-                .WithNewStat(CharacterStat.Accuracy, packet.ReadShort())
-                .WithNewStat(CharacterStat.Evade, packet.ReadShort())
-                .WithNewStat(CharacterStat.Armor, packet.ReadShort());
+            var stats = _characterRepository.MainCharacter.Stats.Apply(CharacterStats.FromStatReset(packet.Stats));
             _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);
 
             _characterInventoryRepository.SpellInventory.Clear();

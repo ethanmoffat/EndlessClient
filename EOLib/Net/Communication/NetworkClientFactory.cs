@@ -13,22 +13,19 @@ namespace EOLib.Net.Communication
         private readonly IPacketProcessActions _packetProcessActions;
         private readonly IPacketHandlingActions _packetHandlingActions;
         private readonly INumberEncoderService _numberEncoderService;
-        private readonly ILoggerProvider _loggerProvider;
 
         public NetworkClientFactory(IPacketProcessActions packetProcessActions,
                                     IPacketHandlingActions packetHandlingActions,
-                                    INumberEncoderService numberEncoderService,
-                                    ILoggerProvider loggerProvider)
+                                    INumberEncoderService numberEncoderService)
         {
             _packetProcessActions = packetProcessActions;
             _packetHandlingActions = packetHandlingActions;
             _numberEncoderService = numberEncoderService;
-            _loggerProvider = loggerProvider;
         }
 
         public INetworkClient CreateNetworkClient(int timeout = Constants.ResponseTimeout)
         {
-            return new NetworkClient(_packetProcessActions, _packetHandlingActions, _numberEncoderService, _loggerProvider, TimeSpan.FromMilliseconds(timeout));
+            return new NetworkClient(_packetProcessActions, _packetHandlingActions, _numberEncoderService, TimeSpan.FromMilliseconds(timeout));
         }
     }
 }

@@ -15,6 +15,7 @@ using EOLib.Domain.Notifiers;
 using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Linq;
 
 namespace EndlessClient.Rendering.Map
@@ -84,7 +85,7 @@ namespace EndlessClient.Rendering.Map
             ShowPkWarning(differentMapId: true);
         }
 
-        public void NotifyMapChanged(WarpAnimation warpAnimation, bool differentMapID)
+        public void NotifyMapChanged(WarpEffect warpAnimation, bool differentMapID)
         {
             StopAllAnimations();
             ClearCharacterRenderersAndCache();
@@ -93,7 +94,6 @@ namespace EndlessClient.Rendering.Map
             ShowMapNameIfAvailable(differentMapID);
             ShowPkWarning(differentMapID);
             ShowMapTransition(differentMapID);
-            AddSpikeTraps();
             ShowWarpBubbles(warpAnimation);
             PlayBackgroundMusic(differentMapID);
             PlayAmbientNoise(differentMapID);
@@ -109,11 +109,9 @@ namespace EndlessClient.Rendering.Map
         public void NotifyMapMutation()
         {
             ClearOpenDoors();
-            ClearSpikeTraps();
 
             ShowMapTransition(showMapTransition: true);
 
-            AddSpikeTraps();
             RedrawGroundLayer();
 
             var localChatData = new ChatData(ChatTab.Local, _localizedStringFinder.GetString(EOResourceID.STRING_SERVER), _localizedStringFinder.GetString(EOResourceID.SERVER_MESSAGE_MAP_MUTATION), ChatIcon.Exclamation, ChatColor.Server);
@@ -165,11 +163,6 @@ namespace EndlessClient.Rendering.Map
             _currentMapStateRepository.OpenDoors.Clear();
         }
 
-        private void ClearSpikeTraps()
-        {
-            _currentMapStateRepository.VisibleSpikeTraps.Clear();
-        }
-
         private void ShowMapNameIfAvailable(bool differentMapID)
         {
             if (!differentMapID || string.IsNullOrWhiteSpace(_currentMapProvider.CurrentMap.Properties.Name))
@@ -205,20 +198,11 @@ namespace EndlessClient.Rendering.Map
             }
         }
 
-        private void AddSpikeTraps()
-        {
-            foreach (var character in _currentMapStateRepository.Characters)
-            {
-                if (_currentMapProvider.CurrentMap.Tiles[character.RenderProperties.MapY, character.RenderProperties.MapX] == TileSpec.SpikesTrap)
-                    _currentMapStateRepository.VisibleSpikeTraps.Add(new MapCoordinate(character.RenderProperties.MapX, character.RenderProperties.MapY));
-            }
-        }
-
-        private void ShowWarpBubbles(WarpAnimation animation)
+        private void ShowWarpBubbles(WarpEffect animation)
         {
             _characterRendererRepository.MainCharacterRenderer.MatchSome(r =>
             {
-                if (animation == WarpAnimation.Admin)
+                if (animation == WarpEffect.Admin)
                     r.PlayEffect((int)HardCodedEffect.WarpArrive);
             });
         }

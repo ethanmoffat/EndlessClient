@@ -5,9 +5,9 @@ using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.IO.Repositories;
-using EOLib.Net;
 using EOLib.Net.Handlers;
-using EOLib.Net.Translators;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
 using System;
 using System.Collections.Generic;
@@ -21,9 +21,8 @@ namespace EOLib.PacketHandlers.Warp
     /// Sent when completing warp for the main character
     /// </summary>
     [AutoMappedType]
-    public class WarpAgreeHandler : InGameOnlyPacketHandler
+    public class WarpAgreeHandler : InGameOnlyPacketHandler<WarpAgreeServerPacket>
     {
-        private readonly IPacketTranslator<WarpAgreePacketData> _warpAgreePacketTranslator;
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly ICurrentMapProvider _currentMapProvider;
@@ -35,7 +34,6 @@ namespace EOLib.PacketHandlers.Warp
         public override PacketAction Action => PacketAction.Agree;
 
         public WarpAgreeHandler(IPlayerInfoProvider playerInfoProvider,
-                                IPacketTranslator<WarpAgreePacketData> warpAgreePacketTranslator,
                                 ICharacterRepository characterRepository,
                                 ICurrentMapStateRepository currentMapStateRepository,
                                 ICurrentMapProvider currentMapProvider,
@@ -43,7 +41,6 @@ namespace EOLib.PacketHandlers.Warp
                                 IEnumerable<IMapChangedNotifier> mapChangedNotifiers)
             : base(playerInfoProvider)
         {
-            _warpAgreePacketTranslator = warpAgreePacketTranslator;
             _characterRepository = characterRepository;
             _currentMapStateRepository = currentMapStateRepository;
             _currentMapProvider = currentMapProvider;
@@ -51,16 +48,26 @@ namespace EOLib.PacketHandlers.Warp
             _mapChangedNotifiers = mapChangedNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(WarpAgreeServerPacket packet)
         {
             _currentMapStateRepository.MapWarpState = WarpState.WarpCompleting;
 
-            var warpAgreePacketData = _warpAgreePacketTranslator.TranslatePacket(packet);
+            var differentMapID = false;
+            var warpAnimation = WarpEffect.None;
+            if (packet.WarpType == WarpType.MapSwitch)
+            {
+                var data = (WarpAgreeServerPacket.WarpTypeDataMapSwitch)packet.WarpTypeData;
+                differentMapID = _currentMapStateRepository.CurrentMapID != data.MapId;
+                warpAnimation = data.WarpEffect;
+                _currentMapStateRepository.CurrentMapID = data.MapId;
+            }
 
-            var differentMapID = _currentMapStateRepository.CurrentMapID != warpAgreePacketData.MapID;
-            _currentMapStateRepository.CurrentMapID = warpAgreePacketData.MapID;
+            var characters = packet.Nearby.Characters.Select(Character.FromNearby).ToList();
+            var updatedMainCharacter = characters.Single(x => x.ID == _characterRepository.MainCharacter.ID);
+            var withoutMainCharacter = characters.Except(new[] { updatedMainCharacter });
 
-            var updatedMainCharacter = warpAgreePacketData.Characters.Single(MainCharacterIDMatches);
+            var npcs = packet.Nearby.Npcs.Select(DomainNPC.FromNearby);
+            var items = packet.Nearby.Items.Select(MapItem.FromNearby);
 
             //character.renderproperties.isdead is set True by the attack handler
             //the character needs to be brought back to life when they are taken to the home map
@@ -69,30 +76,21 @@ namespace EOLib.PacketHandlers.Warp
                 .WithRenderProperties(bringBackToLife)
                 .WithAppliedData(updatedMainCharacter);
 
-            var withoutMainCharacter = warpAgreePacketData.Characters.Where(x => !MainCharacterIDMatches(x));
-            warpAgreePacketData = warpAgreePacketData.WithCharacters(withoutMainCharacter.ToList());
-
-            _currentMapStateRepository.Characters = new MapEntityCollectionHashSet<Character>(c => c.ID, c => new MapCoordinate(c.X, c.Y), warpAgreePacketData.Characters);
-            _currentMapStateRepository.NPCs = new MapEntityCollectionHashSet<DomainNPC>(n => n.Index, n => new MapCoordinate(n.X, n.Y), warpAgreePacketData.NPCs);
-            _currentMapStateRepository.MapItems = new MapEntityCollectionHashSet<MapItem>(item => item.UniqueID, item => new MapCoordinate(item.X, item.Y), warpAgreePacketData.Items);
+            _currentMapStateRepository.Characters = new MapEntityCollectionHashSet<Character>(c => c.ID, c => new MapCoordinate(c.X, c.Y), withoutMainCharacter);
+            _currentMapStateRepository.NPCs = new MapEntityCollectionHashSet<DomainNPC>(n => n.Index, n => new MapCoordinate(n.X, n.Y), npcs);
+            _currentMapStateRepository.MapItems = new MapEntityCollectionHashSet<MapItem>(item => item.UniqueID, item => new MapCoordinate(item.X, item.Y), items);
             _currentMapStateRepository.OpenDoors.Clear();
-            _currentMapStateRepository.VisibleSpikeTraps.Clear();
+            _currentMapStateRepository.PendingDoors.Clear();
             _currentMapStateRepository.ShowMiniMap = _currentMapStateRepository.ShowMiniMap &&
                                                      _currentMapProvider.CurrentMap.Properties.MapAvailable;
 
             foreach (var notifier in _mapChangedNotifiers)
-                notifier.NotifyMapChanged(differentMapID: differentMapID,
-                                          warpAnimation: warpAgreePacketData.WarpAnimation);
+                notifier.NotifyMapChanged(warpAnimation, differentMapID);
 
             _currentMapStateRepository.MapWarpState = WarpState.None;
             _currentMapStateRepository.MapWarpTime = Option.Some(DateTime.Now);
 
             return true;
-        }
-
-        private bool MainCharacterIDMatches(Character x)
-        {
-            return x.ID == _characterRepository.MainCharacter.ID;
         }
     }
 }

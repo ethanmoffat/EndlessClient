@@ -93,7 +93,7 @@ namespace EOLib.IO.Test.Map
 
         private static IMapFileProperties CreateMapPropertiesWithSomeTestData(IMapFileProperties props)
         {
-            return props.WithChecksum(new byte[] {1, 2, 3, 4})
+            return props.WithChecksum(new List<int> {1, 2})
                 .WithName("Some test name")
                 .WithWidth(200)
                 .WithHeight(100)
@@ -117,7 +117,7 @@ namespace EOLib.IO.Test.Map
             var ret = new List<byte>();
 
             ret.AddRange(Encoding.ASCII.GetBytes(props.FileType));
-            ret.AddRange(props.Checksum);
+            ret.AddRange(props.Checksum.SelectMany(x => numberEncoderService.EncodeNumber(x, 2)));
             
             var fullName = Enumerable.Repeat((byte)0xFF, 24).ToArray();
             var encodedName = mapStringEncoderService.EncodeMapString(props.Name, props.Name.Length);

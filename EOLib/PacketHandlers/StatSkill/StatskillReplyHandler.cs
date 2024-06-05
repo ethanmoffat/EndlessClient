@@ -2,8 +2,9 @@
 using EOLib.Domain.Interact;
 using EOLib.Domain.Interact.Skill;
 using EOLib.Domain.Login;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.StatSkill
@@ -12,7 +13,7 @@ namespace EOLib.PacketHandlers.StatSkill
     /// Sent when failing to learn a skill from skillmaster
     /// </summary>
     [AutoMappedType]
-    public class StatskillReplyHandler : InGameOnlyPacketHandler
+    public class StatskillReplyHandler : InGameOnlyPacketHandler<StatSkillReplyServerPacket>
     {
         private readonly IEnumerable<INPCInteractionNotifier> _npcInteractionNotifiers;
 
@@ -27,10 +28,12 @@ namespace EOLib.PacketHandlers.StatSkill
             _npcInteractionNotifiers = npcInteractionNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(StatSkillReplyServerPacket packet)
         {
-            var skillmasterReply = (SkillmasterReply)packet.ReadShort();
-            var classId = packet.ReadShort();
+            var skillmasterReply = (SkillmasterReply)packet.ReplyCode;
+            var classId = skillmasterReply == SkillmasterReply.ErrorWrongClass
+                ? ((StatSkillReplyServerPacket.ReplyCodeDataWrongClass)packet.ReplyCodeData).ClassId
+                : 0;
 
             foreach (var notifier in _npcInteractionNotifiers)
                 notifier.NotifySkillLearnFail(skillmasterReply, classId);

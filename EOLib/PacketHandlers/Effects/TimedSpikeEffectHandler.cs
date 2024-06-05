@@ -5,18 +5,21 @@ using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.IO.Map;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using Optional;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace EOLib.PacketHandlers.Effects
 {
     [AutoMappedType]
-    public class TimedSpikeEffectHandler : InGameOnlyPacketHandler
+    public class TimedSpikeEffectHandler : InGameOnlyPacketHandler<EffectReportServerPacket>
     {
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly ICharacterProvider _characterProvider;
+        private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IEnumerable<IEffectNotifier> _effectNotifiers;
 
         public override PacketFamily Family => PacketFamily.Effect;
@@ -26,18 +29,19 @@ namespace EOLib.PacketHandlers.Effects
         public TimedSpikeEffectHandler(IPlayerInfoProvider playerInfoProvider,
                                        ICurrentMapProvider currentMapProvider,
                                        ICharacterProvider characterProvider,
+                                       ICurrentMapStateRepository currentMapStateRepository,
                                        IEnumerable<IEffectNotifier> effectNotifiers)
             : base(playerInfoProvider)
         {
             _currentMapProvider = currentMapProvider;
             _characterProvider = characterProvider;
+            _currentMapStateRepository = currentMapStateRepository;
             _effectNotifiers = effectNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(EffectReportServerPacket packet)
         {
-            if ((char)packet.ReadByte() != 'S')
-                return false;
+            _currentMapStateRepository.LastTimedSpikeEvent = Option.Some(DateTime.Now);
 
             var characterPosition = _characterProvider.MainCharacter.RenderProperties.Coordinates();
             var distanceToSpikes = _currentMapProvider.CurrentMap.GetDistanceToClosestTileSpec(TileSpec.SpikesTimed, characterPosition);
@@ -45,7 +49,7 @@ namespace EOLib.PacketHandlers.Effects
             if (distanceToSpikes <= 6)
             {
                 foreach (var notifier in _effectNotifiers)
-                    notifier.NotifyMapEffect(MapEffect.Spikes);
+                    notifier.NotifyMapEffect(IO.Map.MapEffect.Spikes);
             }
 
             return true;

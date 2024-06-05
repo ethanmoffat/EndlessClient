@@ -3,8 +3,9 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Arena
@@ -13,7 +14,7 @@ namespace EOLib.PacketHandlers.Arena
     /// Arena kill message
     /// </summary>
     [AutoMappedType]
-    public class ArenaSpecHandler : InGameOnlyPacketHandler
+    public class ArenaSpecHandler : InGameOnlyPacketHandler<ArenaSpecServerPacket>
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
@@ -34,40 +35,28 @@ namespace EOLib.PacketHandlers.Arena
             _arenaNotifiers = arenaNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(ArenaSpecServerPacket packet)
         {
-            var playerId = packet.ReadShort();
-            packet.ReadByte();
-
-            var playerDirection = (EODirection)packet.ReadChar();
-            packet.ReadByte();
-
-            if (playerId == _characterRepository.MainCharacter.ID)
+            if (packet.PlayerId == _characterRepository.MainCharacter.ID)
             {
-                var rp = _characterRepository.MainCharacter.RenderProperties.WithDirection(playerDirection);
+                var rp = _characterRepository.MainCharacter.RenderProperties.WithDirection((EODirection)packet.Direction);
                 _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithRenderProperties(rp);
             }
-            else if (_currentMapStateRepository.Characters.ContainsKey(playerId))
+            else if (_currentMapStateRepository.Characters.ContainsKey(packet.PlayerId))
             {
-                var character = _currentMapStateRepository.Characters[playerId];
-                var rp = character.RenderProperties.WithDirection(playerDirection);
+                var character = _currentMapStateRepository.Characters[packet.PlayerId];
+                var rp = character.RenderProperties.WithDirection((EODirection)packet.Direction);
                 var newCharacter = character.WithRenderProperties(rp);
                 _currentMapStateRepository.Characters.Update(character, newCharacter);
             }
-            else if (playerId > 0)
+            else if (packet.PlayerId > 0)
             {
-                _currentMapStateRepository.UnknownPlayerIDs.Add(playerId);
+                _currentMapStateRepository.UnknownPlayerIDs.Add(packet.PlayerId);
             }
-
-            var killsCount = packet.ReadInt();
-            packet.ReadByte();
-
-            var killerName = packet.ReadBreakString();
-            var victimName = packet.ReadBreakString();
 
             foreach (var  notifier in _arenaNotifiers)
             {
-                notifier.NotifyArenaKill(killsCount, killerName, victimName);
+                notifier.NotifyArenaKill(packet.KillsCount, packet.KillerName, packet.VictimName);
             }
 
             return true;

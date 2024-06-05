@@ -1,15 +1,16 @@
 ﻿using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
 
 namespace EOLib.PacketHandlers.Sit
 {
     /// <summary>
     /// Base class for handling a character standing up
     /// </summary>
-    public abstract class PlayerStandHandlerBase : InGameOnlyPacketHandler
+    public abstract class PlayerStandHandlerBase<TPacket> : InGameOnlyPacketHandler<TPacket>
+        where TPacket : IPacket
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
@@ -25,12 +26,8 @@ namespace EOLib.PacketHandlers.Sit
             _currentMapStateRepository = currentMapStateRepository;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        protected void Handle(int playerId, int x, int y)
         {
-            var playerId = packet.ReadShort();
-            var x = packet.ReadChar();
-            var y = packet.ReadChar();
-
             if (playerId == _characterRepository.MainCharacter.ID)
             {
                 var renderProperties = _characterRepository.MainCharacter.RenderProperties;
@@ -53,8 +50,6 @@ namespace EOLib.PacketHandlers.Sit
             {
                 _currentMapStateRepository.UnknownPlayerIDs.Add(playerId);
             }
-
-            return true;
         }
     }
 }

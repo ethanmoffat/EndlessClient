@@ -2,8 +2,9 @@
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOLib.PacketHandlers.AdminInteract
 {
@@ -11,7 +12,7 @@ namespace EOLib.PacketHandlers.AdminInteract
     /// Admin hiding
     /// </summary>
     [AutoMappedType]
-    public class AdminInteractRemove : InGameOnlyPacketHandler
+    public class AdminInteractRemove : InGameOnlyPacketHandler<AdminInteractRemoveServerPacket>
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
@@ -28,22 +29,22 @@ namespace EOLib.PacketHandlers.AdminInteract
             _currentMapStateRepository = currentMapStateRepository;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(AdminInteractRemoveServerPacket packet)
         {
-            var id = packet.ReadShort();
-
-            if (id == _characterRepository.MainCharacter.ID)
+            if (packet.PlayerId == _characterRepository.MainCharacter.ID)
+            {
                 _characterRepository.MainCharacter = Hidden(_characterRepository.MainCharacter);
+            }
             else
             {
-                if (_currentMapStateRepository.Characters.TryGetValue(id, out var character))
+                if (_currentMapStateRepository.Characters.TryGetValue(packet.PlayerId, out var character))
                 {
                     var updatedCharacter = Hidden(character);
                     _currentMapStateRepository.Characters.Update(character, updatedCharacter);
                 }
                 else
                 {
-                    _currentMapStateRepository.UnknownPlayerIDs.Add(id);
+                    _currentMapStateRepository.UnknownPlayerIDs.Add(packet.PlayerId);
                 }
             }
 

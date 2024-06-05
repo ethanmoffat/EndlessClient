@@ -1,10 +1,11 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
+using EOLib.Domain.Chat.Builders;
 using EOLib.Domain.Map;
 using EOLib.Domain.Party;
-using EOLib.Net;
-using EOLib.Net.Builders;
 using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 using System;
 using System.Linq;
 
@@ -107,18 +108,13 @@ namespace EOLib.Domain.Chat
 
         public void SetHearWhispers(bool whispersEnabled)
         {
-            // GLOBAL_REMOVE with 'n' enables whispers...? 
-            var packet = new PacketBuilder(PacketFamily.Global, whispersEnabled ? PacketAction.Remove : PacketAction.Player)
-                .AddChar(whispersEnabled ? 'n' : 'y')
-                .Build();
+            var packet = whispersEnabled ? (IPacket)new GlobalRemoveClientPacket() : new GlobalPlayerClientPacket();
             _packetSendService.SendPacket(packet);
         }
 
         public void SetGlobalActive(bool active)
         {
-            var packet = new PacketBuilder(PacketFamily.Global, active ? PacketAction.Open : PacketAction.Close)
-                .AddChar(active ? 'y' : 'n')
-                .Build();
+            var packet = active ? (IPacket)new GlobalOpenClientPacket() : new GlobalCloseClientPacket();
             _packetSendService.SendPacket(packet);
         }
 

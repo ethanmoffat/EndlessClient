@@ -1,10 +1,14 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Audio;
+using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.HUD;
+using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Panels;
 using EndlessClient.HUD.Spells;
+using EndlessClient.Rendering;
 using EndlessClient.Rendering.Character;
+using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
@@ -28,6 +32,7 @@ namespace EndlessClient.Controllers
         private readonly ICharacterProvider _characterProvider;
         private readonly IESFFileProvider _esfFileProvider;
         private readonly ISpellSlotDataProvider _spellSlotDataProvider;
+        private readonly IHudControlProvider _hudControlProvider;
         private readonly ISfxPlayer _sfxPlayer;
 
         public FunctionKeyController(IMapActions mapActions,
@@ -40,6 +45,7 @@ namespace EndlessClient.Controllers
                                      ICharacterProvider characterProvider,
                                      IESFFileProvider esfFileProvider,
                                      ISpellSlotDataProvider spellSlotDataProvider,
+                                     IHudControlProvider hudControlProvider,
                                      ISfxPlayer sfxPlayer)
         {
             _mapActions = mapActions;
@@ -52,6 +58,7 @@ namespace EndlessClient.Controllers
             _characterProvider = characterProvider;
             _esfFileProvider = esfFileProvider;
             _spellSlotDataProvider = spellSlotDataProvider;
+            _hudControlProvider = hudControlProvider;
             _sfxPlayer = sfxPlayer;
         }
 
@@ -96,7 +103,9 @@ namespace EndlessClient.Controllers
             if (_characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Walking, CharacterActionState.Attacking, CharacterActionState.SpellCast))
                 return false;
 
-            _characterActions.ToggleSit();
+            var cursorRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
+            _characterActions.Sit(cursorRenderer.GridCoordinates);
+
             return true;
         }
 

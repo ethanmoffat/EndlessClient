@@ -1,5 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
+using Moffat.EndlessOnline.SDK.Protocol;
 
 namespace EOLib.Domain.Chat.Commands
 {

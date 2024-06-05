@@ -125,25 +125,14 @@ namespace EndlessClient.Rendering.Character
 
             _chatBubble = new Lazy<IChatBubble>(() => _chatBubbleFactory.CreateChatBubble(this));
 
-            _clientWindowSizeRepository.GameWindowSizeChanged += (_, _) =>
-            {
-                lock (_rt_locker_)
-                {
-                    _charRenderTarget.Dispose();
-                    _charRenderTarget = _renderTargetFactory.CreateRenderTarget();
-                }
-            };
-
-            if (_character == _characterProvider.MainCharacter)
-                _clientWindowSizeRepository.GameWindowSizeChanged += (_, _) => SetToCenterScreenPosition();
+            _clientWindowSizeRepository.GameWindowSizeChanged += RecreateRenderTargetEvent;
         }
 
         #region Game Component
 
         public override void Initialize()
         {
-            lock(_rt_locker_)
-                _charRenderTarget = _renderTargetFactory.CreateRenderTarget();
+            RecreateRenderTarget();
 
             _sb = new SpriteBatch(Game.GraphicsDevice);
 
@@ -430,7 +419,7 @@ namespace EndlessClient.Rendering.Character
 
         private void CheckForDead()
         {
-            if (_character == _characterProvider.MainCharacter && _lastIsDead != _character.RenderProperties.IsDead)
+            if (_lastIsDead != _character.RenderProperties.IsDead)
             {
                 _lastIsDead = _character.RenderProperties.IsDead;
                 if (_lastIsDead)
@@ -446,16 +435,20 @@ namespace EndlessClient.Rendering.Character
                 _hatMetadataProvider.GetValueOrDefault(Character.RenderProperties.HatGraphic).ClipMode != HatMaskType.Standard)
                 return;
 
-            // oof. I really need to learn how to use shaders or stencil buffer.
-            // https://gamedev.stackexchange.com/questions/38118/best-way-to-mask-2d-sprites-in-xna/38150#38150
-            _rtColorData = new Color[_charRenderTarget.Width * _charRenderTarget.Height];
-            _charRenderTarget.GetData(_rtColorData);
-            for (int i = 0; i < _rtColorData.Length; i++)
+            lock (_rt_locker_)
             {
-                if (_rtColorData[i] == Color.Black)
-                    _rtColorData[i].A = 0;
+                // oof. I really need to learn how to use shaders or stencil buffer.
+                // https://gamedev.stackexchange.com/questions/38118/best-way-to-mask-2d-sprites-in-xna/38150#38150
+
+                // note: this operation causes a high number of GC events as the character's frame changes (walking/attacking)
+                _charRenderTarget.GetData(_rtColorData);
+                for (int i = 0; i < _rtColorData.Length; i++)
+                {
+                    if (_rtColorData[i] == Color.Black)
+                        _rtColorData[i].A = 0;
+                }
+                _charRenderTarget.SetData(_rtColorData);
             }
-            _charRenderTarget.SetData(_rtColorData);
         }
 
         #endregion
@@ -516,6 +509,25 @@ namespace EndlessClient.Rendering.Character
             _chatBubble.Value.SetMessage(message, isGroupChat);
         }
 
+        private void RecreateRenderTarget()
+        {
+            lock (_rt_locker_)
+            {
+                _charRenderTarget?.Dispose();
+                _charRenderTarget = _renderTargetFactory.CreateRenderTarget();
+
+                _rtColorData = new Color[_charRenderTarget.Width * _charRenderTarget.Height];
+            }
+        }
+
+        private void RecreateRenderTargetEvent(object sender, EventArgs e)
+        {
+            RecreateRenderTarget();
+
+            if (_character == _characterProvider.MainCharacter)
+                SetToCenterScreenPosition();
+        }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -530,6 +542,8 @@ namespace EndlessClient.Rendering.Character
                     _chatBubble.Value?.Dispose();
 
                 _sb?.Dispose();
+
+                _clientWindowSizeRepository.GameWindowSizeChanged -= RecreateRenderTargetEvent;
 
                 lock(_rt_locker_)
                     _charRenderTarget?.Dispose();

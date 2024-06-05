@@ -1,8 +1,9 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOLib.PacketHandlers.StatSkill
 {
@@ -10,7 +11,7 @@ namespace EOLib.PacketHandlers.StatSkill
     /// Sent when spending skill points on a spell
     /// </summary>
     [AutoMappedType]
-    public class StatskillAcceptHandler : InGameOnlyPacketHandler
+    public class StatskillAcceptHandler : InGameOnlyPacketHandler<StatSkillAcceptServerPacket>
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly ICharacterInventoryRepository _characterInventoryRepository;
@@ -28,19 +29,15 @@ namespace EOLib.PacketHandlers.StatSkill
             _characterInventoryRepository = characterInventoryRepository;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(StatSkillAcceptServerPacket packet)
         {
-            var skillPoints = packet.ReadShort();
-            var spellId = packet.ReadShort();
-            var spellLevel = packet.ReadShort();
-
-            if (spellId > 0)
+            if (packet.Spell.Id > 0)
             {
-                _characterInventoryRepository.SpellInventory.RemoveWhere(x => x.ID == spellId);
-                _characterInventoryRepository.SpellInventory.Add(new InventorySpell(spellId, spellLevel));
+                _characterInventoryRepository.SpellInventory.RemoveWhere(x => x.ID == packet.Spell.Id);
+                _characterInventoryRepository.SpellInventory.Add(new InventorySpell(packet.Spell.Id, packet.Spell.Level));
             }
 
-            var stats = _characterRepository.MainCharacter.Stats.WithNewStat(CharacterStat.SkillPoints, skillPoints);
+            var stats = _characterRepository.MainCharacter.Stats.WithNewStat(CharacterStat.SkillPoints, packet.SkillPoints);
             _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);
 
             return true;

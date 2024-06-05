@@ -1,9 +1,9 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
-using EOLib.Domain.Party;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Party
@@ -12,7 +12,7 @@ namespace EOLib.PacketHandlers.Party
     /// Handles invite/join request from another player
     /// </summary>
     [AutoMappedType]
-    public class PartyRequestHandler : InGameOnlyPacketHandler
+    public class PartyRequestHandler : InGameOnlyPacketHandler<PartyRequestServerPacket>
     {
         private readonly IEnumerable<IPartyEventNotifier> _partyEventNotifiers;
 
@@ -27,14 +27,10 @@ namespace EOLib.PacketHandlers.Party
             _partyEventNotifiers = partyEventNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(PartyRequestServerPacket packet)
         {
-            var type = (PartyRequestType)packet.ReadChar();
-            var playerId = packet.ReadShort();
-            var name = packet.ReadEndString();
-
             foreach (var notifier in _partyEventNotifiers)
-                notifier.NotifyPartyRequest(type, playerId, name);
+                notifier.NotifyPartyRequest(packet.RequestType, packet.InviterPlayerId, packet.PlayerName);
 
             return true;
         }

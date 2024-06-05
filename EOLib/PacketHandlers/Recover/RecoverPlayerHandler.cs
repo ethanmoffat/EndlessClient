@@ -1,8 +1,9 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOLib.PacketHandlers.Recover
 {
@@ -10,7 +11,7 @@ namespace EOLib.PacketHandlers.Recover
     /// Sent when the main character gains HP/TP
     /// </summary>
     [AutoMappedType]
-    public class RecoverPlayerHandler : InGameOnlyPacketHandler
+    public class RecoverPlayerHandler : InGameOnlyPacketHandler<RecoverPlayerServerPacket>
     {
         private readonly ICharacterRepository _characterRepository;
 
@@ -24,14 +25,11 @@ namespace EOLib.PacketHandlers.Recover
             _characterRepository = characterRepository;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(RecoverPlayerServerPacket packet)
         {
-            var newHP = packet.ReadShort();
-            var newTP = packet.ReadShort();
-
             var stats = _characterRepository.MainCharacter.Stats
-                .WithNewStat(CharacterStat.HP, newHP)
-                .WithNewStat(CharacterStat.TP, newTP);
+                .WithNewStat(CharacterStat.HP, packet.Hp)
+                .WithNewStat(CharacterStat.TP, packet.Tp);
 
             _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);
 

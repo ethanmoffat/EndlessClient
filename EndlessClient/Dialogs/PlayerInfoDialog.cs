@@ -7,6 +7,7 @@ using EOLib.Graphics;
 using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
 using Optional.Unsafe;
 using XNAControls;
@@ -155,7 +156,7 @@ namespace EndlessClient.Dialogs
         private static string Capitalize(string input) =>
             string.IsNullOrEmpty(input) ? string.Empty : char.ToUpper(input[0]) + input[1..].ToLower();
 
-        private static Rectangle GetOnlineIconSourceRectangle(OnlineIcon icon)
+        private static Rectangle GetOnlineIconSourceRectangle(CharacterIcon icon)
         {
             var (x, y, width, height) = icon.ToChatIcon().GetChatIconRectangleBounds().ValueOrDefault();
             return new Rectangle(x, y, width, height);

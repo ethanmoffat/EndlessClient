@@ -2,14 +2,15 @@
 using EOLib.Domain.Chat;
 using EOLib.Domain.Interact.Quest;
 using EOLib.Domain.Login;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Quest
 {
     [AutoMappedType]
-    public class QuestStatusMessageHandler : InGameOnlyPacketHandler
+    public class QuestStatusMessageHandler : InGameOnlyPacketHandler<MessageOpenServerPacket>
     {
         private readonly IChatRepository _chatRepository;
         private readonly IEnumerable<IStatusLabelNotifier> _statusLabelNotifiers;
@@ -27,14 +28,12 @@ namespace EOLib.PacketHandlers.Quest
             _statusLabelNotifiers = statusLabelNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(MessageOpenServerPacket packet)
         {
-            var message = packet.ReadEndString();
-
             foreach (var notifier in _statusLabelNotifiers)
-                notifier.ShowWarning(message);
+                notifier.ShowWarning(packet.Message);
 
-            var chatData = new ChatData(ChatTab.System, string.Empty, message, ChatIcon.QuestMessage, ChatColor.Server);
+            var chatData = new ChatData(ChatTab.System, string.Empty, packet.Message, ChatIcon.QuestMessage, ChatColor.Server);
             _chatRepository.AllChat[ChatTab.System].Add(chatData);
 
             return true;

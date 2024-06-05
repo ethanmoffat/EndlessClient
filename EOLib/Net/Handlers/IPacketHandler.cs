@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using Moffat.EndlessOnline.SDK.Protocol.Net;
+using System.Threading.Tasks;
 
 namespace EOLib.Net.Handlers
 {
@@ -9,9 +10,17 @@ namespace EOLib.Net.Handlers
 
         bool CanHandle { get; }
 
+        bool IsHandlerFor(IPacket packet);
+
         bool HandlePacket(IPacket packet);
+    }
+
+    public interface IPacketHandler<TPacket> : IPacketHandler
+        where TPacket : IPacket
+    {
+        bool HandlePacket(TPacket packet);
 
         //todo: method to determine whether a packet should be handled asynchronously or not
-        Task<bool> HandlePacketAsync(IPacket packet);
+        Task<bool> HandlePacketAsync(TPacket packet);
     }
 }

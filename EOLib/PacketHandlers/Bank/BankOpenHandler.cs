@@ -1,14 +1,15 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Interact.Bank;
 using EOLib.Domain.Login;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
 
 namespace EOLib.PacketHandlers.Bank
 {
     [AutoMappedType]
-    public class BankOpenHandler : InGameOnlyPacketHandler
+    public class BankOpenHandler : InGameOnlyPacketHandler<BankOpenServerPacket>
     {
         private readonly IBankDataRepository _bankDataRepository;
 
@@ -23,11 +24,11 @@ namespace EOLib.PacketHandlers.Bank
             _bankDataRepository = bankDataRepository;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(BankOpenServerPacket packet)
         {
-            _bankDataRepository.AccountValue = packet.ReadInt();
-            _bankDataRepository.SessionID = packet.ReadThree();
-            _bankDataRepository.LockerUpgrades = Option.Some<int>(packet.ReadChar());
+            _bankDataRepository.AccountValue = packet.GoldBank;
+            _bankDataRepository.SessionID = packet.SessionId;
+            _bankDataRepository.LockerUpgrades = Option.Some(packet.LockerUpgrades);
 
             return true;
         }

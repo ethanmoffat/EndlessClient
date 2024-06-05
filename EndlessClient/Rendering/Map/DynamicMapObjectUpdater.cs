@@ -64,7 +64,6 @@ namespace EndlessClient.Rendering.Map
             OpenNewDoors(now);
             CloseExpiredDoors(now);
 
-            RemoveStaleSpikeTraps();
             UpdateAmbientNoiseVolume();
 
             HideStackedCharacterNames();
@@ -94,24 +93,6 @@ namespace EndlessClient.Rendering.Map
             }
         }
 
-        private void RemoveStaleSpikeTraps()
-        {
-            var staleTraps = new List<MapCoordinate>();
-
-            foreach (var spikeTrap in _currentMapStateRepository.VisibleSpikeTraps)
-            {
-                if (_currentMapStateRepository.Characters
-                    .Concat(new[] { _characterProvider.MainCharacter })
-                    .Select(x => x.RenderProperties)
-                    .All(x => x.MapX != spikeTrap.X && x.MapY != spikeTrap.Y))
-                {
-                    staleTraps.Add(spikeTrap);
-                }
-            }
-
-            _currentMapStateRepository.VisibleSpikeTraps.RemoveWhere(staleTraps.Contains);
-        }
-
         private void UpdateAmbientNoiseVolume()
         {
             if (_cachedMap.Properties.AmbientNoise <= 0 || !_configurationProvider.SoundEnabled)
@@ -121,9 +102,7 @@ namespace EndlessClient.Rendering.Map
             // distance is the sum of the components of the vector from character position to closest ambient source
             // this is scaled from 0-25, with 0 being on top of the tile and 25 being too far away to hear the ambient sound from it
             var props = _characterProvider.MainCharacter.RenderProperties;
-            var charCoord = props.CurrentAction == CharacterActionState.Walking
-                ? new MapCoordinate(props.GetDestinationX(), props.GetDestinationY())
-                : new MapCoordinate(props.MapX, props.MapY);
+            var charCoord = props.CurrentAction == CharacterActionState.Walking ? props.DestinationCoordinates() : props.Coordinates();
             var shortestDistance = int.MaxValue;
             foreach (var coordinate in _ambientSounds)
             {

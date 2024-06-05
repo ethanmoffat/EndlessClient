@@ -1,11 +1,11 @@
 ﻿using AutomaticTypeMapper;
-using EOLib.Domain.Map;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOLib.Domain.Notifiers
 {
     public interface IMapChangedNotifier
     {
-        void NotifyMapChanged(WarpAnimation warpAnimation, bool differentMapID);
+        void NotifyMapChanged(WarpEffect warpEffect, bool differentMapID);
 
         void NotifyMapMutation();
     }
@@ -13,7 +13,7 @@ namespace EOLib.Domain.Notifiers
     [AutoMappedType]
     public class NoOpMapChangedNotifier : IMapChangedNotifier
     {
-        public void NotifyMapChanged(WarpAnimation warpAnimation, bool differentMapID) { }
+        public void NotifyMapChanged(WarpEffect warpEffect, bool differentMapID) { }
 
         public void NotifyMapMutation() { }
     }

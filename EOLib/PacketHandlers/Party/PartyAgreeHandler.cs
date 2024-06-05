@@ -2,8 +2,9 @@
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Party;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional.Collections;
 
 namespace EOLib.PacketHandlers.Party
@@ -12,10 +13,10 @@ namespace EOLib.PacketHandlers.Party
     /// Handles HP update for party members
     /// </summary>
     [AutoMappedType]
-    public class PartyAgreeHandler : InGameOnlyPacketHandler
+    public class PartyAgreeHandler : InGameOnlyPacketHandler<PartyAgreeServerPacket>
     {
         private readonly IPartyDataRepository _partyDataRepository;
-        private readonly ICurrentMapStateProvider _currentMapStateProvider;
+        private readonly ICurrentMapStateRepository _currentMapStateRepository;
 
         public override PacketFamily Family => PacketFamily.Party;
 
@@ -23,29 +24,23 @@ namespace EOLib.PacketHandlers.Party
 
         public PartyAgreeHandler(IPlayerInfoProvider playerInfoProvider,
                                  IPartyDataRepository partyDataRepository,
-                                 ICurrentMapStateProvider currentMapStateProvider)
+                                 ICurrentMapStateRepository currentMapStateRepository)
             : base(playerInfoProvider)
         {
             _partyDataRepository = partyDataRepository;
-            _currentMapStateProvider = currentMapStateProvider;
+            _currentMapStateRepository = currentMapStateRepository;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(PartyAgreeServerPacket packet)
         {
-            while (packet.ReadPosition < packet.Length)
-            {
-                var playerId = packet.ReadShort();
-                var percentHealth = packet.ReadChar();
-
-                _partyDataRepository.Members.SingleOrNone(x => x.CharacterID == playerId)
-                    .Match(
-                        some: x =>
-                        {
-                            _partyDataRepository.Members.Remove(x);
-                            _partyDataRepository.Members.Add(x.WithPercentHealth(percentHealth));
-                        },
-                        none: () => _currentMapStateProvider.UnknownPlayerIDs.Add(playerId));
-            }
+            _partyDataRepository.Members.SingleOrNone(x => x.CharacterID == packet.PlayerId)
+                .Match(
+                    some: x =>
+                    {
+                        _partyDataRepository.Members.Remove(x);
+                        _partyDataRepository.Members.Add(x.WithPercentHealth(packet.HpPercentage));
+                    },
+                    none: () => _currentMapStateRepository.UnknownPlayerIDs.Add(packet.PlayerId));
 
             return true;
         }

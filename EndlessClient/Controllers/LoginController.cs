@@ -14,19 +14,20 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
-using EOLib.Domain.Protocol;
 using EOLib.IO.Actions;
 using EOLib.Localization;
 using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.FileTransfer;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace EndlessClient.Controllers
 {
-    [MappedType(BaseType = typeof(ILoginController))]
+    [AutoMappedType]
     public class LoginController : ILoginController
     {
         private readonly ILoginActions _loginActions;
@@ -41,6 +42,7 @@ namespace EndlessClient.Controllers
         private readonly IUserInputTimeRepository _userInputTimeRepository;
         private readonly IClientWindowSizeRepository _clientWindowSizeRepository;
         private readonly IConfigurationProvider _configurationProvider;
+        private readonly IPlayerInfoRepository _playerInfoRepository;
         private readonly IErrorDialogDisplayAction _errorDisplayAction;
         private readonly ISafeNetworkOperationFactory _networkOperationFactory;
         private readonly IGameLoadingDialogFactory _gameLoadingDialogFactory;
@@ -65,7 +67,8 @@ namespace EndlessClient.Controllers
                                INewsProvider newsProvider,
                                IUserInputTimeRepository userInputTimeRepository,
                                IClientWindowSizeRepository clientWindowSizeRepository,
-                               IConfigurationProvider configurationProvider)
+                               IConfigurationProvider configurationProvider,
+                               IPlayerInfoRepository playerInfoRepository)
         {
             _loginActions = loginActions;
             _mapFileLoadActions = mapFileLoadActions;
@@ -85,6 +88,7 @@ namespace EndlessClient.Controllers
             _userInputTimeRepository = userInputTimeRepository;
             _clientWindowSizeRepository = clientWindowSizeRepository;
             _configurationProvider = configurationProvider;
+            _playerInfoRepository = playerInfoRepository;
         }
 
         public async Task LoginToAccount(ILoginParameters loginParameters)
@@ -106,8 +110,18 @@ namespace EndlessClient.Controllers
             }
             else
             {
+                if (reply == LoginReply.WrongUser || reply == LoginReply.WrongUserPassword)
+                    _playerInfoRepository.LoginAttempts++;
+                else
+                    _playerInfoRepository.LoginAttempts = 3;
+
                 _errorDisplayAction.ShowLoginError(reply);
-                _gameStateActions.ChangeToState(GameStates.Initial);
+
+                if (_playerInfoRepository.LoginAttempts >= 3)
+                {
+                    _gameStateActions.ChangeToState(GameStates.Initial);
+                    _playerInfoRepository.LoginAttempts = 0;
+                }
             }
         }
 
@@ -141,7 +155,7 @@ namespace EndlessClient.Controllers
 
                 await InitialDelayInReleaseMode().ConfigureAwait(false);
 
-                if (unableToLoadMap || _fileRequestActions.NeedsFileForLogin(InitFileType.Map, _currentMapStateProvider.CurrentMapID))
+                if (unableToLoadMap || _fileRequestActions.NeedsFileForLogin(FileType.Emf, _currentMapStateProvider.CurrentMapID))
                 {
                     gameLoadingDialog.SetState(GameLoadingDialogState.Map);
                     if (!await SafeGetFile(() => _fileRequestActions.GetMapFromServer(_currentMapStateProvider.CurrentMapID, sessionID)).ConfigureAwait(false))
@@ -149,7 +163,7 @@ namespace EndlessClient.Controllers
                     await Task.Delay(1000).ConfigureAwait(false);
                 }
 
-                if (_fileRequestActions.NeedsFileForLogin(InitFileType.Item))
+                if (_fileRequestActions.NeedsFileForLogin(FileType.Eif))
                 {
                     gameLoadingDialog.SetState(GameLoadingDialogState.Item);
                     if (!await SafeGetFile(() => _fileRequestActions.GetItemFileFromServer(sessionID)).ConfigureAwait(false))
@@ -157,7 +171,7 @@ namespace EndlessClient.Controllers
                     await Task.Delay(1000).ConfigureAwait(false);
                 }
 
-                if (_fileRequestActions.NeedsFileForLogin(InitFileType.Npc))
+                if (_fileRequestActions.NeedsFileForLogin(FileType.Enf))
                 {
                     gameLoadingDialog.SetState(GameLoadingDialogState.NPC);
                     if (!await SafeGetFile(() => _fileRequestActions.GetNPCFileFromServer(sessionID)).ConfigureAwait(false))
@@ -165,7 +179,7 @@ namespace EndlessClient.Controllers
                     await Task.Delay(1000).ConfigureAwait(false);
                 }
 
-                if (_fileRequestActions.NeedsFileForLogin(InitFileType.Spell))
+                if (_fileRequestActions.NeedsFileForLogin(FileType.Esf))
                 {
                     gameLoadingDialog.SetState(GameLoadingDialogState.Spell);
                     if (!await SafeGetFile(() => _fileRequestActions.GetSpellFileFromServer(sessionID)).ConfigureAwait(false))
@@ -173,7 +187,7 @@ namespace EndlessClient.Controllers
                     await Task.Delay(1000).ConfigureAwait(false);
                 }
 
-                if (_fileRequestActions.NeedsFileForLogin(InitFileType.Class))
+                if (_fileRequestActions.NeedsFileForLogin(FileType.Ecf))
                 {
                     gameLoadingDialog.SetState(GameLoadingDialogState.Class);
                     if (!await SafeGetFile(() => _fileRequestActions.GetClassFileFromServer(sessionID)).ConfigureAwait(false))
@@ -190,7 +204,7 @@ namespace EndlessClient.Controllers
                 if (!await completeCharacterLoginOperation.Invoke().ConfigureAwait(false))
                     return;
 
-                if (completeCharacterLoginOperation.Result == CharacterLoginReply.RequestDenied)
+                if (completeCharacterLoginOperation.Result == WelcomeCode.ServerBusy)
                 {
                     // https://discord.com/channels/723989119503696013/787685796055482368/946634672295784509
                     // Sausage: 'I have WELCOME_REPLY 3 as returning a "server is busy" message if you send it and then disconnect the client'

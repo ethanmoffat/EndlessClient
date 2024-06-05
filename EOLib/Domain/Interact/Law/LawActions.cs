@@ -1,6 +1,6 @@
 ﻿using AutomaticTypeMapper;
-using EOLib.Net;
 using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 
 namespace EOLib.Domain.Interact.Law
 {
@@ -19,7 +19,7 @@ namespace EOLib.Domain.Interact.Law
 
         public void RequestMarriage(string partner)
         {
-            SendShared(MarriageRequestType.Marriage, partner);
+            SendShared(MarriageRequestType.MarriageApproval, partner);
         }
 
         public void RequestDivorce(string partner)
@@ -29,13 +29,12 @@ namespace EOLib.Domain.Interact.Law
 
         private void SendShared(MarriageRequestType requestType, string partner)
         {
-            var packet = new PacketBuilder(PacketFamily.Marriage, PacketAction.Request)
-                .AddChar((int)requestType)
-                .AddInt(_lawSessionProvider.SessionID)
-                .AddByte(255)
-                .AddString(partner)
-                .Build();
-
+            var packet = new MarriageRequestClientPacket
+            {
+                RequestType = requestType,
+                SessionId = _lawSessionProvider.SessionID,
+                Name = partner
+            };
             _packetSendService.SendPacket(packet);
         }
     }

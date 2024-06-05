@@ -1,25 +1,27 @@
-﻿using System;
-using System.Net.Sockets;
-using System.Runtime.InteropServices;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.Dialogs.Factories;
-using EOLib.Domain.Login;
-using EOLib.Domain.Protocol;
 using EOLib.Localization;
 using EOLib.Net;
 using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using System;
+using System.Net.Sockets;
+using System.Runtime.InteropServices;
 
 namespace EndlessClient.Dialogs.Actions
 {
-    //todo: some of this should be split into services for getting display strings
-    [MappedType(BaseType = typeof(IErrorDialogDisplayAction))]
+    [AutoMappedType]
     public class ErrorDialogDisplayAction : IErrorDialogDisplayAction
     {
         private readonly IEOMessageBoxFactory _messageBoxFactory;
+        private readonly ISfxPlayer _sfxPlayer;
 
-        public ErrorDialogDisplayAction(IEOMessageBoxFactory messageBoxFactory)
+        public ErrorDialogDisplayAction(IEOMessageBoxFactory messageBoxFactory,
+                                        ISfxPlayer sfxPlayer)
         {
             _messageBoxFactory = messageBoxFactory;
+            _sfxPlayer = sfxPlayer;
         }
 
         public void ShowError(ConnectResult connectResult)
@@ -75,14 +77,14 @@ namespace EndlessClient.Dialogs.Actions
             }
         }
 
-        public void ShowError(IInitializationData initializationData)
+        public void ShowError(InitReply replyCode, InitInitServerPacket.IReplyCodeData initializationData)
         {
-            switch (initializationData.Response)
+            switch (replyCode)
             {
-                case InitReply.ClientOutOfDate:
+                case InitReply.OutOfDate:
                     {
-                        var versionNumber = initializationData[InitializationDataKey.RequiredVersionNumber];
-                        var extra = $" 0.000.0{versionNumber}";
+                        var data = (InitInitServerPacket.ReplyCodeDataOutOfDate)initializationData;
+                        var extra = $" {data.Version.Major:D3}.{data.Version.Minor:D3}.{data.Version.Patch:D3}";
                         var messageBox = _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_CLIENT_OUT_OF_DATE,
                             extra,
                             EODialogButtons.Ok,
@@ -90,19 +92,23 @@ namespace EndlessClient.Dialogs.Actions
                         messageBox.ShowDialog();
                     }
                     break;
-                case InitReply.BannedFromServer:
+                case InitReply.Banned:
                     {
-                        var banType = (BanType)initializationData[InitializationDataKey.BanType];
-                        if (banType == BanType.PermanentBan)
+                        var data = (InitInitServerPacket.ReplyCodeDataBanned)initializationData;
+                        if (data.BanType == InitBanType.Permanent)
                         {
                             var messageBox = _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_IP_BAN_PERM,
                                 EODialogButtons.Ok,
                                 EOMessageBoxStyle.SmallDialogLargeHeader);
                             messageBox.ShowDialog();
                         }
-                        else if (banType == BanType.TemporaryBan)
+                        else if (data.BanType == InitBanType.Temporary || data.BanType == 0)
                         {
-                            var banMinutesRemaining = initializationData[InitializationDataKey.BanTimeRemaining];
+                            var banMinutesRemaining = data.BanTypeData is InitInitServerPacket.ReplyCodeDataBanned.BanTypeData0 dataZero
+                                ? dataZero.MinutesRemaining
+                                : data.BanTypeData is InitInitServerPacket.ReplyCodeDataBanned.BanTypeDataTemporary dataTemp
+                                    ? dataTemp.MinutesRemaining
+                                    : throw new ArgumentException();
                             var extra = $" {banMinutesRemaining} minutes.";
                             var messageBox = _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_IP_BAN_TEMP,
                                 extra,
@@ -110,9 +116,11 @@ namespace EndlessClient.Dialogs.Actions
                                 EOMessageBoxStyle.SmallDialogLargeHeader);
                             messageBox.ShowDialog();
                         }
+
+                        _sfxPlayer.PlaySfx(SoundEffectID.Banned);
                     }
                     break;
-                case InitReply.ErrorState:
+                case 0:
                     ShowError(ConnectResult.SocketError);
                     break;
                 default: throw new ArgumentOutOfRangeException();
@@ -139,18 +147,15 @@ namespace EndlessClient.Dialogs.Actions
 
         public void ShowLoginError(LoginReply loginError)
         {
-            DialogResourceID message;
-            switch (loginError)
+            var message = loginError switch
             {
-                case LoginReply.WrongUser: message = DialogResourceID.LOGIN_ACCOUNT_NAME_NOT_FOUND; break;
-                case LoginReply.WrongUserPass: message = DialogResourceID.LOGIN_ACCOUNT_NAME_OR_PASSWORD_NOT_FOUND; break;
-                case LoginReply.AccountBanned: message = DialogResourceID.LOGIN_BANNED_FROM_SERVER; break;
-                case LoginReply.LoggedIn: message = DialogResourceID.LOGIN_ACCOUNT_ALREADY_LOGGED_ON; break;
-                case LoginReply.Busy: message = DialogResourceID.CONNECTION_SERVER_IS_FULL; break;
-                case LoginReply.THIS_IS_WRONG: message = DialogResourceID.LOGIN_SERVER_COULD_NOT_PROCESS; break;
-                default: throw new ArgumentOutOfRangeException(nameof(loginError), loginError, null);
-            }
-
+                LoginReply.WrongUser => DialogResourceID.LOGIN_ACCOUNT_NAME_NOT_FOUND,
+                LoginReply.WrongUserPassword => DialogResourceID.LOGIN_ACCOUNT_NAME_OR_PASSWORD_NOT_FOUND,
+                LoginReply.Banned => DialogResourceID.LOGIN_BANNED_FROM_SERVER,
+                LoginReply.LoggedIn => DialogResourceID.LOGIN_ACCOUNT_ALREADY_LOGGED_ON,
+                LoginReply.Busy => DialogResourceID.CONNECTION_SERVER_IS_FULL,
+                _ => DialogResourceID.LOGIN_SERVER_COULD_NOT_PROCESS,
+            };
             var messageBox = _messageBoxFactory.CreateMessageBox(message,
                 EODialogButtons.Ok,
                 EOMessageBoxStyle.SmallDialogLargeHeader);

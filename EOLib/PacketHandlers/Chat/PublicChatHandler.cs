@@ -1,16 +1,17 @@
-﻿using System.Collections.Generic;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Chat
 {
     [AutoMappedType]
-    public class PublicChatHandler : PlayerChatByIDHandler
+    public class PublicChatHandler : PlayerChatByIDHandler<TalkPlayerServerPacket>
     {
         private readonly IChatRepository _chatRepository;
         private readonly IEnumerable<IOtherCharacterEventNotifier> _notifiers;
@@ -18,25 +19,28 @@ namespace EOLib.PacketHandlers.Chat
         public override PacketAction Action => PacketAction.Player;
 
         public PublicChatHandler(IPlayerInfoProvider playerInfoProvider,
-                                 ICurrentMapStateProvider currentMapStateProvider,
+                                 ICurrentMapStateRepository currentMapStateRepository,
                                  ICharacterProvider characterProvider,
                                  IChatRepository chatRepository,
                                  IEnumerable<IOtherCharacterEventNotifier> notifiers)
-            : base(playerInfoProvider, currentMapStateProvider, characterProvider)
+            : base(playerInfoProvider, currentMapStateRepository, characterProvider)
         {
             _chatRepository = chatRepository;
             _notifiers = notifiers;
         }
 
-        protected override void DoTalk(IPacket packet, Character character)
+        public override bool HandlePacket(TalkPlayerServerPacket packet)
         {
-            var message = packet.ReadEndString();
+            return Handle(packet, packet.PlayerId);
+        }
 
-            var chatData = new ChatData(ChatTab.Local, character.Name, message, ChatIcon.SpeechBubble);
+        protected override void DoTalk(TalkPlayerServerPacket packet, Character character)
+        {
+            var chatData = new ChatData(ChatTab.Local, character.Name, packet.Message, ChatIcon.SpeechBubble);
             _chatRepository.AllChat[ChatTab.Local].Add(chatData);
 
             foreach (var notifier in _notifiers)
-                notifier.OtherCharacterSaySomething(character.ID, message);
+                notifier.OtherCharacterSaySomething(character.ID, packet.Message);
         }
     }
 }

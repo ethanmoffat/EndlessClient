@@ -2,8 +2,9 @@
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
 using EOLib.Domain.Party;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Party
@@ -12,7 +13,7 @@ namespace EOLib.PacketHandlers.Party
     /// Handles new member joining party
     /// </summary>
     [AutoMappedType]
-    public class PartyAddHandler : InGameOnlyPacketHandler
+    public class PartyAddHandler : InGameOnlyPacketHandler<PartyAddServerPacket>
     {
         private readonly IPartyDataRepository _partyDataRepository;
         private readonly IEnumerable<IPartyEventNotifier> _partyEventNotifiers;
@@ -30,23 +31,20 @@ namespace EOLib.PacketHandlers.Party
             _partyEventNotifiers = partyEventNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(PartyAddServerPacket packet)
         {
-            var partyMember = new PartyMember.Builder
+            _partyDataRepository.Members.Add(new Domain.Party.PartyMember.Builder
             {
-                CharacterID = packet.ReadShort(),
-                IsLeader = packet.ReadChar() != 0,
-                Level = packet.ReadChar(),
-                PercentHealth = packet.ReadChar(),
-                Name = packet.ReadBreakString(),
-            };
-            partyMember.Name = char.ToUpper(partyMember.Name[0]) + partyMember.Name.Substring(1);
-
-            _partyDataRepository.Members.Add(partyMember.ToImmutable());
+                CharacterID = packet.Member.PlayerId,
+                IsLeader = packet.Member.Leader,
+                Level = packet.Member.Level,
+                PercentHealth = packet.Member.HpPercentage,
+                Name = char.ToUpper(packet.Member.Name[0]) + packet.Member.Name.Substring(1),
+            }.ToImmutable());
 
             foreach (var notifier in _partyEventNotifiers)
             {
-                notifier.NotifyPartyMemberAdd(partyMember.Name);
+                notifier.NotifyPartyMemberAdd(packet.Member.Name);
             }
 
             return true;

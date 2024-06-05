@@ -1,22 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
+using System.Diagnostics;
 
 namespace EOLib.Domain.Protocol
 {
     public interface IPingTimeRepository
     {
-        Dictionary<int, DateTime> PingRequests { get; set; }
+        Stopwatch RequestTimer { get; set; }
     }
 
     [AutoMappedType(IsSingleton = true)]
     public class PingTimeRepository : IPingTimeRepository
     {
-        public Dictionary<int, DateTime> PingRequests { get; set; }
+        public Stopwatch RequestTimer { get; set; }
 
         public PingTimeRepository()
         {
-            PingRequests = new Dictionary<int, DateTime>();
+            RequestTimer = new Stopwatch();
         }
     }
 }

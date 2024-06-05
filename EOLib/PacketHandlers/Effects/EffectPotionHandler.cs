@@ -1,14 +1,15 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Effects
 {
     [AutoMappedType]
-    public class EffectPotionHandler : InGameOnlyPacketHandler
+    public class EffectPotionHandler : InGameOnlyPacketHandler<EffectPlayerServerPacket>
     {
         private readonly IEnumerable<IEffectNotifier> _effectNotifiers;
 
@@ -22,13 +23,13 @@ namespace EOLib.PacketHandlers.Effects
             _effectNotifiers = effectNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(EffectPlayerServerPacket packet)
         {
-            var playerId = packet.ReadShort();
-            var effectId = packet.ReadThree();
-
-            foreach (var notifier in _effectNotifiers)
-                notifier.NotifyPotionEffect(playerId, effectId);
+            foreach (var effect in packet.Effects)
+            {
+                foreach (var notifier in _effectNotifiers)
+                    notifier.NotifyPotionEffect(effect.PlayerId, effect.EffectId);
+            }
 
             return true;
         }

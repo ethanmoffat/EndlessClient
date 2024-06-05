@@ -2,9 +2,11 @@
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace EOLib.PacketHandlers.AdminInteract
 {
@@ -12,7 +14,7 @@ namespace EOLib.PacketHandlers.AdminInteract
     /// Response to $inventory <character> command.
     /// </summary>
     [AutoMappedType]
-    public class AdminInteractList: InGameOnlyPacketHandler
+    public class AdminInteractList : InGameOnlyPacketHandler<AdminInteractListServerPacket>
     {
         private readonly IEnumerable<IUserInterfaceNotifier> _userInterfaceNotifiers;
 
@@ -27,38 +29,13 @@ namespace EOLib.PacketHandlers.AdminInteract
             _userInterfaceNotifiers = userInterfaceNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(AdminInteractListServerPacket packet)
         {
-            var name = packet.ReadBreakString();
-            
-            var usage = packet.ReadInt();
-            if (packet.ReadByte() != 255)
-                return false;
-
-            var gold_bank = packet.ReadInt();
-            if (packet.ReadByte() != 255)
-                return false;
-
-            var inventory = new List<InventoryItem>();
-            while (packet.PeekByte() != 255)
-            {
-                var id = packet.ReadShort();
-                var amount = packet.ReadInt();
-                inventory.Add(new InventoryItem(id, amount));
-            }
-            packet.ReadByte();
-
-            var bank = new List<InventoryItem>();
-            while (packet.ReadPosition < packet.Length)
-            {
-                var id = packet.ReadShort();
-                var amount = packet.ReadThree();
-                bank.Add(new InventoryItem(id, amount));
-            }
-
+            var inventory = packet.Inventory.Select(x => new InventoryItem(x.Id, x.Amount)).ToList();
+            var bank = packet.Bank.Select(x => new InventoryItem(x.Id, x.Amount)).ToList();
             foreach (var notifier in _userInterfaceNotifiers)
             {
-                notifier.NotifyCharacterInventory(name, usage, gold_bank, inventory, bank);
+                notifier.NotifyCharacterInventory(packet.Name, packet.Usage, packet.GoldBank, inventory, bank);
             }
 
             return true;

@@ -2,7 +2,8 @@
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
-using EOLib.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOLib.PacketHandlers.Sit
 {
@@ -10,7 +11,7 @@ namespace EOLib.PacketHandlers.Sit
     /// Handle the main player standing up
     /// </summary>
     [AutoMappedType]
-    public class SitCloseHandler : PlayerStandHandlerBase
+    public class SitCloseHandler : PlayerStandHandlerBase<SitCloseServerPacket>
     {
         public override PacketAction Action => PacketAction.Close;
 
@@ -18,5 +19,11 @@ namespace EOLib.PacketHandlers.Sit
                                ICharacterRepository characterRepository,
                                ICurrentMapStateRepository currentMapStateRepository)
             : base(playerInfoProvider, characterRepository, currentMapStateRepository) { }
+
+        public override bool HandlePacket(SitCloseServerPacket packet)
+        {
+            Handle(packet.PlayerId, packet.Coords.X, packet.Coords.Y);
+            return true;
+        }
     }
 }

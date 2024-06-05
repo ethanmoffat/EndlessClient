@@ -1,8 +1,9 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Linq;
 
 namespace EOLib.PacketHandlers.Walk
@@ -11,7 +12,7 @@ namespace EOLib.PacketHandlers.Walk
     /// Sent in response to the main character walking successfully
     /// </summary>
     [AutoMappedType]
-    public class WalkReplyHandler : InGameOnlyPacketHandler
+    public class WalkReplyHandler : InGameOnlyPacketHandler<WalkReplyServerPacket>
     {
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
 
@@ -25,39 +26,23 @@ namespace EOLib.PacketHandlers.Walk
             _currentMapStateRepository = currentMapStateRepository;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(WalkReplyServerPacket packet)
         {
-            while (packet.PeekByte() != 0xFF)
+            foreach (var unknownPlayer in packet.PlayerIds.Where(x => !_currentMapStateRepository.Characters.ContainsKey(x)))
+                _currentMapStateRepository.UnknownPlayerIDs.Add(unknownPlayer);
+            foreach (var unknownNpc in packet.NpcIndexes.Where(x => !_currentMapStateRepository.NPCs.ContainsKey(x)))
+                _currentMapStateRepository.UnknownNPCIndexes.Add(unknownNpc);
+
+            foreach (var item in packet.Items)
             {
-                var playerID = packet.ReadShort();
-                if (!_currentMapStateRepository.Characters.ContainsKey(playerID))
+                _currentMapStateRepository.MapItems.Add(new MapItem.Builder
                 {
-                    _currentMapStateRepository.UnknownPlayerIDs.Add(playerID);
-                }
-            }
-            packet.ReadByte();
-
-            while (packet.PeekByte() != 0xFF)
-            {
-                var index = packet.ReadChar();
-                if (!_currentMapStateRepository.NPCs.Any((npc) => npc.Index == index))
-                {
-                    _currentMapStateRepository.UnknownNPCIndexes.Add(index);
-                }
-            }
-            packet.ReadByte();
-
-            var numberOfMapItems = packet.PeekEndString().Length / 9;
-            for (int i = 0; i < numberOfMapItems; ++i)
-            {
-                var uid = packet.ReadShort();
-                var itemID = packet.ReadShort();
-                var x = packet.ReadChar();
-                var y = packet.ReadChar();
-                var amount = packet.ReadThree();
-
-                var newItem = new MapItem(uid, itemID, x, y, amount);
-                _currentMapStateRepository.MapItems.Add(newItem);
+                    UniqueID = item.Id,
+                    ItemID = item.Id,
+                    X = item.Coords.X,
+                    Y = item.Coords.Y,
+                    Amount = item.Amount,
+                }.ToImmutable());
             }
 
             return true;

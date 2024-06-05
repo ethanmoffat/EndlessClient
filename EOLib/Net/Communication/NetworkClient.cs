@@ -1,14 +1,12 @@
-﻿using System;
-using System.Diagnostics;
-using System.Linq;
+﻿using EOLib.IO.Services;
+using EOLib.Net.Handlers;
+using EOLib.Net.PacketProcessing;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using EOLib.IO.Services;
-using EOLib.Logger;
-using EOLib.Net.Handlers;
-using EOLib.Net.PacketProcessing;
 
 namespace EOLib.Net.Communication
 {
@@ -17,7 +15,6 @@ namespace EOLib.Net.Communication
         private readonly IPacketProcessActions _packetProcessActions;
         private readonly IPacketHandlingActions _packetHandlingActions;
         private readonly INumberEncoderService _numberEncoderService;
-        private readonly ILoggerProvider _loggerProvider;
 
         private readonly IAsyncSocket _socket;
         
@@ -30,13 +27,11 @@ namespace EOLib.Net.Communication
         public NetworkClient(IPacketProcessActions packetProcessActions,
                              IPacketHandlingActions packetHandlingActions,
                              INumberEncoderService numberEncoderService,
-                             ILoggerProvider loggerProvider,
                              TimeSpan receiveTimeout)
         {
             _packetProcessActions = packetProcessActions;
             _packetHandlingActions = packetHandlingActions;
             _numberEncoderService = numberEncoderService;
-            _loggerProvider = loggerProvider;
             ReceiveTimeout = receiveTimeout;
 
             _socket = new AsyncSocket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -84,37 +79,21 @@ namespace EOLib.Net.Communication
             while (!cancellationToken.IsCancellationRequested)
             {
                 var lengthData = await _socket.ReceiveAsync(2, cancellationToken);
-                if (cancellationToken.IsCancellationRequested)
+                if (cancellationToken.IsCancellationRequested || lengthData.Length != 2)
                 {
-                    _loggerProvider.Logger.Log("RECV thread: Cancellation was requested when receiving length");
                     break;
                 }
-
-                if (lengthData.Length != 2)
-                {
-                    _loggerProvider.Logger.Log("RECV thread: Did not receive two bytes of data");
-                    break;
-                }
-
                 var length = _numberEncoderService.DecodeNumber(lengthData);
 
                 var packetData = await _socket.ReceiveAsync(length, cancellationToken);
-                if (cancellationToken.IsCancellationRequested)
+                if (cancellationToken.IsCancellationRequested || packetData.Length != length)
                 {
-                    _loggerProvider.Logger.Log("RECV thread: Cancellation was requested when receiving data");
                     break;
                 }
 
-                if (packetData.Length != length)
-                {
-                    _loggerProvider.Logger.Log("RECV thread: Did not receive expected {0} bytes of data", length);
-                    break;
-                }
-
-                var packet = _packetProcessActions.DecodeData(packetData);
-                LogReceivedPacket(packet);
-
-                _packetHandlingActions.EnqueuePacketForHandling(packet);
+                _packetProcessActions
+                    .DecodeData(packetData)
+                    .MatchSome(_packetHandlingActions.EnqueuePacketForHandling);
             }
         }
 
@@ -126,39 +105,16 @@ namespace EOLib.Net.Communication
 
         public async Task<int> SendAsync(IPacket packet, int timeout = 1500)
         {
-            LogSentPacket(packet, true);
             var bytesToSend = _packetProcessActions.EncodePacket(packet);
-            using (var cts = new CancellationTokenSource(timeout))
-                return await _socket.SendAsync(bytesToSend, cts.Token).ConfigureAwait(false);
+            using var cts = new CancellationTokenSource(timeout);
+            return await _socket.SendAsync(bytesToSend, cts.Token).ConfigureAwait(false);
         }
 
         public async Task<int> SendRawPacketAsync(IPacket packet, int timeout = 1500)
         {
-            LogSentPacket(packet, false);
             var bytesToSend = _packetProcessActions.EncodeRawPacket(packet);
-            using (var cts = new CancellationTokenSource(timeout))
-                return await _socket.SendAsync(bytesToSend, cts.Token).ConfigureAwait(false);
-        }
-
-        [Conditional("DEBUG")]
-        private void LogReceivedPacket(IPacket packet)
-        {
-            _loggerProvider.Logger.Log("RECV thread: Received             packet Family={0,-13} Action={1,-8} sz={2,-5} data={3}",
-                Enum.GetName(typeof(PacketFamily), packet.Family),
-                Enum.GetName(typeof(PacketAction), packet.Action),
-                packet.Length,
-                string.Join(":", packet.RawData.Select(b => $"{b:x2}")));
-        }
-
-        [Conditional("DEBUG")]
-        private void LogSentPacket(IPacket packet, bool encoded)
-        {
-            _loggerProvider.Logger.Log("SEND thread: Processing       {0,-3} packet Family={1,-13} Action={2,-8} sz={3,-5} data={4}",
-                    encoded ? "ENC" : "RAW",
-                    Enum.GetName(typeof(PacketFamily), packet.Family),
-                    Enum.GetName(typeof(PacketAction), packet.Action),
-                    packet.Length,
-                    string.Join(":", packet.RawData.Select(b => $"{b:x2}")));
+            using var cts = new CancellationTokenSource(timeout);
+            return await _socket.SendAsync(bytesToSend, cts.Token).ConfigureAwait(false);
         }
 
         public void Dispose()

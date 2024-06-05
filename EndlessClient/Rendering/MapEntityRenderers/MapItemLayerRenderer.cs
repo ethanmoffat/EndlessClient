@@ -30,7 +30,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         protected override bool ElementExistsAt(int row, int col)
         {
-            return _currentMapStateProvider.MapItems.TryGetValues(new MapCoordinate(col, row), out var mapItems) && mapItems.Count > 0;
+            return _currentMapStateProvider.MapItems.ContainsKey(new MapCoordinate(col, row));
         }
 
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)

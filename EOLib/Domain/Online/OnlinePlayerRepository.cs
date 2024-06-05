@@ -5,7 +5,7 @@ namespace EOLib.Domain.Online
 {
     public interface IOnlinePlayerRepository : IResettable
     {
-        HashSet<OnlinePlayerInfo> OnlinePlayers { get; }
+        HashSet<OnlinePlayerInfo> OnlinePlayers { get; set;  }
     }
 
     public interface IOnlinePlayerProvider
@@ -16,7 +16,7 @@ namespace EOLib.Domain.Online
     [AutoMappedType(IsSingleton = true)]
     public class OnlinePlayerRepository : IOnlinePlayerRepository, IOnlinePlayerProvider
     {
-        public HashSet<OnlinePlayerInfo> OnlinePlayers { get; private set; }
+        public HashSet<OnlinePlayerInfo> OnlinePlayers { get; set; }
 
         IReadOnlyCollection<OnlinePlayerInfo> IOnlinePlayerProvider.OnlinePlayers => OnlinePlayers;
 

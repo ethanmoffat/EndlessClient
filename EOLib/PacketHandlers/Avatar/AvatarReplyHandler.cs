@@ -1,17 +1,18 @@
 using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
+using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.Net.Handlers;
-using EOLib.Domain.Login;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Avatar
 {
     [AutoMappedType]
-    public class AvatarReplyHandler : InGameOnlyPacketHandler
+    public class AvatarReplyHandler : InGameOnlyPacketHandler<AvatarReplyServerPacket>
     {
         private readonly ICurrentMapStateRepository _currentStateRepository;
         private readonly IEnumerable<IOtherCharacterAnimationNotifier> _otherCharacterAnimationNotifiers;
@@ -38,40 +39,49 @@ namespace EOLib.PacketHandlers.Avatar
             _characterRepository = characterRepository;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(AvatarReplyServerPacket packet)
         {
-            var attackerId = packet.ReadShort();
-            var victimId = packet.ReadShort();
-            var damage = packet.ReadThree();
-            var direction = (EODirection)packet.ReadChar();
-            var hpPercentage = packet.ReadChar();
-            bool dead = packet.ReadChar() != 0;
+            var direction = (EODirection)packet.Direction;
 
-            if (victimId == _characterRepository.MainCharacter.ID)
+            if (packet.VictimId == _characterRepository.MainCharacter.ID)
             {
-                _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithDamage(damage, dead);
+                _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithDamage(packet.Damage, packet.Dead);
 
                 foreach (var notifier in _mainCharacterEventNotifiers)
                 {
-                    notifier.NotifyTakeDamage(damage, hpPercentage, isHeal: false);
+                    notifier.NotifyTakeDamage(packet.Damage, packet.HpPercentage, isHeal: false);
                 }
             }
-            else if (_currentStateRepository.Characters.TryGetValue(victimId, out var character))
+            else if (_currentStateRepository.Characters.TryGetValue(packet.VictimId, out var character))
             {
-                var updatedCharacter = character.WithDamage(damage, dead);
+                var updatedCharacter = character.WithDamage(packet.Damage, packet.Dead);
                 _currentStateRepository.Characters.Update(character, updatedCharacter);
 
                 foreach (var notifier in _otherCharacterEventNotifiers)
                 {
-                    notifier.OtherCharacterTakeDamage(victimId, hpPercentage, damage, isHeal: false);
+                    notifier.OtherCharacterTakeDamage(packet.VictimId, packet.HpPercentage, packet.Damage, isHeal: false);
                 }
             }
-            if (attackerId != _characterRepository.MainCharacter.ID)
+
+            if (packet.PlayerId == _characterRepository.MainCharacter.ID)
             {
+                _characterRepository.MainCharacter = _characterRepository.MainCharacter
+                    .WithRenderProperties(_characterRepository.MainCharacter.RenderProperties.WithDirection(direction));
+            }
+            else if (_currentStateRepository.Characters.TryGetValue(packet.PlayerId, out var otherCharacter))
+            {
+                _currentStateRepository.Characters.Update(
+                    otherCharacter,
+                    otherCharacter.WithRenderProperties(otherCharacter.RenderProperties.WithDirection(direction))
+                );
                 foreach (var notifier in _otherCharacterAnimationNotifiers)
                 {
-                    notifier.StartOtherCharacterAttackAnimation(attackerId);
-                }   
+                    notifier.StartOtherCharacterAttackAnimation(packet.PlayerId);
+                }
+            }
+            else
+            {
+                _currentStateRepository.UnknownPlayerIDs.Add(packet.PlayerId);
             }
 
             return true;

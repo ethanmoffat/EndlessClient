@@ -3,8 +3,10 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.PacketHandlers.NPC;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using Optional;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Cast
@@ -16,21 +18,27 @@ namespace EOLib.PacketHandlers.Cast
     /// that is done from NPCLeaveMapHandler.HandlePlacket (see if packet.Family == PacketFamily.Cast) blocks
     /// </summary>
     [AutoMappedType]
-    public class CastSpecHandler : NPCSpecHandler
+    public class CastSpecHandler : NPCDeathHandler<CastSpecServerPacket>
     {
         public override PacketFamily Family => PacketFamily.Cast;
 
         public override PacketAction Action => PacketAction.Spec;
 
         public CastSpecHandler(IPlayerInfoProvider playerInfoProvider,
-                               ICurrentMapStateRepository currentMapStateRepository,
                                ICharacterRepository characterRepository,
+                               ICurrentMapStateRepository currentMapStateRepository,
                                ICharacterSessionRepository characterSessionRepository,
                                IEnumerable<INPCActionNotifier> npcAnimationNotifiers,
                                IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers,
                                IEnumerable<IOtherCharacterAnimationNotifier> otherCharacterAnimationNotifiers)
-            : base(playerInfoProvider, currentMapStateRepository, characterRepository, characterSessionRepository,
+            : base(playerInfoProvider, characterRepository, currentMapStateRepository, characterSessionRepository,
                    npcAnimationNotifiers, mainCharacterEventNotifiers, otherCharacterAnimationNotifiers)
         { }
+
+        public override bool HandlePacket(CastSpecServerPacket packet)
+        {
+            DeathWorkflowSpell(packet.NpcKilledData, packet.Experience, Option.Some((packet.SpellId, packet.CasterTp)));
+            return true;
+        }
     }
 }

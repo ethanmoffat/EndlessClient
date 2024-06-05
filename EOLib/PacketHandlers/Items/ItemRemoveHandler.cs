@@ -1,8 +1,9 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOLib.PacketHandlers.Items
 {
@@ -10,7 +11,7 @@ namespace EOLib.PacketHandlers.Items
     /// Sent when an item is removed from the map by someone other than the main character
     /// </summary>
     [AutoMappedType]
-    public class ItemRemoveHandler : InGameOnlyPacketHandler
+    public class ItemRemoveHandler : InGameOnlyPacketHandler<ItemRemoveServerPacket>
     {
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
 
@@ -25,10 +26,10 @@ namespace EOLib.PacketHandlers.Items
             _currentMapStateRepository = currentMapStateRepository;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(ItemRemoveServerPacket packet)
         {
-            var uid = packet.ReadShort();
-            _currentMapStateRepository.MapItems.Remove(_currentMapStateRepository.MapItems[uid]);
+            if (_currentMapStateRepository.MapItems.TryGetValue(packet.ItemIndex, out var item))
+                _currentMapStateRepository.MapItems.Remove(item);
             return true;
         }
     }

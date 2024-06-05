@@ -1,11 +1,12 @@
-﻿using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Net;
 using EOLib.Net.Communication;
-using EOLib.Net.Translators;
+using Moffat.EndlessOnline.SDK.Protocol;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace EOLib.Domain.Character
 {
@@ -13,69 +14,85 @@ namespace EOLib.Domain.Character
     public class CharacterManagementActions : ICharacterManagementActions
     {
         private readonly IPacketSendService _packetSendService;
-        private readonly IPacketTranslator<ICharacterCreateData> _characterCreatePacketTranslator;
         private readonly ICharacterSelectorRepository _characterSelectorRepository;
 
         public CharacterManagementActions(IPacketSendService packetSendService,
-                                          IPacketTranslator<ICharacterCreateData> characterCreatePacketTranslator,
                                           ICharacterSelectorRepository characterSelectorRepository)
         {
             _packetSendService = packetSendService;
-            _characterCreatePacketTranslator = characterCreatePacketTranslator;
             _characterSelectorRepository = characterSelectorRepository;
         }
 
         public async Task<int> RequestCharacterCreation()
         {
-            var packet = new PacketBuilder(PacketFamily.Character, PacketAction.Request)
-                .AddBreakString("NEW")
-                .Build();
-            var responsePacket = await _packetSendService.SendEncodedPacketAndWaitAsync(packet);
-            return responsePacket.ReadShort();
+            var packet = new CharacterRequestClientPacket();
+            var response = await _packetSendService.SendEncodedPacketAndWaitAsync(packet);
+
+            if (response is CharacterReplyServerPacket responsePacket)
+                return (int)responsePacket.ReplyCode;
+
+            throw new EmptyPacketReceivedException();
         }
 
         public async Task<CharacterReply> CreateCharacter(ICharacterCreateParameters parameters, int createID)
         {
-            var packet = new PacketBuilder(PacketFamily.Character, PacketAction.Create)
-                .AddShort(createID)
-                .AddShort(parameters.Gender)
-                .AddShort(parameters.HairStyle)
-                .AddShort(parameters.HairColor)
-                .AddShort(parameters.Race)
-                .AddByte(255)
-                .AddBreakString(parameters.Name)
-                .Build();
-            var responsePacket = await _packetSendService.SendEncodedPacketAndWaitAsync(packet);
+            var packet = new CharacterCreateClientPacket
+            {
+                SessionId = createID,
+                Gender = (Gender)parameters.Gender,
+                HairStyle = parameters.HairStyle,
+                HairColor = parameters.HairColor,
+                Skin = parameters.Race,
+                Name = parameters.Name,
+            };
+
+            var response = await _packetSendService.SendEncodedPacketAndWaitAsync(packet);
+            if (!(response is CharacterReplyServerPacket responsePacket))
+                throw new EmptyPacketReceivedException();
             
-            var translatedData = _characterCreatePacketTranslator.TranslatePacket(responsePacket);
-            if (translatedData.Characters.Any())
-                _characterSelectorRepository.Characters = translatedData.Characters;
-            return translatedData.Response;
+            if (responsePacket.ReplyCodeData is CharacterReplyServerPacket.ReplyCodeDataOk dataOk && dataOk.Characters.Any())
+            {
+                _characterSelectorRepository.Characters = dataOk.Characters
+                    .Select(Character.FromCharacterSelectionListEntry).ToList();
+            }
+
+            return responsePacket.ReplyCode;
         }
 
         public async Task<int> RequestCharacterDelete()
         {
-            var packet = _characterSelectorRepository.CharacterForDelete.Match(
-                some: c => new PacketBuilder(PacketFamily.Character, PacketAction.Take).AddInt(c.ID).Build(),
-                none: () => new EmptyPacket());
-            
-            var responsePacket = await _packetSendService.SendEncodedPacketAndWaitAsync(packet);
-            var deleteRequestId = responsePacket.ReadShort();
+            var clientPacket = _characterSelectorRepository.CharacterForDelete.Match(
+                c => new CharacterTakeClientPacket { CharacterId = c.ID },
+                () => null) ?? throw new NoDataSentException();
 
-            return deleteRequestId;
+            var response = await _packetSendService.SendEncodedPacketAndWaitAsync(clientPacket);
+            if (!(response is CharacterPlayerServerPacket responsePacket))
+                throw new EmptyPacketReceivedException();
+
+            return responsePacket.SessionId;
         }
 
         public async Task<CharacterReply> DeleteCharacter(int deleteRequestID)
         {
-            var packet = _characterSelectorRepository.CharacterForDelete.Match(
-                some: c => new PacketBuilder(PacketFamily.Character, PacketAction.Remove).AddShort(deleteRequestID).AddInt(c.ID).Build(),
-                none: () => new EmptyPacket());
+            var clientPacket = _characterSelectorRepository.CharacterForDelete.Match(
+                c => new CharacterRemoveClientPacket
+                {
+                    SessionId = deleteRequestID,
+                    CharacterId = c.ID
+                },
+                () => null) ?? throw new NoDataSentException();
 
-            var responsePacket = await _packetSendService.SendEncodedPacketAndWaitAsync(packet);
+            var response = await _packetSendService.SendEncodedPacketAndWaitAsync(clientPacket);
+            if (!(response is CharacterReplyServerPacket responsePacket))
+                throw new EmptyPacketReceivedException();
 
-            var translatedData = _characterCreatePacketTranslator.TranslatePacket(responsePacket);
-            _characterSelectorRepository.Characters = translatedData.Characters;
-            return translatedData.Response;
+            if (responsePacket.ReplyCodeData is CharacterReplyServerPacket.ReplyCodeDataDeleted dataDeleted)
+            {
+                _characterSelectorRepository.Characters = dataDeleted.Characters
+                    .Select(Character.FromCharacterSelectionListEntry).ToList();
+            }
+
+            return responsePacket.ReplyCode;
         }
     }
 

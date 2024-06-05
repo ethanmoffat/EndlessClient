@@ -1,7 +1,7 @@
-using System;
 using AutomaticTypeMapper;
 using EndlessClient.UIControls;
 using EOLib.Domain.Character;
+using Moffat.EndlessOnline.SDK.Protocol;
 
 namespace EndlessClient.HUD.Chat
 {

@@ -1,63 +1,47 @@
 ﻿using AutomaticTypeMapper;
+using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
-using EOLib.IO.Repositories;
-using EOLib.Net;
 using EOLib.Net.Handlers;
-using EOLib.Net.Translators;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using System.Linq;
 
 namespace EOLib.PacketHandlers.MapInfo
 {
     [AutoMappedType]
-    public class MapInfoReplyHandler : InGameOnlyPacketHandler
+    public class MapInfoReplyHandler : InGameOnlyPacketHandler<RangeReplyServerPacket>
     {
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
-        private readonly ICharacterFromPacketFactory _characterFromPacketFactory;
-        private readonly INPCFromPacketFactory _npcFromPacketFactory;
-        private readonly IEIFFileProvider _eifFileProvider;
 
-        public override PacketFamily Family => PacketFamily.MapInfo;
+        public override PacketFamily Family => PacketFamily.Range;
 
         public override PacketAction Action => PacketAction.Reply;
 
         public MapInfoReplyHandler(IPlayerInfoProvider playerInfoProvider,
-                                   ICurrentMapStateRepository currentMapStateRepository,
-                                   ICharacterFromPacketFactory characterFromPacketFactory,
-                                   INPCFromPacketFactory npcFromPacketFactory,
-                                   IEIFFileProvider eifFileProvider)
+                                   ICurrentMapStateRepository currentMapStateRepository)
             : base(playerInfoProvider)
         {
             _currentMapStateRepository = currentMapStateRepository;
-            _characterFromPacketFactory = characterFromPacketFactory;
-            _npcFromPacketFactory = npcFromPacketFactory;
-            _eifFileProvider = eifFileProvider;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(RangeReplyServerPacket packet)
         {
-            var numberOfCharacters = packet.ReadChar();
-
-            if (packet.PeekByte() == byte.MaxValue)
+            foreach (var character in packet.Nearby.Characters.Where(x => x.ByteSize >= 42).Select(Character.FromNearby))
             {
-                packet.ReadByte();
-                for (var i = 0; i < numberOfCharacters; i++)
+                if (_currentMapStateRepository.Characters.ContainsKey(character.ID))
                 {
-                    var character = _characterFromPacketFactory.CreateCharacter(packet);
-                    if (_currentMapStateRepository.Characters.TryGetValue(character.ID, out var existingCharacter))
-                    {
-                        character = existingCharacter.WithAppliedData(character);
-                    }
-
-                    _currentMapStateRepository.Characters.Update(existingCharacter, character);
-                    if (packet.ReadByte() != byte.MaxValue)
-                        throw new MalformedPacketException("Missing 255 byte after character data", packet);
+                    _currentMapStateRepository.Characters.Update(
+                        _currentMapStateRepository.Characters[character.ID],
+                        _currentMapStateRepository.Characters[character.ID].WithAppliedData(character));
                 }
+                else
+                    _currentMapStateRepository.Characters.Add(character);
             }
 
-            while (packet.ReadPosition < packet.Length)
+            foreach (var npc in packet.Nearby.Npcs.Select(Domain.NPC.NPC.FromNearby))
             {
-                var npc = _npcFromPacketFactory.CreateNPC(packet);
                 if (_currentMapStateRepository.NPCs.ContainsKey(npc.Index))
                     _currentMapStateRepository.NPCs.Update(_currentMapStateRepository.NPCs[npc.Index], npc);
                 else

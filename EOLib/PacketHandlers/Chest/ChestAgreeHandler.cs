@@ -1,14 +1,16 @@
 ﻿using AutomaticTypeMapper;
-using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace EOLib.PacketHandlers.Chest
 {
     [AutoMappedType]
-    public class ChestAgreeHandler : InGameOnlyPacketHandler
+    public class ChestAgreeHandler : InGameOnlyPacketHandler<ChestAgreeServerPacket>
     {
         private readonly IChestDataRepository _chestDataRepository;
 
@@ -23,14 +25,9 @@ namespace EOLib.PacketHandlers.Chest
             _chestDataRepository = chestDataRepository;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(ChestAgreeServerPacket packet)
         {
-            _chestDataRepository.Items.Clear();
-
-            int i = 0;
-            while (packet.ReadPosition < packet.Length)
-                _chestDataRepository.Items.Add(new ChestItem(packet.ReadShort(), packet.ReadThree(), i++));
-
+            _chestDataRepository.Items = new HashSet<ChestItem>(packet.Items.Select((x, i) => new ChestItem(x.Id, x.Amount, i)));
             return true;
         }
     }

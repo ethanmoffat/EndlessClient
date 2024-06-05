@@ -2,14 +2,16 @@
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace EOLib.PacketHandlers.Chest
 {
     [AutoMappedType]
-    public class ChestOpenHandler : InGameOnlyPacketHandler
+    public class ChestOpenHandler : InGameOnlyPacketHandler<ChestOpenServerPacket>
     {
         private readonly IChestDataRepository _chestDataRepository;
         private readonly IEnumerable<IUserInterfaceNotifier> _userInterfaceNotifiers;
@@ -27,17 +29,11 @@ namespace EOLib.PacketHandlers.Chest
             _userInterfaceNotifiers = userInterfaceNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(ChestOpenServerPacket packet)
         {
-            var x = packet.ReadChar();
-            var y = packet.ReadChar();
-
             _chestDataRepository.ResetState();
-            _chestDataRepository.Location = new MapCoordinate(x, y);
-
-            int i = 0;
-            while (packet.ReadPosition < packet.Length)
-                _chestDataRepository.Items.Add(new ChestItem(packet.ReadShort(), packet.ReadThree(), i++));
+            _chestDataRepository.Location = new MapCoordinate(packet.Coords.X, packet.Coords.Y);
+            _chestDataRepository.Items = new HashSet<ChestItem>(packet.Items.Select((x, i) => new ChestItem(x.Id, x.Amount, i)));
 
             foreach (var notifier in _userInterfaceNotifiers)
                 notifier.NotifyPacketDialog(Family);

@@ -2,15 +2,16 @@
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional.Collections;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Shop
 {
     [AutoMappedType]
-    public class ShopCraftHandler : InGameOnlyPacketHandler
+    public class ShopCraftHandler : InGameOnlyPacketHandler<ShopCreateServerPacket>
     {
         private const int ShopCraftSfxId = 27;
 
@@ -33,49 +34,44 @@ namespace EOLib.PacketHandlers.Shop
             _soundNotifiers = soundNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(ShopCreateServerPacket packet)
         {
-            var itemId = packet.ReadShort();
-            var weight = packet.ReadChar();
-            var maxWeight = packet.ReadChar();
 
-            while (packet.ReadPosition < packet.Length)
+            foreach (var item in packet.Ingredients)
             {
-                if (packet.PeekShort() == 0) break;
+                if (item.Id == 0)
+                    break;
 
-                var nextItemId = packet.ReadShort();
-                var nextItemAmount = packet.ReadInt();
-
-                _characterInventoryRepository.ItemInventory.SingleOrNone(x => x.ItemID == nextItemId)
+                _characterInventoryRepository.ItemInventory.SingleOrNone(x => x.ItemID == item.Id)
                     .Match(
                         some: existing =>
                         {
                             _characterInventoryRepository.ItemInventory.Remove(existing);
-                            if (nextItemAmount > 0)
-                                _characterInventoryRepository.ItemInventory.Add(existing.WithAmount(nextItemAmount));
+                            if (item.Amount > 0)
+                                _characterInventoryRepository.ItemInventory.Add(existing.WithAmount(item.Amount));
                         },
                         none: () =>
                         {
-                            if (nextItemAmount > 0)
-                                _characterInventoryRepository.ItemInventory.Add(new InventoryItem(nextItemId, nextItemAmount));
+                            if (item.Amount > 0)
+                                _characterInventoryRepository.ItemInventory.Add(new InventoryItem(item.Id, item.Amount));
                         });
             }
 
             foreach (var notifier in _soundNotifiers)
                 notifier.NotifySoundEffect(ShopCraftSfxId);
 
-            _characterInventoryRepository.ItemInventory.SingleOrNone(x => x.ItemID == itemId)
+            _characterInventoryRepository.ItemInventory.SingleOrNone(x => x.ItemID == packet.CraftItemId)
                 .Match(
                     some: existing =>
                     {
                         _characterInventoryRepository.ItemInventory.Remove(existing);
                         _characterInventoryRepository.ItemInventory.Add(existing.WithAmount(existing.Amount + 1));
                     },
-                    none: () => _characterInventoryRepository.ItemInventory.Add(new InventoryItem(itemId, 1)));
+                    none: () => _characterInventoryRepository.ItemInventory.Add(new InventoryItem(packet.CraftItemId, 1)));
 
             var stats = _characterRepository.MainCharacter.Stats;
-            stats = stats.WithNewStat(CharacterStat.Weight, weight)
-                .WithNewStat(CharacterStat.MaxWeight, maxWeight);
+            stats = stats.WithNewStat(CharacterStat.Weight, packet.Weight.Current)
+                .WithNewStat(CharacterStat.MaxWeight, packet.Weight.Max);
             _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);
 
             return true;

@@ -2,9 +2,10 @@
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
-using EOLib.Domain.Protocol;
 using EOLib.IO.Actions;
 using EOLib.Net.FileTransfer;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional.Collections;
 using System;
 using System.IO;
@@ -29,7 +30,7 @@ namespace EOBot
             var accountActions = DependencyMaster.TypeRegistry[_botIndex].Resolve<IAccountActions>();
             var accParams = new CreateAccountParameters(name, password, password, name, name, name + "@eobot.net");
             var nameResult = await accountActions.CheckAccountNameWithServer(name);
-            return nameResult >= AccountReply.OK_CodeRange
+            return nameResult >= (AccountReply)10
                 ? await accountActions.CreateAccount(accParams, (int)nameResult)
                 : nameResult;
         }
@@ -73,19 +74,19 @@ namespace EOBot
             }
 
             var fileRequestActions = DependencyMaster.TypeRegistry[_botIndex].Resolve<IFileRequestActions>();
-            if (unableToLoadMap || fileRequestActions.NeedsFileForLogin(InitFileType.Map, mapStateProvider.CurrentMapID))
+            if (unableToLoadMap || fileRequestActions.NeedsFileForLogin(FileType.Emf, mapStateProvider.CurrentMapID))
                 await fileRequestActions.GetMapFromServer(mapStateProvider.CurrentMapID, sessionID);
 
-            if (fileRequestActions.NeedsFileForLogin(InitFileType.Item))
+            if (fileRequestActions.NeedsFileForLogin(FileType.Eif))
                 await fileRequestActions.GetItemFileFromServer(sessionID);
 
-            if (fileRequestActions.NeedsFileForLogin(InitFileType.Npc))
+            if (fileRequestActions.NeedsFileForLogin(FileType.Enf))
                 await fileRequestActions.GetNPCFileFromServer(sessionID);
 
-            if (fileRequestActions.NeedsFileForLogin(InitFileType.Spell))
+            if (fileRequestActions.NeedsFileForLogin(FileType.Esf))
                 await fileRequestActions.GetSpellFileFromServer(sessionID);
 
-            if (fileRequestActions.NeedsFileForLogin(InitFileType.Class))
+            if (fileRequestActions.NeedsFileForLogin(FileType.Ecf))
                 await fileRequestActions.GetClassFileFromServer(sessionID);
 
             await loginActions.CompleteCharacterLogin(sessionID);
@@ -106,7 +107,7 @@ namespace EOBot
             if (!characterSelectorRepository.CharacterForDelete.HasValue)
             {
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"Character {name} could not be deleted / does not exist");
-                return CharacterReply.THIS_IS_WRONG;
+                return (CharacterReply)255;
             }
 
             var characterActions = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICharacterManagementActions>();

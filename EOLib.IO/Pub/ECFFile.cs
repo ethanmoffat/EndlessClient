@@ -7,10 +7,11 @@ namespace EOLib.IO.Pub
         public override string FileType => "ECF";
 
         public ECFFile()
+            : this(0, new List<int> { 0, 0 }, 0, new List<ECFRecord>())
         {
         }
 
-        public ECFFile(int id, int checksum, int totalLength, List<ECFRecord> data)
+        public ECFFile(int id, IReadOnlyList<int> checksum, int totalLength, List<ECFRecord> data)
             : base(id, checksum, totalLength, data)
         {
         }

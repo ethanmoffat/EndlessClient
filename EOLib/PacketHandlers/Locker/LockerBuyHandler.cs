@@ -3,15 +3,16 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Interact.Bank;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Locker
 {
     [AutoMappedType]
-    public class LockerBuyHandler : InGameOnlyPacketHandler
+    public class LockerBuyHandler : InGameOnlyPacketHandler<LockerBuyServerPacket>
     {
         private const byte BuySellSfxId = 26;
 
@@ -34,13 +35,12 @@ namespace EOLib.PacketHandlers.Locker
             _soundNotifiers = soundNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(LockerBuyServerPacket packet)
         {
-            var inventoryGold = packet.ReadInt();
             _characterInventoryRepository.ItemInventory.RemoveWhere(x => x.ItemID == 1);
-            _characterInventoryRepository.ItemInventory.Add(new InventoryItem(1, inventoryGold));
+            _characterInventoryRepository.ItemInventory.Add(new InventoryItem(1, packet.GoldAmount));
 
-            _bankDataRepository.LockerUpgrades = Option.Some<int>(packet.ReadChar());
+            _bankDataRepository.LockerUpgrades = Option.Some(packet.LockerUpgrades);
 
             foreach (var notifier in _soundNotifiers)
                 notifier.NotifySoundEffect(BuySellSfxId);

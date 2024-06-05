@@ -1,8 +1,8 @@
-﻿using EndlessClient.Dialogs.Factories;
+﻿using EndlessClient.Audio;
+using EndlessClient.Dialogs.Factories;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Inventory;
-using EndlessClient.HUD.Panels;
 using EndlessClient.Rendering.Map;
 using EndlessClient.UIControls;
 using EOLib;
@@ -33,7 +33,7 @@ namespace EndlessClient.Dialogs
         private readonly ICharacterProvider _characterProvider;
         private readonly IEIFFileProvider _eifFileProvider;
         private readonly IMapItemGraphicProvider _mapItemGraphicProvider;
-        private readonly InventoryPanel _inventoryPanel;
+        private readonly ISfxPlayer _sfxPlayer;
 
         private readonly IXNAPanel _leftPanel, _rightPanel;
         private readonly IXNALabel _leftPlayerName, _rightPlayerName;
@@ -64,7 +64,7 @@ namespace EndlessClient.Dialogs
                            ICharacterProvider characterProvider,
                            IEIFFileProvider eifFileProvider,
                            IMapItemGraphicProvider mapItemGraphicProvider,
-                           InventoryPanel inventoryPanel)
+                           ISfxPlayer sfxPlayer)
             : base(nativeGraphicsManager, isInGame: true)
         {
             _tradeActions = tradeActions;
@@ -76,7 +76,7 @@ namespace EndlessClient.Dialogs
             _characterProvider = characterProvider;
             _eifFileProvider = eifFileProvider;
             _mapItemGraphicProvider = mapItemGraphicProvider;
-            _inventoryPanel = inventoryPanel;
+            _sfxPlayer = sfxPlayer;
             BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 50);
 
             _leftPanel = new XNAPanel
@@ -228,9 +228,12 @@ namespace EndlessClient.Dialogs
             List<ListDialogItem> listItems,
             int listitemOffset)
         {
-            if ((actualOffer.PlayerName != cachedOffer.PlayerName && !string.IsNullOrEmpty(actualOffer.PlayerName)) || actualOffer.Items.Count != cachedOffer.Items.Count)
+            if (actualOffer.PlayerName != cachedOffer.PlayerName || actualOffer.Items.Count != cachedOffer.Items.Count)
             {
-                playerNameLabel.Text = $"{char.ToUpper(actualOffer.PlayerName[0]) + actualOffer.PlayerName[1..]}{(actualOffer.Items.Any() ? $"[{actualOffer.Items.Count}]" : "")}";
+                if (!string.IsNullOrEmpty(actualOffer.PlayerName))
+                {
+                    playerNameLabel.Text = $"{char.ToUpper(actualOffer.PlayerName[0]) + actualOffer.PlayerName[1..]}{(actualOffer.Items.Any() ? $"[{actualOffer.Items.Count}]" : "")}";
+                }
             }
 
             // todo: check if packets properly reset agrees to false when items change
@@ -281,6 +284,8 @@ namespace EndlessClient.Dialogs
 
                     newListItem.SetParentControl(parentPanel);
                     listItems.Add(newListItem);
+
+                    _sfxPlayer.PlaySfx(SoundEffectID.TradeItemOfferChanged);
                 }
 
                 foreach (var removedItem in removed)
@@ -291,6 +296,8 @@ namespace EndlessClient.Dialogs
                             listItems.Remove(listItem);
                             listItem.Dispose();
                         });
+
+                    _sfxPlayer.PlaySfx(SoundEffectID.TradeItemOfferChanged);
                 }
 
                 if (cachedOffer.Items != null && actualOffer.PlayerID != 0 && actualOffer.PlayerID != _characterProvider.MainCharacter.ID)
@@ -298,7 +305,7 @@ namespace EndlessClient.Dialogs
                     _partnerItemChangeTick = Stopwatch.StartNew();
                     _recentPartnerItemChanges++;
 
-                    if (_recentPartnerItemChanges == 3)
+                    if (_recentPartnerItemChanges == 2)
                     {
                         var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.TRADE_OTHER_PLAYER_TRICK_YOU);
                         dlg.ShowDialog();

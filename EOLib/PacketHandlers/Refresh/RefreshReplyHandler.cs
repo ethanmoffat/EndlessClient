@@ -3,9 +3,9 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.Net.Handlers;
-using EOLib.Net.Translators;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -17,9 +17,8 @@ namespace EOLib.PacketHandlers.Refresh
     /// Sent when the map state (characters, npcs, and map items) should be refreshed
     /// </summary>
     [AutoMappedType]
-    public class RefreshReplyHandler : InGameOnlyPacketHandler
+    public class RefreshReplyHandler : InGameOnlyPacketHandler<RefreshReplyServerPacket>
     {
-        private readonly IPacketTranslator<RefreshReplyData> _refreshReplyTranslator;
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IEnumerable<IMapChangedNotifier> _mapChangedNotifiers;
@@ -29,45 +28,42 @@ namespace EOLib.PacketHandlers.Refresh
         public override PacketAction Action => PacketAction.Reply;
 
         public RefreshReplyHandler(IPlayerInfoProvider playerInfoProvider,
-                                   IPacketTranslator<RefreshReplyData> refreshReplyTranslator,
                                    ICharacterRepository characterRepository,
                                    ICurrentMapStateRepository currentMapStateRepository,
                                    IEnumerable<IMapChangedNotifier> mapChangedNotifiers)
             : base(playerInfoProvider)
         {
-            _refreshReplyTranslator = refreshReplyTranslator;
             _characterRepository = characterRepository;
             _currentMapStateRepository = currentMapStateRepository;
             _mapChangedNotifiers = mapChangedNotifiers;
         }
 
-        //todo: this is almost identical to EndPlayerWarpHandler - see if there is some way to share
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(RefreshReplyServerPacket packet)
         {
-            var data = _refreshReplyTranslator.TranslatePacket(packet);
+            var characters = packet.Nearby.Characters
+                .Where(x => x.ByteSize >= 42)
+                .Select(Character.FromNearby)
+                .ToList();
 
-            var updatedMainCharacter = data.Characters.Single(MainCharacterIDMatches);
+            var updatedMainCharacter = characters.Single(MainCharacterIDMatches);
             var updatedRenderProperties = _characterRepository.MainCharacter.RenderProperties
                 .WithMapX(updatedMainCharacter.RenderProperties.MapX)
                 .WithMapY(updatedMainCharacter.RenderProperties.MapY);
-
-            var withoutMainCharacter = data.Characters.Where(x => !MainCharacterIDMatches(x));
-
             _characterRepository.MainCharacter = _characterRepository.MainCharacter
                 .WithRenderProperties(updatedRenderProperties);
 
+            var withoutMainCharacter = characters.Where(x => !MainCharacterIDMatches(x));
             _currentMapStateRepository.Characters = new MapEntityCollectionHashSet<Character>(c => c.ID, c => new MapCoordinate(c.X, c.Y),  withoutMainCharacter);
-            _currentMapStateRepository.NPCs = new MapEntityCollectionHashSet<DomainNPC>(n => n.Index, n => new MapCoordinate(n.X, n.Y), data.NPCs);
-            _currentMapStateRepository.MapItems = new MapEntityCollectionHashSet<MapItem>(item => item.UniqueID, item => new MapCoordinate(item.X, item.Y), data.Items);
+            _currentMapStateRepository.NPCs = new MapEntityCollectionHashSet<DomainNPC>(n => n.Index, n => new MapCoordinate(n.X, n.Y), packet.Nearby.Npcs.Select(DomainNPC.FromNearby));
+            _currentMapStateRepository.MapItems = new MapEntityCollectionHashSet<MapItem>(item => item.UniqueID, item => new MapCoordinate(item.X, item.Y), packet.Nearby.Items.Select(MapItem.FromNearby));
 
             _currentMapStateRepository.OpenDoors.Clear();
             _currentMapStateRepository.PendingDoors.Clear();
-            _currentMapStateRepository.VisibleSpikeTraps.Clear();
 
             _currentMapStateRepository.MapWarpTime = Optional.Option.Some(System.DateTime.Now.AddMilliseconds(-100));
 
             foreach (var notifier in _mapChangedNotifiers)
-                notifier.NotifyMapChanged(differentMapID: false, warpAnimation: WarpAnimation.None);
+                notifier.NotifyMapChanged(WarpEffect.None, differentMapID: false);
 
             return true;
         }

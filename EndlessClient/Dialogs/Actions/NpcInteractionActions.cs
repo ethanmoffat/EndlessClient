@@ -3,12 +3,12 @@ using EndlessClient.Audio;
 using EndlessClient.Dialogs.Factories;
 using EOLib.Domain.Interact;
 using EOLib.Domain.Interact.Citizen;
-using EOLib.Domain.Interact.Law;
 using EOLib.Domain.Interact.Priest;
 using EOLib.Domain.Interact.Skill;
 using EOLib.IO;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System;
 using XNAControls;
 
@@ -103,7 +103,7 @@ namespace EndlessClient.Dialogs.Actions
             _sfxPlayer.PlaySfx(SoundEffectID.LearnNewSpell);
         }
 
-        public void NotifyCitizenUnsubscribe(CitizenUnsubscribeReply reply)
+        public void NotifyCitizenUnsubscribe(InnUnsubscribeReply reply)
         {
             var message = EOResourceID.INN_YOU_ARE_NOT_A_CITIZEN + (int)reply;
             var dlg = _messageBoxFactory.CreateMessageBox(message, EOResourceID.INN_REGISTRATION_SERVICE);

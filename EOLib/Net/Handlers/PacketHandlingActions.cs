@@ -1,6 +1,7 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
 
 namespace EOLib.Net.Handlers
 {
@@ -24,7 +25,7 @@ namespace EOLib.Net.Handlers
         {
             if (_playerInfoProvider.PlayerIsInGame)
             {
-                // all in-game packets should be handled in-band
+                // all in-game packets should be handled out-of-band
                 _packetQueueProvider.HandleOutOfBandPacketQueue.EnqueuePacketForHandling(packet);
             }
             else

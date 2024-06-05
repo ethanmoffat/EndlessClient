@@ -1,15 +1,14 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.Dialogs.Services;
-using EndlessClient.HUD.Inventory;
 using EndlessClient.HUD;
+using EndlessClient.HUD.Inventory;
 using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
 using EOLib.Domain.Trade;
 using EOLib.Graphics;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
-using EndlessClient.ControlSets;
-using EndlessClient.HUD.Panels;
 
 namespace EndlessClient.Dialogs.Factories
 {
@@ -27,7 +26,7 @@ namespace EndlessClient.Dialogs.Factories
         private readonly ICharacterProvider _characterProvider;
         private readonly IEIFFileProvider _eifFileProvider;
         private readonly IMapItemGraphicProvider _mapItemGraphicProvider;
-        private readonly IHudControlProvider _hudControlProvider;
+        private readonly ISfxPlayer _sfxPlayer;
 
         public TradeDialogFactory(INativeGraphicsManager nativeGraphicsManager,
                                   ITradeActions tradeActions,
@@ -40,7 +39,7 @@ namespace EndlessClient.Dialogs.Factories
                                   ICharacterProvider characterProvider,
                                   IEIFFileProvider eifFileProvider,
                                   IMapItemGraphicProvider mapItemGraphicProvider,
-                                  IHudControlProvider hudControlProvider)
+                                  ISfxPlayer sfxPlayer)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _tradeActions = tradeActions;
@@ -53,7 +52,7 @@ namespace EndlessClient.Dialogs.Factories
             _characterProvider = characterProvider;
             _eifFileProvider = eifFileProvider;
             _mapItemGraphicProvider = mapItemGraphicProvider;
-            _hudControlProvider = hudControlProvider;
+            _sfxPlayer = sfxPlayer;
         }
 
         public TradeDialog Create()
@@ -69,7 +68,7 @@ namespace EndlessClient.Dialogs.Factories
                                    _characterProvider,
                                    _eifFileProvider,
                                    _mapItemGraphicProvider,
-                                   _hudControlProvider.GetComponent<InventoryPanel>(HUD.Controls.HudControlIdentifier.InventoryPanel));
+                                   _sfxPlayer);
         }
     }
 

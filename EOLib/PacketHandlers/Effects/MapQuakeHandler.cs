@@ -1,15 +1,15 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
-using EOLib.IO.Map;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Effects
 {
     [AutoMappedType]
-    public class MapQuakeHandler : InGameOnlyPacketHandler
+    public class MapQuakeHandler : InGameOnlyPacketHandler<EffectUseServerPacket>
     {
         private readonly IEnumerable<IEffectNotifier> _effectNotifiers;
 
@@ -23,17 +23,13 @@ namespace EOLib.PacketHandlers.Effects
             _effectNotifiers = effectNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(EffectUseServerPacket packet)
         {
-            const int EffectQuake = 1;
-
-            if (packet.ReadChar() != EffectQuake)
+            if (packet.Effect != MapEffect.Quake)
                 return false;
 
-            var strength = packet.ReadChar();
-
             foreach (var notifier in _effectNotifiers)
-                notifier.NotifyMapEffect(MapEffect.Quake1, strength);
+                notifier.NotifyMapEffect(IO.Map.MapEffect.Quake1, ((EffectUseServerPacket.EffectDataQuake)packet.EffectData).QuakeStrength);
 
             return true;
         }

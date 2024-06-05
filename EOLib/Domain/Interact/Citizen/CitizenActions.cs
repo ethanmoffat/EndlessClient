@@ -1,8 +1,9 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Map;
-using EOLib.Net;
 using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace EOLib.Domain.Interact.Citizen
 {
@@ -24,46 +25,42 @@ namespace EOLib.Domain.Interact.Citizen
 
         public void RequestSleep()
         {
-            var packet = new PacketBuilder(PacketFamily.Citizen, PacketAction.Request)
-                .AddShort(_currentMapStateProvider.MapWarpSession.ValueOr(0))
-                .AddShort(_citizenDataProvider.BehaviorID.ValueOr(0))
-                .Build();
-
+            var packet = new CitizenRequestClientPacket
+            {
+                SessionId = _currentMapStateProvider.MapWarpSession.ValueOr(0),
+                BehaviorId = _citizenDataProvider.BehaviorID.ValueOr(0),
+            };
             _packetSendService.SendPacket(packet);
 
         }
 
         public void ConfirmSleep()
         {
-            var packet = new PacketBuilder(PacketFamily.Citizen, PacketAction.Accept)
-                .AddShort(_currentMapStateProvider.MapWarpSession.ValueOr(0))
-                .AddShort(_citizenDataProvider.BehaviorID.ValueOr(0))
-                .Build();
-
+            var packet = new CitizenAcceptClientPacket
+            {
+                SessionId = _currentMapStateProvider.MapWarpSession.ValueOr(0),
+                BehaviorId = _citizenDataProvider.BehaviorID.ValueOr(0),
+            };
             _packetSendService.SendPacket(packet);
         }
 
         public void SignUp(IReadOnlyList<string> answers)
         {
-            var packet = new PacketBuilder(PacketFamily.Citizen, PacketAction.Reply)
-                .AddShort(_currentMapStateProvider.MapWarpSession.ValueOr(0))
-                .AddByte(255)
-                .AddShort(_citizenDataProvider.BehaviorID.ValueOr(0))
-                .AddByte(255)
-                .AddBreakString(answers[0])
-                .AddBreakString(answers[1])
-                .AddString(answers[2])
-                .Build();
-
+            var packet = new CitizenReplyClientPacket
+            {
+                SessionId = _currentMapStateProvider.MapWarpSession.ValueOr(0),
+                BehaviorId = _citizenDataProvider.BehaviorID.ValueOr(0),
+                Answers = answers.ToList(),
+            };
             _packetSendService.SendPacket(packet);
         }
 
         public void Unsubscribe()
         {
-            var packet = new PacketBuilder(PacketFamily.Citizen, PacketAction.Remove)
-                .AddShort(_citizenDataProvider.BehaviorID.ValueOr(0))
-                .Build();
-
+            var packet = new CitizenRemoveClientPacket
+            {
+                BehaviorId = _citizenDataProvider.BehaviorID.ValueOr(0)
+            };
             _packetSendService.SendPacket(packet);
         }
     }

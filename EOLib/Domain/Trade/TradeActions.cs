@@ -1,6 +1,6 @@
 ﻿using AutomaticTypeMapper;
-using EOLib.Net;
 using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 
 namespace EOLib.Domain.Trade
 {
@@ -16,54 +16,42 @@ namespace EOLib.Domain.Trade
 
         public void RequestTrade(int characterID)
         {
-            var packet = new PacketBuilder(PacketFamily.Trade, PacketAction.Request)
-                .AddChar(6)
-                .AddShort(characterID)
-                .Build();
+            var packet = new TradeRequestClientPacket { PlayerId = characterID };
             _packetSendService.SendPacket(packet);
         }
 
         public void AcceptTradeRequest(int characterID)
         {
-            var packet = new PacketBuilder(PacketFamily.Trade, PacketAction.Accept)
-                .AddChar(6)
-                .AddShort(characterID)
-                .Build();
+            var packet = new TradeAcceptClientPacket { PlayerId = characterID };
             _packetSendService.SendPacket(packet);
         }
 
         public void RemoveItemFromOffer(int itemID)
         {
-            var packet = new PacketBuilder(PacketFamily.Trade, PacketAction.Remove)
-                .AddShort(itemID)
-                .Build();
+            var packet = new TradeRemoveClientPacket {  ItemId = itemID };
             _packetSendService.SendPacket(packet);
         }
 
         public void AddItemToOffer(int itemID, int amount)
         {
-            var packet = new PacketBuilder(PacketFamily.Trade, PacketAction.Add)
-                .AddShort(itemID)
-                .AddInt(amount)
-                .Build();
+            var packet = new TradeAddClientPacket
+            {
+                AddItem = new Moffat.EndlessOnline.SDK.Protocol.Net.Item
+                {
+                    Id = itemID,
+                    Amount = amount,
+                }
+            };
             _packetSendService.SendPacket(packet);
         }
 
         public void AgreeToTrade(bool agree)
         {
-            var packet = new PacketBuilder(PacketFamily.Trade, PacketAction.Agree)
-                .AddChar(agree ? 1 : 0)
-                .Build();
+            var packet = new TradeAgreeClientPacket { Agree = agree };
             _packetSendService.SendPacket(packet);
         }
 
-        public void CancelTrade()
-        {
-            var packet = new PacketBuilder(PacketFamily.Trade, PacketAction.Close)
-                .AddChar(6)
-                .Build();
-            _packetSendService.SendPacket(packet);
-        }
+        public void CancelTrade() => _packetSendService.SendPacket(new TradeCloseClientPacket());
     }
 
     public interface ITradeActions

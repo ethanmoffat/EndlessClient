@@ -1,5 +1,5 @@
 ﻿using AutomaticTypeMapper;
-using EOLib.Domain.Party;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
 
 namespace EOLib.Domain.Notifiers
 {

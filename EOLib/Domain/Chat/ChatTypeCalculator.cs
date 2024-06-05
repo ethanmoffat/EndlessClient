@@ -1,6 +1,6 @@
-﻿using System;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
+using Moffat.EndlessOnline.SDK.Protocol;
 
 namespace EOLib.Domain.Chat
 {
@@ -22,17 +22,17 @@ namespace EOLib.Domain.Chat
             if(!CharacterIsAdmin && (input[0] == '+' || input[0] == '@'))
                 return ChatType.Local;
 
-            switch (input[0])
+            return input[0] switch
             {
-                case '+': return ChatType.Admin;
-                case '@': return ChatType.Announce;
-                case '\'': return ChatType.Party;
-                case '&': return ChatType.Guild;
-                case '~': return ChatType.Global;
-                case '!': return ChatType.PM;
-                case '#': return ChatType.Command;
-                default: return ChatType.Local;
-            }
+                '+' => ChatType.Admin,
+                '@' => ChatType.Announce,
+                '\'' => ChatType.Party,
+                '&' => ChatType.Guild,
+                '~' => ChatType.Global,
+                '!' => ChatType.PM,
+                '#' => ChatType.Command,
+                _ => ChatType.Local,
+            };
         }
 
         private bool CharacterIsAdmin => _characterProvider.MainCharacter.AdminLevel != AdminLevel.Player;

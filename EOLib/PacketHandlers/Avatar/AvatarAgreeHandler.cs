@@ -2,9 +2,8 @@
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
-using EOLib.IO.Repositories;
-using EOLib.Net;
-using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOLib.PacketHandlers.Avatar
 {
@@ -12,94 +11,22 @@ namespace EOLib.PacketHandlers.Avatar
     /// Sent when a character's render properties are changed
     /// </summary>
     [AutoMappedType]
-    public class AvatarAgreeHandler : InGameOnlyPacketHandler
+    public class AvatarAgreeHandler : AvatarChangeHandler<AvatarAgreeServerPacket>
     {
-        protected readonly ICurrentMapStateRepository _currentMapStateRepository;
-        protected readonly ICharacterRepository _characterRepository;
-        protected readonly IEIFFileProvider _eifFileProvider;
-
         public override PacketFamily Family => PacketFamily.Avatar;
 
         public override PacketAction Action => PacketAction.Agree;
 
         public AvatarAgreeHandler(IPlayerInfoProvider playerInfoProvider,
                                   ICurrentMapStateRepository currentMapStateRepository,
-                                  ICharacterRepository characterRepository,
-                                  IEIFFileProvider eifFileProvider)
-            : base(playerInfoProvider)
+                                  ICharacterRepository characterRepository)
+            : base(playerInfoProvider, currentMapStateRepository, characterRepository)
         {
-            _currentMapStateRepository = currentMapStateRepository;
-            _characterRepository = characterRepository;
-            _eifFileProvider = eifFileProvider;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(AvatarAgreeServerPacket packet)
         {
-            var playerID = packet.ReadShort();
-            Character currentCharacter;
-
-            if (_characterRepository.MainCharacter.ID == playerID)
-            {
-                currentCharacter = _characterRepository.MainCharacter;
-            }
-            else if (!_currentMapStateRepository.Characters.TryGetValue(playerID, out currentCharacter))
-            {
-                _currentMapStateRepository.UnknownPlayerIDs.Add(playerID);
-                return true;
-            }
-
-            var currentRenderProps = currentCharacter.RenderProperties;
-
-            var slot = (AvatarSlot)packet.ReadChar();
-            switch (slot)
-            {
-                case AvatarSlot.Clothes:
-                    {
-                        var sound = packet.ReadChar() == 0; //todo: sound?
-
-                        currentRenderProps = currentRenderProps
-                            .WithBootsGraphic(packet.ReadShort())
-                            .WithArmorGraphic(packet.ReadShort())
-                            .WithHatGraphic(packet.ReadShort())
-                            .WithWeaponGraphic(packet.ReadShort())
-                            .WithShieldGraphic(packet.ReadShort());
-
-                        break;
-                    }
-                case AvatarSlot.Hair:
-                    {
-                        if (packet.ReadChar() != 0) //subloc -- not sure what this does
-                            throw new MalformedPacketException("Missing expected 0 byte in updating hair packet", packet);
-
-                        currentRenderProps = currentRenderProps
-                            .WithHairStyle(packet.ReadChar())
-                            .WithHairColor(packet.ReadChar());
-
-                        break;
-                    }
-                case AvatarSlot.HairColor:
-                    {
-                        if (packet.ReadChar() != 0) //subloc -- not sure what this does
-                            throw new MalformedPacketException("Missing expected 0 byte in updating hair color packet", packet);
-
-                        currentRenderProps = currentRenderProps
-                            .WithHairColor(packet.ReadChar());
-
-                        break;
-                    }
-            }
-
-            var updatedCharacter = currentCharacter.WithRenderProperties(currentRenderProps);
-
-            if (_characterRepository.MainCharacter.ID == playerID)
-            {
-                _characterRepository.MainCharacter = updatedCharacter;
-            }
-            else
-            {
-                _currentMapStateRepository.Characters.Update(currentCharacter, updatedCharacter);
-            }
-
+            Handle(packet.Change);
             return true;
         }
     }

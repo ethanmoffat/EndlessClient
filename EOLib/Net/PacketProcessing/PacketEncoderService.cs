@@ -1,133 +1,80 @@
-﻿// Some of this work is reverse-engineered from 
-//     EOHAX C# DLLs written by Sausage (www.tehsausage.com)
-// This file is subject to the GPL v2 License
-// For additional details, see the LICENSE file
-
-using System.Collections.Generic;
-using System.Linq;
-using AutomaticTypeMapper;
-using EOLib.IO;
-using EOLib.IO.Services;
+﻿using AutomaticTypeMapper;
+using Moffat.EndlessOnline.SDK.Data;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Optional;
 
 namespace EOLib.Net.PacketProcessing
 {
     [AutoMappedType]
     public sealed class PacketEncoderService : IPacketEncoderService
     {
-        private readonly INumberEncoderService _numberEncoderService;
-        private readonly IDataEncoderService _dataEncoderService;
+        private const string PACKET_NAMESPACE = "Moffat.EndlessOnline.SDK.Protocol.Net.Server";
 
-        public PacketEncoderService(INumberEncoderService numberEncoderService,
-                                    IDataEncoderService dataEncoderService)
+        private readonly IPacketFactory _packetFactory;
+
+        public PacketEncoderService(IPacketFactoryFactory packetFactoryFactory) => _packetFactory = packetFactoryFactory.Create(PACKET_NAMESPACE);
+
+        public byte[] Encode(IPacket packet, int encodeMultiplier, int sequenceNumber)
         {
-            _numberEncoderService = numberEncoderService;
-            _dataEncoderService = dataEncoderService;
+            var writer = new EoWriter();
+            writer.AddByte((byte)packet.Action);
+            writer.AddByte((byte)packet.Family);
+            AddSequenceBytes(writer, sequenceNumber);
+
+            packet.Serialize(writer);
+
+            if (encodeMultiplier == 0 || !PacketValidForEncode(packet))
+                return writer.ToByteArray();
+
+            var encodedBytes = DataEncrypter.SwapMultiples(writer.ToByteArray(), encodeMultiplier);
+            encodedBytes = DataEncrypter.Interleave(encodedBytes);
+            encodedBytes = DataEncrypter.FlipMSB(encodedBytes);
+            return encodedBytes;
         }
 
-        public byte[] PrependLengthBytes(byte[] data)
+        public Option<IPacket> Decode(byte[] original, int decodeMultiplier)
         {
-            var ret = PrependLength(data.ToList());
-            return ret.ToArray();
+            var decodedBytes = original;
+
+            if (decodeMultiplier > 0 && PacketValidForDecode(original))
+            {
+                decodedBytes = DataEncrypter.FlipMSB(decodedBytes);
+                decodedBytes = DataEncrypter.Deinterleave(decodedBytes);
+                decodedBytes = DataEncrypter.SwapMultiples(decodedBytes, decodeMultiplier);
+            }
+
+            return _packetFactory.Create(decodedBytes);
         }
-
-        public IPacket AddSequenceNumber(IPacket pkt, int sequenceNumber)
-        {
-            var byteList = pkt.RawData;
-            byteList = AddSequenceBytes(byteList, sequenceNumber);
-            return new Packet(byteList.ToList());
-        }
-
-        public byte[] Encode(IPacket original, int encodeMultiplier)
-        {
-            if (encodeMultiplier == 0 || !PacketValidForEncode(original))
-                return original.RawData.ToArray();
-
-            var byteList = original.RawData.ToList();
-            byteList = _dataEncoderService.SwapMultiples(byteList, encodeMultiplier);
-            byteList = _dataEncoderService.Interleave(byteList);
-            byteList = _dataEncoderService.FlipMSB(byteList);
-
-            return byteList.ToArray();
-        }
-
-        public IPacket Decode(IEnumerable<byte> original, int decodeMultiplier)
-        {
-            var originalBytes = original.ToArray();
-            if (decodeMultiplier == 0 || !PacketValidForDecode(originalBytes))
-                return new Packet(originalBytes);
-
-            var byteList = originalBytes.ToList();
-            byteList = _dataEncoderService.FlipMSB(byteList);
-            byteList = _dataEncoderService.Deinterleave(byteList);
-            byteList = _dataEncoderService.SwapMultiples(byteList, decodeMultiplier);
-
-            return new Packet(byteList);
-        }
-
-        #region Packet Validation
 
         private static bool PacketValidForEncode(IPacket pkt)
         {
-            return !IsInitPacket(pkt);
+            return !IsInitPacket((byte)pkt.Family, (byte)pkt.Action);
         }
 
         private static bool PacketValidForDecode(byte[] data)
         {
-            return data.Length >= 2 && !IsInitPacket(new Packet(new[] {data[0], data[1]}));
+            return data.Length >= 2 && !IsInitPacket(data[0], data[1]);
         }
 
-        private static bool IsInitPacket(IPacket pkt)
+        private static bool IsInitPacket(byte family, byte action)
         {
-            return pkt.Family == PacketFamily.Init &&
-                   pkt.Action == PacketAction.Init;
+            return (PacketFamily)family == PacketFamily.Init &&
+                   (PacketAction)action == PacketAction.Init;
         }
 
-        #endregion
-
-        #region Sequence Byte(s)
-
-        private List<byte> AddSequenceBytes(IReadOnlyList<byte> original, int seq)
+        private void AddSequenceBytes(EoWriter writer, int seq)
         {
-            var numberOfSequenceBytes = seq >= NumericConstants.ONE_BYTE_MAX ? 2 : 1;
-            var encodedSequenceBytes = _numberEncoderService.EncodeNumber(seq, numberOfSequenceBytes);
-
-            var combined = new List<byte>(original.Count + numberOfSequenceBytes);
-            //family/action copied to [0][1]
-            combined.AddRange(new[] {original[0], original[1]});
-            //sequence number copied to [2] (and [3] if it's a two-byte number)
-            combined.AddRange(encodedSequenceBytes);
-            //add the remaining data - rest of data copied to [3] (or [4]) onward [...]
-            combined.AddRange(original.Where((b, i) => i >= 2));
-
-            return combined;
+            if (seq >= EoNumericLimits.CHAR_MAX)
+                writer.AddShort(seq);
+            else
+                writer.AddChar(seq);
         }
-
-        #endregion
-
-        #region Length Bytes
-
-        private List<byte> PrependLength(IReadOnlyList<byte> data)
-        {
-            var len = _numberEncoderService.EncodeNumber(data.Count, 2);
-            var combined = new List<byte>(data.Count + len.Length);
-
-            combined.AddRange(len);
-            combined.AddRange(data);
-
-            return combined;
-        }
-
-        #endregion
     }
 
     public interface IPacketEncoderService
     {
-        byte[] PrependLengthBytes(byte[] data);
+        byte[] Encode(IPacket original, int encodeMultiplier, int sequenceNumber);
 
-        IPacket AddSequenceNumber(IPacket pkt, int sequenceNumber);
-
-        byte[] Encode(IPacket original, int encodeMultiplier);
-
-        IPacket Decode(IEnumerable<byte> original, int decodeMultiplier);
+        Option<IPacket> Decode(byte[] original, int decodeMultiplier);
     }
 }

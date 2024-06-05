@@ -2,8 +2,9 @@
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional.Collections;
 using System.Collections.Generic;
 
@@ -13,7 +14,7 @@ namespace EOLib.PacketHandlers.Items
     /// Sent when a player junks an item
     /// </summary>
     [AutoMappedType]
-    public class ItemJunkHandler : InGameOnlyPacketHandler
+    public class ItemJunkHandler : InGameOnlyPacketHandler<ItemJunkServerPacket>
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly ICharacterInventoryRepository _inventoryRepository;
@@ -34,31 +35,25 @@ namespace EOLib.PacketHandlers.Items
             _mainCharacterEventNotifiers = mainCharacterEventNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(ItemJunkServerPacket packet)
         {
-            var id = packet.ReadShort();
-            var amountRemoved = packet.ReadThree();
-            var amountRemaining = packet.ReadInt();
-            var weight = packet.ReadChar();
-            var maxWeight = packet.ReadChar();
-
-            var inventoryItem = _inventoryRepository.ItemInventory.SingleOrNone(x => x.ItemID == id);
+            var inventoryItem = _inventoryRepository.ItemInventory.SingleOrNone(x => x.ItemID == packet.JunkedItem.Id);
             inventoryItem.MatchSome(x => _inventoryRepository.ItemInventory.Remove(x));
 
-            if (amountRemaining > 0)
+            if (packet.RemainingAmount > 0 || packet.JunkedItem.Id == 1)
             {
-                inventoryItem.Map(x => x.WithAmount(amountRemaining))
+                inventoryItem.Map(x => x.WithAmount(packet.RemainingAmount))
                     .MatchSome(x => _inventoryRepository.ItemInventory.Add(x));
             }
 
             var stats = _characterRepository.MainCharacter.Stats;
-            stats = stats.WithNewStat(CharacterStat.Weight, weight)
-                .WithNewStat(CharacterStat.MaxWeight, maxWeight);
+            stats = stats.WithNewStat(CharacterStat.Weight, packet.Weight.Current)
+                .WithNewStat(CharacterStat.MaxWeight, packet.Weight.Max);
 
             _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);
 
             foreach (var notifier in _mainCharacterEventNotifiers)
-                notifier.JunkItem(id, amountRemoved);
+                notifier.JunkItem(packet.JunkedItem.Id, packet.JunkedItem.Amount);
 
             return true;
         }

@@ -1,5 +1,6 @@
 ﻿using Amadevus.RecordGenerator;
 using EOLib.IO.Map;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
 using System;
 
@@ -36,5 +37,17 @@ namespace EOLib.Domain.Map
         }
 
         private MapItem() { }
+
+        public static MapItem FromNearby(ItemMapInfo itemMapInfo)
+        {
+            return new Builder
+            {
+                UniqueID = itemMapInfo.Uid,
+                ItemID = itemMapInfo.Id,
+                X = itemMapInfo.Coords.X,
+                Y = itemMapInfo.Coords.Y,
+                Amount = itemMapInfo.Amount,
+            }.ToImmutable();
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using AutomaticTypeMapper;
-using EOLib.Net;
 using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 
 namespace EOLib.Domain.Online
 {
@@ -16,8 +17,7 @@ namespace EOLib.Domain.Online
 
         public void RequestOnlinePlayers(bool fullList)
         {
-            var packet = new PacketBuilder(PacketFamily.Players, fullList ? PacketAction.Request : PacketAction.List).Build();
-            _packetSendService.SendPacket(packet);
+            _packetSendService.SendPacket(fullList ? (IPacket)new PlayersRequestClientPacket() : new PlayersListClientPacket());
         }
     }
 

@@ -1,17 +1,16 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Controls;
-using EndlessClient.HUD.Panels;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Map;
-using EndlessClient.Audio;
 using EOLib;
-using EOLib.Domain.Chat;
 using EOLib.Domain.Character;
+using EOLib.Domain.Chat;
 using EOLib.Domain.Interact;
 using EOLib.Domain.Interact.Bank;
 using EOLib.Domain.Item;
@@ -210,19 +209,14 @@ namespace EndlessClient.Controllers
             _itemActions.UnequipItem(equipId, alternateLocation: locName.Contains('2'));
         }
 
-        public void DropItem(EIFRecord itemData, InventoryItem inventoryItem)
+        public void DropItem(EIFRecord itemData, InventoryItem inventoryItem, MapCoordinate coords)
         {
             var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
-            var inventoryPanel = _hudControlProvider.GetComponent<InventoryPanel>(HudControlIdentifier.InventoryPanel);
             if (_activeDialogProvider.ActiveDialogs.Any(x => x.HasValue) && mapRenderer.MouseOver)
                 return;
 
             var rp = _characterProvider.MainCharacter.RenderProperties;
-            var dropPoint = mapRenderer.MouseOver && !inventoryPanel.MouseOver
-                ? mapRenderer.GridCoordinates
-                : new MapCoordinate(rp.MapX, rp.MapY);
-
-            var validationResult = _itemDropValidator.ValidateItemDrop(_characterProvider.MainCharacter, inventoryItem, dropPoint);
+            var validationResult = _itemDropValidator.ValidateItemDrop(_characterProvider.MainCharacter, inventoryItem, coords);
 
             if (validationResult == ItemDropResult.Lore)
             {
@@ -239,7 +233,7 @@ namespace EndlessClient.Controllers
             }
             else if (validationResult == ItemDropResult.Ok)
             {
-                DoItemDrop(itemData, inventoryItem, a => _itemActions.DropItem(inventoryItem.ItemID, a, dropPoint));
+                DoItemDrop(itemData, inventoryItem, a => _itemActions.DropItem(inventoryItem.ItemID, a, coords));
             }
             else if (validationResult == ItemDropResult.TooFar)
             {
@@ -382,7 +376,6 @@ namespace EndlessClient.Controllers
                                 if (warningArgs.Result == XNADialogResult.OK)
                                 {
                                     _goldWarningShown = true;
-                                    dropAction(transferDialog.SelectedAmount);
                                 }
                             };
                             warningMsg.ShowDialog();
@@ -412,7 +405,7 @@ namespace EndlessClient.Controllers
 
         void UnequipItem(EquipLocation equipLocation);
 
-        void DropItem(EIFRecord itemData, InventoryItem inventoryItem);
+        void DropItem(EIFRecord itemData, InventoryItem inventoryItem, MapCoordinate coords);
 
         void DropItemInChest(EIFRecord itemData, InventoryItem inventoryItem);
 

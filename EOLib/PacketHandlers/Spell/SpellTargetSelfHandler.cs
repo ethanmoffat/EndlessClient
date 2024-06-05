@@ -2,8 +2,9 @@
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Spell
@@ -12,7 +13,7 @@ namespace EOLib.PacketHandlers.Spell
     /// Sent when a player cast a spell targeting themselves
     /// </summary>
     [AutoMappedType]
-    public class SpellTargetSelfHandler : InGameOnlyPacketHandler
+    public class SpellTargetSelfHandler : InGameOnlyPacketHandler<SpellTargetSelfServerPacket>
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly IEnumerable<IOtherCharacterAnimationNotifier> _animationNotifiers;
@@ -29,24 +30,18 @@ namespace EOLib.PacketHandlers.Spell
             _animationNotifiers = animationNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(SpellTargetSelfServerPacket packet)
         {
-            var fromPlayerID = packet.ReadShort();
-            var spellID = packet.ReadShort();
-            var spellHP = packet.ReadInt();
-            var percentHealth = packet.ReadChar();
+            var fromPlayerID = packet.PlayerId;
+            var spellID = packet.SpellId;
+            var spellHP = packet.SpellHealHp;
+            var percentHealth = packet.HpPercentage;
 
-            if (packet.ReadPosition != packet.Length)
+            if (packet.ByteSize > 12)
             {
-                //main player was source of this packet (otherwise, other player was source)
-                var characterHP = packet.ReadShort();
-                var characterTP = packet.ReadShort();
-                if (packet.ReadShort() != 1) //malformed packet! eoserv sends '1' here
-                    return false;
-
                 var stats = _characterRepository.MainCharacter.Stats;
-                stats = stats.WithNewStat(CharacterStat.HP, characterHP)
-                             .WithNewStat(CharacterStat.TP, characterTP);
+                stats = stats.WithNewStat(CharacterStat.HP, packet.Hp.Value)
+                             .WithNewStat(CharacterStat.TP, packet.Tp.Value);
 
                 _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);
             }

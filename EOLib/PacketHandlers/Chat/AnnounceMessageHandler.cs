@@ -1,14 +1,15 @@
-﻿using System.Collections.Generic;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Chat
 {
     [AutoMappedType]
-    public class AnnounceMessageHandler : PlayerChatByNameBase
+    public class AnnounceMessageHandler : PlayerChatByNameBase<TalkAnnounceServerPacket>
     {
         private readonly IChatRepository _chatRepository;
         private readonly IEnumerable<IOtherCharacterEventNotifier> _otherCharacterEventNotifiers;
@@ -25,6 +26,11 @@ namespace EOLib.PacketHandlers.Chat
             _chatRepository = chatRepository;
             _otherCharacterEventNotifiers = otherCharacterEventNotifiers;
             _chatEventNotifiers = chatEventNotifiers;
+        }
+
+        public override bool HandlePacket(TalkAnnounceServerPacket packet)
+        {
+            return Handle(packet.PlayerName, packet.Message);
         }
 
         protected override void PostChat(string name, string message)

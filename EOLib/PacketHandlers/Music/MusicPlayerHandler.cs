@@ -1,8 +1,9 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Music
@@ -11,7 +12,7 @@ namespace EOLib.PacketHandlers.Music
     /// Sent by the server when a sound effect should be played
     /// </summary>
     [AutoMappedType]
-    public class MusicPlayerHandler : InGameOnlyPacketHandler
+    public class MusicPlayerHandler : InGameOnlyPacketHandler<MusicPlayerServerPacket>
     {
         private readonly IEnumerable<ISoundNotifier> _notifiers;
 
@@ -26,11 +27,10 @@ namespace EOLib.PacketHandlers.Music
             _notifiers = notifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(MusicPlayerServerPacket packet)
         {
-            var sfxId = packet.ReadChar();
             foreach (var notifier in _notifiers)
-                notifier.NotifySoundEffect(sfxId);
+                notifier.NotifySoundEffect(packet.SoundId);
             return true;
         }
     }

@@ -10,6 +10,7 @@ using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Moffat.EndlessOnline.SDK.Protocol;
 using System;
 using System.Threading.Tasks;
 using XNAControls;
@@ -210,10 +211,10 @@ namespace EndlessClient.UIControls
                     return new EmptySpriteSheet();
                 case AdminLevel.Spy:
                     return new SpriteSheet(adminGraphic, new Rectangle(252, 39, 17, 17));
-                case AdminLevel.Guide:
+                case AdminLevel.LightGuide:
                 case AdminLevel.Guardian:
-                case AdminLevel.GM:
-                case AdminLevel.HGM:
+                case AdminLevel.GameMaster:
+                case AdminLevel.HighGameMaster:
                     return new SpriteSheet(adminGraphic, new Rectangle(233, 39, 17, 17));
                 default:
                     throw new ArgumentOutOfRangeException(nameof(adminLevel), adminLevel, null);

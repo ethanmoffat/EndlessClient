@@ -1,6 +1,6 @@
 ﻿using AutomaticTypeMapper;
-using EOLib.Net;
 using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 
 namespace EOLib.Domain.Interact
 {
@@ -16,9 +16,7 @@ namespace EOLib.Domain.Interact
 
         public void RequestPaperdoll(int characterId)
         {
-            var packet = new PacketBuilder(PacketFamily.PaperDoll, PacketAction.Request)
-                .AddShort(characterId)
-                .Build();
+            var packet = new PaperdollRequestClientPacket { PlayerId = characterId };
             _packetSendService.SendPacket(packet);
         }
     }

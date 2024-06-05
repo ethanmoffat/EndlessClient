@@ -2,13 +2,14 @@
 using EOLib.Domain.Chat;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Chat
 {
     [AutoMappedType]
-    public class AdminMessageHandler : PlayerChatByNameBase
+    public class AdminMessageHandler : PlayerChatByNameBase<TalkAdminServerPacket>
     {
         private readonly IChatRepository _chatRepository;
         private readonly IEnumerable<IChatEventNotifier> _chatEventNotifiers;
@@ -22,6 +23,11 @@ namespace EOLib.PacketHandlers.Chat
         {
             _chatRepository = chatRepository;
             _chatEventNotifiers = chatEventNotifiers;
+        }
+
+        public override bool HandlePacket(TalkAdminServerPacket packet)
+        {
+            return Handle(packet.PlayerName, packet.Message);
         }
 
         protected override void PostChat(string name, string message)

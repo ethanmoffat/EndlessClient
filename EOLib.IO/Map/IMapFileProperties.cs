@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace EOLib.IO.Map
 {
     public interface IMapFileProperties
@@ -6,8 +8,7 @@ namespace EOLib.IO.Map
         int MapID { get; }
         int FileSize { get; }
 
-        byte[] Checksum { get; }
-        int ChecksumInt { get; }
+        IReadOnlyList<int> Checksum { get; }
         string Name { get; }
         int Width { get; }
         int Height { get; }
@@ -27,7 +28,7 @@ namespace EOLib.IO.Map
         IMapFileProperties WithMapID(int id);
         IMapFileProperties WithFileSize(int fileSize);
 
-        IMapFileProperties WithChecksum(byte[] checksum);
+        IMapFileProperties WithChecksum(IReadOnlyList<int> checksum);
         IMapFileProperties WithName(string name);
         IMapFileProperties WithWidth(int width);
         IMapFileProperties WithHeight(int height);

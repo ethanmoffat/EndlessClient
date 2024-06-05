@@ -7,10 +7,11 @@ namespace EOLib.IO.Pub
         public override string FileType => "EIF";
 
         public EIFFile()
+            : this(0, new List<int> { 0, 0 }, 0, new List<EIFRecord>())
         {
         }
 
-        public EIFFile(int id, int checksum, int totalLength, List<EIFRecord> data)
+        public EIFFile(int id, IReadOnlyList<int> checksum, int totalLength, List<EIFRecord> data)
             : base (id, checksum, totalLength, data)
         {
         }

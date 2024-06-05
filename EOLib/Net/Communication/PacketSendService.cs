@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using AutomaticTypeMapper;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
 
 namespace EOLib.Net.Communication
 {
@@ -36,11 +37,7 @@ namespace EOLib.Net.Communication
             if (bytes == 0)
                 throw new NoDataSentException();
 
-            var responsePacket = await InBandQueue.WaitForPacketAndDequeue((int)Client.ReceiveTimeout.TotalMilliseconds);
-            if (responsePacket is EmptyPacket)
-                throw new EmptyPacketReceivedException();
-
-            return responsePacket;
+            return await InBandQueue.WaitForPacketAndDequeue((int)Client.ReceiveTimeout.TotalMilliseconds);
         }
 
         public async Task<IPacket> SendEncodedPacketAndWaitAsync(IPacket packet)
@@ -49,11 +46,7 @@ namespace EOLib.Net.Communication
             if (bytes == 0)
                 throw new NoDataSentException();
 
-            var responsePacket = await InBandQueue.WaitForPacketAndDequeue((int)Client.ReceiveTimeout.TotalMilliseconds);
-            if (responsePacket is EmptyPacket)
-                throw new EmptyPacketReceivedException();
-
-            return responsePacket;
+            return await InBandQueue.WaitForPacketAndDequeue((int)Client.ReceiveTimeout.TotalMilliseconds);
         }
 
         private INetworkClient Client => _networkClientProvider.NetworkClient;

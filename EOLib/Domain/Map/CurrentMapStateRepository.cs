@@ -25,7 +25,7 @@ namespace EOLib.Domain.Map
 
         HashSet<Warp> PendingDoors { get; set; }
 
-        HashSet<MapCoordinate> VisibleSpikeTraps { get; set; }
+        Option<DateTime> LastTimedSpikeEvent { get; set; }
 
         WarpState MapWarpState { get; set; }
 
@@ -62,7 +62,7 @@ namespace EOLib.Domain.Map
 
         IReadOnlyCollection<Warp> PendingDoors { get; }
 
-        IReadOnlyCollection<MapCoordinate> VisibleSpikeTraps { get; }
+        Option<DateTime> LastTimedSpikeEvent { get; set; }
 
         WarpState MapWarpState { get; }
 
@@ -74,9 +74,9 @@ namespace EOLib.Domain.Map
 
         bool IsSleepWarp { get; }
 
-        HashSet<int> UnknownPlayerIDs { get; }
+        IReadOnlyCollection<int> UnknownPlayerIDs { get; }
 
-        HashSet<int> UnknownNPCIndexes { get; }
+        IReadOnlyCollection<int> UnknownNPCIndexes { get; }
     }
 
     [AutoMappedType(IsSingleton = true)]
@@ -100,7 +100,7 @@ namespace EOLib.Domain.Map
 
         public HashSet<Warp> PendingDoors { get; set; }
 
-        public HashSet<MapCoordinate> VisibleSpikeTraps { get; set;  }
+        public Option<DateTime> LastTimedSpikeEvent { get; set; }
 
         public WarpState MapWarpState { get; set; }
 
@@ -126,7 +126,9 @@ namespace EOLib.Domain.Map
 
         IReadOnlyCollection<Warp> ICurrentMapStateProvider.PendingDoors => PendingDoors;
 
-        IReadOnlyCollection<MapCoordinate> ICurrentMapStateProvider.VisibleSpikeTraps => VisibleSpikeTraps;
+        IReadOnlyCollection<int> ICurrentMapStateProvider.UnknownPlayerIDs => UnknownPlayerIDs;
+
+        IReadOnlyCollection<int> ICurrentMapStateProvider.UnknownNPCIndexes => UnknownNPCIndexes;
 
         public CurrentMapStateRepository()
         {
@@ -144,7 +146,7 @@ namespace EOLib.Domain.Map
             MapItems = new MapEntityCollectionHashSet<MapItem>(x => x.UniqueID, x => new MapCoordinate(x.X, x.Y));
             OpenDoors = new HashSet<Warp>();
             PendingDoors = new HashSet<Warp>();
-            VisibleSpikeTraps = new HashSet<MapCoordinate>();
+            LastTimedSpikeEvent = Option.None<DateTime>();
             UnknownPlayerIDs = new HashSet<int>();
             UnknownNPCIndexes = new HashSet<int>();
 

@@ -7,6 +7,7 @@ using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
 using System.Linq;
 using XNAControls;
 
@@ -42,7 +43,7 @@ namespace EndlessClient.Rendering.Map
         private readonly Texture2D _miniMapTexture;
 
         private RenderTarget2D _miniMapTarget;
-        private int? _lastMapChecksum;
+        private IReadOnlyList<int> _lastMapChecksum;
 
         public MiniMapRenderer(INativeGraphicsManager nativeGraphicsManager,
                                IRenderTargetFactory renderTargetFactory,
@@ -78,7 +79,7 @@ namespace EndlessClient.Rendering.Map
 
         protected override void OnUpdateControl(GameTime gameTime)
         {
-            if (_lastMapChecksum == null || _lastMapChecksum != _currentMapProvider.CurrentMap.Properties.ChecksumInt)
+            if (_lastMapChecksum == null || !_lastMapChecksum.SequenceEqual(_currentMapProvider.CurrentMap.Properties.Checksum))
             {
                 // The dimensions of the map are 0-based in the properties. Adjust to 1-based for RT creation
                 var widthPlus1 = _currentMapProvider.CurrentMap.Properties.Width + 1;
@@ -95,7 +96,7 @@ namespace EndlessClient.Rendering.Map
                 DrawFixedMapElementsToRenderTarget();
             }
 
-            _lastMapChecksum = _currentMapProvider.CurrentMap.Properties.ChecksumInt;
+            _lastMapChecksum = _currentMapProvider.CurrentMap.Properties.Checksum;
 
             base.OnUpdateControl(gameTime);
         }
@@ -207,7 +208,7 @@ namespace EndlessClient.Rendering.Map
 
         private void DrawFixedMapElementsToRenderTarget()
         {
-            if (_lastMapChecksum.HasValue && _lastMapChecksum == _currentMapProvider.CurrentMap.Properties.ChecksumInt)
+            if (_lastMapChecksum != null && _lastMapChecksum.SequenceEqual(_currentMapProvider.CurrentMap.Properties.Checksum))
                 return;
 
             GraphicsDevice.SetRenderTarget(_miniMapTarget);
@@ -252,13 +253,10 @@ namespace EndlessClient.Rendering.Map
 
         private Vector2 GetMiniMapDrawCoordinates(int x, int y)
         {
-            // these are the same as in MouseCursorRenderer
-            var widthFactor = _clientWindowSizeProvider.Resizable
-                ? _clientWindowSizeProvider.Width / 2 // 288 = 640 * .45, viewport width factor
-                : _clientWindowSizeProvider.Width * 9 / 10; // 288 = 640 * .45, 576 = 640 * .9
+            var widthFactor = _clientWindowSizeProvider.Width / 2;
             var heightFactor = _clientWindowSizeProvider.Resizable
                 ? _clientWindowSizeProvider.Height / 2 // 144 = 480 * .45, viewport height factor
-                : _clientWindowSizeProvider.Height * 3 / 10;
+                : _clientWindowSizeProvider.Height * 3 / 10 - 2;
 
             var tileWidthFactor = TileWidth / 2;
             var tileHeightFactor = TileHeight / 2;

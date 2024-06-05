@@ -3,8 +3,9 @@ using EOLib.Domain.Interact;
 using EOLib.Domain.Interact.Citizen;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
 using System.Collections.Generic;
 
@@ -14,7 +15,7 @@ namespace EOLib.PacketHandlers.Citizen
     /// Sent when opening an Innkeeper dialog
     /// </summary>
     [AutoMappedType]
-    public class CitizenOpenHandler : InGameOnlyPacketHandler
+    public class CitizenOpenHandler : InGameOnlyPacketHandler<CitizenOpenServerPacket>
     {
         private readonly ICitizenDataRepository _citizenDataRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
@@ -35,20 +36,13 @@ namespace EOLib.PacketHandlers.Citizen
             _npcInteractionNotifiers = npcInteractionNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(CitizenOpenServerPacket packet)
         {
-            _citizenDataRepository.BehaviorID = Option.Some(packet.ReadThree());
-            _citizenDataRepository.CurrentHomeID = packet.ReadChar().SomeWhen(x => x > 0);
-            _currentMapStateRepository.MapWarpSession = Option.Some(packet.ReadShort());
+            _citizenDataRepository.BehaviorID = Option.Some(packet.BehaviorId);
+            _citizenDataRepository.CurrentHomeID = packet.CurrentHomeId.SomeWhen(x => x > 0);
+            _currentMapStateRepository.MapWarpSession = Option.Some(packet.SessionId);
 
-            if (packet.ReadByte() != 255)
-                return false;
-
-            var question1 = packet.ReadBreakString();
-            var question2 = packet.ReadBreakString();
-            var question3 = packet.ReadEndString();
-
-            _citizenDataRepository.Questions = new List<string> { question1, question2, question3 };
+            _citizenDataRepository.Questions = packet.Questions;
 
             foreach (var notifier in _npcInteractionNotifiers)
                 notifier.NotifyInteractionFromNPC(IO.NPCType.Inn);

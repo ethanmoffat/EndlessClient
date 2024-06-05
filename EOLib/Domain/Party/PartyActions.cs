@@ -1,6 +1,7 @@
 ﻿using AutomaticTypeMapper;
-using EOLib.Net;
 using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 
 namespace EOLib.Domain.Party
 {
@@ -16,38 +17,35 @@ namespace EOLib.Domain.Party
 
         public void RequestParty(PartyRequestType type, int targetCharacterId)
         {
-            var packet = new PacketBuilder(PacketFamily.Party, PacketAction.Request)
-                .AddChar((int)type)
-                .AddShort(targetCharacterId)
-                .Build();
-
+            var packet = new PartyRequestClientPacket
+            {
+                RequestType = type,
+                PlayerId = targetCharacterId
+            };
             _packetSendService.SendPacket(packet);
         }
 
         public void AcceptParty(PartyRequestType type, int targetCharacterId)
         {
-            var packet = new PacketBuilder(PacketFamily.Party, PacketAction.Accept)
-                .AddChar((int)type)
-                .AddShort(targetCharacterId)
-                .Build();
-
+            var packet = new PartyAcceptClientPacket
+            {
+                RequestType = type,
+                InviterPlayerId = targetCharacterId
+            };
             _packetSendService.SendPacket(packet);
         }
 
         public void ListParty()
         {
-            var packet = new PacketBuilder(PacketFamily.Party, PacketAction.Take)
-                .Build();
-
-            _packetSendService.SendPacket(packet);
+            _packetSendService.SendPacket(new PartyTakeClientPacket());
         }
 
         public void RemovePartyMember(int targetCharacterId)
         {
-            var packet = new PacketBuilder(PacketFamily.Party, PacketAction.Remove)
-                .AddShort(targetCharacterId)
-                .Build();
-
+            var packet = new PartyRemoveClientPacket
+            {
+                PlayerId = targetCharacterId,
+            };
             _packetSendService.SendPacket(packet);
         }
     }

@@ -3,7 +3,8 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.NPC
@@ -12,9 +13,9 @@ namespace EOLib.PacketHandlers.NPC
     /// Sent when an NPC takes damage from a weapon
     /// </summary>
     [AutoMappedType]
-    public class NPCReplyHandler : NPCTakeDamageHandler
+    public class NPCReplyHandler : NPCTakeDamageHandler<NpcReplyServerPacket>
     {
-        public override PacketFamily Family => PacketFamily.NPC;
+        public override PacketFamily Family => PacketFamily.Npc;
 
         public NPCReplyHandler(IPlayerInfoProvider playerInfoProvider,
                                ICharacterRepository characterRepository,
@@ -22,5 +23,13 @@ namespace EOLib.PacketHandlers.NPC
                                IEnumerable<INPCActionNotifier> npcNotifiers,
                                IEnumerable<IOtherCharacterAnimationNotifier> otherCharacterAnimationNotifiers)
             : base(playerInfoProvider, characterRepository, currentMapStateRepository, npcNotifiers, otherCharacterAnimationNotifiers) { }
+
+        public override bool HandlePacket(NpcReplyServerPacket packet)
+        {
+            // todo: npc kill steal protection
+            Handle(packet.PlayerId, (EODirection)packet.PlayerDirection,
+                packet.NpcIndex, packet.Damage, packet.HpPercentage);
+            return true;
+        }
     }
 }

@@ -1,15 +1,16 @@
 ﻿using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
 
 namespace EOLib.PacketHandlers.Sit
 {
     /// <summary>
     /// Base class for handling a character sitting down
     /// </summary>
-    public abstract class PlayerSitHandlerBase : InGameOnlyPacketHandler
+    public abstract class PlayerSitHandlerBase<TPacket> : InGameOnlyPacketHandler<TPacket>
+        where TPacket : IPacket
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
@@ -25,17 +26,9 @@ namespace EOLib.PacketHandlers.Sit
             _currentMapStateRepository = currentMapStateRepository;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        protected void Handle(int playerId, int x, int y, EODirection direction)
         {
-            var playerId = packet.ReadShort();
-            var x = packet.ReadChar();
-            var y = packet.ReadChar();
-            var direction = (EODirection)packet.ReadChar();
-
             var sitState = Family == PacketFamily.Sit ? SitState.Floor : SitState.Chair;
-
-            if (packet.ReadChar() != 0)
-                return false;
 
             if (playerId == _characterRepository.MainCharacter.ID)
             {
@@ -61,8 +54,6 @@ namespace EOLib.PacketHandlers.Sit
             {
                 _currentMapStateRepository.UnknownPlayerIDs.Add(playerId);
             }
-
-            return true;
         }
     }
 }

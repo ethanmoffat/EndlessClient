@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Moffat.EndlessOnline.SDK.Protocol.Net;
+using System.Collections.Generic;
 
 namespace EOLib.Net.Communication
 {

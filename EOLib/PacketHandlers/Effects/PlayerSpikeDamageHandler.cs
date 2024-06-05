@@ -3,14 +3,15 @@ using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Effects
 {
     [AutoMappedType]
-    public class PlayerSpikeDamageHandler : InGameOnlyPacketHandler
+    public class PlayerSpikeDamageHandler : InGameOnlyPacketHandler<EffectAdminServerPacket>
     {
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IEnumerable<IOtherCharacterEventNotifier> _otherCharacterEventNotifiers;
@@ -28,26 +29,21 @@ namespace EOLib.PacketHandlers.Effects
             _otherCharacterEventNotifiers = otherCharacterEventNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(EffectAdminServerPacket packet)
         {
-            var characterId = packet.ReadShort();
-            var playerPercentHealth = packet.ReadChar();
-            var isDead = packet.ReadChar() != 0;
-            var damageTaken = packet.ReadThree();
-
-            if (_currentMapStateRepository.Characters.TryGetValue(characterId, out var character))
+            if (_currentMapStateRepository.Characters.TryGetValue(packet.PlayerId, out var character))
             {
-                var updatedCharacter = character.WithDamage(damageTaken, isDead);
+                var updatedCharacter = character.WithDamage(packet.Damage, packet.Died);
                 _currentMapStateRepository.Characters.Update(character, updatedCharacter);
 
                 foreach (var notifier in _otherCharacterEventNotifiers)
                 {
-                    notifier.OtherCharacterTakeDamage(characterId, playerPercentHealth, damageTaken, isHeal: false);
+                    notifier.OtherCharacterTakeDamage(packet.PlayerId, packet.HpPercentage, packet.Damage, isHeal: false);
                 }
             }
             else
             {
-                _currentMapStateRepository.UnknownPlayerIDs.Add(characterId);
+                _currentMapStateRepository.UnknownPlayerIDs.Add(packet.PlayerId);
             }
 
             return true;

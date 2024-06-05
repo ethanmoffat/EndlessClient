@@ -1,15 +1,15 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Login;
-using EOLib.Domain.Protocol;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional.Collections;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Init
 {
     [AutoMappedType]
-    public class InGameInitPacketHandler : InGameOnlyPacketHandler
+    public class InGameInitPacketHandler : InGameOnlyPacketHandler<InitInitServerPacket>
     {
         private readonly IEnumerable<IInitPacketHandler> _initPacketHandlers;
 
@@ -24,11 +24,10 @@ namespace EOLib.PacketHandlers.Init
             _initPacketHandlers = initPacketHandlers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(InitInitServerPacket packet)
         {
-            var reply = (InitReply)packet.ReadByte();
-            return _initPacketHandlers.SingleOrNone(x => x.Reply == reply)
-                .Match(x => x.HandlePacket(packet), () => false);
+            return _initPacketHandlers.SingleOrNone(x => x.Reply == packet.ReplyCode)
+                .Match(x => x.HandleData(packet.ReplyCodeData), () => false);
         }
     }
 }

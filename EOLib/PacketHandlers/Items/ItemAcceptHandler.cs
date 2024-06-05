@@ -1,9 +1,9 @@
 ﻿using AutomaticTypeMapper;
-using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Items
@@ -12,7 +12,7 @@ namespace EOLib.PacketHandlers.Items
     /// Sent when another player uses an EXP scroll type item
     /// </summary>
     [AutoMappedType]
-    public class ItemAcceptHandler : InGameOnlyPacketHandler
+    public class ItemAcceptHandler : InGameOnlyPacketHandler<ItemAcceptServerPacket>
     {
         private readonly IEnumerable<IEmoteNotifier> _emoteNotifiers;
 
@@ -27,11 +27,10 @@ namespace EOLib.PacketHandlers.Items
             _emoteNotifiers = emoteNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(ItemAcceptServerPacket packet)
         {
-            var playerId = packet.ReadShort();
             foreach (var notifier in _emoteNotifiers)
-                notifier.NotifyEmote(playerId, Domain.Character.Emote.LevelUp);
+                notifier.NotifyEmote(packet.PlayerId, Domain.Character.Emote.LevelUp);
 
             return true;
         }

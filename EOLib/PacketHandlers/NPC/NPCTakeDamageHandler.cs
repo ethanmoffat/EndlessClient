@@ -2,19 +2,19 @@
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace EOLib.PacketHandlers.NPC
 {
     /// <summary>
     /// Base type for NPC taking damage
     /// </summary>
-    public abstract class NPCTakeDamageHandler : InGameOnlyPacketHandler
+    public abstract class NPCTakeDamageHandler<TPacket> : InGameOnlyPacketHandler<TPacket>
+        where TPacket : IPacket
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
@@ -36,33 +36,19 @@ namespace EOLib.PacketHandlers.NPC
             _otherCharacterAnimationNotifiers = otherCharacterAnimationNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        protected void Handle(int fromPlayerId, EODirection fromDirection,
+            int npcIndex, int damageToNpc, int npcPctHealth,
+            int? spellId = null, int? fromTp = null)
         {
-            var spellId = Family
-                .SomeWhen(x => x == PacketFamily.Cast)
-                .Map(_ => packet.ReadShort());
-
-            var fromPlayerId = packet.ReadShort();
-            var fromDirection = (EODirection)packet.ReadChar();
-            var npcIndex = packet.ReadShort();
-            var damageToNpc = packet.ReadThree();
-            var npcPctHealth = packet.ReadShort();
-
-            var fromTp = -1;
-            if (Family == PacketFamily.Cast)
-                fromTp = packet.ReadShort();
-            else if (packet.ReadChar() != 1) //some constant 1 in EOSERV
-                return false;
-
             if (fromPlayerId == _characterRepository.MainCharacter.ID)
             {
                 var renderProps = _characterRepository.MainCharacter.RenderProperties;
                 var character = _characterRepository.MainCharacter.WithRenderProperties(renderProps.WithDirection(fromDirection));
 
-                if (fromTp > 0)
+                if (fromTp.HasValue)
                 {
                     var stats = _characterRepository.MainCharacter.Stats;
-                    character = character.WithStats(stats.WithNewStat(CharacterStat.TP, fromTp));
+                    character = character.WithStats(stats.WithNewStat(CharacterStat.TP, fromTp.Value));
                 }
 
                 _characterRepository.MainCharacter = character;
@@ -78,6 +64,10 @@ namespace EOLib.PacketHandlers.NPC
                 _currentMapStateRepository.UnknownPlayerIDs.Add(fromPlayerId);
             }
 
+            var spellIdOptional = spellId.HasValue
+                ? Option.Some(spellId.Value)
+                : Option.None<int>();
+
             // todo: this has the potential to bug out if the opponent ID is never reset and the player dies/leaves
             if (_currentMapStateRepository.NPCs.TryGetValue(npcIndex, out var npc))
             {
@@ -85,20 +75,18 @@ namespace EOLib.PacketHandlers.NPC
                 _currentMapStateRepository.NPCs.Update(npc, newNpc);
 
                 foreach (var notifier in _npcNotifiers)
-                    notifier.NPCTakeDamage(npcIndex, fromPlayerId, damageToNpc, npcPctHealth, spellId);
+                    notifier.NPCTakeDamage(npcIndex, fromPlayerId, damageToNpc, npcPctHealth, spellIdOptional);
             }
             else
             {
                 _currentMapStateRepository.UnknownNPCIndexes.Add(npcIndex);
             }
 
-            spellId.MatchSome(_ =>
+            spellIdOptional.MatchSome(_ =>
             {
                 foreach (var notifier in _otherCharacterAnimationNotifiers)
                     notifier.NotifyTargetNpcSpellCast(fromPlayerId);
             });
-
-            return true;
         }
     }
 }

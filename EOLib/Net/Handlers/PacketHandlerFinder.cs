@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using AutomaticTypeMapper;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
 
 namespace EOLib.Net.Handlers
 {
     [AutoMappedType]
     public class PacketHandlerFinder : IPacketHandlerFinder
     {
-        private readonly Dictionary<FamilyActionPair, IPacketHandler> _handlers;
+        private readonly IReadOnlyDictionary<FamilyActionPair, IPacketHandler> _handlers;
  
         public PacketHandlerFinder(IPacketHandlerProvider packetHandlerProvider)
         {

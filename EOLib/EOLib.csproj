@@ -22,6 +22,7 @@
   <ItemGroup>
     <PackageReference Include="Amadevus.RecordGenerator" Version="0.6.0" />
     <PackageReference Include="AutomaticTypeMapper" Version="1.4.1" />
+    <PackageReference Include="Moffat.EndlessOnline.SDK" Version="1.0.0-rc2" />
     <PackageReference Include="Optional" Version="4.0.0" />
   </ItemGroup>
 </Project>

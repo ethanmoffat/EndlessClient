@@ -150,8 +150,7 @@ namespace EndlessClient.Rendering.Sprites
             var gfxNumber = baseHatValue + 1 + offset;
 
             var actualMetadata = _hatMetadataProvider.GetValueOrDefault(characterRenderProperties.HatGraphic);
-            var isUpOrLeft = characterRenderProperties.IsFacing(EODirection.Up, EODirection.Left);
-            return new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, transparent: true, fullTransparent: actualMetadata.ClipMode != HatMaskType.Standard || isUpOrLeft));
+            return new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, transparent: true, fullTransparent: actualMetadata.ClipMode != HatMaskType.Standard));
         }
 
         public ISpriteSheet GetShieldTexture(CharacterRenderProperties characterRenderProperties)

@@ -5,7 +5,7 @@ using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
-using EOLib.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +35,7 @@ namespace EndlessClient.HUD
                 case PacketFamily.Locker: _inGameDialogActions.ShowLockerDialog(); break;
                 case PacketFamily.Chest: _inGameDialogActions.ShowChestDialog(); break;
                 case PacketFamily.Board: _inGameDialogActions.ShowBoardDialog(); break;
-                case PacketFamily.JukeBox: _inGameDialogActions.ShowJukeboxDialog(MapCoordinate.Zero); break;
+                case PacketFamily.Jukebox: _inGameDialogActions.ShowJukeboxDialog(); break;
             }
         }
 

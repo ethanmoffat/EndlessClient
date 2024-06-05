@@ -2,9 +2,11 @@
 using EOLib.Domain.Interact;
 using EOLib.Domain.Interact.Skill;
 using EOLib.Domain.Login;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace EOLib.PacketHandlers.StatSkill
 {
@@ -12,7 +14,7 @@ namespace EOLib.PacketHandlers.StatSkill
     /// Sent when opening a skillmaster dialog
     /// </summary>
     [AutoMappedType]
-    public class StatskillOpenHandler : InGameOnlyPacketHandler
+    public class StatskillOpenHandler : InGameOnlyPacketHandler<StatSkillOpenServerPacket>
     {
         private readonly ISkillDataRepository _skillDataRepository;
         private readonly IEnumerable<INPCInteractionNotifier> _npcInteractionNotifiers;
@@ -30,37 +32,25 @@ namespace EOLib.PacketHandlers.StatSkill
             _npcInteractionNotifiers = npcInteractionNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(StatSkillOpenServerPacket packet)
         {
-            _skillDataRepository.ID = packet.ReadShort();
-            _skillDataRepository.Title = packet.ReadBreakString();
-            _skillDataRepository.Skills.Clear();
-
-            while (packet.ReadPosition < packet.Length)
-            {
-                var skill = new Domain.Interact.Skill.Skill.Builder
+            _skillDataRepository.ID = packet.SessionId;
+            _skillDataRepository.Title = packet.ShopName;
+            _skillDataRepository.Skills = new HashSet<Skill>(packet.Skills.Select(x =>
+                new Skill.Builder
                 {
-                    Id = packet.ReadShort(),
-                    LevelRequirement = packet.ReadChar(),
-                    ClassRequirement = packet.ReadChar(),
-                    GoldRequirement = packet.ReadInt(),
-                    SkillRequirements = new List<int>
-                    {
-                        packet.ReadShort(),
-                        packet.ReadShort(),
-                        packet.ReadShort(),
-                        packet.ReadShort()
-                    },
-                    StrRequirement = packet.ReadShort(),
-                    IntRequirement = packet.ReadShort(),
-                    WisRequirement = packet.ReadShort(),
-                    AgiRequirement = packet.ReadShort(),
-                    ConRequirement = packet.ReadShort(),
-                    ChaRequirement = packet.ReadShort()
-                }.ToImmutable();
-
-                _skillDataRepository.Skills.Add(skill);
-            }
+                    Id = x.Id,
+                    LevelRequirement = x.LevelRequirement,
+                    ClassRequirement = x.ClassRequirement,
+                    GoldRequirement = x.Cost,
+                    SkillRequirements = x.SkillRequirements,
+                    StrRequirement = x.StatRequirements.Str,
+                    IntRequirement = x.StatRequirements.Intl,
+                    WisRequirement = x.StatRequirements.Wis,
+                    AgiRequirement = x.StatRequirements.Agi,
+                    ConRequirement = x.StatRequirements.Con,
+                    ChaRequirement = x.StatRequirements.Cha,
+                }.ToImmutable()));
 
             foreach (var notifier in _npcInteractionNotifiers)
                 notifier.NotifyInteractionFromNPC(IO.NPCType.Skills);

@@ -1,14 +1,15 @@
-﻿using System.Collections.Generic;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Chat
 {
     [AutoMappedType]
-    public class MuteHandler : InGameOnlyPacketHandler
+    public class MuteHandler : InGameOnlyPacketHandler<TalkSpecServerPacket>
     {
         private readonly IEnumerable<IChatEventNotifier> _chatEventNotifiers;
 
@@ -23,9 +24,9 @@ namespace EOLib.PacketHandlers.Chat
             _chatEventNotifiers = chatEventNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(TalkSpecServerPacket packet)
         {
-            var adminName = packet.ReadEndString();
+            var adminName = packet.AdminName;
             adminName = char.ToUpper(adminName[0]) + adminName.Substring(1).ToLower();
 
             foreach (var notifier in _chatEventNotifiers)

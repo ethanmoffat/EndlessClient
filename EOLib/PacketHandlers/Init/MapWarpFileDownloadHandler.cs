@@ -1,18 +1,17 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Map;
-using EOLib.Domain.Protocol;
 using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
 using EOLib.IO.Services.Serializers;
-using EOLib.Net;
 using EOLib.Net.Communication;
-using System.Linq;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOLib.PacketHandlers.Init
 {
     [AutoMappedType]
-    public class MapWarpFileDownloadHandler : IInitPacketHandler
+    public class MapWarpFileDownloadHandler : BaseInGameInitPacketHandler<InitInitServerPacket.ReplyCodeDataWarpMap>
     {
         private readonly IMapFileRepository _mapFileRepository;
         private readonly IMapDeserializer<IMapFile> _mapFileDeserializer;
@@ -20,7 +19,7 @@ namespace EOLib.PacketHandlers.Init
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly IPacketSendService _packetSendService;
 
-        public InitReply Reply => InitReply.WarpMap;
+        public override InitReply Reply => InitReply.WarpMap;
 
         public MapWarpFileDownloadHandler(IMapFileRepository mapFileRepository,
                                           IMapDeserializer<IMapFile> mapFileDeserializer,
@@ -35,7 +34,7 @@ namespace EOLib.PacketHandlers.Init
             _packetSendService = packetSendService;
         }
 
-        public bool HandlePacket(IPacket packet)
+        public override bool HandleData(InitInitServerPacket.ReplyCodeDataWarpMap packet)
         {
             if (_currentMapStateProvider.MapWarpState != WarpState.WarpStarted)
                 return false;
@@ -47,9 +46,8 @@ namespace EOLib.PacketHandlers.Init
             _currentMapStateProvider.MapWarpID.MatchSome(
                 mapID =>
                 {
-                    var fileData = packet.ReadBytes(packet.Length - packet.ReadPosition);
                     var mapFile = _mapFileDeserializer
-                        .DeserializeFromByteArray(fileData.ToArray())
+                        .DeserializeFromByteArray(packet.MapFile.Content)
                         .WithMapID(mapID);
 
                     _mapFileRepository.MapFiles[mapID] = mapFile;
@@ -63,11 +61,11 @@ namespace EOLib.PacketHandlers.Init
 
         private void SendWarpAcceptToServer(int mapID, int sessionID)
         {
-            var response = new PacketBuilder(PacketFamily.Warp, PacketAction.Accept)
-                .AddShort(mapID)
-                .AddShort(sessionID)
-                .Build();
-            _packetSendService.SendPacket(response);
+            _packetSendService.SendPacket(new WarpAcceptClientPacket
+            {
+                MapId = mapID,
+                SessionId = sessionID
+            });
         }
     }
 }

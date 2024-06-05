@@ -3,8 +3,9 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.AdminInteract
@@ -13,7 +14,7 @@ namespace EOLib.PacketHandlers.AdminInteract
     /// Response to $info <character> command.
     /// </summary>
     [AutoMappedType]
-    public class AdminInteractTell: InGameOnlyPacketHandler
+    public class AdminInteractTell: InGameOnlyPacketHandler<AdminInteractTellServerPacket>
     {
         private readonly IEnumerable<IUserInterfaceNotifier> _userInterfaceNotifiers;
 
@@ -28,52 +29,47 @@ namespace EOLib.PacketHandlers.AdminInteract
             _userInterfaceNotifiers = userInterfaceNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(AdminInteractTellServerPacket packet)
         {
-            var name = packet.ReadBreakString();
+            var stats = new Dictionary<CharacterStat, int>
+            {
+                [CharacterStat.Usage] = packet.Usage,
 
-            var stats = new Dictionary<CharacterStat, int>();
-            stats[CharacterStat.Usage] = packet.ReadInt();
-            if (packet.ReadByte() != 255 || packet.ReadByte() != 255)
-                return false;
+                [CharacterStat.Experience] = packet.Exp,
+                [CharacterStat.Level] = packet.Level,
 
-            stats[CharacterStat.Experience] = packet.ReadInt();
-            stats[CharacterStat.Level] = packet.ReadChar();
+                [CharacterStat.HP] = packet.Stats.Hp,
+                [CharacterStat.MaxHP] = packet.Stats.MaxHp,
+                [CharacterStat.TP] = packet.Stats.Tp,
+                [CharacterStat.MaxTP] = packet.Stats.MaxTp,
 
-            var mapId = packet.ReadShort();
-            var mapCoords = new MapCoordinate(packet.ReadShort(), packet.ReadShort());
+                [CharacterStat.Strength] = packet.Stats.BaseStats.Str,
+                [CharacterStat.Intelligence] = packet.Stats.BaseStats.Intl,
+                [CharacterStat.Wisdom] = packet.Stats.BaseStats.Wis,
+                [CharacterStat.Agility] = packet.Stats.BaseStats.Agi,
+                [CharacterStat.Constitution] = packet.Stats.BaseStats.Con,
+                [CharacterStat.Charisma] = packet.Stats.BaseStats.Cha,
 
-            stats[CharacterStat.HP] = packet.ReadShort();
-            stats[CharacterStat.MaxHP] = packet.ReadShort();
-            stats[CharacterStat.TP] = packet.ReadShort();
-            stats[CharacterStat.MaxTP] = packet.ReadShort();
+                [CharacterStat.MaxDam] = packet.Stats.SecondaryStats.MaxDamage,
+                [CharacterStat.MinDam] = packet.Stats.SecondaryStats.MinDamage,
+                [CharacterStat.Accuracy] = packet.Stats.SecondaryStats.Accuracy,
+                [CharacterStat.Evade] = packet.Stats.SecondaryStats.Evade,
+                [CharacterStat.Armor] = packet.Stats.SecondaryStats.Armor,
 
-            stats[CharacterStat.Strength] = packet.ReadShort();
-            stats[CharacterStat.Intelligence] = packet.ReadShort();
-            stats[CharacterStat.Wisdom] = packet.ReadShort();
-            stats[CharacterStat.Agility] = packet.ReadShort();
-            stats[CharacterStat.Constitution] = packet.ReadShort();
-            stats[CharacterStat.Charisma] = packet.ReadShort();
+                [CharacterStat.Light] = packet.Stats.ElementalStats.Light,
+                [CharacterStat.Dark] = packet.Stats.ElementalStats.Dark,
+                [CharacterStat.Fire] = packet.Stats.ElementalStats.Fire,
+                [CharacterStat.Water] = packet.Stats.ElementalStats.Water,
+                [CharacterStat.Earth] = packet.Stats.ElementalStats.Earth,
+                [CharacterStat.Wind] = packet.Stats.ElementalStats.Wind,
 
-            stats[CharacterStat.MaxDam] = packet.ReadShort();
-            stats[CharacterStat.MinDam] = packet.ReadShort();
-            stats[CharacterStat.Accuracy] = packet.ReadShort();
-            stats[CharacterStat.Evade] = packet.ReadShort();
-            stats[CharacterStat.Armor] = packet.ReadShort();
-
-            stats[CharacterStat.Light] = packet.ReadShort();
-            stats[CharacterStat.Dark] = packet.ReadShort();
-            stats[CharacterStat.Fire] = packet.ReadShort();
-            stats[CharacterStat.Water] = packet.ReadShort();
-            stats[CharacterStat.Earth] = packet.ReadShort();
-            stats[CharacterStat.Wind] = packet.ReadShort();
-
-            stats[CharacterStat.Weight] = packet.ReadChar();
-            stats[CharacterStat.MaxWeight] = packet.ReadChar();
+                [CharacterStat.Weight] = packet.Weight.Current,
+                [CharacterStat.MaxWeight] = packet.Weight.Max
+            };
 
             foreach (var notifier in _userInterfaceNotifiers)
             {
-                notifier.NotifyCharacterInfo(name, mapId, mapCoords, new CharacterStats(stats));
+                notifier.NotifyCharacterInfo(packet.Name, packet.MapId, new MapCoordinate(packet.MapCoords), new CharacterStats(stats));
             }
 
             return true;

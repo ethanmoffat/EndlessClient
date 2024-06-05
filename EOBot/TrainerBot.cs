@@ -11,6 +11,7 @@ using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -377,9 +378,9 @@ namespace EOBot
         private async Task ToggleSit()
         {
             var renderProps = _characterRepository.MainCharacter.RenderProperties;
-            var nextState = renderProps.SitState == SitState.Standing ? "Floor" : "Stand";
-            ConsoleHelper.WriteMessage(ConsoleHelper.Type.Sit, $"{nextState,7} - Toggling from: {Enum.GetName(typeof(SitState), renderProps.SitState)}");
-            await TrySend(_characterActions.ToggleSit);
+            var nextState = renderProps.SitState == EOLib.Domain.Character.SitState.Standing ? "Floor" : "Stand";
+            ConsoleHelper.WriteMessage(ConsoleHelper.Type.Sit, $"{nextState,7} - Toggling from: {Enum.GetName(typeof(EOLib.Domain.Character.SitState), renderProps.SitState)}");
+            await TrySend(() => _characterActions.Sit(MapCoordinate.Zero));
         }
 
         private async Task TrySend(Action action, uint attempts = 3)

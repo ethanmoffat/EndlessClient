@@ -3,13 +3,14 @@ using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.IO.Actions;
 using EOLib.IO.Repositories;
-using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.FileTransfer;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System;
 using System.IO;
-using System.Linq;
 
 namespace EOLib.PacketHandlers.Warp
 {
@@ -17,10 +18,8 @@ namespace EOLib.PacketHandlers.Warp
     /// Sent when the server requests warp for the main character
     /// </summary>
     [AutoMappedType]
-    public class WarpRequestHandler : InGameOnlyPacketHandler
+    public class WarpRequestHandler : InGameOnlyPacketHandler<WarpRequestServerPacket>
     {
-        private const int WARP_SAME_MAP = 1, WARP_NEW_MAP = 2;
-
         private readonly IPacketSendService _packetSendService;
         private readonly IFileRequestActions _fileRequestActions;
         private readonly IMapFileLoadActions _mapFileLoadActions;
@@ -46,29 +45,24 @@ namespace EOLib.PacketHandlers.Warp
             _mapFileProvider = mapFileProvider;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(WarpRequestServerPacket packet)
         {
             if (_mapStateRepository.MapWarpState != WarpState.None)
                 throw new InvalidOperationException("Attempted to warp while another warp was in progress");
 
             _mapStateRepository.MapWarpState = WarpState.WarpStarted;
 
-            var warpType = packet.ReadChar();
-            var mapID = packet.ReadShort();
+            var warpType = packet.WarpType;
+            var mapID = packet.MapId;
 
             switch (warpType)
             {
-                case WARP_SAME_MAP:
-                    {
-                        var sessionID = packet.ReadShort();
-                        SendWarpAcceptToServer(mapID, sessionID);
-                    }
+                case WarpType.Local:
+                    SendWarpAcceptToServer(mapID, packet.SessionId);
                     break;
-                case WARP_NEW_MAP:
+                case WarpType.MapSwitch:
                     {
-                        var mapRid = packet.ReadBytes(4).ToArray();
-                        var fileSize = packet.ReadThree();
-                        var sessionID = packet.ReadShort();
+                        var data = (WarpRequestServerPacket.WarpTypeDataMapSwitch)packet.WarpTypeData;
 
                         var mapIsDownloaded = true;
                         try
@@ -78,13 +72,13 @@ namespace EOLib.PacketHandlers.Warp
                         }
                         catch (IOException) { mapIsDownloaded = false; }
 
-                        if (!mapIsDownloaded || _fileRequestActions.NeedsMapForWarp(mapID, mapRid, fileSize))
+                        if (!mapIsDownloaded || _fileRequestActions.NeedsMapForWarp(mapID, data.MapRid, data.MapFileSize))
                         {
-                            _fileRequestActions.RequestMapForWarp(mapID, sessionID);
+                            _fileRequestActions.RequestMapForWarp(mapID, packet.SessionId);
                         }
                         else
                         {
-                            SendWarpAcceptToServer(mapID, sessionID);
+                            SendWarpAcceptToServer(mapID, packet.SessionId);
                         }
                     }
                     break;
@@ -98,11 +92,11 @@ namespace EOLib.PacketHandlers.Warp
 
         private void SendWarpAcceptToServer(int mapID, int sessionID)
         {
-            var response = new PacketBuilder(PacketFamily.Warp, PacketAction.Accept)
-                .AddShort(mapID)
-                .AddShort(sessionID)
-                .Build();
-            _packetSendService.SendPacket(response);
+            _packetSendService.SendPacket(new WarpAcceptClientPacket
+            {
+                MapId = mapID,
+                SessionId = sessionID
+            });
         }
     }
 }

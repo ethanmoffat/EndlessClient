@@ -2,8 +2,9 @@
 using EOLib.Domain.Interact;
 using EOLib.Domain.Interact.Citizen;
 using EOLib.Domain.Login;
-using EOLib.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
 using System.Collections.Generic;
 
@@ -13,7 +14,7 @@ namespace EOLib.PacketHandlers.Citizen
     /// Sent when unsubscribing from a town
     /// </summary>
     [AutoMappedType]
-    public class CitizenRemoveHandler : InGameOnlyPacketHandler
+    public class CitizenRemoveHandler : InGameOnlyPacketHandler<CitizenRemoveServerPacket>
     {
         private readonly ICitizenDataRepository _citizenDataRepository;
         private readonly IEnumerable<INPCInteractionNotifier> _npcInteractionNotifiers;
@@ -31,15 +32,13 @@ namespace EOLib.PacketHandlers.Citizen
             _npcInteractionNotifiers = npcInteractionNotifiers;
         }
 
-        public override bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(CitizenRemoveServerPacket packet)
         {
-            var reply = (CitizenUnsubscribeReply)packet.ReadChar();
-
-            if (reply == CitizenUnsubscribeReply.Unsubscribed)
+            if (packet.ReplyCode == InnUnsubscribeReply.Unsubscribed)
                 _citizenDataRepository.CurrentHomeID = Option.None<int>();
 
             foreach (var notifier in _npcInteractionNotifiers)
-                notifier.NotifyCitizenUnsubscribe(reply);
+                notifier.NotifyCitizenUnsubscribe(packet.ReplyCode);
 
             return true;
         }

@@ -11,6 +11,7 @@ using EOLib.Extensions;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using MonoGame.Extended.BitmapFonts;
 using MonoGame.Extended.Input;
 using MonoGame.Extended.Input.InputListeners;
@@ -226,19 +227,14 @@ namespace EndlessClient.HUD.Panels
 
         private static bool IsAdminIcon(OnlinePlayerInfo onlineInfo)
         {
-            switch (onlineInfo.Icon)
+            return onlineInfo.Icon switch
             {
-                case OnlineIcon.GM:
-                case OnlineIcon.HGM:
-                case OnlineIcon.GMParty:
-                case OnlineIcon.HGMParty:
-                    return true;
-                default:
-                    return false;
-            }
+                CharacterIcon.Gm or CharacterIcon.Hgm or CharacterIcon.GmParty or CharacterIcon.HgmParty => true,
+                _ => false,
+            };
         }
 
-        private static Rectangle? GetChatIconSourceRectangle(OnlineIcon icon)
+        private static Rectangle? GetChatIconSourceRectangle(CharacterIcon icon)
         {
             var (x, y, width, height) = icon.ToChatIcon().GetChatIconRectangleBounds().ValueOrDefault();
             return new Rectangle(x, y, width, height);

@@ -1,12 +1,13 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Login;
-using EOLib.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOLib.PacketHandlers.Chat
 {
     [AutoMappedType]
-    public class GuildMessageHandler : PlayerChatByNameBase
+    public class GuildMessageHandler : PlayerChatByNameBase<TalkRequestServerPacket>
     {
         private readonly IChatRepository _chatRepository;
 
@@ -17,6 +18,11 @@ namespace EOLib.PacketHandlers.Chat
             : base(playerInfoProvider)
         {
             _chatRepository = chatRepository;
+        }
+
+        public override bool HandlePacket(TalkRequestServerPacket packet)
+        {
+            return Handle(packet.PlayerName, packet.Message);
         }
 
         protected override void PostChat(string name, string message)
