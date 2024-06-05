@@ -35,7 +35,6 @@ namespace EndlessClient.Rendering.Character
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
         private readonly ICharacterPropertyRendererBuilder _characterPropertyRendererBuilder;
         private readonly ICharacterTextures _characterTextures;
-        private readonly IGameStateProvider _gameStateProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IUserInputProvider _userInputProvider;
         private readonly IMetadataProvider<HatMetadata> _hatMetadataProvider;
@@ -43,6 +42,8 @@ namespace EndlessClient.Rendering.Character
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IClientWindowSizeRepository _clientWindowSizeRepository;
         private readonly IEffectRenderer _effectRenderer;
+
+        private readonly bool _isUiControl;
 
         private EOLib.Domain.Character.Character _character;
         private bool _textureUpdateRequired, _positionIsRelative = true;
@@ -94,15 +95,15 @@ namespace EndlessClient.Rendering.Character
                                  IRenderOffsetCalculator renderOffsetCalculator,
                                  ICharacterPropertyRendererBuilder characterPropertyRendererBuilder,
                                  ICharacterTextures characterTextures,
-                                 EOLib.Domain.Character.Character character,
-                                 IGameStateProvider gameStateProvider,
                                  ICurrentMapProvider currentMapProvider,
                                  IUserInputProvider userInputProvider,
                                  IEffectRendererFactory effectRendererFactory,
                                  IMetadataProvider<HatMetadata> hatMetadataProvider,
                                  IMetadataProvider<WeaponMetadata> weaponMetadataProvider,
                                  ISfxPlayer sfxPlayer,
-                                 IClientWindowSizeRepository clientWindowSizeRepository)
+                                 IClientWindowSizeRepository clientWindowSizeRepository,
+                                 EOLib.Domain.Character.Character character,
+                                 bool isUiControl)
             : base(game)
         {
             _renderTargetFactory = renderTargetFactory;
@@ -112,8 +113,6 @@ namespace EndlessClient.Rendering.Character
             _renderOffsetCalculator = renderOffsetCalculator;
             _characterPropertyRendererBuilder = characterPropertyRendererBuilder;
             _characterTextures = characterTextures;
-            _character = character;
-            _gameStateProvider = gameStateProvider;
             _currentMapProvider = currentMapProvider;
             _userInputProvider = userInputProvider;
             _hatMetadataProvider = hatMetadataProvider;
@@ -121,6 +120,8 @@ namespace EndlessClient.Rendering.Character
             _effectRenderer = effectRendererFactory.Create();
             _sfxPlayer = sfxPlayer;
             _clientWindowSizeRepository = clientWindowSizeRepository;
+            _character = character;
+            _isUiControl = isUiControl;
 
             _chatBubble = new Lazy<IChatBubble>(() => _chatBubbleFactory.CreateChatBubble(this));
 
@@ -146,7 +147,7 @@ namespace EndlessClient.Rendering.Character
 
             _sb = new SpriteBatch(Game.GraphicsDevice);
 
-            if (_gameStateProvider.CurrentState == GameStates.PlayingTheGame)
+            if (!_isUiControl)
             {
                 _nameLabel = new BlinkingLabel(Constants.FontSize08pt5)
                 {
@@ -202,7 +203,7 @@ namespace EndlessClient.Rendering.Character
                 _textureUpdateRequired = false;
             }
 
-            if (_gameStateProvider.CurrentState == GameStates.PlayingTheGame)
+            if (!_isUiControl)
             {
                 UpdateNameLabel();
 
@@ -271,7 +272,7 @@ namespace EndlessClient.Rendering.Character
 
             _effectRenderer.DrawInFrontOfTarget(spriteBatch);
 
-            if (_gameStateProvider.CurrentState == GameStates.PlayingTheGame)
+            if (!_isUiControl)
                 _healthBarRenderer?.DrawToSpriteBatch(spriteBatch);
         }
 
@@ -299,15 +300,15 @@ namespace EndlessClient.Rendering.Character
                 foreach (var renderer in characterPropertyRenderers)
                     renderer.Render(_sb, DrawArea, weaponMetadata);
 
-                if (_gameStateProvider.CurrentState == GameStates.None)
-                {
-                    _sb.Draw(_outline, DrawArea.WithSize(DrawArea.Width, 1), Color.Black);
-                    _sb.Draw(_outline, DrawArea.WithPosition(new Vector2(DrawArea.X + DrawArea.Width, DrawArea.Y)).WithSize(1, DrawArea.Height), Color.Black);
-                    _sb.Draw(_outline, DrawArea.WithPosition(new Vector2(DrawArea.X, DrawArea.Y + DrawArea.Height)).WithSize(DrawArea.Width, 1), Color.Black);
-                    _sb.Draw(_outline, DrawArea.WithSize(1, DrawArea.Height), Color.Black);
+                //if (_gameStateProvider.CurrentState == GameStates.None)
+                //{
+                //    _sb.Draw(_outline, DrawArea.WithSize(DrawArea.Width, 1), Color.Black);
+                //    _sb.Draw(_outline, DrawArea.WithPosition(new Vector2(DrawArea.X + DrawArea.Width, DrawArea.Y)).WithSize(1, DrawArea.Height), Color.Black);
+                //    _sb.Draw(_outline, DrawArea.WithPosition(new Vector2(DrawArea.X, DrawArea.Y + DrawArea.Height)).WithSize(DrawArea.Width, 1), Color.Black);
+                //    _sb.Draw(_outline, DrawArea.WithSize(1, DrawArea.Height), Color.Black);
 
-                    _sb.Draw(_outline, DrawArea, Color.FromNonPremultiplied(255, 0, 0, 64));
-                }
+                //    _sb.Draw(_outline, DrawArea, Color.FromNonPremultiplied(255, 0, 0, 64));
+                //}
 
                 _sb.End();
                 GraphicsDevice.SetRenderTarget(null);
@@ -362,9 +363,7 @@ namespace EndlessClient.Rendering.Character
 
         private void UpdateNameLabel()
         {
-            if (_gameStateProvider.CurrentState != GameStates.PlayingTheGame ||
-                _healthBarRenderer == null ||
-                _nameLabel == null)
+            if (_isUiControl || _healthBarRenderer == null || _nameLabel == null)
                 return;
 
             if (_healthBarRenderer.Visible)
@@ -404,7 +403,7 @@ namespace EndlessClient.Rendering.Character
 
         private bool GetIsSteppingStone(CharacterRenderProperties renderProps)
         {
-            if (_gameStateProvider.CurrentState != GameStates.PlayingTheGame)
+            if (_isUiControl)
                 return false;
 
             return _currentMapProvider.CurrentMap.Tiles[renderProps.MapY, renderProps.MapX] == TileSpec.Jump
