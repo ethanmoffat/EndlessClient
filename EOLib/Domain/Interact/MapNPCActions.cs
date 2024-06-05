@@ -75,6 +75,12 @@ namespace EOLib.Domain.Interact
             var packet = new BarberOpenClientPacket { NpcIndex = npc.Index };
             _packetSendService.SendPacket(packet);
         }
+
+        public void RequestGuild(NPC.NPC npc)
+        {
+            var packet = new GuildOpenClientPacket { NpcIndex = npc.Index };
+            _packetSendService.SendPacket(packet);
+        }
     }
 
     public interface IMapNPCActions
@@ -87,6 +93,8 @@ namespace EOLib.Domain.Interact
         void RequestLaw(NPC.NPC npc);
         void RequestPriest(NPC.NPC npc);
         void RequestBarber(NPC.NPC npc);
+
+        void RequestGuild(NPC.NPC npc);
     }
 
 }

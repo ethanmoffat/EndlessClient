@@ -61,6 +61,7 @@ namespace EndlessClient.Dialogs.Actions
                 case NPCType.Law: _inGameDialogActions.ShowLawDialog(); break;
                 case NPCType.Barber: _inGameDialogActions.ShowBarberDialog(); break;
                 case NPCType.Priest: ShowPriestDialog(); break;
+                case NPCType.Guild: _inGameDialogActions.ShowGuildDialog(); break;
             }
         }
 

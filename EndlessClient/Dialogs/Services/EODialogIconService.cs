@@ -21,6 +21,15 @@ namespace EndlessClient.Dialogs.Services
 
         JukeboxPlay = 8,
         Registration = 9,
+        GuildInformation = Registration,
+        GuildAdministration = 10,
+        GuildManagement = 11,
+        GuildBankAccount = 12,
+        GuildJoin = 13,
+        GuildLeave = 14,
+        GuildRegister = 15,
+        GuildLookup = GuildRegister,
+        GuildMemberlist = GuildRegister,
 
         Learn = 20,
         Forget = 21,
