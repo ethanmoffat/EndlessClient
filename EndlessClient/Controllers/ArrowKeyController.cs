@@ -128,8 +128,10 @@ namespace EndlessClient.Controllers
                     _unwalkableTileActionsHandler.HandleUnwalkableTileActions(unwalkableActions, cellState);
                     break;
                 case WalkValidationResult.GhostComplete:
+                    _characterAnimationActions.StartWalking(Option.None<MapCoordinate>(), true);
+                    break;
                 case WalkValidationResult.Walkable:
-                    _characterAnimationActions.StartWalking(Option.None<MapCoordinate>());
+                    _characterAnimationActions.StartWalking(Option.None<MapCoordinate>(), false);
                     break;
             }
         }

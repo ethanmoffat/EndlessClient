@@ -73,7 +73,7 @@ namespace EndlessClient.Rendering.Character
             Animator.MainCharacterFace(direction);
         }
 
-        public void StartWalking(Option<MapCoordinate> targetCoordinate)
+        public void StartWalking(Option<MapCoordinate> targetCoordinate, bool ghosted)
         {
             if (!_hudControlProvider.IsInGame)
                 return;
@@ -81,7 +81,7 @@ namespace EndlessClient.Rendering.Character
             _hudControlProvider.GetComponent<IPeriodicEmoteHandler>(HudControlIdentifier.PeriodicEmoteHandler).CancelArenaBlockTimer();
 
             CancelSpellPrep();
-            Animator.StartMainCharacterWalkAnimation(targetCoordinate, () =>
+            Animator.StartMainCharacterWalkAnimation(targetCoordinate, ghosted, () =>
             {
                 PlayMainCharacterWalkSfx();
                 ShowWaterSplashiesIfNeeded(CharacterActionState.Walking, _characterRepository.MainCharacter.ID);
@@ -422,7 +422,7 @@ namespace EndlessClient.Rendering.Character
     {
         void Face(EODirection direction);
 
-        void StartWalking(Option<MapCoordinate> targetCoordinate);
+        void StartWalking(Option<MapCoordinate> targetCoordinate, bool ghosted);
 
         void CancelClickToWalk();
 

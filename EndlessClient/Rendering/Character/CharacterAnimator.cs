@@ -110,7 +110,7 @@ namespace EndlessClient.Rendering.Character
             _characterActions.Face(direction);
         }
 
-        public void StartMainCharacterWalkAnimation(Option<MapCoordinate> targetCoordinate, Action sfxCallback)
+        public void StartMainCharacterWalkAnimation(Option<MapCoordinate> targetCoordinate, bool ghosted, Action sfxCallback)
         {
             _walkPath.Clear();
 
@@ -147,7 +147,7 @@ namespace EndlessClient.Rendering.Character
                 var startWalkingTime = new RenderFrameActionTime(_characterRepository.MainCharacter.ID, _fixedTimeStepRepository.TickCount, sfxCallback);
                 _otherPlayerStartWalkingTimes.Add(_characterRepository.MainCharacter.ID, startWalkingTime);
 
-                _characterActions.Walk();
+                _characterActions.Walk(ghosted);
                 startWalkingTime.SoundEffect();
             }
         }
@@ -376,7 +376,7 @@ namespace EndlessClient.Rendering.Character
 
                             if (sendWalk)
                             {
-                                _characterActions.Walk();
+                                _characterActions.Walk(false);
                             }
                         });
                 }
@@ -589,7 +589,7 @@ namespace EndlessClient.Rendering.Character
     {
         void MainCharacterFace(EODirection direction);
 
-        void StartMainCharacterWalkAnimation(Option<MapCoordinate> targetCoordinate, Action sfxCallback);
+        void StartMainCharacterWalkAnimation(Option<MapCoordinate> targetCoordinate, bool ghosted, Action sfxCallback);
 
         void CancelClickToWalk();
 
