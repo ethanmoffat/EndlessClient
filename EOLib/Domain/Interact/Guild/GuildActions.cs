@@ -1,6 +1,11 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Diagnostics;
+using AutomaticTypeMapper;
 using EOLib.Net.Communication;
+using Moffat.EndlessOnline.SDK.Data;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOLib.Domain.Interact.Guild
 {
@@ -11,7 +16,7 @@ namespace EOLib.Domain.Interact.Guild
         private readonly IPacketSendService _packetSendService;
 
         public GuildActions(IGuildSessionProvider guildSessionProvider,
-                          IPacketSendService packetSendService)
+                            IPacketSendService packetSendService)
         {
             _guildSessionProvider = guildSessionProvider;
             _packetSendService = packetSendService;
@@ -19,19 +24,35 @@ namespace EOLib.Domain.Interact.Guild
 
         public void Lookup(string identity)
         {
-            _packetSendService.SendPacket(new GuildReportClientPacket { SessionId = _guildSessionProvider.SessionID, GuildIdentity = identity });
+            _packetSendService.SendPacket(new GuildReportClientPacket
+            {
+                SessionId = _guildSessionProvider.SessionID,
+                GuildIdentity = identity
+            });
         }
 
         public void ViewMembers(string identity)
         {
-            _packetSendService.SendPacket(new GuildTellClientPacket { SessionId = _guildSessionProvider.SessionID, GuildIdentity = identity });
+            _packetSendService.SendPacket(new GuildTellClientPacket
+            {
+                SessionId = _guildSessionProvider.SessionID,
+                GuildIdentity = identity
+            });
+        }
+ 
+        public void LeaveGuild()
+        {
+            _packetSendService.SendPacket(new GuildRemoveClientPacket
+            {
+                SessionId = _guildSessionProvider.SessionID
+            });
         }
     }
 
     public interface IGuildActions
     {
         void Lookup(string identity);
-
         void ViewMembers(string identity);
+        void LeaveGuild();
     }
 }
