@@ -52,7 +52,7 @@ namespace EOLib.Domain.Interact.Guild
     public interface IGuildActions
     {
         void Lookup(string identity);
-        void ViewMembers(string response); // Changed to void
+        void ViewMembers(string response); 
         void LeaveGuild();
     }
 }

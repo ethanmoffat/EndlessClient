@@ -109,7 +109,6 @@ namespace EndlessClient.Dialogs
 
         private void SetState(GuildDialogState newState)
         {
-            Debug.WriteLine($"Setting state: {newState}");
             if (_state != newState && _stateStack.Any())
             {
                 ClearItemList();
