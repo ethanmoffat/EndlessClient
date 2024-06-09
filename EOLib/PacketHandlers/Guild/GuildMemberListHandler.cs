@@ -38,6 +38,8 @@ namespace EOLib.PacketHandlers.Guild
                 _guildSessionRepository.Names.Add(member.Name);
             }
 
+            _guildSessionRepository.OnMemberListUpdated();
+
             return true;
         }
     }

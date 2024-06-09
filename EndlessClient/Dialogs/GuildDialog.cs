@@ -92,21 +92,21 @@ namespace EndlessClient.Dialogs
             _sfxPlayer = sfxPlayer;
             _guildSessionProvider = guildSessionProvider;
 
+            _guildSessionProvider.MemberListUpdated += OnMemberListUpdated;
+
             SetState(GuildDialogState.Initial);
 
             BackAction += (_, _) =>
             {
+                if (_stateStack.Count > 0)
                 {
-                    if (_stateStack.Count > 0)
-                    {
-                        var previousState = _stateStack.Pop();
-                        SetState(previousState);
-                    }
-                    else
-                    {
-                        SetState(GuildDialogState.Initial);
-                    }
-                };
+                    var previousState = _stateStack.Pop();
+                    SetState(previousState);
+                }
+                else
+                {
+                    SetState(GuildDialogState.Initial);
+                }
             };
 
             Title = _localizedStringFinder.GetString(EOResourceID.GUILD_GUILD_MASTER);
@@ -118,69 +118,61 @@ namespace EndlessClient.Dialogs
             if (_state != newState && _stateStack.Any())
             {
                 ClearItemList();
-                _stateStack.Push(_state); 
+                _stateStack.Push(_state);
             }
 
             _state = newState;
 
-            ClearItemList(); 
+            ClearItemList();
 
             switch (_state)
             {
                 case GuildDialogState.Initial:
-                    {
-                        ListItemType = ListDialogItem.ListItemStyle.Large;
-                        Buttons = ScrollingListDialogButtons.Cancel;
+                    ListItemType = ListDialogItem.ListItemStyle.Large;
+                    Buttons = ScrollingListDialogButtons.Cancel;
 
-                        var informationItem = CreateListDialogItem(0, DialogIcon.GuildInformation, EOResourceID.GUILD_INFORMATION, EOResourceID.GUILD_LEARN_MORE, () => SetState(GuildDialogState.InformationMenu));
-                        AddItemToList(informationItem, sortList: false);
+                    var informationItem = CreateListDialogItem(0, DialogIcon.GuildInformation, EOResourceID.GUILD_INFORMATION, EOResourceID.GUILD_LEARN_MORE, () => SetState(GuildDialogState.InformationMenu));
+                    AddItemToList(informationItem, sortList: false);
 
-                        var administrationItem = CreateListDialogItem(1, DialogIcon.GuildAdministration, EOResourceID.GUILD_ADMINISTRATION, EOResourceID.GUILD_JOIN_LEAVE_REGISTER, () => SetState(GuildDialogState.Administration));
-                        AddItemToList(administrationItem, sortList: false);
+                    var administrationItem = CreateListDialogItem(1, DialogIcon.GuildAdministration, EOResourceID.GUILD_ADMINISTRATION, EOResourceID.GUILD_JOIN_LEAVE_REGISTER, () => SetState(GuildDialogState.Administration));
+                    AddItemToList(administrationItem, sortList: false);
 
-                        var managementItem = CreateListDialogItem(2, DialogIcon.GuildManagement, EOResourceID.GUILD_MANAGEMENT, EOResourceID.GUILD_MODIFY_RANKING_DISBAND);
-                        AddItemToList(managementItem, sortList: false);
+                    var managementItem = CreateListDialogItem(2, DialogIcon.GuildManagement, EOResourceID.GUILD_MANAGEMENT, EOResourceID.GUILD_MODIFY_RANKING_DISBAND);
+                    AddItemToList(managementItem, sortList: false);
 
-                        var bankAccountItem = CreateListDialogItem(3, DialogIcon.GuildBankAccount, EOResourceID.GUILD_BANK_ACCOUNT, EOResourceID.GUILD_DEPOSIT_TO_GUILD_ACCOUNT, () => SetState(GuildDialogState.GuildBank));
-                        AddItemToList(bankAccountItem, sortList: false);
-                    }
+                    var bankAccountItem = CreateListDialogItem(3, DialogIcon.GuildBankAccount, EOResourceID.GUILD_BANK_ACCOUNT, EOResourceID.GUILD_DEPOSIT_TO_GUILD_ACCOUNT, () => SetState(GuildDialogState.GuildBank));
+                    AddItemToList(bankAccountItem, sortList: false);
                     break;
 
                 case GuildDialogState.InformationMenu:
-                    {
-                        Buttons = ScrollingListDialogButtons.BackCancel;
+                    Buttons = ScrollingListDialogButtons.BackCancel;
 
-                        var guildLookUp = CreateListDialogItem(0, DialogIcon.GuildLookup, EOResourceID.GUILD_JOIN_GUILD, EOResourceID.GUILD_JOIN_AN_EXISTING_GUILD, () => ShowGuildDialog(DialogAction.GuildLookUp));
-                        AddItemToList(guildLookUp, sortList: false);
+                    var guildLookUp = CreateListDialogItem(0, DialogIcon.GuildLookup, EOResourceID.GUILD_JOIN_GUILD, EOResourceID.GUILD_JOIN_AN_EXISTING_GUILD, () => ShowGuildDialog(DialogAction.GuildLookUp));
+                    AddItemToList(guildLookUp, sortList: false);
 
-                        var memberList = CreateListDialogItem(1, DialogIcon.GuildMemberlist, EOResourceID.MEMBERLIST, EOResourceID.VIEW_GUILD_MEMBERS, () => ShowGuildDialog(DialogAction.MemberList));
-                        AddItemToList(memberList, sortList: false);
-                    }
+                    var memberList = CreateListDialogItem(1, DialogIcon.GuildMemberlist, EOResourceID.MEMBERLIST, EOResourceID.VIEW_GUILD_MEMBERS, () => ShowGuildDialog(DialogAction.MemberList));
+                    AddItemToList(memberList, sortList: false);
                     break;
 
                 case GuildDialogState.Administration:
-                    {
-                        Buttons = ScrollingListDialogButtons.BackCancel;
+                    Buttons = ScrollingListDialogButtons.BackCancel;
 
-                        var guildJoin = CreateListDialogItem(0, DialogIcon.GuildJoin, EOResourceID.GUILD_JOIN_GUILD, EOResourceID.GUILD_JOIN_AN_EXISTING_GUILD, () => ShowGuildDialog(DialogAction.GuildLookUp));
-                        AddItemToList(guildJoin, sortList: false);
+                    var guildJoin = CreateListDialogItem(0, DialogIcon.GuildJoin, EOResourceID.GUILD_JOIN_GUILD, EOResourceID.GUILD_JOIN_AN_EXISTING_GUILD, () => ShowGuildDialog(DialogAction.GuildLookUp));
+                    AddItemToList(guildJoin, sortList: false);
 
-                        var leaveGuild = CreateListDialogItem(1, DialogIcon.GuildLeave, EOResourceID.GUILD_LEAVE_GUILD, EOResourceID.GUILD_LEAVE_YOUR_CURRENT_GUILD, () => LeaveGuildDialog());
-                        AddItemToList(leaveGuild, sortList: false);
+                    var leaveGuild = CreateListDialogItem(1, DialogIcon.GuildLeave, EOResourceID.GUILD_LEAVE_GUILD, EOResourceID.GUILD_LEAVE_YOUR_CURRENT_GUILD, () => LeaveGuildDialog());
+                    AddItemToList(leaveGuild, sortList: false);
 
-                        var registerGuild = CreateListDialogItem(2, DialogIcon.GuildRegister, EOResourceID.GUILD_REGISTER_GUILD, EOResourceID.GUILD_CREATE_YOUR_OWN_GUILD);
-                        AddItemToList(registerGuild, sortList: false);
-                    }
+                    var registerGuild = CreateListDialogItem(2, DialogIcon.GuildRegister, EOResourceID.GUILD_REGISTER_GUILD, EOResourceID.GUILD_CREATE_YOUR_OWN_GUILD);
+                    AddItemToList(registerGuild, sortList: false);
                     break;
 
                 case GuildDialogState.GuildBank:
+                    if (string.IsNullOrEmpty(_characterRepository.MainCharacter.GuildTag))
                     {
-                        if (string.IsNullOrEmpty(_characterRepository.MainCharacter.GuildTag))
-                        {
-                            var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_NOT_IN_GUILD);
-                            dlg.ShowDialog();
-                            SetState(GuildDialogState.Initial);
-                        }
+                        var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_NOT_IN_GUILD);
+                        dlg.ShowDialog();
+                        SetState(GuildDialogState.Initial);
                     }
                     break;
             }
@@ -209,7 +201,7 @@ namespace EndlessClient.Dialogs
             return item;
         }
 
-        private  void HandleDialogAction(string responseText)
+        private void HandleDialogAction(string responseText)
         {
             Debug.WriteLine($"HandleDialogAction called with: {responseText}");
 
@@ -225,27 +217,26 @@ namespace EndlessClient.Dialogs
                     ListItemType = ListDialogItem.ListItemStyle.Small;
                     Buttons = ScrollingListDialogButtons.BackCancel;
 
-                    Debug.WriteLine("Before ViewMembers call");
+                    Debug.WriteLine("Before ViewMembersAsync call");
                     _GuildActions.ViewMembers(responseText);
-                    ClearItemList();
-                    PopulateMemberList();
+                    // ClearItemList and PopulateMemberList will be called by the event handler
                     break;
             }
         }
 
-        private void PopulateMemberList ()
+
+        private void PopulateMemberList()
         {
             Debug.WriteLine("Populating member list...");
-          
+
             if (_guildSessionProvider.Names == null || !_guildSessionProvider.Names.Any())
             {
-                _GuildActions.ViewMembers("RED");
                 Debug.WriteLine("No members found to populate.");
                 return;
             }
 
             int index = 0;
-          
+
             foreach (var memberName in _guildSessionProvider.Names)
             {
                 Debug.WriteLine($"Adding member {index}: {memberName}");
@@ -301,6 +292,13 @@ namespace EndlessClient.Dialogs
                 _localizedStringFinder.GetString(EOResourceID.GUILD_YOU_ARE_ABOUT_TO_LEAVE_THE_GUILD),
                 _localizedStringFinder.GetString(EOResourceID.GUILD_AFTER_YOU_HAVE_LEFT),
                 _localizedStringFinder.GetString(EOResourceID.GUILD_CLICK_HERE_TO_LEAVE_YOUR_GUILD));
+        }
+
+        private void OnMemberListUpdated()
+        {
+            Debug.WriteLine("Member list updated event received.");
+            ClearItemList();
+            PopulateMemberList();
         }
     }
 }
