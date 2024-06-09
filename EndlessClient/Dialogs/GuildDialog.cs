@@ -1,4 +1,5 @@
-﻿using EndlessClient.Content;
+﻿using System.Diagnostics;
+using EndlessClient.Content;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.Dialogs.Services;
 using EOLib;
@@ -15,32 +16,30 @@ using System.Collections.Generic;
 using System.Linq;
 using XNAControls;
 using EndlessClient.Audio;
-using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace EndlessClient.Dialogs
 {
     public class GuildDialog : ScrollingListDialog
     {
-        // Clickable region for the list dialog
         private const int AdjustedDrawAreaOffset = 10;
-        // Max allowed text look up for guild
         private const int MaxGuildTag = 3;
 
         private enum GuildDialogState
         {
-            // initial menu
             Initial,
             InformationMenu,
             Registration,
-            Adminstration,
+            Administration,
             GuildBank,
         }
-
 
         private enum DialogAction
         {
             GuildLookUp,
-            MemberList
+            MemberList,
+            LeaveGuild,
+            KickPlayer,
         }
 
         private readonly INativeGraphicsManager _nativeGraphicsManager;
@@ -56,8 +55,8 @@ namespace EndlessClient.Dialogs
         private readonly ICharacterRepository _characterRepository;
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
         private readonly ISfxPlayer _sfxPlayer;
-        // Keep track of states
         private readonly Stack<GuildDialogState> _stateStack = new Stack<GuildDialogState>();
+        private readonly IGuildSessionProvider _guildSessionProvider;
 
         private GuildDialogState _state;
         private DialogAction _currentDialogAction;
@@ -74,7 +73,8 @@ namespace EndlessClient.Dialogs
                          IEOMessageBoxFactory messageBoxFactory,
                          ICharacterRepository characterLvRepository,
                          IEOMessageBoxFactory eoMessageBoxFactory,
-                         ISfxPlayer sfxPlayer)
+                         ISfxPlayer sfxPlayer,
+                         IGuildSessionProvider guildSessionProvider)
             : base(nativeGraphicsManager, dialogButtonService, DialogType.Guild)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
@@ -90,20 +90,23 @@ namespace EndlessClient.Dialogs
             _characterRepository = characterLvRepository;
             _eoMessageBoxFactory = eoMessageBoxFactory;
             _sfxPlayer = sfxPlayer;
+            _guildSessionProvider = guildSessionProvider;
 
             SetState(GuildDialogState.Initial);
 
             BackAction += (_, _) =>
             {
-                if (_stateStack.Count > 0)
                 {
-                    var previousState = _stateStack.Pop();
-                    SetState(previousState);
-                }
-                else
-                {
-                    SetState(GuildDialogState.Initial);
-                }
+                    if (_stateStack.Count > 0)
+                    {
+                        var previousState = _stateStack.Pop();
+                        SetState(previousState);
+                    }
+                    else
+                    {
+                        SetState(GuildDialogState.Initial);
+                    }
+                };
             };
 
             Title = _localizedStringFinder.GetString(EOResourceID.GUILD_GUILD_MASTER);
@@ -111,6 +114,7 @@ namespace EndlessClient.Dialogs
 
         private void SetState(GuildDialogState newState)
         {
+            Debug.WriteLine($"Setting state: {newState}");
             if (_state != newState && _stateStack.Any())
             {
                 ClearItemList();
@@ -128,68 +132,16 @@ namespace EndlessClient.Dialogs
                         ListItemType = ListDialogItem.ListItemStyle.Large;
                         Buttons = ScrollingListDialogButtons.Cancel;
 
-                        var informationItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
-                        {
-                            ShowIconBackGround = false,
-                            IconGraphic = _dialogIconService.IconSheet,
-                            IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.GuildInformation),
-                            PrimaryText = _localizedStringFinder.GetString(EOResourceID.GUILD_INFORMATION),
-                            SubText = _localizedStringFinder.GetString(EOResourceID.GUILD_LEARN_MORE),
-                            OffsetY = 48,
-                            OffsetX = -8,
-                        };
-                        informationItem.DrawArea = informationItem.DrawArea.WithSize(informationItem.DrawArea.Width + AdjustedDrawAreaOffset, informationItem.DrawArea.Height);
-                        informationItem.LeftClick += (_, _) => SetState(GuildDialogState.InformationMenu);
-                        informationItem.RightClick += (_, _) => SetState(GuildDialogState.InformationMenu);
-
+                        var informationItem = CreateListDialogItem(0, DialogIcon.GuildInformation, EOResourceID.GUILD_INFORMATION, EOResourceID.GUILD_LEARN_MORE, () => SetState(GuildDialogState.InformationMenu));
                         AddItemToList(informationItem, sortList: false);
 
-                        var administrationItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 1)
-                        {
-                            ShowIconBackGround = false,
-                            IconGraphic = _dialogIconService.IconSheet,
-                            IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.GuildAdministration),
-                            PrimaryText = _localizedStringFinder.GetString(EOResourceID.GUILD_ADMINISTRATION),
-                            SubText = _localizedStringFinder.GetString(EOResourceID.GUILD_JOIN_LEAVE_REGISTER),
-                            OffsetY = 48,
-                            OffsetX = -8,
-                        };
-                        administrationItem.DrawArea = administrationItem.DrawArea.WithSize(administrationItem.DrawArea.Width + AdjustedDrawAreaOffset, administrationItem.DrawArea.Height);
-                        administrationItem.LeftClick += (_, _) => SetState(GuildDialogState.Adminstration);
-                        administrationItem.RightClick += (_, _) => SetState(GuildDialogState.Adminstration);
-
+                        var administrationItem = CreateListDialogItem(1, DialogIcon.GuildAdministration, EOResourceID.GUILD_ADMINISTRATION, EOResourceID.GUILD_JOIN_LEAVE_REGISTER, () => SetState(GuildDialogState.Administration));
                         AddItemToList(administrationItem, sortList: false);
 
-                        var managementItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 2)
-                        {
-                            ShowIconBackGround = false,
-                            IconGraphic = _dialogIconService.IconSheet,
-                            IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.GuildManagement),
-                            PrimaryText = _localizedStringFinder.GetString(EOResourceID.GUILD_MANAGEMENT),
-                            SubText = _localizedStringFinder.GetString(EOResourceID.GUILD_MODIFY_RANKING_DISBAND),
-                            OffsetY = 48,
-                            OffsetX = -8,
-                        };
-                        managementItem.DrawArea = managementItem.DrawArea.WithSize(managementItem.DrawArea.Width + AdjustedDrawAreaOffset, managementItem.DrawArea.Height);
-                        //registrationItem.LeftClick += (_, _) => SetState(GuildDialogState.Registration);
-                        //registrationItem.RightClick += (_, _) => SetState(GuildDialogState.Registration);
-
+                        var managementItem = CreateListDialogItem(2, DialogIcon.GuildManagement, EOResourceID.GUILD_MANAGEMENT, EOResourceID.GUILD_MODIFY_RANKING_DISBAND);
                         AddItemToList(managementItem, sortList: false);
 
-                        var bankAccountItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 3)
-                        {
-                            ShowIconBackGround = false,
-                            IconGraphic = _dialogIconService.IconSheet,
-                            IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.GuildBankAccount),
-                            PrimaryText = _localizedStringFinder.GetString(EOResourceID.GUILD_BANK_ACCOUNT),
-                            SubText = _localizedStringFinder.GetString(EOResourceID.GUILD_DEPOSIT_TO_GUILD_ACCOUNT),
-                            OffsetY = 48,
-                            OffsetX = -8,
-                        };
-                        bankAccountItem.DrawArea = bankAccountItem.DrawArea.WithSize(bankAccountItem.DrawArea.Width + AdjustedDrawAreaOffset, bankAccountItem.DrawArea.Height);
-                        bankAccountItem.LeftClick += (_, _) => SetState(GuildDialogState.GuildBank);
-                        bankAccountItem.RightClick += (_, _) => SetState(GuildDialogState.GuildBank);
-
+                        var bankAccountItem = CreateListDialogItem(3, DialogIcon.GuildBankAccount, EOResourceID.GUILD_BANK_ACCOUNT, EOResourceID.GUILD_DEPOSIT_TO_GUILD_ACCOUNT, () => SetState(GuildDialogState.GuildBank));
                         AddItemToList(bankAccountItem, sortList: false);
                     }
                     break;
@@ -198,115 +150,113 @@ namespace EndlessClient.Dialogs
                     {
                         Buttons = ScrollingListDialogButtons.BackCancel;
 
-                        var guildLookUp = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
-                        {
-                            ShowIconBackGround = false,
-                            IconGraphic = _dialogIconService.IconSheet,
-                            IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.GuildLookup),
-                            PrimaryText = _localizedStringFinder.GetString(EOResourceID.GUILD_JOIN_GUILD),
-                            SubText = _localizedStringFinder.GetString(EOResourceID.GUILD_JOIN_AN_EXISTING_GUILD),
-                            OffsetY = 48,
-                            OffsetX = -8,
-                        };
-                        guildLookUp.DrawArea = guildLookUp.DrawArea.WithSize(guildLookUp.DrawArea.Width + AdjustedDrawAreaOffset, guildLookUp.DrawArea.Height);
-                        guildLookUp.LeftClick += (_, _) => ShowGuildDialog(DialogAction.GuildLookUp);
-                        guildLookUp.RightClick += (_, _) => ShowGuildDialog(DialogAction.GuildLookUp);
+                        var guildLookUp = CreateListDialogItem(0, DialogIcon.GuildLookup, EOResourceID.GUILD_JOIN_GUILD, EOResourceID.GUILD_JOIN_AN_EXISTING_GUILD, () => ShowGuildDialog(DialogAction.GuildLookUp));
                         AddItemToList(guildLookUp, sortList: false);
 
-                        var memberList = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 1)
-                        {
-                            ShowIconBackGround = false,
-                            IconGraphic = _dialogIconService.IconSheet,
-                            IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.GuildMemberlist),
-                            PrimaryText = _localizedStringFinder.GetString(EOResourceID.MEMBERLIST),
-                            SubText = _localizedStringFinder.GetString(EOResourceID.VIEW_GUILD_MEMBERS),
-                            OffsetY = 48,
-                            OffsetX = -8,
-                        };
-                        memberList.DrawArea = memberList.DrawArea.WithSize(memberList.DrawArea.Width + AdjustedDrawAreaOffset, memberList.DrawArea.Height);
-                        memberList.LeftClick += (_, _) => ShowGuildDialog(DialogAction.MemberList);
-                        memberList.RightClick += (_, _) => ShowGuildDialog(DialogAction.MemberList);
+                        var memberList = CreateListDialogItem(1, DialogIcon.GuildMemberlist, EOResourceID.MEMBERLIST, EOResourceID.VIEW_GUILD_MEMBERS, () => ShowGuildDialog(DialogAction.MemberList));
                         AddItemToList(memberList, sortList: false);
                     }
                     break;
 
-                case GuildDialogState.Adminstration:
+                case GuildDialogState.Administration:
                     {
                         Buttons = ScrollingListDialogButtons.BackCancel;
-                        var guildJoin = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
-                        {
-                            ShowIconBackGround = false,
-                            IconGraphic = _dialogIconService.IconSheet,
-                            IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.GuildJoin),
-                            PrimaryText = _localizedStringFinder.GetString(EOResourceID.GUILD_JOIN_GUILD),
-                            SubText = _localizedStringFinder.GetString(EOResourceID.GUILD_JOIN_AN_EXISTING_GUILD),
-                            OffsetY = 48,
-                            OffsetX = -8,
-                        };
-                        guildJoin.DrawArea = guildJoin.DrawArea.WithSize(guildJoin.DrawArea.Width + AdjustedDrawAreaOffset, guildJoin.DrawArea.Height);
-                        guildJoin.LeftClick += (_, _) => ShowGuildDialog(DialogAction.GuildLookUp);
-                        guildJoin.RightClick += (_, _) => ShowGuildDialog(DialogAction.GuildLookUp);
+
+                        var guildJoin = CreateListDialogItem(0, DialogIcon.GuildJoin, EOResourceID.GUILD_JOIN_GUILD, EOResourceID.GUILD_JOIN_AN_EXISTING_GUILD, () => ShowGuildDialog(DialogAction.GuildLookUp));
                         AddItemToList(guildJoin, sortList: false);
 
-                        var leaveGuild = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 1)
-                        {
-                            ShowIconBackGround = false,
-                            IconGraphic = _dialogIconService.IconSheet,
-                            IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.GuildLeave),
-                            PrimaryText = _localizedStringFinder.GetString(EOResourceID.GUILD_LEAVE_GUILD),
-                            SubText = _localizedStringFinder.GetString(EOResourceID.GUILD_LEAVE_YOUR_CURRENT_GUILD),
-                            OffsetY = 48,
-                            OffsetX = -8,
-                        };
-                        leaveGuild.DrawArea = leaveGuild.DrawArea.WithSize(leaveGuild.DrawArea.Width + AdjustedDrawAreaOffset, leaveGuild.DrawArea.Height);
-                        leaveGuild.LeftClick += (_, _) => LeaveGuildDialog();
-                        leaveGuild.RightClick += (_, _) => LeaveGuildDialog();
+                        var leaveGuild = CreateListDialogItem(1, DialogIcon.GuildLeave, EOResourceID.GUILD_LEAVE_GUILD, EOResourceID.GUILD_LEAVE_YOUR_CURRENT_GUILD, () => LeaveGuildDialog());
                         AddItemToList(leaveGuild, sortList: false);
 
-                        var registerGuild = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 2)
-                        {
-                            ShowIconBackGround = false,
-                            IconGraphic = _dialogIconService.IconSheet,
-                            IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.GuildRegister),
-                            PrimaryText = _localizedStringFinder.GetString(EOResourceID.GUILD_REGISTER_GUILD),
-                            SubText = _localizedStringFinder.GetString(EOResourceID.GUILD_CREATE_YOUR_OWN_GUILD),
-                            OffsetY = 48,
-                            OffsetX = -8,
-                        };
-                        registerGuild.DrawArea = registerGuild.DrawArea.WithSize(registerGuild.DrawArea.Width + AdjustedDrawAreaOffset, registerGuild.DrawArea.Height);
-                        //registerGuild.LeftClick += (_, _) => ShowGuildLookUpDialog();
-                        //registerGuild.RightClick += (_, _) => ShowGuildLookUpDialog();
+                        var registerGuild = CreateListDialogItem(2, DialogIcon.GuildRegister, EOResourceID.GUILD_REGISTER_GUILD, EOResourceID.GUILD_CREATE_YOUR_OWN_GUILD);
                         AddItemToList(registerGuild, sortList: false);
                     }
                     break;
 
                 case GuildDialogState.GuildBank:
-                {
-                    if (string.IsNullOrEmpty(_characterRepository.MainCharacter.GuildTag))
                     {
-                        var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_NOT_IN_GUILD);
-                        dlg.ShowDialog();
-                        SetState(GuildDialogState.Initial);
+                        if (string.IsNullOrEmpty(_characterRepository.MainCharacter.GuildTag))
+                        {
+                            var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_NOT_IN_GUILD);
+                            dlg.ShowDialog();
+                            SetState(GuildDialogState.Initial);
+                        }
                     }
-                }
                     break;
             }
         }
 
-        private void HandleDialogAction(string responseText)
+        private ListDialogItem CreateListDialogItem(int index, DialogIcon icon, EOResourceID primaryTextResourceID, EOResourceID subTextResourceID, Action leftClickAction = null)
         {
+            var item = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, index)
+            {
+                ShowIconBackGround = false,
+                IconGraphic = _dialogIconService.IconSheet,
+                IconGraphicSource = _dialogIconService.GetDialogIconSource(icon),
+                PrimaryText = _localizedStringFinder.GetString(primaryTextResourceID),
+                SubText = _localizedStringFinder.GetString(subTextResourceID),
+                OffsetY = 48,
+                OffsetX = -8,
+            };
+            item.DrawArea = item.DrawArea.WithSize(item.DrawArea.Width + AdjustedDrawAreaOffset, item.DrawArea.Height);
+
+            if (leftClickAction != null)
+            {
+                item.LeftClick += (_, _) => leftClickAction();
+                item.RightClick += (_, _) => leftClickAction();
+            }
+
+            return item;
+        }
+
+        private  void HandleDialogAction(string responseText)
+        {
+            Debug.WriteLine($"HandleDialogAction called with: {responseText}");
+
             switch (_currentDialogAction)
             {
                 case DialogAction.GuildLookUp:
-                    Debug.WriteLine("Call Guild look up");
+                    ClearItemList();
+                    ListItemType = ListDialogItem.ListItemStyle.Large;
+                    Buttons = ScrollingListDialogButtons.BackCancel;
                     break;
+
                 case DialogAction.MemberList:
-                    Debug.WriteLine("Call Memberlist");
+                    ListItemType = ListDialogItem.ListItemStyle.Small;
+                    Buttons = ScrollingListDialogButtons.BackCancel;
+
+                    Debug.WriteLine("Before ViewMembers call");
+                    _GuildActions.ViewMembers(responseText);
+                    ClearItemList();
+                    PopulateMemberList();
                     break;
             }
+        }
 
-            var dlg2 = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_YOU_HAVE_BEEN_ACCEPTED);
-            dlg2.ShowDialog();
+        private void PopulateMemberList ()
+        {
+            Debug.WriteLine("Populating member list...");
+          
+            if (_guildSessionProvider.Names == null || !_guildSessionProvider.Names.Any())
+            {
+                _GuildActions.ViewMembers("RED");
+                Debug.WriteLine("No members found to populate.");
+                return;
+            }
+
+            int index = 0;
+          
+            foreach (var memberName in _guildSessionProvider.Names)
+            {
+                Debug.WriteLine($"Adding member {index}: {memberName}");
+                var memberItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Small, 0)
+                {
+                    ShowIconBackGround = false,
+                    PrimaryText = $"{index} {memberName}",
+                };
+                AddItemToList(memberItem, sortList: false);
+                index++;
+            }
         }
 
         private void ShowGuildDialog(DialogAction action)
@@ -320,28 +270,29 @@ namespace EndlessClient.Dialogs
             {
                 if (e.Result == XNADialogResult.OK && dlg.ResponseText.Length > 0)
                 {
+                    Debug.WriteLine(dlg.ResponseText);
                     HandleDialogAction(dlg.ResponseText);
                 }
             };
             dlg.ShowDialog();
         }
 
-        // idk the sound effect number
         private void LeaveGuildDialog()
         {
-            ClearItemList(); 
+            ClearItemList();
             ListItemType = ListDialogItem.ListItemStyle.Small;
             Buttons = ScrollingListDialogButtons.BackCancel;
 
-            var actions = new List<Action> {
+            var actions = new List<Action>
+            {
                 () =>
                 {
                     var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_PROMPT_LEAVE_GUILD);
                     _GuildActions.LeaveGuild();
-                    _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithGuildTag(string.Empty);
                     dlg.ShowDialog();
                 }
             };
+
             AddTextAsListItems(
                 _contentProvider.Fonts[Constants.FontSize09],
                 true,

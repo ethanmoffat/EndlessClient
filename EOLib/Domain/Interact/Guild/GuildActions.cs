@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using AutomaticTypeMapper;
 using EOLib.Net.Communication;
 using Moffat.EndlessOnline.SDK.Data;
@@ -31,15 +32,15 @@ namespace EOLib.Domain.Interact.Guild
             });
         }
 
-        public void ViewMembers(string identity)
+        public void ViewMembers(string response)
         {
-            _packetSendService.SendPacket(new GuildTellClientPacket
+             _packetSendService.SendPacket(new GuildTellClientPacket
             {
                 SessionId = _guildSessionProvider.SessionID,
-                GuildIdentity = identity
+                GuildIdentity = response
             });
         }
- 
+
         public void LeaveGuild()
         {
             _packetSendService.SendPacket(new GuildRemoveClientPacket
@@ -52,7 +53,7 @@ namespace EOLib.Domain.Interact.Guild
     public interface IGuildActions
     {
         void Lookup(string identity);
-        void ViewMembers(string identity);
+        void ViewMembers(string response);
         void LeaveGuild();
     }
 }

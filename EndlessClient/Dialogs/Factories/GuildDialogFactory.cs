@@ -27,6 +27,8 @@ namespace EndlessClient.Dialogs.Factories
         private readonly ICharacterRepository _characterRepository;
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
         private readonly ISfxPlayer _sfxPlayer;
+        private readonly IGuildSessionProvider _guildSessionProvider;
+
 
         public GuildDialogFactory(INativeGraphicsManager nativeGraphicsManager,
                                 IEODialogButtonService dialogButtonService,
@@ -40,7 +42,8 @@ namespace EndlessClient.Dialogs.Factories
                                 IEOMessageBoxFactory messageBoxFactory,
                                 ICharacterRepository characterLvRepository,
                                 IEOMessageBoxFactory eoMessageBoxFactory,
-                                ISfxPlayer sfxPlayer)
+                                ISfxPlayer sfxPlayer,
+                                IGuildSessionProvider guildSessionProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _dialogButtonService = dialogButtonService;
@@ -55,6 +58,7 @@ namespace EndlessClient.Dialogs.Factories
             _characterRepository = characterLvRepository;
             _eoMessageBoxFactory = eoMessageBoxFactory;
             _sfxPlayer = sfxPlayer;
+            _guildSessionProvider = guildSessionProvider;
         }
 
         public GuildDialog Create()
@@ -71,7 +75,8 @@ namespace EndlessClient.Dialogs.Factories
                                  _messageBoxFactory,
                                  _characterRepository,
                                  _eoMessageBoxFactory,
-                                 _sfxPlayer);
+                                 _sfxPlayer,
+                                 _guildSessionProvider);
         }
     }
 

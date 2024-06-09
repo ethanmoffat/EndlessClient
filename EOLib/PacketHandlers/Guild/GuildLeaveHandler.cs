@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EOLib.Domain.Character;
 using EOLib.Domain.Interact;
 using EOLib.Domain.Interact.Guild;
 using EOLib.Domain.Login;
@@ -14,25 +15,21 @@ namespace EOLib.PacketHandlers.Guild
     [AutoMappedType]
     public class GuildLeaveHandler : InGameOnlyPacketHandler<GuildKickServerPacket>
     {
-        private readonly IEnumerable<INPCInteractionNotifier> _npcInteractionNotifiers;
-
+        private readonly ICharacterRepository _characterRepository;
         public override PacketFamily Family => PacketFamily.Guild;
 
         public override PacketAction Action => PacketAction.Kick;
 
         public GuildLeaveHandler(IPlayerInfoProvider playerInfoProvider,
-                                 IEnumerable<INPCInteractionNotifier> npcInteractionNotifiers)
+                                 ICharacterRepository characterRepository)
             : base(playerInfoProvider)
         {
-            _npcInteractionNotifiers = npcInteractionNotifiers;
+            _characterRepository = characterRepository;
         }
 
         public override bool HandlePacket(GuildKickServerPacket packet)
         {
-
-            foreach (var notifier in _npcInteractionNotifiers)
-                notifier.NotifyInteractionFromNPC(IO.NPCType.Guild);
-
+            _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithGuildTag(string.Empty);
             return true;
         }
     }

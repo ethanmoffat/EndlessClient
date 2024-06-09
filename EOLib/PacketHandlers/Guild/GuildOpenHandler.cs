@@ -8,6 +8,7 @@ using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace EOLib.PacketHandlers.Guild
 {
@@ -35,7 +36,7 @@ namespace EOLib.PacketHandlers.Guild
         public override bool HandlePacket(GuildOpenServerPacket packet)
         {
             _guildSessionRepository.SessionID = packet.SessionId;
-
+          
             foreach (var notifier in _npcInteractionNotifiers)
                 notifier.NotifyInteractionFromNPC(IO.NPCType.Guild);
 
