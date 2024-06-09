@@ -29,7 +29,7 @@ namespace EOLib.PacketHandlers.Guild
 
         public override bool HandlePacket(GuildKickServerPacket packet)
         {
-            _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithGuildTag(string.Empty);
+            //  _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithGuildTag(string.Empty); doesn't work here?
             return true;
         }
     }

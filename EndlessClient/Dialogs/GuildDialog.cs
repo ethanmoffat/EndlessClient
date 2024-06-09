@@ -264,6 +264,7 @@ namespace EndlessClient.Dialogs
                 {
                     var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_PROMPT_LEAVE_GUILD);
                     _guildActions.LeaveGuild();
+                     _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithGuildTag(string.Empty);
                     dlg.ShowDialog();
                 }
             };
