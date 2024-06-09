@@ -8,7 +8,7 @@ namespace EOLib.Domain.Interact.Guild
     {
         int SessionID { get; }
         int MemberCount { get; }
-        List<string> Names { get; }
+        Dictionary<string, (int Rank, string RankName)> Members { get; }
 
         event Action MemberListUpdated;
     }
@@ -17,7 +17,7 @@ namespace EOLib.Domain.Interact.Guild
     {
         int SessionID { get; set; }
         int MemberCount { get; set; }
-        List<string> Names { get; set; }
+        Dictionary<string, (int Rank, string RankName)> Members { get; set; }
 
         event Action MemberListUpdated;
         void OnMemberListUpdated();
@@ -28,7 +28,7 @@ namespace EOLib.Domain.Interact.Guild
     {
         public int SessionID { get; set; }
         public int MemberCount { get; set; }
-        public List<string> Names { get; set; }
+        public Dictionary<string, (int Rank, string RankName)> Members { get; set; }
 
         public event Action MemberListUpdated;
 
@@ -36,7 +36,7 @@ namespace EOLib.Domain.Interact.Guild
         {
             SessionID = 0;
             MemberCount = 0;
-            Names = new List<string>();
+            Members = new Dictionary<string, (int Rank, string RankName)>();
         }
 
         public void OnMemberListUpdated()

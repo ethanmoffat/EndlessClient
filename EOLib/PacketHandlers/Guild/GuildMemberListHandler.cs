@@ -3,7 +3,6 @@ using AutomaticTypeMapper;
 using EOLib.Domain.Interact.Guild;
 using EOLib.Net.Handlers;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System.Collections.Generic;
 using EOLib.Domain.Interact;
 using EOLib.Domain.Login;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
@@ -30,12 +29,11 @@ namespace EOLib.PacketHandlers.Guild
 
         public override bool HandlePacket(GuildTellServerPacket packet)
         {
-            
-            _guildSessionRepository.Names.Clear();
+            _guildSessionRepository.Members.Clear();
+
             foreach (var member in packet.Members)
             {
-                Debug.WriteLine($"{_guildSessionProvider.Names.Count} Called from Member List Handler");
-                _guildSessionRepository.Names.Add(member.Name);
+                _guildSessionRepository.Members[member.Name] = (member.Rank, member.RankName);
             }
 
             _guildSessionRepository.OnMemberListUpdated();

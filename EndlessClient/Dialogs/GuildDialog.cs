@@ -7,16 +7,13 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Interact.Guild;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
-using EOLib.IO;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
-using Optional.Collections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using XNAControls;
 using EndlessClient.Audio;
-using System.Threading.Tasks;
 
 namespace EndlessClient.Dialogs
 {
@@ -91,8 +88,6 @@ namespace EndlessClient.Dialogs
             _eoMessageBoxFactory = eoMessageBoxFactory;
             _sfxPlayer = sfxPlayer;
             _guildSessionProvider = guildSessionProvider;
-
-            _guildSessionProvider.MemberListUpdated += OnMemberListUpdated;
 
             SetState(GuildDialogState.Initial);
 
@@ -202,9 +197,7 @@ namespace EndlessClient.Dialogs
         }
 
         private void HandleDialogAction(string responseText)
-        {
-            Debug.WriteLine($"HandleDialogAction called with: {responseText}");
-
+        {          
             switch (_currentDialogAction)
             {
                 case DialogAction.GuildLookUp:
@@ -216,39 +209,31 @@ namespace EndlessClient.Dialogs
                 case DialogAction.MemberList:
                     ListItemType = ListDialogItem.ListItemStyle.Small;
                     Buttons = ScrollingListDialogButtons.BackCancel;
-
-                    Debug.WriteLine("Before ViewMembersAsync call");
                     _GuildActions.ViewMembers(responseText);
-                    // ClearItemList and PopulateMemberList will be called by the event handler
+                    _guildSessionProvider.MemberListUpdated += OnMemberListUpdated;
+                    //To prevent empty dialogs and old results, the event handler will call ClearItemList and PopulateMemberList.
                     break;
             }
         }
 
-
         private void PopulateMemberList()
         {
-            Debug.WriteLine("Populating member list...");
-
-            if (_guildSessionProvider.Names == null || !_guildSessionProvider.Names.Any())
+            foreach (var member in _guildSessionProvider.Members)
             {
-                Debug.WriteLine("No members found to populate.");
-                return;
-            }
+                var memberName = member.Key;
+                var rank = member.Value.Rank;
+                var rankName = member.Value.RankName;
 
-            int index = 0;
-
-            foreach (var memberName in _guildSessionProvider.Names)
-            {
-                Debug.WriteLine($"Adding member {index}: {memberName}");
                 var memberItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Small, 0)
                 {
                     ShowIconBackGround = false,
-                    PrimaryText = $"{index} {memberName}",
+                    PrimaryText = $"{rank} {memberName} {rankName}",
                 };
+
                 AddItemToList(memberItem, sortList: false);
-                index++;
             }
         }
+
 
         private void ShowGuildDialog(DialogAction action)
         {
@@ -293,10 +278,9 @@ namespace EndlessClient.Dialogs
                 _localizedStringFinder.GetString(EOResourceID.GUILD_AFTER_YOU_HAVE_LEFT),
                 _localizedStringFinder.GetString(EOResourceID.GUILD_CLICK_HERE_TO_LEAVE_YOUR_GUILD));
         }
-
+        // Otherwise Initial dialog will always be empty?
         private void OnMemberListUpdated()
         {
-            Debug.WriteLine("Member list updated event received.");
             ClearItemList();
             PopulateMemberList();
         }
