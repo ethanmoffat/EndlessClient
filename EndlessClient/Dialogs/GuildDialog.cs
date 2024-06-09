@@ -44,7 +44,7 @@ namespace EndlessClient.Dialogs
         private readonly IEODialogIconService _dialogIconService;
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly ITextInputDialogFactory _textInputDialogFactory;
-        private readonly IGuildActions _GuildActions;
+        private readonly IGuildActions _guildActions;
         private readonly IContentProvider _contentProvider;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly IENFFileProvider _enfFileProvider;
@@ -68,7 +68,7 @@ namespace EndlessClient.Dialogs
                          ICurrentMapStateProvider currentMapStateProvider,
                          IENFFileProvider enfFileProvider,
                          IEOMessageBoxFactory messageBoxFactory,
-                         ICharacterRepository characterLvRepository,
+                         ICharacterRepository characterRepository,
                          IEOMessageBoxFactory eoMessageBoxFactory,
                          ISfxPlayer sfxPlayer,
                          IGuildSessionProvider guildSessionProvider)
@@ -79,12 +79,12 @@ namespace EndlessClient.Dialogs
             _dialogIconService = dialogIconService;
             _localizedStringFinder = localizedStringFinder;
             _textInputDialogFactory = textInputDialogFactory;
-            _GuildActions = guildActions;
+            _guildActions = guildActions;
             _contentProvider = contentProvider;
             _currentMapStateProvider = currentMapStateProvider;
             _enfFileProvider = enfFileProvider;
             _messageBoxFactory = messageBoxFactory;
-            _characterRepository = characterLvRepository;
+            _characterRepository = characterRepository;
             _eoMessageBoxFactory = eoMessageBoxFactory;
             _sfxPlayer = sfxPlayer;
             _guildSessionProvider = guildSessionProvider;
@@ -208,7 +208,7 @@ namespace EndlessClient.Dialogs
                 case DialogAction.MemberList:
                     ListItemType = ListDialogItem.ListItemStyle.Small;
                     Buttons = ScrollingListDialogButtons.BackCancel;
-                    _GuildActions.ViewMembers(responseText);
+                    _guildActions.ViewMembers(responseText);
                     _guildSessionProvider.MemberListUpdated += OnMemberListUpdated;
                     //To prevent empty dialogs and old results, the event handler will call ClearItemList and PopulateMemberList.
                     break;
@@ -263,7 +263,7 @@ namespace EndlessClient.Dialogs
                 () =>
                 {
                     var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_PROMPT_LEAVE_GUILD);
-                    _GuildActions.LeaveGuild();
+                    _guildActions.LeaveGuild();
                     dlg.ShowDialog();
                 }
             };

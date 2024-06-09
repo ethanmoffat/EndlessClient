@@ -13,14 +13,14 @@ using System.Collections.Generic;
 namespace EOLib.PacketHandlers.Guild
 {
     [AutoMappedType]
-    public class GuildLeaveHandler : InGameOnlyPacketHandler<GuildKickServerPacket>
+    public class GuildKickHandler : InGameOnlyPacketHandler<GuildKickServerPacket>
     {
         private readonly ICharacterRepository _characterRepository;
         public override PacketFamily Family => PacketFamily.Guild;
 
         public override PacketAction Action => PacketAction.Kick;
 
-        public GuildLeaveHandler(IPlayerInfoProvider playerInfoProvider,
+        public GuildKickHandler(IPlayerInfoProvider playerInfoProvider,
                                  ICharacterRepository characterRepository)
             : base(playerInfoProvider)
         {
