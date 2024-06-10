@@ -1,6 +1,8 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.Content;
 using EndlessClient.Dialogs.Services;
+using EOLib.Domain.Character;
 using EOLib.Domain.Interact.Guild;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
@@ -21,6 +23,12 @@ namespace EndlessClient.Dialogs.Factories
         private readonly IContentProvider _contentProvider;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly IENFFileProvider _enfFileProvider;
+        private readonly IEOMessageBoxFactory _messageBoxFactory;
+        private readonly ICharacterRepository _characterRepository;
+        private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
+        private readonly ISfxPlayer _sfxPlayer;
+        private readonly IGuildSessionProvider _guildSessionProvider;
+
 
         public GuildDialogFactory(INativeGraphicsManager nativeGraphicsManager,
                                 IEODialogButtonService dialogButtonService,
@@ -30,7 +38,12 @@ namespace EndlessClient.Dialogs.Factories
                                 IGuildActions GuildActions,
                                 IContentProvider contentProvider,
                                 ICurrentMapStateProvider currentMapStateProvider,
-                                IENFFileProvider enfFileProvider)
+                                IENFFileProvider enfFileProvider,
+                                IEOMessageBoxFactory messageBoxFactory,
+                                ICharacterRepository characterLvRepository,
+                                IEOMessageBoxFactory eoMessageBoxFactory,
+                                ISfxPlayer sfxPlayer,
+                                IGuildSessionProvider guildSessionProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _dialogButtonService = dialogButtonService;
@@ -41,6 +54,11 @@ namespace EndlessClient.Dialogs.Factories
             _contentProvider = contentProvider;
             _currentMapStateProvider = currentMapStateProvider;
             _enfFileProvider = enfFileProvider;
+            _messageBoxFactory = messageBoxFactory;
+            _characterRepository = characterLvRepository;
+            _eoMessageBoxFactory = eoMessageBoxFactory;
+            _sfxPlayer = sfxPlayer;
+            _guildSessionProvider = guildSessionProvider;
         }
 
         public GuildDialog Create()
@@ -53,7 +71,12 @@ namespace EndlessClient.Dialogs.Factories
                                  _GuildActions,
                                  _contentProvider,
                                  _currentMapStateProvider,
-                                 _enfFileProvider);
+                                 _enfFileProvider,
+                                 _messageBoxFactory,
+                                 _characterRepository,
+                                 _eoMessageBoxFactory,
+                                 _sfxPlayer,
+                                 _guildSessionProvider);
         }
     }
 
