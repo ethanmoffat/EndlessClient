@@ -13,18 +13,15 @@ namespace EOLib.PacketHandlers.Guild
     public class GuildMemberListHandler : InGameOnlyPacketHandler<GuildTellServerPacket>
     {
         private readonly IGuildSessionRepository _guildSessionRepository;
-        private readonly IGuildSessionProvider _guildSessionProvider;
-
+       
         public override PacketFamily Family => PacketFamily.Guild;
         public override PacketAction Action => PacketAction.Tell;
 
         public GuildMemberListHandler(IPlayerInfoProvider playerInfoProvider,
-                                      IGuildSessionRepository guildSessionRepository,
-                                      IGuildSessionProvider guildSessionProvider)
+                                      IGuildSessionRepository guildSessionRepository)
             : base(playerInfoProvider)
         {
             _guildSessionRepository = guildSessionRepository;
-            _guildSessionProvider = guildSessionProvider;
         }
 
         public override bool HandlePacket(GuildTellServerPacket packet)
@@ -35,8 +32,6 @@ namespace EOLib.PacketHandlers.Guild
             {
                 _guildSessionRepository.Members[member.Name] = (member.Rank, member.RankName);
             }
-
-            _guildSessionRepository.OnMemberListUpdated();
 
             return true;
         }

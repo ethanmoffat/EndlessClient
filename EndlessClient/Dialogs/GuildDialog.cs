@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using XNAControls;
 using EndlessClient.Audio;
+using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Dialogs
 {
@@ -58,6 +59,12 @@ namespace EndlessClient.Dialogs
         private GuildDialogState _state;
         private DialogAction _currentDialogAction;
 
+        private int _previousMemberCount;
+        private Dictionary<string, (int Rank, string RankName)> _previousMembers;
+
+        private bool _forceUpdateMemberList;
+
+
         public GuildDialog(INativeGraphicsManager nativeGraphicsManager,
                          IEODialogButtonService dialogButtonService,
                          IEODialogIconService dialogIconService,
@@ -90,6 +97,9 @@ namespace EndlessClient.Dialogs
             _guildSessionProvider = guildSessionProvider;
 
             SetState(GuildDialogState.Initial);
+
+            _previousMembers = new Dictionary<string, (int Rank, string RankName)>(_guildSessionProvider.Members);
+
 
             BackAction += (_, _) =>
             {
@@ -195,8 +205,27 @@ namespace EndlessClient.Dialogs
             return item;
         }
 
+        protected override void OnUnconditionalUpdateControl(GameTime gameTime)
+        {
+            if (_state == GuildDialogState.InformationMenu && _currentDialogAction == DialogAction.MemberList)
+            {
+                if (HasGuildSessionChanged() || _forceUpdateMemberList)
+                {
+                    UpdateMemberList();
+                    _forceUpdateMemberList = false;
+                }
+            }
+
+            base.OnUnconditionalUpdateControl(gameTime);
+        }
+
+        private bool HasGuildSessionChanged()
+        {
+            return !_previousMembers.SequenceEqual(_guildSessionProvider.Members);
+        }
+
         private void HandleDialogAction(string responseText)
-        {          
+        {
             switch (_currentDialogAction)
             {
                 case DialogAction.GuildLookUp:
@@ -209,14 +238,17 @@ namespace EndlessClient.Dialogs
                     ListItemType = ListDialogItem.ListItemStyle.Small;
                     Buttons = ScrollingListDialogButtons.BackCancel;
                     _guildActions.ViewMembers(responseText);
-                    _guildSessionProvider.MemberListUpdated += OnMemberListUpdated;
-                    //To prevent empty dialogs and old results, the event handler will call ClearItemList and PopulateMemberList.
+                    _forceUpdateMemberList = true;
                     break;
             }
         }
 
-        private void PopulateMemberList()
+        private void UpdateMemberList()
         {
+            ClearItemList();
+
+            var currentMembers = new Dictionary<string, (int Rank, string RankName)>(_guildSessionProvider.Members);
+
             foreach (var member in _guildSessionProvider.Members)
             {
                 var memberName = member.Key;
@@ -231,9 +263,9 @@ namespace EndlessClient.Dialogs
 
                 AddItemToList(memberItem, sortList: false);
             }
+
+            _previousMembers = currentMembers;
         }
-
-
         private void ShowGuildDialog(DialogAction action)
         {
             _currentDialogAction = action;
@@ -243,12 +275,17 @@ namespace EndlessClient.Dialogs
 
             dlg.DialogClosing += (_, e) =>
             {
-                if (e.Result == XNADialogResult.OK && dlg.ResponseText.Length > 0)
+                if (e.Result == XNADialogResult.OK)
                 {
-                    Debug.WriteLine(dlg.ResponseText);
+                    if (string.IsNullOrWhiteSpace(dlg.ResponseText))
+                    {
+                        return;
+                    }
+
                     HandleDialogAction(dlg.ResponseText);
                 }
             };
+
             dlg.ShowDialog();
         }
 
@@ -264,7 +301,7 @@ namespace EndlessClient.Dialogs
                 {
                     var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_PROMPT_LEAVE_GUILD);
                     _guildActions.LeaveGuild();
-                     _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithGuildTag(string.Empty);
+                    _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithGuildTag(string.Empty);
                     dlg.ShowDialog();
                 }
             };
@@ -277,12 +314,6 @@ namespace EndlessClient.Dialogs
                 _localizedStringFinder.GetString(EOResourceID.GUILD_YOU_ARE_ABOUT_TO_LEAVE_THE_GUILD),
                 _localizedStringFinder.GetString(EOResourceID.GUILD_AFTER_YOU_HAVE_LEFT),
                 _localizedStringFinder.GetString(EOResourceID.GUILD_CLICK_HERE_TO_LEAVE_YOUR_GUILD));
-        }
-        // Otherwise Initial dialog will always be empty?
-        private void OnMemberListUpdated()
-        {
-            ClearItemList();
-            PopulateMemberList();
         }
     }
 }
