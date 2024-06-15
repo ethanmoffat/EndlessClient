@@ -415,6 +415,14 @@ namespace EndlessClient.Rendering.Character
                 || _currentMapProvider.CurrentMap.Tiles[renderProps.GetDestinationY(), renderProps.GetDestinationX()] == TileSpec.Jump;
         }
 
+        public void NotifyAdminHideEffect(int playerId)
+        {
+                if (playerId == _characterRepository.MainCharacter.ID)
+                    _characterRendererProvider.MainCharacterRenderer.MatchSome(cr => cr.PlayEffect((int)HardCodedEffect.AdminHide));
+                else if (_characterRendererProvider.CharacterRenderers.ContainsKey(playerId))
+                    _characterRendererProvider.CharacterRenderers[playerId].PlayEffect((int)HardCodedEffect.AdminHide);
+        }
+
         private ICharacterAnimator Animator => _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator);
     }
 
