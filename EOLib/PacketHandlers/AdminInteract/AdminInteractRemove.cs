@@ -55,7 +55,7 @@ namespace EOLib.PacketHandlers.AdminInteract
             }
 
             foreach (var notifier in _effectNotifiers)
-                notifier.NotifyPotionEffect(packet.PlayerId, 24);
+                notifier.NotifyAdminHideEffect(packet.PlayerId);
 
             return true;
         }
