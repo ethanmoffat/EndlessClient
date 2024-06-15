@@ -131,7 +131,7 @@ namespace EndlessClient.Controllers
                     _characterAnimationActions.StartWalking(Option.None<MapCoordinate>(), true);
                     break;
                 case WalkValidationResult.Walkable:
-                    _characterAnimationActions.StartWalking(Option.None<MapCoordinate>(), false);
+                    _characterAnimationActions.StartWalking(Option.None<MapCoordinate>());
                     break;
             }
         }

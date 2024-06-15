@@ -73,7 +73,7 @@ namespace EndlessClient.Rendering.Character
             Animator.MainCharacterFace(direction);
         }
 
-        public void StartWalking(Option<MapCoordinate> targetCoordinate, bool ghosted)
+        public void StartWalking(Option<MapCoordinate> targetCoordinate, bool ghosted = false)
         {
             if (!_hudControlProvider.IsInGame)
                 return;
@@ -422,7 +422,7 @@ namespace EndlessClient.Rendering.Character
     {
         void Face(EODirection direction);
 
-        void StartWalking(Option<MapCoordinate> targetCoordinate, bool ghosted);
+        void StartWalking(Option<MapCoordinate> targetCoordinate, bool ghosted = false);
 
         void CancelClickToWalk();
 

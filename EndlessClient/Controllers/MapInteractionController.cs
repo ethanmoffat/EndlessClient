@@ -179,7 +179,7 @@ namespace EndlessClient.Controllers
                 && !_characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Attacking)
                 && !_spellSlotDataRepository.SelectedSpellSlot.HasValue)
             {
-                _characterAnimationActions.StartWalking(Option.Some(cellState.Coordinate), false);
+                _characterAnimationActions.StartWalking(Option.Some(cellState.Coordinate));
                 _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer)
                     .AnimateMouseClick();
             }
