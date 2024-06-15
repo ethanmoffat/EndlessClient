@@ -19,6 +19,7 @@
         DeleteCharacter,
         MapMutation = DeleteCharacter,
         Banned,
+        Reboot = Banned,
         ScreenCapture = 8,
         PrivateMessageReceived,
         PunchAttack,
