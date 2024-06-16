@@ -10,6 +10,7 @@
         Sparkles = 6,
         Evil = 7,
         Terror = 8,
-        WaterSplashies = 9
+        WaterSplashies = 9,
+        AdminHide = 25,
     }
 }
