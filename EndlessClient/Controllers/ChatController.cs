@@ -60,6 +60,12 @@ namespace EndlessClient.Controllers
                 }
 
                 var chatType = _chatTypeCalculator.CalculateChatType(localTypedText);
+
+                if (chatType == ChatType.Admin)
+                {
+                    _sfxPlayer.PlaySfx(SoundEffectID.AdminChatSent);
+                }
+
                 var (result, updatedChat) = _chatActions.SendChatToServer(localTypedText, targetCharacter, chatType);
                 switch (result)
                 {

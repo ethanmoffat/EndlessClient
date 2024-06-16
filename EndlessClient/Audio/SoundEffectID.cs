@@ -43,6 +43,7 @@
         Craft,
         UnknownBuzzSound = 28,
         AdminChatReceived,
+        AdminChatSent = AdminChatReceived,
         AlternateMeleeAttack,
         PotionOfFlamesEffect,
         AdminWarp = 32,
