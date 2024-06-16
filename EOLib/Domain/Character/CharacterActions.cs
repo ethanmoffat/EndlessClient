@@ -38,7 +38,7 @@ namespace EOLib.Domain.Character
             _packetSendService.SendPacket(packet);
         }
 
-        public void Walk()
+        public void Walk(bool ghosted)
         {
             var admin = _characterRepository.MainCharacter.NoWall &&
                         _characterRepository.MainCharacter.AdminLevel != AdminLevel.Player;
@@ -56,6 +56,7 @@ namespace EOLib.Domain.Character
 
             var packet = admin
                 ? (IPacket)new WalkAdminClientPacket { WalkAction = walkAction }
+                : ghosted ? (IPacket)new WalkSpecClientPacket { WalkAction = walkAction }
                 : (IPacket)new WalkPlayerClientPacket { WalkAction = walkAction };
             _packetSendService.SendPacket(packet);
         }
@@ -169,7 +170,7 @@ namespace EOLib.Domain.Character
     {
         void Face(EODirection direction);
 
-        void Walk();
+        void Walk(bool ghosted);
 
         void Attack();
 
