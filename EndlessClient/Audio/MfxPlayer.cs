@@ -4,8 +4,10 @@ using EOLib;
 using EOLib.Config;
 using EOLib.IO.Map;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace EndlessClient.Audio
 {
@@ -117,15 +119,30 @@ namespace EndlessClient.Audio
 
         public void StopBackgroundMusic()
         {
-            _activePlayer?.Stop();
-            _activePlayer?.Dispose();
+            if (_activePlayer == null)
+                return;
+
+            _activePlayer.Stop();
+
+#if LINUX
+            var sw = Stopwatch.StartNew();
+            while (_activePlayer.State != PlayerState.Stopped && sw.ElapsedMilliseconds <= 500)
+                Thread.Sleep(50);
+#endif
+
+            _activePlayer.Dispose();
             _activePlayer = null;
         }
 
         public void Dispose()
         {
             StopBackgroundMusic();
-            _output?.Dispose();
+
+            try
+            {
+                _output?.Dispose();
+            }
+            catch (AlsaSharp.AlsaException) { }
         }
     }
 
