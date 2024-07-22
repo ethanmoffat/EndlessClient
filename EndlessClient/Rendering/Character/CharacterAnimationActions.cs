@@ -335,6 +335,13 @@ namespace EndlessClient.Rendering.Character
                     .RenderEffect(location, effectId);
             }
         }
+        public void NotifyAdminHideEffect(int playerId)
+        {
+            if (playerId == _characterRepository.MainCharacter.ID)
+                _characterRendererProvider.MainCharacterRenderer.MatchSome(cr => cr.PlayEffect((int)HardCodedEffect.AdminHide));
+            else if (_characterRendererProvider.CharacterRenderers.ContainsKey(playerId))
+                _characterRendererProvider.CharacterRenderers[playerId].PlayEffect((int)HardCodedEffect.AdminHide);
+        }
 
         private void ShowWaterSplashiesIfNeeded(CharacterActionState action, int characterID)
         {
