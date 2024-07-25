@@ -259,11 +259,11 @@ namespace EndlessClient.Dialogs
 
                         var changeItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Small, 0)
                         {
-                            PrimaryText = _localizedStringFinder.GetString(EOResourceID.GUILD_CLICK_HERE_TO_CHANGE_THE_DESCRIPTION),
+                            PrimaryText = _localizedStringFinder.GetString(EOResourceID.GUILD_CLICK_HERE_TO_CHANGE_THE_DESCRIPTION)[1..],
                             UnderlineLinks = true,
                         };
 
-                        changeItem.LeftClick += (_, _) => ShowChangeDescriptionMessageBox();
+                        changeItem.SetPrimaryClickAction((_, _) => ShowChangeDescriptionMessageBox());
                         changeItem.RightClick += (_, _) => ShowChangeDescriptionMessageBox();
 
                         AddItemToList(changeItem, sortList: false);
