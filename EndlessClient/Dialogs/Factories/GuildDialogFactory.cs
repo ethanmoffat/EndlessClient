@@ -15,13 +15,15 @@ namespace EndlessClient.Dialogs.Factories
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly ICharacterProvider _characterProvider;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
+        private readonly IGuildSessionProvider _guildSessionProvider;
 
         public GuildDialogFactory(INativeGraphicsManager nativeGraphicsManager,
                                 IEODialogButtonService dialogButtonService,
                                 IEODialogIconService dialogIconService,
                                 ILocalizedStringFinder localizedStringFinder,
                                 ICharacterProvider characterProvider,
-                                IEOMessageBoxFactory messageBoxFactory)
+                                IEOMessageBoxFactory messageBoxFactory,
+                                IGuildSessionProvider guildSessionProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _dialogButtonService = dialogButtonService;
@@ -29,6 +31,7 @@ namespace EndlessClient.Dialogs.Factories
             _localizedStringFinder = localizedStringFinder;
             _characterProvider = characterProvider;
             _messageBoxFactory = messageBoxFactory;
+            _guildSessionProvider = guildSessionProvider;
         }
 
         public GuildDialog Create()
@@ -38,7 +41,8 @@ namespace EndlessClient.Dialogs.Factories
                                  _dialogIconService,
                                  _localizedStringFinder,
                                  _characterProvider,
-                                 _messageBoxFactory
+                                 _messageBoxFactory,
+                                 _guildSessionProvider
                                  );
         }
     }
