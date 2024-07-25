@@ -154,7 +154,9 @@ namespace EndlessClient.Dialogs
                 case GuildDialogState.Management:
                     {
                         ListItemType = ListDialogItem.ListItemStyle.Large;
-                        Buttons = ScrollingListDialogButtons.Cancel;
+                        Buttons = ScrollingListDialogButtons.BackCancel;
+
+                        BackAction += (_, _) => SetState(GuildDialogState.Initial);
 
                         var modifyGuildItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
                         {
