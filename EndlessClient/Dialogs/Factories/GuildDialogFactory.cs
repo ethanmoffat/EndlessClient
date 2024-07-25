@@ -1,6 +1,7 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Content;
 using EndlessClient.Dialogs.Services;
+using EOLib.Domain.Character;
 using EOLib.Domain.Interact.Guild;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
@@ -21,6 +22,8 @@ namespace EndlessClient.Dialogs.Factories
         private readonly IContentProvider _contentProvider;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly IENFFileProvider _enfFileProvider;
+        private readonly ICharacterProvider _characterProvider;
+        private readonly IEOMessageBoxFactory _messageBoxFactory;
 
         public GuildDialogFactory(INativeGraphicsManager nativeGraphicsManager,
                                 IEODialogButtonService dialogButtonService,
@@ -30,7 +33,9 @@ namespace EndlessClient.Dialogs.Factories
                                 IGuildActions GuildActions,
                                 IContentProvider contentProvider,
                                 ICurrentMapStateProvider currentMapStateProvider,
-                                IENFFileProvider enfFileProvider)
+                                IENFFileProvider enfFileProvider,
+                                ICharacterProvider characterProvider,
+                                IEOMessageBoxFactory messageBoxFactory)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _dialogButtonService = dialogButtonService;
@@ -41,6 +46,8 @@ namespace EndlessClient.Dialogs.Factories
             _contentProvider = contentProvider;
             _currentMapStateProvider = currentMapStateProvider;
             _enfFileProvider = enfFileProvider;
+            _characterProvider = characterProvider;
+            _messageBoxFactory = messageBoxFactory;
         }
 
         public GuildDialog Create()
@@ -53,7 +60,10 @@ namespace EndlessClient.Dialogs.Factories
                                  _GuildActions,
                                  _contentProvider,
                                  _currentMapStateProvider,
-                                 _enfFileProvider);
+                                 _enfFileProvider,
+                                 _characterProvider,
+                                 _messageBoxFactory
+                                 );
         }
     }
 
