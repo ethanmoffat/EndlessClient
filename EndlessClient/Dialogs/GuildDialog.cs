@@ -66,6 +66,9 @@ namespace EndlessClient.Dialogs
                     case GuildDialogState.Management:
                         SetState(GuildDialogState.Initial);
                         break;
+                    case GuildDialogState.Modify:
+                        SetState(GuildDialogState.Management);
+                        break;
                     default:
                         // no-op
                         break;
@@ -88,9 +91,6 @@ namespace EndlessClient.Dialogs
 
         private void SetState(GuildDialogState state)
         {
-            //if (state != GuildDialogState.Initial && _state == state)
-            //    return;
-
             _state = state;
 
             ClearItemList();
@@ -248,8 +248,6 @@ namespace EndlessClient.Dialogs
                     {
                         ListItemType = ListDialogItem.ListItemStyle.Large;
                         Buttons = ScrollingListDialogButtons.BackCancel;
-
-                        BackAction += (_, _) => SetState(GuildDialogState.Management);
 
                         AddItemToList(new ListDialogItem(this, ListDialogItem.ListItemStyle.Small, 0)
                         {
