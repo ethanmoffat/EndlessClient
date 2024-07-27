@@ -5,12 +5,12 @@ namespace EOLib.Domain.Notifiers
 {
     public interface IGuildNotifier
     {
-        void NotifyGuildCreationRequest(GuildCreationRequest request);
+        void NotifyGuildCreationRequest(int creatorPlayerID, string guildIdentity);
     }
 
     [AutoMappedType]
     public class NoOpGuildNotifier : IGuildNotifier
     {
-        public void NotifyGuildCreationRequest(GuildCreationRequest request) { }
+        public void NotifyGuildCreationRequest(int creatorPlayerID, string guildIdentity) { }
     }
 }

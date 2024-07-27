@@ -1,5 +1,4 @@
 ﻿using AutomaticTypeMapper;
-using EOLib.Domain.Interact.Guild;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
 using EOLib.Net.Handlers;
@@ -30,7 +29,7 @@ namespace EOLib.PacketHandlers.Guild
         {
             foreach(var notifier in _guildNotifiers)
             {
-                notifier.NotifyGuildCreationRequest(new GuildCreationRequest(packet.PlayerId, packet.GuildIdentity));
+                notifier.NotifyGuildCreationRequest(packet.PlayerId, packet.GuildIdentity);
             }
 
             return true;
