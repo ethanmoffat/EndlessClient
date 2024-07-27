@@ -57,21 +57,22 @@ namespace EndlessClient.Subscribers
             _sfxPlayer.PlaySfx(SoundEffectID.ServerMessage);
 
             var dlg = _messageBoxFactory.CreateMessageBox(
-                $"{name}" + " " +
-                _localizedStringFinder.GetString(DialogResourceID.GUILD_REQUESTED_TO_JOIN) + " " +
-                _localizedStringFinder.GetString(EOResourceID.GUILD_YOUR_ACCOUNT_WILL_BE_CHARGED) + " " +
-                _localizedStringFinder.GetString(EOResourceID.GUILD_PLEASE_CONSIDER_CAREFULLY_RECRUIT) + " " +
-                _localizedStringFinder.GetString(EOResourceID.GUILD_DO_YOU_ACCEPT)
-                , caption: _localizedStringFinder.GetString(DialogResourceID.GUILD_PLAYER_WANTS_TO_JOIN), whichButtons: Dialogs.EODialogButtons.OkCancel,
+                $"{name}" +
+                " " + _localizedStringFinder.GetString(DialogResourceID.GUILD_REQUESTED_TO_JOIN) +
+                " " + _localizedStringFinder.GetString(EOResourceID.GUILD_YOUR_ACCOUNT_WILL_BE_CHARGED) +
+                " " + _localizedStringFinder.GetString(EOResourceID.GUILD_PLEASE_CONSIDER_CAREFULLY_RECRUIT) +
+                " " + _localizedStringFinder.GetString(EOResourceID.GUILD_DO_YOU_ACCEPT),
+                caption: _localizedStringFinder.GetString(DialogResourceID.GUILD_PLAYER_WANTS_TO_JOIN), whichButtons: Dialogs.EODialogButtons.OkCancel,
                 style: Dialogs.EOMessageBoxStyle.LargeDialogSmallHeader);
 
             dlg.DialogClosing += (_, e) =>
             {
                 if (e.Result == XNAControls.XNADialogResult.OK)
                 {
-                    var packet = new GuildUseClientPacket();
-                    packet.PlayerId = playerId;
-                    _packetSendService.SendPacket(packet);
+                    _packetSendService.SendPacket(new GuildUseClientPacket()
+                    {
+                        PlayerId = playerId,
+                    });
                 }
             };
 
