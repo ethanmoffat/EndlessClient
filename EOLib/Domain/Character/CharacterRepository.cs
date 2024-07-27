@@ -14,8 +14,6 @@ namespace EOLib.Domain.Character
         bool HasAvatar { get; }
 
         Character MainCharacter { get; }
-
-        bool InGuild { get; }
     }
 
     [AutoMappedType(IsSingleton = true)]
@@ -24,13 +22,5 @@ namespace EOLib.Domain.Character
         public bool HasAvatar { get; set; } = true;
 
         public Character MainCharacter { get; set; }
-
-        public bool InGuild
-        {
-            get
-            {
-                return MainCharacter.GuildTag != "   ";
-            }
-        }
     }
 }
