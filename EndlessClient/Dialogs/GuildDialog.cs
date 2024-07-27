@@ -1,18 +1,12 @@
 ﻿using EndlessClient.Content;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.Dialogs.Services;
-using EOLib;
+using EOLib.Domain.Character;
 using EOLib.Domain.Interact.Guild;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
-using EOLib.IO;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
-using Optional.Collections;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using XNAControls;
 
 namespace EndlessClient.Dialogs
 {
@@ -22,15 +16,19 @@ namespace EndlessClient.Dialogs
         {
             // initial menu
             Initial,
+            Management,
+            Modify,
+            ManageRankings,
+            AssignRank,
+            RemoveMember,
+            Disband,
+
         }
 
         private readonly IEODialogIconService _dialogIconService;
         private readonly ILocalizedStringFinder _localizedStringFinder;
-        private readonly ITextInputDialogFactory _textInputDialogFactory;
-        private readonly IGuildActions _GuildActions;
-        private readonly IContentProvider _contentProvider;
-        private readonly ICurrentMapStateProvider _currentMapStateProvider;
-        private readonly IENFFileProvider _enfFileProvider;
+        private readonly ICharacterProvider _characterProvider;
+        private readonly IEOMessageBoxFactory _messageBoxFactory;
 
         private GuildDialogState _state;
 
@@ -38,26 +36,28 @@ namespace EndlessClient.Dialogs
                          IEODialogButtonService dialogButtonService,
                          IEODialogIconService dialogIconService,
                          ILocalizedStringFinder localizedStringFinder,
-                         ITextInputDialogFactory textInputDialogFactory,
-                         IGuildActions GuildActions,
-                         IContentProvider contentProvider,
-                         ICurrentMapStateProvider currentMapStateProvider,
-                         IENFFileProvider enfFileProvider)
+                         ICharacterProvider characterProvider,
+                         IEOMessageBoxFactory messageBoxFactory)
             : base(nativeGraphicsManager, dialogButtonService, DialogType.Guild)
         {
             _dialogIconService = dialogIconService;
             _localizedStringFinder = localizedStringFinder;
-            _textInputDialogFactory = textInputDialogFactory;
-            _GuildActions = GuildActions;
-            _contentProvider = contentProvider;
-            _currentMapStateProvider = currentMapStateProvider;
-            _enfFileProvider = enfFileProvider;
+            _characterProvider = characterProvider;
+            _messageBoxFactory = messageBoxFactory;
 
             SetState(GuildDialogState.Initial);
 
             BackAction += (_, _) =>
             {
-                
+                switch (_state)
+                {
+                    case GuildDialogState.Management:
+                        SetState(GuildDialogState.Initial);
+                        break;
+                    default:
+                        // no-op
+                        break;
+                }
             };
 
             Title = _localizedStringFinder.GetString(EOResourceID.GUILD_GUILD_MASTER);
@@ -116,8 +116,8 @@ namespace EndlessClient.Dialogs
                             SubText = _localizedStringFinder.GetString(EOResourceID.GUILD_MODIFY_RANKING_DISBAND),
                             OffsetY = 45,
                         };
-                        //registrationItem.LeftClick += (_, _) => SetState(GuildDialogState.Registration);
-                        //registrationItem.RightClick += (_, _) => SetState(GuildDialogState.Registration);
+                        managementItem.LeftClick += (_, _) => SetState(GuildDialogState.Management);
+                        managementItem.RightClick += (_, _) => SetState(GuildDialogState.Management);
 
                         AddItemToList(managementItem, sortList: false);
 
@@ -136,7 +136,98 @@ namespace EndlessClient.Dialogs
                         AddItemToList(bankAccountItem, sortList: false);
                     }
                     break;
+
+                case GuildDialogState.Management:
+                    {
+                        ListItemType = ListDialogItem.ListItemStyle.Large;
+                        Buttons = ScrollingListDialogButtons.BackCancel;
+
+                        var modifyGuildItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
+                        {
+                            ShowIconBackGround = false,
+                            IconGraphic = _dialogIconService.IconSheet,
+                            IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.GuildModify),
+                            PrimaryText = _localizedStringFinder.GetString(EOResourceID.GUILD_MODIFY_GUILD),
+                            SubText = _localizedStringFinder.GetString(EOResourceID.GUILD_CHANGE_YOUR_GUILD_DETAILS),
+                            OffsetY = 45,
+                        };
+                        modifyGuildItem.LeftClick += (_, _) => SetStateIfGuildMember(GuildDialogState.Modify);
+                        modifyGuildItem.RightClick += (_, _) => SetStateIfGuildMember(GuildDialogState.Modify);
+
+                        AddItemToList(modifyGuildItem, sortList: false);
+
+                        var manageRankingItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
+                        {
+                            ShowIconBackGround = false,
+                            IconGraphic = _dialogIconService.IconSheet,
+                            IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.GuildRanking),
+                            PrimaryText = _localizedStringFinder.GetString(EOResourceID.GUILD_RANKING),
+                            SubText = _localizedStringFinder.GetString(EOResourceID.GUILD_MANAGE_MEMBER_RANKINGS),
+                            OffsetY = 45,
+                        };
+                        manageRankingItem.LeftClick += (_, _) => SetStateIfGuildMember(GuildDialogState.ManageRankings);
+                        manageRankingItem.RightClick += (_, _) => SetStateIfGuildMember(GuildDialogState.ManageRankings);
+
+                        AddItemToList(manageRankingItem, sortList: false);
+
+                        var assignRankItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
+                        {
+                            ShowIconBackGround = false,
+                            IconGraphic = _dialogIconService.IconSheet,
+                            IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.GuildRanking),
+                            PrimaryText = _localizedStringFinder.GetString(EOResourceID.GUILD_RANKING),
+                            SubText = _localizedStringFinder.GetString(EOResourceID.GUILD_ASSIGN_RANK_TO_MEMBER),
+                            OffsetY = 45,
+                        };
+                        assignRankItem.LeftClick += (_, _) => SetStateIfGuildMember(GuildDialogState.AssignRank);
+                        assignRankItem.RightClick += (_, _) => SetStateIfGuildMember(GuildDialogState.AssignRank);
+
+                        AddItemToList(assignRankItem, sortList: false);
+
+                        var removeMemberItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
+                        {
+                            ShowIconBackGround = false,
+                            IconGraphic = _dialogIconService.IconSheet,
+                            IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.GuildRemoveMember),
+                            PrimaryText = _localizedStringFinder.GetString(EOResourceID.GUILD_REMOVE_MEMBER),
+                            SubText = _localizedStringFinder.GetString(EOResourceID.GUILD_REMOVE_A_MEMBER_FROM_GUILD),
+                            OffsetY = 45,
+                        };
+                        removeMemberItem.LeftClick += (_, _) => SetStateIfGuildMember(GuildDialogState.RemoveMember);
+                        removeMemberItem.RightClick += (_, _) => SetStateIfGuildMember(GuildDialogState.RemoveMember);
+
+                        AddItemToList(removeMemberItem, sortList: false);
+
+                        var disbandItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
+                        {
+                            ShowIconBackGround = false,
+                            IconGraphic = _dialogIconService.IconSheet,
+                            IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.GuildDisband),
+                            PrimaryText = _localizedStringFinder.GetString(EOResourceID.GUILD_DISBAND),
+                            SubText = _localizedStringFinder.GetString(EOResourceID.GUILD_DISBAND_YOUR_GUILD),
+                            OffsetY = 45,
+                        };
+                        disbandItem.LeftClick += (_, _) => SetStateIfGuildMember(GuildDialogState.Disband);
+                        disbandItem.RightClick += (_, _) => SetStateIfGuildMember(GuildDialogState.Disband);
+
+                        AddItemToList(disbandItem, sortList: false);
+                    }
+                    break;
+
             }
+
+        }
+
+        private void SetStateIfGuildMember(GuildDialogState state)
+        {
+            if (!_characterProvider.MainCharacter.InGuild)
+            {
+                var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_NOT_IN_GUILD);
+                dlg.ShowDialog();
+                return;
+            }
+
+            SetState(state);
         }
     }
 }

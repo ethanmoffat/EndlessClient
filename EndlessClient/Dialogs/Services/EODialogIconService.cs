@@ -30,6 +30,10 @@ namespace EndlessClient.Dialogs.Services
         GuildRegister = 15,
         GuildLookup = GuildRegister,
         GuildMemberlist = GuildRegister,
+        GuildModify = 16,
+        GuildRanking = 17,
+        GuildRemoveMember = 18,
+        GuildDisband = 19,
 
         Learn = 20,
         Forget = 21,
