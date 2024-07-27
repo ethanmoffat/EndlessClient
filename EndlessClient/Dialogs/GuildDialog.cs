@@ -220,7 +220,7 @@ namespace EndlessClient.Dialogs
 
         private void SetStateIfGuildMember(GuildDialogState state)
         {
-            if (!_characterProvider.InGuild)
+            if (!_characterProvider.MainCharacter.InGuild)
             {
                 var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_NOT_IN_GUILD);
                 dlg.ShowDialog();
