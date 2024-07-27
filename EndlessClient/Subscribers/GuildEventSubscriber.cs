@@ -60,7 +60,7 @@ namespace EndlessClient.Subscribers
                 $"{name}" + " " +
                 _localizedStringFinder.GetString(DialogResourceID.GUILD_REQUESTED_TO_JOIN) + " " +
                 _localizedStringFinder.GetString(EOResourceID.GUILD_YOUR_ACCOUNT_WILL_BE_CHARGED) + " " +
-                _localizedStringFinder.GetString(EOResourceID.GUILD_PLEASE_CONSIDER_CAREFULLY) + " " +
+                _localizedStringFinder.GetString(EOResourceID.GUILD_PLEASE_CONSIDER_CAREFULLY_RECRUIT) + " " +
                 _localizedStringFinder.GetString(EOResourceID.GUILD_DO_YOU_ACCEPT)
                 , caption: _localizedStringFinder.GetString(DialogResourceID.GUILD_PLAYER_WANTS_TO_JOIN), whichButtons: Dialogs.EODialogButtons.OkCancel,
                 style: Dialogs.EOMessageBoxStyle.LargeDialogSmallHeader);
