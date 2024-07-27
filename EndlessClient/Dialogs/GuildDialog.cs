@@ -1,12 +1,11 @@
-﻿using EndlessClient.Content;
-using EndlessClient.Dialogs.Factories;
+﻿using EndlessClient.Dialogs.Factories;
 using EndlessClient.Dialogs.Services;
 using EOLib.Domain.Character;
 using EOLib.Domain.Interact.Guild;
-using EOLib.Domain.Map;
 using EOLib.Graphics;
-using EOLib.IO.Repositories;
 using EOLib.Localization;
+using Microsoft.Xna.Framework;
+using XNAControls;
 
 namespace EndlessClient.Dialogs
 {
@@ -30,6 +29,8 @@ namespace EndlessClient.Dialogs
         private readonly ICharacterProvider _characterProvider;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly IGuildSessionProvider _guildSessionProvider;
+        private readonly IGuildActions _guildActions;
+        private readonly ITextInputDialogFactory _textInputDialogFactory;
 
         private string _guildDescription { get; set; }
 
@@ -41,7 +42,9 @@ namespace EndlessClient.Dialogs
                          ILocalizedStringFinder localizedStringFinder,
                          ICharacterProvider characterProvider,
                          IEOMessageBoxFactory messageBoxFactory,
-                         IGuildSessionProvider guildSessionProvider)
+                         IGuildSessionProvider guildSessionProvider,
+                         IGuildActions guildActions,
+                         ITextInputDialogFactory textInputDialogFactory)
             : base(nativeGraphicsManager, dialogButtonService, DialogType.Guild)
         {
             _dialogIconService = dialogIconService;
@@ -50,6 +53,9 @@ namespace EndlessClient.Dialogs
             _messageBoxFactory = messageBoxFactory;
             _guildSessionProvider = guildSessionProvider;
             _guildDescription = guildSessionProvider.GuildDescription;
+            _guildActions = guildActions;
+            _textInputDialogFactory = textInputDialogFactory;
+
 
             SetState(GuildDialogState.Initial);
 
@@ -170,13 +176,13 @@ namespace EndlessClient.Dialogs
                         };
                         modifyGuildItem.LeftClick += (_, _) =>
                         {
-                            _GuildActions.GetGuildDescription(_characterProvider.MainCharacter.GuildTag);
-                            CheckAndChangeState(GuildDialogState.Modify);
+                            _guildActions.GetGuildDescription(_characterProvider.MainCharacter.GuildTag);
+                            SetStateIfGuildMember(GuildDialogState.Modify);
                         };
                         modifyGuildItem.RightClick += (_, _) =>
                         {
-                            _GuildActions.GetGuildDescription(_characterProvider.MainCharacter.GuildTag);
-                            CheckAndChangeState(GuildDialogState.Modify);
+                            _guildActions.GetGuildDescription(_characterProvider.MainCharacter.GuildTag);
+                            SetStateIfGuildMember(GuildDialogState.Modify);
                         };
 
                         AddItemToList(modifyGuildItem, sortList: false);
@@ -292,7 +298,7 @@ namespace EndlessClient.Dialogs
             {
                 if (e.Result == XNADialogResult.OK)
                 {
-                    _GuildActions.SetGuildDescription(dlg.ResponseText);
+                    _guildActions.SetGuildDescription(dlg.ResponseText);
                     SetState(GuildDialogState.Management);
                 }
             };
