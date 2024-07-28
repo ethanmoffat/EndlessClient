@@ -68,7 +68,7 @@ namespace EndlessClient.Dialogs
             }
 
             _okButton = new XNAButton(eoDialogButtonService.SmallButtonSheet,
-                new Vector2(60, 125), 
+                new Vector2(60, 125),
                 eoDialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Ok),
                 eoDialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Ok))
             {

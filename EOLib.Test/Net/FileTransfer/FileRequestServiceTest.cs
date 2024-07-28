@@ -1,7 +1,4 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using EOLib.Domain.Protocol;
+﻿using EOLib.Domain.Protocol;
 using EOLib.IO.Map;
 using EOLib.IO.Pub;
 using EOLib.IO.Services;
@@ -10,14 +7,17 @@ using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.FileTransfer;
 using EOLib.Test.TestHelpers;
-using NUnit.Framework;
-using Moq;
-using System.Collections.Generic;
+using Moffat.EndlessOnline.SDK.Data;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using Moq;
+using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Text;
-using Moffat.EndlessOnline.SDK.Data;
 
 namespace EOLib.Test.Net.FileTransfer
 {
@@ -133,7 +133,7 @@ namespace EOLib.Test.Net.FileTransfer
         [Test]
         public void RequestMapFile_ResponsePacketHasIncorrectFileType_ThrowsMalformedPacketException()
         {
-            Mock.Get(_packetSendService).SetupReceivedPacketHasHeader<InitInitServerPacket>((byte) InitReply.FileEsf, 33);
+            Mock.Get(_packetSendService).SetupReceivedPacketHasHeader<InitInitServerPacket>((byte)InitReply.FileEsf, 33);
             Assert.ThrowsAsync<InvalidOperationException>(async () => await _fileRequestService.RequestMapFile(1, 1));
         }
 
@@ -172,7 +172,7 @@ namespace EOLib.Test.Net.FileTransfer
         {
             var waPacket = packet as WelcomeAgreeClientPacket;
             var correctTyping = waPacket.FileType == type;
-            
+
             var correctData = true;
             if (mapId > 0 && sessionId > 0)
             {

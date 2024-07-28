@@ -1,10 +1,10 @@
-﻿using System;
+﻿using EOLib.IO.Services;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using EOLib.IO.Services;
 
 namespace EOLib.IO.Pub
 {

@@ -1,8 +1,8 @@
-﻿using System;
-using System.IO;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.IO.Map;
 using EOLib.IO.Services.Serializers;
+using System;
+using System.IO;
 
 namespace EOLib.IO.Services
 {

@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using Optional;
+using System;
+using System.Collections.Generic;
 
 namespace EndlessClient.Rendering.Character
 {

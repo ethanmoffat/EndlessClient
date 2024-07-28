@@ -1,5 +1,5 @@
-﻿using System;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
+using System;
 
 namespace EndlessClient.HUD
 {

@@ -95,7 +95,7 @@ namespace EOLib.IO.Services.Serializers
             var checksumBytes = new List<byte>();
             for (int i = 0; i < file.CheckSum.Count; i++)
                 checksumBytes.AddRange(_numberEncoderService.EncodeNumber(file.CheckSum[i], 2));
-            
+
             if (rewriteChecksum)
             {
                 var checksum = CRC32.Check(fileBytes);

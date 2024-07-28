@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using EOLib;
+﻿using EOLib;
 using EOLib.Config;
 using EOLib.Domain.Protocol;
 using EOLib.Net.Communication;
@@ -9,6 +6,9 @@ using EOLib.Net.Connection;
 using EOLib.Net.PacketProcessing;
 using Moffat.EndlessOnline.SDK.Packet;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EOBot
 {

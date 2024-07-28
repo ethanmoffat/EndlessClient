@@ -53,7 +53,7 @@ namespace EOLib.PacketHandlers.Refresh
                 .WithRenderProperties(updatedRenderProperties);
 
             var withoutMainCharacter = characters.Where(x => !MainCharacterIDMatches(x));
-            _currentMapStateRepository.Characters = new MapEntityCollectionHashSet<Character>(c => c.ID, c => new MapCoordinate(c.X, c.Y),  withoutMainCharacter);
+            _currentMapStateRepository.Characters = new MapEntityCollectionHashSet<Character>(c => c.ID, c => new MapCoordinate(c.X, c.Y), withoutMainCharacter);
             _currentMapStateRepository.NPCs = new MapEntityCollectionHashSet<DomainNPC>(n => n.Index, n => new MapCoordinate(n.X, n.Y), packet.Nearby.Npcs.Select(DomainNPC.FromNearby));
             _currentMapStateRepository.MapItems = new MapEntityCollectionHashSet<MapItem>(item => item.UniqueID, item => new MapCoordinate(item.X, item.Y), packet.Nearby.Items.Select(MapItem.FromNearby));
 

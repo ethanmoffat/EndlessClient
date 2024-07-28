@@ -96,7 +96,7 @@ namespace EndlessClient.Rendering.Chat
 
             _startTime.MatchSome(st =>
             {
-                if (st.ElapsedMilliseconds > (24 + _textLabel.Text.Length / 3)*120)
+                if (st.ElapsedMilliseconds > (24 + _textLabel.Text.Length / 3) * 120)
                 {
                     _textLabel.Visible = false;
                     Visible = false;
@@ -122,7 +122,7 @@ namespace EndlessClient.Rendering.Chat
 
             var xCov = TL.Width;
             var yCov = TL.Height;
-            
+
             var color = _isGroupChat ? Color.FromNonPremultiplied(247, 234, 164, 232) : Color.FromNonPremultiplied(255, 255, 255, 232);
 
             _spriteBatch.Begin();
@@ -159,7 +159,7 @@ namespace EndlessClient.Rendering.Chat
             _spriteBatch.Draw(BR, _drawLocation + new Vector2(x2, y), color);
 
             y += BM.Height;
-            _spriteBatch.Draw(NUB, _drawLocation + new Vector2((x2 + BR.Width - NUB.Width)/2f, y - 1), color);
+            _spriteBatch.Draw(NUB, _drawLocation + new Vector2((x2 + BR.Width - NUB.Width) / 2f, y - 1), color);
 
             _spriteBatch.End();
         }

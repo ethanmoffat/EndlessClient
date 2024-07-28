@@ -117,7 +117,7 @@ namespace EOLib.Localization.Test
         public void NonSpecialDataFiles_AreDecodedCorrectly_MultipleLines(DataFiles whichFile)
         {
             const string fileData = "a7b6cg1f2e3d4 5\na7b6cg1f2e3d4 5";
-            var expectedStrings = new[] { "abc12345 defg67", "abc12345 defg67"};
+            var expectedStrings = new[] { "abc12345 defg67", "abc12345 defg67" };
 
             GivenDataFileWithContents(FILE_NAME, fileData);
 
@@ -181,7 +181,7 @@ namespace EOLib.Localization.Test
 
         public static DataFiles[] GetStandardEDFFiles()
         {
-            return new []
+            return new[]
             {
                 DataFiles.JukeBoxSongs,
                 DataFiles.EnglishStatus1,

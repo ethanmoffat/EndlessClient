@@ -74,9 +74,9 @@ namespace EndlessClient.Rendering.CharacterProperties
 
         private bool IsWeaponBehindCharacter(CharacterRenderProperties renderProperties)
         {
-             var weaponInfo = EIFFile.FirstOrDefault(
-                x => x.Type == ItemType.Weapon &&
-                     x.DollGraphic == renderProperties.WeaponGraphic);
+            var weaponInfo = EIFFile.FirstOrDefault(
+               x => x.Type == ItemType.Weapon &&
+                    x.DollGraphic == renderProperties.WeaponGraphic);
 
             var pass1 = renderProperties.RenderAttackFrame < 2;
             var pass2 = renderProperties.IsFacing(EODirection.Up, EODirection.Left);

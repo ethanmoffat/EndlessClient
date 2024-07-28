@@ -309,7 +309,7 @@ namespace EndlessClient.Dialogs
                     {
                         var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.TRADE_OTHER_PLAYER_TRICK_YOU);
                         dlg.ShowDialog();
-                        
+
                         // this will prevent the message from showing more than once per trade (I'm too lazy to find something more elegant)
                         _recentPartnerItemChanges = -1000;
                     }

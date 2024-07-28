@@ -17,7 +17,7 @@ namespace EOLib.Net.Communication
         private readonly INumberEncoderService _numberEncoderService;
 
         private readonly IAsyncSocket _socket;
-        
+
         public bool Connected => _socket.Connected;
 
         public bool Started { get; private set; }

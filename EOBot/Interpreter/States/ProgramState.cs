@@ -56,7 +56,7 @@ namespace EOBot.Interpreter.States
                 ExecutionIndex++;
                 return true;
             }
-            
+
             return false;
         }
 

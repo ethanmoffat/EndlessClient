@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using AutomaticTypeMapper;
+using System.Collections.Generic;
 
 namespace EOLib.Domain
 {

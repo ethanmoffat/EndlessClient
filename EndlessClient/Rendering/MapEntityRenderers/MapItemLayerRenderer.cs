@@ -43,8 +43,8 @@ namespace EndlessClient.Rendering.MapEntityRenderers
                 var itemTexture = _mapItemGraphicProvider.GetItemGraphic(item.ItemID, item.Amount);
 
                 spriteBatch.Draw(itemTexture,
-                                 new Vector2(itemPos.X - (int) Math.Round(itemTexture.Width/2.0),
-                                             itemPos.Y - (int) Math.Round(itemTexture.Height/2.0)) + additionalOffset,
+                                 new Vector2(itemPos.X - (int)Math.Round(itemTexture.Width / 2.0),
+                                             itemPos.Y - (int)Math.Round(itemTexture.Height / 2.0)) + additionalOffset,
                                  Color.FromNonPremultiplied(255, 255, 255, alpha));
             }
         }

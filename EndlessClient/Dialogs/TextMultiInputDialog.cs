@@ -51,7 +51,7 @@ namespace EndlessClient.Dialogs
             : base(nativeGraphicsManager, isInGame: true)
         {
             _background = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 57);
-            
+
             switch (size)
             {
                 case DialogSize.Two:

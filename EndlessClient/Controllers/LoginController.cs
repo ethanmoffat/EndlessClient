@@ -286,7 +286,7 @@ namespace EndlessClient.Controllers
 
         private void ClearChat()
         {
-            foreach(var chat in _chatRepository.AllChat.Values)
+            foreach (var chat in _chatRepository.AllChat.Values)
             {
                 chat.Clear();
             }

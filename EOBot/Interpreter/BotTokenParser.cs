@@ -113,7 +113,7 @@ namespace EOBot.Interpreter
             }
             else
             {
-                switch(inputChar)
+                switch (inputChar)
                 {
                     case '(': return Token(BotTokenType.LParen, inputChar.ToString());
                     case ')': return Token(BotTokenType.RParen, inputChar.ToString());
@@ -137,7 +137,7 @@ namespace EOBot.Interpreter
                         }
                     case '=':
                         {
-                            switch(Peek())
+                            switch (Peek())
                             {
                                 case '=':
                                     var nextChar = Read();
@@ -148,7 +148,7 @@ namespace EOBot.Interpreter
                         }
                     case '!':
                         {
-                            switch(Peek())
+                            switch (Peek())
                             {
                                 case '=':
                                     var nextChar = Read();

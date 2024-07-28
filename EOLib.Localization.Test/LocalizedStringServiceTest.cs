@@ -1,9 +1,9 @@
-﻿using System;
+﻿using EOLib.Config;
+using Moq;
+using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using EOLib.Config;
-using NUnit.Framework;
-using Moq;
 
 namespace EOLib.Localization.Test
 {
@@ -29,7 +29,7 @@ namespace EOLib.Localization.Test
         [Test]
         public void GetString_Dialog_InvalidLanguage_ThrowsArgumentOutOfRangeException()
         {
-            Assert.Throws<ArgumentOutOfRangeException>(() => _localizedStringFinder.GetString((EOLanguage) 50, DialogResourceID.ACCOUNT_CREATE_ACCEPTED));
+            Assert.Throws<ArgumentOutOfRangeException>(() => _localizedStringFinder.GetString((EOLanguage)50, DialogResourceID.ACCOUNT_CREATE_ACCEPTED));
         }
 
         [Test]

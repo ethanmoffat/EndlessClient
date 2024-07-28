@@ -1,5 +1,5 @@
-﻿using System;
-using EOLib.Localization;
+﻿using EOLib.Localization;
+using System;
 
 namespace EOLib.Domain.Account
 {

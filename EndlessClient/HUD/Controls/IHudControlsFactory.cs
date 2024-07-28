@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using EndlessClient.Controllers;
+﻿using EndlessClient.Controllers;
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 
 namespace EndlessClient.HUD.Controls
 {

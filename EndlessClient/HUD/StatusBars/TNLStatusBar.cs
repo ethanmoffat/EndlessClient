@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using EndlessClient.Input;
+﻿using EndlessClient.Input;
 using EndlessClient.Rendering;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
+using System;
+using System.Collections.Generic;
 
 namespace EndlessClient.HUD.StatusBars
 {
@@ -23,7 +23,7 @@ namespace EndlessClient.HUD.StatusBars
             _experienceTableProvider = experienceTableProvider;
             DrawArea = new Rectangle(430, 0, _sourceRectangleArea.Width, _sourceRectangleArea.Height);
 
-            _sourceRectangleArea = new Rectangle(_sourceRectangleArea.Width*3 - 1,
+            _sourceRectangleArea = new Rectangle(_sourceRectangleArea.Width * 3 - 1,
                                                  0,
                                                  _sourceRectangleArea.Width + 1,
                                                  _sourceRectangleArea.Height);

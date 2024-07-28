@@ -37,7 +37,7 @@ namespace EndlessClient.Network
                                         INPCRendererProvider npcRendererProvider,
                                         ICharacterRendererProvider characterRendererProvider,
                                         IUnknownEntitiesRequestActions unknownEntitiesRequestActions)
-            : base((Game) gameProvider.Game)
+            : base((Game)gameProvider.Game)
         {
             _clientWindowSizeProvider = clientWindowSizeProvider;
             _characterProvider = characterProvider;

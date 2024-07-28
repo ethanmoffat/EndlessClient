@@ -56,7 +56,7 @@ namespace EndlessClient.HUD.Inventory
         public event EventHandler<EIFRecord> DoubleClick;
 
         public override Rectangle EventArea => IsDragging ? DrawArea : DrawAreaWithParentOffset;
-        
+
         // uses absolute coordinates
         protected override Rectangle GridArea => new Rectangle(
             _parentContainer.DrawPositionWithParentOffset.ToPoint() + new Point(12, 8),

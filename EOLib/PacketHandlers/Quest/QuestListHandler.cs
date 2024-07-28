@@ -32,13 +32,13 @@ namespace EOLib.PacketHandlers.Quest
                     _questDataRepository.QuestProgress = ((QuestListServerPacket.PageDataProgress)packet.PageData)
                         .QuestProgressEntries
                         .Select(x => new QuestProgressData.Builder
-                            {
-                                Name = x.Name,
-                                Description = x.Description,
-                                Icon = x.Icon,
-                                Progress = x.Progress,
-                                Target = x.Target,
-                            }.ToImmutable())
+                        {
+                            Name = x.Name,
+                            Description = x.Description,
+                            Icon = x.Icon,
+                            Progress = x.Progress,
+                            Target = x.Target,
+                        }.ToImmutable())
                         .ToList();
                     break;
                 case QuestPage.History:

@@ -45,7 +45,7 @@ namespace EndlessClient.Rendering.Factories
             IHudControlProvider hudControlProvider,
             IContextMenuRepository contextMenuRepository,
             IPartyDataProvider partyDataProvider,
-            ICurrentMapStateProvider currentMapStateProvider, 
+            ICurrentMapStateProvider currentMapStateProvider,
             IEOMessageBoxFactory messageBoxFactory,
             IClientWindowSizeProvider clientWindowSizeProvider,
             ISfxPlayer sfxPlayer)
@@ -80,7 +80,7 @@ namespace EndlessClient.Rendering.Factories
                 _hudControlProvider,
                 _contextMenuRepository,
                 _partyDataProvider,
-                characterRenderer, 
+                characterRenderer,
                 _currentMapStateProvider,
                 _messageBoxFactory,
                 _clientWindowSizeProvider,

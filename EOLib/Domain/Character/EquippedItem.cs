@@ -1,7 +1,7 @@
-﻿using System;
-using EOLib.IO;
+﻿using EOLib.IO;
 using EOLib.IO.Extensions;
 using EOLib.IO.Pub;
+using System;
 
 namespace EOLib.Domain.Character
 {

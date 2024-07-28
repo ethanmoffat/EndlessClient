@@ -48,11 +48,11 @@ namespace EOLib.PacketHandlers.Spell
 
             var spellTargets = packet.Players
                 .Select(x => new GroupSpellTarget.Builder
-                    {
-                        TargetId = x.PlayerId,
-                        TargetHp = x.Hp,
-                        PercentHealth = x.HpPercentage,
-                    }.ToImmutable())
+                {
+                    TargetId = x.PlayerId,
+                    TargetHp = x.Hp,
+                    PercentHealth = x.HpPercentage,
+                }.ToImmutable())
                 .ToList();
 
             // todo: eoserv potentially sends garbage 255 bytes in packet.Players

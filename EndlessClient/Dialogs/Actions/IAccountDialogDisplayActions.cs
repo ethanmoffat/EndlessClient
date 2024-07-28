@@ -15,9 +15,9 @@ namespace EndlessClient.Dialogs.Actions
         Task<Option<IChangePasswordParameters>> ShowChangePasswordDialog();
 
         void ShowCreateParameterValidationError(CreateAccountParameterResult validationResult);
-        
+
         void ShowCreateAccountServerError(AccountReply serverError);
-        
+
         void ShowSuccessMessage();
     }
 }

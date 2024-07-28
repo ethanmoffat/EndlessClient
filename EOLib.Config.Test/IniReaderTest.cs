@@ -1,6 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using NUnit.Framework;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using NUnit.Framework;
 
 namespace EOLib.Config.Test
 {

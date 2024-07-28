@@ -1,4 +1,3 @@
-using System;
 using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
@@ -6,6 +5,7 @@ using EndlessClient.Rendering;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using XNAControls;
 
 namespace EndlessClient.ControlSets
@@ -36,7 +36,7 @@ namespace EndlessClient.ControlSets
 
         protected override void InitializeControlsHelper(IControlSet currentControlSet)
         {
-            _btnCreate = GetControl(currentControlSet, 
+            _btnCreate = GetControl(currentControlSet,
                 GameState == GameStates.LoggedIn ? GameControlIdentifier.CreateCharacterButton : GameControlIdentifier.CreateAccountButton,
                 GetCreateButton);
             _person2Picture = GetControl(currentControlSet, GameControlIdentifier.PersonDisplay2, GetPerson2Picture);

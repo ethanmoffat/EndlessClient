@@ -34,7 +34,7 @@ namespace EndlessClient.Rendering.NPC
         {
             AnimateNPCWalking();
             AnimateNPCAttacking();
-            
+
             base.Update(gameTime);
         }
 

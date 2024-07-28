@@ -268,7 +268,8 @@ namespace EOBot.Interpreter
                     statsObj.SymbolTable["tp"] = Readonly(new IntVariable(cp.MainCharacter.Stats[CharacterStat.TP]));
                     statsObj.SymbolTable["maxtp"] = Readonly(new IntVariable(cp.MainCharacter.Stats[CharacterStat.MaxTP]));
                     return statsObj;
-                });
+                }
+            );
 
             return Readonly(charObj);
         }

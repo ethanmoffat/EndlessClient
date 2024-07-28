@@ -1,17 +1,17 @@
-﻿using System;
-using Microsoft.Xna.Framework;
-using MonoGame.Extended.Input.InputListeners;
-using XNAControls;
-using EndlessClient.Rendering.Factories;
+﻿using EndlessClient.Rendering.Factories;
 using EOLib;
 using EOLib.Domain.Character;
+using Microsoft.Xna.Framework;
+using MonoGame.Extended.Input.InputListeners;
+using System;
+using XNAControls;
 
 namespace EndlessClient.UIControls
 {
     public class CreateCharacterControl : CharacterControl
     {
         private Vector2 _lastPosition;
-        
+
 
         public event EventHandler Clicked;
 

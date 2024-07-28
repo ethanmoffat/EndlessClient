@@ -70,7 +70,8 @@ namespace EOLib.Domain.Character
             var cellChar = cellState.Character.FlatMap(c => c.SomeWhen(cc => cc != mc));
 
             return cellChar.Match(
-                some: c => {
+                some: c =>
+                {
                     if (mc.NoWall)
                         return WalkValidationResult.Walkable;
 

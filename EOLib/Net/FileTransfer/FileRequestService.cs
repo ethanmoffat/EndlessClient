@@ -156,7 +156,7 @@ namespace EOLib.Net.FileTransfer
                 _ => throw new ArgumentOutOfRangeException(nameof(fileType)),
             };
         }
-    
+
         private static bool PubFileIdMatches(int requestedFileId, InitInitServerPacket.IReplyCodeData replyCodeData, out int responseFileId)
         {
             if (replyCodeData is InitInitServerPacket.ReplyCodeDataFileEif eif)

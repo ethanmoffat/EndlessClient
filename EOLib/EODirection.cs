@@ -18,7 +18,7 @@ namespace EOLib
             switch (direction)
             {
                 case EODirection.Invalid: return EODirection.Invalid;
-                default: return (EODirection) ((int) (direction + 2) % 4);
+                default: return (EODirection)((int)(direction + 2) % 4);
             }
         }
     }

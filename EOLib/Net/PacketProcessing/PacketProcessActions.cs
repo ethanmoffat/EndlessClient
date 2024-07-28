@@ -1,11 +1,11 @@
-﻿using System;
-using AutomaticTypeMapper;
-using Moffat.EndlessOnline.SDK.Data;
+﻿using AutomaticTypeMapper;
 using EOLib.Logger;
+using Moffat.EndlessOnline.SDK.Data;
 using Moffat.EndlessOnline.SDK.Packet;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
-using System.Net.Sockets;
 using Optional;
+using System;
+using System.Net.Sockets;
 
 namespace EOLib.Net.PacketProcessing
 {

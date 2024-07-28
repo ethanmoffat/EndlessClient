@@ -47,7 +47,7 @@ namespace EOLib.Domain.Map
             if (!(obj is MapCoordinate))
                 return false;
 
-            var other = (MapCoordinate) obj;
+            var other = (MapCoordinate)obj;
             return X == other.X && Y == other.Y;
         }
 

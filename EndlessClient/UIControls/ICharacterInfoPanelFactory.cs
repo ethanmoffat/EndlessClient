@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using EndlessClient.Controllers;
+﻿using EndlessClient.Controllers;
 using EOLib.Domain.Character;
+using System.Collections.Generic;
 
 namespace EndlessClient.UIControls
 {

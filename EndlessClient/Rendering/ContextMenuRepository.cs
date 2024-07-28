@@ -10,7 +10,7 @@ namespace EndlessClient.Rendering
 
     public interface IContextMenuRepository
     {
-        Option<IContextMenuRenderer> ContextMenu { get; set;  }
+        Option<IContextMenuRenderer> ContextMenu { get; set; }
     }
 
     [AutoMappedType(IsSingleton = true)]

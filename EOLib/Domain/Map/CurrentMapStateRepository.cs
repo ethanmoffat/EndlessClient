@@ -21,7 +21,7 @@ namespace EOLib.Domain.Map
 
         MapEntityCollectionHashSet<MapItem> MapItems { get; set; }
 
-        HashSet<Warp> OpenDoors { get; set;  }
+        HashSet<Warp> OpenDoors { get; set; }
 
         HashSet<Warp> PendingDoors { get; set; }
 

@@ -47,7 +47,7 @@ namespace EndlessClient.Rendering.CharacterProperties
             {
                 var isDownOrLeft = _renderProperties.IsFacing(EODirection.Down, EODirection.Left);
                 var factor = isDownOrLeft ? -1 : 1;
-                var extra = !isDownOrLeft ? 2*_renderProperties.Gender : 0;
+                var extra = !isDownOrLeft ? 2 * _renderProperties.Gender : 0;
 
                 resX += 2 * factor;
                 resY += 1 * factor - extra;

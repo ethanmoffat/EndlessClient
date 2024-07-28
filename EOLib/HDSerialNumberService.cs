@@ -1,11 +1,11 @@
-﻿using System;
+﻿using AutomaticTypeMapper;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using AutomaticTypeMapper;
 
 namespace EOLib
 {
@@ -36,12 +36,12 @@ namespace EOLib
             return Win32.GetVolumeInformation(
                 strDriveLetter,
                 volumeLabel,
-                (uint) volumeLabel.Capacity,
+                (uint)volumeLabel.Capacity,
                 ref serNum,
                 ref maxCompLen,
                 ref VolFlags,
                 fileSystemName,
-                (uint) fileSystemName.Capacity) != 0
+                (uint)fileSystemName.Capacity) != 0
                     ? Convert.ToString(serNum)
                     : string.Empty;
         }
@@ -119,7 +119,7 @@ namespace EOLib
                 }
 
                 // replace letters with their corresponding numbers
-                serialNumber = Regex.Replace(serialNumber, "[A-Z]", m => ((int) m.Value[0] - 55).ToString());
+                serialNumber = Regex.Replace(serialNumber, "[A-Z]", m => ((int)m.Value[0] - 55).ToString());
 
                 // make the serial number shorted so eoserv can handle it
                 while (ulong.TryParse(serialNumber, out var sn) && sn > uint.MaxValue)

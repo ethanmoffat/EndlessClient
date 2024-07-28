@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using EndlessClient.Services;
+﻿using EndlessClient.Services;
 using EOLib;
 using EOLib.Domain.Chat;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.BitmapFonts;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Rendering.Chat
@@ -40,7 +40,7 @@ namespace EndlessClient.Rendering.Chat
             foreach (var news in newsText)
             {
                 newsTextWithBlankLines.Add(news);
-                if(news != newsText.Last())
+                if (news != newsText.Last())
                     newsTextWithBlankLines.Add(" ");
             }
 
@@ -58,7 +58,7 @@ namespace EndlessClient.Rendering.Chat
                 if (ignoreList.Any(x => x.Equals(data.Who, StringComparison.InvariantCultureIgnoreCase)))
                     continue;
 
-                var splitStrings = SplitTextIntoLines(data.Who, new[] {data.Message});
+                var splitStrings = SplitTextIntoLines(data.Who, new[] { data.Message });
                 var renderables = splitStrings.Select(
                     (pair, i) => CreateChatRenderableFromChatPair(pair, i, data))
                     .ToList();
@@ -91,7 +91,7 @@ namespace EndlessClient.Rendering.Chat
             {
                 if (string.IsNullOrWhiteSpace(who) && string.IsNullOrWhiteSpace(text))
                 {
-                    retStrings.Add(new ChatPair {Text = " ", IsFirstLineOfMultilineMessage = true});
+                    retStrings.Add(new ChatPair { Text = " ", IsFirstLineOfMultilineMessage = true });
                     continue;
                 }
 

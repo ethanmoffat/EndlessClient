@@ -5,7 +5,7 @@ using System.Diagnostics;
 namespace EOLib.Domain.Character
 {
     [AutoMappedType(IsSingleton = true)]
-    public sealed class GhostingRepository: IGhostingProvider, IGhostingRepository
+    public sealed class GhostingRepository : IGhostingProvider, IGhostingRepository
     {
         public bool GhostedRecently => GhostStartTime.Elapsed.TotalMilliseconds > 0 && !GhostStartTime.IsRunning;
 

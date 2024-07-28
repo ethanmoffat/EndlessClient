@@ -1,9 +1,9 @@
-﻿using System;
+﻿using EOLib.IO.Services;
+using NUnit.Framework;
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
-using EOLib.IO.Services;
-using NUnit.Framework;
 
 namespace EOLib.IO.Test.Map
 {
@@ -48,8 +48,8 @@ namespace EOLib.IO.Test.Map
         {
             const string expected = "Aeven";
 
-            var bytes = new byte[] {49, 104, 41, 104, 94};
-            var fullBytes = Enumerable.Repeat((byte) 255, 24).ToArray();
+            var bytes = new byte[] { 49, 104, 41, 104, 94 };
+            var fullBytes = Enumerable.Repeat((byte)255, 24).ToArray();
             Array.Copy(bytes, 0, fullBytes, fullBytes.Length - bytes.Length, bytes.Length);
 
             var actual = _service.DecodeMapString(fullBytes);

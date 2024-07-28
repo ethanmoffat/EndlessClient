@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EndlessClient.Controllers;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.Input;
@@ -8,6 +6,8 @@ using EndlessClient.Rendering;
 using EndlessClient.Rendering.Factories;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
+using System;
+using System.Collections.Generic;
 
 namespace EndlessClient.UIControls
 {
@@ -50,7 +50,7 @@ namespace EndlessClient.UIControls
 
         public IEnumerable<CharacterInfoPanel> CreatePanels(IEnumerable<Character> characters)
         {
-            if(_loginController == null || _characterManagementController == null)
+            if (_loginController == null || _characterManagementController == null)
                 throw new InvalidOperationException("Missing controllers - the Unity container was initialized incorrectly");
 
             int i = 0;

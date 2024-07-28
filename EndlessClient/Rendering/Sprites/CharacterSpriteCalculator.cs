@@ -187,7 +187,7 @@ namespace EndlessClient.Rendering.Sprites
                 {
                     type = ArmorShieldSpriteType.SpellCast;
                 }
-                else if(characterRenderProperties.SitState != SitState.Standing)
+                else if (characterRenderProperties.SitState != SitState.Standing)
                 {
                     return new EmptySpriteSheet();
                 }
@@ -340,8 +340,8 @@ namespace EndlessClient.Rendering.Sprites
             var rotated = characterRenderProperties.Direction == EODirection.Left ||
                           characterRenderProperties.Direction == EODirection.Up;
 
-            var heightDelta  = texture.Height / SheetRows;
-            var widthDelta   = texture.Width / sheetColumns;
+            var heightDelta = texture.Height / SheetRows;
+            var widthDelta = texture.Width / sheetColumns;
             var sectionDelta = texture.Width / 4;
 
             var walkExtra = characterRenderProperties.RenderWalkFrame > 0 ? widthDelta * (characterRenderProperties.RenderWalkFrame - 1) : 0;
@@ -429,16 +429,16 @@ namespace EndlessClient.Rendering.Sprites
             const int NUM_EMOTES = 15;
             const int NUM_FRAMES = 4;
 
-            var emoteValue = Enum.GetName(typeof (Emote), characterRenderProperties.Emote) ?? "";
-            var convertedValuesDictionary = Enum.GetNames(typeof (EmoteSpriteType))
-                .ToDictionary(x => x, x => (EmoteSpriteType) Enum.Parse(typeof (EmoteSpriteType), x));
+            var emoteValue = Enum.GetName(typeof(Emote), characterRenderProperties.Emote) ?? "";
+            var convertedValuesDictionary = Enum.GetNames(typeof(EmoteSpriteType))
+                .ToDictionary(x => x, x => (EmoteSpriteType)Enum.Parse(typeof(EmoteSpriteType), x));
             var convertedEmote = (int)convertedValuesDictionary[emoteValue];
 
             var emoteTexture = _gfxManager.TextureFromResource(GFXTypes.PostLoginUI, 38, true);
 
             var eachSet = emoteTexture.Width / NUM_EMOTES;
             var eachFrame = emoteTexture.Width / (NUM_EMOTES * NUM_FRAMES);
-            var startX = convertedEmote*eachSet + characterRenderProperties.EmoteFrame*eachFrame;
+            var startX = convertedEmote * eachSet + characterRenderProperties.EmoteFrame * eachFrame;
 
             var emoteRect = new Rectangle(startX, 0, eachFrame, emoteTexture.Height);
 

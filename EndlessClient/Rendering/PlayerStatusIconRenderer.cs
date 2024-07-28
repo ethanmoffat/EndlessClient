@@ -55,7 +55,7 @@ namespace EndlessClient.Rendering
         protected override void OnUpdateControl(GameTime gameTime)
         {
             var c = _characterProvider.MainCharacter;
-            
+
             _icons = 0;
             if (_currentMapProvider.CurrentMap.Properties.PKAvailable)
                 _icons |= StatusIconType.PK;
@@ -94,9 +94,9 @@ namespace EndlessClient.Rendering
             var heightDelta = _statusIcons.Height / 2;
 
             //convert from power of two 'flag' value to base 10 index
-            var index = (int)Math.Log((int) type, 2);
+            var index = (int)Math.Log((int)type, 2);
 
-            var xOffset = widthDelta*index;
+            var xOffset = widthDelta * index;
             return new Rectangle(xOffset, 0, widthDelta, heightDelta);
         }
     }

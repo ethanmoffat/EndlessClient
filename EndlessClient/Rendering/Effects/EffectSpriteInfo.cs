@@ -97,13 +97,13 @@ namespace EndlessClient.Rendering.Effects
         private int GetDisplayFrame()
         {
             return _metadata.AnimationType switch
-                {
-                    EffectAnimationType.Flickering =>
-                        _random.Next(
-                            _metadata.RandomFlickeringMetadata?.FirstFrame ?? 0,
-                            1 + (_metadata.RandomFlickeringMetadata?.LastFrame ?? _metadata.RandomFlickeringMetadata?.FirstFrame ?? 0)),
-                    _ => _displayFrame + 1
-                };
+            {
+                EffectAnimationType.Flickering =>
+                    _random.Next(
+                        _metadata.RandomFlickeringMetadata?.FirstFrame ?? 0,
+                        1 + (_metadata.RandomFlickeringMetadata?.LastFrame ?? _metadata.RandomFlickeringMetadata?.FirstFrame ?? 0)),
+                _ => _displayFrame + 1
+            };
         }
 
         private void ResetFrame()

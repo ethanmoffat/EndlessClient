@@ -1,6 +1,6 @@
-﻿using System;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.IO.Map;
+using System;
 
 namespace EOLib.IO.Services.Serializers
 {
@@ -18,7 +18,7 @@ namespace EOLib.IO.Services.Serializers
 
         public byte[] SerializeToByteArray(UnknownMapEntity mapEntity)
         {
-            if(mapEntity.RawData.Length != UnknownMapEntity.DATA_SIZE)
+            if (mapEntity.RawData.Length != UnknownMapEntity.DATA_SIZE)
                 throw new ArgumentException("Data is improperly sized for serialization", nameof(mapEntity));
 
             return mapEntity.RawData;

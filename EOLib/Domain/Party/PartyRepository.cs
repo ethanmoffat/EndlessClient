@@ -8,7 +8,7 @@ namespace EOLib.Domain.Party
         List<PartyMember> Members { get; }
     }
 
-    public  interface IPartyDataProvider
+    public interface IPartyDataProvider
     {
         IReadOnlyList<PartyMember> Members { get; }
     }

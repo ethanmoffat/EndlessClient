@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using EOLib.IO.Map;
+﻿using EOLib.IO.Map;
 using EOLib.IO.Services;
 using EOLib.IO.Services.Serializers;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 namespace EOLib.IO.Test.Map
 {
@@ -156,7 +156,7 @@ namespace EOLib.IO.Test.Map
             ret.AddRange(nes.EncodeNumber(0, 1)); //count
 
             //gfx
-            foreach (var layer in (MapLayer[]) Enum.GetValues(typeof(MapLayer)))
+            foreach (var layer in (MapLayer[])Enum.GetValues(typeof(MapLayer)))
             {
                 ret.AddRange(nes.EncodeNumber(1, 1)); //count
                 ret.AddRange(nes.EncodeNumber(1, 1)); //y

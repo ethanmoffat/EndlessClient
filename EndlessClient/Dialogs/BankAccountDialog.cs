@@ -33,7 +33,7 @@ namespace EndlessClient.Dialogs
         private int _cachedValue;
         private Option<int> _cachedUpgrades;
 
-        public  BankAccountDialog(INativeGraphicsManager nativeGraphicsManager,
+        public BankAccountDialog(INativeGraphicsManager nativeGraphicsManager,
                                   IBankActions bankActions,
                                   IEODialogButtonService dialogButtonService,
                                   IEODialogIconService dialogIconService,

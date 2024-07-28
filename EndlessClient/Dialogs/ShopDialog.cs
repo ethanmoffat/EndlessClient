@@ -364,7 +364,7 @@ namespace EndlessClient.Dialogs
                 {
                     var message = BuildMessage(EOResourceID.DIALOG_SHOP_CRAFT_MISSING_INGREDIENTS);
                     var caption = BuildCaption(EOResourceID.DIALOG_SHOP_CRAFT_INGREDIENTS);
-                    
+
                     var dlg = _messageBoxFactory.CreateMessageBox(message, caption, EODialogButtons.Cancel, EOMessageBoxStyle.LargeDialogSmallHeader);
                     dlg.ShowDialog();
 

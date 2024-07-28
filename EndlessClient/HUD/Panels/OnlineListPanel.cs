@@ -130,7 +130,7 @@ namespace EndlessClient.HUD.Panels
             if (!_cachedList.SetEquals(_onlinePlayerProvider.OnlinePlayers))
             {
                 _cachedList = _onlinePlayerProvider.OnlinePlayers.ToHashSet();
-                
+
                 // keep the friends list data from overriding the displayed data in this panel
                 // it will be friends list data if all titles (or any field other than name) are empty
                 if (!_cachedList.All(x => x.Title == string.Empty))
@@ -217,7 +217,7 @@ namespace EndlessClient.HUD.Panels
             {
                 case Filter.Friends: _filteredList = _onlineList.Where(x => _friendList.Contains(x.Name, StringComparer.InvariantCultureIgnoreCase)).ToList(); break;
                 case Filter.Admins: _filteredList = _onlineList.Where(IsAdminIcon).ToList(); break;
-                case Filter.Party: _filteredList = _onlineList.Where(x => _partyDataProvider.Members.Any(y => string.Equals(y.Name, x.Name, StringComparison.InvariantCultureIgnoreCase))).ToList();  break;
+                case Filter.Party: _filteredList = _onlineList.Where(x => _partyDataProvider.Members.Any(y => string.Equals(y.Name, x.Name, StringComparison.InvariantCultureIgnoreCase))).ToList(); break;
                 case Filter.All:
                 default: _filteredList = new List<OnlinePlayerInfo>(_onlineList); break;
             }

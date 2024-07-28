@@ -94,7 +94,7 @@ namespace EndlessClient.HUD.Party
             {
                 DrawPosition = new Vector2(205, 0),
                 AutoSize = true,
-                ForeColor= Color.Black,
+                ForeColor = Color.Black,
                 Text = "HP"
             };
             _hpLabel.SetParentControl(this);

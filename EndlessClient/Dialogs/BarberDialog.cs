@@ -1,17 +1,17 @@
-using System;
-using EndlessClient.Dialogs.Services;
-using EOLib.Graphics;
-using EndlessClient.UIControls;
-using EndlessClient.Rendering.Factories;
-using Microsoft.Xna.Framework;
-using XNAControls;
-using EOLib.Domain.Character;
-using EOLib.Localization;
-using EOLib.Domain.Interact.Barber;
-using EndlessClient.Dialogs.Factories;
-using Optional.Collections;
-using EOLib.IO.Repositories;
 using EndlessClient.Audio;
+using EndlessClient.Dialogs.Factories;
+using EndlessClient.Dialogs.Services;
+using EndlessClient.Rendering.Factories;
+using EndlessClient.UIControls;
+using EOLib.Domain.Character;
+using EOLib.Domain.Interact.Barber;
+using EOLib.Graphics;
+using EOLib.IO.Repositories;
+using EOLib.Localization;
+using Microsoft.Xna.Framework;
+using Optional.Collections;
+using System;
+using XNAControls;
 
 namespace EndlessClient.Dialogs
 {

@@ -17,7 +17,7 @@ namespace EOLib.IO.Extensions
         /// <returns>The merged pub file.</returns>
         /// <exception cref="ArgumentException">Thrown when <paramref name="pubFiles"/> does not have at least one element.</exception>
         public static IPubFile<TRecord> Merge<TRecord>(IEnumerable<IPubFile<TRecord>> pubFiles)
-            where TRecord: class, IPubRecord, new()
+            where TRecord : class, IPubRecord, new()
         {
             if (pubFiles.Count() < 1)
                 throw new ArgumentException("pubFiles must have at least 1 element", nameof(pubFiles));

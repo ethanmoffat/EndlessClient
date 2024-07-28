@@ -66,7 +66,7 @@ namespace EOBot
                     await bot.InitializeAsync(_host, _port);
                     _botsList.Add(bot);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, ex.Message, ConsoleColor.DarkRed);
                     numFailed++;
@@ -92,7 +92,7 @@ namespace EOBot
 
         public async Task RunAsync()
         {
-            if(!_initialized)
+            if (!_initialized)
                 throw new InvalidOperationException("Must call Initialize() before running!");
 
             var botTasks = new List<Task>();

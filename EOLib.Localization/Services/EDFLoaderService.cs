@@ -27,7 +27,7 @@ namespace EOLib.Localization
 
         public void SaveFile(string fileName, IEDFFile file)
         {
-            switch(file.WhichFile)
+            switch (file.WhichFile)
             {
                 case DataFiles.CurseFilter:
                     {

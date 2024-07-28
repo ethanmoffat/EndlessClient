@@ -20,7 +20,7 @@ namespace EOLib.Net.Handlers
             if (!(obj1 is FamilyActionPair) || !(obj2 is FamilyActionPair))
                 return false;
 
-            var fap1 = (FamilyActionPair) obj1;
+            var fap1 = (FamilyActionPair)obj1;
             var fap2 = (FamilyActionPair)obj2;
             return fap1.Family == fap2.Family && fap1.Action == fap2.Action;
         }

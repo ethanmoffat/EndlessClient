@@ -155,7 +155,7 @@ namespace EOLib.Domain.Chat
                     _chatRepository.AllChat[ChatTab.Group].Add(new ChatData(ChatTab.Group, who, chat, ChatIcon.HGM, ChatColor.Admin));
                     break;
                 case ChatType.PM:
-                    if(targetCharacter == _chatRepository.PMTarget1)
+                    if (targetCharacter == _chatRepository.PMTarget1)
                         _chatRepository.AllChat[ChatTab.Private1].Add(new ChatData(ChatTab.Private1, who, chat, ChatIcon.Note, ChatColor.PM));
                     else if (targetCharacter == _chatRepository.PMTarget2)
                         _chatRepository.AllChat[ChatTab.Private2].Add(new ChatData(ChatTab.Private2, who, chat, ChatIcon.Note, ChatColor.PM));

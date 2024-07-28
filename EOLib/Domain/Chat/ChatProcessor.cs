@@ -1,9 +1,9 @@
-﻿using System;
-using System.Linq;
-using System.Text;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Config;
 using EOLib.Localization;
+using System;
+using System.Linq;
+using System.Text;
 
 namespace EOLib.Domain.Chat
 {
@@ -67,21 +67,21 @@ namespace EOLib.Domain.Chat
                 if (char.ToLower(c) == 'e' || char.ToLower(c) == 'a')
                 {
                     if (_random.Next(100) < 70)
-                        ret.Insert(i+1, 'j');
+                        ret.Insert(i + 1, 'j');
                 }
                 else if (char.ToLower(c) == 'u' || char.ToLower(c) == 'o')
                 {
                     if (_random.Next(100) < 70)
-                        ret.Insert(i+1, 'w');
+                        ret.Insert(i + 1, 'w');
                 }
                 else if (c == 'i')
                 {
                     if (_random.Next(100) < 40)
-                        ret.Insert(i+1, 'u');
+                        ret.Insert(i + 1, 'u');
                 }
                 else if (c != ' ' && _random.Next(100) < 40)
                 {
-                    ret.Insert(i+1, c);
+                    ret.Insert(i + 1, c);
                 }
             }
 
@@ -105,7 +105,7 @@ namespace EOLib.Domain.Chat
             {
                 if (ret[i] == ' ' && _random.Next(100) < 30)
                 {
-                    ret.Insert(i+1, "*hic* ");
+                    ret.Insert(i + 1, "*hic* ");
                     i += 6;
                 }
             }

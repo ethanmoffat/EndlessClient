@@ -1,6 +1,6 @@
-﻿using System;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.IO.Pub;
+using System;
 
 namespace EOLib.Domain.Item
 {

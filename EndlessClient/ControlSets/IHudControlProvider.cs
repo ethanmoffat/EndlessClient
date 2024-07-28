@@ -33,7 +33,7 @@ namespace EndlessClient.ControlSets
         {
             get
             {
-                if(!IsInGame)
+                if (!IsInGame)
                     throw new InvalidOperationException("Not currently in game, in game control set does not exist");
 
                 return (InGameControlSet)_controlSetProvider.CurrentControlSet;

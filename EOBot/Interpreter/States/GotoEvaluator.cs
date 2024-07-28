@@ -20,7 +20,7 @@ namespace EOBot.Interpreter.States
             var label = input.OperationStack.Pop();
             if (!input.Labels.ContainsKey(label.TokenValue))
                 return Task.FromResult(IdentifierNotFoundError(new IdentifierBotToken(label)));
-            
+
             var result = input.Goto(input.Labels[label.TokenValue]);
             return Task.FromResult(result ? Success() : GotoError(label));
         }

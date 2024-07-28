@@ -33,7 +33,7 @@ namespace EndlessClient.Rendering
 
         public override void Update(GameTime gameTime)
         {
-            lock(_queuelocker_)
+            lock (_queuelocker_)
             {
                 if (_actions.Any())
                 {

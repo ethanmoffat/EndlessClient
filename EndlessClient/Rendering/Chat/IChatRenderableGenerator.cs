@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using EOLib.Domain.Chat;
+﻿using EOLib.Domain.Chat;
+using System.Collections.Generic;
 
 namespace EndlessClient.Rendering.Chat
 {

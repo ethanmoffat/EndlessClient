@@ -33,7 +33,7 @@ namespace EndlessClient.HUD.Spells
             set
             {
                 _displaySlot = value;
-                DrawPosition = GetDisplayPosition(_displaySlot);  
+                DrawPosition = GetDisplayPosition(_displaySlot);
             }
         }
 

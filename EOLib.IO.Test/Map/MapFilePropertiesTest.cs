@@ -1,14 +1,14 @@
-﻿using System;
+﻿using EOLib.IO.Map;
+using EOLib.IO.Services;
+using EOLib.IO.Services.Serializers;
+using NUnit.Framework;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using EOLib.IO.Map;
-using EOLib.IO.Services;
-using EOLib.IO.Services.Serializers;
-using NUnit.Framework;
 
 namespace EOLib.IO.Test.Map
 {
@@ -80,20 +80,20 @@ namespace EOLib.IO.Test.Map
         [Test]
         public void MapFileProperties_DeserializeFromByteArray_ThrowsExceptionWhenIncorrectSize()
         {
-            var bytes = new byte[] {1, 2};
+            var bytes = new byte[] { 1, 2 };
             Assert.Throws<ArgumentException>(() => _mapPropertiesSerializer.DeserializeFromByteArray(bytes));
         }
 
         [Test]
         public void MapFileProperties_DeserializeFromByteArray_ThrowsExceptionWhenNotEMF()
         {
-            var bytes = Enumerable.Repeat((byte) 254, MapFileProperties.DATA_SIZE).ToArray();
+            var bytes = Enumerable.Repeat((byte)254, MapFileProperties.DATA_SIZE).ToArray();
             Assert.Throws<FormatException>(() => _mapPropertiesSerializer.DeserializeFromByteArray(bytes));
         }
 
         private static IMapFileProperties CreateMapPropertiesWithSomeTestData(IMapFileProperties props)
         {
-            return props.WithChecksum(new List<int> {1, 2})
+            return props.WithChecksum(new List<int> { 1, 2 })
                 .WithName("Some test name")
                 .WithWidth(200)
                 .WithHeight(100)
@@ -118,7 +118,7 @@ namespace EOLib.IO.Test.Map
 
             ret.AddRange(Encoding.ASCII.GetBytes(props.FileType));
             ret.AddRange(props.Checksum.SelectMany(x => numberEncoderService.EncodeNumber(x, 2)));
-            
+
             var fullName = Enumerable.Repeat((byte)0xFF, 24).ToArray();
             var encodedName = mapStringEncoderService.EncodeMapString(props.Name, props.Name.Length);
             Array.Copy(encodedName, 0, fullName, fullName.Length - encodedName.Length, encodedName.Length);

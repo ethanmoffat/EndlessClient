@@ -1,5 +1,5 @@
-﻿using System.Linq;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
+using System.Linq;
 
 namespace EOLib.Domain.Account
 {

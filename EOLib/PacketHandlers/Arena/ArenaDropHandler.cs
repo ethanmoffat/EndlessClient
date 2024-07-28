@@ -29,7 +29,7 @@ namespace EOLib.PacketHandlers.Arena
 
         public override bool HandlePacket(ArenaDropServerPacket packet)
         {
-            foreach (var  notifier in _arenaNotifiers)
+            foreach (var notifier in _arenaNotifiers)
             {
                 notifier.NotifyArenaBusy();
             }

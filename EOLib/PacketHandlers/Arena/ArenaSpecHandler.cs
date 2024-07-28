@@ -54,7 +54,7 @@ namespace EOLib.PacketHandlers.Arena
                 _currentMapStateRepository.UnknownPlayerIDs.Add(packet.PlayerId);
             }
 
-            foreach (var  notifier in _arenaNotifiers)
+            foreach (var notifier in _arenaNotifiers)
             {
                 notifier.NotifyArenaKill(packet.KillsCount, packet.KillerName, packet.VictimName);
             }

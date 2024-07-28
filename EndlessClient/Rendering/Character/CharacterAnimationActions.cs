@@ -130,7 +130,7 @@ namespace EndlessClient.Rendering.Character
                 return;
 
             Animator.StartOtherCharacterWalkAnimation(characterID, destination, direction);
-            
+
             ShowWaterSplashiesIfNeeded(CharacterActionState.Walking, characterID);
 
             if (IsSteppingStone(character.RenderProperties))
@@ -198,7 +198,7 @@ namespace EndlessClient.Rendering.Character
             var spellGraphic = _pubFileProvider.ESFFile[spellId].Graphic;
 
             if (playerId == _characterRepository.MainCharacter.ID)
-            { 
+            {
                 _characterRendererProvider.MainCharacterRenderer.MatchSome(cr =>
                 {
                     cr.ShoutSpellCast();

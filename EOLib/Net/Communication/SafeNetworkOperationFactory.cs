@@ -1,7 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Net.Connection;
+using System;
+using System.Threading.Tasks;
 
 namespace EOLib.Net.Communication
 {

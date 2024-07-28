@@ -29,7 +29,8 @@ namespace EOLib.PacketHandlers.NPC
                               IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers,
                               IEnumerable<IOtherCharacterAnimationNotifier> otherCharacterAnimationNotifiers)
             : base(playerInfoProvider, characterRepository, currentMapStateRepository, characterSessionRepository,
-                  npcActionNotifiers, mainCharacterEventNotifiers, otherCharacterAnimationNotifiers) { }
+                  npcActionNotifiers, mainCharacterEventNotifiers, otherCharacterAnimationNotifiers)
+        { }
 
         public override bool HandlePacket(NpcSpecServerPacket packet)
         {

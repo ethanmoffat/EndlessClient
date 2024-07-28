@@ -31,7 +31,7 @@ namespace EndlessClient.Rendering.Effects
         }
 
         public IList<IEffectSpriteInfo> GetEffectInfo(int graphic, EffectMetadata metadata)
-        {            
+        {
             var baseGraphic = 101 + (graphic - 1) * 3;
 
             var retList = new List<IEffectSpriteInfo>();

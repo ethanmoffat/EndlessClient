@@ -1,11 +1,11 @@
-﻿using System.Linq;
-using EndlessClient.Rendering.Map;
+﻿using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Linq;
 
 namespace EndlessClient.Rendering.MapEntityRenderers
 {
@@ -39,7 +39,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
             var gfx = _nativeGraphicsManager.TextureFromResource(GFXTypes.MapWalls, gfxNum, true);
 
-            var gfxWidthDelta = gfx.Width/4;
+            var gfxWidthDelta = gfx.Width / 4;
             var src = gfx.Width > WALL_FRAME_WIDTH
                 ? new Rectangle?(new Rectangle(gfxWidthDelta * _frameIndex, 0, gfxWidthDelta, gfx.Height))
                 : null;

@@ -1,7 +1,4 @@
-﻿using System;
-using System.DirectoryServices.ActiveDirectory;
-using System.Linq;
-using EndlessClient.Rendering.Map;
+﻿using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
@@ -9,7 +6,9 @@ using EOLib.Graphics;
 using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-
+using System;
+using System.DirectoryServices.ActiveDirectory;
+using System.Linq;
 using DomainCharacter = EOLib.Domain.Character.Character;
 
 namespace EndlessClient.Rendering.MapEntityRenderers

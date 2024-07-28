@@ -12,12 +12,12 @@ namespace EndlessClient.Rendering
     {
         private const int WidthFactor = 32;
         private const int HeightFactor = 16;
-        private const int WalkWidthFactor = WidthFactor/4;
-        private const int WalkHeightFactor = HeightFactor/4;
+        private const int WalkWidthFactor = WidthFactor / 4;
+        private const int WalkHeightFactor = HeightFactor / 4;
 
         public int CalculateOffsetX(CharacterRenderProperties properties)
         {
-            return properties.MapX*WidthFactor - properties.MapY*WidthFactor + CalculateWalkAdjustX(properties);
+            return properties.MapX * WidthFactor - properties.MapY * WidthFactor + CalculateWalkAdjustX(properties);
         }
 
         public int CalculateWalkAdjustX(CharacterRenderProperties properties)
@@ -29,7 +29,7 @@ namespace EndlessClient.Rendering
 
         public int CalculateOffsetY(CharacterRenderProperties properties)
         {
-            return properties.MapX*HeightFactor + properties.MapY*HeightFactor + CalculateWalkAdjustY(properties);
+            return properties.MapX * HeightFactor + properties.MapY * HeightFactor + CalculateWalkAdjustY(properties);
         }
 
         public int CalculateWalkAdjustY(CharacterRenderProperties properties)
@@ -41,7 +41,7 @@ namespace EndlessClient.Rendering
 
         public int CalculateOffsetX(EOLib.Domain.NPC.NPC npc)
         {
-            return npc.X*WidthFactor - npc.Y*WidthFactor + CalculateWalkAdjustX(npc);
+            return npc.X * WidthFactor - npc.Y * WidthFactor + CalculateWalkAdjustX(npc);
         }
 
         public int CalculateWalkAdjustX(EOLib.Domain.NPC.NPC npc)
@@ -54,7 +54,7 @@ namespace EndlessClient.Rendering
 
         public int CalculateOffsetY(EOLib.Domain.NPC.NPC npc)
         {
-            return npc.X*HeightFactor + npc.Y*HeightFactor + CalculateWalkAdjustY(npc);
+            return npc.X * HeightFactor + npc.Y * HeightFactor + CalculateWalkAdjustY(npc);
         }
 
         public int CalculateWalkAdjustY(EOLib.Domain.NPC.NPC npc)

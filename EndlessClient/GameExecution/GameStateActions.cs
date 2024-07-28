@@ -1,18 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.ControlSets;
-using EndlessClient.Network;
-using EOLib.Domain.Character;
-using EOLib.Domain.Login;
-using EndlessClient.Rendering;
-using Microsoft.Xna.Framework;
-using XNAControls.Input;
 using EndlessClient.HUD.Panels;
+using EndlessClient.Network;
+using EndlessClient.Rendering;
 using EOLib;
 using EOLib.Config;
+using EOLib.Domain.Character;
+using EOLib.Domain.Login;
+using Microsoft.Xna.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using XNAControls.Input;
 
 namespace EndlessClient.GameExecution
 {

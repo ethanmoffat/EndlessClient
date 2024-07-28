@@ -1,17 +1,17 @@
 using AutomaticTypeMapper;
+using EndlessClient.Audio;
+using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.Rendering.Character;
-using EOLib.Graphics;
-using EndlessClient.Content;
 using EndlessClient.Rendering.Factories;
 using EOLib.Domain.Character;
-using EOLib.Localization;
 using EOLib.Domain.Interact.Barber;
-using EOLib.IO.Repositories;
 using EOLib.Domain.Notifiers;
+using EOLib.Graphics;
+using EOLib.IO.Repositories;
+using EOLib.Localization;
 using System.Collections.Generic;
-using EndlessClient.Audio;
 
 namespace EndlessClient.Dialogs.Factories
 {

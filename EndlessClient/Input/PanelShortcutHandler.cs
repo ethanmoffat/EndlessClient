@@ -45,7 +45,7 @@ namespace EndlessClient.Input
 
                         case Keys.D7: _hudButtonController.ClickOnlineList(); break;
                         case Keys.D8: _hudButtonController.ClickParty(); break;
-                            // macro: intentionally not implemented
+                        // macro: intentionally not implemented
                         case Keys.D9: _hudButtonController.ClickSettings(); break;
                         case Keys.D0: _hudButtonController.ClickHelp(); break;
                     }

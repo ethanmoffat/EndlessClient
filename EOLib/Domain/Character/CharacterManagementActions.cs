@@ -49,7 +49,7 @@ namespace EOLib.Domain.Character
             var response = await _packetSendService.SendEncodedPacketAndWaitAsync(packet);
             if (!(response is CharacterReplyServerPacket responsePacket))
                 throw new EmptyPacketReceivedException();
-            
+
             if (responsePacket.ReplyCodeData is CharacterReplyServerPacket.ReplyCodeDataOk dataOk && dataOk.Characters.Any())
             {
                 _characterSelectorRepository.Characters = dataOk.Characters

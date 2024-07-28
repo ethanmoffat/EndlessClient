@@ -297,8 +297,8 @@ namespace EndlessClient.Rendering.Map
                     }
                 }
 
-            if (transitionComplete)
-                _mapTransitionState = new MapTransitionState(Option.None<DateTime>(), 0);
+                if (transitionComplete)
+                    _mapTransitionState = new MapTransitionState(Option.None<DateTime>(), 0);
 
                 _sb.End();
                 GraphicsDevice.SetRenderTarget(null);
@@ -573,7 +573,7 @@ namespace EndlessClient.Rendering.Map
         internal MapQuakeState NextState()
         {
             var flip = -OffsetTarget / Math.Abs(OffsetTarget);
-            var offset = OffsetTarget + 1*flip;
+            var offset = OffsetTarget + 1 * flip;
             var nextOffsetTarget = NewOffsetTarget(Magnitude) * flip;
 
             return new MapQuakeState(Magnitude, offset, nextOffsetTarget, Flips + 1);

@@ -26,7 +26,7 @@ namespace EOLib.PacketHandlers.Message
         {
             _serverRebootNotifiers = serverRebootNotifiers;
         }
-        
+
 
         public override bool HandlePacket(MessageCloseServerPacket packet)
         {

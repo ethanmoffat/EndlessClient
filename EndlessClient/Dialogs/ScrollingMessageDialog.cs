@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using EndlessClient.Content;
+﻿using EndlessClient.Content;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
 using EndlessClient.UIControls;
@@ -8,6 +6,8 @@ using EOLib;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended.BitmapFonts;
+using System;
+using System.Collections.Generic;
 using XNAControls;
 
 namespace EndlessClient.Dialogs

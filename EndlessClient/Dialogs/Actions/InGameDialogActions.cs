@@ -70,7 +70,7 @@ namespace EndlessClient.Dialogs.Actions
                                    IHelpDialogFactory helpDialogFactory,
                                    ISfxPlayer sfxPlayer,
                                    IStatusLabelSetter statusLabelSetter,
-                                   IBarberDialogFactory barberDialogFactory)               
+                                   IBarberDialogFactory barberDialogFactory)
         {
             _friendIgnoreListDialogFactory = friendIgnoreListDialogFactory;
             _paperdollDialogFactory = paperdollDialogFactory;
@@ -451,7 +451,7 @@ namespace EndlessClient.Dialogs.Actions
                 UseDefaultDialogSounds(dlg);
             });
         }
-        
+
         public void ShowBarberDialog()
         {
             _activeDialogRepository.BarberDialog.MatchNone(() =>

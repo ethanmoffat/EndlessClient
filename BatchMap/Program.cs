@@ -1,12 +1,12 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib;
 using EOLib.IO.Actions;
 using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
+using System;
+using System.IO;
+using System.Linq;
 
 namespace BatchMap
 {
@@ -34,7 +34,7 @@ namespace BatchMap
                 Console.WriteLine("Invalid: single map cannot be processed into output directory. Specify destination emf file.");
                 return;
             }
-            
+
             if (dstFilePath.ToLower().EndsWith(".emf") && !srcFilePath.ToLower().EndsWith(".emf"))
             {
                 Console.WriteLine("Invalid: map directory cannot be processed into single output map. Specify destination output directory.");
@@ -149,7 +149,7 @@ namespace BatchMap
             var mapFileLoadActions = _typeRegistry.Resolve<IMapFileLoadActions>();
             var mapFileSaveService = _typeRegistry.Resolve<IMapFileSaveService>();
 
-            var inFiles = singleFile ? new[] {src} : Directory.GetFiles(src, "*.emf");
+            var inFiles = singleFile ? new[] { src } : Directory.GetFiles(src, "*.emf");
 
             for (int mapIndex = 0; mapIndex < inFiles.Length; ++mapIndex)
             {
@@ -157,7 +157,7 @@ namespace BatchMap
 
                 mapFileLoadActions.LoadMapFileByName(inFiles[mapIndex]);
                 var mapFile = _mapFileProvider.MapFiles[mapID];
-                
+
                 var changesMade = false;
 
                 //todo: find way to store actual input data, since invalid tiles/warps will be auto-removed
@@ -192,7 +192,7 @@ namespace BatchMap
                 //    }
                 //}
 
-                for(int ndx = mapFile.NPCSpawns.Count - 1; ndx >= 0; --ndx)
+                for (int ndx = mapFile.NPCSpawns.Count - 1; ndx >= 0; --ndx)
                 {
                     var npcSpawn = mapFile.NPCSpawns[ndx];
                     var npcRec = _pubProvider.ENFFile[npcSpawn.ID];
@@ -239,7 +239,7 @@ namespace BatchMap
                     }
                 }
 
-                for(int ndx = mapFile.Chests.Count - 1; ndx >= 0; --ndx)
+                for (int ndx = mapFile.Chests.Count - 1; ndx >= 0; --ndx)
                 {
                     var chestSpawn = mapFile.Chests[ndx];
                     var rec = _pubProvider.EIFFile[chestSpawn.ItemID];

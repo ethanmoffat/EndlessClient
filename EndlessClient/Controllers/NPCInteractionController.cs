@@ -43,7 +43,7 @@ namespace EndlessClient.Controllers
             // there is no "NPC" text in the localized files
             _statusLabelSetter.SetStatusLabel($"[ NPC ] {data.Name}");
 
-            switch(data.Type)
+            switch (data.Type)
             {
                 case EOLib.IO.NPCType.Shop:
                     _mapNpcActions.RequestShop(npc);

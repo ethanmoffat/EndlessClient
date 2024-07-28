@@ -348,7 +348,7 @@ namespace EndlessClient.Controllers
                     EOResourceID.DIALOG_TRANSFER_OFFER);
             }
         }
-        
+
         private void DoItemDrop(EIFRecord itemData, InventoryItem inventoryItem, Action<int> dropAction,
                  ItemTransferDialog.TransferType transferType = ItemTransferDialog.TransferType.DropItems,
                  EOResourceID message = EOResourceID.DIALOG_TRANSFER_DROP)
@@ -360,7 +360,7 @@ namespace EndlessClient.Controllers
                     transferType,
                     inventoryItem.Amount,
                     message);
-                
+
                 transferDialog.DialogClosing += (sender, e) =>
                 {
                     if (e.Result == XNADialogResult.OK)

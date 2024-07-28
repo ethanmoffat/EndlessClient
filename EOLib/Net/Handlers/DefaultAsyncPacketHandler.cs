@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace EOLib.Net.Handlers
 {
     public abstract class DefaultAsyncPacketHandler<TPacket> : IPacketHandler<TPacket>
-        where TPacket: IPacket
+        where TPacket : IPacket
     {
         public abstract PacketFamily Family { get; }
 

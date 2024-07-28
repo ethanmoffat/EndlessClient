@@ -78,7 +78,7 @@ namespace EndlessClient.Rendering
                                    IContextMenuRepository contextMenuRepository,
                                    IPartyDataProvider partyDataProvider,
                                    ICharacterRenderer characterRenderer,
-                                   ICurrentMapStateProvider currentMapStateProvider, 
+                                   ICurrentMapStateProvider currentMapStateProvider,
                                    IEOMessageBoxFactory messageBoxFactory,
                                    IClientWindowSizeProvider clientWindowSizeProvider,
                                    ISfxPlayer sfxPlayer)

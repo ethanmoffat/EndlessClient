@@ -80,7 +80,7 @@ namespace EndlessClient.Rendering
             _contextMenuProvider = contextMenuProvider;
 
             SingleCursorFrameArea = new Rectangle(0, 0,
-                                                  _mouseCursorTexture.Width/(int) CursorIndex.NumberOfFramesInSheet,
+                                                  _mouseCursorTexture.Width / (int)CursorIndex.NumberOfFramesInSheet,
                                                   _mouseCursorTexture.Height);
             DrawArea = SingleCursorFrameArea;
 
@@ -258,7 +258,7 @@ namespace EndlessClient.Rendering
             {
                 spriteBatch.Draw(_mouseCursorTexture,
                                  DrawPosition + additionalOffset,
-                                 new Rectangle(SingleCursorFrameArea.Width*(int) _cursorIndex,
+                                 new Rectangle(SingleCursorFrameArea.Width * (int)_cursorIndex,
                                                0,
                                                SingleCursorFrameArea.Width,
                                                SingleCursorFrameArea.Height),

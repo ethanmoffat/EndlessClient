@@ -14,7 +14,7 @@ namespace EndlessClient.Rendering.Map
         private readonly ICharacterProvider _characterProvider;
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
         private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
-        
+
         public MapObjectBoundsCalculator(INativeGraphicsManager nativeGraphicsManager,
                                          ICharacterProvider characterProvider,
                                          IRenderOffsetCalculator renderOffsetCalculator,

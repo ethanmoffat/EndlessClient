@@ -1,7 +1,4 @@
-﻿using System;
-using System.Globalization;
-using System.Windows;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
@@ -12,6 +9,9 @@ using EOLib.Domain.Chat;
 using EOLib.Domain.Notifiers;
 using EOLib.Localization;
 using Optional;
+using System;
+using System.Globalization;
+using System.Windows;
 
 namespace EndlessClient.HUD.Chat
 {
