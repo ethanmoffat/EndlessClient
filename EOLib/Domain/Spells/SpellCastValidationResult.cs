@@ -7,5 +7,6 @@
         WrongTargetType,
         ExhaustedNoSp,
         ExhaustedNoTp,
+        Frozen,
     }
 }

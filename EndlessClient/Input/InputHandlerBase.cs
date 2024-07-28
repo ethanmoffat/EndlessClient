@@ -1,4 +1,5 @@
 ﻿using EndlessClient.GameExecution;
+using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework.Input;
 using Optional;
@@ -17,6 +18,7 @@ namespace EndlessClient.Input
         private readonly IUserInputProvider _keyStateProvider;
         private readonly IUserInputTimeRepository _userInputTimeRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
+        private readonly IPlayerInfoProvider _playerInfoProvider;
 
         private KeyboardState CurrentState => _keyStateProvider.CurrentKeyState;
 
@@ -25,12 +27,14 @@ namespace EndlessClient.Input
         protected InputHandlerBase(IEndlessGameProvider endlessGameProvider,
                                    IUserInputProvider userInputProvider,
                                    IUserInputTimeRepository userInputTimeRepository,
-                                   ICurrentMapStateRepository currentMapStateRepository)
+                                   ICurrentMapStateRepository currentMapStateRepository,
+                                   IPlayerInfoProvider playerInfoProvider)
         {
             _endlessGameProvider = endlessGameProvider;
             _keyStateProvider = userInputProvider;
             _userInputTimeRepository = userInputTimeRepository;
             _currentMapStateRepository = currentMapStateRepository;
+            _playerInfoProvider = playerInfoProvider;
         }
 
         public void HandleKeyboardInput(DateTime timeAtBeginningOfUpdate)

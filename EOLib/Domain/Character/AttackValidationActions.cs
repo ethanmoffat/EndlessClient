@@ -1,5 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Extensions;
+using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.IO.Repositories;
 using System.Linq;
@@ -13,13 +14,16 @@ namespace EOLib.Domain.Character
         private readonly IMapCellStateProvider _mapCellStateProvider;
         private readonly IEIFFileProvider _eifFileProvider;
         private readonly IENFFileProvider _enfFileProvider;
+        private readonly IPlayerInfoProvider _playerInfoProvider;
 
         public AttackValidationActions(ICharacterProvider characterProvider,
+									   IPlayerInfoProvider playerInfoProvider,
                                        IMapCellStateProvider mapCellStateProvider,
                                        IEIFFileProvider eifFileProvider,
                                        IENFFileProvider enfFileProvider)
         {
             _characterProvider = characterProvider;
+            _playerInfoProvider = playerInfoProvider;
             _mapCellStateProvider = mapCellStateProvider;
             _eifFileProvider = eifFileProvider;
             _enfFileProvider = enfFileProvider;
@@ -27,6 +31,8 @@ namespace EOLib.Domain.Character
 
         public AttackValidationError ValidateCharacterStateBeforeAttacking()
         {
+            if (_playerInfoProvider.IsPlayerFrozen)
+                return AttackValidationError.Frozen;
             if (_characterProvider.MainCharacter.Stats[CharacterStat.Weight] >
                 _characterProvider.MainCharacter.Stats[CharacterStat.MaxWeight])
                 return AttackValidationError.Overweight;
@@ -73,6 +79,7 @@ namespace EOLib.Domain.Character
         Overweight,
         Exhausted,
         NotYourBattle,
-        MissingArrows
+        MissingArrows,
+        Frozen,
     }
 }
