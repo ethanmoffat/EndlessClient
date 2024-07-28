@@ -1,11 +1,10 @@
-﻿namespace EndlessClient.GameExecution
+﻿namespace EndlessClient.GameExecution;
+
+public interface IGameStateActions
 {
-    public interface IGameStateActions
-    {
-        void ChangeToState(GameStates newState);
+    void ChangeToState(GameStates newState);
 
-        void RefreshCurrentState();
+    void RefreshCurrentState();
 
-        void ExitGame();
-    }
+    void ExitGame();
 }

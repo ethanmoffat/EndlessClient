@@ -1,9 +1,8 @@
-﻿namespace EndlessClient.HUD.Chat
-{
-    public interface IChatTextBoxActions
-    {
-        void ClearChatText();
+﻿namespace EndlessClient.HUD.Chat;
 
-        void FocusChatTextBox();
-    }
+public interface IChatTextBoxActions
+{
+    void ClearChatText();
+
+    void FocusChatTextBox();
 }

@@ -1,42 +1,41 @@
 ﻿using AutomaticTypeMapper;
 using System;
 
-namespace EOLib.Graphics
+namespace EOLib.Graphics;
+
+[MappedType(BaseType = typeof(INativeGraphicsLoader), IsSingleton = true)]
+public class NativeGraphicsLoader : INativeGraphicsLoader
 {
-    [MappedType(BaseType = typeof(INativeGraphicsLoader), IsSingleton = true)]
-    public class NativeGraphicsLoader : INativeGraphicsLoader
+    private readonly IPEFileCollection _modules;
+
+    public NativeGraphicsLoader(IPEFileCollection modules)
     {
-        private readonly IPEFileCollection _modules;
+        _modules = modules;
+    }
 
-        public NativeGraphicsLoader(IPEFileCollection modules)
+    public ReadOnlyMemory<byte> LoadGFX(GFXTypes file, int resourceValue)
+    {
+        var fileBytes = ReadOnlyMemory<byte>.Empty;
+        try
         {
-            _modules = modules;
+            fileBytes = _modules[file].GetEmbeddedBitmapResourceByID(resourceValue + 100);
+        }
+        catch (ArgumentException)
+        {
+#if DEBUG
+            throw;
+#endif
         }
 
-        public ReadOnlyMemory<byte> LoadGFX(GFXTypes file, int resourceValue)
+        if (fileBytes.Length == 0)
         {
-            var fileBytes = ReadOnlyMemory<byte>.Empty;
-            try
-            {
-                fileBytes = _modules[file].GetEmbeddedBitmapResourceByID(resourceValue + 100);
-            }
-            catch (ArgumentException)
-            {
 #if DEBUG
-                throw;
-#endif
-            }
-
-            if (fileBytes.Length == 0)
-            {
-#if DEBUG
-                throw new GFXLoadException(resourceValue, file);
+            throw new GFXLoadException(resourceValue, file);
 #else
-                return Array.Empty<byte>();
+            return Array.Empty<byte>();
 #endif
-            }
-
-            return fileBytes;
         }
+
+        return fileBytes;
     }
 }

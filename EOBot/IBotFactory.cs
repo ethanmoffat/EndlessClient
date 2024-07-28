@@ -1,7 +1,6 @@
-﻿namespace EOBot
+﻿namespace EOBot;
+
+interface IBotFactory
 {
-    interface IBotFactory
-    {
-        IBot CreateBot(int index);
-    }
+    IBot CreateBot(int index);
 }

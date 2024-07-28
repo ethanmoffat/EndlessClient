@@ -2,15 +2,14 @@
 using NUnit.Framework;
 using System.Diagnostics.CodeAnalysis;
 
-namespace EOLib.IO.Test.Pub
+namespace EOLib.IO.Test.Pub;
+
+[TestFixture, ExcludeFromCodeCoverage]
+public class ESFFileTest
 {
-    [TestFixture, ExcludeFromCodeCoverage]
-    public class ESFFileTest
+    [Test]
+    public void HasCorrectFileType()
     {
-        [Test]
-        public void HasCorrectFileType()
-        {
-            Assert.That(new ESFFile().FileType, Is.EqualTo("ESF"));
-        }
+        Assert.That(new ESFFile().FileType, Is.EqualTo("ESF"));
     }
 }

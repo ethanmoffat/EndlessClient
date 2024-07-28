@@ -4,18 +4,17 @@ using Optional;
 using System.Threading.Tasks;
 using XNAControls;
 
-namespace EndlessClient.Dialogs.Actions
+namespace EndlessClient.Dialogs.Actions;
+
+public interface ICharacterDialogActions
 {
-    public interface ICharacterDialogActions
-    {
-        Task<Option<ICharacterCreateParameters>> ShowCreateCharacterDialog();
+    Task<Option<ICharacterCreateParameters>> ShowCreateCharacterDialog();
 
-        void ShowCharacterReplyDialog(CharacterReply response);
+    void ShowCharacterReplyDialog(CharacterReply response);
 
-        void ShowCharacterDeleteWarning(string characterName);
+    void ShowCharacterDeleteWarning(string characterName);
 
-        Task<XNADialogResult> ShowConfirmDeleteWarning(string characterName);
+    Task<XNADialogResult> ShowConfirmDeleteWarning(string characterName);
 
-        void ShowCharacterDeleteError();
-    }
+    void ShowCharacterDeleteError();
 }

@@ -1,26 +1,25 @@
 ﻿using AutomaticTypeMapper;
 using System;
 
-namespace EndlessClient.Input
+namespace EndlessClient.Input;
+
+public interface IUserInputTimeRepository
 {
-    public interface IUserInputTimeRepository
-    {
-        DateTime LastInputTime { get; set; }
-    }
+    DateTime LastInputTime { get; set; }
+}
 
-    public interface IUserInputTimeProvider
-    {
-        DateTime LastInputTime { get; }
-    }
+public interface IUserInputTimeProvider
+{
+    DateTime LastInputTime { get; }
+}
 
-    [AutoMappedType(IsSingleton = true)]
-    public class UserInputTimeRepository : IUserInputTimeRepository, IUserInputTimeProvider
-    {
-        public DateTime LastInputTime { get; set; }
+[AutoMappedType(IsSingleton = true)]
+public class UserInputTimeRepository : IUserInputTimeRepository, IUserInputTimeProvider
+{
+    public DateTime LastInputTime { get; set; }
 
-        public UserInputTimeRepository()
-        {
-            LastInputTime = DateTime.Now;
-        }
+    public UserInputTimeRepository()
+    {
+        LastInputTime = DateTime.Now;
     }
 }

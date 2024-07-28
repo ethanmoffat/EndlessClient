@@ -2,12 +2,11 @@
 using EOLib.Domain.Character;
 using System.Collections.Generic;
 
-namespace EndlessClient.UIControls
+namespace EndlessClient.UIControls;
+
+public interface ICharacterInfoPanelFactory
 {
-    public interface ICharacterInfoPanelFactory
-    {
-        IEnumerable<CharacterInfoPanel> CreatePanels(IEnumerable<Character> characters);
-        void InjectLoginController(ILoginController loginController);
-        void InjectCharacterManagementController(ICharacterManagementController characterManagementController);
-    }
+    IEnumerable<CharacterInfoPanel> CreatePanels(IEnumerable<Character> characters);
+    void InjectLoginController(ILoginController loginController);
+    void InjectCharacterManagementController(ICharacterManagementController characterManagementController);
 }

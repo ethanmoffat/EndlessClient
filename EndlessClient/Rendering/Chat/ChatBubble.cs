@@ -8,192 +8,191 @@ using System;
 using System.Diagnostics;
 using XNAControls;
 
-namespace EndlessClient.Rendering.Chat
+namespace EndlessClient.Rendering.Chat;
+
+public class ChatBubble : DrawableGameComponent, IChatBubble
 {
-    public class ChatBubble : DrawableGameComponent, IChatBubble
+    private readonly IMapActor _parent;
+    private readonly IChatBubbleTextureProvider _chatBubbleTextureProvider;
+    private readonly IConfigurationProvider _configurationProvider;
+    private readonly SpriteBatch _spriteBatch;
+
+    private readonly XNALabel _textLabel;
+
+    private bool _isGroupChat;
+    private Vector2 _drawLocation;
+    private Option<Stopwatch> _startTime;
+
+    public ChatBubble(IMapActor referenceRenderer,
+                      IChatBubbleTextureProvider chatBubbleTextureProvider,
+                      IEndlessGameProvider gameProvider,
+                      IConfigurationProvider configurationProvider)
+        : base((Game)gameProvider.Game)
     {
-        private readonly IMapActor _parent;
-        private readonly IChatBubbleTextureProvider _chatBubbleTextureProvider;
-        private readonly IConfigurationProvider _configurationProvider;
-        private readonly SpriteBatch _spriteBatch;
+        _parent = referenceRenderer;
+        _chatBubbleTextureProvider = chatBubbleTextureProvider;
+        _configurationProvider = configurationProvider;
+        _spriteBatch = new SpriteBatch(((Game)gameProvider.Game).GraphicsDevice);
 
-        private readonly XNALabel _textLabel;
-
-        private bool _isGroupChat;
-        private Vector2 _drawLocation;
-        private Option<Stopwatch> _startTime;
-
-        public ChatBubble(IMapActor referenceRenderer,
-                          IChatBubbleTextureProvider chatBubbleTextureProvider,
-                          IEndlessGameProvider gameProvider,
-                          IConfigurationProvider configurationProvider)
-            : base((Game)gameProvider.Game)
+        _textLabel = new XNALabel(Constants.FontSize08pt5)
         {
-            _parent = referenceRenderer;
-            _chatBubbleTextureProvider = chatBubbleTextureProvider;
-            _configurationProvider = configurationProvider;
-            _spriteBatch = new SpriteBatch(((Game)gameProvider.Game).GraphicsDevice);
+            Visible = false,
+            TextWidth = 102,
+            HardBreak = 150,
+            Hyphen = "-",
+            ForeColor = Color.Black,
+            AutoSize = true,
+            Text = string.Empty,
+            DrawOrder = 30,
+            KeepInClientWindowBounds = false,
+        };
 
-            _textLabel = new XNALabel(Constants.FontSize08pt5)
-            {
-                Visible = false,
-                TextWidth = 102,
-                HardBreak = 150,
-                Hyphen = "-",
-                ForeColor = Color.Black,
-                AutoSize = true,
-                Text = string.Empty,
-                DrawOrder = 30,
-                KeepInClientWindowBounds = false,
-            };
+        _drawLocation = Vector2.Zero;
+        _startTime = Option.None<Stopwatch>();
 
-            _drawLocation = Vector2.Zero;
-            _startTime = Option.None<Stopwatch>();
-
-            DrawOrder = 29;
-            Visible = false;
-        }
-
-        public override void Initialize()
-        {
-            _textLabel.Initialize();
-
-            if (!_textLabel.Game.Components.Contains(_textLabel))
-                _textLabel.Game.Components.Add(_textLabel);
-
-            base.Initialize();
-        }
-
-        public void SetMessage(string message, bool isGroupChat)
-        {
-            if (!_configurationProvider.ShowChatBubbles || !_parent.IsAlive)
-                return;
-
-            _isGroupChat = isGroupChat;
-            _textLabel.Text = message;
-            Visible = true;
-            _textLabel.Visible = true;
-
-            _startTime = Option.Some(Stopwatch.StartNew());
-        }
-
-        public void Hide()
-        {
-            Visible = _textLabel.Visible = false;
-        }
-
-        public void Show()
-        {
-            Visible = _textLabel.Visible = _parent.IsAlive && _startTime.HasValue;
-        }
-
-        public override void Update(GameTime gameTime)
-        {
-            SetLabelDrawPosition();
-            _drawLocation = _textLabel.DrawPosition - new Vector2(
-                _chatBubbleTextureProvider.ChatBubbleTextures[ChatBubbleTexture.TopLeft].Width,
-                _chatBubbleTextureProvider.ChatBubbleTextures[ChatBubbleTexture.TopLeft].Height);
-
-            _startTime.MatchSome(st =>
-            {
-                if (st.ElapsedMilliseconds > (24 + _textLabel.Text.Length / 3) * 120)
-                {
-                    _textLabel.Visible = false;
-                    Visible = false;
-                    _startTime = Option.None<Stopwatch>();
-                }
-            });
-
-            base.Update(gameTime);
-        }
-
-        public override void Draw(GameTime gameTime)
-        {
-            var TL = GetTexture(ChatBubbleTexture.TopLeft);
-            var TM = GetTexture(ChatBubbleTexture.TopMiddle);
-            var TR = GetTexture(ChatBubbleTexture.TopRight);
-            var ML = GetTexture(ChatBubbleTexture.MiddleLeft);
-            var MM = GetTexture(ChatBubbleTexture.MiddleMiddle);
-            var MR = GetTexture(ChatBubbleTexture.MiddleRight);
-            var BL = GetTexture(ChatBubbleTexture.BottomLeft);
-            var BM = GetTexture(ChatBubbleTexture.BottomMiddle);
-            var BR = GetTexture(ChatBubbleTexture.BottomRight);
-            var NUB = GetTexture(ChatBubbleTexture.Nubbin);
-
-            var xCov = TL.Width;
-            var yCov = TL.Height;
-
-            var color = _isGroupChat ? Color.FromNonPremultiplied(247, 234, 164, 232) : Color.FromNonPremultiplied(255, 255, 255, 232);
-
-            _spriteBatch.Begin();
-
-            //top row
-            _spriteBatch.Draw(TL, _drawLocation, color);
-            int xCur;
-            for (xCur = xCov; xCur < _textLabel.ActualWidth + 6; xCur += TM.Width)
-            {
-                _spriteBatch.Draw(TM, _drawLocation + new Vector2(xCur, 0), color);
-            }
-            _spriteBatch.Draw(TR, _drawLocation + new Vector2(xCur, 0), color);
-
-            //middle area
-            int y;
-            for (y = yCov; y < _textLabel.ActualHeight; y += ML.Height)
-            {
-                _spriteBatch.Draw(ML, _drawLocation + new Vector2(0, y), color);
-                int x;
-                for (x = xCov; x < xCur; x += MM.Width)
-                {
-                    _spriteBatch.Draw(MM, _drawLocation + new Vector2(x, y), color);
-                }
-                _spriteBatch.Draw(MR, _drawLocation + new Vector2(xCur, y), color);
-            }
-
-            //bottom row
-            _spriteBatch.Draw(BL, _drawLocation + new Vector2(0, y), color);
-            int x2;
-            for (x2 = xCov; x2 < xCur; x2 += BM.Width)
-            {
-                _spriteBatch.Draw(BM, _drawLocation + new Vector2(x2, y), color);
-            }
-            _spriteBatch.Draw(BR, _drawLocation + new Vector2(x2, y), color);
-
-            y += BM.Height;
-            _spriteBatch.Draw(NUB, _drawLocation + new Vector2((x2 + BR.Width - NUB.Width) / 2f, y - 1), color);
-
-            _spriteBatch.End();
-        }
-
-        private void SetLabelDrawPosition()
-        {
-            _textLabel.DrawPosition = new Vector2(
-                _parent.HorizontalCenter - _textLabel.ActualWidth / 2.0f,
-                _parent.NameLabelY - _textLabel.ActualHeight + 10);
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                if (Game.Components != null && Game.Components.Contains(this))
-                    Game.Components.Remove(this);
-
-                _textLabel.Dispose();
-            }
-        }
-
-        private Texture2D GetTexture(ChatBubbleTexture whichTexture) =>
-            _chatBubbleTextureProvider.ChatBubbleTextures[whichTexture];
+        DrawOrder = 29;
+        Visible = false;
     }
 
-    public interface IChatBubble : IDisposable
+    public override void Initialize()
     {
-        bool Visible { get; }
+        _textLabel.Initialize();
 
-        void SetMessage(string message, bool isGroupChat);
+        if (!_textLabel.Game.Components.Contains(_textLabel))
+            _textLabel.Game.Components.Add(_textLabel);
 
-        void Hide();
-
-        void Show();
+        base.Initialize();
     }
+
+    public void SetMessage(string message, bool isGroupChat)
+    {
+        if (!_configurationProvider.ShowChatBubbles || !_parent.IsAlive)
+            return;
+
+        _isGroupChat = isGroupChat;
+        _textLabel.Text = message;
+        Visible = true;
+        _textLabel.Visible = true;
+
+        _startTime = Option.Some(Stopwatch.StartNew());
+    }
+
+    public void Hide()
+    {
+        Visible = _textLabel.Visible = false;
+    }
+
+    public void Show()
+    {
+        Visible = _textLabel.Visible = _parent.IsAlive && _startTime.HasValue;
+    }
+
+    public override void Update(GameTime gameTime)
+    {
+        SetLabelDrawPosition();
+        _drawLocation = _textLabel.DrawPosition - new Vector2(
+            _chatBubbleTextureProvider.ChatBubbleTextures[ChatBubbleTexture.TopLeft].Width,
+            _chatBubbleTextureProvider.ChatBubbleTextures[ChatBubbleTexture.TopLeft].Height);
+
+        _startTime.MatchSome(st =>
+        {
+            if (st.ElapsedMilliseconds > (24 + _textLabel.Text.Length / 3) * 120)
+            {
+                _textLabel.Visible = false;
+                Visible = false;
+                _startTime = Option.None<Stopwatch>();
+            }
+        });
+
+        base.Update(gameTime);
+    }
+
+    public override void Draw(GameTime gameTime)
+    {
+        var TL = GetTexture(ChatBubbleTexture.TopLeft);
+        var TM = GetTexture(ChatBubbleTexture.TopMiddle);
+        var TR = GetTexture(ChatBubbleTexture.TopRight);
+        var ML = GetTexture(ChatBubbleTexture.MiddleLeft);
+        var MM = GetTexture(ChatBubbleTexture.MiddleMiddle);
+        var MR = GetTexture(ChatBubbleTexture.MiddleRight);
+        var BL = GetTexture(ChatBubbleTexture.BottomLeft);
+        var BM = GetTexture(ChatBubbleTexture.BottomMiddle);
+        var BR = GetTexture(ChatBubbleTexture.BottomRight);
+        var NUB = GetTexture(ChatBubbleTexture.Nubbin);
+
+        var xCov = TL.Width;
+        var yCov = TL.Height;
+
+        var color = _isGroupChat ? Color.FromNonPremultiplied(247, 234, 164, 232) : Color.FromNonPremultiplied(255, 255, 255, 232);
+
+        _spriteBatch.Begin();
+
+        //top row
+        _spriteBatch.Draw(TL, _drawLocation, color);
+        int xCur;
+        for (xCur = xCov; xCur < _textLabel.ActualWidth + 6; xCur += TM.Width)
+        {
+            _spriteBatch.Draw(TM, _drawLocation + new Vector2(xCur, 0), color);
+        }
+        _spriteBatch.Draw(TR, _drawLocation + new Vector2(xCur, 0), color);
+
+        //middle area
+        int y;
+        for (y = yCov; y < _textLabel.ActualHeight; y += ML.Height)
+        {
+            _spriteBatch.Draw(ML, _drawLocation + new Vector2(0, y), color);
+            int x;
+            for (x = xCov; x < xCur; x += MM.Width)
+            {
+                _spriteBatch.Draw(MM, _drawLocation + new Vector2(x, y), color);
+            }
+            _spriteBatch.Draw(MR, _drawLocation + new Vector2(xCur, y), color);
+        }
+
+        //bottom row
+        _spriteBatch.Draw(BL, _drawLocation + new Vector2(0, y), color);
+        int x2;
+        for (x2 = xCov; x2 < xCur; x2 += BM.Width)
+        {
+            _spriteBatch.Draw(BM, _drawLocation + new Vector2(x2, y), color);
+        }
+        _spriteBatch.Draw(BR, _drawLocation + new Vector2(x2, y), color);
+
+        y += BM.Height;
+        _spriteBatch.Draw(NUB, _drawLocation + new Vector2((x2 + BR.Width - NUB.Width) / 2f, y - 1), color);
+
+        _spriteBatch.End();
+    }
+
+    private void SetLabelDrawPosition()
+    {
+        _textLabel.DrawPosition = new Vector2(
+            _parent.HorizontalCenter - _textLabel.ActualWidth / 2.0f,
+            _parent.NameLabelY - _textLabel.ActualHeight + 10);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            if (Game.Components != null && Game.Components.Contains(this))
+                Game.Components.Remove(this);
+
+            _textLabel.Dispose();
+        }
+    }
+
+    private Texture2D GetTexture(ChatBubbleTexture whichTexture) =>
+        _chatBubbleTextureProvider.ChatBubbleTextures[whichTexture];
+}
+
+public interface IChatBubble : IDisposable
+{
+    bool Visible { get; }
+
+    void SetMessage(string message, bool isGroupChat);
+
+    void Hide();
+
+    void Show();
 }

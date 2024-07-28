@@ -1,18 +1,17 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace EndlessClient.Rendering.Sprites
+namespace EndlessClient.Rendering.Sprites;
+
+public interface ISpriteSheet
 {
-    public interface ISpriteSheet
-    {
-        bool HasTexture { get; }
+    bool HasTexture { get; }
 
-        Texture2D SheetTexture { get; }
+    Texture2D SheetTexture { get; }
 
-        Rectangle SourceRectangle { get; }
+    Rectangle SourceRectangle { get; }
 
-        T[] GetSourceTextureData<T>() where T : struct;
+    T[] GetSourceTextureData<T>() where T : struct;
 
-        Texture2D GetSourceTexture();
-    }
+    Texture2D GetSourceTexture();
 }

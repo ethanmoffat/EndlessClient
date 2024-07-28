@@ -1,21 +1,20 @@
 ﻿using AutomaticTypeMapper;
 
-namespace EndlessClient.GameExecution
+namespace EndlessClient.GameExecution;
+
+public interface IGameStateRepository
 {
-    public interface IGameStateRepository
-    {
-        GameStates CurrentState { get; set; }
-    }
+    GameStates CurrentState { get; set; }
+}
 
-    public interface IGameStateProvider
-    {
-        GameStates CurrentState { get; }
-    }
+public interface IGameStateProvider
+{
+    GameStates CurrentState { get; }
+}
 
-    [MappedType(BaseType = typeof(IGameStateProvider), IsSingleton = true)]
-    [MappedType(BaseType = typeof(IGameStateRepository), IsSingleton = true)]
-    public class GameStateRepository : IGameStateRepository, IGameStateProvider
-    {
-        public GameStates CurrentState { get; set; }
-    }
+[MappedType(BaseType = typeof(IGameStateProvider), IsSingleton = true)]
+[MappedType(BaseType = typeof(IGameStateRepository), IsSingleton = true)]
+public class GameStateRepository : IGameStateRepository, IGameStateProvider
+{
+    public GameStates CurrentState { get; set; }
 }

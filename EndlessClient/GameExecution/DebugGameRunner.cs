@@ -1,13 +1,12 @@
 ﻿using AutomaticTypeMapper;
 
-namespace EndlessClient.GameExecution
+namespace EndlessClient.GameExecution;
+
+/// <summary>
+/// A game runner that does not catch any exceptions
+/// </summary>
+public class DebugGameRunner : GameRunnerBase
 {
-    /// <summary>
-    /// A game runner that does not catch any exceptions
-    /// </summary>
-    public class DebugGameRunner : GameRunnerBase
-    {
-        public DebugGameRunner(ITypeRegistry registry, string[] args)
-            : base(registry, args) { }
-    }
+    public DebugGameRunner(ITypeRegistry registry, string[] args)
+        : base(registry, args) { }
 }

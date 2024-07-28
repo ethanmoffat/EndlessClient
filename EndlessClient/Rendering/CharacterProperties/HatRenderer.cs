@@ -6,43 +6,42 @@ using EOLib.Domain.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace EndlessClient.Rendering.CharacterProperties
+namespace EndlessClient.Rendering.CharacterProperties;
+
+public class HatRenderer : BaseCharacterPropertyRenderer
 {
-    public class HatRenderer : BaseCharacterPropertyRenderer
+    private readonly ISpriteSheet _hatSheet;
+    private readonly ISpriteSheet _hairSheet;
+    private readonly HairRenderLocationCalculator _hairRenderLocationCalculator;
+
+    public override bool CanRender => _hatSheet.HasTexture && _renderProperties.HatGraphic != 0;
+
+    public HatRenderer(CharacterRenderProperties renderProperties,
+                       ISpriteSheet hatSheet,
+                       ISpriteSheet hairSheet)
+        : base(renderProperties)
     {
-        private readonly ISpriteSheet _hatSheet;
-        private readonly ISpriteSheet _hairSheet;
-        private readonly HairRenderLocationCalculator _hairRenderLocationCalculator;
+        _hatSheet = hatSheet;
+        _hairSheet = hairSheet;
 
-        public override bool CanRender => _hatSheet.HasTexture && _renderProperties.HatGraphic != 0;
+        _hairRenderLocationCalculator = new HairRenderLocationCalculator(_renderProperties);
+    }
 
-        public HatRenderer(CharacterRenderProperties renderProperties,
-                           ISpriteSheet hatSheet,
-                           ISpriteSheet hairSheet)
-            : base(renderProperties)
-        {
-            _hatSheet = hatSheet;
-            _hairSheet = hairSheet;
+    public override void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea, WeaponMetadata weaponMetadata)
+    {
+        var hairDrawLoc = _hairRenderLocationCalculator.CalculateDrawLocationOfCharacterHair(_hairSheet.SourceRectangle, parentCharacterDrawArea, weaponMetadata.Ranged);
+        var offsets = GetOffsets();
 
-            _hairRenderLocationCalculator = new HairRenderLocationCalculator(_renderProperties);
-        }
+        Render(spriteBatch, _hatSheet, hairDrawLoc + offsets);
+    }
 
-        public override void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea, WeaponMetadata weaponMetadata)
-        {
-            var hairDrawLoc = _hairRenderLocationCalculator.CalculateDrawLocationOfCharacterHair(_hairSheet.SourceRectangle, parentCharacterDrawArea, weaponMetadata.Ranged);
-            var offsets = GetOffsets();
+    private Vector2 GetOffsets()
+    {
+        var xOff = 0f;
+        var yOff = -3f;
 
-            Render(spriteBatch, _hatSheet, hairDrawLoc + offsets);
-        }
+        var flippedOffset = _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? -2 : 0;
 
-        private Vector2 GetOffsets()
-        {
-            var xOff = 0f;
-            var yOff = -3f;
-
-            var flippedOffset = _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? -2 : 0;
-
-            return new Vector2(xOff + flippedOffset, yOff);
-        }
+        return new Vector2(xOff + flippedOffset, yOff);
     }
 }

@@ -1,9 +1,8 @@
-﻿namespace EndlessClient.HUD
-{
-    public interface IHudStateActions
-    {
-        void SwitchToState(InGameStates newState);
+﻿namespace EndlessClient.HUD;
 
-        void ToggleMapView();
-    }
+public interface IHudStateActions
+{
+    void SwitchToState(InGameStates newState);
+
+    void ToggleMapView();
 }

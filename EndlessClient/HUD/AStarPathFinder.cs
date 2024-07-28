@@ -5,107 +5,106 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace EndlessClient.HUD
+namespace EndlessClient.HUD;
+
+// Implemented from https://en.wikipedia.org/wiki/A*_search_algorithm#Pseudocode
+[AutoMappedType]
+public class AStarPathFinder : IPathFinder
 {
-    // Implemented from https://en.wikipedia.org/wiki/A*_search_algorithm#Pseudocode
-    [AutoMappedType]
-    public class AStarPathFinder : IPathFinder
+    private readonly IWalkValidationActions _walkValidationActions;
+
+    public AStarPathFinder(IWalkValidationActions walkValidationActions)
     {
-        private readonly IWalkValidationActions _walkValidationActions;
+        _walkValidationActions = walkValidationActions;
+    }
 
-        public AStarPathFinder(IWalkValidationActions walkValidationActions)
+    public Queue<MapCoordinate> FindPath(MapCoordinate start, MapCoordinate finish)
+    {
+        var openSet = new HashSet<MapCoordinate>(new[] { start });
+        var cameFrom = new Dictionary<MapCoordinate, MapCoordinate>();
+
+        var scores = new Dictionary<MapCoordinate, int>
         {
-            _walkValidationActions = walkValidationActions;
-        }
+            { start, 0 }
+        };
 
-        public Queue<MapCoordinate> FindPath(MapCoordinate start, MapCoordinate finish)
+        var guessScores = new Dictionary<MapCoordinate, int>
         {
-            var openSet = new HashSet<MapCoordinate>(new[] { start });
-            var cameFrom = new Dictionary<MapCoordinate, MapCoordinate>();
+            { start, heuristic(start, finish) }
+        };
 
-            var scores = new Dictionary<MapCoordinate, int>
+        while (openSet.Any())
+        {
+            MapCoordinate current = new MapCoordinate(0, 0);
+            var lowest = int.MaxValue;
+            foreach (var n in openSet)
             {
-                { start, 0 }
-            };
-
-            var guessScores = new Dictionary<MapCoordinate, int>
-            {
-                { start, heuristic(start, finish) }
-            };
-
-            while (openSet.Any())
-            {
-                MapCoordinate current = new MapCoordinate(0, 0);
-                var lowest = int.MaxValue;
-                foreach (var n in openSet)
+                if (guessScores[n] < lowest)
                 {
-                    if (guessScores[n] < lowest)
-                    {
-                        current = n;
-                        lowest = guessScores[n];
-                    }
-                }
-
-                if (current.Equals(finish))
-                    return reconstructPath(start, cameFrom, current);
-
-                openSet.Remove(current);
-                foreach (var neighbor in getNeighbors(current))
-                {
-                    var tentativeScore = scores[current] + 1;
-                    if (!scores.TryGetValue(neighbor, out var _))
-                        scores.Add(neighbor, int.MaxValue);
-
-                    if (tentativeScore < scores[neighbor])
-                    {
-                        cameFrom[neighbor] = current;
-                        scores[neighbor] = tentativeScore;
-                        guessScores[neighbor] = tentativeScore + heuristic(neighbor, finish);
-
-                        if (!openSet.Contains(neighbor))
-                            openSet.Add(neighbor);
-                    }
+                    current = n;
+                    lowest = guessScores[n];
                 }
             }
 
-            return new Queue<MapCoordinate>();
-        }
+            if (current.Equals(finish))
+                return reconstructPath(start, cameFrom, current);
 
-        private static int heuristic(MapCoordinate current, MapCoordinate goal)
-            => Math.Abs(current.X - goal.X) + Math.Abs(current.Y - goal.Y);
-
-        private Queue<MapCoordinate> reconstructPath(MapCoordinate start, Dictionary<MapCoordinate, MapCoordinate> cameFrom, MapCoordinate current)
-        {
-            var retList = new List<MapCoordinate> { current };
-            while (cameFrom.ContainsKey(current))
+            openSet.Remove(current);
+            foreach (var neighbor in getNeighbors(current))
             {
-                current = cameFrom[current];
-                if (current != start)
-                    retList.Insert(0, current);
-            }
-            return new Queue<MapCoordinate>(retList);
-        }
+                var tentativeScore = scores[current] + 1;
+                if (!scores.TryGetValue(neighbor, out var _))
+                    scores.Add(neighbor, int.MaxValue);
 
-        private IEnumerable<MapCoordinate> getNeighbors(MapCoordinate current)
-        {
-            var points = new MapCoordinate[]
-            {
-                new MapCoordinate(-1, 0),
-                new MapCoordinate(1, 0),
-                new MapCoordinate(0, -1),
-                new MapCoordinate(0, 1)
-            };
+                if (tentativeScore < scores[neighbor])
+                {
+                    cameFrom[neighbor] = current;
+                    scores[neighbor] = tentativeScore;
+                    guessScores[neighbor] = tentativeScore + heuristic(neighbor, finish);
 
-            foreach (var coordinateOffset in points)
-            {
-                if (_walkValidationActions.CanMoveToCoordinates(current.X + coordinateOffset.X, current.Y + coordinateOffset.Y) == WalkValidationResult.Walkable)
-                    yield return new MapCoordinate(current.X + coordinateOffset.X, current.Y + coordinateOffset.Y);
+                    if (!openSet.Contains(neighbor))
+                        openSet.Add(neighbor);
+                }
             }
         }
+
+        return new Queue<MapCoordinate>();
     }
 
-    public interface IPathFinder
+    private static int heuristic(MapCoordinate current, MapCoordinate goal)
+        => Math.Abs(current.X - goal.X) + Math.Abs(current.Y - goal.Y);
+
+    private Queue<MapCoordinate> reconstructPath(MapCoordinate start, Dictionary<MapCoordinate, MapCoordinate> cameFrom, MapCoordinate current)
     {
-        Queue<MapCoordinate> FindPath(MapCoordinate start, MapCoordinate finish);
+        var retList = new List<MapCoordinate> { current };
+        while (cameFrom.ContainsKey(current))
+        {
+            current = cameFrom[current];
+            if (current != start)
+                retList.Insert(0, current);
+        }
+        return new Queue<MapCoordinate>(retList);
     }
+
+    private IEnumerable<MapCoordinate> getNeighbors(MapCoordinate current)
+    {
+        var points = new MapCoordinate[]
+        {
+            new MapCoordinate(-1, 0),
+            new MapCoordinate(1, 0),
+            new MapCoordinate(0, -1),
+            new MapCoordinate(0, 1)
+        };
+
+        foreach (var coordinateOffset in points)
+        {
+            if (_walkValidationActions.CanMoveToCoordinates(current.X + coordinateOffset.X, current.Y + coordinateOffset.Y) == WalkValidationResult.Walkable)
+                yield return new MapCoordinate(current.X + coordinateOffset.X, current.Y + coordinateOffset.Y);
+        }
+    }
+}
+
+public interface IPathFinder
+{
+    Queue<MapCoordinate> FindPath(MapCoordinate start, MapCoordinate finish);
 }

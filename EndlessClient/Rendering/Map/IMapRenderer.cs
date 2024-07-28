@@ -1,24 +1,23 @@
 ﻿using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
 
-namespace EndlessClient.Rendering.Map
+namespace EndlessClient.Rendering.Map;
+
+public interface IMapRenderer : IGameComponent, IDrawable
 {
-    public interface IMapRenderer : IGameComponent, IDrawable
-    {
-        MapCoordinate GridCoordinates { get; }
+    MapCoordinate GridCoordinates { get; }
 
-        bool MouseOver { get; }
+    bool MouseOver { get; }
 
-        void StartMapTransition();
+    void StartMapTransition();
 
-        void StartEarthquake(int strength);
+    void StartEarthquake(int strength);
 
-        void RedrawGroundLayer();
+    void RedrawGroundLayer();
 
-        void RenderEffect(MapCoordinate location, int effectId);
+    void RenderEffect(MapCoordinate location, int effectId);
 
-        void AnimateMouseClick();
+    void AnimateMouseClick();
 
-        void ClearTransientRenderables();
-    }
+    void ClearTransientRenderables();
 }

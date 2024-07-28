@@ -1,18 +1,17 @@
-namespace EndlessClient.HUD
+namespace EndlessClient.HUD;
+
+public enum InGameStates
 {
-    public enum InGameStates
-    {
-        Inventory,
-        ViewMapToggle,
-        ActiveSpells,
-        PassiveSpells,
-        Chat,
-        Stats,
-        OnlineList,
-        Party,
-        Macro,
-        Settings,
-        Help,
-        News
-    }
+    Inventory,
+    ViewMapToggle,
+    ActiveSpells,
+    PassiveSpells,
+    Chat,
+    Stats,
+    OnlineList,
+    Party,
+    Macro,
+    Settings,
+    Help,
+    News
 }

@@ -13,99 +13,98 @@ using System;
 using System.Globalization;
 using System.Windows;
 
-namespace EndlessClient.HUD.Chat
+namespace EndlessClient.HUD.Chat;
+
+[AutoMappedType]
+public class ChatNotificationActions : IChatEventNotifier
 {
-    [AutoMappedType]
-    public class ChatNotificationActions : IChatEventNotifier
+    private readonly IChatRepository _chatRepository;
+    private readonly IHudControlProvider _hudControlProvider;
+    private readonly ILocalizedStringFinder _localizedStringFinder;
+    private readonly IStatusLabelSetter _statusLabelSetter;
+    private readonly IServerMessageHandler _serverMessageHandler;
+    private readonly ISfxPlayer _sfxPlayer;
+
+    public ChatNotificationActions(IChatRepository chatRepository,
+                                   IHudControlProvider hudControlProvider,
+                                   ILocalizedStringFinder localizedStringFinder,
+                                   IStatusLabelSetter statusLabelSetter,
+                                   IServerMessageHandler serverMessageHandler,
+                                   ISfxPlayer sfxPlayer)
     {
-        private readonly IChatRepository _chatRepository;
-        private readonly IHudControlProvider _hudControlProvider;
-        private readonly ILocalizedStringFinder _localizedStringFinder;
-        private readonly IStatusLabelSetter _statusLabelSetter;
-        private readonly IServerMessageHandler _serverMessageHandler;
-        private readonly ISfxPlayer _sfxPlayer;
+        _chatRepository = chatRepository;
+        _hudControlProvider = hudControlProvider;
+        _localizedStringFinder = localizedStringFinder;
+        _statusLabelSetter = statusLabelSetter;
+        _serverMessageHandler = serverMessageHandler;
+        _sfxPlayer = sfxPlayer;
+    }
 
-        public ChatNotificationActions(IChatRepository chatRepository,
-                                       IHudControlProvider hudControlProvider,
-                                       ILocalizedStringFinder localizedStringFinder,
-                                       IStatusLabelSetter statusLabelSetter,
-                                       IServerMessageHandler serverMessageHandler,
-                                       ISfxPlayer sfxPlayer)
+    public void NotifyChatReceived(ChatEventType eventType)
+    {
+        _sfxPlayer.PlaySfx(eventType switch
         {
-            _chatRepository = chatRepository;
-            _hudControlProvider = hudControlProvider;
-            _localizedStringFinder = localizedStringFinder;
-            _statusLabelSetter = statusLabelSetter;
-            _serverMessageHandler = serverMessageHandler;
-            _sfxPlayer = sfxPlayer;
-        }
+            ChatEventType.PrivateMessage => SoundEffectID.PrivateMessageReceived,
+            ChatEventType.AdminChat => SoundEffectID.AdminChatReceived,
+            ChatEventType.AdminAnnounce => SoundEffectID.AdminAnnounceReceived,
+            ChatEventType.Group => SoundEffectID.GroupChatReceived,
+            _ => SoundEffectID.LayeredTechIntro, // this will be funny if it ever gets hit
+        });
+    }
 
-        public void NotifyChatReceived(ChatEventType eventType)
+    public void NotifyPrivateMessageRecipientNotFound(string recipientName)
+    {
+        var whichTab = _chatRepository.PMTarget1.ToLower() == recipientName.ToLower()
+            ? Option.Some(ChatTab.Private1)
+            : _chatRepository.PMTarget2.ToLower() == recipientName.ToLower()
+                ? Option.Some(ChatTab.Private2)
+                : Option.None<ChatTab>();
+
+        whichTab.MatchSome(tab =>
         {
-            _sfxPlayer.PlaySfx(eventType switch
-            {
-                ChatEventType.PrivateMessage => SoundEffectID.PrivateMessageReceived,
-                ChatEventType.AdminChat => SoundEffectID.AdminChatReceived,
-                ChatEventType.AdminAnnounce => SoundEffectID.AdminAnnounceReceived,
-                ChatEventType.Group => SoundEffectID.GroupChatReceived,
-                _ => SoundEffectID.LayeredTechIntro, // this will be funny if it ever gets hit
-            });
-        }
+            if (tab == ChatTab.Private1)
+                _chatRepository.PMTarget1 = null;
+            else if (tab == ChatTab.Private2)
+                _chatRepository.PMTarget2 = null;
 
-        public void NotifyPrivateMessageRecipientNotFound(string recipientName)
-        {
-            var whichTab = _chatRepository.PMTarget1.ToLower() == recipientName.ToLower()
-                ? Option.Some(ChatTab.Private1)
-                : _chatRepository.PMTarget2.ToLower() == recipientName.ToLower()
-                    ? Option.Some(ChatTab.Private2)
-                    : Option.None<ChatTab>();
+            _chatRepository.AllChat[tab].Clear();
 
-            whichTab.MatchSome(tab =>
-            {
-                if (tab == ChatTab.Private1)
-                    _chatRepository.PMTarget1 = null;
-                else if (tab == ChatTab.Private2)
-                    _chatRepository.PMTarget2 = null;
+            var chatPanel = _hudControlProvider.GetComponent<ChatPanel>(HudControlIdentifier.ChatPanel);
+            chatPanel.ClosePMTab(tab);
+        });
+    }
 
-                _chatRepository.AllChat[tab].Clear();
+    public void NotifyPlayerMutedByAdmin(string adminName)
+    {
+        var chatTextBox = _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox);
+        var chatMode = _hudControlProvider.GetComponent<ChatModePictureBox>(HudControlIdentifier.ChatModePictureBox);
 
-                var chatPanel = _hudControlProvider.GetComponent<ChatPanel>(HudControlIdentifier.ChatPanel);
-                chatPanel.ClosePMTab(tab);
-            });
-        }
+        var endMuteTime = DateTime.Now.AddMinutes(Constants.MuteDefaultTimeMinutes);
+        chatTextBox.SetMuted(endMuteTime);
+        chatMode.SetMuted(endMuteTime);
 
-        public void NotifyPlayerMutedByAdmin(string adminName)
-        {
-            var chatTextBox = _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox);
-            var chatMode = _hudControlProvider.GetComponent<ChatModePictureBox>(HudControlIdentifier.ChatModePictureBox);
+        chatTextBox.Text = string.Empty;
 
-            var endMuteTime = DateTime.Now.AddMinutes(Constants.MuteDefaultTimeMinutes);
-            chatTextBox.SetMuted(endMuteTime);
-            chatMode.SetMuted(endMuteTime);
+        var chatData = new ChatData(ChatTab.Local, _localizedStringFinder.GetString(EOResourceID.STRING_SERVER),
+            _localizedStringFinder.GetString(EOResourceID.CHAT_MESSAGE_MUTED_BY) + " " + adminName,
+            ChatIcon.Exclamation,
+            ChatColor.Server);
+        _chatRepository.AllChat[ChatTab.Local].Add(chatData);
 
-            chatTextBox.Text = string.Empty;
+        _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION,
+            Constants.MuteDefaultTimeMinutes.ToString(CultureInfo.InvariantCulture) + " ",
+            EOResourceID.STATUS_LABEL_MINUTES_MUTED);
+    }
 
-            var chatData = new ChatData(ChatTab.Local, _localizedStringFinder.GetString(EOResourceID.STRING_SERVER),
-                _localizedStringFinder.GetString(EOResourceID.CHAT_MESSAGE_MUTED_BY) + " " + adminName,
-                ChatIcon.Exclamation,
-                ChatColor.Server);
-            _chatRepository.AllChat[ChatTab.Local].Add(chatData);
+    public void NotifyServerMessage(string serverMessage)
+    {
+        _serverMessageHandler.AddServerMessage(serverMessage);
+    }
 
-            _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION,
-                Constants.MuteDefaultTimeMinutes.ToString(CultureInfo.InvariantCulture) + " ",
-                EOResourceID.STATUS_LABEL_MINUTES_MUTED);
-        }
-
-        public void NotifyServerMessage(string serverMessage)
-        {
-            _serverMessageHandler.AddServerMessage(serverMessage);
-        }
-
-        public void NotifyServerPing(int timeInMS)
-        {
-            var message = $"[x] Current ping to the server is: {timeInMS} ms.";
-            var chatData = new ChatData(ChatTab.Local, "System", message, ChatIcon.LookingDude);
-            _chatRepository.AllChat[ChatTab.Local].Add(chatData);
-        }
+    public void NotifyServerPing(int timeInMS)
+    {
+        var message = $"[x] Current ping to the server is: {timeInMS} ms.";
+        var chatData = new ChatData(ChatTab.Local, "System", message, ChatIcon.LookingDude);
+        _chatRepository.AllChat[ChatTab.Local].Add(chatData);
     }
 }

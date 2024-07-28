@@ -6,47 +6,46 @@ using EOLib.Net.Connection;
 using EOLib.Net.Handlers;
 using Microsoft.Xna.Framework;
 
-namespace EndlessClient.Network
+namespace EndlessClient.Network;
+
+[MappedType(BaseType = typeof(IGameComponent), IsSingleton = true)]
+public class PacketHandlerGameComponent : GameComponent
 {
-    [MappedType(BaseType = typeof(IGameComponent), IsSingleton = true)]
-    public class PacketHandlerGameComponent : GameComponent
+    private readonly IOutOfBandPacketHandler _packetHandler;
+    private readonly INetworkClientProvider _networkClientProvider;
+    private readonly IBackgroundReceiveTaskRepository _backgroundReceiveTaskRepository;
+    private readonly IMainButtonController _mainButtonController;
+
+    public PacketHandlerGameComponent(IEndlessGame game,
+                                      IOutOfBandPacketHandler packetHandler,
+                                      INetworkClientProvider networkClientProvider,
+                                      IBackgroundReceiveTaskRepository backgroundReceiveTaskRepository,
+                                      IMainButtonController mainButtonController)
+        : base((Game)game)
     {
-        private readonly IOutOfBandPacketHandler _packetHandler;
-        private readonly INetworkClientProvider _networkClientProvider;
-        private readonly IBackgroundReceiveTaskRepository _backgroundReceiveTaskRepository;
-        private readonly IMainButtonController _mainButtonController;
+        _packetHandler = packetHandler;
+        _networkClientProvider = networkClientProvider;
+        _backgroundReceiveTaskRepository = backgroundReceiveTaskRepository;
+        _mainButtonController = mainButtonController;
 
-        public PacketHandlerGameComponent(IEndlessGame game,
-                                          IOutOfBandPacketHandler packetHandler,
-                                          INetworkClientProvider networkClientProvider,
-                                          IBackgroundReceiveTaskRepository backgroundReceiveTaskRepository,
-                                          IMainButtonController mainButtonController)
-            : base((Game)game)
+        UpdateOrder = int.MinValue;
+    }
+
+    public override void Update(GameTime gameTime)
+    {
+        if (_networkClientProvider.NetworkClient != null && _networkClientProvider.NetworkClient.Started)
         {
-            _packetHandler = packetHandler;
-            _networkClientProvider = networkClientProvider;
-            _backgroundReceiveTaskRepository = backgroundReceiveTaskRepository;
-            _mainButtonController = mainButtonController;
+            var connected = _networkClientProvider.NetworkClient.Connected;
+            var receiveLoopFaulted = _backgroundReceiveTaskRepository.Task?.IsFaulted ?? false;
 
-            UpdateOrder = int.MinValue;
-        }
-
-        public override void Update(GameTime gameTime)
-        {
-            if (_networkClientProvider.NetworkClient != null && _networkClientProvider.NetworkClient.Started)
+            if (!connected || receiveLoopFaulted)
             {
-                var connected = _networkClientProvider.NetworkClient.Connected;
-                var receiveLoopFaulted = _backgroundReceiveTaskRepository.Task?.IsFaulted ?? false;
-
-                if (!connected || receiveLoopFaulted)
-                {
-                    _mainButtonController.GoToInitialStateAndDisconnect(showLostConnection: true);
-                }
+                _mainButtonController.GoToInitialStateAndDisconnect(showLostConnection: true);
             }
-
-            _packetHandler.PollForPacketsAndHandle();
-
-            base.Update(gameTime);
         }
+
+        _packetHandler.PollForPacketsAndHandle();
+
+        base.Update(gameTime);
     }
 }

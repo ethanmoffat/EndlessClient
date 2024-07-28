@@ -3,41 +3,40 @@ using EOLib.Graphics;
 using PELoaderLib;
 using System.IO;
 
-namespace EndlessClient.Initialization
+namespace EndlessClient.Initialization;
+
+[MappedType(BaseType = typeof(IGameInitializer))]
+public class GraphicsInitializer : IGameInitializer
 {
-    [MappedType(BaseType = typeof(IGameInitializer))]
-    public class GraphicsInitializer : IGameInitializer
+    private readonly IPEFileCollection _peFileCollection;
+
+    public GraphicsInitializer(IPEFileCollection peFileCollection)
     {
-        private readonly IPEFileCollection _peFileCollection;
+        _peFileCollection = peFileCollection;
+    }
 
-        public GraphicsInitializer(IPEFileCollection peFileCollection)
+    public void Initialize()
+    {
+        _peFileCollection.PopulateCollectionWithStandardGFX();
+
+        foreach (var filePair in _peFileCollection)
+            TryInitializePEFiles(filePair.Key, filePair.Value);
+    }
+
+    private static void TryInitializePEFiles(GFXTypes file, IPEFile peFile)
+    {
+        var number = ((int)file).ToString("D3");
+
+        try
         {
-            _peFileCollection = peFileCollection;
+            peFile.Initialize();
+        }
+        catch (IOException)
+        {
+            throw new LibraryLoadException(number, file);
         }
 
-        public void Initialize()
-        {
-            _peFileCollection.PopulateCollectionWithStandardGFX();
-
-            foreach (var filePair in _peFileCollection)
-                TryInitializePEFiles(filePair.Key, filePair.Value);
-        }
-
-        private static void TryInitializePEFiles(GFXTypes file, IPEFile peFile)
-        {
-            var number = ((int)file).ToString("D3");
-
-            try
-            {
-                peFile.Initialize();
-            }
-            catch (IOException)
-            {
-                throw new LibraryLoadException(number, file);
-            }
-
-            if (!peFile.Initialized)
-                throw new LibraryLoadException(number, file);
-        }
+        if (!peFile.Initialized)
+            throw new LibraryLoadException(number, file);
     }
 }

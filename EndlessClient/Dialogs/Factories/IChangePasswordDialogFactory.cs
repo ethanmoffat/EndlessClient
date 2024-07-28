@@ -1,7 +1,6 @@
-﻿namespace EndlessClient.Dialogs.Factories
+﻿namespace EndlessClient.Dialogs.Factories;
+
+public interface IChangePasswordDialogFactory
 {
-    public interface IChangePasswordDialogFactory
-    {
-        ChangePasswordDialog BuildChangePasswordDialog();
-    }
+    ChangePasswordDialog BuildChangePasswordDialog();
 }

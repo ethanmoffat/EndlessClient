@@ -4,20 +4,19 @@ using Optional;
 using System.Threading.Tasks;
 using XNAControls;
 
-namespace EndlessClient.Dialogs.Actions
+namespace EndlessClient.Dialogs.Actions;
+
+public interface IAccountDialogDisplayActions
 {
-    public interface IAccountDialogDisplayActions
-    {
-        void ShowInitialCreateWarningDialog();
+    void ShowInitialCreateWarningDialog();
 
-        Task<XNADialogResult> ShowCreatePendingDialog();
+    Task<XNADialogResult> ShowCreatePendingDialog();
 
-        Task<Option<IChangePasswordParameters>> ShowChangePasswordDialog();
+    Task<Option<IChangePasswordParameters>> ShowChangePasswordDialog();
 
-        void ShowCreateParameterValidationError(CreateAccountParameterResult validationResult);
+    void ShowCreateParameterValidationError(CreateAccountParameterResult validationResult);
 
-        void ShowCreateAccountServerError(AccountReply serverError);
+    void ShowCreateAccountServerError(AccountReply serverError);
 
-        void ShowSuccessMessage();
-    }
+    void ShowSuccessMessage();
 }

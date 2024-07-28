@@ -1,35 +1,34 @@
-﻿namespace EndlessClient.HUD
+﻿namespace EndlessClient.HUD;
+
+public interface IHudButtonController
 {
-    public interface IHudButtonController
-    {
-        void ShowNews();
+    void ShowNews();
 
-        void ClickInventory();
+    void ClickInventory();
 
-        void ClickViewMapToggle();
+    void ClickViewMapToggle();
 
-        void ClickActiveSpells();
+    void ClickActiveSpells();
 
-        void ClickPassiveSpells();
+    void ClickPassiveSpells();
 
-        void ClickChat();
+    void ClickChat();
 
-        void ClickStats();
+    void ClickStats();
 
-        void ClickOnlineList();
+    void ClickOnlineList();
 
-        void ClickParty();
+    void ClickParty();
 
-        void ClickSettings();
+    void ClickSettings();
 
-        void ClickHelp();
+    void ClickHelp();
 
-        void ClickFriendList();
+    void ClickFriendList();
 
-        void ClickIgnoreList();
+    void ClickIgnoreList();
 
-        void ClickSessionExp();
+    void ClickSessionExp();
 
-        void ClickQuestStatus();
-    }
+    void ClickQuestStatus();
 }

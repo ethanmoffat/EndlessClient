@@ -2,15 +2,14 @@
 using NUnit.Framework;
 using System.Diagnostics.CodeAnalysis;
 
-namespace EOLib.IO.Test.Pub
+namespace EOLib.IO.Test.Pub;
+
+[TestFixture, ExcludeFromCodeCoverage]
+public class ECFFileTest
 {
-    [TestFixture, ExcludeFromCodeCoverage]
-    public class ECFFileTest
+    [Test]
+    public void HasCorrectFileType()
     {
-        [Test]
-        public void HasCorrectFileType()
-        {
-            Assert.That(new ECFFile().FileType, Is.EqualTo("ECF"));
-        }
+        Assert.That(new ECFFile().FileType, Is.EqualTo("ECF"));
     }
 }

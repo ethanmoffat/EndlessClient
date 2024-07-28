@@ -3,30 +3,29 @@ using System.Collections.Generic;
 
 using DomainCharacter = EOLib.Domain.Character.Character;
 
-namespace EndlessClient.Rendering.Character
+namespace EndlessClient.Rendering.Character;
+
+public interface ICharacterStateCache
 {
-    public interface ICharacterStateCache
-    {
-        Option<DomainCharacter> MainCharacter { get; }
+    Option<DomainCharacter> MainCharacter { get; }
 
-        IReadOnlyDictionary<int, DomainCharacter> OtherCharacters { get; }
+    IReadOnlyDictionary<int, DomainCharacter> OtherCharacters { get; }
 
-        IReadOnlyList<RenderFrameActionTime> DeathStartTimes { get; }
+    IReadOnlyList<RenderFrameActionTime> DeathStartTimes { get; }
 
-        bool HasCharacterWithID(int id);
+    bool HasCharacterWithID(int id);
 
-        void UpdateMainCharacterState(DomainCharacter updatedCharacter);
+    void UpdateMainCharacterState(DomainCharacter updatedCharacter);
 
-        void UpdateCharacterState(int id, DomainCharacter updatedCharacter);
+    void UpdateCharacterState(int id, DomainCharacter updatedCharacter);
 
-        void RemoveCharacterState(int id);
+    void RemoveCharacterState(int id);
 
-        void AddDeathStartTime(int id);
+    void AddDeathStartTime(int id);
 
-        void RemoveDeathStartTime(int id);
+    void RemoveDeathStartTime(int id);
 
-        void ClearAllOtherCharacterStates();
+    void ClearAllOtherCharacterStates();
 
-        void Reset();
-    }
+    void Reset();
 }

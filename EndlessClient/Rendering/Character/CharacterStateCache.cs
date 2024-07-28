@@ -7,74 +7,73 @@ using System.Linq;
 
 using DomainCharacter = EOLib.Domain.Character.Character;
 
-namespace EndlessClient.Rendering.Character
+namespace EndlessClient.Rendering.Character;
+
+[AutoMappedType(IsSingleton = true)]
+public class CharacterStateCache : ICharacterStateCache
 {
-    [AutoMappedType(IsSingleton = true)]
-    public class CharacterStateCache : ICharacterStateCache
+    public Option<DomainCharacter> MainCharacter { get; private set; }
+
+    private readonly Dictionary<int, DomainCharacter> _otherCharacters;
+    private readonly List<RenderFrameActionTime> _deathStartTimes;
+    private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
+
+    public IReadOnlyDictionary<int, DomainCharacter> OtherCharacters => _otherCharacters;
+
+    public IReadOnlyList<RenderFrameActionTime> DeathStartTimes => _deathStartTimes;
+
+    public CharacterStateCache(IFixedTimeStepRepository fixedTimeStepRepository)
     {
-        public Option<DomainCharacter> MainCharacter { get; private set; }
+        MainCharacter = Option.None<DomainCharacter>();
+        _otherCharacters = new Dictionary<int, DomainCharacter>();
+        _deathStartTimes = new List<RenderFrameActionTime>();
+        _fixedTimeStepRepository = fixedTimeStepRepository;
+    }
 
-        private readonly Dictionary<int, DomainCharacter> _otherCharacters;
-        private readonly List<RenderFrameActionTime> _deathStartTimes;
-        private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
+    public bool HasCharacterWithID(int id)
+    {
+        return _otherCharacters.ContainsKey(id);
+    }
 
-        public IReadOnlyDictionary<int, DomainCharacter> OtherCharacters => _otherCharacters;
+    public void UpdateMainCharacterState(DomainCharacter updatedCharacter)
+    {
+        MainCharacter = Option.Some(updatedCharacter);
+    }
 
-        public IReadOnlyList<RenderFrameActionTime> DeathStartTimes => _deathStartTimes;
+    public void UpdateCharacterState(int id, DomainCharacter updatedCharacter)
+    {
+        _otherCharacters[id] = updatedCharacter;
+    }
 
-        public CharacterStateCache(IFixedTimeStepRepository fixedTimeStepRepository)
-        {
-            MainCharacter = Option.None<DomainCharacter>();
-            _otherCharacters = new Dictionary<int, DomainCharacter>();
-            _deathStartTimes = new List<RenderFrameActionTime>();
-            _fixedTimeStepRepository = fixedTimeStepRepository;
-        }
+    public void RemoveCharacterState(int id)
+    {
+        _otherCharacters.Remove(id);
+    }
 
-        public bool HasCharacterWithID(int id)
-        {
-            return _otherCharacters.ContainsKey(id);
-        }
+    public void AddDeathStartTime(int id)
+    {
+        if (_deathStartTimes.Any(x => x.UniqueID == id))
+            throw new ArgumentException("That character already started dying...", nameof(id));
 
-        public void UpdateMainCharacterState(DomainCharacter updatedCharacter)
-        {
-            MainCharacter = Option.Some(updatedCharacter);
-        }
+        _deathStartTimes.Add(new RenderFrameActionTime(id, _fixedTimeStepRepository.TickCount));
+    }
 
-        public void UpdateCharacterState(int id, DomainCharacter updatedCharacter)
-        {
-            _otherCharacters[id] = updatedCharacter;
-        }
+    public void RemoveDeathStartTime(int id)
+    {
+        if (_deathStartTimes.All(x => x.UniqueID != id))
+            throw new ArgumentException("That character isn't dying...", nameof(id));
 
-        public void RemoveCharacterState(int id)
-        {
-            _otherCharacters.Remove(id);
-        }
+        _deathStartTimes.RemoveAll(x => x.UniqueID == id);
+    }
 
-        public void AddDeathStartTime(int id)
-        {
-            if (_deathStartTimes.Any(x => x.UniqueID == id))
-                throw new ArgumentException("That character already started dying...", nameof(id));
+    public void ClearAllOtherCharacterStates()
+    {
+        _otherCharacters.Clear();
+    }
 
-            _deathStartTimes.Add(new RenderFrameActionTime(id, _fixedTimeStepRepository.TickCount));
-        }
-
-        public void RemoveDeathStartTime(int id)
-        {
-            if (_deathStartTimes.All(x => x.UniqueID != id))
-                throw new ArgumentException("That character isn't dying...", nameof(id));
-
-            _deathStartTimes.RemoveAll(x => x.UniqueID == id);
-        }
-
-        public void ClearAllOtherCharacterStates()
-        {
-            _otherCharacters.Clear();
-        }
-
-        public void Reset()
-        {
-            MainCharacter = Option.None<DomainCharacter>();
-            ClearAllOtherCharacterStates();
-        }
+    public void Reset()
+    {
+        MainCharacter = Option.None<DomainCharacter>();
+        ClearAllOtherCharacterStates();
     }
 }

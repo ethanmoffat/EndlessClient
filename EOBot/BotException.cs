@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace EOBot
+namespace EOBot;
+
+public class BotException : Exception
 {
-    public class BotException : Exception
-    {
-        public BotException(string message) : base(message) { }
-    }
+    public BotException(string message) : base(message) { }
 }

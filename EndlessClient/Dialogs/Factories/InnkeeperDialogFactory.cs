@@ -6,62 +6,61 @@ using EOLib.Graphics;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
 
-namespace EndlessClient.Dialogs.Factories
+namespace EndlessClient.Dialogs.Factories;
+
+[AutoMappedType]
+public class InnkeeperDialogFactory : IInnkeeperDialogFactory
 {
-    [AutoMappedType]
-    public class InnkeeperDialogFactory : IInnkeeperDialogFactory
+    private readonly INativeGraphicsManager _nativeGraphicsManager;
+    private readonly IEODialogButtonService _dialogButtonService;
+    private readonly IEODialogIconService _dialogIconService;
+    private readonly ILocalizedStringFinder _localizedStringFinder;
+    private readonly IEOMessageBoxFactory _messageBoxFactory;
+    private readonly ITextInputDialogFactory _textInputDialogFactory;
+    private readonly ICitizenActions _citizenActions;
+    private readonly IContentProvider _contentProvider;
+    private readonly IENFFileProvider _enfFileProvider;
+    private readonly ICitizenDataProvider _citizenDataProvider;
+
+    public InnkeeperDialogFactory(INativeGraphicsManager nativeGraphicsManager,
+                           IEODialogButtonService dialogButtonService,
+                           IEODialogIconService dialogIconService,
+                           ILocalizedStringFinder localizedStringFinder,
+                           IEOMessageBoxFactory messageBoxFactory,
+                           ITextInputDialogFactory textInputDialogFactory,
+                           ICitizenActions citizenActions,
+                           IContentProvider contentProvider,
+                           IENFFileProvider enfFileProvider,
+                           ICitizenDataProvider citizenDataProvider)
     {
-        private readonly INativeGraphicsManager _nativeGraphicsManager;
-        private readonly IEODialogButtonService _dialogButtonService;
-        private readonly IEODialogIconService _dialogIconService;
-        private readonly ILocalizedStringFinder _localizedStringFinder;
-        private readonly IEOMessageBoxFactory _messageBoxFactory;
-        private readonly ITextInputDialogFactory _textInputDialogFactory;
-        private readonly ICitizenActions _citizenActions;
-        private readonly IContentProvider _contentProvider;
-        private readonly IENFFileProvider _enfFileProvider;
-        private readonly ICitizenDataProvider _citizenDataProvider;
-
-        public InnkeeperDialogFactory(INativeGraphicsManager nativeGraphicsManager,
-                               IEODialogButtonService dialogButtonService,
-                               IEODialogIconService dialogIconService,
-                               ILocalizedStringFinder localizedStringFinder,
-                               IEOMessageBoxFactory messageBoxFactory,
-                               ITextInputDialogFactory textInputDialogFactory,
-                               ICitizenActions citizenActions,
-                               IContentProvider contentProvider,
-                               IENFFileProvider enfFileProvider,
-                               ICitizenDataProvider citizenDataProvider)
-        {
-            _nativeGraphicsManager = nativeGraphicsManager;
-            _dialogButtonService = dialogButtonService;
-            _dialogIconService = dialogIconService;
-            _localizedStringFinder = localizedStringFinder;
-            _messageBoxFactory = messageBoxFactory;
-            _textInputDialogFactory = textInputDialogFactory;
-            _citizenActions = citizenActions;
-            _contentProvider = contentProvider;
-            _enfFileProvider = enfFileProvider;
-            _citizenDataProvider = citizenDataProvider;
-        }
-
-        public InnkeeperDialog Create()
-        {
-            return new InnkeeperDialog(_nativeGraphicsManager,
-                _dialogButtonService,
-                _dialogIconService,
-                _localizedStringFinder,
-                _messageBoxFactory,
-                _textInputDialogFactory,
-                _citizenActions,
-                _contentProvider,
-                _enfFileProvider,
-                _citizenDataProvider);
-        }
+        _nativeGraphicsManager = nativeGraphicsManager;
+        _dialogButtonService = dialogButtonService;
+        _dialogIconService = dialogIconService;
+        _localizedStringFinder = localizedStringFinder;
+        _messageBoxFactory = messageBoxFactory;
+        _textInputDialogFactory = textInputDialogFactory;
+        _citizenActions = citizenActions;
+        _contentProvider = contentProvider;
+        _enfFileProvider = enfFileProvider;
+        _citizenDataProvider = citizenDataProvider;
     }
 
-    public interface IInnkeeperDialogFactory
+    public InnkeeperDialog Create()
     {
-        InnkeeperDialog Create();
+        return new InnkeeperDialog(_nativeGraphicsManager,
+            _dialogButtonService,
+            _dialogIconService,
+            _localizedStringFinder,
+            _messageBoxFactory,
+            _textInputDialogFactory,
+            _citizenActions,
+            _contentProvider,
+            _enfFileProvider,
+            _citizenDataProvider);
     }
+}
+
+public interface IInnkeeperDialogFactory
+{
+    InnkeeperDialog Create();
 }

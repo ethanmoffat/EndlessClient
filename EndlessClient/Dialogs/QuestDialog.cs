@@ -12,180 +12,179 @@ using System.Collections.Generic;
 using System.Linq;
 using XNAControls;
 
-namespace EndlessClient.Dialogs
+namespace EndlessClient.Dialogs;
+
+public class QuestDialog : ScrollingListDialog
 {
-    public class QuestDialog : ScrollingListDialog
+    private readonly IQuestActions _questActions;
+    private readonly IQuestDataProvider _questDataProvider;
+    private readonly IENFFileProvider _enfFileProvider;
+    private readonly IContentProvider _contentProvider;
+
+    private Option<QuestDialogData> _cachedData;
+
+    private int _pageIndex = 0;
+
+    public event EventHandler LinkClickAction;
+
+    public QuestDialog(INativeGraphicsManager nativeGraphicsManager,
+                       IQuestActions questActions,
+                       IEODialogButtonService dialogButtonService,
+                       IQuestDataProvider questDataProvider,
+                       IENFFileProvider enfFileProvider,
+                       IContentProvider contentProvider)
+        : base(nativeGraphicsManager, dialogButtonService, dialogType: DialogType.NpcQuestDialog)
     {
-        private readonly IQuestActions _questActions;
-        private readonly IQuestDataProvider _questDataProvider;
-        private readonly IENFFileProvider _enfFileProvider;
-        private readonly IContentProvider _contentProvider;
+        _questActions = questActions;
+        _questDataProvider = questDataProvider;
+        _enfFileProvider = enfFileProvider;
+        _contentProvider = contentProvider;
 
-        private Option<QuestDialogData> _cachedData;
+        _cachedData = Option.None<QuestDialogData>();
 
-        private int _pageIndex = 0;
+        ListItemType = ListDialogItem.ListItemStyle.Small;
 
-        public event EventHandler LinkClickAction;
-
-        public QuestDialog(INativeGraphicsManager nativeGraphicsManager,
-                           IQuestActions questActions,
-                           IEODialogButtonService dialogButtonService,
-                           IQuestDataProvider questDataProvider,
-                           IENFFileProvider enfFileProvider,
-                           IContentProvider contentProvider)
-            : base(nativeGraphicsManager, dialogButtonService, dialogType: DialogType.NpcQuestDialog)
+        NextAction += NextPage;
+        BackAction += PreviousPage;
+        DialogClosing += (_, e) =>
         {
-            _questActions = questActions;
-            _questDataProvider = questDataProvider;
-            _enfFileProvider = enfFileProvider;
-            _contentProvider = contentProvider;
+            if (e.Result == XNADialogResult.OK)
+                _questActions.RespondToQuestDialog(DialogReply.Ok);
+        };
+    }
 
-            _cachedData = Option.None<QuestDialogData>();
+    protected override void OnUpdateControl(GameTime gameTime)
+    {
+        _questDataProvider.QuestDialogData.MatchSome(data => UpdateCachedDataIfNeeded(_cachedData, data));
+        base.OnUpdateControl(gameTime);
+    }
 
-            ListItemType = ListDialogItem.ListItemStyle.Small;
-
-            NextAction += NextPage;
-            BackAction += PreviousPage;
-            DialogClosing += (_, e) =>
+    private void UpdateCachedDataIfNeeded(Option<QuestDialogData> cachedData, QuestDialogData repoData)
+    {
+        cachedData.Match(
+            some: cached =>
             {
-                if (e.Result == XNADialogResult.OK)
-                    _questActions.RespondToQuestDialog(DialogReply.Ok);
-            };
-        }
-
-        protected override void OnUpdateControl(GameTime gameTime)
-        {
-            _questDataProvider.QuestDialogData.MatchSome(data => UpdateCachedDataIfNeeded(_cachedData, data));
-            base.OnUpdateControl(gameTime);
-        }
-
-        private void UpdateCachedDataIfNeeded(Option<QuestDialogData> cachedData, QuestDialogData repoData)
-        {
-            cachedData.Match(
-                some: cached =>
-                {
-                    _cachedData = Option.Some(repoData);
-                    if (!cached.Equals(repoData))
-                        UpdateDialogControls(repoData);
-                },
-                none: () =>
-                {
-                    _cachedData = Option.Some(repoData);
+                _cachedData = Option.Some(repoData);
+                if (!cached.Equals(repoData))
                     UpdateDialogControls(repoData);
-                });
-        }
-
-        private void UpdateDialogControls(QuestDialogData repoData)
-        {
-            _pageIndex = 0;
-
-            UpdateTitle(repoData);
-            UpdateDialogDisplayText(repoData);
-            UpdateButtons(repoData);
-        }
-
-        private void UpdateTitle(QuestDialogData repoData)
-        {
-            if (_questDataProvider.RequestedNPC != null)
+            },
+            none: () =>
             {
-                var npcName = _enfFileProvider.ENFFile[_questDataProvider.RequestedNPC.ID].Name;
-                var titleText = npcName;
-                if (!repoData.DialogTitles.ContainsKey(repoData.VendorID) && repoData.DialogTitles.Count == 1)
-                    titleText += $" - {repoData.DialogTitles.Single().Value}";
-                else if (repoData.DialogTitles.ContainsKey(repoData.VendorID))
-                    titleText += $" - {repoData.DialogTitles[repoData.VendorID]}";
-
-                _titleText.Text = titleText;
-                _titleText.ResizeBasedOnText();
-            }
-            else
-            {
-                _titleText.Text = string.Empty;
-            }
-        }
-
-        private void UpdateDialogDisplayText(QuestDialogData repoData)
-        {
-            ClearItemList();
-
-            var rows = new List<string>();
-
-            var ts = new TextSplitter(repoData.PageText[_pageIndex], _contentProvider.Fonts[Constants.FontSize09]);
-            if (!ts.NeedsProcessing)
-                rows.Add(repoData.PageText[_pageIndex]);
-            else
-                rows.AddRange(ts.SplitIntoLines());
-
-            int index = 0;
-            foreach (var row in rows)
-            {
-                var rowItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Small, index++)
-                {
-                    PrimaryText = row,
-                };
-
-                AddItemToList(rowItem, sortList: false);
-            }
-
-            // The links are only shown on the last page of the quest dialog
-            if (_pageIndex < repoData.PageText.Count - 1)
-                return;
-
-            var item = new ListDialogItem(this, ListDialogItem.ListItemStyle.Small, index++) { PrimaryText = " " };
-            AddItemToList(item, sortList: false);
-
-            foreach (var action in repoData.Actions)
-            {
-                var actionItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Small, index++)
-                {
-                    PrimaryText = action.DisplayText
-                };
-
-                var linkIndex = action.ActionID;
-                actionItem.SetPrimaryClickAction((_, _) =>
-                {
-                    _questActions.RespondToQuestDialog(DialogReply.Link, linkIndex);
-                    LinkClickAction?.Invoke(this, EventArgs.Empty);
-                    Close(XNADialogResult.Cancel);
-                });
-
-                AddItemToList(actionItem, sortList: false);
-            }
-        }
-
-        private void UpdateButtons(QuestDialogData repoData)
-        {
-            bool morePages = _pageIndex < repoData.PageText.Count - 1;
-            bool firstPage = _pageIndex == 0;
-
-            if (firstPage && morePages)
-                Buttons = ScrollingListDialogButtons.CancelNext;
-            else if (!firstPage && morePages)
-                Buttons = ScrollingListDialogButtons.BackNext;
-            else if (firstPage)
-                Buttons = ScrollingListDialogButtons.CancelOk;
-            else
-                Buttons = ScrollingListDialogButtons.BackOk;
-        }
-
-        private void NextPage(object sender, EventArgs e)
-        {
-            _cachedData.MatchSome(data =>
-            {
-                _pageIndex++;
-                UpdateDialogDisplayText(data);
-                UpdateButtons(data);
+                _cachedData = Option.Some(repoData);
+                UpdateDialogControls(repoData);
             });
+    }
+
+    private void UpdateDialogControls(QuestDialogData repoData)
+    {
+        _pageIndex = 0;
+
+        UpdateTitle(repoData);
+        UpdateDialogDisplayText(repoData);
+        UpdateButtons(repoData);
+    }
+
+    private void UpdateTitle(QuestDialogData repoData)
+    {
+        if (_questDataProvider.RequestedNPC != null)
+        {
+            var npcName = _enfFileProvider.ENFFile[_questDataProvider.RequestedNPC.ID].Name;
+            var titleText = npcName;
+            if (!repoData.DialogTitles.ContainsKey(repoData.VendorID) && repoData.DialogTitles.Count == 1)
+                titleText += $" - {repoData.DialogTitles.Single().Value}";
+            else if (repoData.DialogTitles.ContainsKey(repoData.VendorID))
+                titleText += $" - {repoData.DialogTitles[repoData.VendorID]}";
+
+            _titleText.Text = titleText;
+            _titleText.ResizeBasedOnText();
+        }
+        else
+        {
+            _titleText.Text = string.Empty;
+        }
+    }
+
+    private void UpdateDialogDisplayText(QuestDialogData repoData)
+    {
+        ClearItemList();
+
+        var rows = new List<string>();
+
+        var ts = new TextSplitter(repoData.PageText[_pageIndex], _contentProvider.Fonts[Constants.FontSize09]);
+        if (!ts.NeedsProcessing)
+            rows.Add(repoData.PageText[_pageIndex]);
+        else
+            rows.AddRange(ts.SplitIntoLines());
+
+        int index = 0;
+        foreach (var row in rows)
+        {
+            var rowItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Small, index++)
+            {
+                PrimaryText = row,
+            };
+
+            AddItemToList(rowItem, sortList: false);
         }
 
-        private void PreviousPage(object sender, EventArgs e)
+        // The links are only shown on the last page of the quest dialog
+        if (_pageIndex < repoData.PageText.Count - 1)
+            return;
+
+        var item = new ListDialogItem(this, ListDialogItem.ListItemStyle.Small, index++) { PrimaryText = " " };
+        AddItemToList(item, sortList: false);
+
+        foreach (var action in repoData.Actions)
         {
-            _cachedData.MatchSome(data =>
+            var actionItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Small, index++)
             {
-                _pageIndex--;
-                UpdateDialogDisplayText(data);
-                UpdateButtons(data);
+                PrimaryText = action.DisplayText
+            };
+
+            var linkIndex = action.ActionID;
+            actionItem.SetPrimaryClickAction((_, _) =>
+            {
+                _questActions.RespondToQuestDialog(DialogReply.Link, linkIndex);
+                LinkClickAction?.Invoke(this, EventArgs.Empty);
+                Close(XNADialogResult.Cancel);
             });
+
+            AddItemToList(actionItem, sortList: false);
         }
+    }
+
+    private void UpdateButtons(QuestDialogData repoData)
+    {
+        bool morePages = _pageIndex < repoData.PageText.Count - 1;
+        bool firstPage = _pageIndex == 0;
+
+        if (firstPage && morePages)
+            Buttons = ScrollingListDialogButtons.CancelNext;
+        else if (!firstPage && morePages)
+            Buttons = ScrollingListDialogButtons.BackNext;
+        else if (firstPage)
+            Buttons = ScrollingListDialogButtons.CancelOk;
+        else
+            Buttons = ScrollingListDialogButtons.BackOk;
+    }
+
+    private void NextPage(object sender, EventArgs e)
+    {
+        _cachedData.MatchSome(data =>
+        {
+            _pageIndex++;
+            UpdateDialogDisplayText(data);
+            UpdateButtons(data);
+        });
+    }
+
+    private void PreviousPage(object sender, EventArgs e)
+    {
+        _cachedData.MatchSome(data =>
+        {
+            _pageIndex--;
+            UpdateDialogDisplayText(data);
+            UpdateButtons(data);
+        });
     }
 }

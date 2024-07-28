@@ -4,63 +4,62 @@ using Optional;
 using System;
 using XNAControls;
 
-namespace EndlessClient.HUD.Panels
+namespace EndlessClient.HUD.Panels;
+
+public class DraggableHudPanel : XNAPanel, IHudPanel
 {
-    public class DraggableHudPanel : XNAPanel, IHudPanel
+    public event Action Activated;
+    public event Action DragCompleted;
+
+    private static Option<DraggableHudPanel> _dragging;
+    private bool _enableDragging;
+
+    public bool IsBeingDragged => _dragging.HasValue;
+
+    public DraggableHudPanel(bool enableDragging)
     {
-        public event Action Activated;
-        public event Action DragCompleted;
+        _enableDragging = enableDragging;
+    }
 
-        private static Option<DraggableHudPanel> _dragging;
-        private bool _enableDragging;
+    protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+    {
+        Activated?.Invoke();
+        return true;
+    }
 
-        public bool IsBeingDragged => _dragging.HasValue;
+    protected override bool HandleDragStart(IXNAControl control, MouseEventArgs eventArgs)
+    {
+        if (!_enableDragging)
+            return false;
 
-        public DraggableHudPanel(bool enableDragging)
-        {
-            _enableDragging = enableDragging;
-        }
+        Activated?.Invoke();
+        return true;
+    }
 
-        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
-        {
-            Activated?.Invoke();
-            return true;
-        }
+    protected override bool HandleDrag(IXNAControl control, MouseEventArgs eventArgs)
+    {
+        if (!_enableDragging)
+            return false;
 
-        protected override bool HandleDragStart(IXNAControl control, MouseEventArgs eventArgs)
-        {
-            if (!_enableDragging)
-                return false;
+        _dragging
+            .FlatMap(p => p.NoneWhen(q => p == this))
+            .MatchNone(() =>
+            {
+                _dragging = Option.Some(this);
+                DrawPosition = DrawPositionWithParentOffset + eventArgs.DistanceMoved;
+            });
 
-            Activated?.Invoke();
-            return true;
-        }
+        return true;
+    }
 
-        protected override bool HandleDrag(IXNAControl control, MouseEventArgs eventArgs)
-        {
-            if (!_enableDragging)
-                return false;
+    protected override bool HandleDragEnd(IXNAControl control, MouseEventArgs eventArgs)
+    {
+        if (!_enableDragging)
+            return false;
 
-            _dragging
-                .FlatMap(p => p.NoneWhen(q => p == this))
-                .MatchNone(() =>
-                {
-                    _dragging = Option.Some(this);
-                    DrawPosition = DrawPositionWithParentOffset + eventArgs.DistanceMoved;
-                });
+        _dragging = Option.None<DraggableHudPanel>();
+        DragCompleted?.Invoke();
 
-            return true;
-        }
-
-        protected override bool HandleDragEnd(IXNAControl control, MouseEventArgs eventArgs)
-        {
-            if (!_enableDragging)
-                return false;
-
-            _dragging = Option.None<DraggableHudPanel>();
-            DragCompleted?.Invoke();
-
-            return true;
-        }
+        return true;
     }
 }

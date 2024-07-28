@@ -1,81 +1,80 @@
 ﻿using System;
 
-namespace EndlessClient.HUD.Controls
+namespace EndlessClient.HUD.Controls;
+
+public enum HudControlIdentifier
 {
-    public enum HudControlIdentifier
-    {
-        CurrentUserInputTracker = int.MinValue, //this should always be first!
+    CurrentUserInputTracker = int.MinValue, //this should always be first!
 
-        MapRenderer = 0,
-        StatusIcons,
-        MiniMapRenderer,
+    MapRenderer = 0,
+    StatusIcons,
+    MiniMapRenderer,
 
-        ClickDispatcher,
+    ClickDispatcher,
 
-        HudBackground,
+    HudBackground,
 
-        //buttons and panels
-        InventoryButton,
-        InventoryPanel,
+    //buttons and panels
+    InventoryButton,
+    InventoryPanel,
 
-        ViewMapButton,
+    ViewMapButton,
 
-        ActiveSpellsButton,
-        ActiveSpellsPanel,
+    ActiveSpellsButton,
+    ActiveSpellsPanel,
 
-        PassiveSpellsButton,
-        PassiveSpellsPanel,
+    PassiveSpellsButton,
+    PassiveSpellsPanel,
 
-        ChatButton,
-        ChatPanel,
+    ChatButton,
+    ChatPanel,
 
-        StatsButton,
-        StatsPanel,
+    StatsButton,
+    StatsPanel,
 
-        OnlineListButton,
-        OnlineListPanel,
+    OnlineListButton,
+    OnlineListPanel,
 
-        PartyButton,
-        PartyPanel,
+    PartyButton,
+    PartyPanel,
 
-        MacroButton,
+    MacroButton,
 
-        SettingsButton,
-        SettingsPanel,
+    SettingsButton,
+    SettingsPanel,
 
-        HelpButton,
-        HelpPanel,
+    HelpButton,
+    HelpPanel,
 
-        NewsPanel,
+    NewsPanel,
 
-        //top bar
-        SessionExpButton,
-        QuestsButton,
+    //top bar
+    SessionExpButton,
+    QuestsButton,
 
-        HPStatusBar,
-        TPStatusBar,
-        SPStatusBar,
-        TNLStatusBar,
+    HPStatusBar,
+    TPStatusBar,
+    SPStatusBar,
+    TNLStatusBar,
 
-        //mid stuff
-        ChatModePictureBox,
-        ChatTextBox,
+    //mid stuff
+    ChatModePictureBox,
+    ChatTextBox,
 
-        FriendList,
-        IgnoreList,
+    FriendList,
+    IgnoreList,
 
-        //lower stuff
-        StatusLabel,
-        ClockLabel,
+    //lower stuff
+    StatusLabel,
+    ClockLabel,
 
-        //not displayed
-        PeriodicStatUpdater,
-        UserInputHandler,
-        CharacterAnimator,
-        NPCAnimator,
-        UnknownEntitiesRequester,
-        PeriodicEmoteHandler,
+    //not displayed
+    PeriodicStatUpdater,
+    UserInputHandler,
+    CharacterAnimator,
+    NPCAnimator,
+    UnknownEntitiesRequester,
+    PeriodicEmoteHandler,
 
-        PreviousUserInputTracker = Int32.MaxValue, //this should always be last!
-    }
+    PreviousUserInputTracker = Int32.MaxValue, //this should always be last!
 }

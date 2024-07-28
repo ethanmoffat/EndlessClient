@@ -1,29 +1,28 @@
 ﻿using Amadevus.RecordGenerator;
 using Newtonsoft.Json;
 
-namespace EndlessClient.Rendering.Metadata.Models
+namespace EndlessClient.Rendering.Metadata.Models;
+
+[Record]
+public sealed partial class NPCMetadata : IGFXMetadata
 {
-    [Record]
-    public sealed partial class NPCMetadata : IGFXMetadata
-    {
-        public static NPCMetadata Default { get; } = new Builder().ToImmutable();
+    public static NPCMetadata Default { get; } = new Builder().ToImmutable();
 
-        [JsonProperty("xOffset")]
-        public int OffsetX { get; }
+    [JsonProperty("xOffset")]
+    public int OffsetX { get; }
 
-        [JsonProperty("yOffset")]
-        public int OffsetY { get; }
+    [JsonProperty("yOffset")]
+    public int OffsetY { get; }
 
-        [JsonProperty("xAttackOffset")]
-        public int AttackOffsetX { get; }
+    [JsonProperty("xAttackOffset")]
+    public int AttackOffsetX { get; }
 
-        [JsonProperty("yAttackOffset")]
-        public int AttackOffsetY { get; }
+    [JsonProperty("yAttackOffset")]
+    public int AttackOffsetY { get; }
 
-        [JsonProperty("hasAnimation")]
-        public bool HasStandingFrameAnimation { get; }
+    [JsonProperty("hasAnimation")]
+    public bool HasStandingFrameAnimation { get; }
 
-        [JsonProperty("nameHeight")]
-        public int NameLabelOffset { get; }
-    }
+    [JsonProperty("nameHeight")]
+    public int NameLabelOffset { get; }
 }

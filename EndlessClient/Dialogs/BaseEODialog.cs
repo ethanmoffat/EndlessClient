@@ -4,38 +4,37 @@ using Microsoft.Xna.Framework;
 using System;
 using XNAControls;
 
-namespace EndlessClient.Dialogs
+namespace EndlessClient.Dialogs;
+
+public abstract class BaseEODialog : XNADialog
 {
-    public abstract class BaseEODialog : XNADialog
+    private readonly Func<bool> _isInGame;
+
+    public INativeGraphicsManager GraphicsManager { get; }
+
+    protected BaseEODialog(INativeGraphicsManager graphicsManager,
+                           IGameStateProvider gameStateProvider)
     {
-        private readonly Func<bool> _isInGame;
+        GraphicsManager = graphicsManager;
+        _isInGame = () => gameStateProvider.CurrentState == GameStates.PlayingTheGame;
+    }
 
-        public INativeGraphicsManager GraphicsManager { get; }
+    protected BaseEODialog(INativeGraphicsManager graphicsManager, bool isInGame)
+    {
+        GraphicsManager = graphicsManager;
+        _isInGame = () => isInGame;
+    }
 
-        protected BaseEODialog(INativeGraphicsManager graphicsManager,
-                               IGameStateProvider gameStateProvider)
-        {
-            GraphicsManager = graphicsManager;
-            _isInGame = () => gameStateProvider.CurrentState == GameStates.PlayingTheGame;
-        }
+    public override void CenterInGameView()
+    {
+        base.CenterInGameView();
 
-        protected BaseEODialog(INativeGraphicsManager graphicsManager, bool isInGame)
-        {
-            GraphicsManager = graphicsManager;
-            _isInGame = () => isInGame;
-        }
+        if (_isInGame() && !Game.Window.AllowUserResizing)
+            DrawPosition = new Vector2(DrawPosition.X, (330 - DrawArea.Height) / 2f);
+    }
 
-        public override void CenterInGameView()
-        {
-            base.CenterInGameView();
-
-            if (_isInGame() && !Game.Window.AllowUserResizing)
-                DrawPosition = new Vector2(DrawPosition.X, (330 - DrawArea.Height) / 2f);
-        }
-
-        public void Close()
-        {
-            Close(XNADialogResult.NO_BUTTON_PRESSED);
-        }
+    public void Close()
+    {
+        Close(XNADialogResult.NO_BUTTON_PRESSED);
     }
 }

@@ -1,9 +1,8 @@
-﻿namespace EndlessClient.Rendering.Effects
+﻿namespace EndlessClient.Rendering.Effects;
+
+public enum EffectLayer
 {
-    public enum EffectLayer
-    {
-        Behind,
-        Transparent,
-        InFront
-    }
+    Behind,
+    Transparent,
+    InFront
 }

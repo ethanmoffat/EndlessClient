@@ -1,7 +1,6 @@
-﻿namespace EndlessClient.Initialization
+﻿namespace EndlessClient.Initialization;
+
+public interface IGameInitializer
 {
-    public interface IGameInitializer
-    {
-        void Initialize();
-    }
+    void Initialize();
 }

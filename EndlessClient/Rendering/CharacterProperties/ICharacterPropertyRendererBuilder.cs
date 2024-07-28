@@ -2,11 +2,10 @@ using EndlessClient.Rendering.Character;
 using EOLib.Domain.Character;
 using System.Collections.Generic;
 
-namespace EndlessClient.Rendering.CharacterProperties
+namespace EndlessClient.Rendering.CharacterProperties;
+
+public interface ICharacterPropertyRendererBuilder
 {
-    public interface ICharacterPropertyRendererBuilder
-    {
-        IEnumerable<ICharacterPropertyRenderer> BuildList(ICharacterTextures characterTextures,
-                                                          CharacterRenderProperties renderProperties);
-    }
+    IEnumerable<ICharacterPropertyRenderer> BuildList(ICharacterTextures characterTextures,
+                                                      CharacterRenderProperties renderProperties);
 }

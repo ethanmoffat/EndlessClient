@@ -1,26 +1,25 @@
 ﻿using AutomaticTypeMapper;
 
-namespace EndlessClient.ControlSets
+namespace EndlessClient.ControlSets;
+
+public interface IControlSetRepository
 {
-    public interface IControlSetRepository
-    {
-        IControlSet CurrentControlSet { get; set; }
-    }
+    IControlSet CurrentControlSet { get; set; }
+}
 
-    public interface IControlSetProvider
-    {
-        IControlSet CurrentControlSet { get; }
-    }
+public interface IControlSetProvider
+{
+    IControlSet CurrentControlSet { get; }
+}
 
-    [MappedType(BaseType = typeof(IControlSetRepository), IsSingleton = true)]
-    [MappedType(BaseType = typeof(IControlSetProvider), IsSingleton = true)]
-    public class ControlSetRepository : IControlSetRepository, IControlSetProvider
-    {
-        public IControlSet CurrentControlSet { get; set; }
+[MappedType(BaseType = typeof(IControlSetRepository), IsSingleton = true)]
+[MappedType(BaseType = typeof(IControlSetProvider), IsSingleton = true)]
+public class ControlSetRepository : IControlSetRepository, IControlSetProvider
+{
+    public IControlSet CurrentControlSet { get; set; }
 
-        public ControlSetRepository()
-        {
-            CurrentControlSet = new EmptyControlSet();
-        }
+    public ControlSetRepository()
+    {
+        CurrentControlSet = new EmptyControlSet();
     }
 }

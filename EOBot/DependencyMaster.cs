@@ -1,9 +1,8 @@
 ﻿using AutomaticTypeMapper;
 
-namespace EOBot
+namespace EOBot;
+
+public static class DependencyMaster
 {
-    public static class DependencyMaster
-    {
-        public static ITypeRegistry[] TypeRegistry { get; set; }
-    }
+    public static ITypeRegistry[] TypeRegistry { get; set; }
 }

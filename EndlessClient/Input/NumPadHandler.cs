@@ -5,43 +5,42 @@ using EOLib.Domain.Map;
 using Microsoft.Xna.Framework.Input;
 using Optional;
 
-namespace EndlessClient.Input
+namespace EndlessClient.Input;
+
+
+public class NumPadHandler : InputHandlerBase
 {
+    private readonly INumPadController _numPadController;
 
-    public class NumPadHandler : InputHandlerBase
+    public NumPadHandler(IEndlessGameProvider endlessGameProvider,
+                         IUserInputProvider userInputProvider,
+                         IUserInputTimeRepository userInputTimeRepository,
+                         ICurrentMapStateRepository currentMapStateRepository,
+                         INumPadController numPadController)
+        : base(endlessGameProvider, userInputProvider, userInputTimeRepository, currentMapStateRepository)
     {
-        private readonly INumPadController _numPadController;
+        _numPadController = numPadController;
+    }
 
-        public NumPadHandler(IEndlessGameProvider endlessGameProvider,
-                             IUserInputProvider userInputProvider,
-                             IUserInputTimeRepository userInputTimeRepository,
-                             ICurrentMapStateRepository currentMapStateRepository,
-                             INumPadController numPadController)
-            : base(endlessGameProvider, userInputProvider, userInputTimeRepository, currentMapStateRepository)
+    protected override Option<Keys> HandleInput()
+    {
+        for (var key = Keys.NumPad0; key <= Keys.NumPad9; ++key)
         {
-            _numPadController = numPadController;
+            if (IsKeyHeld(key))
+            {
+                var emote = key == Keys.NumPad0 ? Emote.Playful : (Emote)(key - Keys.NumPad0);
+                _numPadController.Emote(emote);
+                return Option.Some(key);
+            }
         }
 
-        protected override Option<Keys> HandleInput()
+        // Keys.Decimal == ./DEL on the num pad
+        if (IsKeyHeld(Keys.Decimal))
         {
-            for (var key = Keys.NumPad0; key <= Keys.NumPad9; ++key)
-            {
-                if (IsKeyHeld(key))
-                {
-                    var emote = key == Keys.NumPad0 ? Emote.Playful : (Emote)(key - Keys.NumPad0);
-                    _numPadController.Emote(emote);
-                    return Option.Some(key);
-                }
-            }
-
-            // Keys.Decimal == ./DEL on the num pad
-            if (IsKeyHeld(Keys.Decimal))
-            {
-                _numPadController.Emote(Emote.Embarassed);
-                return Option.Some(Keys.Decimal);
-            }
-
-            return Option.None<Keys>();
+            _numPadController.Emote(Emote.Embarassed);
+            return Option.Some(Keys.Decimal);
         }
+
+        return Option.None<Keys>();
     }
 }
