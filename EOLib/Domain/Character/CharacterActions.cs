@@ -1,5 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Extensions;
+using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Spells;
 using EOLib.IO.Repositories;
@@ -18,17 +19,20 @@ namespace EOLib.Domain.Character
     {
         private readonly IPacketSendService _packetSendService;
         private readonly ICharacterRepository _characterRepository;
-        private readonly IESFFileProvider _spellFileProvider;
+		private readonly IPlayerInfoProvider _playerInfoProvider;
+		private readonly IESFFileProvider _spellFileProvider;
         private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
 
         public CharacterActions(IPacketSendService packetSendService,
                                 ICharacterRepository characterRepository,
+                                IPlayerInfoProvider playerInfoProvider,
                                 IESFFileProvider spellFileProvider,
                                 IFixedTimeStepRepository fixedTimeStepRepository)
         {
             _packetSendService = packetSendService;
             _characterRepository = characterRepository;
-            _spellFileProvider = spellFileProvider;
+			_playerInfoProvider = playerInfoProvider;
+			_spellFileProvider = spellFileProvider;
             _fixedTimeStepRepository = fixedTimeStepRepository;
         }
 

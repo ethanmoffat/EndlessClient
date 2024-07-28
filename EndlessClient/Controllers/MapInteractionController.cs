@@ -18,6 +18,7 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Interact;
 using EOLib.Domain.Item;
+using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Spells;
 using EOLib.IO.Extensions;
@@ -43,6 +44,7 @@ namespace EndlessClient.Controllers
         private readonly ISpellCastValidationActions _spellCastValidationActions;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly ICharacterProvider _characterProvider;
+        private readonly IPlayerInfoProvider _playerInfoProvider;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IInventorySpaceValidator _inventorySpaceValidator;
         private readonly IHudControlProvider _hudControlProvider;
@@ -66,7 +68,8 @@ namespace EndlessClient.Controllers
                                         ISpellCastValidationActions spellCastValidationActions,
                                         ICurrentMapStateProvider currentMapStateProvider,
                                         ICharacterProvider characterProvider,
-                                        IStatusLabelSetter statusLabelSetter,
+										IPlayerInfoProvider playerInfoProvider,
+										IStatusLabelSetter statusLabelSetter,
                                         IInventorySpaceValidator inventorySpaceValidator,
                                         IHudControlProvider hudControlProvider,
                                         ICharacterRendererProvider characterRendererProvider,
@@ -89,6 +92,7 @@ namespace EndlessClient.Controllers
             _spellCastValidationActions = spellCastValidationActions;
             _currentMapStateProvider = currentMapStateProvider;
             _characterProvider = characterProvider;
+            _playerInfoProvider = playerInfoProvider;
             _statusLabelSetter = statusLabelSetter;
             _inventorySpaceValidator = inventorySpaceValidator;
             _hudControlProvider = hudControlProvider;
@@ -127,6 +131,9 @@ namespace EndlessClient.Controllers
             // vanilla client prioritizes standing first, then board interaction
             else if (_characterProvider.MainCharacter.RenderProperties.SitState != SitState.Standing)
             {
+                if (_playerInfoProvider.IsPlayerFrozen)
+                    return;
+
                 var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
                 _characterActions.Sit(mapRenderer.GridCoordinates);
             }
@@ -142,8 +149,11 @@ namespace EndlessClient.Controllers
                         _inGameDialogActions.ShowBoardDialog();
                     }
                     else if (cellState.TileSpec.IsChair())
-                    {
-                        _characterActions.Sit(cellState.Coordinate, isChair: true);
+					{
+						if (_playerInfoProvider.IsPlayerFrozen)
+							return;
+
+						_characterActions.Sit(cellState.Coordinate, isChair: true);
                     }
                     else
                     {

@@ -17,7 +17,9 @@ namespace EOLib.Domain.Login
         bool PlayerIsInGame { get; set; }
 
         bool PlayerHasAdminCharacter { get; set; }
-    }
+
+		bool IsPlayerFrozen { get; set; }
+	}
 
     public interface IPlayerInfoProvider
     {
@@ -34,7 +36,9 @@ namespace EOLib.Domain.Login
         bool PlayerIsInGame { get; }
 
         bool PlayerHasAdminCharacter { get; }
-    }
+
+		bool IsPlayerFrozen { get; set; }
+	}
 
     [AutoMappedType(IsSingleton = true)]
     public sealed class PlayerInfoRepository : IPlayerInfoRepository, IPlayerInfoProvider, IResettable
@@ -52,6 +56,8 @@ namespace EOLib.Domain.Login
         public bool PlayerIsInGame { get; set; }
 
         public bool PlayerHasAdminCharacter { get; set; }
+
+        public bool IsPlayerFrozen { get; set; }
 
         public PlayerInfoRepository() => ResetState();
 

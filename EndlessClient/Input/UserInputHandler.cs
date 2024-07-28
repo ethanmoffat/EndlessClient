@@ -3,6 +3,7 @@ using EndlessClient.Dialogs;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD;
 using EndlessClient.Rendering;
+using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
 using System;
@@ -27,7 +28,8 @@ namespace EndlessClient.Input
                                 IHudButtonController hudButtonController,
                                 ICurrentMapStateRepository currentMapStateRepository,
                                 IActiveDialogProvider activeDialogProvider,
-                                IClientWindowSizeProvider clientWindowSizeProvider)
+                                IClientWindowSizeProvider clientWindowSizeProvider,
+                                IPlayerInfoProvider playerInfoProvider)
         {
             _handlers = new List<IInputHandler>
             {
@@ -35,27 +37,31 @@ namespace EndlessClient.Input
                     userInputProvider,
                     userInputTimeRepository,
                     arrowKeyController,
-                    currentMapStateRepository),
+                    currentMapStateRepository,
+					playerInfoProvider),
                 new ControlKeyHandler(endlessGameProvider,
                     userInputProvider,
                     userInputTimeRepository,
                     controlKeyController,
-                    currentMapStateRepository),
+                    currentMapStateRepository,
+					playerInfoProvider),
                 new FunctionKeyHandler(endlessGameProvider,
                     userInputProvider,
                     userInputTimeRepository,
                     functionKeyController,
-                    currentMapStateRepository),
+                    currentMapStateRepository,
+					playerInfoProvider),
                 new NumPadHandler(endlessGameProvider,
                     userInputProvider,
                     userInputTimeRepository,
                     currentMapStateRepository,
-                    numPadController),
+                    numPadController,
+					playerInfoProvider),
             };
 
             if (clientWindowSizeProvider.Resizable)
             {
-                _handlers.Add(new PanelShortcutHandler(endlessGameProvider, userInputProvider, userInputTimeRepository, currentMapStateRepository, hudButtonController));
+                _handlers.Add(new PanelShortcutHandler(endlessGameProvider, userInputProvider, userInputTimeRepository, currentMapStateRepository, hudButtonController, playerInfoProvider));
             }
 
             _activeDialogProvider = activeDialogProvider;

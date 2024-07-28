@@ -1,5 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
+using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.IO;
 using EOLib.IO.Repositories;
@@ -13,18 +14,24 @@ namespace EOLib.Domain.Spells
         private readonly IPubFileProvider _pubFileProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly ICharacterProvider _characterProvider;
+        private readonly IPlayerInfoProvider _playerInfoProvider;
 
         public SpellCastValidationActions(IPubFileProvider pubFileProvider,
                                           ICurrentMapProvider currentMapProvider,
-                                          ICharacterProvider characterProvider)
+                                          ICharacterProvider characterProvider,
+                                          IPlayerInfoProvider playerInfoProvider)
         {
             _pubFileProvider = pubFileProvider;
             _currentMapProvider = currentMapProvider;
             _characterProvider = characterProvider;
+            _playerInfoProvider = playerInfoProvider;
         }
 
         public SpellCastValidationResult ValidateSpellCast(int spellId)
         {
+            if (_playerInfoProvider.IsPlayerFrozen)
+                return SpellCastValidationResult.Frozen;
+
             var spellData = _pubFileProvider.ESFFile[spellId];
 
             var stats = _characterProvider.MainCharacter.Stats;
@@ -38,6 +45,9 @@ namespace EOLib.Domain.Spells
 
         public SpellCastValidationResult ValidateSpellCast(int spellId, ISpellTargetable spellTarget)
         {
+            if (_playerInfoProvider.IsPlayerFrozen)
+                return SpellCastValidationResult.Frozen;
+
             var res = ValidateSpellCast(spellId);
             if (res != SpellCastValidationResult.Ok)
                 return res;
@@ -75,7 +85,10 @@ namespace EOLib.Domain.Spells
 
         public bool ValidateBard()
         {
-            var weapon = _characterProvider.MainCharacter.RenderProperties.WeaponGraphic;
+			if (_playerInfoProvider.IsPlayerFrozen)
+				return false;
+
+			var weapon = _characterProvider.MainCharacter.RenderProperties.WeaponGraphic;
             return Constants.Instruments.Any(x => x == weapon);
         }
     }

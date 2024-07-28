@@ -6,6 +6,7 @@ using EndlessClient.Rendering.Metadata.Models;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
+using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Spells;
 using EOLib.IO.Map;
@@ -26,6 +27,7 @@ namespace EndlessClient.Rendering.Character
         public const int TICKS_PER_CAST_TIME = 48;
 
         private readonly ICharacterRepository _characterRepository;
+        private readonly IPlayerInfoProvider _playerInfoProvider;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly ISpellSlotDataRepository _spellSlotDataRepository;
@@ -52,6 +54,7 @@ namespace EndlessClient.Rendering.Character
 
         public CharacterAnimator(IEndlessGameProvider gameProvider,
                                  ICharacterRepository characterRepository,
+                                 IPlayerInfoProvider playerInfoProvider,
                                  ICurrentMapStateRepository currentMapStateRepository,
                                  ICurrentMapProvider currentMapProvider,
                                  ISpellSlotDataRepository spellSlotDataRepository,
@@ -63,7 +66,8 @@ namespace EndlessClient.Rendering.Character
             : base((Game) gameProvider.Game)
         {
             _characterRepository = characterRepository;
-            _currentMapStateRepository = currentMapStateRepository;
+			_playerInfoProvider = playerInfoProvider;
+			_currentMapStateRepository = currentMapStateRepository;
             _currentMapProvider = currentMapProvider;
             _spellSlotDataRepository = spellSlotDataRepository;
             _characterActions = characterActions;

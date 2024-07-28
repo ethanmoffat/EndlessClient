@@ -1,5 +1,6 @@
 ﻿using EndlessClient.GameExecution;
 using EndlessClient.HUD;
+using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework.Input;
 using Optional;
@@ -15,8 +16,9 @@ namespace EndlessClient.Input
                                     IUserInputProvider userInputProvider,
                                     IUserInputTimeRepository userInputTimeRepository,
                                     ICurrentMapStateRepository currentMapStateRepository,
-                                    IHudButtonController hudButtonController)
-            : base(endlessGameProvider, userInputProvider, userInputTimeRepository, currentMapStateRepository)
+                                    IHudButtonController hudButtonController,
+									IPlayerInfoProvider playerInfoProvider)
+            : base(endlessGameProvider, userInputProvider, userInputTimeRepository, currentMapStateRepository, playerInfoProvider)
         {
             _hudButtonController = hudButtonController;
         }

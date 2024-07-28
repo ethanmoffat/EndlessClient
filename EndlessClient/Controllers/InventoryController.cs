@@ -14,6 +14,7 @@ using EOLib.Domain.Chat;
 using EOLib.Domain.Interact;
 using EOLib.Domain.Interact.Bank;
 using EOLib.Domain.Item;
+using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Trade;
 using EOLib.IO;
@@ -39,6 +40,7 @@ namespace EndlessClient.Controllers
         private readonly IItemEquipValidator _itemEquipValidator;
         private readonly IItemDropValidator _itemDropValidator;
         private readonly ICharacterProvider _characterProvider;
+        private readonly IPlayerInfoProvider _playerInfoProvider;
         private readonly IPaperdollProvider _paperdollProvider;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
@@ -64,6 +66,7 @@ namespace EndlessClient.Controllers
                                    IItemEquipValidator itemEquipValidator,
                                    IItemDropValidator itemDropValidator,
                                    ICharacterProvider characterProvider,
+                                   IPlayerInfoProvider playerInfoProvider,
                                    IPaperdollProvider paperdollProvider,
                                    IHudControlProvider hudControlProvider,
                                    ICurrentMapProvider currentMapProvider,
@@ -87,6 +90,7 @@ namespace EndlessClient.Controllers
             _itemEquipValidator = itemEquipValidator;
             _itemDropValidator = itemDropValidator;
             _characterProvider = characterProvider;
+            _playerInfoProvider = playerInfoProvider;
             _paperdollProvider = paperdollProvider;
             _hudControlProvider = hudControlProvider;
             _currentMapProvider = currentMapProvider;
@@ -118,6 +122,9 @@ namespace EndlessClient.Controllers
             {
                 //usable items
                 case ItemType.Teleport:
+                    if (_playerInfoProvider.IsPlayerFrozen)
+                        break;
+
                     if (!_currentMapProvider.CurrentMap.Properties.CanScroll)
                     {
                         _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_NOTHING_HAPPENED);

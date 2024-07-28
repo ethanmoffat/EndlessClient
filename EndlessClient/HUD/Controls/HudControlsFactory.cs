@@ -48,6 +48,7 @@ namespace EndlessClient.HUD.Controls
         private readonly IClientWindowSizeRepository _clientWindowSizeRepository;
         private readonly IEndlessGameProvider _endlessGameProvider;
         private readonly ICharacterRepository _characterRepository;
+        private readonly IPlayerInfoProvider _playerInfoProvider;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IUserInputRepository _userInputRepository;
         private readonly IStatusLabelSetter _statusLabelSetter;
@@ -85,6 +86,7 @@ namespace EndlessClient.HUD.Controls
                                   IClientWindowSizeRepository clientWindowSizeRepository,
                                   IEndlessGameProvider endlessGameProvider,
                                   ICharacterRepository characterRepository,
+                                  IPlayerInfoProvider playerInfoProvider,
                                   ICurrentMapStateRepository currentMapStateRepository,
                                   IUserInputRepository userInputRepository,
                                   IStatusLabelSetter statusLabelSetter,
@@ -120,6 +122,7 @@ namespace EndlessClient.HUD.Controls
             _clientWindowSizeRepository = clientWindowSizeRepository;
             _endlessGameProvider = endlessGameProvider;
             _characterRepository = characterRepository;
+            _playerInfoProvider = playerInfoProvider;
             _currentMapStateRepository = currentMapStateRepository;
             _userInputRepository = userInputRepository;
             _statusLabelSetter = statusLabelSetter;
@@ -578,7 +581,7 @@ namespace EndlessClient.HUD.Controls
         private ICharacterAnimator CreateCharacterAnimator()
         {
             return new CharacterAnimator(
-                _endlessGameProvider, _characterRepository, _currentMapStateRepository,
+                _endlessGameProvider, _characterRepository, _playerInfoProvider, _currentMapStateRepository,
                 _currentMapProvider, _spellSlotDataRepository, _characterActions,
                 _walkValidationActions, _pathFinder, _fixedTimeStepRepository,
                 _weaponMetadataProvider);

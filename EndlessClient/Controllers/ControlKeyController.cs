@@ -4,6 +4,7 @@ using EndlessClient.HUD;
 using EndlessClient.Rendering.Character;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
+using EOLib.Domain.Login;
 using EOLib.Localization;
 
 namespace EndlessClient.Controllers
@@ -12,13 +13,15 @@ namespace EndlessClient.Controllers
     public class ControlKeyController : IControlKeyController
     {
         private readonly ICharacterProvider _characterProvider;
-        private readonly IAttackValidationActions _attackValidationActions;
+        private readonly IPlayerInfoProvider _playerInfoProvider;
+		private readonly IAttackValidationActions _attackValidationActions;
         private readonly ICharacterActions _characterActions;
         private readonly ICharacterAnimationActions _characterAnimationActions;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly ISfxPlayer _sfxPlayer;
 
         public ControlKeyController(ICharacterProvider characterProvider,
+                                    IPlayerInfoProvider playerInfoProvider,
                                     IAttackValidationActions attackValidationActions,
                                     ICharacterActions characterActions,
                                     ICharacterAnimationActions characterAnimationActions,
@@ -31,6 +34,7 @@ namespace EndlessClient.Controllers
             _characterAnimationActions = characterAnimationActions;
             _statusLabelSetter = statusLabelSetter;
             _sfxPlayer = sfxPlayer;
+            _playerInfoProvider = playerInfoProvider;
         }
 
         public bool Attack()
