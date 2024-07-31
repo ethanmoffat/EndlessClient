@@ -2,7 +2,7 @@
 * text=auto eol=crlf
 
 # Custom for Visual Studio
-*.cs     diff=csharp
+*.cs     diff=csharp eol=crlf
 *.sln    merge=union
 *.csproj merge=union
 *.vbproj merge=union
