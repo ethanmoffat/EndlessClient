@@ -40,7 +40,7 @@ namespace EndlessClient.Dialogs.Actions
             const string Title = "Report Player";
             const string Prompt = "Who do you want to report, and why?";
 
-            var dlg = _textMultiInputDialogFactory.Create(Title, Prompt, TextMultiInputDialog.DialogSize.Two,
+            var dlg = _textMultiInputDialogFactory.Create(Title, Prompt, TextMultiInputDialog.DialogSize.NineWithScroll,
                 new TextMultiInputDialog.InputInfo { Label = "Name", MaxChars = 16 },
                 new TextMultiInputDialog.InputInfo { Label = "Reason", MaxChars = 48 });
             dlg.DialogClosing += (_, e) =>
