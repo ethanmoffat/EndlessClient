@@ -1,11 +1,11 @@
-﻿using System.Diagnostics;
-using System.IO;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EndlessClient.Initialization;
 using EOLib.Config;
 using EOLib.Graphics;
 using EOLib.Localization;
 using System;
+using System.Diagnostics;
+using System.IO;
 using System.Net;
 
 #if !LINUX && !OSX

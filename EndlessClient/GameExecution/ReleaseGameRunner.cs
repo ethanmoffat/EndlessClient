@@ -1,6 +1,5 @@
-﻿using System;
-using AutomaticTypeMapper;
-
+﻿using AutomaticTypeMapper;
+using System;
 using System.Runtime.Versioning;
 
 #if !LINUX && !OSX
