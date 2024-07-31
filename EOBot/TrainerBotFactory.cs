@@ -1,16 +1,17 @@
-﻿namespace EOBot;
-
-public class TrainerBotFactory : IBotFactory
+﻿namespace EOBot
 {
-    private readonly ArgumentsParser _parser;
-
-    public TrainerBotFactory(ArgumentsParser parser)
+    public class TrainerBotFactory : IBotFactory
     {
-        _parser = parser;
-    }
+        private readonly ArgumentsParser _parser;
 
-    public IBot CreateBot(int index)
-    {
-        return new TrainerBot(index, _parser.Account, _parser.Password, _parser.Character);
+        public TrainerBotFactory(ArgumentsParser parser)
+        {
+            _parser = parser;
+        }
+
+        public IBot CreateBot(int index)
+        {
+            return new TrainerBot(index, _parser.Account, _parser.Password, _parser.Character);
+        }
     }
 }

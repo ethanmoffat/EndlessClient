@@ -5,41 +5,42 @@ using EOLib.Domain.Interact.Quest;
 using EOLib.Graphics;
 using EOLib.Localization;
 
-namespace EndlessClient.Dialogs.Factories;
-
-[AutoMappedType]
-public class QuestStatusDialogFactory : IQuestStatusDialogFactory
+namespace EndlessClient.Dialogs.Factories
 {
-    private readonly INativeGraphicsManager _nativeGraphicsManager;
-    private readonly IEODialogButtonService _dialogButtonService;
-    private readonly ILocalizedStringFinder _localizedStringFinder;
-    private readonly IQuestDataProvider _questDataProvider;
-    private readonly ICharacterProvider _characterProvider;
-
-    public QuestStatusDialogFactory(INativeGraphicsManager nativeGraphicsManager,
-                             IEODialogButtonService dialogButtonService,
-                             ILocalizedStringFinder localizedStringFinder,
-                             IQuestDataProvider questDataProvider,
-                             ICharacterProvider characterProvider)
+    [AutoMappedType]
+    public class QuestStatusDialogFactory : IQuestStatusDialogFactory
     {
-        _nativeGraphicsManager = nativeGraphicsManager;
-        _dialogButtonService = dialogButtonService;
-        _localizedStringFinder = localizedStringFinder;
-        _questDataProvider = questDataProvider;
-        _characterProvider = characterProvider;
+        private readonly INativeGraphicsManager _nativeGraphicsManager;
+        private readonly IEODialogButtonService _dialogButtonService;
+        private readonly ILocalizedStringFinder _localizedStringFinder;
+        private readonly IQuestDataProvider _questDataProvider;
+        private readonly ICharacterProvider _characterProvider;
+
+        public QuestStatusDialogFactory(INativeGraphicsManager nativeGraphicsManager,
+                                 IEODialogButtonService dialogButtonService,
+                                 ILocalizedStringFinder localizedStringFinder,
+                                 IQuestDataProvider questDataProvider,
+                                 ICharacterProvider characterProvider)
+        {
+            _nativeGraphicsManager = nativeGraphicsManager;
+            _dialogButtonService = dialogButtonService;
+            _localizedStringFinder = localizedStringFinder;
+            _questDataProvider = questDataProvider;
+            _characterProvider = characterProvider;
+        }
+
+        public QuestStatusDialog Create()
+        {
+            return new QuestStatusDialog(_nativeGraphicsManager,
+                                         _dialogButtonService,
+                                         _localizedStringFinder,
+                                         _questDataProvider,
+                                         _characterProvider);
+        }
     }
 
-    public QuestStatusDialog Create()
+    public interface IQuestStatusDialogFactory
     {
-        return new QuestStatusDialog(_nativeGraphicsManager,
-                                     _dialogButtonService,
-                                     _localizedStringFinder,
-                                     _questDataProvider,
-                                     _characterProvider);
+        QuestStatusDialog Create();
     }
-}
-
-public interface IQuestStatusDialogFactory
-{
-    QuestStatusDialog Create();
 }

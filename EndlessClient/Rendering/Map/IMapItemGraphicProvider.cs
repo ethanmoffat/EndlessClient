@@ -1,8 +1,9 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 
-namespace EndlessClient.Rendering.Map;
-
-public interface IMapItemGraphicProvider
+namespace EndlessClient.Rendering.Map
 {
-    Texture2D GetItemGraphic(int id, int amount);
+    public interface IMapItemGraphicProvider
+    {
+        Texture2D GetItemGraphic(int id, int amount);
+    }
 }

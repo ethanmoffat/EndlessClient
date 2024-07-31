@@ -2,17 +2,18 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
-namespace EndlessClient.Rendering.NPC;
-
-public interface INPCRenderer : IDrawable, IUpdateable, IGameComponent, IDisposable, IMapActor
+namespace EndlessClient.Rendering.NPC
 {
-    EOLib.Domain.NPC.NPC NPC { get; set; }
+    public interface INPCRenderer : IDrawable, IUpdateable, IGameComponent, IDisposable, IMapActor
+    {
+        EOLib.Domain.NPC.NPC NPC { get; set; }
 
-    bool IsDead { get; }
+        bool IsDead { get; }
 
-    bool IsClickablePixel(Point currentMousePosition);
+        bool IsClickablePixel(Point currentMousePosition);
 
-    void DrawToSpriteBatch(SpriteBatch spriteBatch);
+        void DrawToSpriteBatch(SpriteBatch spriteBatch);
 
-    void StartDying();
+        void StartDying();
+    }
 }

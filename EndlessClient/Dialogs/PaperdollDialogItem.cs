@@ -11,113 +11,114 @@ using Optional;
 using System;
 using XNAControls;
 
-namespace EndlessClient.Dialogs;
-
-public class PaperdollDialogItem : XNAPictureBox
+namespace EndlessClient.Dialogs
 {
-    private readonly ISfxPlayer _sfxPlayer;
-    private readonly InventoryPanel _inventoryPanel;
-    private readonly PaperdollDialog _paperdollDialog;
-    private readonly bool _isMainCharacter;
-    private readonly Option<EIFRecord> _itemInfo;
-
-    private bool _beingDragged;
-
-    public EquipLocation EquipLocation { get; }
-
-    public int ItemID => _itemInfo.Match(r => r.ID, () => 0);
-
-    public event Action<EIFRecord> UnequipAction;
-
-    public bool IsBeingDragged => _beingDragged;
-
-    public PaperdollDialogItem(INativeGraphicsManager nativeGraphicsManager,
-                               ISfxPlayer sfxPlayer,
-                               InventoryPanel inventoryPanel,
-                               PaperdollDialog paperdollDialog,
-                               bool isMainCharacter,
-                               EquipLocation location,
-                               Option<EIFRecord> itemInfo)
+    public class PaperdollDialogItem : XNAPictureBox
     {
-        _sfxPlayer = sfxPlayer;
-        _inventoryPanel = inventoryPanel;
-        _paperdollDialog = paperdollDialog;
-        _isMainCharacter = isMainCharacter;
-        EquipLocation = location;
-        _itemInfo = itemInfo;
+        private readonly ISfxPlayer _sfxPlayer;
+        private readonly InventoryPanel _inventoryPanel;
+        private readonly PaperdollDialog _paperdollDialog;
+        private readonly bool _isMainCharacter;
+        private readonly Option<EIFRecord> _itemInfo;
 
-        _itemInfo.MatchSome(r => Texture = nativeGraphicsManager.TextureFromResource(GFXTypes.Items, r.Graphic * 2, true));
-        StretchMode = StretchMode.CenterInFrame;
-    }
+        private bool _beingDragged;
 
-    protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
-    {
-        if (!_isMainCharacter || !_itemInfo.HasValue)
-            return false;
+        public EquipLocation EquipLocation { get; }
 
-        if (eventArgs.Button == MouseButton.Left)
+        public int ItemID => _itemInfo.Match(r => r.ID, () => 0);
+
+        public event Action<EIFRecord> UnequipAction;
+
+        public bool IsBeingDragged => _beingDragged;
+
+        public PaperdollDialogItem(INativeGraphicsManager nativeGraphicsManager,
+                                   ISfxPlayer sfxPlayer,
+                                   InventoryPanel inventoryPanel,
+                                   PaperdollDialog paperdollDialog,
+                                   bool isMainCharacter,
+                                   EquipLocation location,
+                                   Option<EIFRecord> itemInfo)
         {
-            if (_inventoryPanel.MouseOver && _inventoryPanel.MouseOverPreviously)
+            _sfxPlayer = sfxPlayer;
+            _inventoryPanel = inventoryPanel;
+            _paperdollDialog = paperdollDialog;
+            _isMainCharacter = isMainCharacter;
+            EquipLocation = location;
+            _itemInfo = itemInfo;
+
+            _itemInfo.MatchSome(r => Texture = nativeGraphicsManager.TextureFromResource(GFXTypes.Items, r.Graphic * 2, true));
+            StretchMode = StretchMode.CenterInFrame;
+        }
+
+        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            if (!_isMainCharacter || !_itemInfo.HasValue)
+                return false;
+
+            if (eventArgs.Button == MouseButton.Left)
             {
-                StopDragging();
-                _itemInfo.MatchSome(itemInfo => UnequipAction?.Invoke(itemInfo));
+                if (_inventoryPanel.MouseOver && _inventoryPanel.MouseOverPreviously)
+                {
+                    StopDragging();
+                    _itemInfo.MatchSome(itemInfo => UnequipAction?.Invoke(itemInfo));
+                }
             }
+            else if (eventArgs.Button == MouseButton.Right)
+            {
+                if (_beingDragged)
+                    StopDragging();
+                else
+                    _itemInfo.MatchSome(itemInfo => UnequipAction?.Invoke(itemInfo));
+            }
+
+            return true;
         }
-        else if (eventArgs.Button == MouseButton.Right)
+
+        protected override bool HandleDragStart(IXNAControl control, MouseEventArgs eventArgs)
         {
-            if (_beingDragged)
-                StopDragging();
-            else
-                _itemInfo.MatchSome(itemInfo => UnequipAction?.Invoke(itemInfo));
+            if (!_isMainCharacter || !_itemInfo.HasValue)
+                return false;
+
+            _beingDragged = true;
+            SetControlUnparented();
+            Game.Components.Add(this);
+
+            _sfxPlayer.PlaySfx(SoundEffectID.InventoryPickup);
+
+            DrawOrder = 1000;
+            return true;
         }
 
-        return true;
-    }
+        protected override bool HandleDrag(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            if (!_isMainCharacter || !_itemInfo.HasValue)
+                return false;
 
-    protected override bool HandleDragStart(IXNAControl control, MouseEventArgs eventArgs)
-    {
-        if (!_isMainCharacter || !_itemInfo.HasValue)
-            return false;
+            DrawPosition = new Vector2(eventArgs.Position.X - (DrawArea.Width / 2), eventArgs.Position.Y - (DrawArea.Height / 2));
 
-        _beingDragged = true;
-        SetControlUnparented();
-        Game.Components.Add(this);
+            return true;
+        }
 
-        _sfxPlayer.PlaySfx(SoundEffectID.InventoryPickup);
+        protected override bool HandleDragEnd(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            if (!_isMainCharacter || !_itemInfo.HasValue)
+                return false;
 
-        DrawOrder = 1000;
-        return true;
-    }
+            if (_inventoryPanel.MouseOver && _inventoryPanel.MouseOverPreviously)
+                _itemInfo.MatchSome(itemInfo => UnequipAction?.Invoke(itemInfo));
 
-    protected override bool HandleDrag(IXNAControl control, MouseEventArgs eventArgs)
-    {
-        if (!_isMainCharacter || !_itemInfo.HasValue)
-            return false;
+            StopDragging();
 
-        DrawPosition = new Vector2(eventArgs.Position.X - (DrawArea.Width / 2), eventArgs.Position.Y - (DrawArea.Height / 2));
+            return true;
+        }
 
-        return true;
-    }
+        private void StopDragging()
+        {
+            _beingDragged = false;
+            SetParentControl(_paperdollDialog);
+            DrawArea = EquipLocation.GetEquipLocationRectangle();
 
-    protected override bool HandleDragEnd(IXNAControl control, MouseEventArgs eventArgs)
-    {
-        if (!_isMainCharacter || !_itemInfo.HasValue)
-            return false;
-
-        if (_inventoryPanel.MouseOver && _inventoryPanel.MouseOverPreviously)
-            _itemInfo.MatchSome(itemInfo => UnequipAction?.Invoke(itemInfo));
-
-        StopDragging();
-
-        return true;
-    }
-
-    private void StopDragging()
-    {
-        _beingDragged = false;
-        SetParentControl(_paperdollDialog);
-        DrawArea = EquipLocation.GetEquipLocationRectangle();
-
-        _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);
+            _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);
+        }
     }
 }

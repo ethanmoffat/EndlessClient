@@ -1,8 +1,9 @@
 ﻿using EndlessClient.UIControls;
 
-namespace EndlessClient.HUD.Chat;
-
-public interface IChatModeCalculator
+namespace EndlessClient.HUD.Chat
 {
-    ChatModePictureBox.ChatMode CalculateMode(string fullTextString);
+    public interface IChatModeCalculator
+    {
+        ChatModePictureBox.ChatMode CalculateMode(string fullTextString);
+    }
 }

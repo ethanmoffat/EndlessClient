@@ -1,8 +1,9 @@
 ﻿using System;
 
-namespace EOLib.Graphics;
-
-public interface INativeGraphicsLoader
+namespace EOLib.Graphics
 {
-    ReadOnlyMemory<byte> LoadGFX(GFXTypes file, int resourceValue);
+    public interface INativeGraphicsLoader
+    {
+        ReadOnlyMemory<byte> LoadGFX(GFXTypes file, int resourceValue);
+    }
 }

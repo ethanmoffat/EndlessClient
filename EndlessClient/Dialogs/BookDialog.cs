@@ -10,120 +10,121 @@ using System.Collections.Generic;
 using XNAControls;
 using static EndlessClient.Dialogs.QuestStatusListDialogItem;
 
-namespace EndlessClient.Dialogs;
-
-public class BookDialog : PlayerInfoDialog
+namespace EndlessClient.Dialogs
 {
-    private readonly IPaperdollProvider _paperdollProvider;
-
-    private readonly List<XNALabel> _childItems;
-    private ScrollBar _scrollBar;
-
-    private int _lastScrollOffset;
-
-    public BookDialog(INativeGraphicsManager graphicsManager,
-                      IEODialogButtonService eoDialogButtonService,
-                      IPubFileProvider pubFileProvider,
-                      IPaperdollProvider paperdollProvider,
-                      Character character,
-                      bool isMainCharacter)
-        : base(graphicsManager, eoDialogButtonService, pubFileProvider, paperdollProvider, character, isMainCharacter)
+    public class BookDialog : PlayerInfoDialog
     {
-        _paperdollProvider = paperdollProvider;
+        private readonly IPaperdollProvider _paperdollProvider;
 
-        _childItems = new List<XNALabel>();
+        private readonly List<XNALabel> _childItems;
+        private ScrollBar _scrollBar;
 
-        var backgroundTexture = graphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 27);
-        _scrollBar = new ScrollBar(new Vector2(188, 34), backgroundTexture, new Rectangle(303, 2, 20, 237), ScrollBarColors.DarkOnDark, graphicsManager)
+        private int _lastScrollOffset;
+
+        public BookDialog(INativeGraphicsManager graphicsManager,
+                          IEODialogButtonService eoDialogButtonService,
+                          IPubFileProvider pubFileProvider,
+                          IPaperdollProvider paperdollProvider,
+                          Character character,
+                          bool isMainCharacter)
+            : base(graphicsManager, eoDialogButtonService, pubFileProvider, paperdollProvider, character, isMainCharacter)
         {
-            LinesToRender = 14
-        };
-        _scrollBar.SetParentControl(this);
-        SetScrollWheelHandler(_scrollBar);
+            _paperdollProvider = paperdollProvider;
 
-        BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 69);
+            _childItems = new List<XNALabel>();
 
-        CenterInGameView();
-
-        if (!Game.Window.AllowUserResizing)
-            DrawPosition = new Vector2(DrawPosition.X, 15);
-    }
-
-    public override void Initialize()
-    {
-        _scrollBar.Initialize();
-
-        base.Initialize();
-    }
-
-    protected override void OnUnconditionalUpdateControl(GameTime gameTime)
-    {
-        if (_childItems.Count > _scrollBar.LinesToRender && _lastScrollOffset != _scrollBar.ScrollOffset)
-        {
-            _lastScrollOffset = _scrollBar.ScrollOffset;
-
-            for (int i = 0; i < _childItems.Count; i++)
+            var backgroundTexture = graphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 27);
+            _scrollBar = new ScrollBar(new Vector2(188, 34), backgroundTexture, new Rectangle(303, 2, 20, 237), ScrollBarColors.DarkOnDark, graphicsManager)
             {
-                _childItems[i].DrawPosition = new Vector2(_childItems[i].DrawPosition.X, 42 + (i - _lastScrollOffset) * 16);
-                _childItems[i].Visible = (i - _lastScrollOffset) >= 0 && (i - _lastScrollOffset) < _scrollBar.LinesToRender;
-            }
-        }
-
-        base.OnUnconditionalUpdateControl(gameTime);
-    }
-
-    protected override void OnDrawControl(GameTime gameTime)
-    {
-        base.OnDrawControl(gameTime);
-
-        var iconTexture = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 68, true);
-
-        _spriteBatch.Begin();
-
-        for (int i = 0; i < Math.Min(_childItems.Count, _scrollBar.LinesToRender); i++)
-        {
-            _spriteBatch.Draw(iconTexture, DrawPositionWithParentOffset + new Vector2(26, 41 + i * 16), GetIconSourceRectangle(QuestStatusIcon.None2), Color.White);
-        }
-
-        _spriteBatch.End();
-    }
-
-    protected override void UpdateDisplayedData(PaperdollData paperdollData)
-    {
-        base.UpdateDisplayedData(paperdollData);
-
-        foreach (var item in _childItems)
-            item.Dispose();
-
-        _childItems.Clear();
-
-        for (int i = 0; i < paperdollData.QuestNames.Count; i++)
-        {
-            var quest = paperdollData.QuestNames[i];
-
-            var nextLabel = new XNALabel(Constants.FontSize08pt5)
-            {
-                Text = quest,
-                ForeColor = ColorConstants.LightGrayText,
-                AutoSize = true,
-                DrawPosition = new Vector2(50, 42 + i * 16),
-                Visible = i < _scrollBar.LinesToRender
+                LinesToRender = 14
             };
-            nextLabel.SetScrollWheelHandler(_scrollBar);
-            nextLabel.ResizeBasedOnText();
-            nextLabel.SetParentControl(this);
-            nextLabel.Initialize();
+            _scrollBar.SetParentControl(this);
+            SetScrollWheelHandler(_scrollBar);
 
-            _childItems.Add(nextLabel);
+            BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 69);
+
+            CenterInGameView();
+
+            if (!Game.Window.AllowUserResizing)
+                DrawPosition = new Vector2(DrawPosition.X, 15);
         }
 
-        _scrollBar.ScrollToTop();
-        _scrollBar.UpdateDimensions(paperdollData.QuestNames.Count);
-    }
+        public override void Initialize()
+        {
+            _scrollBar.Initialize();
 
-    // copied from QuestStatusListDialogItem
-    private static Rectangle GetIconSourceRectangle(QuestStatusIcon index)
-    {
-        return new Rectangle((int)index * 15, 0, 15, 15);
+            base.Initialize();
+        }
+
+        protected override void OnUnconditionalUpdateControl(GameTime gameTime)
+        {
+            if (_childItems.Count > _scrollBar.LinesToRender && _lastScrollOffset != _scrollBar.ScrollOffset)
+            {
+                _lastScrollOffset = _scrollBar.ScrollOffset;
+
+                for (int i = 0; i < _childItems.Count; i++)
+                {
+                    _childItems[i].DrawPosition = new Vector2(_childItems[i].DrawPosition.X, 42 + (i - _lastScrollOffset) * 16);
+                    _childItems[i].Visible = (i - _lastScrollOffset) >= 0 && (i - _lastScrollOffset) < _scrollBar.LinesToRender;
+                }
+            }
+
+            base.OnUnconditionalUpdateControl(gameTime);
+        }
+
+        protected override void OnDrawControl(GameTime gameTime)
+        {
+            base.OnDrawControl(gameTime);
+
+            var iconTexture = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 68, true);
+
+            _spriteBatch.Begin();
+
+            for (int i = 0; i < Math.Min(_childItems.Count, _scrollBar.LinesToRender); i++)
+            {
+                _spriteBatch.Draw(iconTexture, DrawPositionWithParentOffset + new Vector2(26, 41 + i * 16), GetIconSourceRectangle(QuestStatusIcon.None2), Color.White);
+            }
+
+            _spriteBatch.End();
+        }
+
+        protected override void UpdateDisplayedData(PaperdollData paperdollData)
+        {
+            base.UpdateDisplayedData(paperdollData);
+
+            foreach (var item in _childItems)
+                item.Dispose();
+
+            _childItems.Clear();
+
+            for (int i = 0; i < paperdollData.QuestNames.Count; i++)
+            {
+                var quest = paperdollData.QuestNames[i];
+
+                var nextLabel = new XNALabel(Constants.FontSize08pt5)
+                {
+                    Text = quest,
+                    ForeColor = ColorConstants.LightGrayText,
+                    AutoSize = true,
+                    DrawPosition = new Vector2(50, 42 + i * 16),
+                    Visible = i < _scrollBar.LinesToRender
+                };
+                nextLabel.SetScrollWheelHandler(_scrollBar);
+                nextLabel.ResizeBasedOnText();
+                nextLabel.SetParentControl(this);
+                nextLabel.Initialize();
+
+                _childItems.Add(nextLabel);
+            }
+
+            _scrollBar.ScrollToTop();
+            _scrollBar.UpdateDimensions(paperdollData.QuestNames.Count);
+        }
+
+        // copied from QuestStatusListDialogItem
+        private static Rectangle GetIconSourceRectangle(QuestStatusIcon index)
+        {
+            return new Rectangle((int)index * 15, 0, 15, 15);
+        }
     }
 }

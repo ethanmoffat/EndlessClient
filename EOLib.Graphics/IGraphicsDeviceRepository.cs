@@ -2,27 +2,28 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace EOLib.Graphics;
-
-public interface IGraphicsDeviceRepository
+namespace EOLib.Graphics
 {
-    GraphicsDevice GraphicsDevice { get; set; }
+    public interface IGraphicsDeviceRepository
+    {
+        GraphicsDevice GraphicsDevice { get; set; }
 
-    GraphicsDeviceManager GraphicsDeviceManager { get; set; }
-}
+        GraphicsDeviceManager GraphicsDeviceManager { get; set; }
+    }
 
-public interface IGraphicsDeviceProvider
-{
-    GraphicsDevice GraphicsDevice { get; }
+    public interface IGraphicsDeviceProvider
+    {
+        GraphicsDevice GraphicsDevice { get; }
 
-    GraphicsDeviceManager GraphicsDeviceManager { get; }
-}
+        GraphicsDeviceManager GraphicsDeviceManager { get; }
+    }
 
-[MappedType(BaseType = typeof(IGraphicsDeviceRepository), IsSingleton = true)]
-[MappedType(BaseType = typeof(IGraphicsDeviceProvider), IsSingleton = true)]
-public class GraphicsDeviceRepository : IGraphicsDeviceRepository, IGraphicsDeviceProvider
-{
-    public GraphicsDevice GraphicsDevice { get; set; }
+    [MappedType(BaseType = typeof(IGraphicsDeviceRepository), IsSingleton = true)]
+    [MappedType(BaseType = typeof(IGraphicsDeviceProvider), IsSingleton = true)]
+    public class GraphicsDeviceRepository : IGraphicsDeviceRepository, IGraphicsDeviceProvider
+    {
+        public GraphicsDevice GraphicsDevice { get; set; }
 
-    public GraphicsDeviceManager GraphicsDeviceManager { get; set; }
+        public GraphicsDeviceManager GraphicsDeviceManager { get; set; }
+    }
 }

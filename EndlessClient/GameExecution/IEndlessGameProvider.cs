@@ -1,20 +1,21 @@
 ﻿using AutomaticTypeMapper;
 
-namespace EndlessClient.GameExecution;
-
-public interface IEndlessGameRepository
+namespace EndlessClient.GameExecution
 {
-    IEndlessGame Game { get; set; }
-}
+    public interface IEndlessGameRepository
+    {
+        IEndlessGame Game { get; set; }
+    }
 
-public interface IEndlessGameProvider
-{
-    IEndlessGame Game { get; }
-}
+    public interface IEndlessGameProvider
+    {
+        IEndlessGame Game { get; }
+    }
 
-[MappedType(BaseType = typeof(IEndlessGameRepository), IsSingleton = true)]
-[MappedType(BaseType = typeof(IEndlessGameProvider), IsSingleton = true)]
-public class EndlessGameRepository : IEndlessGameRepository, IEndlessGameProvider
-{
-    public IEndlessGame Game { get; set; }
+    [MappedType(BaseType = typeof(IEndlessGameRepository), IsSingleton = true)]
+    [MappedType(BaseType = typeof(IEndlessGameProvider), IsSingleton = true)]
+    public class EndlessGameRepository : IEndlessGameRepository, IEndlessGameProvider
+    {
+        public IEndlessGame Game { get; set; }
+    }
 }

@@ -4,36 +4,37 @@ using EOLib.Domain.Map;
 using Microsoft.Xna.Framework.Input;
 using Optional;
 
-namespace EndlessClient.Input;
-
-public class ArrowKeyHandler : InputHandlerBase
+namespace EndlessClient.Input
 {
-    private readonly IArrowKeyController _arrowKeyController;
-
-    public ArrowKeyHandler(IEndlessGameProvider endlessGameProvider,
-                           IUserInputProvider userInputProvider,
-                           IUserInputTimeRepository userInputTimeRepository,
-                           IArrowKeyController arrowKeyController,
-                           ICurrentMapStateRepository currentMapStateRepository)
-        : base(endlessGameProvider, userInputProvider, userInputTimeRepository, currentMapStateRepository)
+    public class ArrowKeyHandler : InputHandlerBase
     {
-        _arrowKeyController = arrowKeyController;
-    }
+        private readonly IArrowKeyController _arrowKeyController;
 
-    protected override Option<Keys> HandleInput()
-    {
-        if (IsKeyHeld(Keys.Left) && _arrowKeyController.MoveLeft())
-            return Option.Some(Keys.Left);
-        if (IsKeyHeld(Keys.Right) && _arrowKeyController.MoveRight())
-            return Option.Some(Keys.Right);
-        if (IsKeyHeld(Keys.Up) && _arrowKeyController.MoveUp())
-            return Option.Some(Keys.Up);
-        if (IsKeyHeld(Keys.Down) && _arrowKeyController.MoveDown())
-            return Option.Some(Keys.Down);
+        public ArrowKeyHandler(IEndlessGameProvider endlessGameProvider,
+                               IUserInputProvider userInputProvider,
+                               IUserInputTimeRepository userInputTimeRepository,
+                               IArrowKeyController arrowKeyController,
+                               ICurrentMapStateRepository currentMapStateRepository)
+            : base(endlessGameProvider, userInputProvider, userInputTimeRepository, currentMapStateRepository)
+        {
+            _arrowKeyController = arrowKeyController;
+        }
 
-        if (KeysAreUp(Keys.Left, Keys.Right, Keys.Up, Keys.Down))
-            _arrowKeyController.KeysUp();
+        protected override Option<Keys> HandleInput()
+        {
+            if (IsKeyHeld(Keys.Left) && _arrowKeyController.MoveLeft())
+                return Option.Some(Keys.Left);
+            if (IsKeyHeld(Keys.Right) && _arrowKeyController.MoveRight())
+                return Option.Some(Keys.Right);
+            if (IsKeyHeld(Keys.Up) && _arrowKeyController.MoveUp())
+                return Option.Some(Keys.Up);
+            if (IsKeyHeld(Keys.Down) && _arrowKeyController.MoveDown())
+                return Option.Some(Keys.Down);
 
-        return Option.None<Keys>();
+            if (KeysAreUp(Keys.Left, Keys.Right, Keys.Up, Keys.Down))
+                _arrowKeyController.KeysUp();
+
+            return Option.None<Keys>();
+        }
     }
 }

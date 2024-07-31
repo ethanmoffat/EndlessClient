@@ -4,30 +4,31 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
-namespace EOLib.IO.Test.Pub;
-
-[TestFixture, ExcludeFromCodeCoverage]
-public class EIFRecordTest
+namespace EOLib.IO.Test.Pub
 {
-    [Test]
-    public void EIFRecord_HasAllExpectedProperties()
+    [TestFixture, ExcludeFromCodeCoverage]
+    public class EIFRecordTest
     {
-        var record = new EIFRecord();
+        [Test]
+        public void EIFRecord_HasAllExpectedProperties()
+        {
+            var record = new EIFRecord();
 
-        var expectedProperties = ((PubRecordProperty[])Enum.GetValues(typeof(PubRecordProperty)))
-            .Where(x => x.HasFlag(PubRecordProperty.Item))
-            .Except(new[] { PubRecordProperty.Item });
+            var expectedProperties = ((PubRecordProperty[])Enum.GetValues(typeof(PubRecordProperty)))
+                .Where(x => x.HasFlag(PubRecordProperty.Item))
+                .Except(new[] { PubRecordProperty.Item });
 
-        Assert.That(record.Bag.Count, Is.EqualTo(expectedProperties.Count()));
+            Assert.That(record.Bag.Count, Is.EqualTo(expectedProperties.Count()));
 
-        foreach (var p in expectedProperties)
-            Assert.That(record.Bag, Does.ContainKey(p));
-    }
+            foreach (var p in expectedProperties)
+                Assert.That(record.Bag, Does.ContainKey(p));
+        }
 
-    [Test]
-    public void EIFRecord_HasExpectedDataSize()
-    {
-        const int ExpectedDataSize = 58;
-        Assert.That(new EIFRecord().DataSize, Is.EqualTo(ExpectedDataSize));
+        [Test]
+        public void EIFRecord_HasExpectedDataSize()
+        {
+            const int ExpectedDataSize = 58;
+            Assert.That(new EIFRecord().DataSize, Is.EqualTo(ExpectedDataSize));
+        }
     }
 }

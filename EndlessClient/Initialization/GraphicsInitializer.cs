@@ -3,40 +3,41 @@ using EOLib.Graphics;
 using PELoaderLib;
 using System.IO;
 
-namespace EndlessClient.Initialization;
-
-[MappedType(BaseType = typeof(IGameInitializer))]
-public class GraphicsInitializer : IGameInitializer
+namespace EndlessClient.Initialization
 {
-    private readonly IPEFileCollection _peFileCollection;
-
-    public GraphicsInitializer(IPEFileCollection peFileCollection)
+    [MappedType(BaseType = typeof(IGameInitializer))]
+    public class GraphicsInitializer : IGameInitializer
     {
-        _peFileCollection = peFileCollection;
-    }
+        private readonly IPEFileCollection _peFileCollection;
 
-    public void Initialize()
-    {
-        _peFileCollection.PopulateCollectionWithStandardGFX();
-
-        foreach (var filePair in _peFileCollection)
-            TryInitializePEFiles(filePair.Key, filePair.Value);
-    }
-
-    private static void TryInitializePEFiles(GFXTypes file, IPEFile peFile)
-    {
-        var number = ((int)file).ToString("D3");
-
-        try
+        public GraphicsInitializer(IPEFileCollection peFileCollection)
         {
-            peFile.Initialize();
-        }
-        catch (IOException)
-        {
-            throw new LibraryLoadException(number, file);
+            _peFileCollection = peFileCollection;
         }
 
-        if (!peFile.Initialized)
-            throw new LibraryLoadException(number, file);
+        public void Initialize()
+        {
+            _peFileCollection.PopulateCollectionWithStandardGFX();
+
+            foreach (var filePair in _peFileCollection)
+                TryInitializePEFiles(filePair.Key, filePair.Value);
+        }
+
+        private static void TryInitializePEFiles(GFXTypes file, IPEFile peFile)
+        {
+            var number = ((int)file).ToString("D3");
+
+            try
+            {
+                peFile.Initialize();
+            }
+            catch (IOException)
+            {
+                throw new LibraryLoadException(number, file);
+            }
+
+            if (!peFile.Initialized)
+                throw new LibraryLoadException(number, file);
+        }
     }
 }

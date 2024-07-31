@@ -5,45 +5,46 @@ using EOLib.Domain.Interact.Quest;
 using EOLib.Graphics;
 using EOLib.IO.Repositories;
 
-namespace EndlessClient.Dialogs.Factories;
-
-[AutoMappedType]
-public class QuestDialogFactory : IQuestDialogFactory
+namespace EndlessClient.Dialogs.Factories
 {
-    private readonly INativeGraphicsManager _nativeGraphicsManager;
-    private readonly IQuestActions _questActions;
-    private readonly IEODialogButtonService _dialogButtonService;
-    private readonly IQuestDataProvider _questDataProvider;
-    private readonly IENFFileProvider _enfFileProvider;
-    private readonly IContentProvider _contentProvider;
-
-    public QuestDialogFactory(INativeGraphicsManager nativeGraphicsManager,
-                              IQuestActions questActions,
-                              IEODialogButtonService dialogButtonService,
-                              IQuestDataProvider questDataProvider,
-                              IENFFileProvider enfFileProvider,
-                              IContentProvider contentProvider)
+    [AutoMappedType]
+    public class QuestDialogFactory : IQuestDialogFactory
     {
-        _nativeGraphicsManager = nativeGraphicsManager;
-        _questActions = questActions;
-        _dialogButtonService = dialogButtonService;
-        _questDataProvider = questDataProvider;
-        _enfFileProvider = enfFileProvider;
-        _contentProvider = contentProvider;
+        private readonly INativeGraphicsManager _nativeGraphicsManager;
+        private readonly IQuestActions _questActions;
+        private readonly IEODialogButtonService _dialogButtonService;
+        private readonly IQuestDataProvider _questDataProvider;
+        private readonly IENFFileProvider _enfFileProvider;
+        private readonly IContentProvider _contentProvider;
+
+        public QuestDialogFactory(INativeGraphicsManager nativeGraphicsManager,
+                                  IQuestActions questActions,
+                                  IEODialogButtonService dialogButtonService,
+                                  IQuestDataProvider questDataProvider,
+                                  IENFFileProvider enfFileProvider,
+                                  IContentProvider contentProvider)
+        {
+            _nativeGraphicsManager = nativeGraphicsManager;
+            _questActions = questActions;
+            _dialogButtonService = dialogButtonService;
+            _questDataProvider = questDataProvider;
+            _enfFileProvider = enfFileProvider;
+            _contentProvider = contentProvider;
+        }
+
+        public QuestDialog Create()
+        {
+            return new QuestDialog(_nativeGraphicsManager,
+                                   _questActions,
+                                   _dialogButtonService,
+                                   _questDataProvider,
+                                   _enfFileProvider,
+                                   _contentProvider);
+        }
     }
 
-    public QuestDialog Create()
+    public interface IQuestDialogFactory
     {
-        return new QuestDialog(_nativeGraphicsManager,
-                               _questActions,
-                               _dialogButtonService,
-                               _questDataProvider,
-                               _enfFileProvider,
-                               _contentProvider);
+        QuestDialog Create();
     }
-}
-
-public interface IQuestDialogFactory
-{
-    QuestDialog Create();
 }

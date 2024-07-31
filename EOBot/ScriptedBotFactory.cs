@@ -1,16 +1,17 @@
-﻿namespace EOBot;
-
-public class ScriptedBotFactory : IBotFactory
+﻿namespace EOBot
 {
-    private readonly ArgumentsParser _parser;
-
-    public ScriptedBotFactory(ArgumentsParser parser)
+    public class ScriptedBotFactory : IBotFactory
     {
-        _parser = parser;
-    }
+        private readonly ArgumentsParser _parser;
 
-    public IBot CreateBot(int index)
-    {
-        return new ScriptedBot(index, _parser);
+        public ScriptedBotFactory(ArgumentsParser parser)
+        {
+            _parser = parser;
+        }
+
+        public IBot CreateBot(int index)
+        {
+            return new ScriptedBot(index, _parser);
+        }
     }
 }

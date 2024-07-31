@@ -4,39 +4,40 @@ using System;
 using System.ComponentModel.Design;
 using System.Diagnostics.CodeAnalysis;
 
-namespace EOLib.Graphics.Test;
-
-[ExcludeFromCodeCoverage]
-internal sealed class GraphicsDeviceTestHelper : IDisposable
+namespace EOLib.Graphics.Test
 {
-    private readonly Game _game;
-
-    public GraphicsDeviceManager GraphicsDeviceManager { get; }
-
-    public GraphicsDeviceTestHelper()
+    [ExcludeFromCodeCoverage]
+    internal sealed class GraphicsDeviceTestHelper : IDisposable
     {
-        _game = new Game();
-        GraphicsDeviceManager = new GraphicsDeviceManager(_game);
-        _game.RunOneFrame();
-    }
+        private readonly Game _game;
 
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
+        public GraphicsDeviceManager GraphicsDeviceManager { get; }
 
-    ~GraphicsDeviceTestHelper()
-    {
-        Dispose(false);
-    }
-
-    private void Dispose(bool disposing)
-    {
-        if (disposing)
+        public GraphicsDeviceTestHelper()
         {
-            GraphicsDeviceManager.Dispose();
-            _game.Dispose();
+            _game = new Game();
+            GraphicsDeviceManager = new GraphicsDeviceManager(_game);
+            _game.RunOneFrame();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~GraphicsDeviceTestHelper()
+        {
+            Dispose(false);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                GraphicsDeviceManager.Dispose();
+                _game.Dispose();
+            }
         }
     }
 }

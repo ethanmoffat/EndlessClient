@@ -5,48 +5,49 @@ using EOLib.Domain.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace EndlessClient.Rendering.MapEntityRenderers;
-
-public class MainCharacterEntityRenderer : BaseMapEntityRenderer
+namespace EndlessClient.Rendering.MapEntityRenderers
 {
-    private readonly ICharacterRendererProvider _characterRendererProvider;
-    private readonly bool _transparent;
-
-    public MainCharacterEntityRenderer(ICharacterProvider characterProvider,
-                                       ICharacterRendererProvider characterRendererProvider,
-                                       IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
-                                       IClientWindowSizeProvider clientWindowSizeProvider,
-                                       bool transparent)
-        : base(characterProvider, gridDrawCoordinateCalculator, clientWindowSizeProvider)
+    public class MainCharacterEntityRenderer : BaseMapEntityRenderer
     {
-        _characterRendererProvider = characterRendererProvider;
-        _transparent = transparent;
-    }
+        private readonly ICharacterRendererProvider _characterRendererProvider;
+        private readonly bool _transparent;
 
-    public override MapRenderLayer RenderLayer =>
-        _transparent ? MapRenderLayer.MainCharacterTransparent : MapRenderLayer.MainCharacter;
-
-    protected override int RenderDistance => 1;
-
-    protected override bool ElementExistsAt(int row, int col)
-    {
-        var rp = _characterProvider.MainCharacter.RenderProperties;
-        if (rp.CurrentAction != CharacterActionState.Walking)
+        public MainCharacterEntityRenderer(ICharacterProvider characterProvider,
+                                           ICharacterRendererProvider characterRendererProvider,
+                                           IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
+                                           IClientWindowSizeProvider clientWindowSizeProvider,
+                                           bool transparent)
+            : base(characterProvider, gridDrawCoordinateCalculator, clientWindowSizeProvider)
         {
-            return row == rp.MapY && col == rp.MapX;
+            _characterRendererProvider = characterRendererProvider;
+            _transparent = transparent;
         }
-        else
-        {
-            return row == rp.GetDestinationY() && col == rp.GetDestinationX();
-        }
-    }
 
-    public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
-    {
-        _characterRendererProvider.MainCharacterRenderer.MatchSome(cr =>
+        public override MapRenderLayer RenderLayer =>
+            _transparent ? MapRenderLayer.MainCharacterTransparent : MapRenderLayer.MainCharacter;
+
+        protected override int RenderDistance => 1;
+
+        protected override bool ElementExistsAt(int row, int col)
         {
-            cr.Transparent = _transparent;
-            cr.DrawToSpriteBatch(spriteBatch);
-        });
+            var rp = _characterProvider.MainCharacter.RenderProperties;
+            if (rp.CurrentAction != CharacterActionState.Walking)
+            {
+                return row == rp.MapY && col == rp.MapX;
+            }
+            else
+            {
+                return row == rp.GetDestinationY() && col == rp.GetDestinationX();
+            }
+        }
+
+        public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
+        {
+            _characterRendererProvider.MainCharacterRenderer.MatchSome(cr =>
+            {
+                cr.Transparent = _transparent;
+                cr.DrawToSpriteBatch(spriteBatch);
+            });
+        }
     }
 }

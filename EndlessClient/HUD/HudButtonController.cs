@@ -5,119 +5,120 @@ using EOLib.Domain.Online;
 using EOLib.Localization;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 
-namespace EndlessClient.HUD;
-
-[AutoMappedType]
-public class HudButtonController : IHudButtonController
+namespace EndlessClient.HUD
 {
-    private readonly IHudStateActions _hudStateActions;
-    private readonly IOnlinePlayerActions _onlinePlayerActions;
-    private readonly IInGameDialogActions _inGameDialogActions;
-    private readonly IQuestActions _questActions;
-    private readonly IStatusLabelSetter _statusLabelSetter;
-    private readonly ILocalizedStringFinder _localizedStringFinder;
-
-    public HudButtonController(IHudStateActions hudStateActions,
-                               IOnlinePlayerActions onlinePlayerActions,
-                               IInGameDialogActions inGameDialogActions,
-                               IQuestActions questActions,
-                               IStatusLabelSetter statusLabelSetter,
-                               ILocalizedStringFinder localizedStringFinder)
+    [AutoMappedType]
+    public class HudButtonController : IHudButtonController
     {
-        _hudStateActions = hudStateActions;
-        _onlinePlayerActions = onlinePlayerActions;
-        _inGameDialogActions = inGameDialogActions;
-        _questActions = questActions;
-        _statusLabelSetter = statusLabelSetter;
-        _localizedStringFinder = localizedStringFinder;
-    }
+        private readonly IHudStateActions _hudStateActions;
+        private readonly IOnlinePlayerActions _onlinePlayerActions;
+        private readonly IInGameDialogActions _inGameDialogActions;
+        private readonly IQuestActions _questActions;
+        private readonly IStatusLabelSetter _statusLabelSetter;
+        private readonly ILocalizedStringFinder _localizedStringFinder;
 
-    public void ShowNews()
-    {
-        _hudStateActions.SwitchToState(InGameStates.News);
-    }
+        public HudButtonController(IHudStateActions hudStateActions,
+                                   IOnlinePlayerActions onlinePlayerActions,
+                                   IInGameDialogActions inGameDialogActions,
+                                   IQuestActions questActions,
+                                   IStatusLabelSetter statusLabelSetter,
+                                   ILocalizedStringFinder localizedStringFinder)
+        {
+            _hudStateActions = hudStateActions;
+            _onlinePlayerActions = onlinePlayerActions;
+            _inGameDialogActions = inGameDialogActions;
+            _questActions = questActions;
+            _statusLabelSetter = statusLabelSetter;
+            _localizedStringFinder = localizedStringFinder;
+        }
 
-    public void ClickInventory()
-    {
-        _hudStateActions.SwitchToState(InGameStates.Inventory);
-    }
+        public void ShowNews()
+        {
+            _hudStateActions.SwitchToState(InGameStates.News);
+        }
 
-    public void ClickViewMapToggle()
-    {
-        _hudStateActions.ToggleMapView();
-    }
+        public void ClickInventory()
+        {
+            _hudStateActions.SwitchToState(InGameStates.Inventory);
+        }
 
-    public void ClickActiveSpells()
-    {
-        _hudStateActions.SwitchToState(InGameStates.ActiveSpells);
-    }
+        public void ClickViewMapToggle()
+        {
+            _hudStateActions.ToggleMapView();
+        }
 
-    public void ClickPassiveSpells()
-    {
-        _hudStateActions.SwitchToState(InGameStates.PassiveSpells);
-    }
+        public void ClickActiveSpells()
+        {
+            _hudStateActions.SwitchToState(InGameStates.ActiveSpells);
+        }
 
-    public void ClickChat()
-    {
-        _hudStateActions.SwitchToState(InGameStates.Chat);
-    }
+        public void ClickPassiveSpells()
+        {
+            _hudStateActions.SwitchToState(InGameStates.PassiveSpells);
+        }
 
-    public void ClickStats()
-    {
-        _hudStateActions.SwitchToState(InGameStates.Stats);
-    }
+        public void ClickChat()
+        {
+            _hudStateActions.SwitchToState(InGameStates.Chat);
+        }
 
-    public void ClickOnlineList()
-    {
-        _onlinePlayerActions.RequestOnlinePlayers(fullList: true);
-        _hudStateActions.SwitchToState(InGameStates.OnlineList);
-    }
+        public void ClickStats()
+        {
+            _hudStateActions.SwitchToState(InGameStates.Stats);
+        }
 
-    public void ClickParty()
-    {
-        _hudStateActions.SwitchToState(InGameStates.Party);
-    }
+        public void ClickOnlineList()
+        {
+            _onlinePlayerActions.RequestOnlinePlayers(fullList: true);
+            _hudStateActions.SwitchToState(InGameStates.OnlineList);
+        }
 
-    public void ClickSettings()
-    {
-        _hudStateActions.SwitchToState(InGameStates.Settings);
-    }
+        public void ClickParty()
+        {
+            _hudStateActions.SwitchToState(InGameStates.Party);
+        }
 
-    public void ClickHelp()
-    {
-        _hudStateActions.SwitchToState(InGameStates.Help);
-        _inGameDialogActions.ShowHelpDialog();
-    }
+        public void ClickSettings()
+        {
+            _hudStateActions.SwitchToState(InGameStates.Settings);
+        }
 
-    public void ClickFriendList()
-    {
-        _inGameDialogActions.ShowFriendListDialog();
-        _onlinePlayerActions.RequestOnlinePlayers(fullList: false);
+        public void ClickHelp()
+        {
+            _hudStateActions.SwitchToState(InGameStates.Help);
+            _inGameDialogActions.ShowHelpDialog();
+        }
 
-        _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION,
-            EOResourceID.STATUS_LABEL_FRIEND_LIST,
-            _localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_USE_RIGHT_MOUSE_CLICK_DELETE));
-    }
+        public void ClickFriendList()
+        {
+            _inGameDialogActions.ShowFriendListDialog();
+            _onlinePlayerActions.RequestOnlinePlayers(fullList: false);
 
-    public void ClickIgnoreList()
-    {
-        _inGameDialogActions.ShowIgnoreListDialog();
-        _onlinePlayerActions.RequestOnlinePlayers(fullList: false);
+            _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION,
+                EOResourceID.STATUS_LABEL_FRIEND_LIST,
+                _localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_USE_RIGHT_MOUSE_CLICK_DELETE));
+        }
 
-        _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION,
-            EOResourceID.STATUS_LABEL_IGNORE_LIST,
-            _localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_USE_RIGHT_MOUSE_CLICK_DELETE));
-    }
+        public void ClickIgnoreList()
+        {
+            _inGameDialogActions.ShowIgnoreListDialog();
+            _onlinePlayerActions.RequestOnlinePlayers(fullList: false);
 
-    public void ClickSessionExp()
-    {
-        _inGameDialogActions.ShowSessionExpDialog();
-    }
+            _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION,
+                EOResourceID.STATUS_LABEL_IGNORE_LIST,
+                _localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_USE_RIGHT_MOUSE_CLICK_DELETE));
+        }
 
-    public void ClickQuestStatus()
-    {
-        _questActions.RequestQuestHistory(QuestPage.Progress);
-        _questActions.RequestQuestHistory(QuestPage.History);
-        _inGameDialogActions.ShowQuestStatusDialog();
+        public void ClickSessionExp()
+        {
+            _inGameDialogActions.ShowSessionExpDialog();
+        }
+
+        public void ClickQuestStatus()
+        {
+            _questActions.RequestQuestHistory(QuestPage.Progress);
+            _questActions.RequestQuestHistory(QuestPage.History);
+            _inGameDialogActions.ShowQuestStatusDialog();
+        }
     }
 }

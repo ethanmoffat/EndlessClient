@@ -1,10 +1,11 @@
-﻿namespace EndlessClient.Rendering.Character;
-
-public interface ISpellCaster
+﻿namespace EndlessClient.Rendering.Character
 {
-    void ShoutSpellPrep(string spellName);
+    public interface ISpellCaster
+    {
+        void ShoutSpellPrep(string spellName);
 
-    void ShoutSpellCast();
+        void ShoutSpellCast();
 
-    void StopShout();
+        void StopShout();
+    }
 }

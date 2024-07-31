@@ -1,26 +1,27 @@
 ﻿using EndlessClient.GameExecution;
 using Microsoft.Xna.Framework;
 
-namespace EndlessClient.Input;
-
-public class PreviousUserInputTracker : GameComponent
+namespace EndlessClient.Input
 {
-    private readonly IUserInputRepository _userInputRepository;
-
-    public PreviousUserInputTracker(
-        IEndlessGameProvider endlessGameProvider,
-        IUserInputRepository userInputRepository)
-        : base((Game)endlessGameProvider.Game)
+    public class PreviousUserInputTracker : GameComponent
     {
-        _userInputRepository = userInputRepository;
-        UpdateOrder = int.MaxValue;
-    }
+        private readonly IUserInputRepository _userInputRepository;
 
-    public override void Update(GameTime gameTime)
-    {
-        _userInputRepository.PreviousKeyState = _userInputRepository.CurrentKeyState;
-        _userInputRepository.PreviousMouseState = _userInputRepository.CurrentMouseState;
+        public PreviousUserInputTracker(
+            IEndlessGameProvider endlessGameProvider,
+            IUserInputRepository userInputRepository)
+            : base((Game)endlessGameProvider.Game)
+        {
+            _userInputRepository = userInputRepository;
+            UpdateOrder = int.MaxValue;
+        }
 
-        base.Update(gameTime);
+        public override void Update(GameTime gameTime)
+        {
+            _userInputRepository.PreviousKeyState = _userInputRepository.CurrentKeyState;
+            _userInputRepository.PreviousMouseState = _userInputRepository.CurrentMouseState;
+
+            base.Update(gameTime);
+        }
     }
 }

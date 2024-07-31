@@ -4,40 +4,41 @@ using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.IO.Repositories;
 
-namespace EndlessClient.Dialogs.Factories;
-
-[AutoMappedType]
-public class BookDialogFactory : IBookDialogFactory
+namespace EndlessClient.Dialogs.Factories
 {
-    private readonly INativeGraphicsManager _nativeGraphicsManager;
-    private readonly IEODialogButtonService _eoDialogButtonService;
-    private readonly IPubFileProvider _pubFileProvider;
-    private readonly IPaperdollProvider _paperdollProvider;
-
-    public BookDialogFactory(INativeGraphicsManager nativeGraphicsManager,
-                             IEODialogButtonService eoDialogButtonService,
-                             IPubFileProvider pubFileProvider,
-                             IPaperdollProvider paperdollProvider)
+    [AutoMappedType]
+    public class BookDialogFactory : IBookDialogFactory
     {
+        private readonly INativeGraphicsManager _nativeGraphicsManager;
+        private readonly IEODialogButtonService _eoDialogButtonService;
+        private readonly IPubFileProvider _pubFileProvider;
+        private readonly IPaperdollProvider _paperdollProvider;
 
-        _nativeGraphicsManager = nativeGraphicsManager;
-        _eoDialogButtonService = eoDialogButtonService;
-        _pubFileProvider = pubFileProvider;
-        _paperdollProvider = paperdollProvider;
+        public BookDialogFactory(INativeGraphicsManager nativeGraphicsManager,
+                                 IEODialogButtonService eoDialogButtonService,
+                                 IPubFileProvider pubFileProvider,
+                                 IPaperdollProvider paperdollProvider)
+        {
+
+            _nativeGraphicsManager = nativeGraphicsManager;
+            _eoDialogButtonService = eoDialogButtonService;
+            _pubFileProvider = pubFileProvider;
+            _paperdollProvider = paperdollProvider;
+        }
+
+        public BookDialog Create(Character character, bool isMainCharacter)
+        {
+            return new BookDialog(_nativeGraphicsManager,
+                _eoDialogButtonService,
+                _pubFileProvider,
+                _paperdollProvider,
+                character,
+                isMainCharacter);
+        }
     }
 
-    public BookDialog Create(Character character, bool isMainCharacter)
+    public interface IBookDialogFactory
     {
-        return new BookDialog(_nativeGraphicsManager,
-            _eoDialogButtonService,
-            _pubFileProvider,
-            _paperdollProvider,
-            character,
-            isMainCharacter);
+        BookDialog Create(Character character, bool isMainCharacter);
     }
-}
-
-public interface IBookDialogFactory
-{
-    BookDialog Create(Character character, bool isMainCharacter);
 }

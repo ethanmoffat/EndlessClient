@@ -1,8 +1,9 @@
 ﻿using EndlessClient.Rendering.Character;
 
-namespace EndlessClient.Rendering.Factories;
-
-public interface ICharacterRendererFactory
+namespace EndlessClient.Rendering.Factories
 {
-    ICharacterRenderer CreateCharacterRenderer(EOLib.Domain.Character.Character character, bool isUiControl);
+    public interface ICharacterRendererFactory
+    {
+        ICharacterRenderer CreateCharacterRenderer(EOLib.Domain.Character.Character character, bool isUiControl);
+    }
 }

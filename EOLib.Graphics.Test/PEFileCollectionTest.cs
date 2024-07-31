@@ -6,71 +6,72 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 
-namespace EOLib.Graphics.Test;
-
-[TestFixture, ExcludeFromCodeCoverage]
-public class PEFileCollectionTest
+namespace EOLib.Graphics.Test
 {
-    private const string ExpectedDirectory = "gfx";
-
-    private IPEFileCollection _collection;
-
-    [SetUp]
-    public void SetUp()
+    [TestFixture, ExcludeFromCodeCoverage]
+    public class PEFileCollectionTest
     {
-        _collection = new PEFileCollection();
-    }
+        private const string ExpectedDirectory = "gfx";
 
-    [TearDown]
-    public void TearDown()
-    {
-        _collection.Dispose();
+        private IPEFileCollection _collection;
 
-        if (Directory.Exists(ExpectedDirectory))
-            Directory.Delete(ExpectedDirectory, true);
-    }
+        [SetUp]
+        public void SetUp()
+        {
+            _collection = new PEFileCollection();
+        }
 
-    [Test]
-    public void PopulateCollection_ThrowsDirectoryNotFound_ForMissingDirectory()
-    {
-        Assert.Throws<DirectoryNotFoundException>(() => _collection.PopulateCollectionWithStandardGFX());
-    }
+        [TearDown]
+        public void TearDown()
+        {
+            _collection.Dispose();
 
-    [Test]
-    public void PopulateCollection_ThrowsFileNotFound_ForMissingFilesInDirectory()
-    {
-        CreateExpectedDirectoryWithFiles(5);
-        Assert.Throws<FileNotFoundException>(() => _collection.PopulateCollectionWithStandardGFX());
-    }
+            if (Directory.Exists(ExpectedDirectory))
+                Directory.Delete(ExpectedDirectory, true);
+        }
 
-    [Test]
-    public void Constructor_FillsCollection_WithExpectedPEFiles()
-    {
-        var expectedKeys = Enum.GetValues(typeof(GFXTypes));
-        CreateExpectedDirectoryWithFiles(25);
+        [Test]
+        public void PopulateCollection_ThrowsDirectoryNotFound_ForMissingDirectory()
+        {
+            Assert.Throws<DirectoryNotFoundException>(() => _collection.PopulateCollectionWithStandardGFX());
+        }
 
-        _collection.PopulateCollectionWithStandardGFX();
+        [Test]
+        public void PopulateCollection_ThrowsFileNotFound_ForMissingFilesInDirectory()
+        {
+            CreateExpectedDirectoryWithFiles(5);
+            Assert.Throws<FileNotFoundException>(() => _collection.PopulateCollectionWithStandardGFX());
+        }
 
-        Assert.AreEqual(25, _collection.Count);
-        CollectionAssert.AreEqual(expectedKeys, _collection.Keys.ToList());
-    }
+        [Test]
+        public void Constructor_FillsCollection_WithExpectedPEFiles()
+        {
+            var expectedKeys = Enum.GetValues(typeof(GFXTypes));
+            CreateExpectedDirectoryWithFiles(25);
 
-    [Test]
-    public void Dispose_DisposesAllFiles()
-    {
-        _collection.Add(GFXTypes.PreLoginUI, Mock.Of<IPEFile>());
-        _collection.Add(GFXTypes.PostLoginUI, Mock.Of<IPEFile>());
+            _collection.PopulateCollectionWithStandardGFX();
 
-        _collection.Dispose();
+            Assert.AreEqual(25, _collection.Count);
+            CollectionAssert.AreEqual(expectedKeys, _collection.Keys.ToList());
+        }
 
-        foreach (var file in _collection.Values)
-            Mock.Get(file).Verify(x => x.Dispose(), Times.Once);
-    }
+        [Test]
+        public void Dispose_DisposesAllFiles()
+        {
+            _collection.Add(GFXTypes.PreLoginUI, Mock.Of<IPEFile>());
+            _collection.Add(GFXTypes.PostLoginUI, Mock.Of<IPEFile>());
 
-    private void CreateExpectedDirectoryWithFiles(int numFiles = 0, string fileNameFormat = "gfx{0:D3}.egf")
-    {
-        Directory.CreateDirectory(ExpectedDirectory);
-        for (int i = 1; i <= numFiles; ++i)
-            File.WriteAllText(string.Format(Path.Combine(ExpectedDirectory, fileNameFormat), i), "test contents");
+            _collection.Dispose();
+
+            foreach (var file in _collection.Values)
+                Mock.Get(file).Verify(x => x.Dispose(), Times.Once);
+        }
+
+        private void CreateExpectedDirectoryWithFiles(int numFiles = 0, string fileNameFormat = "gfx{0:D3}.egf")
+        {
+            Directory.CreateDirectory(ExpectedDirectory);
+            for (int i = 1; i <= numFiles; ++i)
+                File.WriteAllText(string.Format(Path.Combine(ExpectedDirectory, fileNameFormat), i), "test contents");
+        }
     }
 }

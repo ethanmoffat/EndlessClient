@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace BatchPub;
-
-static class Program
+namespace BatchPub
 {
-    /// <summary>
-    /// The main entry point for the application.
-    /// </summary>
-    [STAThread]
-    static void Main()
+    static class Program
     {
-        Application.EnableVisualStyles();
-        Application.SetHighDpiMode(HighDpiMode.SystemAware);
-        Application.SetCompatibleTextRenderingDefault(false);
-        Application.Run(new frmMain());
+        /// <summary>
+        /// The main entry point for the application.
+        /// </summary>
+        [STAThread]
+        static void Main()
+        {
+            Application.EnableVisualStyles();
+            Application.SetHighDpiMode(HighDpiMode.SystemAware);
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new frmMain());
+        }
     }
 }

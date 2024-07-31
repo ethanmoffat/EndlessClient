@@ -12,150 +12,151 @@ using Optional;
 using System.Threading.Tasks;
 using XNAControls;
 
-namespace EndlessClient.Controllers;
-
-[MappedType(BaseType = typeof(ICharacterManagementController))]
-public class CharacterManagementController : ICharacterManagementController
+namespace EndlessClient.Controllers
 {
-    private readonly ISafeNetworkOperationFactory _safeNetworkOperationFactory;
-    private readonly ICharacterManagementActions _characterManagementActions;
-    private readonly IErrorDialogDisplayAction _errorDialogDisplayAction;
-    private readonly ICharacterDialogActions _characterDialogActions;
-    private readonly IBackgroundReceiveActions _backgroundReceiveActions;
-    private readonly INetworkConnectionActions _networkConnectionActions;
-    private readonly IGameStateActions _gameStateActions;
-    private readonly ICharacterSelectorRepository _characterSelectorRepository;
-    private readonly ISfxPlayer _sfxPlayer;
-
-    public CharacterManagementController(ISafeNetworkOperationFactory safeNetworkOperationFactory,
-                                         ICharacterManagementActions characterManagementActions,
-                                         IErrorDialogDisplayAction errorDialogDisplayAction,
-                                         ICharacterDialogActions characterDialogActions,
-                                         IBackgroundReceiveActions backgroundReceiveActions,
-                                         INetworkConnectionActions networkConnectionActions,
-                                         IGameStateActions gameStateActions,
-                                         ICharacterSelectorRepository characterSelectorRepository,
-                                         ISfxPlayer sfxPlayer)
+    [MappedType(BaseType = typeof(ICharacterManagementController))]
+    public class CharacterManagementController : ICharacterManagementController
     {
-        _safeNetworkOperationFactory = safeNetworkOperationFactory;
-        _characterManagementActions = characterManagementActions;
-        _errorDialogDisplayAction = errorDialogDisplayAction;
-        _characterDialogActions = characterDialogActions;
-        _backgroundReceiveActions = backgroundReceiveActions;
-        _networkConnectionActions = networkConnectionActions;
-        _gameStateActions = gameStateActions;
-        _characterSelectorRepository = characterSelectorRepository;
-        _sfxPlayer = sfxPlayer;
-    }
+        private readonly ISafeNetworkOperationFactory _safeNetworkOperationFactory;
+        private readonly ICharacterManagementActions _characterManagementActions;
+        private readonly IErrorDialogDisplayAction _errorDialogDisplayAction;
+        private readonly ICharacterDialogActions _characterDialogActions;
+        private readonly IBackgroundReceiveActions _backgroundReceiveActions;
+        private readonly INetworkConnectionActions _networkConnectionActions;
+        private readonly IGameStateActions _gameStateActions;
+        private readonly ICharacterSelectorRepository _characterSelectorRepository;
+        private readonly ISfxPlayer _sfxPlayer;
 
-    public async Task CreateCharacter()
-    {
-        var requestCreateOp = _safeNetworkOperationFactory.CreateSafeBlockingOperation(_characterManagementActions.RequestCharacterCreation, SendError, RecvError);
-        if (!await requestCreateOp.Invoke().ConfigureAwait(false))
-            return;
-
-        var createID = requestCreateOp.Result;
-
-        //todo: make not approved character names cancel the dialog close
-        var showResult = await _characterDialogActions.ShowCreateCharacterDialog().ConfigureAwait(false);
-        showResult.MatchSome(parameters =>
+        public CharacterManagementController(ISafeNetworkOperationFactory safeNetworkOperationFactory,
+                                             ICharacterManagementActions characterManagementActions,
+                                             IErrorDialogDisplayAction errorDialogDisplayAction,
+                                             ICharacterDialogActions characterDialogActions,
+                                             IBackgroundReceiveActions backgroundReceiveActions,
+                                             INetworkConnectionActions networkConnectionActions,
+                                             IGameStateActions gameStateActions,
+                                             ICharacterSelectorRepository characterSelectorRepository,
+                                             ISfxPlayer sfxPlayer)
         {
-            var createOp = _safeNetworkOperationFactory.CreateSafeBlockingOperation(
-                () => _characterManagementActions.CreateCharacter(parameters, createID), SendError, RecvError);
-            var opTask = createOp.Invoke();
-            opTask.ContinueWith(t =>
-            {
-                if (t.Result)
-                {
-                    _gameStateActions.RefreshCurrentState();
-                    _characterDialogActions.ShowCharacterReplyDialog(createOp.Result);
-                }
-            });
-        });
-    }
-
-    public async Task DeleteCharacter(Character characterToDelete)
-    {
-        void ShowCharacterDeleteWarning(Character c)
-        {
-            _characterDialogActions.ShowCharacterDeleteWarning(c.Name);
-            _characterSelectorRepository.CharacterForDelete = Option.Some(c);
+            _safeNetworkOperationFactory = safeNetworkOperationFactory;
+            _characterManagementActions = characterManagementActions;
+            _errorDialogDisplayAction = errorDialogDisplayAction;
+            _characterDialogActions = characterDialogActions;
+            _backgroundReceiveActions = backgroundReceiveActions;
+            _networkConnectionActions = networkConnectionActions;
+            _gameStateActions = gameStateActions;
+            _characterSelectorRepository = characterSelectorRepository;
+            _sfxPlayer = sfxPlayer;
         }
 
-        var warningShown = _characterSelectorRepository.CharacterForDelete.Match(
-            some: c =>
+        public async Task CreateCharacter()
+        {
+            var requestCreateOp = _safeNetworkOperationFactory.CreateSafeBlockingOperation(_characterManagementActions.RequestCharacterCreation, SendError, RecvError);
+            if (!await requestCreateOp.Invoke().ConfigureAwait(false))
+                return;
+
+            var createID = requestCreateOp.Result;
+
+            //todo: make not approved character names cancel the dialog close
+            var showResult = await _characterDialogActions.ShowCreateCharacterDialog().ConfigureAwait(false);
+            showResult.MatchSome(parameters =>
             {
-                if (c != characterToDelete)
+                var createOp = _safeNetworkOperationFactory.CreateSafeBlockingOperation(
+                    () => _characterManagementActions.CreateCharacter(parameters, createID), SendError, RecvError);
+                var opTask = createOp.Invoke();
+                opTask.ContinueWith(t =>
+                {
+                    if (t.Result)
+                    {
+                        _gameStateActions.RefreshCurrentState();
+                        _characterDialogActions.ShowCharacterReplyDialog(createOp.Result);
+                    }
+                });
+            });
+        }
+
+        public async Task DeleteCharacter(Character characterToDelete)
+        {
+            void ShowCharacterDeleteWarning(Character c)
+            {
+                _characterDialogActions.ShowCharacterDeleteWarning(c.Name);
+                _characterSelectorRepository.CharacterForDelete = Option.Some(c);
+            }
+
+            var warningShown = _characterSelectorRepository.CharacterForDelete.Match(
+                some: c =>
+                {
+                    if (c != characterToDelete)
+                    {
+                        ShowCharacterDeleteWarning(characterToDelete);
+                        return true;
+                    }
+
+                    return false;
+                },
+                none: () =>
                 {
                     ShowCharacterDeleteWarning(characterToDelete);
                     return true;
-                }
+                });
 
-                return false;
-            },
-            none: () =>
+            if (warningShown)
+                return;
+
+            var requestDeleteOp = _safeNetworkOperationFactory.CreateSafeBlockingOperation(_characterManagementActions.RequestCharacterDelete, SendError, RecvError);
+            if (!await requestDeleteOp.Invoke().ConfigureAwait(false))
+                return;
+
+            var takeID = requestDeleteOp.Result;
+
+            var dialogResult = await _characterDialogActions.ShowConfirmDeleteWarning(characterToDelete.Name).ConfigureAwait(false);
+            if (dialogResult != XNADialogResult.OK)
+                return;
+
+            var deleteOp = _safeNetworkOperationFactory.CreateSafeBlockingOperation(() => _characterManagementActions.DeleteCharacter(takeID), SendError, RecvError);
+            if (!await deleteOp.Invoke().ConfigureAwait(false))
+                return;
+
+            _characterSelectorRepository.CharacterForDelete = Option.None<Character>();
+            if (deleteOp.Result != CharacterReply.Deleted)
             {
-                ShowCharacterDeleteWarning(characterToDelete);
-                return true;
-            });
+                SetInitialStateAndShowError();
+                DisconnectAndStopReceiving();
+                return;
+            }
 
-        if (warningShown)
-            return;
+            _sfxPlayer.PlaySfx(SoundEffectID.DeleteCharacter);
+            _gameStateActions.RefreshCurrentState();
+        }
 
-        var requestDeleteOp = _safeNetworkOperationFactory.CreateSafeBlockingOperation(_characterManagementActions.RequestCharacterDelete, SendError, RecvError);
-        if (!await requestDeleteOp.Invoke().ConfigureAwait(false))
-            return;
-
-        var takeID = requestDeleteOp.Result;
-
-        var dialogResult = await _characterDialogActions.ShowConfirmDeleteWarning(characterToDelete.Name).ConfigureAwait(false);
-        if (dialogResult != XNADialogResult.OK)
-            return;
-
-        var deleteOp = _safeNetworkOperationFactory.CreateSafeBlockingOperation(() => _characterManagementActions.DeleteCharacter(takeID), SendError, RecvError);
-        if (!await deleteOp.Invoke().ConfigureAwait(false))
-            return;
-
-        _characterSelectorRepository.CharacterForDelete = Option.None<Character>();
-        if (deleteOp.Result != CharacterReply.Deleted)
+        private void SendError(NoDataSentException ndes)
         {
             SetInitialStateAndShowError();
             DisconnectAndStopReceiving();
-            return;
         }
 
-        _sfxPlayer.PlaySfx(SoundEffectID.DeleteCharacter);
-        _gameStateActions.RefreshCurrentState();
+        private void RecvError(EmptyPacketReceivedException epre)
+        {
+            SetInitialStateAndShowError();
+            DisconnectAndStopReceiving();
+        }
+
+        private void SetInitialStateAndShowError()
+        {
+            _gameStateActions.ChangeToState(GameStates.Initial);
+            _errorDialogDisplayAction.ShowError(ConnectResult.SocketError);
+        }
+
+        private void DisconnectAndStopReceiving()
+        {
+            _backgroundReceiveActions.CancelBackgroundReceiveLoop();
+            _networkConnectionActions.DisconnectFromServer();
+        }
     }
 
-    private void SendError(NoDataSentException ndes)
+    public interface ICharacterManagementController
     {
-        SetInitialStateAndShowError();
-        DisconnectAndStopReceiving();
+        Task CreateCharacter();
+
+        Task DeleteCharacter(Character characterToDelete);
     }
-
-    private void RecvError(EmptyPacketReceivedException epre)
-    {
-        SetInitialStateAndShowError();
-        DisconnectAndStopReceiving();
-    }
-
-    private void SetInitialStateAndShowError()
-    {
-        _gameStateActions.ChangeToState(GameStates.Initial);
-        _errorDialogDisplayAction.ShowError(ConnectResult.SocketError);
-    }
-
-    private void DisconnectAndStopReceiving()
-    {
-        _backgroundReceiveActions.CancelBackgroundReceiveLoop();
-        _networkConnectionActions.DisconnectFromServer();
-    }
-}
-
-public interface ICharacterManagementController
-{
-    Task CreateCharacter();
-
-    Task DeleteCharacter(Character characterToDelete);
 }

@@ -8,73 +8,74 @@ using EOLib.Localization;
 using System;
 using System.Collections.Generic;
 
-namespace EndlessClient.Dialogs.Factories;
-
-[AutoMappedType(IsSingleton = true)]
-public class HelpDialogFactory : IHelpDialogFactory
+namespace EndlessClient.Dialogs.Factories
 {
-    private readonly INativeGraphicsManager _nativeGraphicsManager;
-    private readonly IEODialogButtonService _dialogButtonService;
-    private readonly IContentProvider _contentProvider;
-    private readonly ILocalizedStringFinder _localizedStringFinder;
-    private readonly IHelpActions _helpActions;
-
-    public HelpDialogFactory(INativeGraphicsManager nativeGraphicsManager,
-                             IEODialogButtonService dialogButtonService,
-                             IContentProvider contentProvider,
-                             ILocalizedStringFinder localizedStringFinder,
-                             IHelpActions helpActions)
+    [AutoMappedType(IsSingleton = true)]
+    public class HelpDialogFactory : IHelpDialogFactory
     {
-        _nativeGraphicsManager = nativeGraphicsManager;
-        _dialogButtonService = dialogButtonService;
-        _contentProvider = contentProvider;
-        _localizedStringFinder = localizedStringFinder;
-        _helpActions = helpActions;
-    }
+        private readonly INativeGraphicsManager _nativeGraphicsManager;
+        private readonly IEODialogButtonService _dialogButtonService;
+        private readonly IContentProvider _contentProvider;
+        private readonly ILocalizedStringFinder _localizedStringFinder;
+        private readonly IHelpActions _helpActions;
 
-    public ScrollingListDialog Create()
-    {
-        var dlg = new ScrollingListDialog(_nativeGraphicsManager, _dialogButtonService, DialogType.Help)
+        public HelpDialogFactory(INativeGraphicsManager nativeGraphicsManager,
+                                 IEODialogButtonService dialogButtonService,
+                                 IContentProvider contentProvider,
+                                 ILocalizedStringFinder localizedStringFinder,
+                                 IHelpActions helpActions)
         {
-            Title = _localizedStringFinder.GetString(EOResourceID.ENDLESS_HELP),
-            Buttons = ScrollingListDialogButtons.Cancel,
-            ListItemType = ListDialogItem.ListItemStyle.Small,
-        };
+            _nativeGraphicsManager = nativeGraphicsManager;
+            _dialogButtonService = dialogButtonService;
+            _contentProvider = contentProvider;
+            _localizedStringFinder = localizedStringFinder;
+            _helpActions = helpActions;
+        }
 
-        dlg.AddTextAsListItems(_contentProvider.Fonts[Constants.FontSize08pt5],
-            insertLineBreaks: false,
-            linkClickActions: GetActions(),
-            messages: GetMessages());
-
-        return dlg;
-    }
-
-    private string[] GetMessages()
-    {
-        return new[]
+        public ScrollingListDialog Create()
         {
-            _localizedStringFinder.GetString(EOResourceID.ENDLESS_HELP_SUMMARY_1),
-            string.Empty,
-            _localizedStringFinder.GetString(EOResourceID.ENDLESS_HELP_SUMMARY_2),
-            string.Empty,
-            _localizedStringFinder.GetString(EOResourceID.ENDLESS_HELP_LINK_RESET_PASSWORD),
-            _localizedStringFinder.GetString(EOResourceID.ENDLESS_HELP_LINK_REPORT_SOMEONE),
-            _localizedStringFinder.GetString(EOResourceID.ENDLESS_HELP_LINK_SPEAK_TO_ADMIN),
-        };
-    }
+            var dlg = new ScrollingListDialog(_nativeGraphicsManager, _dialogButtonService, DialogType.Help)
+            {
+                Title = _localizedStringFinder.GetString(EOResourceID.ENDLESS_HELP),
+                Buttons = ScrollingListDialogButtons.Cancel,
+                ListItemType = ListDialogItem.ListItemStyle.Small,
+            };
 
-    private List<Action> GetActions()
-    {
-        return new List<Action>
+            dlg.AddTextAsListItems(_contentProvider.Fonts[Constants.FontSize08pt5],
+                insertLineBreaks: false,
+                linkClickActions: GetActions(),
+                messages: GetMessages());
+
+            return dlg;
+        }
+
+        private string[] GetMessages()
         {
-            _helpActions.ResetPassword,
-            _helpActions.ReportSomeone,
-            _helpActions.SpeakToAdmin,
-        };
-    }
-}
+            return new[]
+            {
+                _localizedStringFinder.GetString(EOResourceID.ENDLESS_HELP_SUMMARY_1),
+                string.Empty,
+                _localizedStringFinder.GetString(EOResourceID.ENDLESS_HELP_SUMMARY_2),
+                string.Empty,
+                _localizedStringFinder.GetString(EOResourceID.ENDLESS_HELP_LINK_RESET_PASSWORD),
+                _localizedStringFinder.GetString(EOResourceID.ENDLESS_HELP_LINK_REPORT_SOMEONE),
+                _localizedStringFinder.GetString(EOResourceID.ENDLESS_HELP_LINK_SPEAK_TO_ADMIN),
+            };
+        }
 
-public interface IHelpDialogFactory
-{
-    ScrollingListDialog Create();
+        private List<Action> GetActions()
+        {
+            return new List<Action>
+            {
+                _helpActions.ResetPassword,
+                _helpActions.ReportSomeone,
+                _helpActions.SpeakToAdmin,
+            };
+        }
+    }
+
+    public interface IHelpDialogFactory
+    {
+        ScrollingListDialog Create();
+    }
 }

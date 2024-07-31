@@ -1,8 +1,9 @@
-﻿namespace EndlessClient.Dialogs;
-
-public enum EODialogButtons
+﻿namespace EndlessClient.Dialogs
 {
-    Ok,
-    Cancel,
-    OkCancel,
+    public enum EODialogButtons
+    {
+        Ok,
+        Cancel,
+        OkCancel,
+    }
 }

@@ -1,16 +1,17 @@
 ﻿using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 
-namespace EndlessClient.Rendering;
-
-public class PointComparer : IComparer<Point>
+namespace EndlessClient.Rendering
 {
-    public int Compare(Point a, Point b)
+    public class PointComparer : IComparer<Point>
     {
-        if (a.Y < b.Y || a.X < b.X)
-            return -1;
-        if (a.Y > b.Y || a.X > b.X)
-            return 1;
-        return 0;
+        public int Compare(Point a, Point b)
+        {
+            if (a.Y < b.Y || a.X < b.X)
+                return -1;
+            if (a.Y > b.Y || a.X > b.X)
+                return 1;
+            return 0;
+        }
     }
 }

@@ -6,46 +6,47 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Linq;
 
-namespace EndlessClient.Rendering.MapEntityRenderers;
-
-public class MapItemLayerRenderer : BaseMapEntityRenderer
+namespace EndlessClient.Rendering.MapEntityRenderers
 {
-    private readonly ICurrentMapStateProvider _currentMapStateProvider;
-    private readonly IMapItemGraphicProvider _mapItemGraphicProvider;
-
-    public override MapRenderLayer RenderLayer => MapRenderLayer.Item;
-
-    protected override int RenderDistance => 16;
-
-    public MapItemLayerRenderer(ICharacterProvider characterProvider,
-                                IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
-                                IClientWindowSizeProvider clientWindowSizeProvider,
-                                ICurrentMapStateProvider currentMapStateProvider,
-                                IMapItemGraphicProvider mapItemGraphicProvider)
-        : base(characterProvider, gridDrawCoordinateCalculator, clientWindowSizeProvider)
+    public class MapItemLayerRenderer : BaseMapEntityRenderer
     {
-        _currentMapStateProvider = currentMapStateProvider;
-        _mapItemGraphicProvider = mapItemGraphicProvider;
-    }
+        private readonly ICurrentMapStateProvider _currentMapStateProvider;
+        private readonly IMapItemGraphicProvider _mapItemGraphicProvider;
 
-    protected override bool ElementExistsAt(int row, int col)
-    {
-        return _currentMapStateProvider.MapItems.ContainsKey(new MapCoordinate(col, row));
-    }
+        public override MapRenderLayer RenderLayer => MapRenderLayer.Item;
 
-    public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
-    {
-        var items = _currentMapStateProvider.MapItems[new MapCoordinate(col, row)];
+        protected override int RenderDistance => 16;
 
-        foreach (var item in items.OrderBy(item => item.UniqueID))
+        public MapItemLayerRenderer(ICharacterProvider characterProvider,
+                                    IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
+                                    IClientWindowSizeProvider clientWindowSizeProvider,
+                                    ICurrentMapStateProvider currentMapStateProvider,
+                                    IMapItemGraphicProvider mapItemGraphicProvider)
+            : base(characterProvider, gridDrawCoordinateCalculator, clientWindowSizeProvider)
         {
-            var itemPos = GetDrawCoordinatesFromGridUnits(col, row);
-            var itemTexture = _mapItemGraphicProvider.GetItemGraphic(item.ItemID, item.Amount);
+            _currentMapStateProvider = currentMapStateProvider;
+            _mapItemGraphicProvider = mapItemGraphicProvider;
+        }
 
-            spriteBatch.Draw(itemTexture,
-                             new Vector2(itemPos.X - (int)Math.Round(itemTexture.Width / 2.0),
-                                         itemPos.Y - (int)Math.Round(itemTexture.Height / 2.0)) + additionalOffset,
-                             Color.FromNonPremultiplied(255, 255, 255, alpha));
+        protected override bool ElementExistsAt(int row, int col)
+        {
+            return _currentMapStateProvider.MapItems.ContainsKey(new MapCoordinate(col, row));
+        }
+
+        public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
+        {
+            var items = _currentMapStateProvider.MapItems[new MapCoordinate(col, row)];
+
+            foreach (var item in items.OrderBy(item => item.UniqueID))
+            {
+                var itemPos = GetDrawCoordinatesFromGridUnits(col, row);
+                var itemTexture = _mapItemGraphicProvider.GetItemGraphic(item.ItemID, item.Amount);
+
+                spriteBatch.Draw(itemTexture,
+                                 new Vector2(itemPos.X - (int)Math.Round(itemTexture.Width / 2.0),
+                                             itemPos.Y - (int)Math.Round(itemTexture.Height / 2.0)) + additionalOffset,
+                                 Color.FromNonPremultiplied(255, 255, 255, alpha));
+            }
         }
     }
 }

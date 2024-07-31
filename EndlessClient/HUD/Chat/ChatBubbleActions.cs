@@ -7,47 +7,48 @@ using EOLib.Domain.Party;
 using Optional;
 using System.Linq;
 
-namespace EndlessClient.HUD.Chat;
-
-[AutoMappedType]
-public class ChatBubbleActions : IChatBubbleActions
+namespace EndlessClient.HUD.Chat
 {
-    private readonly ICharacterRendererProvider _characterRendererProvider;
-    private readonly INPCRendererProvider _npcRendererProvider;
-    private readonly IPartyDataProvider _partyDataProvider;
-
-    public ChatBubbleActions(ICharacterRendererProvider characterRendererProvider,
-                             INPCRendererProvider npcRendererProvider,
-                             IPartyDataProvider partyDataProvider)
+    [AutoMappedType]
+    public class ChatBubbleActions : IChatBubbleActions
     {
-        _characterRendererProvider = characterRendererProvider;
-        _npcRendererProvider = npcRendererProvider;
-        _partyDataProvider = partyDataProvider;
-    }
+        private readonly ICharacterRendererProvider _characterRendererProvider;
+        private readonly INPCRendererProvider _npcRendererProvider;
+        private readonly IPartyDataProvider _partyDataProvider;
 
-    public void ShowChatBubbleForMainCharacter(string text, bool isPartyChat = false)
-    {
-        _characterRendererProvider.MainCharacterRenderer.MatchSome(r =>
+        public ChatBubbleActions(ICharacterRendererProvider characterRendererProvider,
+                                 INPCRendererProvider npcRendererProvider,
+                                 IPartyDataProvider partyDataProvider)
         {
-            if (!_partyDataProvider.Members.Any() && isPartyChat)
+            _characterRendererProvider = characterRendererProvider;
+            _npcRendererProvider = npcRendererProvider;
+            _partyDataProvider = partyDataProvider;
+        }
+
+        public void ShowChatBubbleForMainCharacter(string text, bool isPartyChat = false)
+        {
+            _characterRendererProvider.MainCharacterRenderer.MatchSome(r =>
+            {
+                if (!_partyDataProvider.Members.Any() && isPartyChat)
+                    return;
+
+                r.ShowChatBubble(text, isPartyChat);
+            });
+        }
+
+        public void ShowChatBubbleForNPC(int index, string input)
+        {
+            if (!_npcRendererProvider.NPCRenderers.ContainsKey(index))
                 return;
 
-            r.ShowChatBubble(text, isPartyChat);
-        });
+            _npcRendererProvider.NPCRenderers[index].ShowChatBubble(input);
+        }
     }
 
-    public void ShowChatBubbleForNPC(int index, string input)
+    public interface IChatBubbleActions
     {
-        if (!_npcRendererProvider.NPCRenderers.ContainsKey(index))
-            return;
+        void ShowChatBubbleForMainCharacter(string input, bool isPartyChat = false);
 
-        _npcRendererProvider.NPCRenderers[index].ShowChatBubble(input);
+        void ShowChatBubbleForNPC(int index, string input);
     }
-}
-
-public interface IChatBubbleActions
-{
-    void ShowChatBubbleForMainCharacter(string input, bool isPartyChat = false);
-
-    void ShowChatBubbleForNPC(int index, string input);
 }

@@ -13,167 +13,168 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace EndlessClient.Controllers;
-
-[AutoMappedType(IsSingleton = true)]
-public class MainButtonController : IMainButtonController
+namespace EndlessClient.Controllers
 {
-    private readonly INetworkConnectionActions _networkConnectionActions;
-    private readonly IErrorDialogDisplayAction _errorDialogDisplayAction;
-    private readonly IPacketProcessActions _packetProcessActions;
-    private readonly IBackgroundReceiveActions _backgroundReceiveActions;
-    private readonly IGameStateActions _gameStateActions;
-    private readonly IAccountDialogDisplayActions _accountDialogDisplayActions;
-    private readonly IResetStateAction _resetStateAction;
-    private readonly ISafeNetworkOperationFactory _networkOperationFactory;
-
-    private readonly Random _random;
-
-    private int _numberOfConnectionRequests;
-
-    public MainButtonController(INetworkConnectionActions networkConnectionActions,
-                                IErrorDialogDisplayAction errorDialogDisplayAction,
-                                IPacketProcessActions packetProcessActions,
-                                IBackgroundReceiveActions backgroundReceiveActions,
-                                IGameStateActions gameStateActions,
-                                IAccountDialogDisplayActions accountDialogDisplayActions,
-                                IResetStateAction resetStateAction,
-                                ISafeNetworkOperationFactory networkOperationFactory)
+    [AutoMappedType(IsSingleton = true)]
+    public class MainButtonController : IMainButtonController
     {
-        _networkConnectionActions = networkConnectionActions;
-        _errorDialogDisplayAction = errorDialogDisplayAction;
-        _packetProcessActions = packetProcessActions;
-        _backgroundReceiveActions = backgroundReceiveActions;
-        _gameStateActions = gameStateActions;
-        _accountDialogDisplayActions = accountDialogDisplayActions;
-        _resetStateAction = resetStateAction;
-        _networkOperationFactory = networkOperationFactory;
+        private readonly INetworkConnectionActions _networkConnectionActions;
+        private readonly IErrorDialogDisplayAction _errorDialogDisplayAction;
+        private readonly IPacketProcessActions _packetProcessActions;
+        private readonly IBackgroundReceiveActions _backgroundReceiveActions;
+        private readonly IGameStateActions _gameStateActions;
+        private readonly IAccountDialogDisplayActions _accountDialogDisplayActions;
+        private readonly IResetStateAction _resetStateAction;
+        private readonly ISafeNetworkOperationFactory _networkOperationFactory;
 
-        _random = new Random();
-    }
+        private readonly Random _random;
 
-    public void GoToInitialState()
-    {
-        _gameStateActions.ChangeToState(GameStates.Initial);
-    }
+        private int _numberOfConnectionRequests;
 
-    public void GoToInitialStateAndDisconnect(bool showLostConnection = false)
-    {
-        GoToInitialState();
-        StopReceivingAndDisconnect();
-
-        _resetStateAction.ResetState();
-
-        if (showLostConnection)
-            _errorDialogDisplayAction.ShowConnectionLost(false);
-    }
-
-    public async Task ClickCreateAccount()
-    {
-        var result = await StartNetworkConnection().ConfigureAwait(false);
-
-        if (result)
+        public MainButtonController(INetworkConnectionActions networkConnectionActions,
+                                    IErrorDialogDisplayAction errorDialogDisplayAction,
+                                    IPacketProcessActions packetProcessActions,
+                                    IBackgroundReceiveActions backgroundReceiveActions,
+                                    IGameStateActions gameStateActions,
+                                    IAccountDialogDisplayActions accountDialogDisplayActions,
+                                    IResetStateAction resetStateAction,
+                                    ISafeNetworkOperationFactory networkOperationFactory)
         {
-            await DispatcherGameComponent.Invoke(() =>
+            _networkConnectionActions = networkConnectionActions;
+            _errorDialogDisplayAction = errorDialogDisplayAction;
+            _packetProcessActions = packetProcessActions;
+            _backgroundReceiveActions = backgroundReceiveActions;
+            _gameStateActions = gameStateActions;
+            _accountDialogDisplayActions = accountDialogDisplayActions;
+            _resetStateAction = resetStateAction;
+            _networkOperationFactory = networkOperationFactory;
+
+            _random = new Random();
+        }
+
+        public void GoToInitialState()
+        {
+            _gameStateActions.ChangeToState(GameStates.Initial);
+        }
+
+        public void GoToInitialStateAndDisconnect(bool showLostConnection = false)
+        {
+            GoToInitialState();
+            StopReceivingAndDisconnect();
+
+            _resetStateAction.ResetState();
+
+            if (showLostConnection)
+                _errorDialogDisplayAction.ShowConnectionLost(false);
+        }
+
+        public async Task ClickCreateAccount()
+        {
+            var result = await StartNetworkConnection().ConfigureAwait(false);
+
+            if (result)
             {
-                _gameStateActions.ChangeToState(GameStates.CreateAccount);
-                _accountDialogDisplayActions.ShowInitialCreateWarningDialog();
-            });
+                await DispatcherGameComponent.Invoke(() =>
+                {
+                    _gameStateActions.ChangeToState(GameStates.CreateAccount);
+                    _accountDialogDisplayActions.ShowInitialCreateWarningDialog();
+                });
+            }
         }
-    }
 
-    public async Task ClickLogin()
-    {
-        var result = await StartNetworkConnection().ConfigureAwait(false);
-
-        if (result)
+        public async Task ClickLogin()
         {
-            await DispatcherGameComponent.Invoke(() => _gameStateActions.ChangeToState(GameStates.Login));
+            var result = await StartNetworkConnection().ConfigureAwait(false);
+
+            if (result)
+            {
+                await DispatcherGameComponent.Invoke(() => _gameStateActions.ChangeToState(GameStates.Login));
+            }
         }
-    }
 
-    public void ClickViewCredits()
-    {
-        _gameStateActions.ChangeToState(GameStates.ViewCredits);
-    }
-
-    public void ClickExit()
-    {
-        StopReceivingAndDisconnect();
-        _gameStateActions.ExitGame();
-    }
-
-    private async Task<bool> StartNetworkConnection()
-    {
-        if (Interlocked.Increment(ref _numberOfConnectionRequests) != 1)
-            return false;
-
-        try
+        public void ClickViewCredits()
         {
-            var connectResult = await _networkConnectionActions.ConnectToServer().ConfigureAwait(false);
-            if (connectResult == ConnectResult.AlreadyConnected)
+            _gameStateActions.ChangeToState(GameStates.ViewCredits);
+        }
+
+        public void ClickExit()
+        {
+            StopReceivingAndDisconnect();
+            _gameStateActions.ExitGame();
+        }
+
+        private async Task<bool> StartNetworkConnection()
+        {
+            if (Interlocked.Increment(ref _numberOfConnectionRequests) != 1)
+                return false;
+
+            try
+            {
+                var connectResult = await _networkConnectionActions.ConnectToServer().ConfigureAwait(false);
+                if (connectResult == ConnectResult.AlreadyConnected)
+                    return true;
+
+                if (connectResult != ConnectResult.Success)
+                {
+                    _errorDialogDisplayAction.ShowError(connectResult);
+                    return false;
+                }
+
+                _backgroundReceiveActions.RunBackgroundReceiveLoop();
+
+                var beginHandshakeOperation = _networkOperationFactory.CreateSafeBlockingOperation(
+                    async () => await _networkConnectionActions.BeginHandshake(_random.Next(Constants.MaxChallenge)),
+                    ex => _errorDialogDisplayAction.ShowException(ex),
+                    ex => _errorDialogDisplayAction.ShowException(ex));
+
+                if (!await beginHandshakeOperation.Invoke().ConfigureAwait(false))
+                {
+                    StopReceivingAndDisconnect();
+                    return false;
+                }
+
+                var serverPacket = beginHandshakeOperation.Result;
+
+                if (serverPacket.ReplyCode != InitReply.Ok)
+                {
+                    _errorDialogDisplayAction.ShowError(serverPacket.ReplyCode, serverPacket.ReplyCodeData);
+                    StopReceivingAndDisconnect();
+                    return false;
+                }
+
+                var okData = (InitInitServerPacket.ReplyCodeDataOk)serverPacket.ReplyCodeData;
+                var sequenceStart = InitSequenceStart.FromInitValues(okData.Seq1, okData.Seq2);
+                _packetProcessActions.SetSequenceStart(sequenceStart);
+                _packetProcessActions.SetEncodeMultiples(okData.ServerEncryptionMultiple, okData.ClientEncryptionMultiple);
+
+                _networkConnectionActions.CompleteHandshake(serverPacket);
                 return true;
-
-            if (connectResult != ConnectResult.Success)
-            {
-                _errorDialogDisplayAction.ShowError(connectResult);
-                return false;
             }
-
-            _backgroundReceiveActions.RunBackgroundReceiveLoop();
-
-            var beginHandshakeOperation = _networkOperationFactory.CreateSafeBlockingOperation(
-                async () => await _networkConnectionActions.BeginHandshake(_random.Next(Constants.MaxChallenge)),
-                ex => _errorDialogDisplayAction.ShowException(ex),
-                ex => _errorDialogDisplayAction.ShowException(ex));
-
-            if (!await beginHandshakeOperation.Invoke().ConfigureAwait(false))
+            finally
             {
-                StopReceivingAndDisconnect();
-                return false;
+                Interlocked.Exchange(ref _numberOfConnectionRequests, 0);
             }
-
-            var serverPacket = beginHandshakeOperation.Result;
-
-            if (serverPacket.ReplyCode != InitReply.Ok)
-            {
-                _errorDialogDisplayAction.ShowError(serverPacket.ReplyCode, serverPacket.ReplyCodeData);
-                StopReceivingAndDisconnect();
-                return false;
-            }
-
-            var okData = (InitInitServerPacket.ReplyCodeDataOk)serverPacket.ReplyCodeData;
-            var sequenceStart = InitSequenceStart.FromInitValues(okData.Seq1, okData.Seq2);
-            _packetProcessActions.SetSequenceStart(sequenceStart);
-            _packetProcessActions.SetEncodeMultiples(okData.ServerEncryptionMultiple, okData.ClientEncryptionMultiple);
-
-            _networkConnectionActions.CompleteHandshake(serverPacket);
-            return true;
         }
-        finally
+
+        private void StopReceivingAndDisconnect()
         {
-            Interlocked.Exchange(ref _numberOfConnectionRequests, 0);
+            _backgroundReceiveActions.CancelBackgroundReceiveLoop();
+            _networkConnectionActions.DisconnectFromServer();
         }
     }
 
-    private void StopReceivingAndDisconnect()
+    public interface IMainButtonController
     {
-        _backgroundReceiveActions.CancelBackgroundReceiveLoop();
-        _networkConnectionActions.DisconnectFromServer();
+        void GoToInitialState();
+
+        void GoToInitialStateAndDisconnect(bool showLostConnection = false);
+
+        Task ClickCreateAccount();
+
+        Task ClickLogin();
+
+        void ClickViewCredits();
+
+        void ClickExit();
     }
-}
-
-public interface IMainButtonController
-{
-    void GoToInitialState();
-
-    void GoToInitialStateAndDisconnect(bool showLostConnection = false);
-
-    Task ClickCreateAccount();
-
-    Task ClickLogin();
-
-    void ClickViewCredits();
-
-    void ClickExit();
 }

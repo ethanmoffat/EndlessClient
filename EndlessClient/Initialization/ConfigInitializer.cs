@@ -1,20 +1,21 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Config;
 
-namespace EndlessClient.Initialization;
-
-[MappedType(BaseType = typeof(IGameInitializer))]
-public class ConfigInitializer : IGameInitializer
+namespace EndlessClient.Initialization
 {
-    private readonly IConfigFileLoadActions _configFileLoadActions;
-
-    public ConfigInitializer(IConfigFileLoadActions configFileLoadActions)
+    [MappedType(BaseType = typeof(IGameInitializer))]
+    public class ConfigInitializer : IGameInitializer
     {
-        _configFileLoadActions = configFileLoadActions;
-    }
+        private readonly IConfigFileLoadActions _configFileLoadActions;
 
-    public void Initialize()
-    {
-        _configFileLoadActions.LoadConfigFile();
+        public ConfigInitializer(IConfigFileLoadActions configFileLoadActions)
+        {
+            _configFileLoadActions = configFileLoadActions;
+        }
+
+        public void Initialize()
+        {
+            _configFileLoadActions.LoadConfigFile();
+        }
     }
 }

@@ -2,21 +2,22 @@
 using Microsoft.Xna.Framework.Content;
 using System;
 
-namespace EndlessClient.GameExecution;
-
-public interface IEndlessGame : IDisposable
+namespace EndlessClient.GameExecution
 {
-    event EventHandler<EventArgs> Exiting;
+    public interface IEndlessGame : IDisposable
+    {
+        event EventHandler<EventArgs> Exiting;
 
-    GameComponentCollection Components { get; }
+        GameComponentCollection Components { get; }
 
-    ContentManager Content { get; }
+        ContentManager Content { get; }
 
-    GameWindow Window { get; }
+        GameWindow Window { get; }
 
-    bool IsActive { get; }
+        bool IsActive { get; }
 
-    void Run();
+        void Run();
 
-    void Exit();
+        void Exit();
+    }
 }

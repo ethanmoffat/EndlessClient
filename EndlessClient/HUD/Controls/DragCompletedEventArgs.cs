@@ -1,22 +1,23 @@
 ﻿using EOLib.IO.Pub;
 
-namespace EndlessClient.HUD.Controls;
-
-public class DragCompletedEventArgs<TRecord>
+namespace EndlessClient.HUD.Controls
 {
-    public bool ContinueDrag { get; set; } = false;
-
-    public bool RestoreOriginalSlot { get; set; } = false;
-
-    public bool DragOutOfBounds { get; set; } = false;
-
-    public TRecord Data { get; }
-
-    public bool IsChainedDrag { get; }
-
-    public DragCompletedEventArgs(TRecord data, bool isChainedDrag)
+    public class DragCompletedEventArgs<TRecord>
     {
-        Data = data;
-        IsChainedDrag = isChainedDrag;
+        public bool ContinueDrag { get; set; } = false;
+
+        public bool RestoreOriginalSlot { get; set; } = false;
+
+        public bool DragOutOfBounds { get; set; } = false;
+
+        public TRecord Data { get; }
+
+        public bool IsChainedDrag { get; }
+
+        public DragCompletedEventArgs(TRecord data, bool isChainedDrag)
+        {
+            Data = data;
+            IsChainedDrag = isChainedDrag;
+        }
     }
 }

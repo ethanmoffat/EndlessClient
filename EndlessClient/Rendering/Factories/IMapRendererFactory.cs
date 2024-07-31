@@ -1,8 +1,9 @@
 ﻿using EndlessClient.Rendering.Map;
 
-namespace EndlessClient.Rendering.Factories;
-
-public interface IMapRendererFactory
+namespace EndlessClient.Rendering.Factories
 {
-    IMapRenderer CreateMapRenderer();
+    public interface IMapRendererFactory
+    {
+        IMapRenderer CreateMapRenderer();
+    }
 }

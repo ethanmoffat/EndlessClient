@@ -1,15 +1,16 @@
-﻿namespace EndlessClient.Rendering.Chat;
-
-public enum ChatBubbleTexture
+﻿namespace EndlessClient.Rendering.Chat
 {
-    TopLeft,
-    TopMiddle,
-    TopRight,
-    MiddleLeft,
-    MiddleMiddle,
-    MiddleRight,
-    BottomLeft,
-    BottomMiddle,
-    BottomRight,
-    Nubbin
+    public enum ChatBubbleTexture
+    {
+        TopLeft,
+        TopMiddle,
+        TopRight,
+        MiddleLeft,
+        MiddleMiddle,
+        MiddleRight,
+        BottomLeft,
+        BottomMiddle,
+        BottomRight,
+        Nubbin
+    }
 }

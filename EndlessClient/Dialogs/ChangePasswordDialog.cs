@@ -14,129 +14,130 @@ using System;
 using System.Linq;
 using XNAControls;
 
-namespace EndlessClient.Dialogs;
-
-public class ChangePasswordDialog : BaseEODialog
+namespace EndlessClient.Dialogs
 {
-    private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
-    private readonly IPlayerInfoProvider _playerInfoProvider;
-    private readonly IXnaControlSoundMapper _xnaControlSoundMapper;
-    private readonly IXNATextBox[] _inputBoxes;
-    private readonly IXNAButton _ok, _cancel;
-
-    private string Username => _inputBoxes[0].Text;
-    private string OldPassword => _inputBoxes[1].Text;
-    private string NewPassword => _inputBoxes[2].Text;
-    private string ConfirmPassword => _inputBoxes[3].Text;
-
-    public IChangePasswordParameters Result => new ChangePasswordParameters(Username, OldPassword, NewPassword);
-
-    public ChangePasswordDialog(INativeGraphicsManager nativeGraphicsManager,
-                                IGameStateProvider gameStateProvider,
-                                IContentProvider contentProvider,
-                                IEOMessageBoxFactory eoMessageBoxFactory,
-                                IPlayerInfoProvider playerInfoProvider,
-                                IEODialogButtonService dialogButtonService,
-                                IXnaControlSoundMapper xnaControlSoundMapper)
-        : base(nativeGraphicsManager, gameStateProvider)
+    public class ChangePasswordDialog : BaseEODialog
     {
-        _eoMessageBoxFactory = eoMessageBoxFactory;
-        _playerInfoProvider = playerInfoProvider;
-        _xnaControlSoundMapper = xnaControlSoundMapper;
+        private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
+        private readonly IPlayerInfoProvider _playerInfoProvider;
+        private readonly IXnaControlSoundMapper _xnaControlSoundMapper;
+        private readonly IXNATextBox[] _inputBoxes;
+        private readonly IXNAButton _ok, _cancel;
 
-        BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 21);
+        private string Username => _inputBoxes[0].Text;
+        private string OldPassword => _inputBoxes[1].Text;
+        private string NewPassword => _inputBoxes[2].Text;
+        private string ConfirmPassword => _inputBoxes[3].Text;
 
-        var cursorTexture = contentProvider.Textures[ContentProvider.Cursor];
+        public IChangePasswordParameters Result => new ChangePasswordParameters(Username, OldPassword, NewPassword);
 
-        _inputBoxes = new IXNATextBox[4];
-        for (int i = 0; i < _inputBoxes.Length; ++i)
+        public ChangePasswordDialog(INativeGraphicsManager nativeGraphicsManager,
+                                    IGameStateProvider gameStateProvider,
+                                    IContentProvider contentProvider,
+                                    IEOMessageBoxFactory eoMessageBoxFactory,
+                                    IPlayerInfoProvider playerInfoProvider,
+                                    IEODialogButtonService dialogButtonService,
+                                    IXnaControlSoundMapper xnaControlSoundMapper)
+            : base(nativeGraphicsManager, gameStateProvider)
         {
-            var tb = new XNATextBox(new Rectangle(198, 60 + i * 30, 137, 19), Constants.FontSize08, caretTexture: cursorTexture)
+            _eoMessageBoxFactory = eoMessageBoxFactory;
+            _playerInfoProvider = playerInfoProvider;
+            _xnaControlSoundMapper = xnaControlSoundMapper;
+
+            BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 21);
+
+            var cursorTexture = contentProvider.Textures[ContentProvider.Cursor];
+
+            _inputBoxes = new IXNATextBox[4];
+            for (int i = 0; i < _inputBoxes.Length; ++i)
             {
-                LeftPadding = 5,
-                DefaultText = " ",
-                MaxChars = i == 0 ? 16 : 12,
-                PasswordBox = i > 1,
-                TextColor = ColorConstants.LightBeigeText,
-                TabOrder = i + 1,
-            };
-            _inputBoxes[i] = tb;
+                var tb = new XNATextBox(new Rectangle(198, 60 + i * 30, 137, 19), Constants.FontSize08, caretTexture: cursorTexture)
+                {
+                    LeftPadding = 5,
+                    DefaultText = " ",
+                    MaxChars = i == 0 ? 16 : 12,
+                    PasswordBox = i > 1,
+                    TextColor = ColorConstants.LightBeigeText,
+                    TabOrder = i + 1,
+                };
+                _inputBoxes[i] = tb;
+            }
+
+            _inputBoxes[0].Selected = true;
+
+            _ok = new XNAButton(
+                dialogButtonService.SmallButtonSheet,
+                new Vector2(157, 195),
+                dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Ok),
+                dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Ok));
+            _ok.OnClick += OnButtonPressed;
+
+            _cancel = new XNAButton(
+                dialogButtonService.SmallButtonSheet,
+                new Vector2(250, 195),
+                dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Cancel),
+                dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Cancel));
+            _cancel.OnClick += (s, e) => Close(XNADialogResult.Cancel);
+
+            CenterInGameView();
         }
 
-        _inputBoxes[0].Selected = true;
-
-        _ok = new XNAButton(
-            dialogButtonService.SmallButtonSheet,
-            new Vector2(157, 195),
-            dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Ok),
-            dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Ok));
-        _ok.OnClick += OnButtonPressed;
-
-        _cancel = new XNAButton(
-            dialogButtonService.SmallButtonSheet,
-            new Vector2(250, 195),
-            dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Cancel),
-            dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Cancel));
-        _cancel.OnClick += (s, e) => Close(XNADialogResult.Cancel);
-
-        CenterInGameView();
-    }
-
-    public override void Initialize()
-    {
-        foreach (var tb in _inputBoxes)
+        public override void Initialize()
         {
-            tb.Initialize();
-            tb.SetParentControl(this);
-            _xnaControlSoundMapper.BindSoundToControl(tb);
+            foreach (var tb in _inputBoxes)
+            {
+                tb.Initialize();
+                tb.SetParentControl(this);
+                _xnaControlSoundMapper.BindSoundToControl(tb);
+            }
+
+            _ok.Initialize();
+            _ok.SetParentControl(this);
+            _xnaControlSoundMapper.BindSoundToControl(_ok, Option.Some(Audio.SoundEffectID.DialogButtonClick));
+
+            _cancel.Initialize();
+            _cancel.SetParentControl(this);
+            _xnaControlSoundMapper.BindSoundToControl(_cancel, Option.Some(Audio.SoundEffectID.DialogButtonClick));
+
+            base.Initialize();
         }
 
-        _ok.Initialize();
-        _ok.SetParentControl(this);
-        _xnaControlSoundMapper.BindSoundToControl(_ok, Option.Some(Audio.SoundEffectID.DialogButtonClick));
-
-        _cancel.Initialize();
-        _cancel.SetParentControl(this);
-        _xnaControlSoundMapper.BindSoundToControl(_cancel, Option.Some(Audio.SoundEffectID.DialogButtonClick));
-
-        base.Initialize();
-    }
-
-    private void OnButtonPressed(object sender, EventArgs e)
-    {
-        if (_inputBoxes.Any(tb => string.IsNullOrWhiteSpace(tb.Text)))
+        private void OnButtonPressed(object sender, EventArgs e)
         {
-            return;
-        }
+            if (_inputBoxes.Any(tb => string.IsNullOrWhiteSpace(tb.Text)))
+            {
+                return;
+            }
 
-        if (Username != _playerInfoProvider.LoggedInAccountName)
-        {
-            var messageBox = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.CHANGE_PASSWORD_MISMATCH);
-            messageBox.ShowDialog();
-            return;
-        }
+            if (Username != _playerInfoProvider.LoggedInAccountName)
+            {
+                var messageBox = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.CHANGE_PASSWORD_MISMATCH);
+                messageBox.ShowDialog();
+                return;
+            }
 
-        if (OldPassword != _playerInfoProvider.PlayerPassword)
-        {
-            var messageBox = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.CHANGE_PASSWORD_MISMATCH);
-            messageBox.ShowDialog();
-            return;
-        }
+            if (OldPassword != _playerInfoProvider.PlayerPassword)
+            {
+                var messageBox = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.CHANGE_PASSWORD_MISMATCH);
+                messageBox.ShowDialog();
+                return;
+            }
 
-        if (NewPassword != ConfirmPassword)
-        {
-            var messageBox = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.ACCOUNT_CREATE_PASSWORD_MISMATCH);
-            messageBox.ShowDialog();
-            return;
-        }
+            if (NewPassword != ConfirmPassword)
+            {
+                var messageBox = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.ACCOUNT_CREATE_PASSWORD_MISMATCH);
+                messageBox.ShowDialog();
+                return;
+            }
 
-        if (NewPassword.Length < 6)
-        {
-            var messageBox = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.ACCOUNT_CREATE_PASSWORD_TOO_SHORT);
-            messageBox.ShowDialog();
-            return;
-        }
+            if (NewPassword.Length < 6)
+            {
+                var messageBox = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.ACCOUNT_CREATE_PASSWORD_TOO_SHORT);
+                messageBox.ShowDialog();
+                return;
+            }
 
-        Close(XNADialogResult.OK);
+            Close(XNADialogResult.OK);
+        }
     }
 }

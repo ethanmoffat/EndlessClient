@@ -2,22 +2,23 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace EOBot.Interpreter.States;
-
-public class ScriptEvaluator : BaseEvaluator
+namespace EOBot.Interpreter.States
 {
-    public ScriptEvaluator(IEnumerable<IScriptEvaluator> evaluators)
-        : base(evaluators) { }
-
-    public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input)
+    public class ScriptEvaluator : BaseEvaluator
     {
-        var evalResult = await Evaluator<StatementListEvaluator>().EvaluateAsync(input);
-        if (evalResult.Result != EvalResult.Ok)
-            return evalResult;
+        public ScriptEvaluator(IEnumerable<IScriptEvaluator> evaluators)
+            : base(evaluators) { }
 
-        if (!input.Expect(BotTokenType.EOF))
-            return Error(input.Current(), BotTokenType.EOF);
+        public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input)
+        {
+            var evalResult = await Evaluator<StatementListEvaluator>().EvaluateAsync(input);
+            if (evalResult.Result != EvalResult.Ok)
+                return evalResult;
 
-        return Success();
+            if (!input.Expect(BotTokenType.EOF))
+                return Error(input.Current(), BotTokenType.EOF);
+
+            return Success();
+        }
     }
 }

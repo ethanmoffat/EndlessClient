@@ -2,14 +2,15 @@
 using NUnit.Framework;
 using System.Diagnostics.CodeAnalysis;
 
-namespace EOLib.IO.Test.Pub;
-
-[TestFixture, ExcludeFromCodeCoverage]
-public class ENFFileTest
+namespace EOLib.IO.Test.Pub
 {
-    [Test]
-    public void HasCorrectFileType()
+    [TestFixture, ExcludeFromCodeCoverage]
+    public class ENFFileTest
     {
-        Assert.That(new ENFFile().FileType, Is.EqualTo("ENF"));
+        [Test]
+        public void HasCorrectFileType()
+        {
+            Assert.That(new ENFFile().FileType, Is.EqualTo("ENF"));
+        }
     }
 }

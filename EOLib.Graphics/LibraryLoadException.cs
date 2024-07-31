@@ -1,18 +1,19 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace EOLib.Graphics;
-
-public class LibraryLoadException : Exception
+namespace EOLib.Graphics
 {
-    public GFXTypes WhichGFX { get; private set; }
-
-    public LibraryLoadException(string libraryNumber, GFXTypes which)
-        : base(string.Format("Error {1} when loading library {0}\n{2}",
-            libraryNumber,
-            Marshal.GetLastWin32Error(),
-            new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error()).Message))
+    public class LibraryLoadException : Exception
     {
-        WhichGFX = which;
+        public GFXTypes WhichGFX { get; private set; }
+
+        public LibraryLoadException(string libraryNumber, GFXTypes which)
+            : base(string.Format("Error {1} when loading library {0}\n{2}",
+                libraryNumber,
+                Marshal.GetLastWin32Error(),
+                new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error()).Message))
+        {
+            WhichGFX = which;
+        }
     }
 }

@@ -8,74 +8,75 @@ using System;
 using System.Threading.Tasks;
 using XNAControls;
 
-namespace EndlessClient.Dialogs.Actions;
-
-[AutoMappedType]
-public class CharacterDialogActions : ICharacterDialogActions
+namespace EndlessClient.Dialogs.Actions
 {
-    private readonly IEOMessageBoxFactory _messageBoxFactory;
-    private readonly ICreateCharacterDialogFactory _createCharacterDialogFactory;
-
-    public CharacterDialogActions(IEOMessageBoxFactory messageBoxFactory,
-                                  ICreateCharacterDialogFactory createCharacterDialogFactory)
+    [AutoMappedType]
+    public class CharacterDialogActions : ICharacterDialogActions
     {
-        _messageBoxFactory = messageBoxFactory;
-        _createCharacterDialogFactory = createCharacterDialogFactory;
-    }
+        private readonly IEOMessageBoxFactory _messageBoxFactory;
+        private readonly ICreateCharacterDialogFactory _createCharacterDialogFactory;
 
-    public Task<Option<ICharacterCreateParameters>> ShowCreateCharacterDialog()
-    {
-        var dialog = _createCharacterDialogFactory.BuildCreateCharacterDialog();
-        return dialog.ShowDialogAsync()
-            .ContinueWith(dialogTask =>
-                dialogTask.Result.SomeWhen(x => x == XNADialogResult.OK)
-                    .Map<ICharacterCreateParameters>(x => new CharacterCreateParameters(dialog.Name, dialog.Gender, dialog.HairStyle, dialog.HairColor, dialog.Race)));
-    }
-
-    public void ShowCharacterReplyDialog(CharacterReply response)
-    {
-        DialogResourceID message;
-        switch (response)
+        public CharacterDialogActions(IEOMessageBoxFactory messageBoxFactory,
+                                      ICreateCharacterDialogFactory createCharacterDialogFactory)
         {
-            case CharacterReply.Exists: message = DialogResourceID.CHARACTER_CREATE_NAME_EXISTS; break;
-            case CharacterReply.Full: message = DialogResourceID.CHARACTER_CREATE_TOO_MANY_CHARS; break;
-            case CharacterReply.NotApproved: message = DialogResourceID.CHARACTER_CREATE_NAME_NOT_APPROVED; break;
-            case CharacterReply.Ok: message = DialogResourceID.CHARACTER_CREATE_SUCCESS; break;
-            default: throw new ArgumentOutOfRangeException(nameof(response), response, null);
+            _messageBoxFactory = messageBoxFactory;
+            _createCharacterDialogFactory = createCharacterDialogFactory;
         }
 
-        var messageBox = _messageBoxFactory.CreateMessageBox(message,
-            EODialogButtons.Ok,
-            EOMessageBoxStyle.SmallDialogLargeHeader);
-        messageBox.ShowDialog();
-    }
+        public Task<Option<ICharacterCreateParameters>> ShowCreateCharacterDialog()
+        {
+            var dialog = _createCharacterDialogFactory.BuildCreateCharacterDialog();
+            return dialog.ShowDialogAsync()
+                .ContinueWith(dialogTask =>
+                    dialogTask.Result.SomeWhen(x => x == XNADialogResult.OK)
+                        .Map<ICharacterCreateParameters>(x => new CharacterCreateParameters(dialog.Name, dialog.Gender, dialog.HairStyle, dialog.HairColor, dialog.Race)));
+        }
 
-    public void ShowCharacterDeleteWarning(string characterName)
-    {
-        var messageBox = _messageBoxFactory.CreateMessageBox(
-            $"Character \'{characterName}\' ",
-            DialogResourceID.CHARACTER_DELETE_FIRST_CHECK);
-        messageBox.ShowDialog();
-    }
+        public void ShowCharacterReplyDialog(CharacterReply response)
+        {
+            DialogResourceID message;
+            switch (response)
+            {
+                case CharacterReply.Exists: message = DialogResourceID.CHARACTER_CREATE_NAME_EXISTS; break;
+                case CharacterReply.Full: message = DialogResourceID.CHARACTER_CREATE_TOO_MANY_CHARS; break;
+                case CharacterReply.NotApproved: message = DialogResourceID.CHARACTER_CREATE_NAME_NOT_APPROVED; break;
+                case CharacterReply.Ok: message = DialogResourceID.CHARACTER_CREATE_SUCCESS; break;
+                default: throw new ArgumentOutOfRangeException(nameof(response), response, null);
+            }
 
-    public Task<XNADialogResult> ShowConfirmDeleteWarning(string characterName)
-    {
-        var messageBox = _messageBoxFactory.CreateMessageBox(
-            $"Character \'{characterName}\' ",
-            DialogResourceID.CHARACTER_DELETE_CONFIRM,
-            EODialogButtons.OkCancel,
-            EOMessageBoxStyle.SmallDialogLargeHeader);
+            var messageBox = _messageBoxFactory.CreateMessageBox(message,
+                EODialogButtons.Ok,
+                EOMessageBoxStyle.SmallDialogLargeHeader);
+            messageBox.ShowDialog();
+        }
 
-        return messageBox.ShowDialogAsync();
-    }
+        public void ShowCharacterDeleteWarning(string characterName)
+        {
+            var messageBox = _messageBoxFactory.CreateMessageBox(
+                $"Character \'{characterName}\' ",
+                DialogResourceID.CHARACTER_DELETE_FIRST_CHECK);
+            messageBox.ShowDialog();
+        }
 
-    public void ShowCharacterDeleteError()
-    {
-        var messageBox = _messageBoxFactory.CreateMessageBox(
-            "The server did not respond properly for deleting the character. Try again.",
-            "Server error",
-            EODialogButtons.Ok,
-            EOMessageBoxStyle.SmallDialogLargeHeader);
-        messageBox.ShowDialog();
+        public Task<XNADialogResult> ShowConfirmDeleteWarning(string characterName)
+        {
+            var messageBox = _messageBoxFactory.CreateMessageBox(
+                $"Character \'{characterName}\' ",
+                DialogResourceID.CHARACTER_DELETE_CONFIRM,
+                EODialogButtons.OkCancel,
+                EOMessageBoxStyle.SmallDialogLargeHeader);
+
+            return messageBox.ShowDialogAsync();
+        }
+
+        public void ShowCharacterDeleteError()
+        {
+            var messageBox = _messageBoxFactory.CreateMessageBox(
+                "The server did not respond properly for deleting the character. Try again.",
+                "Server error",
+                EODialogButtons.Ok,
+                EOMessageBoxStyle.SmallDialogLargeHeader);
+            messageBox.ShowDialog();
+        }
     }
 }

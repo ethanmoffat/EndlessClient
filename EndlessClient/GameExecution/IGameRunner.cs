@@ -1,8 +1,9 @@
-﻿namespace EndlessClient.GameExecution;
-
-public interface IGameRunner
+﻿namespace EndlessClient.GameExecution
 {
-    bool SetupDependencies();
+    public interface IGameRunner
+    {
+        bool SetupDependencies();
 
-    void RunGame();
+        void RunGame();
+    }
 }

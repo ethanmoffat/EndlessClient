@@ -2,19 +2,20 @@
 using EOLib.Net.Communication;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
-namespace EndlessClient.Dialogs.Actions;
-
-public interface IErrorDialogDisplayAction
+namespace EndlessClient.Dialogs.Actions
 {
-    void ShowError(ConnectResult connectResult);
+    public interface IErrorDialogDisplayAction
+    {
+        void ShowError(ConnectResult connectResult);
 
-    void ShowError(InitReply replyCode, InitInitServerPacket.IReplyCodeData initializationData);
+        void ShowError(InitReply replyCode, InitInitServerPacket.IReplyCodeData initializationData);
 
-    void ShowException(NoDataSentException ex);
+        void ShowException(NoDataSentException ex);
 
-    void ShowException(EmptyPacketReceivedException ex);
+        void ShowException(EmptyPacketReceivedException ex);
 
-    void ShowLoginError(LoginReply loginError);
+        void ShowLoginError(LoginReply loginError);
 
-    void ShowConnectionLost(bool isIngame);
+        void ShowConnectionLost(bool isIngame);
+    }
 }

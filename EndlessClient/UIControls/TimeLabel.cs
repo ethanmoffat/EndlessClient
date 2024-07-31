@@ -4,38 +4,39 @@ using Microsoft.Xna.Framework;
 using System;
 using XNAControls;
 
-namespace EndlessClient.UIControls;
-
-public class TimeLabel : XNALabel
+namespace EndlessClient.UIControls
 {
-    private DateTime _lastUpdateTime;
-
-    public TimeLabel(IClientWindowSizeProvider windowSizeProvider)
-        : base(Constants.FontSize07)
+    public class TimeLabel : XNALabel
     {
-        _lastUpdateTime = DateTime.Now;
-        DrawArea = GetPositionBasedOnWindowSize(windowSizeProvider);
-        windowSizeProvider.GameWindowSizeChanged += (_, _) => DrawArea = GetPositionBasedOnWindowSize(windowSizeProvider);
-    }
+        private DateTime _lastUpdateTime;
 
-    protected override void OnUpdateControl(GameTime gameTime)
-    {
-        if (DateTime.Now.Second != _lastUpdateTime.Second)
+        public TimeLabel(IClientWindowSizeProvider windowSizeProvider)
+            : base(Constants.FontSize07)
         {
-            Text = $"{DateTime.Now.Hour,2:D2}:{DateTime.Now.Minute,2:D2}:{DateTime.Now.Second,2:D2}";
-
             _lastUpdateTime = DateTime.Now;
+            DrawArea = GetPositionBasedOnWindowSize(windowSizeProvider);
+            windowSizeProvider.GameWindowSizeChanged += (_, _) => DrawArea = GetPositionBasedOnWindowSize(windowSizeProvider);
         }
 
-        base.OnUpdateControl(gameTime);
-    }
+        protected override void OnUpdateControl(GameTime gameTime)
+        {
+            if (DateTime.Now.Second != _lastUpdateTime.Second)
+            {
+                Text = $"{DateTime.Now.Hour,2:D2}:{DateTime.Now.Minute,2:D2}:{DateTime.Now.Second,2:D2}";
 
-    private static Rectangle GetPositionBasedOnWindowSize(IClientWindowSizeProvider windowSizeProvider)
-    {
-        //original location: 558, 456
-        var xLoc = windowSizeProvider.Width - 82;
-        var yLoc = windowSizeProvider.Height - (windowSizeProvider.Resizable ? 15 : 26);
+                _lastUpdateTime = DateTime.Now;
+            }
 
-        return new Rectangle(xLoc, yLoc, 1, 1);
+            base.OnUpdateControl(gameTime);
+        }
+
+        private static Rectangle GetPositionBasedOnWindowSize(IClientWindowSizeProvider windowSizeProvider)
+        {
+            //original location: 558, 456
+            var xLoc = windowSizeProvider.Width - 82;
+            var yLoc = windowSizeProvider.Height - (windowSizeProvider.Resizable ? 15 : 26);
+
+            return new Rectangle(xLoc, yLoc, 1, 1);
+        }
     }
 }

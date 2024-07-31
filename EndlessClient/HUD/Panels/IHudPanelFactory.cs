@@ -1,24 +1,25 @@
-﻿namespace EndlessClient.HUD.Panels;
-
-public interface IHudPanelFactory
+﻿namespace EndlessClient.HUD.Panels
 {
-    NewsPanel CreateNewsPanel();
+    public interface IHudPanelFactory
+    {
+        NewsPanel CreateNewsPanel();
 
-    InventoryPanel CreateInventoryPanel();
+        InventoryPanel CreateInventoryPanel();
 
-    ActiveSpellsPanel CreateActiveSpellsPanel();
+        ActiveSpellsPanel CreateActiveSpellsPanel();
 
-    PassiveSpellsPanel CreatePassiveSpellsPanel();
+        PassiveSpellsPanel CreatePassiveSpellsPanel();
 
-    ChatPanel CreateChatPanel();
+        ChatPanel CreateChatPanel();
 
-    StatsPanel CreateStatsPanel();
+        StatsPanel CreateStatsPanel();
 
-    OnlineListPanel CreateOnlineListPanel();
+        OnlineListPanel CreateOnlineListPanel();
 
-    PartyPanel CreatePartyPanel();
+        PartyPanel CreatePartyPanel();
 
-    SettingsPanel CreateSettingsPanel();
+        SettingsPanel CreateSettingsPanel();
 
-    HelpPanel CreateHelpPanel();
+        HelpPanel CreateHelpPanel();
+    }
 }

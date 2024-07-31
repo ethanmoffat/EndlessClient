@@ -3,13 +3,14 @@ using EOLib.Domain.Chat;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.BitmapFonts;
 
-namespace EndlessClient.Rendering.Chat;
-
-public interface IChatRenderable
+namespace EndlessClient.Rendering.Chat
 {
-    int DisplayIndex { get; set; }
+    public interface IChatRenderable
+    {
+        int DisplayIndex { get; set; }
 
-    ChatData Data { get; }
+        ChatData Data { get; }
 
-    void Render(IHudPanel parentPanel, SpriteBatch spriteBatch, BitmapFont chatFont);
+        void Render(IHudPanel parentPanel, SpriteBatch spriteBatch, BitmapFont chatFont);
+    }
 }

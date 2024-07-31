@@ -2,14 +2,15 @@
 using NUnit.Framework;
 using System.Diagnostics.CodeAnalysis;
 
-namespace EOLib.IO.Test.Pub;
-
-[TestFixture, ExcludeFromCodeCoverage]
-public class EIFFileTest
+namespace EOLib.IO.Test.Pub
 {
-    [Test]
-    public void HasCorrectFileType()
+    [TestFixture, ExcludeFromCodeCoverage]
+    public class EIFFileTest
     {
-        Assert.That(new EIFFile().FileType, Is.EqualTo("EIF"));
+        [Test]
+        public void HasCorrectFileType()
+        {
+            Assert.That(new EIFFile().FileType, Is.EqualTo("EIF"));
+        }
     }
 }

@@ -1,20 +1,21 @@
-﻿namespace EOBot.Interpreter.Variables;
-
-public class IntVariable : IVariable<int>
+﻿namespace EOBot.Interpreter.Variables
 {
-    public int Value { get; }
+    public class IntVariable : IVariable<int>
+    {
+        public int Value { get; }
 
-    public IntVariable(int value) => Value = value;
+        public IntVariable(int value) => Value = value;
 
-    public string StringValue => Value.ToString();
+        public string StringValue => Value.ToString();
 
-    public override bool Equals(object obj) => CompareTo(obj) == 0;
+        public override bool Equals(object obj) => CompareTo(obj) == 0;
 
-    public override int GetHashCode() => Value.GetHashCode();
+        public override int GetHashCode() => Value.GetHashCode();
 
-    public int CompareTo(object obj) => obj is IntVariable ? Value.CompareTo(((IntVariable)obj).Value) : -1;
+        public int CompareTo(object obj) => obj is IntVariable ? Value.CompareTo(((IntVariable)obj).Value) : -1;
 
-    public static explicit operator int(IntVariable input) => input.Value;
+        public static explicit operator int(IntVariable input) => input.Value;
 
-    public override string ToString() => StringValue;
+        public override string ToString() => StringValue;
+    }
 }

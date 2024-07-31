@@ -4,72 +4,73 @@ using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.IO.Map;
 
-namespace EndlessClient.Audio;
-
-[AutoMappedType]
-public class AudioActions : IAudioActions, ISoundNotifier
+namespace EndlessClient.Audio
 {
-    private readonly IConfigurationProvider _configurationProvider;
-    private readonly ICurrentMapProvider _currentMapProvider;
-    private readonly IMfxPlayer _mfxPlayer;
-    private readonly ISfxPlayer _sfxPlayer;
-
-    public AudioActions(IConfigurationProvider configurationProvider,
-                        ICurrentMapProvider currentMapProvider,
-                        IMfxPlayer mfxPlayer,
-                        ISfxPlayer sfxPlayer)
+    [AutoMappedType]
+    public class AudioActions : IAudioActions, ISoundNotifier
     {
-        _configurationProvider = configurationProvider;
-        _currentMapProvider = currentMapProvider;
-        _mfxPlayer = mfxPlayer;
-        _sfxPlayer = sfxPlayer;
-    }
+        private readonly IConfigurationProvider _configurationProvider;
+        private readonly ICurrentMapProvider _currentMapProvider;
+        private readonly IMfxPlayer _mfxPlayer;
+        private readonly ISfxPlayer _sfxPlayer;
 
-    public void ToggleBackgroundMusic()
-    {
-        if (!_configurationProvider.MusicEnabled)
+        public AudioActions(IConfigurationProvider configurationProvider,
+                            ICurrentMapProvider currentMapProvider,
+                            IMfxPlayer mfxPlayer,
+                            ISfxPlayer sfxPlayer)
         {
-            _mfxPlayer.StopBackgroundMusic();
-            return;
+            _configurationProvider = configurationProvider;
+            _currentMapProvider = currentMapProvider;
+            _mfxPlayer = mfxPlayer;
+            _sfxPlayer = sfxPlayer;
         }
 
-        var music = _currentMapProvider.CurrentMap.Properties.Music;
-        var musicControl = _currentMapProvider.CurrentMap.Properties.Control;
-        if (music > 0)
-            _mfxPlayer.PlayBackgroundMusic(_currentMapProvider.CurrentMap.Properties.Music, musicControl);
-        else
-            _mfxPlayer.StopBackgroundMusic();
-    }
-
-    public void ToggleSound()
-    {
-        if (!_configurationProvider.SoundEnabled)
+        public void ToggleBackgroundMusic()
         {
-            _sfxPlayer.StopLoopingSfx();
-            return;
+            if (!_configurationProvider.MusicEnabled)
+            {
+                _mfxPlayer.StopBackgroundMusic();
+                return;
+            }
+
+            var music = _currentMapProvider.CurrentMap.Properties.Music;
+            var musicControl = _currentMapProvider.CurrentMap.Properties.Control;
+            if (music > 0)
+                _mfxPlayer.PlayBackgroundMusic(_currentMapProvider.CurrentMap.Properties.Music, musicControl);
+            else
+                _mfxPlayer.StopBackgroundMusic();
         }
 
-        var noise = _currentMapProvider.CurrentMap.Properties.AmbientNoise;
-        if (noise > 0)
-            _sfxPlayer.PlayLoopingSfx((SoundEffectID)noise);
-        else
-            _sfxPlayer.StopLoopingSfx();
+        public void ToggleSound()
+        {
+            if (!_configurationProvider.SoundEnabled)
+            {
+                _sfxPlayer.StopLoopingSfx();
+                return;
+            }
+
+            var noise = _currentMapProvider.CurrentMap.Properties.AmbientNoise;
+            if (noise > 0)
+                _sfxPlayer.PlayLoopingSfx((SoundEffectID)noise);
+            else
+                _sfxPlayer.StopLoopingSfx();
+        }
+
+        public void NotifySoundEffect(int soundEffectId)
+        {
+            _sfxPlayer.PlaySfx((SoundEffectID)soundEffectId);
+        }
+
+        public void NotifyMusic(int musicEffectId, bool isJukebox)
+        {
+            _mfxPlayer.PlayBackgroundMusic(musicEffectId, MusicControl.InterruptIfDifferentPlayOnce, isJukebox);
+        }
     }
 
-    public void NotifySoundEffect(int soundEffectId)
+    public interface IAudioActions
     {
-        _sfxPlayer.PlaySfx((SoundEffectID)soundEffectId);
+        void ToggleBackgroundMusic();
+
+        void ToggleSound();
     }
-
-    public void NotifyMusic(int musicEffectId, bool isJukebox)
-    {
-        _mfxPlayer.PlayBackgroundMusic(musicEffectId, MusicControl.InterruptIfDifferentPlayOnce, isJukebox);
-    }
-}
-
-public interface IAudioActions
-{
-    void ToggleBackgroundMusic();
-
-    void ToggleSound();
 }

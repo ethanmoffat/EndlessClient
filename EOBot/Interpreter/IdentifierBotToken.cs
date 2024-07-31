@@ -1,15 +1,16 @@
-﻿namespace EOBot.Interpreter;
-
-public class IdentifierBotToken : BotToken
+﻿namespace EOBot.Interpreter
 {
-    public int? ArrayIndex { get; }
-
-    public IdentifierBotToken Member { get; }
-
-    public IdentifierBotToken(BotToken identifier, int? arrayIndex = null, IdentifierBotToken member = null)
-        : base(identifier.TokenType, identifier.TokenValue, identifier.LineNumber, identifier.Column)
+    public class IdentifierBotToken : BotToken
     {
-        ArrayIndex = arrayIndex;
-        Member = member;
+        public int? ArrayIndex { get; }
+
+        public IdentifierBotToken Member { get; }
+
+        public IdentifierBotToken(BotToken identifier, int? arrayIndex = null, IdentifierBotToken member = null)
+            : base(identifier.TokenType, identifier.TokenValue, identifier.LineNumber, identifier.Column)
+        {
+            ArrayIndex = arrayIndex;
+            Member = member;
+        }
     }
 }

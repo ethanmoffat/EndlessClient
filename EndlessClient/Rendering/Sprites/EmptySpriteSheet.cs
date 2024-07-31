@@ -2,29 +2,30 @@
 using Microsoft.Xna.Framework.Graphics;
 using System.Linq;
 
-namespace EndlessClient.Rendering.Sprites;
-
-public class EmptySpriteSheet : ISpriteSheet
+namespace EndlessClient.Rendering.Sprites
 {
-    public bool HasTexture => false;
-    public Texture2D SheetTexture => null;
-    public Rectangle SourceRectangle { get; }
-
-    public EmptySpriteSheet()
-        : this(Rectangle.Empty) { }
-
-    public EmptySpriteSheet(Rectangle sourceRectangle)
+    public class EmptySpriteSheet : ISpriteSheet
     {
-        SourceRectangle = sourceRectangle;
-    }
+        public bool HasTexture => false;
+        public Texture2D SheetTexture => null;
+        public Rectangle SourceRectangle { get; }
 
-    public T[] GetSourceTextureData<T>() where T : struct
-    {
-        return Enumerable.Empty<T>().ToArray();
-    }
+        public EmptySpriteSheet()
+            : this(Rectangle.Empty) { }
 
-    public Texture2D GetSourceTexture()
-    {
-        return SheetTexture;
+        public EmptySpriteSheet(Rectangle sourceRectangle)
+        {
+            SourceRectangle = sourceRectangle;
+        }
+
+        public T[] GetSourceTextureData<T>() where T : struct
+        {
+            return Enumerable.Empty<T>().ToArray();
+        }
+
+        public Texture2D GetSourceTexture()
+        {
+            return SheetTexture;
+        }
     }
 }

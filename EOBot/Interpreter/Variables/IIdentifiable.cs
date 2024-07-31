@@ -1,6 +1,7 @@
-﻿namespace EOBot.Interpreter.Variables;
-
-public interface IIdentifiable
+﻿namespace EOBot.Interpreter.Variables
 {
-    string StringValue { get; }
+    public interface IIdentifiable
+    {
+        string StringValue { get; }
+    }
 }

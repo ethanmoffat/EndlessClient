@@ -1,8 +1,9 @@
 ﻿using XNAControls;
 
-namespace EndlessClient.HUD.Controls;
-
-public interface IDraggableItemContainer : IXNAControl
+namespace EndlessClient.HUD.Controls
 {
-    bool NoItemsDragging();
+    public interface IDraggableItemContainer : IXNAControl
+    {
+        bool NoItemsDragging();
+    }
 }

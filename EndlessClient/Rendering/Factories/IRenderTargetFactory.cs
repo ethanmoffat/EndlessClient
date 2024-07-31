@@ -1,9 +1,10 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 
-namespace EndlessClient.Rendering.Factories;
-
-public interface IRenderTargetFactory
+namespace EndlessClient.Rendering.Factories
 {
-    RenderTarget2D CreateRenderTarget();
-    RenderTarget2D CreateRenderTarget(int width, int height);
+    public interface IRenderTargetFactory
+    {
+        RenderTarget2D CreateRenderTarget();
+        RenderTarget2D CreateRenderTarget(int width, int height);
+    }
 }

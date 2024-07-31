@@ -9,66 +9,67 @@ using EOLib.Graphics;
 using System;
 using System.Collections.Generic;
 
-namespace EndlessClient.UIControls;
-
-[AutoMappedType(IsSingleton = true)]
-public class CharacterInfoPanelFactory : ICharacterInfoPanelFactory
+namespace EndlessClient.UIControls
 {
-    private readonly INativeGraphicsManager _nativeGraphicsManager;
-    private readonly ICharacterRendererFactory _characterRendererFactory;
-    private readonly IRendererRepositoryResetter _rendererRepositoryResetter;
-    private readonly IEODialogButtonService _eoDialogButtonService;
-    private readonly IUserInputProvider _userInputProvider;
-    private readonly IXnaControlSoundMapper _xnaControlSoundMapper;
-    private ILoginController _loginController;
-    private ICharacterManagementController _characterManagementController;
-
-    public CharacterInfoPanelFactory(INativeGraphicsManager nativeGraphicsManager,
-                                     ICharacterRendererFactory characterRendererFactory,
-                                     IRendererRepositoryResetter rendererRepositoryResetter,
-                                     IEODialogButtonService eoDialogButtonService,
-                                     IUserInputProvider userInputProvider,
-                                     IXnaControlSoundMapper xnaControlSoundMapper)
+    [AutoMappedType(IsSingleton = true)]
+    public class CharacterInfoPanelFactory : ICharacterInfoPanelFactory
     {
-        _nativeGraphicsManager = nativeGraphicsManager;
-        _characterRendererFactory = characterRendererFactory;
-        _rendererRepositoryResetter = rendererRepositoryResetter;
-        _eoDialogButtonService = eoDialogButtonService;
-        _userInputProvider = userInputProvider;
-        _xnaControlSoundMapper = xnaControlSoundMapper;
-    }
+        private readonly INativeGraphicsManager _nativeGraphicsManager;
+        private readonly ICharacterRendererFactory _characterRendererFactory;
+        private readonly IRendererRepositoryResetter _rendererRepositoryResetter;
+        private readonly IEODialogButtonService _eoDialogButtonService;
+        private readonly IUserInputProvider _userInputProvider;
+        private readonly IXnaControlSoundMapper _xnaControlSoundMapper;
+        private ILoginController _loginController;
+        private ICharacterManagementController _characterManagementController;
 
-    public void InjectLoginController(ILoginController loginController)
-    {
-        _loginController = loginController;
-    }
-
-    public void InjectCharacterManagementController(ICharacterManagementController characterManagementController)
-    {
-        _characterManagementController = characterManagementController;
-    }
-
-    public IEnumerable<CharacterInfoPanel> CreatePanels(IEnumerable<Character> characters)
-    {
-        if (_loginController == null || _characterManagementController == null)
-            throw new InvalidOperationException("Missing controllers - the Unity container was initialized incorrectly");
-
-        int i = 0;
-        foreach (var character in characters)
+        public CharacterInfoPanelFactory(INativeGraphicsManager nativeGraphicsManager,
+                                         ICharacterRendererFactory characterRendererFactory,
+                                         IRendererRepositoryResetter rendererRepositoryResetter,
+                                         IEODialogButtonService eoDialogButtonService,
+                                         IUserInputProvider userInputProvider,
+                                         IXnaControlSoundMapper xnaControlSoundMapper)
         {
-            yield return new CharacterInfoPanel(i++,
-                                                character,
-                                                _nativeGraphicsManager,
-                                                _eoDialogButtonService,
-                                                _loginController,
-                                                _characterManagementController,
-                                                _characterRendererFactory,
-                                                _rendererRepositoryResetter,
-                                                _userInputProvider,
-                                                _xnaControlSoundMapper);
+            _nativeGraphicsManager = nativeGraphicsManager;
+            _characterRendererFactory = characterRendererFactory;
+            _rendererRepositoryResetter = rendererRepositoryResetter;
+            _eoDialogButtonService = eoDialogButtonService;
+            _userInputProvider = userInputProvider;
+            _xnaControlSoundMapper = xnaControlSoundMapper;
         }
 
-        for (; i < 3; ++i)
-            yield return new EmptyCharacterInfoPanel(i, _nativeGraphicsManager, _eoDialogButtonService);
+        public void InjectLoginController(ILoginController loginController)
+        {
+            _loginController = loginController;
+        }
+
+        public void InjectCharacterManagementController(ICharacterManagementController characterManagementController)
+        {
+            _characterManagementController = characterManagementController;
+        }
+
+        public IEnumerable<CharacterInfoPanel> CreatePanels(IEnumerable<Character> characters)
+        {
+            if (_loginController == null || _characterManagementController == null)
+                throw new InvalidOperationException("Missing controllers - the Unity container was initialized incorrectly");
+
+            int i = 0;
+            foreach (var character in characters)
+            {
+                yield return new CharacterInfoPanel(i++,
+                                                    character,
+                                                    _nativeGraphicsManager,
+                                                    _eoDialogButtonService,
+                                                    _loginController,
+                                                    _characterManagementController,
+                                                    _characterRendererFactory,
+                                                    _rendererRepositoryResetter,
+                                                    _userInputProvider,
+                                                    _xnaControlSoundMapper);
+            }
+
+            for (; i < 3; ++i)
+                yield return new EmptyCharacterInfoPanel(i, _nativeGraphicsManager, _eoDialogButtonService);
+        }
     }
 }

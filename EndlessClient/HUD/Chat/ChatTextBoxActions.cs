@@ -3,31 +3,32 @@ using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
 using EndlessClient.UIControls;
 
-namespace EndlessClient.HUD.Chat;
-
-[AutoMappedType]
-public class ChatTextBoxActions : IChatTextBoxActions
+namespace EndlessClient.HUD.Chat
 {
-    private readonly IHudControlProvider _hudControlProvider;
-
-    public ChatTextBoxActions(IHudControlProvider hudControlProvider)
+    [AutoMappedType]
+    public class ChatTextBoxActions : IChatTextBoxActions
     {
-        _hudControlProvider = hudControlProvider;
-    }
+        private readonly IHudControlProvider _hudControlProvider;
 
-    public void ClearChatText()
-    {
-        var chatTextBox = GetChatTextBox();
-        chatTextBox.Text = "";
-    }
+        public ChatTextBoxActions(IHudControlProvider hudControlProvider)
+        {
+            _hudControlProvider = hudControlProvider;
+        }
 
-    public void FocusChatTextBox()
-    {
-        GetChatTextBox().Selected = true;
-    }
+        public void ClearChatText()
+        {
+            var chatTextBox = GetChatTextBox();
+            chatTextBox.Text = "";
+        }
 
-    private ChatTextBox GetChatTextBox()
-    {
-        return _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox);
+        public void FocusChatTextBox()
+        {
+            GetChatTextBox().Selected = true;
+        }
+
+        private ChatTextBox GetChatTextBox()
+        {
+            return _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox);
+        }
     }
 }

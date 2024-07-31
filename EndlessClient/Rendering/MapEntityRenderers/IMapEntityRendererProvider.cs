@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace EndlessClient.Rendering.MapEntityRenderers;
-
-public interface IMapEntityRendererProvider
+namespace EndlessClient.Rendering.MapEntityRenderers
 {
-    IMapEntityRenderer GroundRenderer { get; }
+    public interface IMapEntityRendererProvider
+    {
+        IMapEntityRenderer GroundRenderer { get; }
 
-    IReadOnlyList<IMapEntityRenderer> BaseRenderers { get; }
+        IReadOnlyList<IMapEntityRenderer> BaseRenderers { get; }
 
-    IReadOnlyList<IMapEntityRenderer> MapEntityRenderers { get; }
+        IReadOnlyList<IMapEntityRenderer> MapEntityRenderers { get; }
+    }
 }

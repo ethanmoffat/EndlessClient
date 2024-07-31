@@ -8,62 +8,63 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace EndlessClient.Rendering.Metadata;
-
-[AutoMappedType(IsSingleton = true)]
-public class GFXMetadataLoader : IGFXMetadataLoader
+namespace EndlessClient.Rendering.Metadata
 {
-    private readonly IPEFileCollection _peFileCollection;
-    private readonly Dictionary<GFXTypes, Dictionary<int, IGFXMetadata>> _cache;
-
-    private static readonly Dictionary<Type, GFXTypes> _mapper;
-
-    static GFXMetadataLoader()
+    [AutoMappedType(IsSingleton = true)]
+    public class GFXMetadataLoader : IGFXMetadataLoader
     {
-        _mapper = new Dictionary<Type, GFXTypes>
+        private readonly IPEFileCollection _peFileCollection;
+        private readonly Dictionary<GFXTypes, Dictionary<int, IGFXMetadata>> _cache;
+
+        private static readonly Dictionary<Type, GFXTypes> _mapper;
+
+        static GFXMetadataLoader()
         {
-            { typeof(EffectMetadata), GFXTypes.Spells },
-            { typeof(NPCMetadata), GFXTypes.NPC },
-            { typeof(ShieldMetadata), GFXTypes.MaleBack },
-            { typeof(HatMetadata), GFXTypes.MaleHat },
-            { typeof(WeaponMetadata), GFXTypes.MaleWeapons }
-        };
-    }
-
-    public GFXMetadataLoader(IPEFileCollection peFileCollection)
-    {
-        _peFileCollection = peFileCollection;
-        _cache = new Dictionary<GFXTypes, Dictionary<int, IGFXMetadata>>();
-    }
-
-    public Option<TMetadata> GetMetadata<TMetadata>(int graphic)
-        where TMetadata : class, IGFXMetadata
-    {
-        if (graphic == 0 || !_mapper.TryGetValue(typeof(TMetadata), out var gfxType))
-            return Option.None<TMetadata>();
-
-        if (!_cache.ContainsKey(gfxType))
-            _cache.Add(gfxType, new Dictionary<int, IGFXMetadata>());
-        else if (_cache[gfxType].ContainsKey(graphic))
-            return Option.Some(_cache[gfxType][graphic] as TMetadata).NotNull();
-
-        try
-        {
-            var rawMetadata = _peFileCollection[gfxType].GetResourceByID(ResourceType.RCData, graphic);
-            var metadataString = Encoding.Unicode.GetString(rawMetadata);
-            _cache[gfxType].Add(graphic, JsonConvert.DeserializeObject<TMetadata>(metadataString));
-
-            return (_cache[gfxType][graphic] as TMetadata).SomeNotNull();
+            _mapper = new Dictionary<Type, GFXTypes>
+            {
+                { typeof(EffectMetadata), GFXTypes.Spells },
+                { typeof(NPCMetadata), GFXTypes.NPC },
+                { typeof(ShieldMetadata), GFXTypes.MaleBack },
+                { typeof(HatMetadata), GFXTypes.MaleHat },
+                { typeof(WeaponMetadata), GFXTypes.MaleWeapons }
+            };
         }
-        catch
+
+        public GFXMetadataLoader(IPEFileCollection peFileCollection)
         {
-            return Option.None<TMetadata>();
+            _peFileCollection = peFileCollection;
+            _cache = new Dictionary<GFXTypes, Dictionary<int, IGFXMetadata>>();
+        }
+
+        public Option<TMetadata> GetMetadata<TMetadata>(int graphic)
+            where TMetadata : class, IGFXMetadata
+        {
+            if (graphic == 0 || !_mapper.TryGetValue(typeof(TMetadata), out var gfxType))
+                return Option.None<TMetadata>();
+
+            if (!_cache.ContainsKey(gfxType))
+                _cache.Add(gfxType, new Dictionary<int, IGFXMetadata>());
+            else if (_cache[gfxType].ContainsKey(graphic))
+                return Option.Some(_cache[gfxType][graphic] as TMetadata).NotNull();
+
+            try
+            {
+                var rawMetadata = _peFileCollection[gfxType].GetResourceByID(ResourceType.RCData, graphic);
+                var metadataString = Encoding.Unicode.GetString(rawMetadata);
+                _cache[gfxType].Add(graphic, JsonConvert.DeserializeObject<TMetadata>(metadataString));
+
+                return (_cache[gfxType][graphic] as TMetadata).SomeNotNull();
+            }
+            catch
+            {
+                return Option.None<TMetadata>();
+            }
         }
     }
-}
 
-public interface IGFXMetadataLoader
-{
-    Option<TMetadata> GetMetadata<TMetadata>(int graphic)
-        where TMetadata : class, IGFXMetadata;
+    public interface IGFXMetadataLoader
+    {
+        Option<TMetadata> GetMetadata<TMetadata>(int graphic)
+            where TMetadata : class, IGFXMetadata;
+    }
 }

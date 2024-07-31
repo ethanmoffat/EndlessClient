@@ -5,89 +5,90 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 
-namespace EOLib.IO.Test.Map;
-
-[TestFixture, ExcludeFromCodeCoverage]
-public class MapStringEncoderServiceTest
+namespace EOLib.IO.Test.Map
 {
-    private IMapStringEncoderService _service;
-
-    [SetUp]
-    public void SetUp()
+    [TestFixture, ExcludeFromCodeCoverage]
+    public class MapStringEncoderServiceTest
     {
-        _service = new MapStringEncoderService();
-    }
+        private IMapStringEncoderService _service;
 
-    [Test]
-    public void EncodeThenDecode_ReturnsOriginalString()
-    {
-        const string expected = "Test map string to encode";
-
-        var bytes = _service.EncodeMapString(expected, expected.Length);
-        var actual = _service.DecodeMapString(bytes);
-
-        Assert.AreEqual(expected, actual);
-    }
-
-    [Test]
-    public void EncodeString_ReturnsExpectedBytes_FromKnownString()
-    {
-        var name = "Aeven" + Encoding.ASCII.GetString(Enumerable.Repeat((byte)0, 19).ToArray());
-        var expectedBytes = new byte[]
+        [SetUp]
+        public void SetUp()
         {
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 49, 104, 41, 104, 94
-        };
+            _service = new MapStringEncoderService();
+        }
 
-        var actualBytes = _service.EncodeMapString(name, name.Length);
+        [Test]
+        public void EncodeThenDecode_ReturnsOriginalString()
+        {
+            const string expected = "Test map string to encode";
 
-        CollectionAssert.AreEqual(expectedBytes, actualBytes);
-    }
+            var bytes = _service.EncodeMapString(expected, expected.Length);
+            var actual = _service.DecodeMapString(bytes);
 
-    [Test]
-    public void DecodeString_ReturnsExpectedString_FromKnownBytes()
-    {
-        const string expected = "Aeven";
+            Assert.AreEqual(expected, actual);
+        }
 
-        var bytes = new byte[] { 49, 104, 41, 104, 94 };
-        var fullBytes = Enumerable.Repeat((byte)255, 24).ToArray();
-        Array.Copy(bytes, 0, fullBytes, fullBytes.Length - bytes.Length, bytes.Length);
+        [Test]
+        public void EncodeString_ReturnsExpectedBytes_FromKnownString()
+        {
+            var name = "Aeven" + Encoding.ASCII.GetString(Enumerable.Repeat((byte)0, 19).ToArray());
+            var expectedBytes = new byte[]
+            {
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 49, 104, 41, 104, 94
+            };
 
-        var actual = _service.DecodeMapString(fullBytes);
+            var actualBytes = _service.EncodeMapString(name, name.Length);
 
-        Assert.AreEqual(expected, actual);
-    }
+            CollectionAssert.AreEqual(expectedBytes, actualBytes);
+        }
 
-    [Test]
-    public void EncodeString_InvalidLength_Throws()
-    {
-        Assert.That(() => _service.EncodeMapString("123", 0), Throws.ArgumentException);
-    }
+        [Test]
+        public void DecodeString_ReturnsExpectedString_FromKnownBytes()
+        {
+            const string expected = "Aeven";
 
-    [Test]
-    public void EncodeString_ExtraLength_PadsData()
-    {
-        const string TestString = "12345";
-        const int LengthWithPadding = 8;
+            var bytes = new byte[] { 49, 104, 41, 104, 94 };
+            var fullBytes = Enumerable.Repeat((byte)255, 24).ToArray();
+            Array.Copy(bytes, 0, fullBytes, fullBytes.Length - bytes.Length, bytes.Length);
 
-        var actual = _service.EncodeMapString(TestString, LengthWithPadding);
+            var actual = _service.DecodeMapString(fullBytes);
 
-        Assert.That(actual, Has.Length.EqualTo(LengthWithPadding));
+            Assert.AreEqual(expected, actual);
+        }
 
-        int i = 0;
-        for (; i < LengthWithPadding - TestString.Length; i++)
-            Assert.That(actual[i], Is.EqualTo((byte)0xFF));
-        Assert.That(actual[i], Is.Not.EqualTo((byte)0xFF));
-    }
+        [Test]
+        public void EncodeString_InvalidLength_Throws()
+        {
+            Assert.That(() => _service.EncodeMapString("123", 0), Throws.ArgumentException);
+        }
 
-    [Test]
-    public void EncodeString_ExtraLength_DecodesToExpectedValue()
-    {
-        const string TestString = "12345";
-        const int LengthWithPadding = 8;
+        [Test]
+        public void EncodeString_ExtraLength_PadsData()
+        {
+            const string TestString = "12345";
+            const int LengthWithPadding = 8;
 
-        var encoded = _service.EncodeMapString(TestString, LengthWithPadding);
-        var original = _service.DecodeMapString(encoded);
+            var actual = _service.EncodeMapString(TestString, LengthWithPadding);
 
-        Assert.That(original, Is.EqualTo(TestString));
+            Assert.That(actual, Has.Length.EqualTo(LengthWithPadding));
+
+            int i = 0;
+            for (; i < LengthWithPadding - TestString.Length; i++)
+                Assert.That(actual[i], Is.EqualTo((byte)0xFF));
+            Assert.That(actual[i], Is.Not.EqualTo((byte)0xFF));
+        }
+
+        [Test]
+        public void EncodeString_ExtraLength_DecodesToExpectedValue()
+        {
+            const string TestString = "12345";
+            const int LengthWithPadding = 8;
+
+            var encoded = _service.EncodeMapString(TestString, LengthWithPadding);
+            var original = _service.DecodeMapString(encoded);
+
+            Assert.That(original, Is.EqualTo(TestString));
+        }
     }
 }

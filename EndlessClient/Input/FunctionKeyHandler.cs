@@ -4,40 +4,41 @@ using EOLib.Domain.Map;
 using Microsoft.Xna.Framework.Input;
 using Optional;
 
-namespace EndlessClient.Input;
-
-public class FunctionKeyHandler : InputHandlerBase
+namespace EndlessClient.Input
 {
-    private readonly IFunctionKeyController _functionKeyController;
-
-    public FunctionKeyHandler(IEndlessGameProvider endlessGameProvider,
-                              IUserInputProvider userInputProvider,
-                              IUserInputTimeRepository userInputTimeRepository,
-                              IFunctionKeyController functionKeyController,
-                              ICurrentMapStateRepository currentMapStateRepository)
-        : base(endlessGameProvider, userInputProvider, userInputTimeRepository, currentMapStateRepository)
+    public class FunctionKeyHandler : InputHandlerBase
     {
-        _functionKeyController = functionKeyController;
-    }
+        private readonly IFunctionKeyController _functionKeyController;
 
-    protected override Option<Keys> HandleInput()
-    {
-        for (var key = Keys.F1; key <= Keys.F8; key++)
+        public FunctionKeyHandler(IEndlessGameProvider endlessGameProvider,
+                                  IUserInputProvider userInputProvider,
+                                  IUserInputTimeRepository userInputTimeRepository,
+                                  IFunctionKeyController functionKeyController,
+                                  ICurrentMapStateRepository currentMapStateRepository)
+            : base(endlessGameProvider, userInputProvider, userInputTimeRepository, currentMapStateRepository)
         {
-            if (IsKeyHeld(key))
-            {
-                var isShiftHeld = IsKeyHeld(Keys.LeftShift) || IsKeyHeld(Keys.RightShift);
-                if (_functionKeyController.SelectSpell(key - Keys.F1, isShiftHeld))
-                    return Option.Some(key);
-            }
+            _functionKeyController = functionKeyController;
         }
 
-        if (IsKeyPressedOnce(Keys.F11) && _functionKeyController.Sit())
-            return Option.Some(Keys.F11);
+        protected override Option<Keys> HandleInput()
+        {
+            for (var key = Keys.F1; key <= Keys.F8; key++)
+            {
+                if (IsKeyHeld(key))
+                {
+                    var isShiftHeld = IsKeyHeld(Keys.LeftShift) || IsKeyHeld(Keys.RightShift);
+                    if (_functionKeyController.SelectSpell(key - Keys.F1, isShiftHeld))
+                        return Option.Some(key);
+                }
+            }
 
-        if (IsKeyPressedOnce(Keys.F12) && _functionKeyController.RefreshMapState())
-            return Option.Some(Keys.F12);
+            if (IsKeyPressedOnce(Keys.F11) && _functionKeyController.Sit())
+                return Option.Some(Keys.F11);
 
-        return Option.None<Keys>();
+            if (IsKeyPressedOnce(Keys.F12) && _functionKeyController.RefreshMapState())
+                return Option.Some(Keys.F12);
+
+            return Option.None<Keys>();
+        }
     }
 }

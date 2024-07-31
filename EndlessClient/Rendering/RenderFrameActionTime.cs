@@ -1,39 +1,40 @@
 ﻿using System;
 
-namespace EndlessClient.Rendering;
-
-public class RenderFrameActionTime
+namespace EndlessClient.Rendering
 {
-    private Action _sfxCallback;
-
-    public int UniqueID { get; private set; }
-
-    public ulong ActionTick { get; private set; }
-
-    public bool Replay { get; private set; }
-
-    public RenderFrameActionTime(int uniqueID, ulong ticks, Action sfxCallback = null)
+    public class RenderFrameActionTime
     {
-        UniqueID = uniqueID;
-        _sfxCallback = sfxCallback;
-        UpdateActionStartTime(ticks);
-    }
+        private Action _sfxCallback;
 
-    public void UpdateActionStartTime(ulong ticks)
-    {
-        ActionTick = ticks;
-    }
+        public int UniqueID { get; private set; }
 
-    public void SetReplay(Action sfxCallback = null)
-    {
-        _sfxCallback = sfxCallback;
-        Replay = true;
-    }
+        public ulong ActionTick { get; private set; }
 
-    public void ClearReplay()
-    {
-        Replay = false;
-    }
+        public bool Replay { get; private set; }
 
-    public void SoundEffect() => _sfxCallback?.Invoke();
+        public RenderFrameActionTime(int uniqueID, ulong ticks, Action sfxCallback = null)
+        {
+            UniqueID = uniqueID;
+            _sfxCallback = sfxCallback;
+            UpdateActionStartTime(ticks);
+        }
+
+        public void UpdateActionStartTime(ulong ticks)
+        {
+            ActionTick = ticks;
+        }
+
+        public void SetReplay(Action sfxCallback = null)
+        {
+            _sfxCallback = sfxCallback;
+            Replay = true;
+        }
+
+        public void ClearReplay()
+        {
+            Replay = false;
+        }
+
+        public void SoundEffect() => _sfxCallback?.Invoke();
+    }
 }

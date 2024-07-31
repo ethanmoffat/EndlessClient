@@ -2,13 +2,14 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace EndlessClient.Rendering.CharacterProperties;
-
-public interface ICharacterPropertyRenderer
+namespace EndlessClient.Rendering.CharacterProperties
 {
-    bool CanRender { get; }
+    public interface ICharacterPropertyRenderer
+    {
+        bool CanRender { get; }
 
-    float LayerDepth { get; set; }
+        float LayerDepth { get; set; }
 
-    void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea, WeaponMetadata weaponMetadata);
+        void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea, WeaponMetadata weaponMetadata);
+    }
 }

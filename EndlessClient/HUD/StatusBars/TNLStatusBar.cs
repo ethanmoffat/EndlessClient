@@ -6,48 +6,49 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 
-namespace EndlessClient.HUD.StatusBars;
-
-public class TNLStatusBar : StatusBarBase
+namespace EndlessClient.HUD.StatusBars
 {
-    private readonly IExperienceTableProvider _experienceTableProvider;
-
-    protected override int StatusBarIndex => 1;
-
-    public TNLStatusBar(INativeGraphicsManager nativeGraphicsManager,
-                        IClientWindowSizeProvider clientWindowSizeProvider,
-                        ICharacterProvider characterProvider,
-                        IExperienceTableProvider experienceTableProvider)
-        : base(nativeGraphicsManager, clientWindowSizeProvider, characterProvider)
+    public class TNLStatusBar : StatusBarBase
     {
-        _experienceTableProvider = experienceTableProvider;
-        DrawArea = new Rectangle(430, 0, _sourceRectangleArea.Width, _sourceRectangleArea.Height);
+        private readonly IExperienceTableProvider _experienceTableProvider;
 
-        _sourceRectangleArea = new Rectangle(_sourceRectangleArea.Width * 3 - 1,
-                                             0,
-                                             _sourceRectangleArea.Width + 1,
-                                             _sourceRectangleArea.Height);
-        ChangeStatusBarPosition();
+        protected override int StatusBarIndex => 1;
+
+        public TNLStatusBar(INativeGraphicsManager nativeGraphicsManager,
+                            IClientWindowSizeProvider clientWindowSizeProvider,
+                            ICharacterProvider characterProvider,
+                            IExperienceTableProvider experienceTableProvider)
+            : base(nativeGraphicsManager, clientWindowSizeProvider, characterProvider)
+        {
+            _experienceTableProvider = experienceTableProvider;
+            DrawArea = new Rectangle(430, 0, _sourceRectangleArea.Width, _sourceRectangleArea.Height);
+
+            _sourceRectangleArea = new Rectangle(_sourceRectangleArea.Width * 3 - 1,
+                                                 0,
+                                                 _sourceRectangleArea.Width + 1,
+                                                 _sourceRectangleArea.Height);
+            ChangeStatusBarPosition();
+        }
+
+        protected override void UpdateLabelText()
+        {
+            _label.Text = $"{ExpTable[Stats[CharacterStat.Level] + 1] - Stats[CharacterStat.Experience]}";
+        }
+
+        protected override void DrawStatusBar()
+        {
+            //todo: figure out these magic numbers
+            var thisLevelExp = ExpTable[Stats[CharacterStat.Level]];
+            var nextLevelExp = ExpTable[Stats[CharacterStat.Level] + 1];
+            var srcWidth = 25 + (int)Math.Round((Stats[CharacterStat.Experience] - thisLevelExp) / (double)(nextLevelExp - thisLevelExp) * 79);
+            var maskSrc = new Rectangle(_sourceRectangleArea.X, _sourceRectangleArea.Height, srcWidth, _sourceRectangleArea.Height);
+
+            _spriteBatch.Begin();
+            _spriteBatch.Draw(_texture, DrawPositionWithParentOffset, _sourceRectangleArea, Color.White);
+            _spriteBatch.Draw(_texture, DrawPositionWithParentOffset, maskSrc, Color.White);
+            _spriteBatch.End();
+        }
+
+        private IReadOnlyList<int> ExpTable => _experienceTableProvider.ExperienceByLevel;
     }
-
-    protected override void UpdateLabelText()
-    {
-        _label.Text = $"{ExpTable[Stats[CharacterStat.Level] + 1] - Stats[CharacterStat.Experience]}";
-    }
-
-    protected override void DrawStatusBar()
-    {
-        //todo: figure out these magic numbers
-        var thisLevelExp = ExpTable[Stats[CharacterStat.Level]];
-        var nextLevelExp = ExpTable[Stats[CharacterStat.Level] + 1];
-        var srcWidth = 25 + (int)Math.Round((Stats[CharacterStat.Experience] - thisLevelExp) / (double)(nextLevelExp - thisLevelExp) * 79);
-        var maskSrc = new Rectangle(_sourceRectangleArea.X, _sourceRectangleArea.Height, srcWidth, _sourceRectangleArea.Height);
-
-        _spriteBatch.Begin();
-        _spriteBatch.Draw(_texture, DrawPositionWithParentOffset, _sourceRectangleArea, Color.White);
-        _spriteBatch.Draw(_texture, DrawPositionWithParentOffset, maskSrc, Color.White);
-        _spriteBatch.End();
-    }
-
-    private IReadOnlyList<int> ExpTable => _experienceTableProvider.ExperienceByLevel;
 }

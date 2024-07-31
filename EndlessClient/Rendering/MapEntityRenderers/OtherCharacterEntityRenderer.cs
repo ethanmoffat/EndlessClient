@@ -6,44 +6,45 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Linq;
 
-namespace EndlessClient.Rendering.MapEntityRenderers;
-
-public class OtherCharacterEntityRenderer : BaseMapEntityRenderer
+namespace EndlessClient.Rendering.MapEntityRenderers
 {
-    private readonly ICharacterRendererProvider _characterRendererProvider;
-    private readonly ICurrentMapStateProvider _currentMapStateProvider;
-
-    public OtherCharacterEntityRenderer(ICharacterProvider characterProvider,
-                                        ICharacterRendererProvider characterRendererProvider,
-                                        ICurrentMapStateProvider currentMapStateProvider,
-                                        IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
-                                        IClientWindowSizeProvider clientWindowSizeProvider)
-        : base(characterProvider, gridDrawCoordinateCalculator, clientWindowSizeProvider)
+    public class OtherCharacterEntityRenderer : BaseMapEntityRenderer
     {
-        _characterRendererProvider = characterRendererProvider;
-        _currentMapStateProvider = currentMapStateProvider;
-    }
+        private readonly ICharacterRendererProvider _characterRendererProvider;
+        private readonly ICurrentMapStateProvider _currentMapStateProvider;
 
-    public override MapRenderLayer RenderLayer => MapRenderLayer.OtherCharacters;
-
-    protected override int RenderDistance => 16;
-
-    protected override bool ElementExistsAt(int row, int col)
-    {
-        return _currentMapStateProvider.Characters.ContainsKey(new MapCoordinate(col, row));
-    }
-
-    public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
-    {
-        var toRender = _currentMapStateProvider.Characters[new MapCoordinate(col, row)];
-
-        foreach (var id in toRender.Select(x => x.ID))
+        public OtherCharacterEntityRenderer(ICharacterProvider characterProvider,
+                                            ICharacterRendererProvider characterRendererProvider,
+                                            ICurrentMapStateProvider currentMapStateProvider,
+                                            IGridDrawCoordinateCalculator gridDrawCoordinateCalculator,
+                                            IClientWindowSizeProvider clientWindowSizeProvider)
+            : base(characterProvider, gridDrawCoordinateCalculator, clientWindowSizeProvider)
         {
-            if (!_characterRendererProvider.CharacterRenderers.ContainsKey(id) ||
-                _characterRendererProvider.CharacterRenderers[id] == null)
-                return;
+            _characterRendererProvider = characterRendererProvider;
+            _currentMapStateProvider = currentMapStateProvider;
+        }
 
-            _characterRendererProvider.CharacterRenderers[id].DrawToSpriteBatch(spriteBatch);
+        public override MapRenderLayer RenderLayer => MapRenderLayer.OtherCharacters;
+
+        protected override int RenderDistance => 16;
+
+        protected override bool ElementExistsAt(int row, int col)
+        {
+            return _currentMapStateProvider.Characters.ContainsKey(new MapCoordinate(col, row));
+        }
+
+        public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
+        {
+            var toRender = _currentMapStateProvider.Characters[new MapCoordinate(col, row)];
+
+            foreach (var id in toRender.Select(x => x.ID))
+            {
+                if (!_characterRendererProvider.CharacterRenderers.ContainsKey(id) ||
+                    _characterRendererProvider.CharacterRenderers[id] == null)
+                    return;
+
+                _characterRendererProvider.CharacterRenderers[id].DrawToSpriteBatch(spriteBatch);
+            }
         }
     }
 }

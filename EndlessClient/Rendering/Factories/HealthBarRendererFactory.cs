@@ -1,25 +1,26 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Graphics;
 
-namespace EndlessClient.Rendering.Factories;
-
-[AutoMappedType]
-public class HealthBarRendererFactory : IHealthBarRendererFactory
+namespace EndlessClient.Rendering.Factories
 {
-    private readonly INativeGraphicsManager _nativeGraphicsManager;
-
-    public HealthBarRendererFactory(INativeGraphicsManager nativeGraphicsManager)
+    [AutoMappedType]
+    public class HealthBarRendererFactory : IHealthBarRendererFactory
     {
-        _nativeGraphicsManager = nativeGraphicsManager;
+        private readonly INativeGraphicsManager _nativeGraphicsManager;
+
+        public HealthBarRendererFactory(INativeGraphicsManager nativeGraphicsManager)
+        {
+            _nativeGraphicsManager = nativeGraphicsManager;
+        }
+
+        public IHealthBarRenderer CreateHealthBarRenderer(IMapActor parentReference)
+        {
+            return new HealthBarRenderer(_nativeGraphicsManager, parentReference);
+        }
     }
 
-    public IHealthBarRenderer CreateHealthBarRenderer(IMapActor parentReference)
+    public interface IHealthBarRendererFactory
     {
-        return new HealthBarRenderer(_nativeGraphicsManager, parentReference);
+        IHealthBarRenderer CreateHealthBarRenderer(IMapActor entity);
     }
-}
-
-public interface IHealthBarRendererFactory
-{
-    IHealthBarRenderer CreateHealthBarRenderer(IMapActor entity);
 }

@@ -4,33 +4,34 @@ using EOLib.IO;
 using EOLib.IO.Pub;
 using Microsoft.Xna.Framework;
 
-namespace EndlessClient.HUD;
-
-[AutoMappedType]
-public class ItemNameColorService : IItemNameColorService
+namespace EndlessClient.HUD
 {
-    public Color GetColorForInventoryDisplay(EIFRecord itemData) => GetColor(itemData, ColorConstants.LightGrayText);
-
-    public Color GetColorForMapDisplay(EIFRecord itemData) => GetColor(itemData, Color.White);
-
-    private static Color GetColor(EIFRecord itemData, Color defaultColor)
+    [AutoMappedType]
+    public class ItemNameColorService : IItemNameColorService
     {
-        switch (itemData.Special)
+        public Color GetColorForInventoryDisplay(EIFRecord itemData) => GetColor(itemData, ColorConstants.LightGrayText);
+
+        public Color GetColorForMapDisplay(EIFRecord itemData) => GetColor(itemData, Color.White);
+
+        private static Color GetColor(EIFRecord itemData, Color defaultColor)
         {
-            case ItemSpecial.Lore:
-            case ItemSpecial.Unique:
-                return Color.FromNonPremultiplied(0xff, 0xf0, 0xa5, 0xff);
-            case ItemSpecial.Rare:
-                return Color.FromNonPremultiplied(0xf5, 0xc8, 0x9c, 0xff);
+            switch (itemData.Special)
+            {
+                case ItemSpecial.Lore:
+                case ItemSpecial.Unique:
+                    return Color.FromNonPremultiplied(0xff, 0xf0, 0xa5, 0xff);
+                case ItemSpecial.Rare:
+                    return Color.FromNonPremultiplied(0xf5, 0xc8, 0x9c, 0xff);
+            }
+
+            return defaultColor;
         }
-
-        return defaultColor;
     }
-}
 
-public interface IItemNameColorService
-{
-    Color GetColorForMapDisplay(EIFRecord itemData);
+    public interface IItemNameColorService
+    {
+        Color GetColorForMapDisplay(EIFRecord itemData);
 
-    Color GetColorForInventoryDisplay(EIFRecord itemData);
+        Color GetColorForInventoryDisplay(EIFRecord itemData);
+    }
 }

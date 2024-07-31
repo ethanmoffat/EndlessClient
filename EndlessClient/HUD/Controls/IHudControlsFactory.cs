@@ -2,11 +2,12 @@
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 
-namespace EndlessClient.HUD.Controls;
-
-public interface IHudControlsFactory
+namespace EndlessClient.HUD.Controls
 {
-    void InjectChatController(IChatController chatController, IMainButtonController mainButtonController);
+    public interface IHudControlsFactory
+    {
+        void InjectChatController(IChatController chatController, IMainButtonController mainButtonController);
 
-    IReadOnlyDictionary<HudControlIdentifier, IGameComponent> CreateHud();
+        IReadOnlyDictionary<HudControlIdentifier, IGameComponent> CreateHud();
+    }
 }

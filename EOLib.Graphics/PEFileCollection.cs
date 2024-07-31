@@ -4,34 +4,35 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace EOLib.Graphics;
-
-[MappedType(BaseType = typeof(IPEFileCollection), IsSingleton = true)]
-public sealed class PEFileCollection : Dictionary<GFXTypes, IPEFile>, IPEFileCollection
+namespace EOLib.Graphics
 {
-    public void PopulateCollectionWithStandardGFX()
+    [MappedType(BaseType = typeof(IPEFileCollection), IsSingleton = true)]
+    public sealed class PEFileCollection : Dictionary<GFXTypes, IPEFile>, IPEFileCollection
     {
-        var gfxTypes = (GFXTypes[])Enum.GetValues(typeof(GFXTypes));
-        foreach (var type in gfxTypes)
-            Add(type, CreateGFXFile(type));
+        public void PopulateCollectionWithStandardGFX()
+        {
+            var gfxTypes = (GFXTypes[])Enum.GetValues(typeof(GFXTypes));
+            foreach (var type in gfxTypes)
+                Add(type, CreateGFXFile(type));
+        }
+
+        private IPEFile CreateGFXFile(GFXTypes file)
+        {
+            var number = ((int)file).ToString("D3");
+            var fName = Path.Combine("gfx", "gfx" + number + ".egf");
+
+            return new PEFile(fName);
+        }
+
+        public void Dispose()
+        {
+            foreach (var pair in this)
+                pair.Value.Dispose();
+        }
     }
 
-    private IPEFile CreateGFXFile(GFXTypes file)
+    public interface IPEFileCollection : IDictionary<GFXTypes, IPEFile>, IDisposable
     {
-        var number = ((int)file).ToString("D3");
-        var fName = Path.Combine("gfx", "gfx" + number + ".egf");
-
-        return new PEFile(fName);
+        void PopulateCollectionWithStandardGFX();
     }
-
-    public void Dispose()
-    {
-        foreach (var pair in this)
-            pair.Value.Dispose();
-    }
-}
-
-public interface IPEFileCollection : IDictionary<GFXTypes, IPEFile>, IDisposable
-{
-    void PopulateCollectionWithStandardGFX();
 }

@@ -1,40 +1,41 @@
-﻿namespace EndlessClient.ControlSets;
-
-public enum GameControlIdentifier
+﻿namespace EndlessClient.ControlSets
 {
-    InitialCreateAccount,
-    InitialLogin,
-    InitialViewCredits,
-    InitialExitGame,
-    InitialVersionLabel,
+    public enum GameControlIdentifier
+    {
+        InitialCreateAccount,
+        InitialLogin,
+        InitialViewCredits,
+        InitialExitGame,
+        InitialVersionLabel,
 
-    CreateAccountLabels,
-    CreateAccountName,
-    CreateAccountPassword,
-    CreateAccountPasswordConfirm,
-    CreateAccountRealName,
-    CreateAccountLocation,
-    CreateAccountEmail,
-    CreateAccountButton,
-    CreateAccountCancelButton,
+        CreateAccountLabels,
+        CreateAccountName,
+        CreateAccountPassword,
+        CreateAccountPasswordConfirm,
+        CreateAccountRealName,
+        CreateAccountLocation,
+        CreateAccountEmail,
+        CreateAccountButton,
+        CreateAccountCancelButton,
 
-    LoginPanelBackground,
-    LoginAccountName,
-    LoginPassword,
-    LoginButton,
-    LoginCancel,
+        LoginPanelBackground,
+        LoginAccountName,
+        LoginPassword,
+        LoginButton,
+        LoginCancel,
 
-    CreditsLabel,
+        CreditsLabel,
 
-    BackButton,
-    PersonDisplay1,
-    PersonDisplay2,
-    BackgroundImage,
+        BackButton,
+        PersonDisplay1,
+        PersonDisplay2,
+        BackgroundImage,
 
-    CreateCharacterButton,
-    ChangePasswordButton,
+        CreateCharacterButton,
+        ChangePasswordButton,
 
-    Character1Panel,
-    Character2Panel,
-    Character3Panel
+        Character1Panel,
+        Character2Panel,
+        Character3Panel
+    }
 }
