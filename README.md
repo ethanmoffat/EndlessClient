@@ -46,6 +46,12 @@ After installing, clone (or fork+clone) this repository locally and open the sol
 > - Windows: `rmdir -recurse -force $env:USERPROFILE\\.dotnet\\toolResolverCache`
 > - Linux: `rm -rf ~/.dotnet/toolResolverCache`
 
+> ⚠️ If you get build errors due to formatting
+>
+> Run the following commands:
+> - Windows: `dotnet format EndlessClient.sln`
+> - Linux: `dotnet format EndlessClient.Linux.sln`
+
 ### Building on Mac
 
 1. Download and install the [.NET 6.0 SDK (x64)](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-6.0.403-macos-x64-installer).
