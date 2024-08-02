@@ -1,10 +1,10 @@
-﻿using AutomaticTypeMapper;
-using EOLib.IO.Map;
-using Moffat.EndlessOnline.SDK.Data;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using AutomaticTypeMapper;
+using EOLib.IO.Map;
+using Moffat.EndlessOnline.SDK.Data;
 
 namespace EOLib.IO.Services.Serializers
 {

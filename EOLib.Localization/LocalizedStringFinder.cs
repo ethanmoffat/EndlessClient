@@ -1,6 +1,6 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using AutomaticTypeMapper;
 using EOLib.Config;
-using System;
 
 namespace EOLib.Localization
 {

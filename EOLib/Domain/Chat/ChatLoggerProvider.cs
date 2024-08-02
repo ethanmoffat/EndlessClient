@@ -1,7 +1,7 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using AutomaticTypeMapper;
 using EOLib.Config;
 using EOLib.Logger;
-using System;
 
 namespace EOLib.Domain.Chat
 {

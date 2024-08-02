@@ -1,4 +1,9 @@
-﻿using EOBot.Interpreter.States;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using EOBot.Interpreter.States;
 using EOBot.Interpreter.Variables;
 using EOLib;
 using EOLib.Config;
@@ -15,11 +20,6 @@ using EOLib.Net.PacketProcessing;
 using Moffat.EndlessOnline.SDK.Packet;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace EOBot.Interpreter
 {

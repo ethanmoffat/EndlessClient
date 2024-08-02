@@ -1,7 +1,7 @@
-using AutomaticTypeMapper;
-using Optional;
 using System;
 using System.Collections.Generic;
+using AutomaticTypeMapper;
+using Optional;
 
 namespace EOLib.Domain.Map
 {

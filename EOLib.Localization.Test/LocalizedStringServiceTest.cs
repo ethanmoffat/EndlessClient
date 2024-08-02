@@ -1,9 +1,9 @@
-﻿using EOLib.Config;
-using Moq;
-using NUnit.Framework;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using EOLib.Config;
+using Moq;
+using NUnit.Framework;
 
 namespace EOLib.Localization.Test
 {

@@ -1,6 +1,5 @@
-using Amadevus.RecordGenerator;
 using System;
-
+using Amadevus.RecordGenerator;
 using NetItem = Moffat.EndlessOnline.SDK.Protocol.Net.Item;
 
 namespace EOLib.Domain.Character

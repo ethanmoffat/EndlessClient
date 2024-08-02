@@ -1,12 +1,12 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Linq;
+using System.Threading.Tasks;
+using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Net;
 using EOLib.Net.Communication;
 using Moffat.EndlessOnline.SDK.Protocol;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace EOLib.Domain.Character
 {

@@ -1,5 +1,5 @@
-﻿using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System;
+﻿using System;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOLib.Domain.Map
 {

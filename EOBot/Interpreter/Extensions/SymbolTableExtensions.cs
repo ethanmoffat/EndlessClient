@@ -1,6 +1,6 @@
-﻿using EOBot.Interpreter.States;
+﻿using System.Collections.Generic;
+using EOBot.Interpreter.States;
 using EOBot.Interpreter.Variables;
-using System.Collections.Generic;
 
 namespace EOBot.Interpreter.Extensions
 {

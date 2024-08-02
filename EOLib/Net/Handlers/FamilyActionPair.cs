@@ -1,6 +1,6 @@
-﻿using Moffat.EndlessOnline.SDK.Protocol.Net;
-using System;
+﻿using System;
 using System.Collections;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
 
 namespace EOLib.Net.Handlers
 {

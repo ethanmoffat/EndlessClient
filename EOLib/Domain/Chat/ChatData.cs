@@ -1,5 +1,5 @@
-using Amadevus.RecordGenerator;
 using System;
+using Amadevus.RecordGenerator;
 
 namespace EOLib.Domain.Chat
 {

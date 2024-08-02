@@ -1,3 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
@@ -9,11 +14,6 @@ using EOLib.IO.Repositories;
 using EOLib.IO.Services;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 using Optional;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace EOLib.Net.FileTransfer
 {

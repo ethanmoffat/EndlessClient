@@ -1,5 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
-using System;
+﻿using System;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace EOLib.Graphics
 {

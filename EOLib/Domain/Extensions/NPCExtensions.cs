@@ -1,6 +1,6 @@
-﻿using EOLib.Domain.NPC;
-using System;
+﻿using System;
 using System.Linq;
+using EOLib.Domain.NPC;
 
 namespace EOLib.Domain.Extensions
 {

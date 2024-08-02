@@ -1,5 +1,5 @@
-﻿using EOLib.IO.Map;
-using System.Linq;
+﻿using System.Linq;
+using EOLib.IO.Map;
 
 namespace EOLib.Domain.Map
 {

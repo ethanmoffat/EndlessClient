@@ -1,6 +1,6 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Diagnostics;
+using AutomaticTypeMapper;
 using Optional;
-using System.Diagnostics;
 
 namespace EOLib.Domain.Character
 {

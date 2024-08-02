@@ -1,10 +1,10 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Moq;
 using NUnit.Framework;
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 
 namespace EOLib.Graphics.Test
 {

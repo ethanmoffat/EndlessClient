@@ -1,5 +1,5 @@
-﻿using Moffat.EndlessOnline.SDK.Protocol.Net;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
 
 namespace EOLib.Net.Handlers
 {

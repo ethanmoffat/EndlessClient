@@ -1,4 +1,6 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat.Builders;
 using EOLib.Domain.Map;
@@ -6,8 +8,6 @@ using EOLib.Domain.Party;
 using EOLib.Net.Communication;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
-using System;
-using System.Linq;
 
 namespace EOLib.Domain.Chat
 {

@@ -1,14 +1,14 @@
-﻿using EOLib.IO.Map;
-using EOLib.IO.Services;
-using EOLib.IO.Services.Serializers;
-using NUnit.Framework;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using EOLib.IO.Map;
+using EOLib.IO.Services;
+using EOLib.IO.Services.Serializers;
+using NUnit.Framework;
 
 namespace EOLib.IO.Test.Map
 {

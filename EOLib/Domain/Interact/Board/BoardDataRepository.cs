@@ -1,6 +1,6 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Collections.Generic;
+using AutomaticTypeMapper;
 using Optional;
-using System.Collections.Generic;
 
 namespace EOLib.Domain.Interact.Board
 {

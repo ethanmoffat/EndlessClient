@@ -1,6 +1,6 @@
-﻿using EOLib.Net.Connection;
-using System;
+﻿using System;
 using System.Threading.Tasks;
+using EOLib.Net.Connection;
 
 namespace EOLib.Net.Communication
 {

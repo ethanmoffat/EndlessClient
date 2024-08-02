@@ -1,9 +1,9 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Collections.Generic;
+using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.Domain.Map;
 using EOLib.Net.Communication;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace EOLib.Domain.Interact.Citizen
 {

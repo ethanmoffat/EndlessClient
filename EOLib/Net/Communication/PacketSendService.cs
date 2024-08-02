@@ -1,6 +1,6 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Threading.Tasks;
+using AutomaticTypeMapper;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
-using System.Threading.Tasks;
 
 namespace EOLib.Net.Communication
 {

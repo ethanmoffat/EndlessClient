@@ -1,6 +1,6 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using AutomaticTypeMapper;
 using Moffat.EndlessOnline.SDK.Data;
-using System;
 
 namespace EOLib.IO.Services
 {

@@ -1,7 +1,7 @@
-﻿using EOLib.Domain.Character;
+﻿using System.Collections.Generic;
+using EOLib.Domain.Character;
 using EOLib.IO.Map;
 using Optional;
-using System.Collections.Generic;
 
 namespace EOLib.Domain.Map
 {

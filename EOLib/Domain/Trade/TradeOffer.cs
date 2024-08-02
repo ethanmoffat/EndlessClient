@@ -1,6 +1,6 @@
-﻿using Amadevus.RecordGenerator;
+﻿using System.Collections.Generic;
+using Amadevus.RecordGenerator;
 using EOLib.Domain.Character;
-using System.Collections.Generic;
 
 namespace EOLib.Domain.Trade
 {

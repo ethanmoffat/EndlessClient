@@ -1,5 +1,5 @@
-using Microsoft.Xna.Framework;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.Xna.Framework;
 
 namespace EOLib.Graphics
 {

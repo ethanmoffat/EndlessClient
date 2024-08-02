@@ -1,4 +1,6 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Collections.Generic;
+using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.NPC;
@@ -6,8 +8,6 @@ using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 using Optional;
 using Optional.Collections;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace EOLib.Domain.Map
 {

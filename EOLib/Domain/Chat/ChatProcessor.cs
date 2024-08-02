@@ -1,9 +1,9 @@
-﻿using AutomaticTypeMapper;
-using EOLib.Config;
-using EOLib.Localization;
-using System;
+﻿using System;
 using System.Linq;
 using System.Text;
+using AutomaticTypeMapper;
+using EOLib.Config;
+using EOLib.Localization;
 
 namespace EOLib.Domain.Chat
 {

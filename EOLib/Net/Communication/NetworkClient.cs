@@ -1,12 +1,12 @@
-﻿using EOLib.IO.Services;
-using EOLib.Net.Handlers;
-using EOLib.Net.PacketProcessing;
-using Moffat.EndlessOnline.SDK.Protocol.Net;
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using EOLib.IO.Services;
+using EOLib.Net.Handlers;
+using EOLib.Net.PacketProcessing;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
 
 namespace EOLib.Net.Communication
 {

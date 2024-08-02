@@ -1,6 +1,6 @@
-﻿using EOLib.Domain.Character;
+﻿using System.Linq;
+using EOLib.Domain.Character;
 using EOLib.Domain.Map;
-using System.Linq;
 
 namespace EOLib.Domain.Extensions
 {

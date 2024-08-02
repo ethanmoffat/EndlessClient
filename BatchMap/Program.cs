@@ -1,12 +1,12 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.IO;
+using System.Linq;
+using AutomaticTypeMapper;
 using EOLib;
 using EOLib.IO.Actions;
 using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
-using System;
-using System.IO;
-using System.Linq;
 
 namespace BatchMap
 {

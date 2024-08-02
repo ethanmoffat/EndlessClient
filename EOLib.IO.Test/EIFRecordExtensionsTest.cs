@@ -1,7 +1,7 @@
-﻿using EOLib.IO.Extensions;
+﻿using System.Diagnostics.CodeAnalysis;
+using EOLib.IO.Extensions;
 using EOLib.IO.Pub;
 using NUnit.Framework;
-using System.Diagnostics.CodeAnalysis;
 
 namespace EOLib.IO.Test
 {

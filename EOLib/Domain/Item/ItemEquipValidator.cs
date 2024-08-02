@@ -1,10 +1,10 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.IO;
 using EOLib.IO.Extensions;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
-using System.Linq;
 
 namespace EOLib.Domain.Item
 {

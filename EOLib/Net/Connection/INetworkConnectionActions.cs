@@ -1,6 +1,6 @@
-﻿using EOLib.Net.Communication;
+﻿using System.Threading.Tasks;
+using EOLib.Net.Communication;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System.Threading.Tasks;
 
 namespace EOLib.Net.Connection
 {

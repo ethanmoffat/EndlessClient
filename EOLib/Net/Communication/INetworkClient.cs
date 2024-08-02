@@ -1,7 +1,7 @@
-﻿using Moffat.EndlessOnline.SDK.Protocol.Net;
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
 
 namespace EOLib.Net.Communication
 {

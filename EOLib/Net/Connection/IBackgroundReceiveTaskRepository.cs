@@ -1,6 +1,6 @@
-﻿using AutomaticTypeMapper;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
+using AutomaticTypeMapper;
 
 namespace EOLib.Net.Connection
 {

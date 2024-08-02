@@ -1,4 +1,5 @@
-﻿using EOLib.Domain.Character;
+﻿using System.Linq;
+using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.IO.Extensions;
@@ -8,7 +9,6 @@ using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
 using Optional.Collections;
-using System.Linq;
 
 namespace EOLib.PacketHandlers.Paperdoll
 {

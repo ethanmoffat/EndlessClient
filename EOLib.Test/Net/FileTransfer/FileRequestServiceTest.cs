@@ -1,4 +1,9 @@
-﻿using EOLib.Domain.Protocol;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Text;
+using EOLib.Domain.Protocol;
 using EOLib.IO.Map;
 using EOLib.IO.Pub;
 using EOLib.IO.Services;
@@ -13,11 +18,6 @@ using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Moq;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
 
 namespace EOLib.Test.Net.FileTransfer
 {

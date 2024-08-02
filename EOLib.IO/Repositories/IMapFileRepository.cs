@@ -1,6 +1,6 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EOLib.IO.Map;
-using System.Collections.Generic;
 
 namespace EOLib.IO.Repositories
 {

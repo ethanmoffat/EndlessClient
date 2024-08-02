@@ -1,10 +1,10 @@
-﻿using AutomaticTypeMapper;
+﻿using System.IO;
+using AutomaticTypeMapper;
 using EOLib.Domain.Map;
 using EOLib.Net.Communication;
 using Moffat.EndlessOnline.SDK.Data;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
-using System.IO;
 
 namespace EOLib.Domain.Item
 {

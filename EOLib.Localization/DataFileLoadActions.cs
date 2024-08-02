@@ -1,6 +1,6 @@
-﻿using AutomaticTypeMapper;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
+using AutomaticTypeMapper;
 
 namespace EOLib.Localization
 {

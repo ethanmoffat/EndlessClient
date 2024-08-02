@@ -1,5 +1,5 @@
-﻿using EOBot.Interpreter.Extensions;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using EOBot.Interpreter.Extensions;
 
 namespace EOBot.Interpreter.States
 {

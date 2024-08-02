@@ -1,4 +1,7 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
+using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Localization;
 using EOLib.Net;
@@ -8,9 +11,6 @@ using Moffat.EndlessOnline.SDK.Packet;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
 
 namespace EOLib.Domain.Account
 {
