@@ -1,4 +1,6 @@
-﻿using EndlessClient.Audio;
+﻿using System;
+using System.Linq;
+using EndlessClient.Audio;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
 using EndlessClient.Rendering.CharacterProperties;
@@ -18,8 +20,6 @@ using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Optional;
-using System;
-using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Rendering.Character

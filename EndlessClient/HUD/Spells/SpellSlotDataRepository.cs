@@ -1,8 +1,8 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EndlessClient.HUD.Panels;
 using EOLib.Domain.Character;
 using Optional;
-using System.Collections.Generic;
 
 namespace EndlessClient.HUD.Spells
 {

@@ -1,9 +1,9 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EndlessClient.HUD.Panels;
 using EOLib.IO;
 using EOLib.IO.Extensions;
 using Optional;
-using System.Collections.Generic;
 
 namespace EndlessClient.HUD.Inventory
 {

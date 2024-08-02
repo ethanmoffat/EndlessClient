@@ -1,4 +1,6 @@
-﻿using EndlessClient.Rendering.Factories;
+﻿using System.Collections.Generic;
+using System.Linq;
+using EndlessClient.Rendering.Factories;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
@@ -7,8 +9,6 @@ using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Collections.Generic;
-using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Rendering.Map

@@ -1,4 +1,8 @@
-﻿using EndlessClient.Audio;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using EndlessClient.Audio;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.HUD;
@@ -14,10 +18,6 @@ using EOLib.IO.Repositories;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Optional.Collections;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Dialogs

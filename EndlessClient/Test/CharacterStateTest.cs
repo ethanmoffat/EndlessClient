@@ -1,4 +1,7 @@
-﻿using EndlessClient.GameExecution;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Metadata;
@@ -11,9 +14,6 @@ using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace EndlessClient.Test
 {

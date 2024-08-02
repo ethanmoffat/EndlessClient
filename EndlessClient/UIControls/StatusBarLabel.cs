@@ -1,10 +1,10 @@
-﻿using EndlessClient.HUD;
+﻿using System;
+using EndlessClient.HUD;
 using EndlessClient.Rendering;
 using EOLib;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using XNAControls;
 
 namespace EndlessClient.UIControls

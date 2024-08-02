@@ -1,4 +1,7 @@
-﻿using EndlessClient.Dialogs.Factories;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using EndlessClient.Dialogs.Factories;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.HUD.Inventory;
 using EOLib.Domain.Character;
@@ -9,9 +12,6 @@ using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Optional;
 using Optional.Collections;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Dialogs

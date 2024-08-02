@@ -1,4 +1,6 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Linq;
+using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs;
@@ -25,8 +27,6 @@ using EOLib.IO.Map;
 using EOLib.Localization;
 using Optional;
 using Optional.Collections;
-using System;
-using System.Linq;
 
 namespace EndlessClient.Controllers
 {

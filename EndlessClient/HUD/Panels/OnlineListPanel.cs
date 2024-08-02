@@ -1,4 +1,7 @@
-﻿using EndlessClient.Audio;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using EndlessClient.Audio;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Rendering;
@@ -16,9 +19,6 @@ using MonoGame.Extended.BitmapFonts;
 using MonoGame.Extended.Input;
 using MonoGame.Extended.Input.InputListeners;
 using Optional.Unsafe;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.HUD.Panels

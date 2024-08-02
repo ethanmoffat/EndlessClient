@@ -1,4 +1,6 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Linq;
+using AutomaticTypeMapper;
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
@@ -10,8 +12,6 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Online;
 using EOLib.Graphics;
 using EOLib.Localization;
-using System;
-using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Dialogs.Factories

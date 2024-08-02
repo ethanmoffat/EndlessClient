@@ -1,7 +1,7 @@
-﻿using EndlessClient.GameExecution;
+﻿using System;
+using EndlessClient.GameExecution;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
-using System;
 using XNAControls;
 
 namespace EndlessClient.Dialogs

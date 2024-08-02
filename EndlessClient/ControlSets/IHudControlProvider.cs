@@ -1,10 +1,10 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Panels;
 using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
 
 namespace EndlessClient.ControlSets
 {

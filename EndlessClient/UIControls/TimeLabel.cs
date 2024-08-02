@@ -1,7 +1,7 @@
-﻿using EndlessClient.Rendering;
+﻿using System;
+using EndlessClient.Rendering;
 using EOLib;
 using Microsoft.Xna.Framework;
-using System;
 using XNAControls;
 
 namespace EndlessClient.UIControls

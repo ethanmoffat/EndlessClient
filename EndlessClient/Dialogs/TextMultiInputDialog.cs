@@ -1,13 +1,13 @@
-﻿using EndlessClient.Content;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using EndlessClient.Content;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.HUD.Chat;
 using EOLib;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Dialogs

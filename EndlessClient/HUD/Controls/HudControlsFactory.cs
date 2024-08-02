@@ -1,4 +1,7 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Content;
 using EndlessClient.Controllers;
@@ -26,9 +29,6 @@ using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.HUD.Controls

@@ -1,4 +1,7 @@
-﻿using EndlessClient.ControlSets;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using EndlessClient.ControlSets;
 using EndlessClient.HUD.Chat;
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Chat;
@@ -8,9 +11,6 @@ using EOLib.Domain.Chat;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended.BitmapFonts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.HUD.Panels

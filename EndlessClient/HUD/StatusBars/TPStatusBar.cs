@@ -1,9 +1,9 @@
-﻿using EndlessClient.Input;
+﻿using System;
+using EndlessClient.Input;
 using EndlessClient.Rendering;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
-using System;
 
 namespace EndlessClient.HUD.StatusBars
 {

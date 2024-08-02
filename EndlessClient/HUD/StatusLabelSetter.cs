@@ -1,7 +1,7 @@
+using System;
 using AutomaticTypeMapper;
 using EOLib.Domain.Chat;
 using EOLib.Localization;
-using System;
 
 namespace EndlessClient.HUD
 {

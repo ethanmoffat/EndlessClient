@@ -1,9 +1,9 @@
-﻿using EndlessClient.GameExecution;
+﻿using System;
+using System.Diagnostics;
+using EndlessClient.GameExecution;
 using EOLib.Domain.Character;
 using Microsoft.Xna.Framework;
 using Optional;
-using System;
-using System.Diagnostics;
 
 namespace EndlessClient.HUD.Controls
 {

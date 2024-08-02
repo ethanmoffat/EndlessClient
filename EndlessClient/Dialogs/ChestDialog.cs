@@ -1,4 +1,6 @@
-﻿using EndlessClient.ControlSets;
+﻿using System.Collections.Generic;
+using System.Linq;
+using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.HUD;
@@ -14,8 +16,6 @@ using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace EndlessClient.Dialogs
 {

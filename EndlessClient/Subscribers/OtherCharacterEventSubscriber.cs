@@ -1,4 +1,6 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Linq;
+using AutomaticTypeMapper;
 using EndlessClient.HUD.Chat;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Services;
@@ -6,8 +8,6 @@ using EOLib;
 using EOLib.Config;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Notifiers;
-using System;
-using System.Linq;
 
 namespace EndlessClient.Subscribers
 {

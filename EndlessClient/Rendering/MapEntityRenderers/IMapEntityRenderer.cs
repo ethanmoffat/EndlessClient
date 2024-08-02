@@ -1,7 +1,7 @@
-﻿using EndlessClient.Rendering.Map;
+﻿using System;
+using EndlessClient.Rendering.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 
 namespace EndlessClient.Rendering.MapEntityRenderers
 {

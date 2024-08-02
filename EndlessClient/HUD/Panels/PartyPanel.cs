@@ -1,4 +1,6 @@
-﻿using EndlessClient.Content;
+﻿using System.Collections.Generic;
+using System.Linq;
+using EndlessClient.Content;
 using EndlessClient.HUD.Party;
 using EndlessClient.Rendering;
 using EndlessClient.UIControls;
@@ -8,8 +10,6 @@ using EOLib.Domain.Party;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Optional.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.HUD.Panels

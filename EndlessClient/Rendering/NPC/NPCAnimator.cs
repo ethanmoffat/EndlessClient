@@ -1,12 +1,12 @@
-﻿using EndlessClient.GameExecution;
+﻿using System.Collections.Generic;
+using System.Linq;
+using EndlessClient.GameExecution;
 using EOLib;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
 using Microsoft.Xna.Framework;
 using Optional.Collections;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace EndlessClient.Rendering.NPC
 {

@@ -1,4 +1,7 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.IO;
+using System.Threading.Tasks;
+using AutomaticTypeMapper;
 using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
@@ -21,9 +24,6 @@ using EOLib.Net.Communication;
 using EOLib.Net.FileTransfer;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace EndlessClient.Controllers
 {

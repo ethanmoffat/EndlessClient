@@ -1,8 +1,8 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EOLib;
 using EOLib.Graphics;
-using System;
-using System.Collections.Generic;
 
 namespace EndlessClient.Rendering
 {

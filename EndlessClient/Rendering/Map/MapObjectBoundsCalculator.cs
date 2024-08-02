@@ -1,9 +1,9 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Linq;
+using AutomaticTypeMapper;
 using EndlessClient.Rendering.MapEntityRenderers;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
-using System.Linq;
 
 namespace EndlessClient.Rendering.Map
 {

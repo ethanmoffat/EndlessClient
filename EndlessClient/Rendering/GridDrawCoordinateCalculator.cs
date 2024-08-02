@@ -1,10 +1,9 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
-using System;
-
 using DomainNPC = EOLib.Domain.NPC.NPC;
 
 namespace EndlessClient.Rendering

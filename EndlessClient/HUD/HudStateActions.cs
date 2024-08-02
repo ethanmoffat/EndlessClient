@@ -1,12 +1,12 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Linq;
+using AutomaticTypeMapper;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Panels;
 using EndlessClient.Rendering;
 using EOLib.Domain.Map;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
-using System;
-using System.Linq;
 
 namespace EndlessClient.HUD
 {

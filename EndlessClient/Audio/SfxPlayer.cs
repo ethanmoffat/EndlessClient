@@ -1,8 +1,8 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using AutomaticTypeMapper;
 using EndlessClient.Content;
 using EOLib.Config;
 using Microsoft.Xna.Framework.Audio;
-using System;
 
 namespace EndlessClient.Audio
 {

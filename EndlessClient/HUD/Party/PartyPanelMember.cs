@@ -1,4 +1,5 @@
-﻿using EndlessClient.Content;
+﻿using System;
+using EndlessClient.Content;
 using EOLib;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Party;
@@ -6,7 +7,6 @@ using EOLib.Extensions;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using XNAControls;
 
 namespace EndlessClient.HUD.Party

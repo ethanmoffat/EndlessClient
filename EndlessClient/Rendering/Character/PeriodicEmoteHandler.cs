@@ -1,4 +1,6 @@
-﻿using EndlessClient.Audio;
+﻿using System;
+using System.Diagnostics;
+using EndlessClient.Audio;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD;
@@ -8,8 +10,6 @@ using EOLib.Domain.Character;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Optional;
-using System;
-using System.Diagnostics;
 
 namespace EndlessClient.Rendering.Character
 {

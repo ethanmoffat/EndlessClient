@@ -1,4 +1,7 @@
-﻿using EndlessClient.Content;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using EndlessClient.Content;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Effects;
@@ -14,9 +17,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.BitmapFonts;
 using Optional;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace EndlessClient.Rendering.Map
 {

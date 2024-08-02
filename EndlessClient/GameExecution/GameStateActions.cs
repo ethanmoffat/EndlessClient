@@ -1,4 +1,7 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Panels;
@@ -9,9 +12,6 @@ using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using XNAControls.Input;
 
 namespace EndlessClient.GameExecution

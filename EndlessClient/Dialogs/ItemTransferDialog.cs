@@ -1,4 +1,5 @@
-﻿using EndlessClient.Content;
+﻿using System;
+using EndlessClient.Content;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.HUD.Chat;
 using EOLib;
@@ -7,7 +8,6 @@ using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.Input.InputListeners;
-using System;
 using XNAControls;
 
 namespace EndlessClient.Dialogs

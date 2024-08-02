@@ -1,4 +1,6 @@
-﻿using EndlessClient.Controllers;
+﻿using System;
+using System.Linq;
+using EndlessClient.Controllers;
 using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.Rendering;
@@ -7,8 +9,6 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
-using System;
-using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.HUD.Panels

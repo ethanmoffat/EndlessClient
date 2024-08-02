@@ -1,4 +1,5 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Linq;
+using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
@@ -16,7 +17,6 @@ using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System.Linq;
 
 namespace EndlessClient.Rendering.Map
 {

@@ -1,4 +1,6 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EndlessClient.Controllers;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.Input;
@@ -6,8 +8,6 @@ using EndlessClient.Rendering;
 using EndlessClient.Rendering.Factories;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
-using System;
-using System.Collections.Generic;
 
 namespace EndlessClient.UIControls
 {

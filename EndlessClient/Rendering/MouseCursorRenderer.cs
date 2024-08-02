@@ -1,4 +1,7 @@
-﻿using EndlessClient.Controllers;
+﻿using System;
+using System.Diagnostics;
+using System.Linq;
+using EndlessClient.Controllers;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD;
 using EndlessClient.Input;
@@ -12,9 +15,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Optional;
-using System;
-using System.Diagnostics;
-using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Rendering

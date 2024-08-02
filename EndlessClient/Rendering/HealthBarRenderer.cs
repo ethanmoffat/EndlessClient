@@ -1,10 +1,10 @@
-﻿using EOLib.Graphics;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Optional;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace EndlessClient.Rendering
 {

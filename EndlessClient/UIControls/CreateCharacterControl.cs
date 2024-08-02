@@ -1,9 +1,9 @@
-﻿using EndlessClient.Rendering.Factories;
+﻿using System;
+using EndlessClient.Rendering.Factories;
 using EOLib;
 using EOLib.Domain.Character;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended.Input.InputListeners;
-using System;
 using XNAControls;
 
 namespace EndlessClient.UIControls

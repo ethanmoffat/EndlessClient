@@ -1,11 +1,11 @@
-﻿using AutomaticTypeMapper;
-using EndlessClient.GameExecution;
-using Microsoft.Xna.Framework;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AutomaticTypeMapper;
+using EndlessClient.GameExecution;
+using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Rendering
 {

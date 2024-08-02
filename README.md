@@ -62,6 +62,11 @@ After installing, clone (or fork+clone) this repository locally and open the sol
 6. Run `echo '' > EndlessClient/obj/Debug/net6.0-macos/osx-x64/EndlessClient.GlobalUsings.g.*.generated.cs`
 7. Run the build again `dotnet build /p:PublishReadyToRun=false /p:TieredCompilation=false --self-contained EndlessClient`
 
+#### Mac errors
+
+Problem: `error NETSDK1139: The target platform identifier macos was not recognized.` 
+Solution: run the command `sudo dotnet workload restore EndlessClient/EndlessClient.csproj` which will install the macos workload for you.
+
 <a name="Todo" />Todo list
 ---------------------
 

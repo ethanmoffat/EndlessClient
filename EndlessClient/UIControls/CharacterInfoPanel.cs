@@ -1,4 +1,6 @@
-﻿using EndlessClient.Controllers;
+﻿using System;
+using System.Threading.Tasks;
+using EndlessClient.Controllers;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.Input;
 using EndlessClient.Rendering;
@@ -11,8 +13,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Moffat.EndlessOnline.SDK.Protocol;
-using System;
-using System.Threading.Tasks;
 using XNAControls;
 
 namespace EndlessClient.UIControls

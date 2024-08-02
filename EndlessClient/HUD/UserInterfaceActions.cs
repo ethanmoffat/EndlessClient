@@ -1,4 +1,7 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using AutomaticTypeMapper;
 using EndlessClient.Dialogs.Actions;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
@@ -6,9 +9,6 @@ using EOLib.Domain.Notifiers;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace EndlessClient.HUD
 {

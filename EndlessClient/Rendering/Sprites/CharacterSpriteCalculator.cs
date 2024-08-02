@@ -1,4 +1,6 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Linq;
+using AutomaticTypeMapper;
 using EndlessClient.Rendering.Metadata;
 using EndlessClient.Rendering.Metadata.Models;
 using EOLib;
@@ -6,8 +8,6 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
-using System;
-using System.Linq;
 
 namespace EndlessClient.Rendering.Sprites
 {

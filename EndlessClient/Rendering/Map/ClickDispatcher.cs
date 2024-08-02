@@ -1,4 +1,7 @@
-﻿using EndlessClient.Controllers;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Spells;
@@ -13,9 +16,6 @@ using Microsoft.Xna.Framework;
 using MonoGame.Extended.Input;
 using MonoGame.Extended.Input.InputListeners;
 using Optional;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using XNAControls;
 using DomainCharacter = EOLib.Domain.Character.Character;
 using DomainNPC = EOLib.Domain.NPC.NPC;

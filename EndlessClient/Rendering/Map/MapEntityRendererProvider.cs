@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using AutomaticTypeMapper;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.MapEntityRenderers;
@@ -6,7 +7,6 @@ using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
-using System.Collections.Generic;
 
 namespace EndlessClient.Rendering.Map
 {

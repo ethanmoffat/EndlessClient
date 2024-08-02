@@ -1,4 +1,8 @@
-﻿using EndlessClient.GameExecution;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using EndlessClient.GameExecution;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Spells;
 using EndlessClient.Rendering.Metadata;
@@ -12,10 +16,6 @@ using EOLib.IO.Map;
 using EOLib.IO.Pub;
 using Microsoft.Xna.Framework;
 using Optional;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 
 namespace EndlessClient.Rendering.Character
 {

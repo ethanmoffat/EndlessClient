@@ -1,4 +1,7 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD;
@@ -8,9 +11,6 @@ using EOLib.Domain.Interact.Shop;
 using EOLib.Domain.Interact.Skill;
 using EOLib.Localization;
 using Optional;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Dialogs.Actions

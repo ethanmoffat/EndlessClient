@@ -1,4 +1,5 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using AutomaticTypeMapper;
 using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.Dialogs;
@@ -11,7 +12,6 @@ using EndlessClient.UIControls;
 using EOLib.Config;
 using EOLib.Domain.Login;
 using EOLib.Graphics;
-using System;
 
 namespace EndlessClient.ControlSets
 {

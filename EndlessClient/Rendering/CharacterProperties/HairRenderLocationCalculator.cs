@@ -1,8 +1,8 @@
-﻿using EOLib;
+﻿using System;
+using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using Microsoft.Xna.Framework;
-using System;
 
 namespace EndlessClient.Rendering.CharacterProperties
 {

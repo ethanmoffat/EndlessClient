@@ -1,7 +1,7 @@
-﻿using EOLib.Domain.Chat;
+﻿using System;
+using EOLib.Domain.Chat;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
-using System;
 
 namespace EndlessClient.Rendering.Chat
 {

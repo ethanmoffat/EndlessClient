@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Content;
@@ -11,7 +12,6 @@ using EOLib.Domain.Notifiers;
 using EOLib.Graphics;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
-using System.Collections.Generic;
 
 namespace EndlessClient.Dialogs.Factories
 {

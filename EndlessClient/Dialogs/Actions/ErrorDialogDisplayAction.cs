@@ -1,13 +1,13 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Net.Sockets;
+using System.Runtime.InteropServices;
+using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Dialogs.Factories;
 using EOLib.Localization;
 using EOLib.Net;
 using EOLib.Net.Communication;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System;
-using System.Net.Sockets;
-using System.Runtime.InteropServices;
 
 namespace EndlessClient.Dialogs.Actions
 {

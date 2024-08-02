@@ -1,10 +1,10 @@
-﻿using EndlessClient.Rendering.Map;
+﻿using System;
+using System.Linq;
+using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Linq;
 
 namespace EndlessClient.Rendering.MapEntityRenderers
 {

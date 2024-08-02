@@ -1,6 +1,6 @@
+using System.Collections.Generic;
 using EndlessClient.Rendering.Character;
 using EOLib.Domain.Character;
-using System.Collections.Generic;
 
 namespace EndlessClient.Rendering.CharacterProperties
 {

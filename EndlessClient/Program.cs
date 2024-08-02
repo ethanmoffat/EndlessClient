@@ -1,7 +1,7 @@
-﻿using AutomaticTypeMapper;
-using EndlessClient.GameExecution;
-using System;
+﻿using System;
 using System.Reflection;
+using AutomaticTypeMapper;
+using EndlessClient.GameExecution;
 
 namespace EndlessClient
 {
