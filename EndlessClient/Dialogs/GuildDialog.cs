@@ -17,18 +17,21 @@ namespace EndlessClient.Dialogs
             // initial menu
             Initial,
             Management,
+            Information,
+            LookUp,
+            ViewMembers,
             Modify,
             ManageRankings,
             AssignRank,
             RemoveMember,
             Disband,
-
         }
 
         private readonly IEODialogIconService _dialogIconService;
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly ICharacterProvider _characterProvider;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
+        private readonly TextInputDialogFactory _textInputDialogFactory;
 
         private GuildDialogState _state;
 
@@ -37,13 +40,15 @@ namespace EndlessClient.Dialogs
                          IEODialogIconService dialogIconService,
                          ILocalizedStringFinder localizedStringFinder,
                          ICharacterProvider characterProvider,
-                         IEOMessageBoxFactory messageBoxFactory)
+                         IEOMessageBoxFactory messageBoxFactory,
+                         TextInputDialogFactory textInputDialogFactory)
             : base(nativeGraphicsManager, dialogButtonService, DialogType.Guild)
         {
             _dialogIconService = dialogIconService;
             _localizedStringFinder = localizedStringFinder;
             _characterProvider = characterProvider;
             _messageBoxFactory = messageBoxFactory;
+            _textInputDialogFactory = textInputDialogFactory;
 
             SetState(GuildDialogState.Initial);
 
@@ -53,6 +58,9 @@ namespace EndlessClient.Dialogs
                 {
                     case GuildDialogState.Management:
                         SetState(GuildDialogState.Initial);
+                        break;
+                    case GuildDialogState.Information:
+                        SetState(GuildDialogState.Initial); ;
                         break;
                     default:
                         // no-op
@@ -88,8 +96,8 @@ namespace EndlessClient.Dialogs
                             SubText = _localizedStringFinder.GetString(EOResourceID.GUILD_LEARN_MORE),
                             OffsetY = 45,
                         };
-                        //registrationItem.LeftClick += (_, _) => SetState(GuildDialogState.Registration);
-                        //registrationItem.RightClick += (_, _) => SetState(GuildDialogState.Registration);
+                        informationItem.LeftClick += (_, _) => SetState(GuildDialogState.Information);
+                        informationItem.RightClick += (_, _) => SetState(GuildDialogState.Information);
 
                         AddItemToList(informationItem, sortList: false);
 
@@ -134,6 +142,85 @@ namespace EndlessClient.Dialogs
                         //registrationItem.RightClick += (_, _) => SetState(GuildDialogState.Registration);
 
                         AddItemToList(bankAccountItem, sortList: false);
+                    }
+                    break;
+
+                case GuildDialogState.Information:
+                    {
+                        ListItemType = ListDialogItem.ListItemStyle.Large;
+                        Buttons = ScrollingListDialogButtons.BackCancel;
+
+                        var lookGuildUp = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
+                        {
+                            ShowIconBackGround = false,
+                            IconGraphic = _dialogIconService.IconSheet,
+                            IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.GuildLookup),
+                            PrimaryText = _localizedStringFinder.GetString(EOResourceID.GUILD_LOOK_UP),
+                            SubText = _localizedStringFinder.GetString(EOResourceID.GUILD_VIEW_DETAILS),
+                            OffsetY = 45,
+                        };
+                        lookGuildUp.LeftClick += (_, _) =>
+                        {
+                            var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_TO_VIEW_INFORMATION_ABOUT_A_GUILD_ENTER_ITS_TAG));
+                            dlg.DialogClosing += (_, e) =>
+                            {
+                                if(e.Result == XNAControls.XNADialogResult.OK)
+                                {
+
+                                }
+                            };
+                            dlg.ShowDialog();
+                        };
+                        lookGuildUp.RightClick += (_, _) =>
+                        {
+                            var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_TO_VIEW_INFORMATION_ABOUT_A_GUILD_ENTER_ITS_TAG));
+                            dlg.DialogClosing += (_, e) =>
+                            {
+                                if (e.Result == XNAControls.XNADialogResult.OK)
+                                {
+
+                                }
+                            };
+                            dlg.ShowDialog();
+                        };
+
+                        AddItemToList(lookGuildUp, sortList: false);
+
+                        var viewMembers = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
+                        {
+                            ShowIconBackGround = false,
+                            IconGraphic = _dialogIconService.IconSheet,
+                            IconGraphicSource = _dialogIconService.GetDialogIconSource(DialogIcon.GuildLookup),
+                            PrimaryText = _localizedStringFinder.GetString(EOResourceID.GUILD_MEMBERLIST),
+                            SubText = _localizedStringFinder.GetString(EOResourceID.GUILD_VIEW_MEMBERS),
+                            OffsetY = 45,
+                        };
+                        viewMembers.LeftClick += (_, _) =>
+                        {
+                            var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_TO_VIEW_INFORMATION_ABOUT_A_GUILD_ENTER_ITS_TAG));
+                            dlg.DialogClosing += (_, e) =>
+                            {
+                                if (e.Result == XNAControls.XNADialogResult.OK)
+                                {
+
+                                }
+                            };
+                            dlg.ShowDialog();
+                        };
+                        viewMembers.RightClick += (_, _) =>
+                        {
+                            var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_TO_VIEW_INFORMATION_ABOUT_A_GUILD_ENTER_ITS_TAG));
+                            dlg.DialogClosing += (_, e) =>
+                            {
+                                if (e.Result == XNAControls.XNADialogResult.OK)
+                                {
+
+                                }
+                            };
+                            dlg.ShowDialog();
+                        };
+
+                        AddItemToList(viewMembers, sortList: false);
                     }
                     break;
 
