@@ -32,7 +32,7 @@ namespace EndlessClient.Dialogs
         private readonly ICharacterProvider _characterProvider;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly TextInputDialogFactory _textInputDialogFactory;
-
+        
         private GuildDialogState _state;
 
         public GuildDialog(INativeGraphicsManager nativeGraphicsManager,
@@ -161,10 +161,17 @@ namespace EndlessClient.Dialogs
                         };
                         lookGuildUp.LeftClick += (_, _) =>
                         {
-                            var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_TO_VIEW_INFORMATION_ABOUT_A_GUILD_ENTER_ITS_TAG));
+                            var showOnce = false;
+                            var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_TO_VIEW_INFORMATION_ABOUT_A_GUILD_ENTER_ITS_TAG), 3);
                             dlg.DialogClosing += (_, e) =>
                             {
-                                if(e.Result == XNAControls.XNADialogResult.OK)
+                                if (dlg.ResponseText.Length < 2 && !showOnce && e.Result != XNAControls.XNADialogResult.Cancel)
+                                {
+                                    var invalidGuildTag = _messageBoxFactory.CreateMessageBox(_localizedStringFinder.GetString(DialogResourceID.GUILD_CREATE_TAG_TOO_SHORT), _localizedStringFinder.GetString(DialogResourceID.GUILD_WRONG_INPUT), EODialogButtons.OkCancel);
+                                    invalidGuildTag.ShowDialog();
+                                    showOnce = true;
+                                }
+                                else if (e.Result == XNAControls.XNADialogResult.OK)
                                 {
 
                                 }
@@ -173,10 +180,17 @@ namespace EndlessClient.Dialogs
                         };
                         lookGuildUp.RightClick += (_, _) =>
                         {
-                            var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_TO_VIEW_INFORMATION_ABOUT_A_GUILD_ENTER_ITS_TAG));
+                            var showOnce = false;
+                            var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_TO_VIEW_INFORMATION_ABOUT_A_GUILD_ENTER_ITS_TAG), 3);
                             dlg.DialogClosing += (_, e) =>
                             {
-                                if (e.Result == XNAControls.XNADialogResult.OK)
+                                if (dlg.ResponseText.Length < 2 && !showOnce && e.Result != XNAControls.XNADialogResult.Cancel)
+                                {
+                                    var invalidGuildTag = _messageBoxFactory.CreateMessageBox(_localizedStringFinder.GetString(DialogResourceID.GUILD_CREATE_TAG_TOO_SHORT), _localizedStringFinder.GetString(DialogResourceID.GUILD_WRONG_INPUT), EODialogButtons.OkCancel);
+                                    invalidGuildTag.ShowDialog();
+                                    showOnce = true;
+                                }
+                                else if (e.Result == XNAControls.XNADialogResult.OK)
                                 {
 
                                 }
@@ -197,10 +211,17 @@ namespace EndlessClient.Dialogs
                         };
                         viewMembers.LeftClick += (_, _) =>
                         {
-                            var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_TO_VIEW_INFORMATION_ABOUT_A_GUILD_ENTER_ITS_TAG));
+                            var showOnce = false;
+                            var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_TO_VIEW_INFORMATION_ABOUT_A_GUILD_ENTER_ITS_TAG), 3);
                             dlg.DialogClosing += (_, e) =>
                             {
-                                if (e.Result == XNAControls.XNADialogResult.OK)
+                                if (dlg.ResponseText.Length < 2 && !showOnce && e.Result != XNAControls.XNADialogResult.Cancel)
+                                {
+                                    var invalidGuildTag = _messageBoxFactory.CreateMessageBox(_localizedStringFinder.GetString(DialogResourceID.GUILD_CREATE_TAG_TOO_SHORT), _localizedStringFinder.GetString(DialogResourceID.GUILD_WRONG_INPUT), EODialogButtons.OkCancel);
+                                    invalidGuildTag.ShowDialog();
+                                    showOnce = true;
+                                }
+                                else if (e.Result == XNAControls.XNADialogResult.OK)
                                 {
 
                                 }
@@ -209,10 +230,17 @@ namespace EndlessClient.Dialogs
                         };
                         viewMembers.RightClick += (_, _) =>
                         {
-                            var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_TO_VIEW_INFORMATION_ABOUT_A_GUILD_ENTER_ITS_TAG));
+                            var showOnce = false;
+                            var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_TO_VIEW_INFORMATION_ABOUT_A_GUILD_ENTER_ITS_TAG), 3);
                             dlg.DialogClosing += (_, e) =>
                             {
-                                if (e.Result == XNAControls.XNADialogResult.OK)
+                                if (dlg.ResponseText.Length < 2 && !showOnce && e.Result != XNAControls.XNADialogResult.Cancel)
+                                {
+                                    var invalidGuildTag = _messageBoxFactory.CreateMessageBox(_localizedStringFinder.GetString(DialogResourceID.GUILD_CREATE_TAG_TOO_SHORT), _localizedStringFinder.GetString(DialogResourceID.GUILD_WRONG_INPUT), EODialogButtons.OkCancel);
+                                    invalidGuildTag.ShowDialog();
+                                    showOnce = true;
+                                }
+                                else if (e.Result == XNAControls.XNADialogResult.OK)
                                 {
 
                                 }
