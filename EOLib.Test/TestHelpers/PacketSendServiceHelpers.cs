@@ -1,10 +1,10 @@
-﻿using EOLib.Net.Communication;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
+using EOLib.Net.Communication;
 using Moffat.EndlessOnline.SDK.Data;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moq;
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
 
 namespace EOLib.Test.TestHelpers
 {

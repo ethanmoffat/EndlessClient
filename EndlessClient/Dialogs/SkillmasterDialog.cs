@@ -332,7 +332,7 @@ namespace EndlessClient.Dialogs
             if (skill.WisRequirement > 0)
                 drawStrings.Add($"{skill.WisRequirement} {_localizedStringFinder.GetString(EOResourceID.SKILLMASTER_WORD_WISDOM)}");
             if (skill.AgiRequirement > 0)
-                drawStrings.Add($"{skill.AgiRequirement} { _localizedStringFinder.GetString(EOResourceID.SKILLMASTER_WORD_AGILITY)}");
+                drawStrings.Add($"{skill.AgiRequirement} {_localizedStringFinder.GetString(EOResourceID.SKILLMASTER_WORD_AGILITY)}");
             if (skill.ConRequirement > 0)
                 drawStrings.Add($"{skill.ConRequirement} {_localizedStringFinder.GetString(EOResourceID.SKILLMASTER_WORD_CONSTITUTION)}");
             if (skill.ChaRequirement > 0)

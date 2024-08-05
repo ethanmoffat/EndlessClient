@@ -1,5 +1,5 @@
-﻿using AutomaticTypeMapper;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using AutomaticTypeMapper;
 
 namespace EOLib.Domain.Interact.Shop
 {
@@ -32,7 +32,7 @@ namespace EOLib.Domain.Interact.Shop
         public string ShopName { get; set; }
 
         public List<IShopItem> TradeItems { get; set; }
-        
+
         public List<IShopCraftItem> CraftItems { get; set; }
 
         IReadOnlyList<IShopItem> IShopDataProvider.TradeItems => TradeItems;

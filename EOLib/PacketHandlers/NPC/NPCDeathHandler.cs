@@ -1,14 +1,14 @@
-﻿using EOLib.Domain.Character;
+﻿using System;
+using System.Collections.Generic;
+using EOLib.Domain.Character;
+using EOLib.Domain.Interact.Skill;
 using EOLib.Domain.Login;
+using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.Net.Handlers;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
-using System;
-using EOLib.Domain.Map;
-using System.Collections.Generic;
-using EOLib.Domain.Interact.Skill;
 
 namespace EOLib.PacketHandlers.NPC
 {

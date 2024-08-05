@@ -72,7 +72,7 @@ namespace EOLib.IO.Pub
         }
 
         public EIFRecord(int id, string name)
-            : base (id, name, PubRecordProperty.Item)
+            : base(id, name, PubRecordProperty.Item)
         {
         }
 

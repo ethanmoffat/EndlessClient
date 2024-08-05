@@ -21,7 +21,7 @@ namespace EOLib.Domain.Chat.Commands
         public bool Execute(string parameter)
         {
             var usage = _characterProvider.MainCharacter.Stats[CharacterStat.Usage];
-            var message = $"[x] usage: {usage/60}hrs. {usage%60}min.";
+            var message = $"[x] usage: {usage / 60}hrs. {usage % 60}min.";
 
             var chatData = new ChatData(ChatTab.Local, "System", message, ChatIcon.LookingDude);
             _chatRepository.AllChat[ChatTab.Local].Add(chatData);

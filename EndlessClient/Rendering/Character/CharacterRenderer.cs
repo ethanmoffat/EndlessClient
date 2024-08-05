@@ -1,4 +1,6 @@
-﻿using EndlessClient.Audio;
+﻿using System;
+using System.Linq;
+using EndlessClient.Audio;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
 using EndlessClient.Rendering.CharacterProperties;
@@ -18,8 +20,6 @@ using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Optional;
-using System;
-using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Rendering.Character
@@ -242,7 +242,7 @@ namespace EndlessClient.Rendering.Character
                 : 310;
             var yCoord = _clientWindowSizeRepository.Resizable
                 ? (_clientWindowSizeRepository.Height - skinRect.Height) / 2 - 11
-                : (298 - skinRect.Height) / 2 - skinRect.Height/4 - 3;
+                : (298 - skinRect.Height) / 2 - skinRect.Height / 4 - 3;
 
             SetAbsoluteScreenPosition(xCoord, yCoord);
         }
@@ -386,7 +386,7 @@ namespace EndlessClient.Rendering.Character
 
         private Vector2 GetNameLabelPosition()
         {
-            NameLabelY = DrawArea.Y - 12 - (int)(_nameLabel?.ActualHeight ?? 0) + ((int)Character.RenderProperties.SitState)*10;
+            NameLabelY = DrawArea.Y - 12 - (int)(_nameLabel?.ActualHeight ?? 0) + ((int)Character.RenderProperties.SitState) * 10;
             return new Vector2(HorizontalCenter - (_nameLabel.ActualWidth / 2f), NameLabelY);
         }
 
@@ -405,7 +405,7 @@ namespace EndlessClient.Rendering.Character
 
             if (isSteppingStone && renderProps.IsActing(CharacterActionState.Walking))
             {
-                switch(renderProps.ActualWalkFrame)
+                switch (renderProps.ActualWalkFrame)
                 {
                     case 1: return -8;
                     case 2: return -16;
@@ -545,7 +545,7 @@ namespace EndlessClient.Rendering.Character
 
                 _clientWindowSizeRepository.GameWindowSizeChanged -= RecreateRenderTargetEvent;
 
-                lock(_rt_locker_)
+                lock (_rt_locker_)
                     _charRenderTarget?.Dispose();
             }
 

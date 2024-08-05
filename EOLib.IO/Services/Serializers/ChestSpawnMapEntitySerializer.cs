@@ -39,7 +39,7 @@ namespace EOLib.IO.Services.Serializers
             return new ChestSpawnMapEntity()
                 .WithX(_numberEncoderService.DecodeNumber(data[0]))
                 .WithY(_numberEncoderService.DecodeNumber(data[1]))
-                .WithKey((ChestKey) _numberEncoderService.DecodeNumber(data[2], data[3]))
+                .WithKey((ChestKey)_numberEncoderService.DecodeNumber(data[2], data[3]))
                 .WithSlot(_numberEncoderService.DecodeNumber(data[4]))
                 .WithItemID(_numberEncoderService.DecodeNumber(data[5], data[6]))
                 .WithRespawnTime(_numberEncoderService.DecodeNumber(data[7], data[8]))

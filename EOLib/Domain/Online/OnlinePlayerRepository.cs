@@ -1,11 +1,11 @@
-﻿using AutomaticTypeMapper;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using AutomaticTypeMapper;
 
 namespace EOLib.Domain.Online
 {
     public interface IOnlinePlayerRepository : IResettable
     {
-        HashSet<OnlinePlayerInfo> OnlinePlayers { get; set;  }
+        HashSet<OnlinePlayerInfo> OnlinePlayers { get; set; }
     }
 
     public interface IOnlinePlayerProvider

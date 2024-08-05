@@ -1,4 +1,6 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Collections.Generic;
+using System.Linq;
+using AutomaticTypeMapper;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Metadata;
 using EndlessClient.Rendering.Metadata.Models;
@@ -8,8 +10,6 @@ using EOLib.Domain.Extensions;
 using EOLib.IO;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace EndlessClient.Rendering.CharacterProperties
 {
@@ -74,9 +74,9 @@ namespace EndlessClient.Rendering.CharacterProperties
 
         private bool IsWeaponBehindCharacter(CharacterRenderProperties renderProperties)
         {
-             var weaponInfo = EIFFile.FirstOrDefault(
-                x => x.Type == ItemType.Weapon &&
-                     x.DollGraphic == renderProperties.WeaponGraphic);
+            var weaponInfo = EIFFile.FirstOrDefault(
+               x => x.Type == ItemType.Weapon &&
+                    x.DollGraphic == renderProperties.WeaponGraphic);
 
             var pass1 = renderProperties.RenderAttackFrame < 2;
             var pass2 = renderProperties.IsFacing(EODirection.Up, EODirection.Left);

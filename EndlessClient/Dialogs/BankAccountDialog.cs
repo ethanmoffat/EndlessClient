@@ -1,4 +1,5 @@
-﻿using EndlessClient.ControlSets;
+﻿using System;
+using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.HUD;
@@ -13,7 +14,6 @@ using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Optional;
 using Optional.Collections;
-using System;
 using XNAControls;
 
 namespace EndlessClient.Dialogs
@@ -33,7 +33,7 @@ namespace EndlessClient.Dialogs
         private int _cachedValue;
         private Option<int> _cachedUpgrades;
 
-        public  BankAccountDialog(INativeGraphicsManager nativeGraphicsManager,
+        public BankAccountDialog(INativeGraphicsManager nativeGraphicsManager,
                                   IBankActions bankActions,
                                   IEODialogButtonService dialogButtonService,
                                   IEODialogIconService dialogIconService,

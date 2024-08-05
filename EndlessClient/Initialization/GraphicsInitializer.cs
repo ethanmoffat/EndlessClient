@@ -1,7 +1,7 @@
-﻿using AutomaticTypeMapper;
+﻿using System.IO;
+using AutomaticTypeMapper;
 using EOLib.Graphics;
 using PELoaderLib;
-using System.IO;
 
 namespace EndlessClient.Initialization
 {

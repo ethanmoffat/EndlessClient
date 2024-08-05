@@ -1,4 +1,7 @@
-﻿using EndlessClient.Audio;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using EndlessClient.Audio;
 using EndlessClient.Rendering.Metadata.Models;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
@@ -6,10 +9,6 @@ using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Optional;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-
 using DomainCharacter = EOLib.Domain.Character.Character;
 using DomainNPC = EOLib.Domain.NPC.NPC;
 

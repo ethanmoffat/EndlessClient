@@ -1,11 +1,11 @@
-﻿using EOLib.Domain.Character;
+﻿using System.Linq;
+using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Trade;
 using EOLib.Net.Handlers;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
-using System.Linq;
 
 namespace EOLib.PacketHandlers.Trade
 {

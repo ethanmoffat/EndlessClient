@@ -1,4 +1,5 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD;
@@ -7,7 +8,6 @@ using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.IO.Map;
 using EOLib.Localization;
-using System.Collections.Generic;
 
 namespace EndlessClient.Input
 {

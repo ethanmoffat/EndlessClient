@@ -1,11 +1,11 @@
-﻿using AutomaticTypeMapper;
-using CommunityToolkit.HighPerformance;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using AutomaticTypeMapper;
+using CommunityToolkit.HighPerformance;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace EOLib.Graphics
 {
@@ -136,6 +136,6 @@ namespace EOLib.Graphics
     public class GFXLoadException : Exception
     {
         public GFXLoadException(int resource, GFXTypes gfx)
-            : base($"Unable to load graphic {resource + 100} from file gfx{(int) gfx:000}.egf") { }
+            : base($"Unable to load graphic {resource + 100} from file gfx{(int)gfx:000}.egf") { }
     }
 }

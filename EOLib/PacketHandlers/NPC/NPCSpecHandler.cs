@@ -1,4 +1,6 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
@@ -6,8 +8,6 @@ using EOLib.Domain.Notifiers;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
-using System;
-using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.NPC
 {
@@ -29,7 +29,8 @@ namespace EOLib.PacketHandlers.NPC
                               IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers,
                               IEnumerable<IOtherCharacterAnimationNotifier> otherCharacterAnimationNotifiers)
             : base(playerInfoProvider, characterRepository, currentMapStateRepository, characterSessionRepository,
-                  npcActionNotifiers, mainCharacterEventNotifiers, otherCharacterAnimationNotifiers) { }
+                  npcActionNotifiers, mainCharacterEventNotifiers, otherCharacterAnimationNotifiers)
+        { }
 
         public override bool HandlePacket(NpcSpecServerPacket packet)
         {

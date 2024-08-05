@@ -1,5 +1,5 @@
-﻿using EOLib.IO.Pub;
-using System;
+﻿using System;
+using EOLib.IO.Pub;
 
 namespace EOLib.IO.Services.Serializers
 {

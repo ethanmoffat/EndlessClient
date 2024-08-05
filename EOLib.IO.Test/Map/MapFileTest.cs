@@ -156,7 +156,7 @@ namespace EOLib.IO.Test.Map
             ret.AddRange(nes.EncodeNumber(0, 1)); //count
 
             //gfx
-            foreach (var layer in (MapLayer[]) Enum.GetValues(typeof(MapLayer)))
+            foreach (var layer in (MapLayer[])Enum.GetValues(typeof(MapLayer)))
             {
                 ret.AddRange(nes.EncodeNumber(1, 1)); //count
                 ret.AddRange(nes.EncodeNumber(1, 1)); //y

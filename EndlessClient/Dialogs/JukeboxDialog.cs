@@ -1,4 +1,6 @@
-﻿using EndlessClient.Audio;
+﻿using System;
+using System.Collections.Generic;
+using EndlessClient.Audio;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.Dialogs.Services;
 using EOLib.Domain.Character;
@@ -9,8 +11,6 @@ using Microsoft.Xna.Framework;
 using MonoGame.Extended.Input.InputListeners;
 using Optional;
 using Optional.Collections;
-using System;
-using System.Collections.Generic;
 using XNAControls;
 
 namespace EndlessClient.Dialogs

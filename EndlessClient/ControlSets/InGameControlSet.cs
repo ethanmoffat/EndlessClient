@@ -1,4 +1,7 @@
-﻿using EndlessClient.Controllers;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using EndlessClient.Controllers;
 using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
@@ -6,9 +9,6 @@ using EndlessClient.HUD.Controls;
 using EndlessClient.Rendering;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.ControlSets

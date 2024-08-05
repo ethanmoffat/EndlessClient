@@ -1,4 +1,7 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Content;
 using EndlessClient.Controllers;
@@ -26,9 +29,6 @@ using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.HUD.Controls
@@ -253,11 +253,11 @@ namespace EndlessClient.HUD.Controls
         {
             if (whichState == InGameStates.News)
                 throw new ArgumentOutOfRangeException(nameof(whichState), "News state does not have a button associated with it");
-            var buttonIndex = (int) whichState;
+            var buttonIndex = (int)whichState;
 
             var mainButtonTexture = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 25);
-            var widthDelta = mainButtonTexture.Width/2;
-            var heightDelta = mainButtonTexture.Height/11;
+            var widthDelta = mainButtonTexture.Width / 2;
+            var heightDelta = mainButtonTexture.Height / 11;
 
             IXNAButton retButton;
             if (!_clientWindowSizeRepository.Resizable)
@@ -359,7 +359,7 @@ namespace EndlessClient.HUD.Controls
                 case InGameStates.ViewMapToggle: _hudButtonController.ClickViewMapToggle(); break;
                 case InGameStates.ActiveSpells: _hudButtonController.ClickActiveSpells(); break;
                 case InGameStates.PassiveSpells: _hudButtonController.ClickPassiveSpells(); break;
-                case InGameStates.Chat: 
+                case InGameStates.Chat:
                     _hudButtonController.ClickChat();
                     _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_CHAT_PANEL_NOW_VIEWED);
                     break;

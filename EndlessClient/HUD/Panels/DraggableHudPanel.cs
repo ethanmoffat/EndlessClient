@@ -1,7 +1,7 @@
-﻿using EndlessClient.Rendering;
+﻿using System;
+using EndlessClient.Rendering;
 using MonoGame.Extended.Input.InputListeners;
 using Optional;
-using System;
 using XNAControls;
 
 namespace EndlessClient.HUD.Panels

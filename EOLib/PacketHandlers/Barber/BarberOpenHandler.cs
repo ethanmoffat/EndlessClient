@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using AutomaticTypeMapper;
 using EOLib.Domain.Interact;
 using EOLib.Domain.Interact.Barber;
@@ -5,7 +6,6 @@ using EOLib.Domain.Login;
 using EOLib.Net.Handlers;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Barber
 {

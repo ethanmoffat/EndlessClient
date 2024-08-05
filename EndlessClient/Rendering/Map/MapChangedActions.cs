@@ -1,4 +1,5 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Linq;
+using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
@@ -16,7 +17,6 @@ using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System.Linq;
 
 namespace EndlessClient.Rendering.Map
 {
@@ -145,7 +145,7 @@ namespace EndlessClient.Rendering.Map
         {
             var currentMapNpcGraphics = _currentMapStateRepository.NPCs.Select(x => _enfFileProvider.ENFFile[x.ID].Graphic).ToList();
             var priorMapNpcGraphics = _npcRendererRepository.NPCRenderers.Select(x => _enfFileProvider.ENFFile[x.Value.NPC.ID].Graphic);
-            
+
             foreach (var evict in priorMapNpcGraphics.Except(currentMapNpcGraphics))
                 _npcSpriteDataCache.MarkForEviction(evict);
 

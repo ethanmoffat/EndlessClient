@@ -12,7 +12,7 @@ namespace EOLib.Net.PacketProcessing
 
         public void ResetState()
         {
-             Sequencer = new PacketSequencer(ZeroSequence.Instance);
+            Sequencer = new PacketSequencer(ZeroSequence.Instance);
         }
     }
 

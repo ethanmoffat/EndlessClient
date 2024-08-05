@@ -1,4 +1,5 @@
-﻿using EndlessClient.Audio;
+﻿using System;
+using EndlessClient.Audio;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Panels;
@@ -12,7 +13,6 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.Input;
 using MonoGame.Extended.Input.InputListeners;
 using Optional;
-using System;
 using XNAControls;
 
 namespace EndlessClient.HUD.Inventory
@@ -56,7 +56,7 @@ namespace EndlessClient.HUD.Inventory
         public event EventHandler<EIFRecord> DoubleClick;
 
         public override Rectangle EventArea => IsDragging ? DrawArea : DrawAreaWithParentOffset;
-        
+
         // uses absolute coordinates
         protected override Rectangle GridArea => new Rectangle(
             _parentContainer.DrawPositionWithParentOffset.ToPoint() + new Point(12, 8),

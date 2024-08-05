@@ -1,4 +1,5 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD;
@@ -9,7 +10,6 @@ using EOLib.Domain.Chat;
 using EOLib.Domain.Chat.Commands;
 using EOLib.Domain.Map;
 using EOLib.Localization;
-using System;
 
 namespace EndlessClient.Controllers
 {

@@ -1,7 +1,7 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using MonoGame.Extended.Input;
 using MonoGame.Extended.Input.InputListeners;
-using System;
 using XNAControls;
 
 namespace EndlessClient.HUD.Controls

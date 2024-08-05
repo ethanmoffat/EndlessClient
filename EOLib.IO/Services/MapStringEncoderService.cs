@@ -1,7 +1,7 @@
-﻿using AutomaticTypeMapper;
-using System;
+﻿using System;
 using System.Linq;
 using System.Text;
+using AutomaticTypeMapper;
 
 namespace EOLib.IO.Services
 {

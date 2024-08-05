@@ -1,11 +1,11 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Threading.Tasks;
+using AutomaticTypeMapper;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.GameExecution;
 using EOLib.Domain.Account;
 using EOLib.Net;
 using EOLib.Net.Communication;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System.Threading.Tasks;
 using XNAControls;
 
 namespace EndlessClient.Controllers

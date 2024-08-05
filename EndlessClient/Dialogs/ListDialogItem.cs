@@ -1,10 +1,10 @@
-﻿using EOLib;
+﻿using System;
+using EOLib;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.Input;
 using MonoGame.Extended.Input.InputListeners;
-using System;
 using XNAControls;
 
 namespace EndlessClient.Dialogs

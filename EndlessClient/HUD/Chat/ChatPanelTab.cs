@@ -1,4 +1,7 @@
-﻿using EndlessClient.ControlSets;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Panels;
 using EndlessClient.Rendering.Chat;
@@ -11,9 +14,6 @@ using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.BitmapFonts;
 using MonoGame.Extended.Input;
 using MonoGame.Extended.Input.InputListeners;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.HUD.Chat

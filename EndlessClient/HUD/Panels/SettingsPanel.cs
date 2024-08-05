@@ -1,4 +1,7 @@
-﻿using EndlessClient.Audio;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using EndlessClient.Audio;
 using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.Rendering;
@@ -8,9 +11,6 @@ using EOLib.Domain.Chat;
 using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.HUD.Panels

@@ -138,19 +138,19 @@ namespace EOLib.Net.Communication
                 result = ConnectResult.Success;
                 _connected = true;
             }
-            catch(ArgumentNullException)
+            catch (ArgumentNullException)
             {
                 result = ConnectResult.InvalidEndpoint;
             }
-            catch(SocketException sex)
+            catch (SocketException sex)
             {
                 result = ConnectResult.SocketError | (ConnectResult)sex.ErrorCode;
             }
-            catch(ObjectDisposedException)
+            catch (ObjectDisposedException)
             {
                 result = ConnectResult.InvalidSocket;
             }
-            catch(InvalidOperationException)
+            catch (InvalidOperationException)
             {
                 result = ConnectResult.InvalidSocket;
             }

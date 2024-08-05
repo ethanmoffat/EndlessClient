@@ -1,9 +1,9 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EndlessClient.Rendering.Metadata;
 using EndlessClient.Rendering.Metadata.Models;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework.Graphics;
-using System.Collections.Generic;
 
 namespace EndlessClient.Rendering.Effects
 {
@@ -31,7 +31,7 @@ namespace EndlessClient.Rendering.Effects
         }
 
         public IList<IEffectSpriteInfo> GetEffectInfo(int graphic, EffectMetadata metadata)
-        {            
+        {
             var baseGraphic = 101 + (graphic - 1) * 3;
 
             var retList = new List<IEffectSpriteInfo>();

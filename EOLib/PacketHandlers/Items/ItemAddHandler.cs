@@ -1,11 +1,11 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Net.Handlers;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
-using System;
 
 namespace EOLib.PacketHandlers.Items
 {

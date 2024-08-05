@@ -1,4 +1,6 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Collections.Generic;
+using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
@@ -8,8 +10,6 @@ using EOLib.Net.Handlers;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional.Collections;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace EOLib.PacketHandlers.Spell
 {
@@ -48,11 +48,11 @@ namespace EOLib.PacketHandlers.Spell
 
             var spellTargets = packet.Players
                 .Select(x => new GroupSpellTarget.Builder
-                    {
-                        TargetId = x.PlayerId,
-                        TargetHp = x.Hp,
-                        PercentHealth = x.HpPercentage,
-                    }.ToImmutable())
+                {
+                    TargetId = x.PlayerId,
+                    TargetHp = x.Hp,
+                    PercentHealth = x.HpPercentage,
+                }.ToImmutable())
                 .ToList();
 
             // todo: eoserv potentially sends garbage 255 bytes in packet.Players

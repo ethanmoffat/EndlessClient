@@ -73,11 +73,11 @@ namespace EndlessClient.HUD.Panels
                     ForeColor = ColorConstants.LightGrayText,
                     AutoSize = false,
                     Text = "",
-                    DrawArea = new Rectangle(50, 8 + i*18, 73, 13)
+                    DrawArea = new Rectangle(50, 8 + i * 18, 73, 13)
                 };
 
                 _arrowButtons[i] = new XNAButton(buttonTexture,
-                                                 new Vector2(106, 7 + i*18),
+                                                 new Vector2(106, 7 + i * 18),
                                                  outTextureArea,
                                                  overTextureArea)
                 {
@@ -100,8 +100,8 @@ namespace EndlessClient.HUD.Panels
             for (int i = 0; i < _otherInfo.Length; ++i)
             {
                 var drawArea = i < 4
-                    ? new Rectangle(280, 44 + i%4*18, 60, 13)
-                    : new Rectangle(379, 44 + i%4*18, 94, 13);
+                    ? new Rectangle(280, 44 + i % 4 * 18, 60, 13)
+                    : new Rectangle(379, 44 + i % 4 * 18, 94, 13);
 
                 _otherInfo[i] = new XNALabel(Constants.FontSize08pt5)
                 {
@@ -223,7 +223,7 @@ namespace EndlessClient.HUD.Panels
             }
             else
             {
-                var index = _arrowButtons.Select((btn, ndx) => new {btn, ndx})
+                var index = _arrowButtons.Select((btn, ndx) => new { btn, ndx })
                                          .Single(x => x.btn == sender).ndx;
                 var characterStat = CharacterStat.Strength + index;
                 _trainingController.AddStatPoint(characterStat);

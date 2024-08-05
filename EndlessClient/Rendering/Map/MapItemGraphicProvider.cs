@@ -28,10 +28,10 @@ namespace EndlessClient.Rendering.Map
                     amount >= 10000 ? 3 : (
                         amount >= 100 ? 2 : (
                             amount >= 2 ? 1 : 0)));
-                return _nativeGraphicsManager.TextureFromResource(GFXTypes.Items, 269 + 2*gfx, true);
+                return _nativeGraphicsManager.TextureFromResource(GFXTypes.Items, 269 + 2 * gfx, true);
             }
 
-            return _nativeGraphicsManager.TextureFromResource(GFXTypes.Items, 2*item.Graphic - 1, true);
+            return _nativeGraphicsManager.TextureFromResource(GFXTypes.Items, 2 * item.Graphic - 1, true);
         }
     }
 }

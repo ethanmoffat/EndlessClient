@@ -1,4 +1,6 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Threading.Tasks;
+using AutomaticTypeMapper;
 using EOLib.Config;
 using EOLib.Domain.Login;
 using EOLib.Net.Communication;
@@ -6,8 +8,6 @@ using EOLib.Net.PacketProcessing;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System;
-using System.Threading.Tasks;
 using Version = Moffat.EndlessOnline.SDK.Protocol.Net.Version;
 
 namespace EOLib.Net.Connection

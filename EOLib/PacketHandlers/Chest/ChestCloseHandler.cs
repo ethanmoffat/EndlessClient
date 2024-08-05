@@ -1,10 +1,10 @@
-﻿using EOLib.Domain.Login;
+﻿using System.Collections.Generic;
+using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
 using EOLib.IO.Map;
 using EOLib.Net.Handlers;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Chest
 {

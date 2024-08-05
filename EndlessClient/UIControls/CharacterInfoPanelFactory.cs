@@ -50,7 +50,7 @@ namespace EndlessClient.UIControls
 
         public IEnumerable<CharacterInfoPanel> CreatePanels(IEnumerable<Character> characters)
         {
-            if(_loginController == null || _characterManagementController == null)
+            if (_loginController == null || _characterManagementController == null)
                 throw new InvalidOperationException("Missing controllers - the Unity container was initialized incorrectly");
 
             int i = 0;

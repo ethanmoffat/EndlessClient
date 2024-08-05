@@ -93,9 +93,9 @@ namespace EndlessClient.Dialogs
             rightSide[1].Text = $"{expTableProvider.ExperienceByLevel[level + 1]}";
             rightSide[2].Text = $"{expTableProvider.ExperienceByLevel[level + 1] - exp}";
             rightSide[3].Text = $"{characterSessionProvider.TodayTotalExp}";
-            rightSide[4].Text = $"{(int)(exp / (usage/60.0))}";
+            rightSide[4].Text = $"{(int)(exp / (usage / 60.0))}";
             int sessionTimeMinutes = (int)(DateTime.Now - characterSessionProvider.SessionStartTime).TotalMinutes;
-            rightSide[5].Text = $"{(sessionTimeMinutes > 0 ? (int)(characterSessionProvider.TodayTotalExp / (sessionTimeMinutes/60.0)) : 0)}";
+            rightSide[5].Text = $"{(sessionTimeMinutes > 0 ? (int)(characterSessionProvider.TodayTotalExp / (sessionTimeMinutes / 60.0)) : 0)}";
             rightSide[6].Text = $"{characterSessionProvider.BestKillExp}";
             rightSide[7].Text = $"{characterSessionProvider.LastKillExp}";
 
@@ -117,7 +117,7 @@ namespace EndlessClient.Dialogs
             for (int i = 0; i < 8; i++)
                 _spriteBatch.Draw(_icons, new Vector2(DrawPositionWithParentOffset.X + 18, DrawPositionWithParentOffset.Y + 47 + 16 * i), _iconSource, Color.White);
 
-            for(int i = 0; i < 3; i++)
+            for (int i = 0; i < 3; i++)
                 _spriteBatch.Draw(_icons, new Vector2(DrawPositionWithParentOffset.X + 142, DrawPositionWithParentOffset.Y + 48 + 16 * i), _signalSource, Color.White);
 
             _spriteBatch.End();

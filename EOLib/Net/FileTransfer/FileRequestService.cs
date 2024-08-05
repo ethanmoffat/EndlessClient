@@ -1,4 +1,7 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using AutomaticTypeMapper;
 using EOLib.IO.Map;
 using EOLib.IO.Pub;
 using EOLib.IO.Services.Serializers;
@@ -6,9 +9,6 @@ using EOLib.Net.Communication;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace EOLib.Net.FileTransfer
 {
@@ -156,7 +156,7 @@ namespace EOLib.Net.FileTransfer
                 _ => throw new ArgumentOutOfRangeException(nameof(fileType)),
             };
         }
-    
+
         private static bool PubFileIdMatches(int requestedFileId, InitInitServerPacket.IReplyCodeData replyCodeData, out int responseFileId)
         {
             if (replyCodeData is InitInitServerPacket.ReplyCodeDataFileEif eif)

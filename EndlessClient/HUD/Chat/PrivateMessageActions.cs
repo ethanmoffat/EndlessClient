@@ -1,11 +1,11 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using AutomaticTypeMapper;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Panels;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
 using EOLib.Localization;
-using System;
 
 namespace EndlessClient.HUD.Chat
 {

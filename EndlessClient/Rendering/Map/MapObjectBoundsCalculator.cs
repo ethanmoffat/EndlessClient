@@ -1,9 +1,9 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Linq;
+using AutomaticTypeMapper;
 using EndlessClient.Rendering.MapEntityRenderers;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
-using System.Linq;
 
 namespace EndlessClient.Rendering.Map
 {
@@ -14,7 +14,7 @@ namespace EndlessClient.Rendering.Map
         private readonly ICharacterProvider _characterProvider;
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
         private readonly IGridDrawCoordinateCalculator _gridDrawCoordinateCalculator;
-        
+
         public MapObjectBoundsCalculator(INativeGraphicsManager nativeGraphicsManager,
                                          ICharacterProvider characterProvider,
                                          IRenderOffsetCalculator renderOffsetCalculator,

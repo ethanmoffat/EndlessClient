@@ -1,9 +1,9 @@
-﻿using EOLib.Domain.Character;
+﻿using System;
+using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Net.Handlers;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Optional.Collections;
-using System;
 
 namespace EOLib.PacketHandlers.Items
 {

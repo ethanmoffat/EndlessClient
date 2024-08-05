@@ -1,4 +1,5 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Notifiers;
 using EOLib.IO.Map;
@@ -6,7 +7,6 @@ using EOLib.IO.Repositories;
 using EOLib.IO.Services;
 using EOLib.IO.Services.Serializers;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Init
 {

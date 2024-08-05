@@ -1,5 +1,5 @@
-﻿using EOLib.IO.Pub;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using EOLib.IO.Pub;
 
 namespace EOLib.IO.Services
 {

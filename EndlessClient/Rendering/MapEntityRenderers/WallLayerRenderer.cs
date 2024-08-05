@@ -39,7 +39,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
             var gfx = _nativeGraphicsManager.TextureFromResource(GFXTypes.MapWalls, gfxNum, true);
 
-            var gfxWidthDelta = gfx.Width/4;
+            var gfxWidthDelta = gfx.Width / 4;
             var src = gfx.Width > WALL_FRAME_WIDTH
                 ? new Rectangle?(new Rectangle(gfxWidthDelta * _frameIndex, 0, gfxWidthDelta, gfx.Height))
                 : null;

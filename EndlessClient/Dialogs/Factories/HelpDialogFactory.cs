@@ -1,12 +1,12 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EndlessClient.Content;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Services;
 using EOLib;
 using EOLib.Graphics;
 using EOLib.Localization;
-using System;
-using System.Collections.Generic;
 
 namespace EndlessClient.Dialogs.Factories
 {

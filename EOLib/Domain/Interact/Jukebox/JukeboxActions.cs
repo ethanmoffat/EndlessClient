@@ -1,11 +1,11 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.IO;
 using EOLib.IO.Repositories;
 using EOLib.Net.Communication;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 using Optional.Collections;
-using System;
 
 namespace EOLib.Domain.Interact.Jukebox
 {

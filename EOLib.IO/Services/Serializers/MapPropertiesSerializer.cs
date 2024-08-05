@@ -72,7 +72,7 @@ namespace EOLib.IO.Services.Serializers
                 .WithName(mapName)
                 .WithPKAvailable(_numberEncoderService.DecodeNumber(data[31]) == 3 ||
                                  (mapNameArray[0] == 0xFF && mapNameArray[1] == 0x01))
-                .WithEffect((MapEffect) _numberEncoderService.DecodeNumber(data[32]))
+                .WithEffect((MapEffect)_numberEncoderService.DecodeNumber(data[32]))
                 .WithMusic(_numberEncoderService.DecodeNumber(data[33]))
                 .WithControl((MusicControl)_numberEncoderService.DecodeNumber(data[34]))
                 .WithAmbientNoise(_numberEncoderService.DecodeNumber(data[35], data[36]))

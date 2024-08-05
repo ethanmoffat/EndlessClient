@@ -46,6 +46,12 @@ After installing, clone (or fork+clone) this repository locally and open the sol
 > - Windows: `rmdir -recurse -force $env:USERPROFILE\\.dotnet\\toolResolverCache`
 > - Linux: `rm -rf ~/.dotnet/toolResolverCache`
 
+> ⚠️ If you get build errors due to formatting
+>
+> Run the following commands:
+> - Windows: `dotnet format EndlessClient.sln`
+> - Linux: `dotnet format EndlessClient.Linux.sln`
+
 ### Building on Mac
 
 1. Download and install the [.NET 6.0 SDK (x64)](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-6.0.403-macos-x64-installer).
@@ -55,6 +61,11 @@ After installing, clone (or fork+clone) this repository locally and open the sol
 5. The build will fail due to a using alias already being declared
 6. Run `echo '' > EndlessClient/obj/Debug/net6.0-macos/osx-x64/EndlessClient.GlobalUsings.g.*.generated.cs`
 7. Run the build again `dotnet build /p:PublishReadyToRun=false /p:TieredCompilation=false --self-contained EndlessClient`
+
+#### Mac errors
+
+Problem: `error NETSDK1139: The target platform identifier macos was not recognized.` 
+Solution: run the command `sudo dotnet workload restore EndlessClient/EndlessClient.csproj` which will install the macos workload for you.
 
 <a name="Todo" />Todo list
 ---------------------

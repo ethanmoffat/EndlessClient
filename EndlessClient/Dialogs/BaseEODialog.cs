@@ -1,7 +1,7 @@
-﻿using EndlessClient.GameExecution;
+﻿using System;
+using EndlessClient.GameExecution;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
-using System;
 using XNAControls;
 
 namespace EndlessClient.Dialogs
@@ -30,7 +30,7 @@ namespace EndlessClient.Dialogs
             base.CenterInGameView();
 
             if (_isInGame() && !Game.Window.AllowUserResizing)
-                DrawPosition = new Vector2(DrawPosition.X, (330 - DrawArea.Height)/2f);
+                DrawPosition = new Vector2(DrawPosition.X, (330 - DrawArea.Height) / 2f);
         }
 
         public void Close()

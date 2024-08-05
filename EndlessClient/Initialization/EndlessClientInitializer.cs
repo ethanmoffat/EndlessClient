@@ -1,4 +1,5 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
@@ -8,7 +9,6 @@ using EndlessClient.HUD.Controls;
 using EndlessClient.UIControls;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended.Input.InputListeners;
-using System.Collections.Generic;
 using XNAControls;
 using XNAControls.Input;
 

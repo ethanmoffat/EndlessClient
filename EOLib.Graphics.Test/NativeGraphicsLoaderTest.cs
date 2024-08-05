@@ -1,10 +1,10 @@
-﻿using Moq;
-using NUnit.Framework;
-using PELoaderLib;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using Moq;
+using NUnit.Framework;
+using PELoaderLib;
 
 namespace EOLib.Graphics.Test
 {

@@ -1,5 +1,5 @@
-﻿using EndlessClient.Rendering.Metadata.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using EndlessClient.Rendering.Metadata.Models;
 
 namespace EndlessClient.Rendering.Metadata
 {

@@ -1,4 +1,5 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Dialogs.Factories;
 using EOLib.Domain.Interact;
@@ -9,7 +10,6 @@ using EOLib.IO;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System;
 using XNAControls;
 
 

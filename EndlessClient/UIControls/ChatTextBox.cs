@@ -1,4 +1,5 @@
-﻿using EndlessClient.Content;
+﻿using System;
+using EndlessClient.Content;
 using EndlessClient.Rendering;
 using EOLib;
 using EOLib.Graphics;
@@ -7,7 +8,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.Input.InputListeners;
 using Optional;
-using System;
 using XNAControls;
 
 namespace EndlessClient.UIControls

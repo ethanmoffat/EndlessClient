@@ -1,4 +1,7 @@
-﻿using EndlessClient.Controllers;
+﻿using System;
+using System.Diagnostics;
+using System.Linq;
+using EndlessClient.Controllers;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD;
 using EndlessClient.Input;
@@ -12,9 +15,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Optional;
-using System;
-using System.Diagnostics;
-using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Rendering
@@ -80,7 +80,7 @@ namespace EndlessClient.Rendering
             _contextMenuProvider = contextMenuProvider;
 
             SingleCursorFrameArea = new Rectangle(0, 0,
-                                                  _mouseCursorTexture.Width/(int) CursorIndex.NumberOfFramesInSheet,
+                                                  _mouseCursorTexture.Width / (int)CursorIndex.NumberOfFramesInSheet,
                                                   _mouseCursorTexture.Height);
             DrawArea = SingleCursorFrameArea;
 
@@ -258,7 +258,7 @@ namespace EndlessClient.Rendering
             {
                 spriteBatch.Draw(_mouseCursorTexture,
                                  DrawPosition + additionalOffset,
-                                 new Rectangle(SingleCursorFrameArea.Width*(int) _cursorIndex,
+                                 new Rectangle(SingleCursorFrameArea.Width * (int)_cursorIndex,
                                                0,
                                                SingleCursorFrameArea.Width,
                                                SingleCursorFrameArea.Height),

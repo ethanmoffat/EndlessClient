@@ -11,14 +11,14 @@ namespace EndlessClient.Dialogs
     {
         public enum QuestStatusIcon
         {
-            None      = 0,
-            Talk      = 1,
-            Item      = 2,
-            Kill      = 3,
-            Step      = 4,
-            Complete  = 5,
-            None2     = 6, // ?
-            None3     = 7, // ?
+            None = 0,
+            Talk = 1,
+            Item = 2,
+            Kill = 3,
+            Step = 4,
+            Complete = 5,
+            None2 = 6, // ?
+            None3 = 7, // ?
         };
 
         private static readonly Vector2 _firstIconPosition = new Vector2(6, 0);

@@ -1,5 +1,5 @@
-﻿using AutomaticTypeMapper;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using AutomaticTypeMapper;
 
 namespace EOLib.Domain.Party
 {
@@ -8,7 +8,7 @@ namespace EOLib.Domain.Party
         List<PartyMember> Members { get; }
     }
 
-    public  interface IPartyDataProvider
+    public interface IPartyDataProvider
     {
         IReadOnlyList<PartyMember> Members { get; }
     }

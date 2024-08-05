@@ -1,4 +1,6 @@
-﻿using EndlessClient.Controllers;
+﻿using System;
+using System.Threading.Tasks;
+using EndlessClient.Controllers;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.Input;
 using EndlessClient.Rendering;
@@ -11,8 +13,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Moffat.EndlessOnline.SDK.Protocol;
-using System;
-using System.Threading.Tasks;
 using XNAControls;
 
 namespace EndlessClient.UIControls
@@ -44,7 +44,7 @@ namespace EndlessClient.UIControls
         {
             _characterIndex = characterIndex;
             _gfxManager = gfxManager;
-            DrawPosition = new Vector2(334, 36 + characterIndex*124);
+            DrawPosition = new Vector2(334, 36 + characterIndex * 124);
 
             _loginButton = new XNAButton(dialogButtonService.SmallButtonSheet,
                 new Vector2(161, 57),
@@ -204,7 +204,7 @@ namespace EndlessClient.UIControls
         private ISpriteSheet CreateAdminGraphic(AdminLevel adminLevel)
         {
             var adminGraphic = _gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 22);
-            
+
             switch (adminLevel)
             {
                 case AdminLevel.Player:

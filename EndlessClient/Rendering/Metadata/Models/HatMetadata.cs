@@ -1,13 +1,14 @@
-﻿namespace EndlessClient.Rendering.Metadata.Models;
-
-public enum HatMaskType
+﻿namespace EndlessClient.Rendering.Metadata.Models
 {
-    Standard,
-    FaceMask,
-    HideHair
-}
+    public enum HatMaskType
+    {
+        Standard,
+        FaceMask,
+        HideHair
+    }
 
-public record HatMetadata(HatMaskType ClipMode) : IGFXMetadata
-{
-    public static HatMetadata Default { get; } = new HatMetadata(HatMaskType.Standard);
+    public record HatMetadata(HatMaskType ClipMode) : IGFXMetadata
+    {
+        public static HatMetadata Default { get; } = new HatMetadata(HatMaskType.Standard);
+    }
 }

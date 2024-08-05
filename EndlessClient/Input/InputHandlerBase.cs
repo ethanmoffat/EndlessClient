@@ -1,9 +1,9 @@
-﻿using EndlessClient.GameExecution;
+﻿using System;
+using System.Linq;
+using EndlessClient.GameExecution;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework.Input;
 using Optional;
-using System;
-using System.Linq;
 
 namespace EndlessClient.Input
 {

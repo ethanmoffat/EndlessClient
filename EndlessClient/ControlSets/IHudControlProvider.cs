@@ -1,10 +1,10 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Panels;
 using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
 
 namespace EndlessClient.ControlSets
 {
@@ -33,7 +33,7 @@ namespace EndlessClient.ControlSets
         {
             get
             {
-                if(!IsInGame)
+                if (!IsInGame)
                     throw new InvalidOperationException("Not currently in game, in game control set does not exist");
 
                 return (InGameControlSet)_controlSetProvider.CurrentControlSet;

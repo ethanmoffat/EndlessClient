@@ -1,7 +1,6 @@
 ﻿using System;
-using AutomaticTypeMapper;
-
 using System.Runtime.Versioning;
+using AutomaticTypeMapper;
 
 #if !LINUX && !OSX
 using System.Windows.Forms;

@@ -1,10 +1,10 @@
-﻿using EOLib.Graphics;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Optional;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace EndlessClient.Rendering
 {
@@ -96,14 +96,14 @@ namespace EndlessClient.Rendering
             if (_isMiss)
             {
                 var xPos = _parentReference.HorizontalCenter - (_numberSourceRectangles[0].Width / 2f);
-                var yPos = _parentReference.NameLabelY - _frameOffset - _healthBarBackgroundSource.Height*2f;
+                var yPos = _parentReference.NameLabelY - _frameOffset - _healthBarBackgroundSource.Height * 2f;
                 _damageCounterPosition = new Vector2(xPos, yPos);
             }
             else
             {
                 var digitCount = _numberSourceRectangles.Count;
                 var xPos = _parentReference.HorizontalCenter - (digitCount * DigitWidth / 2f);
-                var yPos = _parentReference.NameLabelY - _frameOffset - _healthBarBackgroundSource.Height*2f;
+                var yPos = _parentReference.NameLabelY - _frameOffset - _healthBarBackgroundSource.Height * 2f;
                 _damageCounterPosition = new Vector2(xPos, yPos);
             }
         }
@@ -115,7 +115,7 @@ namespace EndlessClient.Rendering
             var numberNdx = 0;
             foreach (var numberSource in _numberSourceRectangles)
             {
-                spriteBatch.Draw(_sourceTexture, _damageCounterPosition + new Vector2(numberNdx*DigitWidth, 0), numberSource, Color.White);
+                spriteBatch.Draw(_sourceTexture, _damageCounterPosition + new Vector2(numberNdx * DigitWidth, 0), numberSource, Color.White);
                 numberNdx++;
             }
 
@@ -131,7 +131,7 @@ namespace EndlessClient.Rendering
             for (int i = 0; i < digits.Length; ++i)
             {
                 int next = int.Parse($"{digits[i]}");
-                yield return new Rectangle(next*DigitWidth, yCoord, 8, 11);
+                yield return new Rectangle(next * DigitWidth, yCoord, 8, 11);
             }
         }
 

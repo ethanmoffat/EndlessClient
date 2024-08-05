@@ -6,7 +6,7 @@ namespace EOLib.IO.Map
 {
     public class Matrix<T> : IReadOnlyMatrix<T>
     {
-        private static readonly Matrix<T> _empty = new Matrix<T>(new T[0,0]);
+        private static readonly Matrix<T> _empty = new Matrix<T>(new T[0, 0]);
         public static Matrix<T> Empty => _empty;
 
         private readonly T[,] _arr;
@@ -28,7 +28,7 @@ namespace EOLib.IO.Map
         {
             _default = defaultValue;
             Fill(defaultValue);
-        } 
+        }
 
         public Matrix(IReadOnlyMatrix<T> other)
             : this(new T[other.Rows, other.Cols])

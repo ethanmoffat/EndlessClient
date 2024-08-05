@@ -9,7 +9,6 @@ using EOLib.Graphics;
 using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-
 using DomainCharacter = EOLib.Domain.Character.Character;
 
 namespace EndlessClient.Rendering.MapEntityRenderers

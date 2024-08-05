@@ -6,7 +6,7 @@
         /// This value is used to 'seed' the CRC. It is a polynomial in integer format. It is set to a default when CRC32 is instantiated.
         /// </summary>
         public static uint Magic { get; set; }
-        
+
         //lookup table for the CRC
         private static uint[] lookup = new uint[256];
 

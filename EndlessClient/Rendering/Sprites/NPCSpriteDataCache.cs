@@ -1,10 +1,10 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using AutomaticTypeMapper;
 using EOLib;
 using EOLib.Domain.NPC;
 using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace EndlessClient.Rendering.Sprites
 {

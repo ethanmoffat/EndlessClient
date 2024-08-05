@@ -2,8 +2,8 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using NUnit.Framework;
 using Moq;
+using NUnit.Framework;
 using PELoaderLib;
 
 namespace EOLib.Graphics.Test
@@ -63,7 +63,7 @@ namespace EOLib.Graphics.Test
 
             _collection.Dispose();
 
-            foreach(var file in _collection.Values)
+            foreach (var file in _collection.Values)
                 Mock.Get(file).Verify(x => x.Dispose(), Times.Once);
         }
 

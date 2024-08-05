@@ -1,4 +1,7 @@
-﻿using EndlessClient.GameExecution;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Metadata;
@@ -11,9 +14,6 @@ using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace EndlessClient.Test
 {
@@ -97,9 +97,9 @@ namespace EndlessClient.Test
 
             foreach (var displayState in _allDisplayStates)
             {
-                var characterRenderer = _renderersForDifferentStates[(int) displayState];
-                characterRenderer.SetAbsoluteScreenPosition(50 + 640 / 4 * ((int) displayState % 4),
-                                                            30 + 480 / 3 * ((int) displayState / 4));
+                var characterRenderer = _renderersForDifferentStates[(int)displayState];
+                characterRenderer.SetAbsoluteScreenPosition(50 + 640 / 4 * ((int)displayState % 4),
+                                                            30 + 480 / 3 * ((int)displayState / 4));
             }
 
             base.LoadContent();
@@ -183,12 +183,12 @@ namespace EndlessClient.Test
                 {
                     _baseProperties = _baseProperties.WithWeaponGraphic(_lastGraphic);
                 }
-                
+
                 _isBowEquipped = !_isBowEquipped;
                 update = true;
             }
 
-            if(update)
+            if (update)
                 RefreshDisplayedCharacters();
 
             _previousState = _currentState;
@@ -196,7 +196,7 @@ namespace EndlessClient.Test
             var now = DateTime.Now;
             if ((now - _lastWalk).TotalMilliseconds > 500)
             {
-                var rend = _renderersForDifferentStates[(int) DisplayState.WalkingAnimation];
+                var rend = _renderersForDifferentStates[(int)DisplayState.WalkingAnimation];
                 rend.Character = rend.Character.WithRenderProperties(rend.Character.RenderProperties.WithNextWalkFrame(false));
                 _lastWalk = now;
             }
@@ -264,7 +264,7 @@ namespace EndlessClient.Test
             foreach (var displayState in _allDisplayStates)
             {
                 var props = GetRenderPropertiesForState(displayState);
-                _renderersForDifferentStates[(int) displayState].Character = Character.Default.WithRenderProperties(props);
+                _renderersForDifferentStates[(int)displayState].Character = Character.Default.WithRenderProperties(props);
             }
         }
 

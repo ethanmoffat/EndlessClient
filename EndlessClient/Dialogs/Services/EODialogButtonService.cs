@@ -34,16 +34,16 @@ namespace EndlessClient.Dialogs.Services
 
         public Rectangle GetSmallDialogButtonOutSource(SmallButton whichButton)
         {
-            var widthDelta = SmallButtonSheet.Width/2;
-            var heightDelta = SmallButtonSheet.Height/(int) SmallButton.NUM_BUTTONS;
-            return new Rectangle(0, heightDelta*(int) whichButton, widthDelta, heightDelta);
+            var widthDelta = SmallButtonSheet.Width / 2;
+            var heightDelta = SmallButtonSheet.Height / (int)SmallButton.NUM_BUTTONS;
+            return new Rectangle(0, heightDelta * (int)whichButton, widthDelta, heightDelta);
         }
 
         public Rectangle GetSmallDialogButtonOverSource(SmallButton whichButton)
         {
-            var widthDelta = SmallButtonSheet.Width/2;
-            var heightDelta = SmallButtonSheet.Height/(int) SmallButton.NUM_BUTTONS;
-            return new Rectangle(widthDelta, heightDelta*(int) whichButton, widthDelta, heightDelta);
+            var widthDelta = SmallButtonSheet.Width / 2;
+            var heightDelta = SmallButtonSheet.Height / (int)SmallButton.NUM_BUTTONS;
+            return new Rectangle(widthDelta, heightDelta * (int)whichButton, widthDelta, heightDelta);
         }
     }
 

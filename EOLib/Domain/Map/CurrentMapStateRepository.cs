@@ -1,7 +1,7 @@
-using AutomaticTypeMapper;
-using Optional;
 using System;
 using System.Collections.Generic;
+using AutomaticTypeMapper;
+using Optional;
 
 namespace EOLib.Domain.Map
 {
@@ -21,7 +21,7 @@ namespace EOLib.Domain.Map
 
         MapEntityCollectionHashSet<MapItem> MapItems { get; set; }
 
-        HashSet<Warp> OpenDoors { get; set;  }
+        HashSet<Warp> OpenDoors { get; set; }
 
         HashSet<Warp> PendingDoors { get; set; }
 

@@ -1,4 +1,8 @@
-﻿using EndlessClient.GameExecution;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using EndlessClient.GameExecution;
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.NPC;
@@ -7,10 +11,6 @@ using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
 using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 
 namespace EndlessClient.Network
 {
@@ -37,7 +37,7 @@ namespace EndlessClient.Network
                                         INPCRendererProvider npcRendererProvider,
                                         ICharacterRendererProvider characterRendererProvider,
                                         IUnknownEntitiesRequestActions unknownEntitiesRequestActions)
-            : base((Game) gameProvider.Game)
+            : base((Game)gameProvider.Game)
         {
             _clientWindowSizeProvider = clientWindowSizeProvider;
             _characterProvider = characterProvider;

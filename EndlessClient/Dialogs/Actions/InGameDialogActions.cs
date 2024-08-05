@@ -1,4 +1,7 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD;
@@ -8,9 +11,6 @@ using EOLib.Domain.Interact.Shop;
 using EOLib.Domain.Interact.Skill;
 using EOLib.Localization;
 using Optional;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Dialogs.Actions
@@ -70,7 +70,7 @@ namespace EndlessClient.Dialogs.Actions
                                    IHelpDialogFactory helpDialogFactory,
                                    ISfxPlayer sfxPlayer,
                                    IStatusLabelSetter statusLabelSetter,
-                                   IBarberDialogFactory barberDialogFactory)               
+                                   IBarberDialogFactory barberDialogFactory)
         {
             _friendIgnoreListDialogFactory = friendIgnoreListDialogFactory;
             _paperdollDialogFactory = paperdollDialogFactory;
@@ -451,7 +451,7 @@ namespace EndlessClient.Dialogs.Actions
                 UseDefaultDialogSounds(dlg);
             });
         }
-        
+
         public void ShowBarberDialog()
         {
             _activeDialogRepository.BarberDialog.MatchNone(() =>

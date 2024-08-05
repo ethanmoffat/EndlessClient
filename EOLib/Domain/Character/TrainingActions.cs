@@ -1,7 +1,7 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using AutomaticTypeMapper;
 using EOLib.Net.Communication;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
-using System;
 
 namespace EOLib.Domain.Character
 {

@@ -1,7 +1,7 @@
-﻿using AutomaticTypeMapper;
-using EOLib.Domain.Map;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using AutomaticTypeMapper;
+using EOLib.Domain.Map;
 
 namespace EndlessClient.Rendering.NPC
 {

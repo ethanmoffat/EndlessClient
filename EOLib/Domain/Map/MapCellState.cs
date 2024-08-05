@@ -1,6 +1,6 @@
-﻿using EOLib.IO.Map;
+﻿using System.Collections.Generic;
+using EOLib.IO.Map;
 using Optional;
-using System.Collections.Generic;
 
 namespace EOLib.Domain.Map
 {

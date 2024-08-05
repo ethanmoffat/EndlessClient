@@ -1,8 +1,8 @@
-﻿using EOLib.IO.Pub;
-using EOLib.IO.Services.Serializers;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System;
+using EOLib.IO.Pub;
+using EOLib.IO.Services.Serializers;
 
 namespace EOLib.IO.Services
 {

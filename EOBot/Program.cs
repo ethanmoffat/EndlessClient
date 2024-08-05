@@ -1,4 +1,8 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using AutomaticTypeMapper;
 using EOBot.Interpreter;
 using EOLib;
 using EOLib.Domain.Character;
@@ -9,10 +13,6 @@ using EOLib.Domain.NPC;
 using EOLib.Domain.Spells;
 using EOLib.IO.Repositories;
 using Optional;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace EOBot
 {

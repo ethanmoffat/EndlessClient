@@ -1,4 +1,5 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
@@ -8,7 +9,6 @@ using EOLib.Net.Handlers;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional.Collections;
-using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.NPC
 {

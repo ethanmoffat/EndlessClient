@@ -1,5 +1,5 @@
-﻿using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System;
+﻿using System;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOLib.Domain.Map
 {
@@ -47,7 +47,7 @@ namespace EOLib.Domain.Map
             if (!(obj is MapCoordinate))
                 return false;
 
-            var other = (MapCoordinate) obj;
+            var other = (MapCoordinate)obj;
             return X == other.X && Y == other.Y;
         }
 

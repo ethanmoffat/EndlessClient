@@ -1,4 +1,6 @@
-﻿using EndlessClient.Rendering.Factories;
+﻿using System.Collections.Generic;
+using System.Linq;
+using EndlessClient.Rendering.Factories;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
@@ -7,8 +9,6 @@ using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Collections.Generic;
-using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Rendering.Map
@@ -146,7 +146,7 @@ namespace EndlessClient.Rendering.Map
                 case TileSpec.ChairUpLeft:
                 case TileSpec.Chest:
                 case TileSpec.JammedDoor:
-                    // Unknown TileSpecs 10-15 have been confirmed in the vanilla client to show a Blue ! on the minimap
+                // Unknown TileSpecs 10-15 have been confirmed in the vanilla client to show a Blue ! on the minimap
                 case (TileSpec)10:
                 case (TileSpec)11:
                 case (TileSpec)12:
@@ -273,8 +273,8 @@ namespace EndlessClient.Rendering.Map
 
         private Vector2 GetCharacterOffset()
         {
-            var tileWidthFactor = TileWidth/2;
-            var tileHeightFactor = TileHeight/2;
+            var tileWidthFactor = TileWidth / 2;
+            var tileHeightFactor = TileHeight / 2;
 
             var (cx, cy) = (_characterProvider.MainCharacter.X, _characterProvider.MainCharacter.Y);
             return new Vector2(cx * tileWidthFactor - cy * tileWidthFactor, cx * tileHeightFactor + cy * tileHeightFactor);

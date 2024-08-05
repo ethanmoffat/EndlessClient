@@ -1,10 +1,9 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
-using System;
-
 using DomainNPC = EOLib.Domain.NPC.NPC;
 
 namespace EndlessClient.Rendering
@@ -141,7 +140,7 @@ namespace EndlessClient.Rendering
                 var offsetX = _renderOffsetCalculator.CalculateOffsetX(_characterProvider.MainCharacter.RenderProperties);
                 var offsetY = _renderOffsetCalculator.CalculateOffsetY(_characterProvider.MainCharacter.RenderProperties);
 
-                var gridX = (int)Math.Round((msX + 2 * msY - (ViewportWidthFactor*2) + offsetX + 2 * offsetY) / 64.0);
+                var gridX = (int)Math.Round((msX + 2 * msY - (ViewportWidthFactor * 2) + offsetX + 2 * offsetY) / 64.0);
                 var gridY = (int)Math.Round((msY - gridX * 16 - ViewportHeightFactor + offsetY) / 16.0);
 
                 return new MapCoordinate(gridX, gridY);

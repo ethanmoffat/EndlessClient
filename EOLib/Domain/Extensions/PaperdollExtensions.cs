@@ -1,6 +1,6 @@
-﻿using EOLib.IO;
+﻿using System.Collections.Generic;
+using EOLib.IO;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System.Collections.Generic;
 
 namespace EOLib.Domain.Extensions
 {
