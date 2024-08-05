@@ -1,8 +1,8 @@
-﻿using EOLib.IO.Pub;
-using NUnit.Framework;
-using System;
+﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using EOLib.IO.Pub;
+using NUnit.Framework;
 
 namespace EOLib.IO.Test.Pub
 {

@@ -1,10 +1,10 @@
-﻿using Moffat.EndlessOnline.SDK.Protocol.Net;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
 
 namespace EOLib.Net.Handlers
 {
     public abstract class DefaultAsyncPacketHandler<TPacket> : IPacketHandler<TPacket>
-        where TPacket: IPacket
+        where TPacket : IPacket
     {
         public abstract PacketFamily Family { get; }
 

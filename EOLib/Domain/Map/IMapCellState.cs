@@ -1,7 +1,7 @@
-﻿using EOLib.Domain.Character;
+﻿using System.Collections.Generic;
+using EOLib.Domain.Character;
 using EOLib.IO.Map;
 using Optional;
-using System.Collections.Generic;
 
 namespace EOLib.Domain.Map
 {
@@ -9,7 +9,7 @@ namespace EOLib.Domain.Map
     {
         bool InBounds { get; }
 
-        MapCoordinate Coordinate { get;  }
+        MapCoordinate Coordinate { get; }
 
         IReadOnlyList<MapItem> Items { get; }
 
@@ -20,7 +20,7 @@ namespace EOLib.Domain.Map
         Option<Character.Character> Character { get; }
 
         IReadOnlyList<Character.Character> Characters { get; }
-        
+
         Option<ChestKey> ChestKey { get; }
 
         Option<Warp> Warp { get; }

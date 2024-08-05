@@ -1,3 +1,4 @@
+using System.Linq;
 using AutomaticTypeMapper;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Chat;
@@ -5,7 +6,6 @@ using EndlessClient.Rendering.NPC;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Party;
 using Optional;
-using System.Linq;
 
 namespace EndlessClient.HUD.Chat
 {

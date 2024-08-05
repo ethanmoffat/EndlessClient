@@ -41,7 +41,7 @@ namespace EOLib.IO.Services.Serializers
                 .WithDestinationMapX(_numberEncoderService.DecodeNumber(data[3]))
                 .WithDestinationMapY(_numberEncoderService.DecodeNumber(data[4]))
                 .WithLevelRequirement(_numberEncoderService.DecodeNumber(data[5]))
-                .WithDoorType((DoorSpec) _numberEncoderService.DecodeNumber(data[6], data[7]));
+                .WithDoorType((DoorSpec)_numberEncoderService.DecodeNumber(data[6], data[7]));
         }
     }
 }

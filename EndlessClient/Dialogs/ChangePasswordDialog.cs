@@ -1,4 +1,6 @@
-﻿using EndlessClient.Content;
+﻿using System;
+using System.Linq;
+using EndlessClient.Content;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
@@ -10,8 +12,6 @@ using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Optional;
-using System;
-using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Dialogs

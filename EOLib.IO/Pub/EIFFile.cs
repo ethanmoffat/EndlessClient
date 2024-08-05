@@ -12,7 +12,7 @@ namespace EOLib.IO.Pub
         }
 
         public EIFFile(int id, IReadOnlyList<int> checksum, int totalLength, List<EIFRecord> data)
-            : base (id, checksum, totalLength, data)
+            : base(id, checksum, totalLength, data)
         {
         }
 

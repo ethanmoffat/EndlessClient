@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using NUnit.Framework;
 using Microsoft.Xna.Framework;
+using NUnit.Framework;
 
 namespace EOLib.Graphics.Test
 {

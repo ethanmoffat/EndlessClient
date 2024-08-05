@@ -1,8 +1,8 @@
-﻿using Amadevus.RecordGenerator;
+﻿using System;
+using Amadevus.RecordGenerator;
 using EOLib.IO.Map;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
-using System;
 
 namespace EOLib.Domain.Map
 {

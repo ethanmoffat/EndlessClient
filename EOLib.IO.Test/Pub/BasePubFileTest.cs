@@ -1,7 +1,7 @@
-﻿using EOLib.IO.Pub;
-using NUnit.Framework;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using EOLib.IO.Pub;
+using NUnit.Framework;
 
 namespace EOLib.IO.Test.Pub
 {

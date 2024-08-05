@@ -1,4 +1,7 @@
-﻿using EndlessClient.Audio;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using EndlessClient.Audio;
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
@@ -20,9 +23,6 @@ using Moffat.EndlessOnline.SDK.Protocol.Net;
 using MonoGame.Extended.Input;
 using MonoGame.Extended.Input.InputListeners;
 using Optional;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Rendering
@@ -78,7 +78,7 @@ namespace EndlessClient.Rendering
                                    IContextMenuRepository contextMenuRepository,
                                    IPartyDataProvider partyDataProvider,
                                    ICharacterRenderer characterRenderer,
-                                   ICurrentMapStateProvider currentMapStateProvider, 
+                                   ICurrentMapStateProvider currentMapStateProvider,
                                    IEOMessageBoxFactory messageBoxFactory,
                                    IClientWindowSizeProvider clientWindowSizeProvider,
                                    ISfxPlayer sfxPlayer)

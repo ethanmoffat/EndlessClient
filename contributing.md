@@ -1,4 +1,4 @@
-# Contributing
+﻿# Contributing
 
 This is a general guide for contributing to the EndlessClient project. Pull requests that do not meet the minimum of these requirements will not be accepted, and you will be referred to this document. This is an evolving document and is subject to change without notice.
 
@@ -29,6 +29,12 @@ Here are the style requirements for this project. This is the bare minimum you m
     - Group statements together for logical cohesion
     - Put empty lines around functions, properties, etc.
 - Avoid use of explicit `this` or `base` keywords
+
+> ⚠️ If you do not adhere to the above code style, your build may fail locally
+>
+> To resolve build errors due to formatting, run the following commands:
+> - Windows: `dotnet format EndlessClient.sln`
+> - Linux: `dotnet format EndlessClient.Linux.sln`
 
 ### Naming
 

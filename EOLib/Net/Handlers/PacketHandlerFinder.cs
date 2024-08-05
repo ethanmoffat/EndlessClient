@@ -9,7 +9,7 @@ namespace EOLib.Net.Handlers
     public class PacketHandlerFinder : IPacketHandlerFinder
     {
         private readonly IReadOnlyDictionary<FamilyActionPair, IPacketHandler> _handlers;
- 
+
         public PacketHandlerFinder(IPacketHandlerProvider packetHandlerProvider)
         {
             _handlers = packetHandlerProvider.PacketHandlers

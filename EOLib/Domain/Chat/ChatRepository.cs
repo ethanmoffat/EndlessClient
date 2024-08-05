@@ -61,7 +61,7 @@ namespace EOLib.Domain.Chat
         public void ResetState()
         {
             var chat = new Dictionary<ChatTab, IList<ChatData>>();
-            foreach (var tab in (ChatTab[]) Enum.GetValues(typeof(ChatTab)))
+            foreach (var tab in (ChatTab[])Enum.GetValues(typeof(ChatTab)))
                 chat.Add(tab, new LoggingList(_configurationProvider, _chatLoggerProvider, _chatProcessor));
 
             AllChat = chat;

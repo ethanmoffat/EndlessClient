@@ -1,4 +1,5 @@
-﻿using EndlessClient.Audio;
+﻿using System;
+using EndlessClient.Audio;
 using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Panels;
 using EOLib.Domain.Character;
@@ -8,7 +9,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.Input.InputListeners;
-using System;
 using XNAControls;
 
 namespace EndlessClient.HUD.Spells
@@ -33,7 +33,7 @@ namespace EndlessClient.HUD.Spells
             set
             {
                 _displaySlot = value;
-                DrawPosition = GetDisplayPosition(_displaySlot);  
+                DrawPosition = GetDisplayPosition(_displaySlot);
             }
         }
 
