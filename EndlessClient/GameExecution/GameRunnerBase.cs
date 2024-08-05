@@ -1,12 +1,12 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.IO;
+using System.Net;
 using AutomaticTypeMapper;
 using EndlessClient.Initialization;
 using EOLib.Config;
 using EOLib.Graphics;
 using EOLib.Localization;
-using System;
-using System.Net;
 
 #if !LINUX && !OSX
 using System.Windows.Forms;
@@ -60,7 +60,7 @@ namespace EndlessClient.GameExecution
             catch (LibraryLoadException lle)
             {
                 var message =
-                    $"There was an error loading GFX{(int) lle.WhichGFX:000}.EGF : {lle.WhichGFX}. Place all .GFX files in .\\gfx\\. The error message is:\n\n\"{lle.Message}\"";
+                    $"There was an error loading GFX{(int)lle.WhichGFX:000}.EGF : {lle.WhichGFX}. Place all .GFX files in .\\gfx\\. The error message is:\n\n\"{lle.Message}\"";
                 ShowErrorMessage(message, "GFX Load Error");
                 return false;
             }
@@ -76,7 +76,7 @@ namespace EndlessClient.GameExecution
 
                     i++;
                 }
-                else if(string.Equals(arg, "--port") && i < _args.Length - 1)
+                else if (string.Equals(arg, "--port") && i < _args.Length - 1)
                 {
                     var port = _args[i + 1];
 

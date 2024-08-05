@@ -1,8 +1,8 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EndlessClient.HUD.Panels;
 using EOLib;
 using EOLib.IO.Map;
-using System.Collections.Generic;
 
 namespace EndlessClient.HUD.Inventory
 {

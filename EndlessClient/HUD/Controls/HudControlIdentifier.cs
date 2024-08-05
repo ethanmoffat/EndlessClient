@@ -39,7 +39,7 @@ namespace EndlessClient.HUD.Controls
         PartyPanel,
 
         MacroButton,
-        
+
         SettingsButton,
         SettingsPanel,
 

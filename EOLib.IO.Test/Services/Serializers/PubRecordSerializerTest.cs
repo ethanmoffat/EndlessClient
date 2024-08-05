@@ -1,8 +1,8 @@
-﻿using EOLib.IO.Pub;
+﻿using System.Collections.Generic;
+using EOLib.IO.Pub;
 using EOLib.IO.Services;
 using EOLib.IO.Services.Serializers;
 using NUnit.Framework;
-using System.Collections.Generic;
 
 namespace EOLib.IO.Test.Services.Serializers
 {

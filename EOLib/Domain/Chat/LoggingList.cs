@@ -1,8 +1,8 @@
-﻿using EOLib.Config;
-using EOLib.Localization;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using EOLib.Config;
+using EOLib.Localization;
 
 namespace EOLib.Domain.Chat
 {

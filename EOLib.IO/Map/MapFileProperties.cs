@@ -195,4 +195,3 @@ namespace EOLib.IO.Map
         }
     }
 }
-

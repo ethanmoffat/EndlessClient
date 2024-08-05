@@ -1,11 +1,11 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Threading.Tasks;
+using AutomaticTypeMapper;
 using EndlessClient.Dialogs.Factories;
 using EOLib.Domain.Character;
 using EOLib.Localization;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
-using System;
-using System.Threading.Tasks;
 using XNAControls;
 
 namespace EndlessClient.Dialogs.Actions

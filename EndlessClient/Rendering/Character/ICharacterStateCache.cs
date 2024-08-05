@@ -1,6 +1,5 @@
-﻿using Optional;
-using System.Collections.Generic;
-
+﻿using System.Collections.Generic;
+using Optional;
 using DomainCharacter = EOLib.Domain.Character.Character;
 
 namespace EndlessClient.Rendering.Character

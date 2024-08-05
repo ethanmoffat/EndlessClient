@@ -39,7 +39,7 @@ namespace EndlessClient.Rendering.Chat
         public override bool Equals(object obj)
         {
             if (!(obj is ChatRenderable)) return false;
-            var other = (ChatRenderable) obj;
+            var other = (ChatRenderable)obj;
 
             return other.Data.Equals(Data)
                 && other._partialMessage.Equals(_partialMessage);
@@ -48,8 +48,8 @@ namespace EndlessClient.Rendering.Chat
         public override int GetHashCode()
         {
             var hash = 397 ^ Data.GetHashCode();
-            hash = (hash*397) ^ DisplayIndex.GetHashCode();
-            hash = (hash*397) ^ _partialMessage.GetHashCode();
+            hash = (hash * 397) ^ DisplayIndex.GetHashCode();
+            hash = (hash * 397) ^ _partialMessage.GetHashCode();
             return hash;
         }
 
@@ -57,7 +57,7 @@ namespace EndlessClient.Rendering.Chat
         {
             spriteBatch.Begin();
 
-            var pos = parentPanel.DrawPosition + new Vector2(0, DisplayIndex*13);
+            var pos = parentPanel.DrawPosition + new Vector2(0, DisplayIndex * 13);
             spriteBatch.Draw(_nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 32, true),
                              new Vector2(pos.X + ICON_GRAPHIC_X_OFF, pos.Y + HeaderYOffset),
                              GetChatIconRectangle(Data.Icon),

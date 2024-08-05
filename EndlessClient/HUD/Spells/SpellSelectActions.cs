@@ -1,9 +1,9 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.Domain.Party;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
 using Optional;
-using System.Linq;
 
 namespace EndlessClient.HUD.Spells
 {

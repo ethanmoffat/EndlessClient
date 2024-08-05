@@ -47,7 +47,7 @@ namespace EOLib.IO.Pub
             ID = id;
             _names = names;
             _propertyBag = propertyBag;
-            
+
             _dataSize = new Lazy<int>(() => _propertyBag.Values
                 .GroupBy(x => x.Offset)
                 .Select(x => x.First().Length)
@@ -116,7 +116,7 @@ namespace EOLib.IO.Pub
                 var namesMatch = true;
                 for (int i = 0; i < NumberOfNames; i++)
                     namesMatch &= Names[i] == pr.Names[i];
-                
+
                 return namesMatch && Bag.Intersect(pr.Bag).Count() == Bag.Count;
             }
 

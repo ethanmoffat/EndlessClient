@@ -1,7 +1,7 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.Net.Communication;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
-using System.Linq;
 
 namespace EOLib.Domain.Map
 {

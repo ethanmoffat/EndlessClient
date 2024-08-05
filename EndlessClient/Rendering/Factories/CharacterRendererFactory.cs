@@ -69,7 +69,7 @@ namespace EndlessClient.Rendering.Factories
         public ICharacterRenderer CreateCharacterRenderer(EOLib.Domain.Character.Character character, bool isUiControl)
         {
             return new CharacterRenderer(
-                (Game) _gameProvider.Game,
+                (Game)_gameProvider.Game,
                 _renderTargetFactory,
                 _healthBarRendererFactory,
                 _chatBubbleFactory,

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
@@ -7,7 +8,6 @@ using EOLib.Domain.Notifiers;
 using EOLib.Net.Handlers;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Avatar
 {
@@ -21,7 +21,7 @@ namespace EOLib.PacketHandlers.Avatar
         private readonly ICharacterRepository _characterRepository;
 
         public override PacketFamily Family => PacketFamily.Avatar;
-        
+
         public override PacketAction Action => PacketAction.Reply;
 
         public AvatarReplyHandler(IPlayerInfoProvider playerInfoProvider,

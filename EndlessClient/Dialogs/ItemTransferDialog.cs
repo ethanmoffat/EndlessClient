@@ -1,4 +1,5 @@
-﻿using EndlessClient.Content;
+﻿using System;
+using EndlessClient.Content;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.HUD.Chat;
 using EOLib;
@@ -7,7 +8,6 @@ using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.Input.InputListeners;
-using System;
 using XNAControls;
 
 namespace EndlessClient.Dialogs
@@ -68,7 +68,7 @@ namespace EndlessClient.Dialogs
             }
 
             _okButton = new XNAButton(eoDialogButtonService.SmallButtonSheet,
-                new Vector2(60, 125), 
+                new Vector2(60, 125),
                 eoDialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Ok),
                 eoDialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Ok))
             {
@@ -219,5 +219,4 @@ namespace EndlessClient.Dialogs
             return name.Contains("DIALOG_TRANSFER");
         }
     }
-
 }

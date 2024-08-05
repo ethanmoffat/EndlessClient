@@ -1,4 +1,6 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Collections.Generic;
+using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.NPC;
@@ -6,8 +8,6 @@ using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 using Optional;
 using Optional.Collections;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace EOLib.Domain.Map
 {
@@ -40,7 +40,7 @@ namespace EOLib.Domain.Map
             var sign = CurrentMap.Signs.FirstOrDefault(s => s.X == x && s.Y == y);
 
             var characters = new List<Character.Character>();
-            if (_mapStateProvider.Characters.ContainsKey(new MapCoordinate(x,y)))
+            if (_mapStateProvider.Characters.ContainsKey(new MapCoordinate(x, y)))
                 characters = _mapStateProvider.Characters[new MapCoordinate(x, y)].ToList();
             if (_characterProvider.MainCharacter.X == x && _characterProvider.MainCharacter.Y == y)
                 characters.Add(_characterProvider.MainCharacter);
@@ -59,16 +59,16 @@ namespace EOLib.Domain.Map
 
             return new MapCellState
             {
-                InBounds   = true,
+                InBounds = true,
                 Coordinate = new MapCoordinate(x, y),
-                Items      = items,
-                TileSpec   = tileSpec,
-                Warp       = warp.SomeNotNull().Map(w => new Warp(w)),
-                ChestKey   = chest.SomeNotNull(),
-                Sign       = sign.SomeNotNull().Map(s => new Sign(s)),
-                Character  = characters.FirstOrNone(),
+                Items = items,
+                TileSpec = tileSpec,
+                Warp = warp.SomeNotNull().Map(w => new Warp(w)),
+                ChestKey = chest.SomeNotNull(),
+                Sign = sign.SomeNotNull().Map(s => new Sign(s)),
+                Character = characters.FirstOrNone(),
                 Characters = characters,
-                NPC        = npc
+                NPC = npc
             };
         }
 
