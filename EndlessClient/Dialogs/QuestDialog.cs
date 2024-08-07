@@ -1,4 +1,7 @@
-﻿using EndlessClient.Content;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using EndlessClient.Content;
 using EndlessClient.Dialogs.Services;
 using EOLib;
 using EOLib.Domain.Interact.Quest;
@@ -7,9 +10,6 @@ using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 using Optional;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Dialogs

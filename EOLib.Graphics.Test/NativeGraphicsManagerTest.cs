@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using NUnit.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Moq;
-using Microsoft.Xna.Framework;
+using NUnit.Framework;
 
 namespace EOLib.Graphics.Test
 {
@@ -142,7 +142,7 @@ namespace EOLib.Graphics.Test
             FillBitmapWithColor(bmp, Color.Black);
             resultTexture = _nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, requestedResource, true);
 
-            var data = new Microsoft.Xna.Framework.Color[resultTexture.Width*resultTexture.Height];
+            var data = new Microsoft.Xna.Framework.Color[resultTexture.Width * resultTexture.Height];
             resultTexture.GetData(data);
 
             Assert.IsTrue(data.All(x => x.A == 0));
@@ -219,7 +219,7 @@ namespace EOLib.Graphics.Test
 
         private static void FillBitmapWithColor(Memory<byte> image, Color color)
         {
-            for (int i = 54; i < image.Length; i+=4)
+            for (int i = 54; i < image.Length; i += 4)
             {
                 image.Span[i] = color.B;
                 image.Span[i + 1] = color.G;

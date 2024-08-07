@@ -1,6 +1,6 @@
-﻿using EOLib.IO;
+﻿using System;
+using EOLib.IO;
 using Microsoft.Xna.Framework;
-using System;
 
 namespace EndlessClient.Dialogs.Extensions
 {

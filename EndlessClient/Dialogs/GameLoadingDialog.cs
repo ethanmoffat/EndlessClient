@@ -70,7 +70,7 @@ namespace EndlessClient.Dialogs
 
         protected override void OnUpdateControl(GameTime gt)
         {
-            if ((int) (DateTime.Now - _lastBackgroundUpdate).TotalMilliseconds > 500)
+            if ((int)(DateTime.Now - _lastBackgroundUpdate).TotalMilliseconds > 500)
             {
                 _bgSrcIndex = _bgSrcIndex == 3 ? 0 : _bgSrcIndex + 1;
                 _lastBackgroundUpdate = DateTime.Now;

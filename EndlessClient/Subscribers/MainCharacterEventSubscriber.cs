@@ -75,7 +75,7 @@ namespace EndlessClient.Subscribers
         public void JunkItem(int id, int amountRemoved)
         {
             var rec = _pubFileProvider.EIFFile[id];
-            
+
             var chatMessage = $"{_localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED)} {amountRemoved} {rec.Name}";
             _chatRepository.AllChat[ChatTab.System].Add(new ChatData(ChatTab.System, string.Empty, chatMessage, ChatIcon.DownArrow));
 

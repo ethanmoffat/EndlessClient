@@ -23,7 +23,7 @@ namespace EndlessClient.HUD.StatusBars
             _experienceTableProvider = experienceTableProvider;
             DrawArea = new Rectangle(430, 0, _sourceRectangleArea.Width, _sourceRectangleArea.Height);
 
-            _sourceRectangleArea = new Rectangle(_sourceRectangleArea.Width*3 - 1,
+            _sourceRectangleArea = new Rectangle(_sourceRectangleArea.Width * 3 - 1,
                                                  0,
                                                  _sourceRectangleArea.Width + 1,
                                                  _sourceRectangleArea.Height);

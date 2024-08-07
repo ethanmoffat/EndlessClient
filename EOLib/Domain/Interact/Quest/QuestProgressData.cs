@@ -1,6 +1,6 @@
-﻿using Amadevus.RecordGenerator;
+﻿using System;
+using Amadevus.RecordGenerator;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System;
 
 namespace EOLib.Domain.Interact.Quest
 {

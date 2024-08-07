@@ -1,10 +1,10 @@
-﻿using EOLib.Domain.Character;
+﻿using System.Collections.Generic;
+using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Net.Handlers;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Optional.Collections;
-using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Locker
 {

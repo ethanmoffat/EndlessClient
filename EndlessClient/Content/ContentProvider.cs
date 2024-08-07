@@ -1,13 +1,13 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EOLib;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.BitmapFonts;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 
 namespace EndlessClient.Content
 {

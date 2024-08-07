@@ -16,7 +16,7 @@ namespace EOLib.Net.Communication
     public sealed class NetworkClientRepository : INetworkClientProvider, INetworkClientRepository, INetworkClientDisposer
     {
         public INetworkClient NetworkClient { get; set; }
-        
+
         public void Dispose()
         {
             if (NetworkClient != null)

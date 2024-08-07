@@ -1,5 +1,5 @@
-﻿using EOLib.Domain.Character;
-using System;
+﻿using System;
+using EOLib.Domain.Character;
 
 namespace EOLib.Domain.Extensions
 {

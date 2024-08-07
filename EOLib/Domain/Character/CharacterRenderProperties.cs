@@ -7,10 +7,10 @@ namespace EOLib.Domain.Character
     [Record]
     public sealed partial class CharacterRenderProperties
     {
-        public const int MAX_NUMBER_OF_WALK_FRAMES          = 5;
-        public const int MAX_NUMBER_OF_ATTACK_FRAMES        = 3;
+        public const int MAX_NUMBER_OF_WALK_FRAMES = 5;
+        public const int MAX_NUMBER_OF_ATTACK_FRAMES = 3;
         public const int MAX_NUMBER_OF_RANGED_ATTACK_FRAMES = 2;
-        public const int MAX_NUMBER_OF_EMOTE_FRAMES         = 3;
+        public const int MAX_NUMBER_OF_EMOTE_FRAMES = 3;
 
         public CharacterActionState CurrentAction { get; }
 

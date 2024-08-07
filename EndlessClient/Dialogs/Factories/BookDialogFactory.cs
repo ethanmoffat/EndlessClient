@@ -19,7 +19,7 @@ namespace EndlessClient.Dialogs.Factories
                                  IPubFileProvider pubFileProvider,
                                  IPaperdollProvider paperdollProvider)
         {
-            
+
             _nativeGraphicsManager = nativeGraphicsManager;
             _eoDialogButtonService = eoDialogButtonService;
             _pubFileProvider = pubFileProvider;

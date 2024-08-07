@@ -1,12 +1,12 @@
-﻿using EOLib.IO.Pub;
-using EOLib.IO.Services;
-using EOLib.IO.Services.Serializers;
-using NUnit.Framework;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
+using EOLib.IO.Pub;
+using EOLib.IO.Services;
+using EOLib.IO.Services.Serializers;
+using NUnit.Framework;
 
 namespace EOLib.IO.Test.Services.Serializers
 {

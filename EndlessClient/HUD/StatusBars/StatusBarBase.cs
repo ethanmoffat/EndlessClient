@@ -1,4 +1,5 @@
-﻿using EndlessClient.Rendering;
+﻿using System;
+using EndlessClient.Rendering;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
@@ -6,7 +7,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.Input.InputListeners;
 using Optional;
-using System;
 using XNAControls;
 
 namespace EndlessClient.HUD.StatusBars

@@ -1,7 +1,7 @@
-﻿using AutomaticTypeMapper;
-using EOLib.Config;
-using System;
+﻿using System;
 using System.Linq;
+using AutomaticTypeMapper;
+using EOLib.Config;
 
 namespace EOLib.Logger
 {

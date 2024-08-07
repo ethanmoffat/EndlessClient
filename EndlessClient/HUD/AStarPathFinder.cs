@@ -1,9 +1,9 @@
-﻿using AutomaticTypeMapper;
-using EOLib.Domain.Character;
-using EOLib.Domain.Map;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AutomaticTypeMapper;
+using EOLib.Domain.Character;
+using EOLib.Domain.Map;
 
 namespace EndlessClient.HUD
 {
@@ -97,7 +97,7 @@ namespace EndlessClient.HUD
             };
 
             foreach (var coordinateOffset in points)
-            { 
+            {
                 if (_walkValidationActions.CanMoveToCoordinates(current.X + coordinateOffset.X, current.Y + coordinateOffset.Y) == WalkValidationResult.Walkable)
                     yield return new MapCoordinate(current.X + coordinateOffset.X, current.Y + coordinateOffset.Y);
             }

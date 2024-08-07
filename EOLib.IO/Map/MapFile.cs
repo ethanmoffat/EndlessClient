@@ -47,7 +47,7 @@ namespace EOLib.IO.Map
             new List<ChestSpawnMapEntity>(),
             new List<SignMapEntity>())
         {
-            foreach (var layer in (MapLayer[]) Enum.GetValues(typeof(MapLayer)))
+            foreach (var layer in (MapLayer[])Enum.GetValues(typeof(MapLayer)))
                 _mutableGFX.Add(layer, Matrix<int>.Empty);
             SetReadOnlyGFX();
         }

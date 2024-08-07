@@ -1,8 +1,8 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EndlessClient.Dialogs.Actions;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
-using System.Collections.Generic;
 
 namespace EndlessClient.Input
 {

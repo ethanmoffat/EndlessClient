@@ -49,8 +49,8 @@ namespace BatchPub
             cmbStepTwoField.Items.Clear();
             cmbStepThreeField.Items.Clear();
 
-            var eifType = typeof (EIFRecord);
-            foreach(System.Reflection.PropertyInfo prop in eifType.GetProperties())
+            var eifType = typeof(EIFRecord);
+            foreach (System.Reflection.PropertyInfo prop in eifType.GetProperties())
             {
                 cmbStepTwoField.Items.Add(new PropInfo(prop));
                 cmbStepThreeField.Items.Add(new PropInfo(prop));
@@ -85,11 +85,11 @@ namespace BatchPub
                     break;
             }
 
-            if(!chkFilterOn.Checked)
+            if (!chkFilterOn.Checked)
             { //process the change for EVERY item record. save changes immediately.
                 if (MessageBox.Show(
-                    "This change will be processed for every item immediately. The change is irreversible. Are you sure you want to continue? You may specify a filter by checking the filter option.", "No filter selected", 
-                    MessageBoxButtons.YesNo, 
+                    "This change will be processed for every item immediately. The change is irreversible. Are you sure you want to continue? You may specify a filter by checking the filter option.", "No filter selected",
+                    MessageBoxButtons.YesNo,
                     MessageBoxIcon.Exclamation) == DialogResult.No
                     )
                 {
@@ -112,7 +112,7 @@ namespace BatchPub
                 try
                 {
                     op = (CompareOperator)cmbCompareType.SelectedIndex;
-                    if(op == CompareOperator.REGEX && cmbCompareValue.Enabled)
+                    if (op == CompareOperator.REGEX && cmbCompareValue.Enabled)
                     {
                         MessageBox.Show("You can't use a regex to parse enumerated types");
                         return;
@@ -223,7 +223,7 @@ namespace BatchPub
                         setter = Convert.ChangeType(Enum.ToObject(pi.PropertyType, newValue), pi.PropertyType);
                     else
                         setter = Convert.ChangeType(newValue, pi.PropertyType);
-                    
+
                     pi.SetValue(rec, setter);
 
                     //eif.ReplaceRecordAt(index, rec); //todo: way to modify pub files
@@ -238,7 +238,7 @@ namespace BatchPub
 
         private void btnBrowse_Click(object sender, EventArgs e)
         {
-            using(OpenFileDialog ofd = new OpenFileDialog())
+            using (OpenFileDialog ofd = new OpenFileDialog())
             {
                 ofd.CheckFileExists = true;
                 ofd.CheckPathExists = true;
@@ -266,7 +266,7 @@ namespace BatchPub
                 grpStepTwo.Enabled = true;
                 btnReset.Enabled = true;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 eif = null;
                 MessageBox.Show("Error loading " + _fname + ":\n" + ex.Message, "Error!");
@@ -305,7 +305,7 @@ namespace BatchPub
 
         private void LeaveStepTwo(object sender, EventArgs e)
         {
-            if(cmbStepTwoField.SelectedIndex >= 0 && 
+            if (cmbStepTwoField.SelectedIndex >= 0 &&
                 ((txtStepTwoValue.Enabled && txtStepTwoValue.TextLength > 0) || (cmbStepTwoValue.Enabled && cmbStepTwoValue.SelectedIndex >= 0))
                 )
             {
@@ -321,7 +321,7 @@ namespace BatchPub
 
         private void chkFilterOn_CheckedChanged(object sender, EventArgs e)
         {
-            if(chkFilterOn.Checked)
+            if (chkFilterOn.Checked)
             {
                 cmbStepThreeField.Enabled = true;
                 txtCompareValue.Enabled = true;
@@ -402,7 +402,7 @@ namespace BatchPub
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            if(changes)
+            if (changes)
             {
                 DialogResult dr = MessageBox.Show("WARNING: This will update the pub file you currently have open with any batch changes that have been made. Confirm that this behavior is desired.", "Confirm changes?", MessageBoxButtons.YesNo);
                 if (dr == DialogResult.No)
@@ -420,7 +420,7 @@ namespace BatchPub
                     var serializer = new PubFileSerializer(new NumberEncoderService(), new PubRecordSerializer(new NumberEncoderService()));
                     var bytes = serializer.SerializeToByteArray(eif);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     MessageBox.Show("Error saving changes to the file:\n" + ex.Message);
                     return;

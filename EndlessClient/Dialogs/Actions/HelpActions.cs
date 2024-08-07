@@ -1,9 +1,9 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Linq;
+using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Dialogs.Factories;
 using EOLib.Domain.Report;
 using EOLib.Localization;
-using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Dialogs.Actions
