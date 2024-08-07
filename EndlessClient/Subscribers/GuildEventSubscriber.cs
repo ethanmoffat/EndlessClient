@@ -51,7 +51,7 @@ namespace EndlessClient.Subscribers
 
             dlg.ShowDialog();
         }
-
+        
         public void NotifyRequestToJoinGuild(int playerId, string name)
         {
             _sfxPlayer.PlaySfx(SoundEffectID.ServerMessage);
@@ -76,6 +76,16 @@ namespace EndlessClient.Subscribers
                     });
                 }
             };
+
+            dlg.ShowDialog();
+        }
+
+        public void NotifyGuildDetailsUpdated()
+        {
+            var dlg = _messageBoxFactory.CreateMessageBox(_localizedStringFinder.GetString(DialogResourceID.GUILD_DETAILS_HAVE_BEEN_UPDATED),
+                caption: _localizedStringFinder.GetString(DialogResourceID.GUILD_ACCEPTED),
+                whichButtons: Dialogs.EODialogButtons.Ok,
+                style: Dialogs.EOMessageBoxStyle.SmallDialogSmallHeader);
 
             dlg.ShowDialog();
         }

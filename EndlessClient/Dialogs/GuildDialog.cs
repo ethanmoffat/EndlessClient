@@ -1,12 +1,11 @@
-﻿using EndlessClient.Content;
-using EndlessClient.Dialogs.Factories;
+﻿using EndlessClient.Dialogs.Factories;
 using EndlessClient.Dialogs.Services;
 using EOLib.Domain.Character;
 using EOLib.Domain.Interact.Guild;
-using EOLib.Domain.Map;
 using EOLib.Graphics;
-using EOLib.IO.Repositories;
 using EOLib.Localization;
+using Microsoft.Xna.Framework;
+using XNAControls;
 
 namespace EndlessClient.Dialogs
 {
@@ -29,6 +28,11 @@ namespace EndlessClient.Dialogs
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly ICharacterProvider _characterProvider;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
+        private readonly IGuildSessionProvider _guildSessionProvider;
+        private readonly IGuildActions _guildActions;
+        private readonly ITextInputDialogFactory _textInputDialogFactory;
+
+        private string _guildDescription { get; set; }
 
         private GuildDialogState _state;
 
@@ -37,13 +41,21 @@ namespace EndlessClient.Dialogs
                          IEODialogIconService dialogIconService,
                          ILocalizedStringFinder localizedStringFinder,
                          ICharacterProvider characterProvider,
-                         IEOMessageBoxFactory messageBoxFactory)
+                         IEOMessageBoxFactory messageBoxFactory,
+                         IGuildSessionProvider guildSessionProvider,
+                         IGuildActions guildActions,
+                         ITextInputDialogFactory textInputDialogFactory)
             : base(nativeGraphicsManager, dialogButtonService, DialogType.Guild)
         {
             _dialogIconService = dialogIconService;
             _localizedStringFinder = localizedStringFinder;
             _characterProvider = characterProvider;
             _messageBoxFactory = messageBoxFactory;
+            _guildSessionProvider = guildSessionProvider;
+            _guildDescription = guildSessionProvider.GuildDescription;
+            _guildActions = guildActions;
+            _textInputDialogFactory = textInputDialogFactory;
+
 
             SetState(GuildDialogState.Initial);
 
@@ -54,6 +66,9 @@ namespace EndlessClient.Dialogs
                     case GuildDialogState.Management:
                         SetState(GuildDialogState.Initial);
                         break;
+                    case GuildDialogState.Modify:
+                        SetState(GuildDialogState.Management);
+                        break;
                     default:
                         // no-op
                         break;
@@ -63,11 +78,19 @@ namespace EndlessClient.Dialogs
             Title = _localizedStringFinder.GetString(EOResourceID.GUILD_GUILD_MASTER);
         }
 
+        protected override void OnUpdateControl(GameTime gameTime)
+        {
+            if (_guildDescription != _guildSessionProvider.GuildDescription && _guildSessionProvider.GuildDescription != "")
+            {
+                _guildDescription = _guildSessionProvider.GuildDescription;
+                SetState(GuildDialogState.Modify);
+            }
+
+            base.OnUpdateControl(gameTime);
+        }
+
         private void SetState(GuildDialogState state)
         {
-            if (state != GuildDialogState.Initial && _state == state)
-                return;
-
             _state = state;
 
             ClearItemList();
@@ -151,8 +174,16 @@ namespace EndlessClient.Dialogs
                             SubText = _localizedStringFinder.GetString(EOResourceID.GUILD_CHANGE_YOUR_GUILD_DETAILS),
                             OffsetY = 45,
                         };
-                        modifyGuildItem.LeftClick += (_, _) => SetStateIfGuildMember(GuildDialogState.Modify);
-                        modifyGuildItem.RightClick += (_, _) => SetStateIfGuildMember(GuildDialogState.Modify);
+                        modifyGuildItem.LeftClick += (_, _) =>
+                        {
+                            _guildActions.GetGuildDescription(_characterProvider.MainCharacter.GuildTag);
+                            SetStateIfGuildMember(GuildDialogState.Modify);
+                        };
+                        modifyGuildItem.RightClick += (_, _) =>
+                        {
+                            _guildActions.GetGuildDescription(_characterProvider.MainCharacter.GuildTag);
+                            SetStateIfGuildMember(GuildDialogState.Modify);
+                        };
 
                         AddItemToList(modifyGuildItem, sortList: false);
 
@@ -213,9 +244,36 @@ namespace EndlessClient.Dialogs
                         AddItemToList(disbandItem, sortList: false);
                     }
                     break;
+                case GuildDialogState.Modify:
+                    {
+                        ListItemType = ListDialogItem.ListItemStyle.Large;
+                        Buttons = ScrollingListDialogButtons.BackCancel;
 
+                        AddItemToList(new ListDialogItem(this, ListDialogItem.ListItemStyle.Small, 0)
+                        {
+                            PrimaryText = _localizedStringFinder.GetString(EOResourceID.GUILD_CURRENT_DESCRIPTION),
+                        }, sortList: false);
+
+                        AddItemToList(new ListDialogItem(this, ListDialogItem.ListItemStyle.Small, 0)
+                        {
+                            PrimaryText = _guildDescription,
+                        }, sortList: false);
+
+                        AddItemToList(new ListDialogItem(this, ListDialogItem.ListItemStyle.Small, 0), sortList: false);
+
+                        var changeItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Small, 0)
+                        {
+                            PrimaryText = _localizedStringFinder.GetString(EOResourceID.GUILD_CLICK_HERE_TO_CHANGE_THE_DESCRIPTION)[1..],
+                            UnderlineLinks = true,
+                        };
+
+                        changeItem.SetPrimaryClickAction((_, _) => ShowChangeDescriptionMessageBox());
+                        changeItem.RightClick += (_, _) => ShowChangeDescriptionMessageBox();
+
+                        AddItemToList(changeItem, sortList: false);
+                    }
+                    break;
             }
-
         }
 
         private void SetStateIfGuildMember(GuildDialogState state)
@@ -228,6 +286,21 @@ namespace EndlessClient.Dialogs
             }
 
             SetState(state);
+        }
+
+        private void ShowChangeDescriptionMessageBox()
+        {
+            // TODO: Move max description length to config?
+            var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_DESCRIPTION), 240);
+            dlg.DialogClosing += (_, e) =>
+            {
+                if (e.Result == XNADialogResult.OK)
+                {
+                    _guildActions.SetGuildDescription(dlg.ResponseText);
+                    SetState(GuildDialogState.Management);
+                }
+            };
+            dlg.Show();
         }
     }
 }
