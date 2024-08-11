@@ -45,7 +45,7 @@ namespace EndlessClient.Dialogs
                         Buttons = ScrollingListDialogButtons.BackCancel;
                         break;
                     case GuildDialogState.Modify:
-                        ListItemStyle = ListDialogItem.ListItemStyle.Large;
+                        ListItemStyle = ListDialogItem.ListItemStyle.Small;
                         Buttons = ScrollingListDialogButtons.BackCancel;
                         break;
                 }
