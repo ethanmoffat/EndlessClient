@@ -29,12 +29,11 @@ namespace EOLib.PacketHandlers.Guild
             switch (packet.ReplyCode)
             {
                 case GuildReply.JoinRequest:
-                    var data = (GuildReplyServerPacket.ReplyCodeDataJoinRequest)(packet.ReplyCodeData);
+                    var joinRequestData = (GuildReplyServerPacket.ReplyCodeDataJoinRequest)(packet.ReplyCodeData);
                     foreach (var notifier in _guildNotifiers)
-                        notifier.NotifyRequestToJoinGuild(data.PlayerId, data.Name);
+                        notifier.NotifyRequestToJoinGuild(joinRequestData.PlayerId, joinRequestData.Name);
                     break;
                 case GuildReply.Updated:
-                    var data = (GuildReplyServerPacket.ReplyCodeDataJoinRequest)(packet.ReplyCodeData);
                     foreach (var notifier in _guildNotifiers)
                         notifier.NotifyGuildDetailsUpdated();
                     break;
