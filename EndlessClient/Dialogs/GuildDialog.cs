@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using EndlessClient.Content;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.Dialogs.Services;
@@ -7,6 +8,7 @@ using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Interact.Guild;
 using EOLib.Graphics;
+using EOLib.IO.Repositories;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using XNAControls;
@@ -22,6 +24,7 @@ namespace EndlessClient.Dialogs
             JoinGuild,
             LeaveGuild,
             RegisterGuild,
+            WaitingForMembers,
             Management,
             Modify,
             ManageRankings,
@@ -61,6 +64,10 @@ namespace EndlessClient.Dialogs
                         ListItemStyle = ListDialogItem.ListItemStyle.Small;
                         Buttons = ScrollingListDialogButtons.BackCancel;
                         break;
+                    case GuildDialogState.WaitingForMembers:
+                        ListItemStyle = ListDialogItem.ListItemStyle.Small;
+                        Buttons = ScrollingListDialogButtons.BackCancel;
+                        break;
                 }
             }
         }
@@ -72,8 +79,12 @@ namespace EndlessClient.Dialogs
         private readonly ITextMultiInputDialogFactory _textMultiInputDialogFactory;
         private readonly IContentProvider _contentProvider;
         private readonly IGuildActions _guildActions;
+        private readonly IGuildSessionProvider _guildSessionProvider;
+        private readonly ICharacterInventoryProvider _characterInventoryProvider;
+        private readonly IEIFFileProvider _eifFileProvider;
 
         private readonly Stack<State> _stateStack;
+        private int _creationMemberCount;
 
         private State _state;
         public GuildDialog(INativeGraphicsManager nativeGraphicsManager,
@@ -84,7 +95,10 @@ namespace EndlessClient.Dialogs
                          IEOMessageBoxFactory messageBoxFactory,
                          ITextMultiInputDialogFactory textMultiInputDialogFactory,
                          IContentProvider contentProvider,
-                         IGuildActions guildActions)
+                         IGuildActions guildActions,
+                         IGuildSessionProvider guildSessionProvider,
+                         ICharacterInventoryProvider characterInventoryProvider,
+                         IEIFFileProvider eifFileProvider)
             : base(nativeGraphicsManager, dialogButtonService, DialogType.Guild)
         {
             _dialogIconService = dialogIconService;
@@ -94,7 +108,11 @@ namespace EndlessClient.Dialogs
             _textMultiInputDialogFactory = textMultiInputDialogFactory;
             _contentProvider = contentProvider;
             _guildActions = guildActions;
+            _guildSessionProvider = guildSessionProvider;
+            _characterInventoryProvider = characterInventoryProvider;
+            _eifFileProvider = eifFileProvider;
             _stateStack = new Stack<State>();
+            _creationMemberCount = 0;
 
             SetState(new State(GuildDialogState.Initial));
 
@@ -116,14 +134,39 @@ namespace EndlessClient.Dialogs
 
         protected override void OnUpdateControl(GameTime gameTime)
         {
+            if (_state.DialogState == GuildDialogState.RegisterGuild)
+            {
+                _guildSessionProvider.CreationSession.MatchSome(creationSession =>
+                {
+                    if (creationSession.Approved)
+                    {
+                        SetState(new State(GuildDialogState.WaitingForMembers), false);
+                    }
+                });
+            }
+
+            if (_state.DialogState == GuildDialogState.WaitingForMembers)
+            {
+                _guildSessionProvider.CreationSession.MatchSome(creationSession =>
+                {
+                    if (creationSession.Members.Count != _creationMemberCount)
+                    {
+                        AddItemToList(new ListDialogItem(this, ListDialogItem.ListItemStyle.Small, 0)
+                        {
+                            PrimaryText = Capitalize(creationSession.Members.Last())
+                        }, false);
+                        _creationMemberCount += 1;
+                    }
+                });
+            }
+
             base.OnUpdateControl(gameTime);
         }
 
-        private void SetState(State newState)
+        private void SetState(State newState, bool pushState = true)
         {
-            if (_state != newState)
+            if (_state != newState && pushState)
             {
-                ClearItemList();
                 _stateStack.Push(_state);
             }
 
@@ -146,6 +189,12 @@ namespace EndlessClient.Dialogs
                     break;
                 case GuildDialogState.LeaveGuild:
                     SetupLeaveGuildState();
+                    break;
+                case GuildDialogState.RegisterGuild:
+                    SetupRegisterGuildState();
+                    break;
+                case GuildDialogState.WaitingForMembers:
+                    SetupWaitingForMembersState();
                     break;
             }
         }
@@ -273,6 +322,34 @@ namespace EndlessClient.Dialogs
             );
         }
 
+        private void SetupRegisterGuildState()
+        {
+            AddTextAsListItems(_contentProvider.Fonts[Constants.FontSize09],
+                insertLineBreaks: true,
+                new List<Action> { ShowRegisterGuildMessageBox },
+                _localizedStringFinder.GetString(EOResourceID.GUILD_REGISTER_GUILD),
+                _localizedStringFinder.GetString(EOResourceID.GUILD_YOU_ARE_ABOUT_TO_CREATE_A_GUILD),
+                _localizedStringFinder.GetString(EOResourceID.GUILD_YOU_NEED_TO_HAVE_AT_LEAST_TEN_MEMBERS),
+                _localizedStringFinder.GetString(EOResourceID.GUILD_THE_GUILD_MASTER_WILL_ASK_A_FEE),
+                _localizedStringFinder.GetString(EOResourceID.GUILD_CLICK_HERE_TO_REGISTER_A_GUILD)
+            );
+        }
+
+        private void SetupWaitingForMembersState()
+        {
+            AddItemToList(new ListDialogItem(this, ListDialogItem.ListItemStyle.Small, 0)
+            {
+                PrimaryText = _localizedStringFinder.GetString(EOResourceID.GUILD_PLEASE_WAIT_FOR_ALL_MEMBERS_TO_JOIN)
+            }, false);
+
+            AddItemToList(new ListDialogItem(this, ListDialogItem.ListItemStyle.Small, 1), false);
+
+            AddItemToList(new ListDialogItem(this, ListDialogItem.ListItemStyle.Small, 0)
+            {
+                PrimaryText = Capitalize(_characterProvider.MainCharacter.Name)
+            }, false);
+        }
+
         private void SetStateIfInGuild(State state)
         {
             if (!_characterProvider.MainCharacter.InGuild)
@@ -306,7 +383,7 @@ namespace EndlessClient.Dialogs
                 return;
             }
 
-            var dlgCreate = _textMultiInputDialogFactory.Create(
+            var dlgJoin = _textMultiInputDialogFactory.Create(
                 _localizedStringFinder.GetString(DialogResourceID.GUILD_JOIN_GUILD),
                 _localizedStringFinder.GetString(DialogResourceID.GUILD_JOIN_GUILD + 1),
                 TextMultiInputDialog.DialogSize.Two,
@@ -314,12 +391,12 @@ namespace EndlessClient.Dialogs
                 new TextMultiInputDialog.InputInfo { Label = _localizedStringFinder.GetString(EOResourceID.GUILD_RECRUITER), MaxChars = 12 }
             );
 
-            dlgCreate.DialogClosing += (sender, e) =>
+            dlgJoin.DialogClosing += (sender, e) =>
             {
                 if (e.Result == XNADialogResult.OK)
                 {
-                    var guildTag = dlgCreate.Responses[0];
-                    var recruiterName = dlgCreate.Responses[1];
+                    var guildTag = dlgJoin.Responses[0];
+                    var recruiterName = dlgJoin.Responses[1];
 
                     if (guildTag.Length == 0)
                     {
@@ -349,7 +426,7 @@ namespace EndlessClient.Dialogs
                 }
             };
 
-            dlgCreate.Show();
+            dlgJoin.Show();
         }
 
         private void ShowLeaveGuildMessageBox()
@@ -366,5 +443,80 @@ namespace EndlessClient.Dialogs
             dlgLeave.Show();
 
         }
+
+        private void ShowRegisterGuildMessageBox()
+        {
+            var dlgRegister = _textMultiInputDialogFactory.Create(
+                _localizedStringFinder.GetString(EOResourceID.GUILD_REGISTER_GUILD),
+                _localizedStringFinder.GetString(EOResourceID.GUILD_ENTER_YOUR_GUILD_DETAILS),
+                TextMultiInputDialog.DialogSize.Three,
+                new TextMultiInputDialog.InputInfo { Label = _localizedStringFinder.GetString(EOResourceID.GUILD_GUILD_TAG), MaxChars = 3 },
+                new TextMultiInputDialog.InputInfo { Label = _localizedStringFinder.GetString(EOResourceID.GUILD_GUILD_NAME), MaxChars = 24 },
+                new TextMultiInputDialog.InputInfo { Label = _localizedStringFinder.GetString(EOResourceID.GUILD_GUILD_DESCRIPTION), MaxChars = 240 }
+            );
+
+            dlgRegister.DialogClosing += (_, e) =>
+            {
+                if (e.Result == XNADialogResult.OK)
+                {
+                    var guildTag = dlgRegister.Responses[0];
+                    var guildName = dlgRegister.Responses[1];
+                    var guildDescription = dlgRegister.Responses[2];
+
+                    if (!_characterInventoryProvider.ItemInventory.Any(x => x.ItemID == 1 && x.Amount >= 50_000))
+                    {
+                        var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.WARNING_YOU_HAVE_NOT_ENOUGH, $" {_eifFileProvider.EIFFile[1].Name}");
+                        dlg.Show();
+                        return;
+                    }
+
+                    if (guildTag.Length == 0)
+                    {
+                        e.Cancel = true;
+                        var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_CREATE_TAG_FIELD_EMPTY);
+                        dlg.Show();
+                        return;
+                    }
+
+                    if (guildName.Length == 0)
+                    {
+                        e.Cancel = true;
+                        var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_CREATE_NAME_FIELD_EMPTY);
+                        dlg.Show();
+                        return;
+                    }
+
+                    if (guildTag.Length == 1)
+                    {
+                        e.Cancel = true;
+                        var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_CREATE_TAG_TOO_SHORT);
+                        dlg.Show();
+                        return;
+                    }
+
+                    if (guildName.Length <= 3)
+                    {
+                        e.Cancel = true;
+                        var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_CREATE_NAME_TOO_SHORT);
+                        dlg.Show();
+                        return;
+                    }
+
+                    if (char.ToLower(guildTag[0]) != char.ToLower(guildName[0]))
+                    {
+                        e.Cancel = true;
+                        var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_CREATE_NAME_FIELD_EMPTY);
+                        dlg.Show();
+                        return;
+                    }
+
+                    _guildActions.RequestToCreateGuild(guildTag, guildName, guildDescription);
+                }
+            };
+
+            dlgRegister.Show();
+        }
+        private static string Capitalize(string input) =>
+            string.IsNullOrEmpty(input) ? string.Empty : char.ToUpper(input[0]) + input[1..].ToLower();
     }
 }

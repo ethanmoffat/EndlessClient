@@ -34,6 +34,7 @@ namespace EndlessClient.Dialogs
         private readonly Rectangle _backgroundSourceRectangle;
 
         private readonly Vector2 _bottomOverlayDrawPosition;
+        private readonly float _buttonYOffset;
         private readonly Rectangle _bottomOverlaySource;
 
         private readonly IXNATextBox[] _inputBoxes;
@@ -63,10 +64,26 @@ namespace EndlessClient.Dialogs
                     _backgroundSourceRectangle = new Rectangle(0, 0, 330, 170);
 
                     SetSize(330, 170);
+                    _buttonYOffset = 0;
                     _bottomOverlayDrawPosition = new Vector2(0, 111);
                     _bottomOverlaySource = new Rectangle(0, 240, 330, 59);
 
                     _inputBoxes = new IXNATextBox[2];
+                    break;
+                case DialogSize.Three:
+                    if (inputInfo.Length != 3)
+                    {
+                        throw new ArgumentException("Not enough input labels were provided");
+                    }
+
+                    _backgroundSourceRectangle = new Rectangle(0, 0, 330, 194);
+
+                    SetSize(330, 194);
+                    _bottomOverlayDrawPosition = new Vector2(0, 134);
+                    _bottomOverlaySource = new Rectangle(0, 240, 330, 59);
+                    _buttonYOffset = 23;
+
+                    _inputBoxes = new IXNATextBox[3];
                     break;
                 default: throw new NotImplementedException();
             }
@@ -120,14 +137,14 @@ namespace EndlessClient.Dialogs
             }
 
             var ok = new XNAButton(eoDialogButtonService.SmallButtonSheet,
-                new Vector2(73, 125),
+                new Vector2(73, 125 + _buttonYOffset),
                 eoDialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Ok),
                 eoDialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Ok));
             ok.OnClick += (_, _) => Close(XNADialogResult.OK);
             ok.SetParentControl(this);
 
             var cancel = new XNAButton(eoDialogButtonService.SmallButtonSheet,
-                new Vector2(166, 125),
+                new Vector2(166, 125 + _buttonYOffset),
                 eoDialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Cancel),
                 eoDialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Cancel));
             cancel.OnClick += (_, _) => Close(XNADialogResult.Cancel);

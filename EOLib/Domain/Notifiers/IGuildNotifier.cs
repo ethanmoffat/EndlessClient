@@ -10,6 +10,11 @@ namespace EOLib.Domain.Notifiers
         void NotifyRecruiterNotHere();
         void NotifyRecruiterWrongGuild();
         void NotifyNotRecruiter();
+        void NotifyConfirmCreateGuild();
+        void NotifyNotApproved();
+        void NotifyExists();
+        void NotifyNoCandidates();
+        void NotifyBusy();
     }
 
     [AutoMappedType]
@@ -21,5 +26,10 @@ namespace EOLib.Domain.Notifiers
         public void NotifyRecruiterNotHere() { }
         public void NotifyRecruiterWrongGuild() { }
         public void NotifyNotRecruiter() { }
+        public void NotifyConfirmCreateGuild() { }
+        public void NotifyNotApproved() { }
+        public void NotifyExists() { }
+        public void NotifyNoCandidates() { }
+        public void NotifyBusy() { }
     }
 }
