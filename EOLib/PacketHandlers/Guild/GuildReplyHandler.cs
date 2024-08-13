@@ -30,10 +30,29 @@ namespace EOLib.PacketHandlers.Guild
             switch (packet.ReplyCode)
             {
                 case GuildReply.JoinRequest:
-                    var data = (GuildReplyServerPacket.ReplyCodeDataJoinRequest)(packet.ReplyCodeData);
+                    {
+                        var data = (GuildReplyServerPacket.ReplyCodeDataJoinRequest)(packet.ReplyCodeData);
+                        foreach (var notifier in _guildNotifiers)
+                            notifier.NotifyRequestToJoinGuild(data.PlayerId, data.Name);
+                        break;
+                    }
+                case GuildReply.RecruiterOffline:
                     foreach (var notifier in _guildNotifiers)
-                        notifier.NotifyRequestToJoinGuild(data.PlayerId, data.Name);
+                        notifier.NotifyRecruiterOffline();
                     break;
+                case GuildReply.RecruiterNotHere:
+                    foreach (var notifier in _guildNotifiers)
+                        notifier.NotifyRecruiterNotHere();
+                    break;
+                case GuildReply.RecruiterWrongGuild:
+                    foreach (var notifier in _guildNotifiers)
+                        notifier.NotifyRecruiterWrongGuild();
+                    break;
+                case GuildReply.NotRecruiter:
+                    foreach (var notifier in _guildNotifiers)
+                        notifier.NotifyNotRecruiter();
+                    break;
+
             }
 
             return true;

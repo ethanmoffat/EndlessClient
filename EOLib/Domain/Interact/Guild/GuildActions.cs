@@ -26,12 +26,17 @@ namespace EOLib.Domain.Interact.Guild
         {
             _packetSendService.SendPacket(new GuildTellClientPacket { SessionId = _guildSessionProvider.SessionID, GuildIdentity = identity });
         }
+
+        public void RequestToJoinGuild(string guildTag, string recruiterName)
+        {
+            _packetSendService.SendPacket(new GuildPlayerClientPacket { SessionId = _guildSessionProvider.SessionID, GuildTag = guildTag, RecruiterName = recruiterName });
+        }
     }
 
     public interface IGuildActions
     {
         void Lookup(string identity);
-
         void ViewMembers(string identity);
+        void RequestToJoinGuild(string guildTag, string recruiterName);
     }
 }

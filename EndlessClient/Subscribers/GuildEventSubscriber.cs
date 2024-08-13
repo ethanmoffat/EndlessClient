@@ -1,6 +1,7 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Dialogs.Factories;
+using EOLib.Domain.Character;
 using EOLib.Domain.Notifiers;
 using EOLib.Localization;
 using EOLib.Net.Communication;
@@ -16,7 +17,10 @@ namespace EndlessClient.Subscribers
         private readonly IPacketSendService _packetSendService;
         private readonly ISfxPlayer _sfxPlayer;
 
-        public GuildEventSubscriber(IEOMessageBoxFactory messageBoxFactory, ILocalizedStringFinder localizedStringFinder, IPacketSendService packetSendService, ISfxPlayer sfxPlayer)
+        public GuildEventSubscriber(IEOMessageBoxFactory messageBoxFactory,
+            ILocalizedStringFinder localizedStringFinder,
+            IPacketSendService packetSendService,
+            ISfxPlayer sfxPlayer)
         {
             _messageBoxFactory = messageBoxFactory;
             _localizedStringFinder = localizedStringFinder;
@@ -78,6 +82,30 @@ namespace EndlessClient.Subscribers
             };
 
             dlg.ShowDialog();
+        }
+
+        public void NotifyRecruiterOffline()
+        {
+            var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_RECRUITER_NOT_FOUND);
+            dlg.Show();
+        }
+
+        public void NotifyRecruiterNotHere()
+        {
+            var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_RECRUITER_NOT_HERE);
+            dlg.Show();
+        }
+
+        public void NotifyRecruiterWrongGuild()
+        {
+            var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_RECRUITER_NOT_MEMBER);
+            dlg.Show();
+        }
+
+        public void NotifyNotRecruiter()
+        {
+            var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_RECRUITER_RANK_TOO_LOW);
+            dlg.Show();
         }
     }
 }

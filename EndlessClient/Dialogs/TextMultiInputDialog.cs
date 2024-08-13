@@ -136,6 +136,8 @@ namespace EndlessClient.Dialogs
             DialogClosed += (_, _) => chatTextBoxActions.FocusChatTextBox();
 
             CenterInGameView();
+
+            DrawPosition += new Vector2(-160, 0);
         }
 
         public override void Initialize()
