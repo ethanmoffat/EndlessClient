@@ -144,6 +144,9 @@ namespace EndlessClient.Dialogs
                 case GuildDialogState.JoinGuild:
                     SetupJoinGuildState();
                     break;
+                case GuildDialogState.LeaveGuild:
+                    SetupLeaveGuildState();
+                    break;
             }
         }
 
@@ -258,6 +261,18 @@ namespace EndlessClient.Dialogs
             );
         }
 
+        private void SetupLeaveGuildState()
+        {
+            AddTextAsListItems(_contentProvider.Fonts[Constants.FontSize09],
+                insertLineBreaks: true,
+                new List<Action> { ShowLeaveGuildMessageBox },
+                _localizedStringFinder.GetString(EOResourceID.GUILD_LEAVE_GUILD),
+                _localizedStringFinder.GetString(EOResourceID.GUILD_YOU_ARE_ABOUT_TO_LEAVE_THE_GUILD),
+                _localizedStringFinder.GetString(EOResourceID.GUILD_REMEMBER_THAT_AFTER_YOU_HAVE_LEFT_THE_GUILD),
+                _localizedStringFinder.GetString(EOResourceID.GUILD_CLICK_HERE_TO_LEAVE_YOUR_GUILD)
+            );
+        }
+
         private void SetStateIfInGuild(State state)
         {
             if (!_characterProvider.MainCharacter.InGuild)
@@ -335,6 +350,21 @@ namespace EndlessClient.Dialogs
             };
 
             dlgCreate.Show();
+        }
+
+        private void ShowLeaveGuildMessageBox()
+        {
+            var dlgLeave = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_PROMPT_LEAVE_GUILD, whichButtons: EODialogButtons.OkCancel);
+            dlgLeave.DialogClosing += (_, e) =>
+            {
+                if (e.Result == XNADialogResult.OK)
+                {
+                    _guildActions.LeaveGuild();
+                }
+            };
+
+            dlgLeave.Show();
+
         }
     }
 }
