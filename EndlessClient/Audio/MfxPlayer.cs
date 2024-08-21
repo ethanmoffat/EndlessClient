@@ -117,15 +117,30 @@ namespace EndlessClient.Audio
 
         public void StopBackgroundMusic()
         {
-            _activePlayer?.Stop();
-            _activePlayer?.Dispose();
+            if (_activePlayer == null)
+                return;
+
+            _activePlayer.Stop();
+
+#if LINUX
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            while (_activePlayer.State != PlayerState.Stopped && sw.ElapsedMilliseconds <= 500)
+                System.Threading.Thread.Sleep(50);
+#endif
+
+            _activePlayer.Dispose();
             _activePlayer = null;
         }
 
         public void Dispose()
         {
             StopBackgroundMusic();
-            _output?.Dispose();
+
+            try
+            {
+                _output?.Dispose();
+            }
+            catch (AlsaSharp.AlsaException) { }
         }
     }
 

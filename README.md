@@ -18,7 +18,7 @@ As of 2020-05-09, this project is relicensed under the MIT license. Older versio
  - [Included Utility Projects](#Utility)
  - [EOBot](#EOBot)
 
-<a name="GettingStarted" />Getting started
+<a name="GettingStarted">Getting started</a>
 -------------
 
 ### Dependencies
@@ -64,27 +64,27 @@ After installing, clone (or fork+clone) this repository locally and open the sol
 
 #### Mac errors
 
-Problem: `error NETSDK1139: The target platform identifier macos was not recognized.` 
+Problem: `error NETSDK1139: The target platform identifier macos was not recognized.`
 Solution: run the command `sudo dotnet workload restore EndlessClient/EndlessClient.csproj` which will install the macos workload for you.
 
-<a name="Todo" />Todo list
+<a name="Todo">Todo list</a>
 ---------------------
 
 See the Github issues for planned features. Anything marked with the 'in progress' label is actively being worked on.
 
-<a name="NewFeatures" />New features (also todo)
+<a name="NewFeatures">New features (also todo)</a>
 ------------------
 
 Here's a working list of things I want to add that would be additional features on top of the original client specs:
  - Use built-in patching system prior to log-in to transfer files
  - More than 3 characters per account
  - Trading items between characters on the same account
- - Better display scaling, resizable display
+ - Better display scaling, ~~resizable display~~ (done)
  - Timed map weather systems
  - Passive skills
  - Better inventory
 
-<a name="Changes" />Changes From Original Client
+<a name="Changes">Changes From Original Client</a>
 -------------------------------------
 
 #### Command-line arguments
@@ -111,17 +111,26 @@ Some of the audio files (sfx) from the original client are malformed. The WAV fo
 
 Part of the sound processing involves reading the audio data and rewriting the length to the WAV file if the length in the file is incorrect. This modification will occur for any invalid WAV files.
 
-#### Rendering Hair
+#### Music files on Linux
 
-A [configuration file](EndlessClient/ContentPipeline/HairClipTypes.ini) is included with that controls how hat items are rendered. This file is based on the EO main hat items. For example:
+Activating background music on linux takes a bit of extra work, due to the fact that the music tracks are all MIDI files. The following process was tested on Ubuntu 22.04 (baremetal) and Ubuntu 23.10 (VM over RDP). ALSA driver is required - this should be included on any modern desktop Ubuntu installation.
 
-```ini
-186 = Facemask # Bandana
-187 = Standard # Mystic hat
-188 = HideHair # Hood
-```
+1. Install fluidsynth server and soundfont
+   ```
+   sudo apt-get install -y fluidsynth fluid-soundfont-gm
+   ```
+2. Test that fluidsynth can play an MFX track
+   ```
+   fluidsynth --audio-driver=alsa /usr/share/sounds/sf2/FluidR3_GM.sf2 mfx/mfx001.mid
+   ```
+3. Run the fluidsynth server in a separate terminal
+   ```
+   fluidsynth --server --audio-driver=alsa /usr/share/sounds/sf2/FluidR3_GM.sfx
+   ```
+   * Note that you must type `quit` at the terminal prompt to exit the process cleanly.
+4. Launch EndlessClient with `music=on` in the config/settings.ini file. Background music should start playing!
 
-Item ID 186 will render as a facemask (below hair), 187 will render over hair, and 188 will hide hair entirely.
+For troubleshooting purposes, follow the guide here: http://www.tedfelix.com/linux/linux-midi.html
 
 #### Resizable Game Display (experimental)
 
@@ -139,7 +148,7 @@ While resizable mode is enabled, hud panels may be toggled on/off. Multiple hud 
 
 Removing either of these configuration options or setting them to zero will disable resizable mode and the in-game experience will remain unchanged.
 
-<a name="Utility" />Included Utility Projects
+<a name="Utility">Included Utility Projects</a>
 -------------
 
 There are a few other projects included with the EndlessClient solution that are designed to make the development process much easier.
@@ -178,7 +187,3 @@ EOBot has recently been updated with an interpreter to make scripting of bots po
 The default behavior of EOBot when not running in script mode is as a TrainerBot. See `TrainerBot.cs` for more details on the implementation.
 
 EOBot is used by https://www.github.com/ethanmoffat/etheos to execute integration tests against server instances.
-
-#### PacketDecoder
-
-PacketDecoder analyzes raw WireShark packet data. It provides a way to decode the raw data and convert the byte stream into values used in EO.
