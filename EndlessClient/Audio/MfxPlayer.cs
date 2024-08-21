@@ -123,9 +123,9 @@ namespace EndlessClient.Audio
             _activePlayer.Stop();
 
 #if LINUX
-            var sw = Stopwatch.StartNew();
+            var sw = System.Diagnostics.Stopwatch.StartNew();
             while (_activePlayer.State != PlayerState.Stopped && sw.ElapsedMilliseconds <= 500)
-                Thread.Sleep(50);
+                System.Threading.Thread.Sleep(50);
 #endif
 
             _activePlayer.Dispose();
