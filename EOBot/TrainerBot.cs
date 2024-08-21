@@ -1,4 +1,9 @@
-﻿using EOLib;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using EOLib;
 using EOLib.Domain.Account;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
@@ -12,11 +17,6 @@ using EOLib.IO.Repositories;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace EOBot
 {
@@ -275,7 +275,7 @@ namespace EOBot
         {
             var renderProps = _characterRepository.MainCharacter.RenderProperties;
             ConsoleHelper.WriteMessage(ConsoleHelper.Type.Walk, $"{renderProps.GetDestinationX(),3},{renderProps.GetDestinationY(),3}");
-            await TrySend(_characterActions.Walk);
+            await TrySend(() => _characterActions.Walk(false));
             await Delay(WALK_BACKOFF_MS);
         }
 

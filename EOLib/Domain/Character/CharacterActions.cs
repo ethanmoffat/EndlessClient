@@ -1,4 +1,6 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.Domain.Spells;
@@ -8,8 +10,6 @@ using Moffat.EndlessOnline.SDK.Data;
 using Moffat.EndlessOnline.SDK.Protocol;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
-using System;
-using System.Linq;
 
 namespace EOLib.Domain.Character
 {
@@ -38,7 +38,7 @@ namespace EOLib.Domain.Character
             _packetSendService.SendPacket(packet);
         }
 
-        public void Walk()
+        public void Walk(bool ghosted)
         {
             var admin = _characterRepository.MainCharacter.NoWall &&
                         _characterRepository.MainCharacter.AdminLevel != AdminLevel.Player;
@@ -56,6 +56,7 @@ namespace EOLib.Domain.Character
 
             var packet = admin
                 ? (IPacket)new WalkAdminClientPacket { WalkAction = walkAction }
+                : ghosted ? (IPacket)new WalkSpecClientPacket { WalkAction = walkAction }
                 : (IPacket)new WalkPlayerClientPacket { WalkAction = walkAction };
             _packetSendService.SendPacket(packet);
         }
@@ -169,7 +170,7 @@ namespace EOLib.Domain.Character
     {
         void Face(EODirection direction);
 
-        void Walk();
+        void Walk(bool ghosted);
 
         void Attack();
 

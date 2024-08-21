@@ -1,9 +1,9 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using AutomaticTypeMapper;
 using EOLib.IO.Services;
 using EOLib.Logger;
 using EOLib.Net.Handlers;
 using EOLib.Net.PacketProcessing;
-using System;
 
 namespace EOLib.Net.Communication
 {

@@ -1,12 +1,12 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Linq;
+using System.Threading.Tasks;
+using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Net;
 using EOLib.Net.Communication;
 using Moffat.EndlessOnline.SDK.Protocol;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace EOLib.Domain.Character
 {
@@ -49,7 +49,7 @@ namespace EOLib.Domain.Character
             var response = await _packetSendService.SendEncodedPacketAndWaitAsync(packet);
             if (!(response is CharacterReplyServerPacket responsePacket))
                 throw new EmptyPacketReceivedException();
-            
+
             if (responsePacket.ReplyCodeData is CharacterReplyServerPacket.ReplyCodeDataOk dataOk && dataOk.Characters.Any())
             {
                 _characterSelectorRepository.Characters = dataOk.Characters

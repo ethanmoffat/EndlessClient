@@ -1,9 +1,9 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using EOLib.IO;
 using EOLib.IO.Repositories;
-using System.Linq;
 
 namespace EOLib.Domain.Spells
 {

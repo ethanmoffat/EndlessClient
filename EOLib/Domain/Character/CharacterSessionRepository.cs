@@ -1,5 +1,5 @@
-﻿using AutomaticTypeMapper;
-using System;
+﻿using System;
+using AutomaticTypeMapper;
 
 namespace EOLib.Domain.Character
 {

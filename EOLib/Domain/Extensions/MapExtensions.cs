@@ -1,8 +1,8 @@
-﻿using EOLib.Domain.Map;
-using EOLib.IO.Map;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using EOLib.Domain.Map;
+using EOLib.IO.Map;
 
 namespace EOLib.Domain.Extensions
 {

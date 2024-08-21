@@ -1,8 +1,8 @@
-﻿using Amadevus.RecordGenerator;
+﻿using System.Collections.Generic;
+using Amadevus.RecordGenerator;
 using EOLib.IO;
 using Moffat.EndlessOnline.SDK.Protocol;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System.Collections.Generic;
 
 namespace EOLib.Domain.Character
 {

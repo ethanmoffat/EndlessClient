@@ -1,8 +1,8 @@
-﻿using EOBot.Interpreter.Extensions;
-using EOBot.Interpreter.Variables;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EOBot.Interpreter.Extensions;
+using EOBot.Interpreter.Variables;
 
 namespace EOBot.Interpreter.States
 {

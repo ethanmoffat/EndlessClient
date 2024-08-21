@@ -1,4 +1,6 @@
 ﻿
+using System;
+using System.Collections.Generic;
 using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
@@ -7,8 +9,6 @@ using EOLib.Domain.Notifiers;
 using EOLib.Net.Handlers;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System;
-using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Effects
 {

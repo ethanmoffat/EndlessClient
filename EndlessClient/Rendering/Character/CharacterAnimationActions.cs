@@ -1,4 +1,7 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD;
@@ -21,9 +24,6 @@ using EOLib.Localization;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
 using Optional.Collections;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace EndlessClient.Rendering.Character
 {
@@ -73,7 +73,7 @@ namespace EndlessClient.Rendering.Character
             Animator.MainCharacterFace(direction);
         }
 
-        public void StartWalking(Option<MapCoordinate> targetCoordinate)
+        public void StartWalking(Option<MapCoordinate> targetCoordinate, bool ghosted = false)
         {
             if (!_hudControlProvider.IsInGame)
                 return;
@@ -81,7 +81,7 @@ namespace EndlessClient.Rendering.Character
             _hudControlProvider.GetComponent<IPeriodicEmoteHandler>(HudControlIdentifier.PeriodicEmoteHandler).CancelArenaBlockTimer();
 
             CancelSpellPrep();
-            Animator.StartMainCharacterWalkAnimation(targetCoordinate, () =>
+            Animator.StartMainCharacterWalkAnimation(targetCoordinate, ghosted, () =>
             {
                 PlayMainCharacterWalkSfx();
                 ShowWaterSplashiesIfNeeded(CharacterActionState.Walking, _characterRepository.MainCharacter.ID);
@@ -130,7 +130,7 @@ namespace EndlessClient.Rendering.Character
                 return;
 
             Animator.StartOtherCharacterWalkAnimation(characterID, destination, direction);
-            
+
             ShowWaterSplashiesIfNeeded(CharacterActionState.Walking, characterID);
 
             if (IsSteppingStone(character.RenderProperties))
@@ -198,7 +198,7 @@ namespace EndlessClient.Rendering.Character
             var spellGraphic = _pubFileProvider.ESFFile[spellId].Graphic;
 
             if (playerId == _characterRepository.MainCharacter.ID)
-            { 
+            {
                 _characterRendererProvider.MainCharacterRenderer.MatchSome(cr =>
                 {
                     cr.ShoutSpellCast();
@@ -335,6 +335,13 @@ namespace EndlessClient.Rendering.Character
                     .RenderEffect(location, effectId);
             }
         }
+        public void NotifyAdminHideEffect(int playerId)
+        {
+            if (playerId == _characterRepository.MainCharacter.ID)
+                _characterRendererProvider.MainCharacterRenderer.MatchSome(cr => cr.PlayEffect((int)HardCodedEffect.AdminHide));
+            else if (_characterRendererProvider.CharacterRenderers.ContainsKey(playerId))
+                _characterRendererProvider.CharacterRenderers[playerId].PlayEffect((int)HardCodedEffect.AdminHide);
+        }
 
         private void ShowWaterSplashiesIfNeeded(CharacterActionState action, int characterID)
         {
@@ -422,7 +429,7 @@ namespace EndlessClient.Rendering.Character
     {
         void Face(EODirection direction);
 
-        void StartWalking(Option<MapCoordinate> targetCoordinate);
+        void StartWalking(Option<MapCoordinate> targetCoordinate, bool ghosted = false);
 
         void CancelClickToWalk();
 

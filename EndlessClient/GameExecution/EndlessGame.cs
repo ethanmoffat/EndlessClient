@@ -1,4 +1,9 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Content;
 using EndlessClient.Controllers;
@@ -18,11 +23,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.BitmapFonts;
 using MonoGame.Extended.Input;
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
 
 namespace EndlessClient.GameExecution
 {

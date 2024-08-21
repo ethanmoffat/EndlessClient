@@ -1,7 +1,7 @@
-﻿using AutomaticTypeMapper;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using AutomaticTypeMapper;
 
 namespace EndlessClient.Services
 {

@@ -1,10 +1,9 @@
-﻿using AutomaticTypeMapper;
-using EOLib;
-using Optional;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using AutomaticTypeMapper;
+using EOLib;
+using Optional;
 using DomainCharacter = EOLib.Domain.Character.Character;
 
 namespace EndlessClient.Rendering.Character

@@ -1,5 +1,5 @@
-﻿using AutomaticTypeMapper;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using AutomaticTypeMapper;
 
 namespace EOLib.Domain.Protocol
 {

@@ -1,13 +1,11 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.IO;
+using System.Linq;
+using AutomaticTypeMapper;
 using Commons.Music.Midi;
 using EOLib;
 using EOLib.Config;
 using EOLib.IO.Map;
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Threading;
 
 namespace EndlessClient.Audio
 {

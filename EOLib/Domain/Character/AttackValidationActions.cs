@@ -1,8 +1,8 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.IO.Repositories;
-using System.Linq;
 
 namespace EOLib.Domain.Character
 {

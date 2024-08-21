@@ -1,12 +1,12 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using Moffat.EndlessOnline.SDK.Protocol.Net;
 using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.AdminInteract
 {
@@ -14,7 +14,7 @@ namespace EOLib.PacketHandlers.AdminInteract
     /// Response to $info <character> command.
     /// </summary>
     [AutoMappedType]
-    public class AdminInteractTell: InGameOnlyPacketHandler<AdminInteractTellServerPacket>
+    public class AdminInteractTell : InGameOnlyPacketHandler<AdminInteractTellServerPacket>
     {
         private readonly IEnumerable<IUserInterfaceNotifier> _userInterfaceNotifiers;
 
