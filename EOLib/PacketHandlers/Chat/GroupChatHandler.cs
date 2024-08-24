@@ -7,9 +7,6 @@ using EOLib.Domain.Party;
 using EOLib.Net.Handlers;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System.Collections.Generic;
-using System.Linq;
-using Optional;
 using Optional.Collections;
 
 namespace EOLib.PacketHandlers.Chat
