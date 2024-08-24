@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using EndlessClient.Controllers;
 using EndlessClient.Dialogs.Services;
@@ -198,7 +199,7 @@ namespace EndlessClient.UIControls
 
         private static string CapitalizeName(string name)
         {
-            return string.IsNullOrEmpty(name) ? string.Empty : (char)(name[0] - 32) + name.Substring(1);
+            return string.IsNullOrEmpty(name) ? string.Empty : char.ToUpper(name[0]) + name[1..];
         }
 
         private ISpriteSheet CreateAdminGraphic(AdminLevel adminLevel)
