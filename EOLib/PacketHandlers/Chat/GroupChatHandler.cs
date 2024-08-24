@@ -40,7 +40,7 @@ namespace EOLib.PacketHandlers.Chat
 
         public override bool HandlePacket(TalkOpenServerPacket packet)
         {
-            _partyDataProvider.Members.FirstOrNone(member => member.CharacterID == packet.PlayerId)
+            _partyDataProvider.Members.SingleOrNone(member => member.CharacterID == packet.PlayerId)
                 .MatchSome(member =>
                 {
                     var localChatData = new ChatData(ChatTab.Local, member.Name, packet.Message, ChatIcon.PlayerPartyDark, ChatColor.PM);
