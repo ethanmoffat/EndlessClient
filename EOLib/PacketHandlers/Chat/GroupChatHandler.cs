@@ -9,6 +9,8 @@ using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using System.Collections.Generic;
 using System.Linq;
+using Optional;
+using Optional.Collections;
 
 namespace EOLib.PacketHandlers.Chat
 {
@@ -38,21 +40,21 @@ namespace EOLib.PacketHandlers.Chat
 
         public override bool HandlePacket(TalkOpenServerPacket packet)
         {
-            var member = _partyDataProvider.Members.FirstOrDefault(member => member.CharacterID == packet.PlayerId);
-            if (member == null)
-                return true;
+            _partyDataProvider.Members.FirstOrNone(member => member.CharacterID == packet.PlayerId)
+                .MatchSome(member =>
+                {
+                    var localChatData = new ChatData(ChatTab.Local, member.Name, packet.Message, ChatIcon.PlayerPartyDark, ChatColor.PM);
+                    _chatRepository.AllChat[ChatTab.Local].Add(localChatData);
 
-            var localChatData = new ChatData(ChatTab.Local, member.Name, packet.Message, ChatIcon.PlayerPartyDark, ChatColor.PM);
-            _chatRepository.AllChat[ChatTab.Local].Add(localChatData);
+                    var chatData = new ChatData(ChatTab.Group, member.Name, packet.Message, ChatIcon.PlayerPartyDark);
+                    _chatRepository.AllChat[ChatTab.Group].Add(chatData);
 
-            var chatData = new ChatData(ChatTab.Group, member.Name, packet.Message, ChatIcon.PlayerPartyDark);
-            _chatRepository.AllChat[ChatTab.Group].Add(chatData);
+                    foreach (var notifier in _otherCharacterEventNotifiers)
+                        notifier.OtherCharacterSaySomethingToGroup(member.CharacterID, packet.Message);
 
-            foreach (var notifier in _otherCharacterEventNotifiers)
-                notifier.OtherCharacterSaySomethingToGroup(member.CharacterID, packet.Message);
-
-            foreach (var notifier in _chatEventNotifiers)
-                notifier.NotifyChatReceived(ChatEventType.Group);
+                    foreach (var notifier in _chatEventNotifiers)
+                        notifier.NotifyChatReceived(ChatEventType.Group);
+                });
 
             return true;
         }
