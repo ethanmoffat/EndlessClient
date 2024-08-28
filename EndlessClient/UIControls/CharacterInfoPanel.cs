@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using EndlessClient.Controllers;
 using EndlessClient.Dialogs.Services;
@@ -163,7 +164,8 @@ namespace EndlessClient.UIControls
 
             var previousKeyState = _userInputProvider.PreviousKeyState;
             var currentKeyState = _userInputProvider.CurrentKeyState;
-            if (currentKeyState.IsKeyPressedOnce(previousKeyState, Keys.D1 + _characterIndex))
+            if (currentKeyState.IsKeyPressedOnce(previousKeyState, Keys.D1 + _characterIndex) &&
+                !Game.Components.OfType<IXNADialog>().Any())
             {
                 AsyncButtonClick(() => _loginController.LoginToCharacter(_character));
             }
