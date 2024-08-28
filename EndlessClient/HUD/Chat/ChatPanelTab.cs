@@ -10,7 +10,6 @@ using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Chat;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.BitmapFonts;
 using MonoGame.Extended.Input;
 using MonoGame.Extended.Input.InputListeners;
@@ -83,21 +82,21 @@ namespace EndlessClient.HUD.Chat
             _tabSheetUnselected = tabSheetUnselected;
             _chatFont = chatFont;
 
-            DrawArea = new Rectangle(0, 0, _parentPanel.DrawArea.Width, _parentPanel.DrawArea.Height);
+            DrawArea = GetTabClickableArea();
 
-            _tab = new ClickableArea(GetTabClickableArea());
+            _tab = new ClickableArea(new Rectangle(0, 0, DrawArea.Width, DrawArea.Height));
             _tab.OnClick += (_, _) => SelectThisTab();
             _tab.SetParentControl(this);
 
             if (Tab == ChatTab.Private1)
             {
-                _closeButton = new ClickableArea(new Rectangle(26, 105, 11, 11));
+                _closeButton = new ClickableArea(new Rectangle(3, 3, 11, 11));
                 _closeButton.OnClick += (_, _) => CloseTab();
                 _closeButton.SetParentControl(this);
             }
             else if (Tab == ChatTab.Private2)
             {
-                _closeButton = new ClickableArea(new Rectangle(159, 105, 11, 11));
+                _closeButton = new ClickableArea(new Rectangle(3, 3, 11, 11));
                 _closeButton.OnClick += (_, _) => CloseTab();
                 _closeButton.SetParentControl(this);
             }
@@ -105,7 +104,7 @@ namespace EndlessClient.HUD.Chat
             _label = new XNALabel(Constants.FontSize08)
             {
                 Text = GetTabTextLabel(),
-                DrawPosition = GetTabClickableArea().Location.ToVector2() + new Vector2(16, 2)
+                DrawPosition = new Vector2(16, 2)
             };
             _label.SetParentControl(this);
 
@@ -120,6 +119,21 @@ namespace EndlessClient.HUD.Chat
             _label.Initialize();
 
             base.Initialize();
+        }
+
+        public void HandleRightClick(MouseEventArgs eventArgs)
+        {
+            var clickedYRelativeToTopOfPanel = eventArgs.Position.Y - _parentPanel.DrawAreaWithParentOffset.Y;
+            var clickedChatRow = (int)Math.Round(clickedYRelativeToTopOfPanel / 13.0) - 1;
+
+            if (clickedChatRow >= 0 && _scrollBar.ScrollOffset + clickedChatRow < _cachedChat.Count)
+            {
+                var who = _chatProvider.AllChat[Tab][_scrollBar.ScrollOffset + clickedChatRow].Who;
+                if (!string.IsNullOrEmpty(who))
+                {
+                    _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox).Text = $"!{who} ";
+                }
+            }
         }
 
         public void CloseTab()
@@ -170,7 +184,7 @@ namespace EndlessClient.HUD.Chat
             _spriteBatch.Begin();
 
             var sheet = Active ? _tabSheetSelected : _tabSheetUnselected;
-            _spriteBatch.Draw(sheet.SheetTexture, _tab.ClickArea.Location.ToVector2() + ImmediateParent.DrawPositionWithParentOffset, sheet.SourceRectangle, Color.White);
+            _spriteBatch.Draw(sheet.SheetTexture, DrawAreaWithParentOffset, sheet.SourceRectangle, Color.White);
 
             if (Active)
             {
@@ -188,25 +202,6 @@ namespace EndlessClient.HUD.Chat
             _spriteBatch.End();
 
             base.OnDrawControl(gameTime);
-        }
-
-        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
-        {
-            if (eventArgs.Button == MouseButton.Right)
-            {
-                var clickedYRelativeToTopOfPanel = eventArgs.Position.Y - DrawAreaWithParentOffset.Y;
-                var clickedChatRow = (int)Math.Round(clickedYRelativeToTopOfPanel / 13.0) - 1;
-
-                if (clickedChatRow >= 0 && _scrollBar.ScrollOffset + clickedChatRow < _cachedChat.Count)
-                {
-                    var who = _chatProvider.AllChat[Tab][_scrollBar.ScrollOffset + clickedChatRow].Who;
-                    _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox).Text = $"!{who} ";
-                }
-
-                return true;
-            }
-
-            return false;
         }
 
         private void SelectThisTab()
