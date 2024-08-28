@@ -24,7 +24,7 @@
         PrivateMessageReceived,
         PunchAttack,
         UnknownWarpSound,
-        UnknownPingSound = 12,
+        PrivateMessageTargetNotFound = 12,
         HudStatusBarClick,
         AdminAnnounceReceived,
         MeleeWeaponAttack,
