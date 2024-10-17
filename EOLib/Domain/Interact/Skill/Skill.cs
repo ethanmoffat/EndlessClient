@@ -1,5 +1,5 @@
-﻿using Amadevus.RecordGenerator;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Amadevus.RecordGenerator;
 
 namespace EOLib.Domain.Interact.Skill
 {

@@ -1,9 +1,9 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
 using Optional;
-using System;
-using System.Linq;
 
 namespace EndlessClient.Rendering.NPC
 {

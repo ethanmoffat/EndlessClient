@@ -134,7 +134,8 @@ namespace EndlessClient.HUD.Panels
                                  new ChatRenderableGenerator(_nativeGraphicsManager, _friendIgnoreListService, chatFont),
                                  _newsProvider,
                                  chatFont,
-                                 _clientWindowSizeProvider) { DrawOrder = HUD_CONTROL_LAYER };
+                                 _clientWindowSizeProvider)
+            { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public InventoryPanel CreateInventoryPanel()
@@ -154,7 +155,8 @@ namespace EndlessClient.HUD.Panels
                 _activeDialogProvider,
                 _sfxPlayer,
                 _configurationProvider,
-                _clientWindowSizeProvider) { DrawOrder = HUD_CONTROL_LAYER };
+                _clientWindowSizeProvider)
+            { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public ActiveSpellsPanel CreateActiveSpellsPanel()
@@ -171,7 +173,8 @@ namespace EndlessClient.HUD.Panels
                 _hudControlProvider,
                 _sfxPlayer,
                 _configurationProvider,
-                _clientWindowSizeProvider) { DrawOrder = HUD_CONTROL_LAYER };
+                _clientWindowSizeProvider)
+            { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public PassiveSpellsPanel CreatePassiveSpellsPanel()
@@ -189,7 +192,8 @@ namespace EndlessClient.HUD.Panels
                                  _chatProvider,
                                  _hudControlProvider,
                                  chatFont,
-                                 _clientWindowSizeProvider) { DrawOrder = HUD_CONTROL_LAYER };
+                                 _clientWindowSizeProvider)
+            { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public StatsPanel CreateStatsPanel()
@@ -200,7 +204,8 @@ namespace EndlessClient.HUD.Panels
                                   _experienceTableProvider,
                                   _messageBoxFactory,
                                   _trainingController,
-                                  _clientWindowSizeProvider) { DrawOrder = HUD_CONTROL_LAYER };
+                                  _clientWindowSizeProvider)
+            { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public OnlineListPanel CreateOnlineListPanel()
@@ -224,7 +229,8 @@ namespace EndlessClient.HUD.Panels
                 _messageBoxFactory,
                 _configurationRepository,
                 _sfxPlayer,
-                _clientWindowSizeProvider) { DrawOrder = HUD_CONTROL_LAYER };
+                _clientWindowSizeProvider)
+            { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public HelpPanel CreateHelpPanel()

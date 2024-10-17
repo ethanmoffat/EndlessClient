@@ -1,9 +1,9 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Collections.Generic;
+using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.Domain.Online;
 using EOLib.IO.Repositories;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace EOLib.PacketHandlers.Init
 {

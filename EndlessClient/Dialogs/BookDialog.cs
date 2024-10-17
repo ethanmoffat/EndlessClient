@@ -1,12 +1,12 @@
-﻿using EndlessClient.Dialogs.Services;
+﻿using System;
+using System.Collections.Generic;
+using EndlessClient.Dialogs.Services;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
 using XNAControls;
 using static EndlessClient.Dialogs.QuestStatusListDialogItem;
 

@@ -1,10 +1,10 @@
-﻿using AutomaticTypeMapper;
+﻿using System.IO;
+using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.IO.Extensions;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
-using System.IO;
-using System.Linq;
 
 namespace EOLib.IO.Actions
 {

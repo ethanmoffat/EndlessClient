@@ -1,7 +1,7 @@
-﻿using EOBot.Interpreter.Variables;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using EOBot.Interpreter.Variables;
 
 namespace EOBot
 {

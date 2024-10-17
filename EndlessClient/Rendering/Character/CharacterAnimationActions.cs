@@ -1,4 +1,7 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD;
@@ -21,9 +24,6 @@ using EOLib.Localization;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
 using Optional.Collections;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace EndlessClient.Rendering.Character
 {
@@ -130,7 +130,7 @@ namespace EndlessClient.Rendering.Character
                 return;
 
             Animator.StartOtherCharacterWalkAnimation(characterID, destination, direction);
-            
+
             ShowWaterSplashiesIfNeeded(CharacterActionState.Walking, characterID);
 
             if (IsSteppingStone(character.RenderProperties))
@@ -198,7 +198,7 @@ namespace EndlessClient.Rendering.Character
             var spellGraphic = _pubFileProvider.ESFFile[spellId].Graphic;
 
             if (playerId == _characterRepository.MainCharacter.ID)
-            { 
+            {
                 _characterRendererProvider.MainCharacterRenderer.MatchSome(cr =>
                 {
                     cr.ShoutSpellCast();

@@ -47,7 +47,7 @@ namespace EOLib.IO.Pub
         /// <summary>
         /// The file ID. Typically this will be set to 1, but will increase incrementally for chunked pub files.
         /// </summary>
-        int ID { get; } 
+        int ID { get; }
 
         /// <summary>
         /// The type of the file, usually a 3-character string e.g. EIF/ENF/ESF/ECF

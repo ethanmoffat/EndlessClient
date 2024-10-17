@@ -16,10 +16,10 @@ namespace EOLib.Domain.Chat
 
         public ChatType CalculateChatType(string input)
         {
-            if(string.IsNullOrEmpty(input))
+            if (string.IsNullOrEmpty(input))
                 return ChatType.Local;
 
-            if(!CharacterIsAdmin && (input[0] == '+' || input[0] == '@'))
+            if (!CharacterIsAdmin && (input[0] == '+' || input[0] == '@'))
                 return ChatType.Local;
 
             return input[0] switch

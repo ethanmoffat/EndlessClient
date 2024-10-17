@@ -1,4 +1,10 @@
-﻿using EndlessClient.Audio;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
+using EndlessClient.Audio;
 using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs;
@@ -22,14 +28,7 @@ using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.Input;
 using Optional;
 using Optional.Collections;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.Versioning;
 using XNAControls;
-
 using static EndlessClient.HUD.Spells.SpellPanelItem;
 
 namespace EndlessClient.HUD.Panels

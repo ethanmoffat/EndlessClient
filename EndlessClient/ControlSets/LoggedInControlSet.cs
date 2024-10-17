@@ -1,13 +1,13 @@
-﻿using EndlessClient.Controllers;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
 using EndlessClient.Rendering;
 using EndlessClient.UIControls;
 using EOLib.Domain.Login;
 using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using XNAControls;
 
 namespace EndlessClient.ControlSets

@@ -1,6 +1,7 @@
-﻿namespace EndlessClient.Rendering.Metadata.Models;
-
-public sealed record ShieldMetadata(bool IsShieldOnBack) : IGFXMetadata
+﻿namespace EndlessClient.Rendering.Metadata.Models
 {
-    public static ShieldMetadata Default { get; } = new ShieldMetadata(false);
+    public sealed record ShieldMetadata(bool IsShieldOnBack) : IGFXMetadata
+    {
+        public static ShieldMetadata Default { get; } = new ShieldMetadata(false);
+    }
 }
