@@ -51,7 +51,7 @@ namespace EndlessClient.Subscribers
 
             dlg.ShowDialog();
         }
-        
+
         public void NotifyRequestToJoinGuild(int playerId, string name)
         {
             _sfxPlayer.PlaySfx(SoundEffectID.ServerMessage);

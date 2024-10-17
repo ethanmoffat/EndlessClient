@@ -1,13 +1,12 @@
-﻿using EndlessClient.Dialogs.Factories;
+﻿using System.Collections.Generic;
+using EndlessClient.Dialogs.Factories;
 using EndlessClient.Dialogs.Services;
 using EOLib.Domain.Character;
 using EOLib.Domain.Interact.Guild;
 using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
 using Optional;
-using System.Collections.Generic;
 using XNAControls;
 
 namespace EndlessClient.Dialogs
@@ -61,7 +60,7 @@ namespace EndlessClient.Dialogs
         private readonly ITextInputDialogFactory _textInputDialogFactory;
 
         private readonly Stack<State> _stateStack;
-        
+
         private State _state;
         private Option<ListDialogItem> _modifyGuildDescriptionListItem;
 
