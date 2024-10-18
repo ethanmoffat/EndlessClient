@@ -1,4 +1,5 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
@@ -7,14 +8,13 @@ using EOLib.Domain.Notifiers;
 using EOLib.Net.Handlers;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Walk
 {
-	/// <summary>
-	/// Sent in response to another player walking successfully
-	/// </summary>
-	[AutoMappedType]
+    /// <summary>
+    /// Sent in response to another player walking successfully
+    /// </summary>
+    [AutoMappedType]
     public class WalkPlayerHandler : InGameOnlyPacketHandler<WalkPlayerServerPacket>
     {
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
@@ -35,8 +35,10 @@ namespace EOLib.PacketHandlers.Walk
 
         public override bool HandlePacket(WalkPlayerServerPacket packet)
         {
+
             if (_currentMapStateRepository.Characters.TryGetValue(packet.PlayerId, out var character))
             {
+
                 // if character is walking, that means animator is handling position of character
                 // if character is not walking (this is true in EOBot), update the domain model here
                 if (!character.RenderProperties.IsActing(CharacterActionState.Walking))

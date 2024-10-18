@@ -11,7 +11,6 @@ using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
-using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Spells;
 using EOLib.IO;
@@ -25,7 +24,7 @@ namespace EndlessClient.Controllers
     {
         private readonly IMapActions _mapActions;
         private readonly ICharacterActions _characterActions;
-		private readonly ISpellSelectActions _spellSelectActions;
+        private readonly ISpellSelectActions _spellSelectActions;
         private readonly ICharacterAnimationActions _characterAnimationActions;
         private readonly ISpellCastValidationActions _spellCastValidationActions;
         private readonly IInGameDialogActions _inGameDialogActions;

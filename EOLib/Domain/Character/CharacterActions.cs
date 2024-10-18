@@ -1,6 +1,7 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.Domain.Extensions;
-using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Spells;
 using EOLib.IO.Repositories;
@@ -9,8 +10,6 @@ using Moffat.EndlessOnline.SDK.Data;
 using Moffat.EndlessOnline.SDK.Protocol;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
-using System;
-using System.Linq;
 
 namespace EOLib.Domain.Character
 {
@@ -19,20 +18,17 @@ namespace EOLib.Domain.Character
     {
         private readonly IPacketSendService _packetSendService;
         private readonly ICharacterRepository _characterRepository;
-		private readonly IPlayerInfoProvider _playerInfoProvider;
-		private readonly IESFFileProvider _spellFileProvider;
+        private readonly IESFFileProvider _spellFileProvider;
         private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
 
         public CharacterActions(IPacketSendService packetSendService,
                                 ICharacterRepository characterRepository,
-                                IPlayerInfoProvider playerInfoProvider,
                                 IESFFileProvider spellFileProvider,
                                 IFixedTimeStepRepository fixedTimeStepRepository)
         {
             _packetSendService = packetSendService;
             _characterRepository = characterRepository;
-			_playerInfoProvider = playerInfoProvider;
-			_spellFileProvider = spellFileProvider;
+            _spellFileProvider = spellFileProvider;
             _fixedTimeStepRepository = fixedTimeStepRepository;
         }
 
