@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Content;
 using EndlessClient.Dialogs.Services;
 using EOLib.Domain.Character;
 using EOLib.Domain.Interact.Guild;
@@ -19,6 +20,7 @@ namespace EndlessClient.Dialogs.Factories
         private readonly IGuildSessionProvider _guildSessionProvider;
         private readonly IGuildActions _guildActions;
         private readonly ITextInputDialogFactory _textInputDialogFactory;
+        private readonly IContentProvider _contentProvider;
 
         public GuildDialogFactory(INativeGraphicsManager nativeGraphicsManager,
                                 IEODialogButtonService dialogButtonService,
@@ -28,7 +30,8 @@ namespace EndlessClient.Dialogs.Factories
                                 IEOMessageBoxFactory messageBoxFactory,
                                 IGuildSessionProvider guildSessionProvider,
                                 IGuildActions guildActions,
-                                ITextInputDialogFactory textInputDialogFactory)
+                                ITextInputDialogFactory textInputDialogFactory,
+                                IContentProvider contentProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _dialogButtonService = dialogButtonService;
@@ -39,20 +42,21 @@ namespace EndlessClient.Dialogs.Factories
             _guildSessionProvider = guildSessionProvider;
             _guildActions = guildActions;
             _textInputDialogFactory = textInputDialogFactory;
+            _contentProvider = contentProvider;
         }
 
         public GuildDialog Create()
         {
             return new GuildDialog(_nativeGraphicsManager,
-                                 _dialogButtonService,
-                                 _dialogIconService,
-                                 _localizedStringFinder,
-                                 _characterProvider,
-                                 _messageBoxFactory,
-                                 _guildSessionProvider,
-                                 _guildActions,
-                                 _textInputDialogFactory
-                                 );
+                                   _dialogButtonService,
+                                   _dialogIconService,
+                                   _localizedStringFinder,
+                                   _characterProvider,
+                                   _messageBoxFactory,
+                                   _guildSessionProvider,
+                                   _guildActions,
+                                   _textInputDialogFactory,
+                                   _contentProvider);
         }
     }
 
