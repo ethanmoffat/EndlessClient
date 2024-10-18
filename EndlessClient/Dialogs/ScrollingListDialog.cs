@@ -392,7 +392,10 @@ namespace EndlessClient.Dialogs
         public void ClearItemList()
         {
             foreach (var item in _listItems)
+            {
+                item.SetControlUnparented();
                 item.Dispose();
+            }
 
             _listItems.Clear();
             _scrollBar.UpdateDimensions(0);
@@ -433,7 +436,6 @@ namespace EndlessClient.Dialogs
 
                 AddItemToList(nextItem, sortList: false);
             }
-
         }
 
         public override void Initialize()
