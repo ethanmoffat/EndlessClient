@@ -66,8 +66,8 @@ namespace EndlessClient.Rendering.Character
             : base((Game)gameProvider.Game)
         {
             _characterRepository = characterRepository;
-			_playerInfoProvider = playerInfoProvider;
-			_currentMapStateRepository = currentMapStateRepository;
+            _playerInfoProvider = playerInfoProvider;
+            _currentMapStateRepository = currentMapStateRepository;
             _currentMapProvider = currentMapProvider;
             _spellSlotDataRepository = spellSlotDataRepository;
             _characterActions = characterActions;
