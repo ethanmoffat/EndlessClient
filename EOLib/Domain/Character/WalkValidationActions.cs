@@ -1,10 +1,10 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.IO.Map;
 using Optional;
-using System;
-using System.Linq;
 
 namespace EOLib.Domain.Character
 {
@@ -75,7 +75,8 @@ namespace EOLib.Domain.Character
             var cellChar = cellState.Character.FlatMap(c => c.SomeWhen(cc => cc != mc));
 
             return cellChar.Match(
-                some: c => {
+                some: c =>
+                {
                     if (mc.NoWall)
                         return WalkValidationResult.Walkable;
 

@@ -1,12 +1,12 @@
-﻿using EOLib.Net.Handlers;
-using Moffat.EndlessOnline.SDK.Data;
-using Moffat.EndlessOnline.SDK.Protocol.Net;
-using Optional;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using EOLib.Net.Handlers;
+using Moffat.EndlessOnline.SDK.Data;
+using Moffat.EndlessOnline.SDK.Protocol.Net;
+using Optional;
 
 namespace EOLib.Net.PacketProcessing
 {

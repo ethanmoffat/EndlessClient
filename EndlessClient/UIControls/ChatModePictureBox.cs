@@ -1,11 +1,11 @@
-﻿using EndlessClient.ControlSets;
+﻿using System;
+using EndlessClient.ControlSets;
 using EndlessClient.HUD.Chat;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Rendering;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Optional;
-using System;
 using XNAControls;
 
 namespace EndlessClient.UIControls

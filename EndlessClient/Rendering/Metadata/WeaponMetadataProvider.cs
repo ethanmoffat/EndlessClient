@@ -1,7 +1,7 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Rendering.Metadata.Models;
-using System.Collections.Generic;
 
 namespace EndlessClient.Rendering.Metadata
 {

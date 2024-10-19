@@ -1,4 +1,5 @@
-﻿using EndlessClient.Audio;
+﻿using System;
+using EndlessClient.Audio;
 using EndlessClient.Dialogs.Extensions;
 using EndlessClient.HUD.Panels;
 using EOLib.Graphics;
@@ -8,7 +9,6 @@ using Microsoft.Xna.Framework;
 using MonoGame.Extended.Input;
 using MonoGame.Extended.Input.InputListeners;
 using Optional;
-using System;
 using XNAControls;
 
 namespace EndlessClient.Dialogs

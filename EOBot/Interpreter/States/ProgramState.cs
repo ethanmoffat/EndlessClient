@@ -1,7 +1,7 @@
-﻿using EOBot.Interpreter.Variables;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using EOBot.Interpreter.Variables;
 
 namespace EOBot.Interpreter.States
 {
@@ -56,7 +56,7 @@ namespace EOBot.Interpreter.States
                 ExecutionIndex++;
                 return true;
             }
-            
+
             return false;
         }
 

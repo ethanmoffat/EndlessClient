@@ -1,4 +1,8 @@
-﻿using EndlessClient.GameExecution;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using EndlessClient.GameExecution;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Spells;
 using EndlessClient.Rendering.Metadata;
@@ -13,10 +17,6 @@ using EOLib.IO.Map;
 using EOLib.IO.Pub;
 using Microsoft.Xna.Framework;
 using Optional;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 
 namespace EndlessClient.Rendering.Character
 {
@@ -63,7 +63,7 @@ namespace EndlessClient.Rendering.Character
                                  IPathFinder pathFinder,
                                  IFixedTimeStepRepository fixedTimeStepRepository,
                                  IMetadataProvider<WeaponMetadata> weaponMetadataProvider)
-            : base((Game) gameProvider.Game)
+            : base((Game)gameProvider.Game)
         {
             _characterRepository = characterRepository;
 			_playerInfoProvider = playerInfoProvider;
@@ -135,7 +135,7 @@ namespace EndlessClient.Rendering.Character
                         rp = FaceTarget(characterCoord, _walkPath.Peek(), rp);
                         _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithRenderProperties(rp);
                     }
-                    
+
                     doTheWalk();
                 },
                 none: doTheWalk);

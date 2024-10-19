@@ -1,10 +1,10 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
 using EOLib.Net.Handlers;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Arena
 {
@@ -29,7 +29,7 @@ namespace EOLib.PacketHandlers.Arena
 
         public override bool HandlePacket(ArenaUseServerPacket packet)
         {
-            foreach (var  notifier in _arenaNotifiers)
+            foreach (var notifier in _arenaNotifiers)
             {
                 notifier.NotifyArenaStart(packet.PlayersCount);
             }

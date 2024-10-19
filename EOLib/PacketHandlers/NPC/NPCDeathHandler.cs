@@ -1,14 +1,14 @@
-﻿using EOLib.Domain.Character;
+﻿using System;
+using System.Collections.Generic;
+using EOLib.Domain.Character;
+using EOLib.Domain.Interact.Skill;
 using EOLib.Domain.Login;
+using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.Net.Handlers;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
-using System;
-using EOLib.Domain.Map;
-using System.Collections.Generic;
-using EOLib.Domain.Interact.Skill;
 
 namespace EOLib.PacketHandlers.NPC
 {
@@ -41,10 +41,10 @@ namespace EOLib.PacketHandlers.NPC
 
         protected void DeathWorkflow(NpcKilledData killData, int? experience)
         {
-            DeathWorkflowSpell(killData, experience, Option.None<(int, int)>());
+            DeathWorkflowSpell(killData, experience, Option.None<(int, int?)>());
         }
 
-        protected void DeathWorkflowSpell(NpcKilledData killData, int? experience, Option<(int SpellId, int CasterTp)> castProperties)
+        protected void DeathWorkflowSpell(NpcKilledData killData, int? experience, Option<(int SpellId, int? CasterTp)> castProperties)
         {
             var optionalDamage = killData.Damage.SomeWhen(x => x > 0);
             // note: this replicates prior functionality implemented based on EOSERV
@@ -69,7 +69,11 @@ namespace EOLib.PacketHandlers.NPC
 
             castProperties.MatchSome(x =>
             {
-                UpdateCharacterStat(CharacterStat.TP, x.CasterTp);
+                if (x.CasterTp.HasValue)
+                {
+                    UpdateCharacterStat(CharacterStat.TP, x.CasterTp.Value);
+                }
+
                 NotifySpellCast(killData.KillerId);
             });
         }

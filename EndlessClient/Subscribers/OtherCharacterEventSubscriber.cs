@@ -1,4 +1,6 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Linq;
+using AutomaticTypeMapper;
 using EndlessClient.HUD.Chat;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Services;
@@ -6,8 +8,6 @@ using EOLib;
 using EOLib.Config;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Notifiers;
-using System;
-using System.Linq;
 
 namespace EndlessClient.Subscribers
 {
@@ -59,11 +59,8 @@ namespace EndlessClient.Subscribers
 
         private void SaySomethingShared(int characterID, string message, bool isGroupChat)
         {
-            if (_characterRendererProvider.CharacterRenderers.TryGetValue(characterID, out var characterRenderer) ||
-                _characterRendererProvider.MainCharacterRenderer.HasValue)
+            if (_characterRendererProvider.CharacterRenderers.TryGetValue(characterID, out var characterRenderer))
             {
-                _characterRendererProvider.MainCharacterRenderer.MatchSome(x => characterRenderer = x);
-
                 var name = characterRenderer.Character.Name;
 
                 var ignoreList = _friendIgnoreListService.LoadList(Constants.IgnoreListFile);

@@ -1,4 +1,5 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD;
@@ -9,7 +10,6 @@ using EOLib.Domain.Chat;
 using EOLib.Domain.Chat.Commands;
 using EOLib.Domain.Map;
 using EOLib.Localization;
-using System;
 
 namespace EndlessClient.Controllers
 {
@@ -60,6 +60,12 @@ namespace EndlessClient.Controllers
                 }
 
                 var chatType = _chatTypeCalculator.CalculateChatType(localTypedText);
+
+                if (chatType == ChatType.Admin)
+                {
+                    _sfxPlayer.PlaySfx(SoundEffectID.AdminChatSent);
+                }
+
                 var (result, updatedChat) = _chatActions.SendChatToServer(localTypedText, targetCharacter, chatType);
                 switch (result)
                 {

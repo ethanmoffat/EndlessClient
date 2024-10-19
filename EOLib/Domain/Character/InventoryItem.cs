@@ -1,6 +1,5 @@
-using Amadevus.RecordGenerator;
 using System;
-
+using Amadevus.RecordGenerator;
 using NetItem = Moffat.EndlessOnline.SDK.Protocol.Net.Item;
 
 namespace EOLib.Domain.Character
@@ -9,7 +8,7 @@ namespace EOLib.Domain.Character
     public sealed partial class InventoryItem
     {
         public int ItemID { get; }
-        
+
         public int Amount { get; }
 
         public static InventoryItem FromNet(NetItem source) => new InventoryItem(source.Id, source.Amount);

@@ -72,6 +72,8 @@ namespace EndlessClient.HUD.Chat
                 var chatPanel = _hudControlProvider.GetComponent<ChatPanel>(HudControlIdentifier.ChatPanel);
                 chatPanel.ClosePMTab(tab);
             });
+
+            _sfxPlayer.PlaySfx(SoundEffectID.PrivateMessageTargetNotFound);
         }
 
         public void NotifyPlayerMutedByAdmin(string adminName)

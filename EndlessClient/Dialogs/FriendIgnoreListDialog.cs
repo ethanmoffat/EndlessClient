@@ -1,9 +1,9 @@
-﻿using EndlessClient.Dialogs.Services;
+﻿using System.Collections.Generic;
+using System.Linq;
+using EndlessClient.Dialogs.Services;
 using EOLib.Domain.Online;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace EndlessClient.Dialogs
 {

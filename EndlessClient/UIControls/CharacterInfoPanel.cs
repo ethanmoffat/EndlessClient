@@ -1,4 +1,7 @@
-﻿using EndlessClient.Controllers;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+using EndlessClient.Controllers;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.Input;
 using EndlessClient.Rendering;
@@ -11,8 +14,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Moffat.EndlessOnline.SDK.Protocol;
-using System;
-using System.Threading.Tasks;
 using XNAControls;
 
 namespace EndlessClient.UIControls
@@ -44,7 +45,7 @@ namespace EndlessClient.UIControls
         {
             _characterIndex = characterIndex;
             _gfxManager = gfxManager;
-            DrawPosition = new Vector2(334, 36 + characterIndex*124);
+            DrawPosition = new Vector2(334, 36 + characterIndex * 124);
 
             _loginButton = new XNAButton(dialogButtonService.SmallButtonSheet,
                 new Vector2(161, 57),
@@ -163,7 +164,8 @@ namespace EndlessClient.UIControls
 
             var previousKeyState = _userInputProvider.PreviousKeyState;
             var currentKeyState = _userInputProvider.CurrentKeyState;
-            if (currentKeyState.IsKeyPressedOnce(previousKeyState, Keys.D1 + _characterIndex))
+            if (currentKeyState.IsKeyPressedOnce(previousKeyState, Keys.D1 + _characterIndex) &&
+                !Game.Components.OfType<IXNADialog>().Any())
             {
                 AsyncButtonClick(() => _loginController.LoginToCharacter(_character));
             }
@@ -198,13 +200,13 @@ namespace EndlessClient.UIControls
 
         private static string CapitalizeName(string name)
         {
-            return string.IsNullOrEmpty(name) ? string.Empty : (char)(name[0] - 32) + name.Substring(1);
+            return string.IsNullOrEmpty(name) ? string.Empty : char.ToUpper(name[0]) + name[1..];
         }
 
         private ISpriteSheet CreateAdminGraphic(AdminLevel adminLevel)
         {
             var adminGraphic = _gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 22);
-            
+
             switch (adminLevel)
             {
                 case AdminLevel.Player:

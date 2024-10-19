@@ -1,4 +1,6 @@
-﻿using AutomaticTypeMapper;
+﻿using System;
+using System.Linq;
+using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs;
@@ -21,8 +23,6 @@ using EOLib.IO;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
-using System;
-using System.Linq;
 using XNAControls;
 
 namespace EndlessClient.Controllers
@@ -352,7 +352,7 @@ namespace EndlessClient.Controllers
                     EOResourceID.DIALOG_TRANSFER_OFFER);
             }
         }
-        
+
         private void DoItemDrop(EIFRecord itemData, InventoryItem inventoryItem, Action<int> dropAction,
                  ItemTransferDialog.TransferType transferType = ItemTransferDialog.TransferType.DropItems,
                  EOResourceID message = EOResourceID.DIALOG_TRANSFER_DROP)
@@ -364,7 +364,7 @@ namespace EndlessClient.Controllers
                     transferType,
                     inventoryItem.Amount,
                     message);
-                
+
                 transferDialog.DialogClosing += (sender, e) =>
                 {
                     if (e.Result == XNADialogResult.OK)

@@ -28,7 +28,7 @@ namespace EOLib.Domain.Trade
 
         public void RemoveItemFromOffer(int itemID)
         {
-            var packet = new TradeRemoveClientPacket {  ItemId = itemID };
+            var packet = new TradeRemoveClientPacket { ItemId = itemID };
             _packetSendService.SendPacket(packet);
         }
 
