@@ -1,13 +1,13 @@
 ﻿using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EOLib.Domain.Character;
-using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework.Input;
 using Optional;
 
 namespace EndlessClient.Input
 {
+
     public class NumPadHandler : InputHandlerBase
     {
         private readonly INumPadController _numPadController;
@@ -16,9 +16,8 @@ namespace EndlessClient.Input
                              IUserInputProvider userInputProvider,
                              IUserInputTimeRepository userInputTimeRepository,
                              ICurrentMapStateRepository currentMapStateRepository,
-                             INumPadController numPadController,
-							 IPlayerInfoProvider playerInfoProvider)
-            : base(endlessGameProvider, userInputProvider, userInputTimeRepository, currentMapStateRepository, playerInfoProvider)
+                             INumPadController numPadController)
+            : base(endlessGameProvider, userInputProvider, userInputTimeRepository, currentMapStateRepository)
         {
             _numPadController = numPadController;
         }

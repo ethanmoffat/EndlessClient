@@ -1,9 +1,8 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EndlessClient.Dialogs.Actions;
 using EOLib.Domain.Character;
-using EOLib.Domain.Login;
 using EOLib.Domain.Map;
-using System.Collections.Generic;
 
 namespace EndlessClient.Input
 {
@@ -13,19 +12,15 @@ namespace EndlessClient.Input
         private readonly IMapActions _mapActions;
         private readonly IInGameDialogActions _inGameDialogActions;
         private readonly ICharacterActions _characterActions;
-        private readonly IPlayerInfoProvider _playerInfoProvider;
 
         public UnwalkableTileActionsHandler(IMapActions mapActions,
                                             IInGameDialogActions inGameDialogActions,
-                                            ICharacterActions characterActions,
-                                            IPlayerInfoProvider playerInfoProvider)
+                                            ICharacterActions characterActions)
         {
             _mapActions = mapActions;
             _inGameDialogActions = inGameDialogActions;
             _characterActions = characterActions;
-            _playerInfoProvider = playerInfoProvider;
-
-		}
+        }
 
         public void HandleUnwalkableTileActions(IReadOnlyList<UnwalkableTileAction> unwalkableActions, IMapCellState cellState)
         {
@@ -42,9 +37,7 @@ namespace EndlessClient.Input
                         _inGameDialogActions.ShowLockerDialog();
                         break;
                     case UnwalkableTileAction.Chair:
-						if (_playerInfoProvider.IsPlayerFrozen)
-							return;
-						_characterActions.Sit(cellState.Coordinate, isChair: true);
+                        _characterActions.Sit(cellState.Coordinate, isChair: true);
                         break;
                     case UnwalkableTileAction.Door:
                         cellState.Warp.MatchSome(w => _mapActions.OpenDoor(w));

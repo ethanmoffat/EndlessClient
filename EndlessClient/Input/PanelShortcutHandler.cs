@@ -1,10 +1,9 @@
-﻿using EndlessClient.GameExecution;
+﻿using System.Linq;
+using EndlessClient.GameExecution;
 using EndlessClient.HUD;
-using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework.Input;
 using Optional;
-using System.Linq;
 
 namespace EndlessClient.Input
 {
@@ -16,9 +15,8 @@ namespace EndlessClient.Input
                                     IUserInputProvider userInputProvider,
                                     IUserInputTimeRepository userInputTimeRepository,
                                     ICurrentMapStateRepository currentMapStateRepository,
-                                    IHudButtonController hudButtonController,
-									IPlayerInfoProvider playerInfoProvider)
-            : base(endlessGameProvider, userInputProvider, userInputTimeRepository, currentMapStateRepository, playerInfoProvider)
+                                    IHudButtonController hudButtonController)
+            : base(endlessGameProvider, userInputProvider, userInputTimeRepository, currentMapStateRepository)
         {
             _hudButtonController = hudButtonController;
         }
@@ -47,7 +45,7 @@ namespace EndlessClient.Input
 
                         case Keys.D7: _hudButtonController.ClickOnlineList(); break;
                         case Keys.D8: _hudButtonController.ClickParty(); break;
-                            // macro: intentionally not implemented
+                        // macro: intentionally not implemented
                         case Keys.D9: _hudButtonController.ClickSettings(); break;
                         case Keys.D0: _hudButtonController.ClickHelp(); break;
                     }

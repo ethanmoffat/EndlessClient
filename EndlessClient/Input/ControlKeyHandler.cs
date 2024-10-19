@@ -1,6 +1,5 @@
 ﻿using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
-using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework.Input;
 using Optional;
@@ -15,9 +14,8 @@ namespace EndlessClient.Input
                                  IUserInputProvider userInputProvider,
                                  IUserInputTimeRepository userInputTimeRepository,
                                  IControlKeyController controlKeyController,
-                                 ICurrentMapStateRepository currentMapStateRepository,
-                                 IPlayerInfoProvider playerInfoProvider)
-            : base(endlessGameProvider, userInputProvider, userInputTimeRepository, currentMapStateRepository, playerInfoProvider)
+                                 ICurrentMapStateRepository currentMapStateRepository)
+            : base(endlessGameProvider, userInputProvider, userInputTimeRepository, currentMapStateRepository)
         {
             _controlKeyController = controlKeyController;
         }
