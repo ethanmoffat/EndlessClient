@@ -1,9 +1,11 @@
 ﻿using AutomaticTypeMapper;
+
 using EndlessClient.Controllers;
 using EndlessClient.Dialogs;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD;
 using EndlessClient.Rendering;
+
 using EOLib.Domain.Map;
 
 namespace EndlessClient.Input

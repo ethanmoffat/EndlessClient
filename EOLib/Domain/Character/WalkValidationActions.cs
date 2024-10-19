@@ -13,7 +13,8 @@ namespace EOLib.Domain.Character
         NotWalkable,
         Walkable,
         BlockedByCharacter,
-        GhostComplete
+        GhostComplete,
+        Frozen
     }
 
     [AutoMappedType]
@@ -36,6 +37,7 @@ namespace EOLib.Domain.Character
             _currentMapStateProvider = currentMapStateProvider;
             _unlockDoorValidator = unlockDoorValidator;
             _ghostingRepository = ghostingRepository;
+
         }
 
         public WalkValidationResult CanMoveToDestinationCoordinates()
@@ -64,6 +66,9 @@ namespace EOLib.Domain.Character
         public WalkValidationResult IsCellStateWalkable(IMapCellState cellState)
         {
             ClearGhostCache();
+
+            if (_characterProvider.MainCharacter.Frozen)
+                return WalkValidationResult.Frozen;
 
             var mc = _characterProvider.MainCharacter;
 
