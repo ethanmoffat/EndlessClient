@@ -21,10 +21,14 @@ namespace EndlessClient.Dialogs
         private enum GuildDialogState
         {
             Initial,
-            Management,
+
+            // Initial List Items
             Information,
-            LookUp,
-            ViewMembers,
+            Administration,
+            Management,
+            BankAccount,
+
+            // Management
             Modify,
             ManageRankings,
             AssignRank,
@@ -40,9 +44,9 @@ namespace EndlessClient.Dialogs
 
             public static State Initial => new(GuildDialogState.Initial);
 
-            public static State Management => new(GuildDialogState.Management);
-
             public static State Information => new(GuildDialogState.Information);
+
+            public static State Management => new(GuildDialogState.Management);
 
             public static State Modify => new(GuildDialogState.Modify);
 
@@ -123,8 +127,8 @@ namespace EndlessClient.Dialogs
             _stateTransitions = new Dictionary<State, Action>
             {
                 { State.Initial, SetupInitialState },
-                { State.Management, SetupManagementState },
                 { State.Information, SetupInformationState },
+                { State.Management, SetupManagementState },
                 { State.Modify, SetupModifyState },
                 { State.ManageRankings, () => { } },
                 { State.AssignRank, () => { } },
@@ -226,7 +230,7 @@ namespace EndlessClient.Dialogs
             SetItemList(new List<ListDialogItem> { informationItem, administrationItem, managementItem, bankAccountItem });
         }
 
-        public void SetupInformationState()
+        private void SetupInformationState()
         {
             var guildLookup = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
             {
@@ -367,6 +371,20 @@ namespace EndlessClient.Dialogs
             );
 
             _modifyGuildDescriptionListItem = Option.Some(ChildControls.OfType<ListDialogItem>().ToList()[1]);
+
+            void ShowChangeDescriptionMessageBox()
+            {
+                var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_DESCRIPTION), 240);
+                dlg.DialogClosing += (_, e) =>
+                {
+                    if (e.Result == XNADialogResult.OK)
+                    {
+                        _guildActions.SetGuildDescription(dlg.ResponseText);
+                        GoBack();
+                    }
+                };
+                dlg.ShowDialog();
+            }
         }
 
         private void SetStateIfGuildMember(State state)
@@ -379,20 +397,6 @@ namespace EndlessClient.Dialogs
             }
 
             SetState(state);
-        }
-
-        private void ShowChangeDescriptionMessageBox()
-        {
-            var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_DESCRIPTION), 240);
-            dlg.DialogClosing += (_, e) =>
-            {
-                if (e.Result == XNADialogResult.OK)
-                {
-                    _guildActions.SetGuildDescription(dlg.ResponseText);
-                    GoBack();
-                }
-            };
-            dlg.ShowDialog();
         }
     }
 }
