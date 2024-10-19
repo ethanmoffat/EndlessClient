@@ -102,10 +102,9 @@ namespace EOLib.Domain.Login
                 .WithClassID(data.ClassId)
                 .WithMapID(data.MapId)
                 .WithAdminLevel(data.Admin)
-                .WithStats(CharacterStats.FromSelectCharacterData(data))
-                .WithFrozen(data.LoginMessageCode == (LoginMessageCode)250);
+                .WithStats(CharacterStats.FromSelectCharacterData(data));
 
-            _playerInfoRepository.IsFirstTimePlayer = data.LoginMessageCode == LoginMessageCode.Yes;
+            _playerInfoRepository.IsFirstTimePlayer = data.LoginMessageCode != LoginMessageCode.No;
             _playerInfoRepository.PlayerHasAdminCharacter = _characterSelectorRepository.Characters.Any(x => x.AdminLevel > 0);
 
             _currentMapStateRepository.CurrentMapID = data.MapId;
