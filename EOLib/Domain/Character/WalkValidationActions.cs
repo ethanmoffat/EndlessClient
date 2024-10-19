@@ -1,6 +1,5 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Extensions;
-using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.IO.Map;
 using Optional;
@@ -26,29 +25,23 @@ namespace EOLib.Domain.Character
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly IUnlockDoorValidator _unlockDoorValidator;
         private readonly IGhostingRepository _ghostingRepository;
-        private readonly IPlayerInfoProvider _playerInfoProvider;
 
         public WalkValidationActions(IMapCellStateProvider mapCellStateProvider,
                                      ICharacterProvider characterProvider,
-									 IPlayerInfoProvider playerInfoProvider,
-									 ICurrentMapStateProvider currentMapStateProvider,
+                                     ICurrentMapStateProvider currentMapStateProvider,
                                      IUnlockDoorValidator unlockDoorValidator,
                                      IGhostingRepository ghostingRepository)
         {
             _mapCellStateProvider = mapCellStateProvider;
             _characterProvider = characterProvider;
-			_playerInfoProvider = playerInfoProvider;
-			_currentMapStateProvider = currentMapStateProvider;
+            _currentMapStateProvider = currentMapStateProvider;
             _unlockDoorValidator = unlockDoorValidator;
             _ghostingRepository = ghostingRepository;
 
-		}
+        }
 
         public WalkValidationResult CanMoveToDestinationCoordinates()
         {
-            if (_playerInfoProvider.IsPlayerFrozen)
-                return WalkValidationResult.Frozen;
-
             if (_currentMapStateProvider.MapWarpState == WarpState.WarpStarted)
                 return WalkValidationResult.NotWalkable;
 
@@ -60,11 +53,8 @@ namespace EOLib.Domain.Character
         }
 
         public WalkValidationResult CanMoveToCoordinates(int gridX, int gridY)
-		{
-			if (_playerInfoProvider.IsPlayerFrozen)
-				return WalkValidationResult.Frozen;
-
-			var mainCharacter = _characterProvider.MainCharacter;
+        {
+            var mainCharacter = _characterProvider.MainCharacter;
 
             if (mainCharacter.RenderProperties.SitState != SitState.Standing)
                 return WalkValidationResult.NotWalkable;
@@ -75,10 +65,10 @@ namespace EOLib.Domain.Character
 
         public WalkValidationResult IsCellStateWalkable(IMapCellState cellState)
         {
-			if (_playerInfoProvider.IsPlayerFrozen)
-				return WalkValidationResult.Frozen;
+            ClearGhostCache();
 
-			ClearGhostCache();
+            if (_characterProvider.MainCharacter.Frozen)
+                return WalkValidationResult.Frozen;
 
             var mc = _characterProvider.MainCharacter;
 
@@ -105,8 +95,8 @@ namespace EOLib.Domain.Character
         }
 
         private bool IsWarpWalkable(Warp warp, TileSpec tile)
-		{
-			if (warp.DoorType != DoorSpec.NoDoor)
+        {
+            if (warp.DoorType != DoorSpec.NoDoor)
                 return _currentMapStateProvider.OpenDoors.Any(w => w.X == warp.X && w.Y == warp.Y) &&
                        _unlockDoorValidator.CanMainCharacterOpenDoor(warp);
             if (warp.LevelRequirement != 0)

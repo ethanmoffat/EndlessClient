@@ -68,29 +68,48 @@ namespace EndlessClient.Controllers
             {
                 _spellSelectActions.SelectSpellBySlot(index + (isAlternate ? ActiveSpellsPanel.SpellRowLength : 0));
 
-                _spellSlotDataProvider.SelectedSpellInfo.MatchSome(x =>
-                {
-                    var spellData = _esfFileProvider.ESFFile[x.ID];
-                    if (spellData.Type == SpellType.Bard && _spellCastValidationActions.ValidateBard())
+                _spellSlotDataProvider.SelectedSpellInfo.Match(
+                    some: x =>
                     {
-                        _inGameDialogActions.ShowBardDialog();
-                    }
-                    else if (spellData.Target == SpellTarget.Self || spellData.Target == SpellTarget.Group)
-                    {
-                        var castResult = _spellCastValidationActions.ValidateSpellCast(x.ID);
+                        var spellData = _esfFileProvider.ESFFile[x.ID];
+                        if (spellData.Type == SpellType.Bard && _spellCastValidationActions.ValidateBard())
+                        {
+                            _inGameDialogActions.ShowBardDialog();
+                        }
+                        else
+                        {
+                            var castResult = _spellCastValidationActions.ValidateSpellCast(x.ID);
 
-                        if (castResult == SpellCastValidationResult.ExhaustedNoTp)
-                            _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.ATTACK_YOU_ARE_EXHAUSTED_TP);
-                        else if (castResult == SpellCastValidationResult.ExhaustedNoSp)
-                            _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.ATTACK_YOU_ARE_EXHAUSTED_SP);
-                        else if (_characterAnimationActions.PrepareMainCharacterSpell(x.ID, _characterProvider.MainCharacter))
-                            _characterActions.PrepareCastSpell(x.ID);
-                    }
-                    else
-                    {
-                        _sfxPlayer.PlaySfx(SoundEffectID.SpellActivate);
-                    }
-                });
+                            switch (castResult)
+                            {
+                                case SpellCastValidationResult.ExhaustedNoTp:
+                                    _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.ATTACK_YOU_ARE_EXHAUSTED_TP);
+                                    break;
+                                case SpellCastValidationResult.ExhaustedNoSp:
+                                    _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.ATTACK_YOU_ARE_EXHAUSTED_SP);
+                                    break;
+                                case SpellCastValidationResult.NotMemberOfGroup:
+                                    _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.SPELL_ONLY_WORKS_ON_GROUP);
+                                    break;
+                                case SpellCastValidationResult.Frozen:
+                                    // no-op
+                                    break;
+                                default:
+                                    _statusLabelSetter.SetStatusLabel(EOResourceID.SKILLMASTER_WORD_SPELL, $"{spellData.Name} ", EOResourceID.SPELL_WAS_SELECTED);
+                                    if (spellData.Target == SpellTarget.Normal)
+                                    {
+                                        _sfxPlayer.PlaySfx(SoundEffectID.SpellActivate);
+                                    }
+                                    else if (_characterAnimationActions.PrepareMainCharacterSpell(x.ID, _characterProvider.MainCharacter))
+                                    {
+                                        _characterActions.PrepareCastSpell(x.ID);
+                                    }
+                                    break;
+                            }
+                        }
+                    },
+                    none: () => _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.SPELL_NOTHING_WAS_SELECTED)
+                );
 
                 return true;
             }

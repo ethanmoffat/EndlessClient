@@ -1,6 +1,9 @@
 ﻿using AutomaticTypeMapper;
+
+using EndlessClient.Audio;
 using EndlessClient.HUD;
 using EndlessClient.Rendering.Character;
+
 using EOLib.Domain.Chat;
 using EOLib.Domain.Notifiers;
 using EOLib.IO.Repositories;
@@ -16,18 +19,21 @@ namespace EndlessClient.Subscribers
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly IPubFileProvider _pubFileProvider;
         private readonly ICharacterRendererProvider _characterRendererProvider;
+        private readonly ISfxPlayer _sfxPlayer;
 
         public MainCharacterEventSubscriber(IStatusLabelSetter statusLabelSetter,
                                             IChatRepository chatRepository,
                                             ILocalizedStringFinder localizedStringFinder,
                                             IPubFileProvider pubFileProvider,
-                                            ICharacterRendererProvider characterRendererProvider)
+                                            ICharacterRendererProvider characterRendererProvider,
+                                            ISfxPlayer sfxPlayer)
         {
             _statusLabelSetter = statusLabelSetter;
             _chatRepository = chatRepository;
             _localizedStringFinder = localizedStringFinder;
             _pubFileProvider = pubFileProvider;
             _characterRendererProvider = characterRendererProvider;
+            _sfxPlayer = sfxPlayer;
         }
 
         public void NotifyGainedExp(int expDifference)
@@ -81,6 +87,11 @@ namespace EndlessClient.Subscribers
 
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED,
                 $" {amountRemoved} {rec.Name}");
+        }
+
+        public void NotifyFrozen()
+        {
+            _sfxPlayer.PlaySfx(SoundEffectID.PlayerFrozen);
         }
     }
 }

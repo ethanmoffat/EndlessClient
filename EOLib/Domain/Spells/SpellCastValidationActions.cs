@@ -1,10 +1,12 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Linq;
+
+using AutomaticTypeMapper;
+
 using EOLib.Domain.Character;
-using EOLib.Domain.Login;
 using EOLib.Domain.Map;
+using EOLib.Domain.Party;
 using EOLib.IO;
 using EOLib.IO.Repositories;
-using System.Linq;
 
 namespace EOLib.Domain.Spells
 {
@@ -14,22 +16,22 @@ namespace EOLib.Domain.Spells
         private readonly IPubFileProvider _pubFileProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly ICharacterProvider _characterProvider;
-        private readonly IPlayerInfoProvider _playerInfoProvider;
+        private readonly IPartyDataProvider _partyDataProvider;
 
         public SpellCastValidationActions(IPubFileProvider pubFileProvider,
                                           ICurrentMapProvider currentMapProvider,
                                           ICharacterProvider characterProvider,
-                                          IPlayerInfoProvider playerInfoProvider)
+                                          IPartyDataProvider partyDataProvider)
         {
             _pubFileProvider = pubFileProvider;
             _currentMapProvider = currentMapProvider;
             _characterProvider = characterProvider;
-            _playerInfoProvider = playerInfoProvider;
+            _partyDataProvider = partyDataProvider;
         }
 
         public SpellCastValidationResult ValidateSpellCast(int spellId)
         {
-            if (_playerInfoProvider.IsPlayerFrozen)
+            if (_characterProvider.MainCharacter.Frozen)
                 return SpellCastValidationResult.Frozen;
 
             var spellData = _pubFileProvider.ESFFile[spellId];
@@ -39,13 +41,15 @@ namespace EOLib.Domain.Spells
                 return SpellCastValidationResult.ExhaustedNoSp;
             if (stats[CharacterStat.TP] - spellData.TP < 0)
                 return SpellCastValidationResult.ExhaustedNoTp;
+            if (spellData.Target == SpellTarget.Group && !_partyDataProvider.Members.Any())
+                return SpellCastValidationResult.NotMemberOfGroup;
 
             return SpellCastValidationResult.Ok;
         }
 
         public SpellCastValidationResult ValidateSpellCast(int spellId, ISpellTargetable spellTarget)
         {
-            if (_playerInfoProvider.IsPlayerFrozen)
+            if (_characterProvider.MainCharacter.Frozen)
                 return SpellCastValidationResult.Frozen;
 
             var res = ValidateSpellCast(spellId);
@@ -85,10 +89,10 @@ namespace EOLib.Domain.Spells
 
         public bool ValidateBard()
         {
-			if (_playerInfoProvider.IsPlayerFrozen)
-				return false;
+            if (_characterProvider.MainCharacter.Frozen)
+                return false;
 
-			var weapon = _characterProvider.MainCharacter.RenderProperties.WeaponGraphic;
+            var weapon = _characterProvider.MainCharacter.RenderProperties.WeaponGraphic;
             return Constants.Instruments.Any(x => x == weapon);
         }
     }

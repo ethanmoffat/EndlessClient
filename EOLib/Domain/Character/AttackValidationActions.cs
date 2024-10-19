@@ -14,16 +14,13 @@ namespace EOLib.Domain.Character
         private readonly IMapCellStateProvider _mapCellStateProvider;
         private readonly IEIFFileProvider _eifFileProvider;
         private readonly IENFFileProvider _enfFileProvider;
-        private readonly IPlayerInfoProvider _playerInfoProvider;
 
         public AttackValidationActions(ICharacterProvider characterProvider,
-									   IPlayerInfoProvider playerInfoProvider,
                                        IMapCellStateProvider mapCellStateProvider,
                                        IEIFFileProvider eifFileProvider,
                                        IENFFileProvider enfFileProvider)
         {
             _characterProvider = characterProvider;
-            _playerInfoProvider = playerInfoProvider;
             _mapCellStateProvider = mapCellStateProvider;
             _eifFileProvider = eifFileProvider;
             _enfFileProvider = enfFileProvider;
@@ -31,11 +28,13 @@ namespace EOLib.Domain.Character
 
         public AttackValidationError ValidateCharacterStateBeforeAttacking()
         {
-            if (_playerInfoProvider.IsPlayerFrozen)
+            if (_characterProvider.MainCharacter.Frozen)
                 return AttackValidationError.Frozen;
+
             if (_characterProvider.MainCharacter.Stats[CharacterStat.Weight] >
                 _characterProvider.MainCharacter.Stats[CharacterStat.MaxWeight])
                 return AttackValidationError.Overweight;
+
             if (_characterProvider.MainCharacter.Stats[CharacterStat.SP] <= 0)
                 return AttackValidationError.Exhausted;
 

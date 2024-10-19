@@ -143,7 +143,7 @@ namespace EOBot
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.JunkItem, $"{weight,3}/{maxWeight,3} - weight - {inventoryCount?.Amount ?? 0} in inventory");
             }
 
-            public void MakeDrunk() { }
+            public void NotifyFrozen() { }
         }
 
         [AutoMappedType]

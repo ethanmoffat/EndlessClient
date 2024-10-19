@@ -1,14 +1,16 @@
 ﻿using AutomaticTypeMapper;
+
 using EndlessClient.Audio;
 using EndlessClient.HUD;
 using EndlessClient.Input;
 using EndlessClient.Rendering.Character;
+
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
-using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Localization;
+
 using Optional;
 
 namespace EndlessClient.Controllers
@@ -19,7 +21,6 @@ namespace EndlessClient.Controllers
         private readonly IWalkValidationActions _walkValidationActions;
         private readonly ICharacterAnimationActions _characterAnimationActions;
         private readonly ICharacterProvider _characterProvider;
-        private readonly IPlayerInfoProvider _playerInfoProvider;
         private readonly IUnwalkableTileActions _unwalkableTileActions;
         private readonly IUnwalkableTileActionsHandler _unwalkableTileActionsHandler;
         private readonly IStatusLabelSetter _statusLabelSetter;
@@ -29,7 +30,6 @@ namespace EndlessClient.Controllers
         public ArrowKeyController(IWalkValidationActions walkValidationActions,
                                   ICharacterAnimationActions characterAnimationActions,
                                   ICharacterProvider characterProvider,
-                                  IPlayerInfoProvider playerInfoProvider,
                                   IUnwalkableTileActions walkErrorHandler,
                                   IUnwalkableTileActionsHandler unwalkableTileActionsHandler,
                                   IStatusLabelSetter statusLabelSetter,
@@ -39,7 +39,6 @@ namespace EndlessClient.Controllers
             _walkValidationActions = walkValidationActions;
             _characterAnimationActions = characterAnimationActions;
             _characterProvider = characterProvider;
-            _playerInfoProvider = playerInfoProvider;
             _unwalkableTileActions = walkErrorHandler;
             _unwalkableTileActionsHandler = unwalkableTileActionsHandler;
             _statusLabelSetter = statusLabelSetter;
@@ -104,11 +103,11 @@ namespace EndlessClient.Controllers
         }
 
         private void FaceOrAttemptWalk(EODirection direction)
-		{
-			if (_playerInfoProvider.IsPlayerFrozen)
-				return;
+        {
+            if (_characterProvider.MainCharacter.Frozen)
+                return;
 
-			if (!CurrentDirectionIs(direction) && _characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Standing))
+            if (!CurrentDirectionIs(direction) && _characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Standing))
             {
                 _characterAnimationActions.Face(direction);
             }
@@ -139,6 +138,9 @@ namespace EndlessClient.Controllers
                     break;
                 case WalkValidationResult.Walkable:
                     _characterAnimationActions.StartWalking(Option.None<MapCoordinate>());
+                    break;
+                case WalkValidationResult.Frozen:
+                    // no-op
                     break;
             }
         }

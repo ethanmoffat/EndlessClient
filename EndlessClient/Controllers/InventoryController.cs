@@ -40,7 +40,6 @@ namespace EndlessClient.Controllers
         private readonly IItemEquipValidator _itemEquipValidator;
         private readonly IItemDropValidator _itemDropValidator;
         private readonly ICharacterProvider _characterProvider;
-        private readonly IPlayerInfoProvider _playerInfoProvider;
         private readonly IPaperdollProvider _paperdollProvider;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
@@ -66,7 +65,6 @@ namespace EndlessClient.Controllers
                                    IItemEquipValidator itemEquipValidator,
                                    IItemDropValidator itemDropValidator,
                                    ICharacterProvider characterProvider,
-                                   IPlayerInfoProvider playerInfoProvider,
                                    IPaperdollProvider paperdollProvider,
                                    IHudControlProvider hudControlProvider,
                                    ICurrentMapProvider currentMapProvider,
@@ -90,7 +88,6 @@ namespace EndlessClient.Controllers
             _itemEquipValidator = itemEquipValidator;
             _itemDropValidator = itemDropValidator;
             _characterProvider = characterProvider;
-            _playerInfoProvider = playerInfoProvider;
             _paperdollProvider = paperdollProvider;
             _hudControlProvider = hudControlProvider;
             _currentMapProvider = currentMapProvider;
@@ -122,7 +119,7 @@ namespace EndlessClient.Controllers
             {
                 //usable items
                 case ItemType.Teleport:
-                    if (_playerInfoProvider.IsPlayerFrozen)
+                    if (_characterProvider.MainCharacter.Frozen)
                         break;
 
                     if (!_currentMapProvider.CurrentMap.Properties.CanScroll)

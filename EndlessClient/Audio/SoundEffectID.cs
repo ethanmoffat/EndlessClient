@@ -41,7 +41,7 @@
         DoorOrChestLocked,
         BuySell,
         Craft,
-        UnknownBuzzSound = 28,
+        PlayerFrozen = 28,
         AdminChatReceived,
         AlternateMeleeAttack,
         PotionOfFlamesEffect,

@@ -51,6 +51,8 @@ namespace EOLib.Domain.Character
 
         public bool NoWall { get; }
 
+        public bool Frozen { get; }
+
         public static Character FromCharacterSelectionListEntry(CharacterSelectionListEntry selectionListEntry)
         {
             return new Builder

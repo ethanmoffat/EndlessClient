@@ -44,7 +44,6 @@ namespace EndlessClient.Controllers
         private readonly ISpellCastValidationActions _spellCastValidationActions;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly ICharacterProvider _characterProvider;
-        private readonly IPlayerInfoProvider _playerInfoProvider;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IInventorySpaceValidator _inventorySpaceValidator;
         private readonly IHudControlProvider _hudControlProvider;
@@ -68,8 +67,7 @@ namespace EndlessClient.Controllers
                                         ISpellCastValidationActions spellCastValidationActions,
                                         ICurrentMapStateProvider currentMapStateProvider,
                                         ICharacterProvider characterProvider,
-										IPlayerInfoProvider playerInfoProvider,
-										IStatusLabelSetter statusLabelSetter,
+                                        IStatusLabelSetter statusLabelSetter,
                                         IInventorySpaceValidator inventorySpaceValidator,
                                         IHudControlProvider hudControlProvider,
                                         ICharacterRendererProvider characterRendererProvider,
@@ -92,7 +90,6 @@ namespace EndlessClient.Controllers
             _spellCastValidationActions = spellCastValidationActions;
             _currentMapStateProvider = currentMapStateProvider;
             _characterProvider = characterProvider;
-            _playerInfoProvider = playerInfoProvider;
             _statusLabelSetter = statusLabelSetter;
             _inventorySpaceValidator = inventorySpaceValidator;
             _hudControlProvider = hudControlProvider;
@@ -131,7 +128,7 @@ namespace EndlessClient.Controllers
             // vanilla client prioritizes standing first, then board interaction
             else if (_characterProvider.MainCharacter.RenderProperties.SitState != SitState.Standing)
             {
-                if (_playerInfoProvider.IsPlayerFrozen)
+                if (_characterProvider.MainCharacter.Frozen)
                     return;
 
                 var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
@@ -149,11 +146,11 @@ namespace EndlessClient.Controllers
                         _inGameDialogActions.ShowBoardDialog();
                     }
                     else if (cellState.TileSpec.IsChair())
-					{
-						if (_playerInfoProvider.IsPlayerFrozen)
-							return;
+                    {
+                        if (_characterProvider.MainCharacter.Frozen)
+                            return;
 
-						_characterActions.Sit(cellState.Coordinate, isChair: true);
+                        _characterActions.Sit(cellState.Coordinate, isChair: true);
                     }
                     else
                     {
