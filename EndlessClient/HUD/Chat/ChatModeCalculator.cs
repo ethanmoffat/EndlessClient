@@ -31,7 +31,7 @@ namespace EndlessClient.HUD.Chat
             {
                 case '!': return ChatModePictureBox.ChatMode.Private;
                 case '@':
-                case '~': return  ChatModePictureBox.ChatMode.Global;
+                case '~': return ChatModePictureBox.ChatMode.Global;
                 case '+': return ChatModePictureBox.ChatMode.Admin;
                 case '\'': return ChatModePictureBox.ChatMode.Group;
                 case '&': return ChatModePictureBox.ChatMode.Guild;

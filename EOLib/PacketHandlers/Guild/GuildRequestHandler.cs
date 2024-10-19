@@ -1,10 +1,10 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
 using EOLib.Net.Handlers;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Guild
 {
@@ -27,7 +27,7 @@ namespace EOLib.PacketHandlers.Guild
 
         public override bool HandlePacket(GuildRequestServerPacket packet)
         {
-            foreach(var notifier in _guildNotifiers)
+            foreach (var notifier in _guildNotifiers)
             {
                 notifier.NotifyGuildCreationRequest(packet.PlayerId, packet.GuildIdentity);
             }

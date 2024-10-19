@@ -26,6 +26,29 @@ namespace EOLib.Domain.Interact.Guild
         {
             _packetSendService.SendPacket(new GuildTellClientPacket { SessionId = _guildSessionProvider.SessionID, GuildIdentity = identity });
         }
+
+        public void GetGuildDescription(string guildTag)
+        {
+            _packetSendService.SendPacket(new GuildTakeClientPacket
+            {
+                SessionId = _guildSessionProvider.SessionID,
+                InfoType = GuildInfoType.Description,
+                GuildTag = guildTag
+            });
+        }
+
+        public void SetGuildDescription(string description)
+        {
+            _packetSendService.SendPacket(new GuildAgreeClientPacket()
+            {
+                SessionId = _guildSessionProvider.SessionID,
+                InfoType = GuildInfoType.Description,
+                InfoTypeData = new GuildAgreeClientPacket.InfoTypeDataDescription()
+                {
+                    Description = description
+                }
+            });
+        }
     }
 
     public interface IGuildActions
@@ -33,5 +56,9 @@ namespace EOLib.Domain.Interact.Guild
         void Lookup(string identity);
 
         void ViewMembers(string identity);
+
+        void GetGuildDescription(string guildTag);
+
+        void SetGuildDescription(string description);
     }
 }

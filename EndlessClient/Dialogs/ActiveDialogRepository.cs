@@ -1,8 +1,8 @@
-﻿using AutomaticTypeMapper;
-using Optional;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AutomaticTypeMapper;
+using Optional;
 using XNAControls;
 
 namespace EndlessClient.Dialogs
@@ -58,9 +58,9 @@ namespace EndlessClient.Dialogs
     {
         Option<FriendIgnoreListDialog> FriendIgnoreDialog { get; set; }
 
-        Option<SessionExpDialog> SessionExpDialog { get; set;  }
+        Option<SessionExpDialog> SessionExpDialog { get; set; }
 
-        Option<QuestStatusDialog> QuestStatusDialog { get; set;  }
+        Option<QuestStatusDialog> QuestStatusDialog { get; set; }
 
         Option<PaperdollDialog> PaperdollDialog { get; set; }
 
@@ -72,7 +72,7 @@ namespace EndlessClient.Dialogs
 
         Option<ChestDialog> ChestDialog { get; set; }
 
-        Option<LockerDialog> LockerDialog { get; set;  }
+        Option<LockerDialog> LockerDialog { get; set; }
 
         Option<BankAccountDialog> BankAccountDialog { get; set; }
 
@@ -95,7 +95,7 @@ namespace EndlessClient.Dialogs
         Option<LawDialog> LawDialog { get; set; }
 
         Option<BarberDialog> BarberDialog { get; set; }
-        
+
         Option<GuildDialog> GuildDialog { get; set; }
 
         Option<ScrollingListDialog> HelpDialog { get; set; }
@@ -145,10 +145,10 @@ namespace EndlessClient.Dialogs
         public Option<LawDialog> LawDialog { get; set; }
 
         public Option<BarberDialog> BarberDialog { get; set; }
-        
+
         public Option<GuildDialog> GuildDialog { get; set; }
 
-        public Option<ScrollingListDialog> HelpDialog { get; set;  }
+        public Option<ScrollingListDialog> HelpDialog { get; set; }
 
         IReadOnlyList<Option<IXNADialog>> ActiveDialogs
         {

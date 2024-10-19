@@ -1,4 +1,5 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Linq;
+using AutomaticTypeMapper;
 using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.HUD;
@@ -7,7 +8,6 @@ using EOLib.Domain.Interact;
 using EOLib.Domain.NPC;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
-using System.Linq;
 
 namespace EndlessClient.Controllers
 {
@@ -43,7 +43,7 @@ namespace EndlessClient.Controllers
             // there is no "NPC" text in the localized files
             _statusLabelSetter.SetStatusLabel($"[ NPC ] {data.Name}");
 
-            switch(data.Type)
+            switch (data.Type)
             {
                 case EOLib.IO.NPCType.Shop:
                     _mapNpcActions.RequestShop(npc);

@@ -1,10 +1,10 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.Domain.Interact.Quest;
 using EOLib.Domain.Login;
 using EOLib.Net.Handlers;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System.Linq;
 
 namespace EOLib.PacketHandlers.Quest
 {
@@ -32,13 +32,13 @@ namespace EOLib.PacketHandlers.Quest
                     _questDataRepository.QuestProgress = ((QuestListServerPacket.PageDataProgress)packet.PageData)
                         .QuestProgressEntries
                         .Select(x => new QuestProgressData.Builder
-                            {
-                                Name = x.Name,
-                                Description = x.Description,
-                                Icon = x.Icon,
-                                Progress = x.Progress,
-                                Target = x.Target,
-                            }.ToImmutable())
+                        {
+                            Name = x.Name,
+                            Description = x.Description,
+                            Icon = x.Icon,
+                            Progress = x.Progress,
+                            Target = x.Target,
+                        }.ToImmutable())
                         .ToList();
                     break;
                 case QuestPage.History:

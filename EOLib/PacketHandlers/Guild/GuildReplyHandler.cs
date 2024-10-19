@@ -1,15 +1,14 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
 using EOLib.Net.Handlers;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Guild
 {
     [AutoMappedType]
-
     public class GuildReplyHandler : InGameOnlyPacketHandler<GuildReplyServerPacket>
     {
         private readonly IEnumerable<IGuildNotifier> _guildNotifiers;
@@ -19,7 +18,7 @@ namespace EOLib.PacketHandlers.Guild
         public override PacketAction Action => PacketAction.Reply;
 
         public GuildReplyHandler(IPlayerInfoProvider playerInfoProvider,
-            IEnumerable<IGuildNotifier> guildNotifiers)
+                                 IEnumerable<IGuildNotifier> guildNotifiers)
             : base(playerInfoProvider)
         {
             _guildNotifiers = guildNotifiers;
@@ -30,9 +29,13 @@ namespace EOLib.PacketHandlers.Guild
             switch (packet.ReplyCode)
             {
                 case GuildReply.JoinRequest:
-                    var data = (GuildReplyServerPacket.ReplyCodeDataJoinRequest)(packet.ReplyCodeData);
+                    var joinRequestData = (GuildReplyServerPacket.ReplyCodeDataJoinRequest)(packet.ReplyCodeData);
                     foreach (var notifier in _guildNotifiers)
-                        notifier.NotifyRequestToJoinGuild(data.PlayerId, data.Name);
+                        notifier.NotifyRequestToJoinGuild(joinRequestData.PlayerId, joinRequestData.Name);
+                    break;
+                case GuildReply.Updated:
+                    foreach (var notifier in _guildNotifiers)
+                        notifier.NotifyGuildDetailsUpdated();
                     break;
             }
 

@@ -6,6 +6,7 @@ namespace EOLib.Domain.Notifiers
     {
         void NotifyGuildCreationRequest(int creatorPlayerID, string guildIdentity);
         void NotifyRequestToJoinGuild(int playerId, string name);
+        void NotifyGuildDetailsUpdated();
     }
 
     [AutoMappedType]
@@ -13,5 +14,6 @@ namespace EOLib.Domain.Notifiers
     {
         public void NotifyGuildCreationRequest(int creatorPlayerID, string guildIdentity) { }
         public void NotifyRequestToJoinGuild(int playerId, string name) { }
+        public void NotifyGuildDetailsUpdated() { }
     }
 }

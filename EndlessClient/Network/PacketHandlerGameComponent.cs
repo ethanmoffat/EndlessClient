@@ -21,7 +21,7 @@ namespace EndlessClient.Network
                                           INetworkClientProvider networkClientProvider,
                                           IBackgroundReceiveTaskRepository backgroundReceiveTaskRepository,
                                           IMainButtonController mainButtonController)
-            : base((Game) game)
+            : base((Game)game)
         {
             _packetHandler = packetHandler;
             _networkClientProvider = networkClientProvider;

@@ -58,7 +58,7 @@ namespace EOLib.Config.Test
 
             Assert.IsFalse(_configurationRepository.MusicEnabled);
             Assert.IsFalse(_configurationRepository.SoundEnabled);
-            
+
             Assert.IsTrue(_configurationRepository.HearWhispers);
             Assert.IsTrue(_configurationRepository.Interaction);
             Assert.IsFalse(_configurationRepository.LogChatToFile);

@@ -1,6 +1,6 @@
-﻿using EOLib.IO.Pub;
+﻿using System.Diagnostics.CodeAnalysis;
+using EOLib.IO.Pub;
 using NUnit.Framework;
-using System.Diagnostics.CodeAnalysis;
 
 namespace EOLib.IO.Test.Pub
 {

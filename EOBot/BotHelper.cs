@@ -1,4 +1,8 @@
-﻿using EOLib.Domain.Account;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using EOLib.Domain.Account;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
@@ -7,10 +11,6 @@ using EOLib.Net.FileTransfer;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional.Collections;
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace EOBot
 {

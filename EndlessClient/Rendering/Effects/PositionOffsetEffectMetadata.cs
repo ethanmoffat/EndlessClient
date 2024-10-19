@@ -1,6 +1,6 @@
-﻿using Amadevus.RecordGenerator;
+﻿using System.Collections.Generic;
+using Amadevus.RecordGenerator;
 using Newtonsoft.Json;
-using System.Collections.Generic;
 
 namespace EndlessClient.Rendering.Effects
 {

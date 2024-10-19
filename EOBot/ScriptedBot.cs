@@ -1,9 +1,9 @@
-﻿using EOBot.Interpreter;
-using EOBot.Interpreter.States;
-using EOBot.Interpreter.Variables;
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using EOBot.Interpreter;
+using EOBot.Interpreter.States;
+using EOBot.Interpreter.Variables;
 
 namespace EOBot
 {
