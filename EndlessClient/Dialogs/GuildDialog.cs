@@ -194,6 +194,8 @@ namespace EndlessClient.Dialogs
                 SubText = _localizedStringFinder.GetString(EOResourceID.GUILD_LEARN_MORE),
                 OffsetY = 45,
             };
+            informationItem.LeftClick += (_, _) => SetState(State.Information);
+            informationItem.RightClick += (_, _) => SetState(State.Information);
 
             var administrationItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 1)
             {
@@ -266,7 +268,10 @@ namespace EndlessClient.Dialogs
                 {
                     if (dlg.ResponseText.Length < 2 && !showOnce && e.Result != XNADialogResult.Cancel)
                     {
-                        var invalidGuildTag = _messageBoxFactory.CreateMessageBox(_localizedStringFinder.GetString(DialogResourceID.GUILD_CREATE_TAG_TOO_SHORT), _localizedStringFinder.GetString(DialogResourceID.GUILD_WRONG_INPUT), EODialogButtons.OkCancel);
+                        var invalidGuildTag = _messageBoxFactory.CreateMessageBox(
+                            _localizedStringFinder.GetString(DialogResourceID.GUILD_CREATE_TAG_TOO_SHORT),
+                            _localizedStringFinder.GetString(DialogResourceID.GUILD_WRONG_INPUT),
+                            EODialogButtons.OkCancel);
                         invalidGuildTag.ShowDialog();
                         showOnce = true;
                     }
@@ -282,7 +287,10 @@ namespace EndlessClient.Dialogs
                 {
                     if (dlg.ResponseText.Length < 2 && !showOnce && e.Result != XNADialogResult.Cancel)
                     {
-                        var invalidGuildTag = _messageBoxFactory.CreateMessageBox(_localizedStringFinder.GetString(DialogResourceID.GUILD_CREATE_TAG_TOO_SHORT), _localizedStringFinder.GetString(DialogResourceID.GUILD_WRONG_INPUT), EODialogButtons.OkCancel);
+                        var invalidGuildTag = _messageBoxFactory.CreateMessageBox(
+                            _localizedStringFinder.GetString(DialogResourceID.GUILD_CREATE_TAG_TOO_SHORT),
+                            _localizedStringFinder.GetString(DialogResourceID.GUILD_WRONG_INPUT),
+                            EODialogButtons.OkCancel);
                         invalidGuildTag.ShowDialog();
                         showOnce = true;
                     }
