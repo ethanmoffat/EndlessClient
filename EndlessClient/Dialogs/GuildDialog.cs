@@ -10,6 +10,7 @@ using EOLib.Domain.Interact.Guild;
 using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
+using MonoGame.Extended.Input.InputListeners;
 using Optional;
 using XNAControls;
 
@@ -40,6 +41,8 @@ namespace EndlessClient.Dialogs
             public static State Initial => new(GuildDialogState.Initial);
 
             public static State Management => new(GuildDialogState.Management);
+
+            public static State Information => new(GuildDialogState.Information);
 
             public static State Modify => new(GuildDialogState.Modify);
 
@@ -121,6 +124,7 @@ namespace EndlessClient.Dialogs
             {
                 { State.Initial, SetupInitialState },
                 { State.Management, SetupManagementState },
+                { State.Information, SetupInformationState },
                 { State.Modify, SetupModifyState },
                 { State.ManageRankings, () => { } },
                 { State.AssignRank, () => { } },
@@ -224,15 +228,7 @@ namespace EndlessClient.Dialogs
 
         public void SetupInformationState()
         {
-
-
-
-                case GuildDialogState.Information:
-                {
-                    ListItemType = ListDialogItem.ListItemStyle.Large;
-                    Buttons = ScrollingListDialogButtons.BackCancel;
-
-            var lookGuildUp = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
+            var guildLookup = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
             {
                 ShowIconBackGround = false,
                 IconGraphic = _dialogIconService.IconSheet,
@@ -241,46 +237,8 @@ namespace EndlessClient.Dialogs
                 SubText = _localizedStringFinder.GetString(EOResourceID.GUILD_VIEW_DETAILS),
                 OffsetY = 45,
             };
-            lookGuildUp.LeftClick += (_, _) =>
-            {
-                var showOnce = false;
-                var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_TO_VIEW_INFORMATION_ABOUT_A_GUILD_ENTER_ITS_TAG), 3);
-                dlg.DialogClosing += (_, e) =>
-                {
-                    if (dlg.ResponseText.Length < 2 && !showOnce && e.Result != XNAControls.XNADialogResult.Cancel)
-                    {
-                        var invalidGuildTag = _messageBoxFactory.CreateMessageBox(_localizedStringFinder.GetString(DialogResourceID.GUILD_CREATE_TAG_TOO_SHORT), _localizedStringFinder.GetString(DialogResourceID.GUILD_WRONG_INPUT), EODialogButtons.OkCancel);
-                        invalidGuildTag.ShowDialog();
-                        showOnce = true;
-                    }
-                    else if (e.Result == XNAControls.XNADialogResult.OK)
-                    {
-
-                    }
-                };
-                dlg.ShowDialog();
-            };
-            lookGuildUp.RightClick += (_, _) =>
-            {
-                var showOnce = false;
-                var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_TO_VIEW_INFORMATION_ABOUT_A_GUILD_ENTER_ITS_TAG), 3);
-                dlg.DialogClosing += (_, e) =>
-                {
-                    if (dlg.ResponseText.Length < 2 && !showOnce && e.Result != XNAControls.XNADialogResult.Cancel)
-                    {
-                        var invalidGuildTag = _messageBoxFactory.CreateMessageBox(_localizedStringFinder.GetString(DialogResourceID.GUILD_CREATE_TAG_TOO_SHORT), _localizedStringFinder.GetString(DialogResourceID.GUILD_WRONG_INPUT), EODialogButtons.OkCancel);
-                        invalidGuildTag.ShowDialog();
-                        showOnce = true;
-                    }
-                    else if (e.Result == XNAControls.XNADialogResult.OK)
-                    {
-
-                    }
-                };
-                dlg.ShowDialog();
-            };
-
-            AddItemToList(lookGuildUp, sortList: false);
+            guildLookup.LeftClick += GuildLookup_Click;
+            guildLookup.RightClick += GuildLookup_Click;
 
             var viewMembers = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
             {
@@ -291,47 +249,43 @@ namespace EndlessClient.Dialogs
                 SubText = _localizedStringFinder.GetString(EOResourceID.GUILD_VIEW_MEMBERS),
                 OffsetY = 45,
             };
-            viewMembers.LeftClick += (_, _) =>
+            viewMembers.LeftClick += ViewMembers_Click;
+            viewMembers.RightClick += ViewMembers_Click;
+
+            SetItemList(new List<ListDialogItem> { guildLookup, viewMembers });
+
+            void GuildLookup_Click(object sender, MouseEventArgs e)
             {
                 var showOnce = false;
                 var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_TO_VIEW_INFORMATION_ABOUT_A_GUILD_ENTER_ITS_TAG), 3);
                 dlg.DialogClosing += (_, e) =>
                 {
-                    if (dlg.ResponseText.Length < 2 && !showOnce && e.Result != XNAControls.XNADialogResult.Cancel)
+                    if (dlg.ResponseText.Length < 2 && !showOnce && e.Result != XNADialogResult.Cancel)
                     {
                         var invalidGuildTag = _messageBoxFactory.CreateMessageBox(_localizedStringFinder.GetString(DialogResourceID.GUILD_CREATE_TAG_TOO_SHORT), _localizedStringFinder.GetString(DialogResourceID.GUILD_WRONG_INPUT), EODialogButtons.OkCancel);
                         invalidGuildTag.ShowDialog();
                         showOnce = true;
                     }
-                    else if (e.Result == XNAControls.XNADialogResult.OK)
-                    {
-
-                    }
                 };
                 dlg.ShowDialog();
-            };
-            viewMembers.RightClick += (_, _) =>
-            {
-                var showOnce = false;
-                var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_TO_VIEW_INFORMATION_ABOUT_A_GUILD_ENTER_ITS_TAG), 3);
-                dlg.DialogClosing += (_, e) =>
-                {
-                    if (dlg.ResponseText.Length < 2 && !showOnce && e.Result != XNAControls.XNADialogResult.Cancel)
-                    {
-                        var invalidGuildTag = _messageBoxFactory.CreateMessageBox(_localizedStringFinder.GetString(DialogResourceID.GUILD_CREATE_TAG_TOO_SHORT), _localizedStringFinder.GetString(DialogResourceID.GUILD_WRONG_INPUT), EODialogButtons.OkCancel);
-                        invalidGuildTag.ShowDialog();
-                        showOnce = true;
-                    }
-                    else if (e.Result == XNAControls.XNADialogResult.OK)
-                    {
-
-                    }
-                };
-                dlg.ShowDialog();
-            };
-
-            AddItemToList(viewMembers, sortList: false);
             }
+
+            void ViewMembers_Click(object sender, MouseEventArgs e)
+            {
+                var showOnce = false;
+                var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_TO_VIEW_INFORMATION_ABOUT_A_GUILD_ENTER_ITS_TAG), 3);
+                dlg.DialogClosing += (_, e) =>
+                {
+                    if (dlg.ResponseText.Length < 2 && !showOnce && e.Result != XNADialogResult.Cancel)
+                    {
+                        var invalidGuildTag = _messageBoxFactory.CreateMessageBox(_localizedStringFinder.GetString(DialogResourceID.GUILD_CREATE_TAG_TOO_SHORT), _localizedStringFinder.GetString(DialogResourceID.GUILD_WRONG_INPUT), EODialogButtons.OkCancel);
+                        invalidGuildTag.ShowDialog();
+                        showOnce = true;
+                    }
+                };
+                dlg.ShowDialog();
+            }
+        }
 
         private void SetupManagementState()
         {
