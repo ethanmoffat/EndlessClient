@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using EndlessClient.Dialogs.Factories;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Graphics;
-using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.BitmapFonts;
@@ -392,7 +390,10 @@ namespace EndlessClient.Dialogs
         public void ClearItemList()
         {
             foreach (var item in _listItems)
+            {
+                item.SetControlUnparented();
                 item.Dispose();
+            }
 
             _listItems.Clear();
             _scrollBar.UpdateDimensions(0);
@@ -405,10 +406,10 @@ namespace EndlessClient.Dialogs
 
             var drawStrings = new List<string>();
             var ts = new TextSplitter(string.Empty, font) { LineLength = 200 };
-            foreach (string s in messages)
+            foreach (var s in messages)
             {
                 ts.Text = s;
-                drawStrings.AddRange(ts.NeedsProcessing ? ts.SplitIntoLines() : new[] { s });
+                drawStrings.AddRange(ts.SplitIntoLines());
                 if (insertLineBreaks)
                 {
                     drawStrings.Add(" ");
@@ -417,7 +418,7 @@ namespace EndlessClient.Dialogs
 
             int linkIndex = 0;
 
-            foreach (string s in drawStrings)
+            foreach (var s in drawStrings)
             {
                 var link = s.Length > 0 && s[0] == '*';
                 var nextItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Small)
@@ -433,7 +434,23 @@ namespace EndlessClient.Dialogs
 
                 AddItemToList(nextItem, sortList: false);
             }
+        }
 
+        public void AddTextAsKeyValueListItems(params (string Key, string Value)[] keyValuePairs)
+        {
+            ListItemType = ListDialogItem.ListItemStyle.SmallKeyValue;
+
+            foreach (var (Key, Value) in keyValuePairs)
+            {
+                var nextItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Small)
+                {
+                    PrimaryText = Key,
+                    SubText = Value,
+                    ShowSubtext = true,
+                };
+
+                AddItemToList(nextItem, sortList: false);
+            }
         }
 
         public override void Initialize()

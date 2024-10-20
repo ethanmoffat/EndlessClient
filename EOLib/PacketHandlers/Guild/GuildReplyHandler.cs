@@ -10,7 +10,6 @@ using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 namespace EOLib.PacketHandlers.Guild
 {
     [AutoMappedType]
-
     public class GuildReplyHandler : InGameOnlyPacketHandler<GuildReplyServerPacket>
     {
         private readonly IEnumerable<IGuildNotifier> _guildNotifiers;
@@ -40,6 +39,10 @@ namespace EOLib.PacketHandlers.Guild
                             notifier.NotifyRequestToJoinGuild(data.PlayerId, data.Name);
                         break;
                     }
+                case GuildReply.Updated:
+                    foreach (var notifier in _guildNotifiers)
+                        notifier.NotifyGuildDetailsUpdated();
+                    break;
                 case GuildReply.RecruiterOffline:
                     foreach (var notifier in _guildNotifiers)
                         notifier.NotifyRecruiterOffline();

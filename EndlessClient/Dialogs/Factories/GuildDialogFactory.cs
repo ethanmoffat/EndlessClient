@@ -18,10 +18,11 @@ namespace EndlessClient.Dialogs.Factories
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly ICharacterProvider _characterProvider;
         private readonly IEOMessageBoxFactory _messageBoxFactory;
+        private readonly IGuildSessionProvider _guildSessionProvider;
+        private readonly IGuildActions _guildActions;
+        private readonly ITextInputDialogFactory _textInputDialogFactory;
         private readonly ITextMultiInputDialogFactory _textMultiInputDialogFactory;
         private readonly IContentProvider _contentProvider;
-        private readonly IGuildActions _guildActions;
-        private readonly IGuildSessionProvider _guildSessionProvider;
         private readonly ICharacterInventoryProvider _characterInventoryProvider;
         private readonly IEIFFileProvider _eifFileProvider;
 
@@ -31,10 +32,11 @@ namespace EndlessClient.Dialogs.Factories
                                 ILocalizedStringFinder localizedStringFinder,
                                 ICharacterProvider characterProvider,
                                 IEOMessageBoxFactory messageBoxFactory,
+                                IGuildSessionProvider guildSessionProvider,
+                                IGuildActions guildActions,
+                                ITextInputDialogFactory textInputDialogFactory,
                                 ITextMultiInputDialogFactory textMultiInputDialogFactory,
                                 IContentProvider contentProvider,
-                                IGuildActions guildActions,
-                                IGuildSessionProvider guildSessionProvider,
                                 ICharacterInventoryProvider characterInventoryProvider,
                                 IEIFFileProvider eifFileProvider)
         {
@@ -44,10 +46,11 @@ namespace EndlessClient.Dialogs.Factories
             _localizedStringFinder = localizedStringFinder;
             _characterProvider = characterProvider;
             _messageBoxFactory = messageBoxFactory;
+            _guildSessionProvider = guildSessionProvider;
+            _guildActions = guildActions;
+            _textInputDialogFactory = textInputDialogFactory;
             _textMultiInputDialogFactory = textMultiInputDialogFactory;
             _contentProvider = contentProvider;
-            _guildActions = guildActions;
-            _guildSessionProvider = guildSessionProvider;
             _characterInventoryProvider = characterInventoryProvider;
             _eifFileProvider = eifFileProvider;
         }
@@ -55,18 +58,18 @@ namespace EndlessClient.Dialogs.Factories
         public GuildDialog Create()
         {
             return new GuildDialog(_nativeGraphicsManager,
-                                 _dialogButtonService,
-                                 _dialogIconService,
-                                 _localizedStringFinder,
-                                 _characterProvider,
-                                 _messageBoxFactory,
-                                 _textMultiInputDialogFactory,
-                                 _contentProvider,
-                                 _guildActions,
-                                 _guildSessionProvider,
-                                 _characterInventoryProvider,
-                                 _eifFileProvider
-                                 );
+                                   _dialogButtonService,
+                                   _dialogIconService,
+                                   _localizedStringFinder,
+                                   _characterProvider,
+                                   _messageBoxFactory,
+                                   _guildSessionProvider,
+                                   _guildActions,
+                                   _textInputDialogFactory,
+                                   _textMultiInputDialogFactory,
+                                   _contentProvider,
+                                   _characterInventoryProvider,
+                                   _eifFileProvider);
         }
     }
 

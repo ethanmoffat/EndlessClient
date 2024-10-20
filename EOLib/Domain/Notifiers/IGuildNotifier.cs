@@ -6,6 +6,7 @@ namespace EOLib.Domain.Notifiers
     {
         void NotifyGuildCreationRequest(int creatorPlayerID, string guildIdentity);
         void NotifyRequestToJoinGuild(int playerId, string name);
+        void NotifyGuildDetailsUpdated();
         void NotifyRecruiterOffline();
         void NotifyRecruiterNotHere();
         void NotifyRecruiterWrongGuild();
@@ -22,6 +23,7 @@ namespace EOLib.Domain.Notifiers
     {
         public void NotifyGuildCreationRequest(int creatorPlayerID, string guildIdentity) { }
         public void NotifyRequestToJoinGuild(int playerId, string name) { }
+        public void NotifyGuildDetailsUpdated() { }
         public void NotifyRecruiterOffline() { }
         public void NotifyRecruiterNotHere() { }
         public void NotifyRecruiterWrongGuild() { }

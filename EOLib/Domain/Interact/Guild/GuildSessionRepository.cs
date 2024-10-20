@@ -1,4 +1,6 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Collections.Generic;
+using AutomaticTypeMapper;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
 
 namespace EOLib.Domain.Interact.Guild
@@ -6,26 +8,51 @@ namespace EOLib.Domain.Interact.Guild
     public interface IGuildSessionProvider
     {
         int SessionID { get; }
+
         Option<GuildCreationSession> CreationSession { get; }
+
+        string GuildDescription { get; }
+
+        Option<GuildInfo> GuildInfo { get; }
+
+        IReadOnlyList<GuildMember> GuildMembers { get; }
     }
 
     public interface IGuildSessionRepository
     {
         int SessionID { get; set; }
+
         Option<GuildCreationSession> CreationSession { get; set; }
 
+        string GuildDescription { get; set; }
 
-        [AutoMappedType(IsSingleton = true)]
-        public class GuildSessionRepository : IGuildSessionRepository, IGuildSessionProvider
+        Option<GuildInfo> GuildInfo { get; set; }
+
+        List<GuildMember> GuildMembers { get; set; }
+    }
+
+    [AutoMappedType(IsSingleton = true)]
+    public class GuildSessionRepository : IGuildSessionRepository, IGuildSessionProvider
+    {
+        public int SessionID { get; set; }
+
+        public Option<GuildCreationSession> CreationSession { get; set; }
+
+        public string GuildDescription { get; set; }
+
+        public Option<GuildInfo> GuildInfo { get; set; }
+
+        public List<GuildMember> GuildMembers { get; set;  }
+
+        IReadOnlyList<GuildMember> IGuildSessionProvider.GuildMembers => GuildMembers;
+
+        public GuildSessionRepository()
         {
-            public int SessionID { get; set; }
-            public Option<GuildCreationSession> CreationSession { get; set; }
-
-            public GuildSessionRepository()
-            {
-                SessionID = 0;
-                CreationSession = Option.None<GuildCreationSession>();
-            }
+            SessionID = 0;
+            CreationSession = Option.None<GuildCreationSession>();
+            GuildDescription = "";
+            GuildInfo = Option.None<GuildInfo>();
+            GuildMembers = new List<GuildMember>();
         }
     }
 }

@@ -87,6 +87,16 @@ namespace EndlessClient.Subscribers
             dlg.ShowDialog();
         }
 
+        public void NotifyGuildDetailsUpdated()
+        {
+            var dlg = _messageBoxFactory.CreateMessageBox(_localizedStringFinder.GetString(DialogResourceID.GUILD_DETAILS_HAVE_BEEN_UPDATED),
+                caption: _localizedStringFinder.GetString(DialogResourceID.GUILD_ACCEPTED),
+                whichButtons: Dialogs.EODialogButtons.Ok,
+                style: Dialogs.EOMessageBoxStyle.SmallDialogSmallHeader);
+
+            dlg.ShowDialog();
+        }
+
         public void NotifyRecruiterOffline()
         {
             var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_RECRUITER_NOT_FOUND);

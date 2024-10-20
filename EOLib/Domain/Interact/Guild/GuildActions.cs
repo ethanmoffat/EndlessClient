@@ -64,14 +64,45 @@ namespace EOLib.Domain.Interact.Guild
                 GuildName = guildName,
             });
         }
+
+        public void GetGuildDescription(string guildTag)
+        {
+            _packetSendService.SendPacket(new GuildTakeClientPacket
+            {
+                SessionId = _guildSessionRepository.SessionID,
+                InfoType = GuildInfoType.Description,
+                GuildTag = guildTag
+            });
+        }
+
+        public void SetGuildDescription(string description)
+        {
+            _packetSendService.SendPacket(new GuildAgreeClientPacket()
+            {
+                SessionId = _guildSessionRepository.SessionID,
+                InfoType = GuildInfoType.Description,
+                InfoTypeData = new GuildAgreeClientPacket.InfoTypeDataDescription()
+                {
+                    Description = description
+                }
+            });
+        }
     }
 
     public interface IGuildActions
     {
         void Lookup(string identity);
+
         void ViewMembers(string identity);
+
+        void GetGuildDescription(string guildTag);
+
+        void SetGuildDescription(string description);
+
         void RequestToJoinGuild(string guildTag, string recruiterName);
+
         void LeaveGuild();
+
         void RequestToCreateGuild(string guildTag, string guildName, string guildDescription);
     }
 }
