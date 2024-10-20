@@ -10,6 +10,7 @@ using EOLib.Domain.Interact.Guild;
 using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using MonoGame.Extended.Input.InputListeners;
 using Optional;
 using XNAControls;
@@ -28,7 +29,11 @@ namespace EndlessClient.Dialogs
             Management,
             BankAccount,
 
-            // Management
+            // Information List Items
+            Lookup,
+            ViewMembers,
+
+            // Management List Items
             Modify,
             ManageRankings,
             AssignRank,
@@ -47,6 +52,10 @@ namespace EndlessClient.Dialogs
             public static State Information => new(GuildDialogState.Information);
 
             public static State Management => new(GuildDialogState.Management);
+
+            public static State GuildLookup => new(GuildDialogState.Lookup);
+
+            public static State ViewMembers => new(GuildDialogState.ViewMembers);
 
             public static State Modify => new(GuildDialogState.Modify);
 
@@ -67,6 +76,8 @@ namespace EndlessClient.Dialogs
                         Buttons = ScrollingListDialogButtons.Cancel;
                         break;
                     case GuildDialogState.Modify:
+                    case GuildDialogState.Lookup:
+                    case GuildDialogState.ViewMembers:
                         ListItemStyle = ListDialogItem.ListItemStyle.Small;
                         break;
                 }
@@ -98,6 +109,9 @@ namespace EndlessClient.Dialogs
         private readonly Stack<State> _stateStack;
 
         private State _state;
+
+        private HashSet<GuildMember> _cachedMembers;
+        private Option<GuildInfo> _cachedGuildInfo;
         private Option<ListDialogItem> _modifyGuildDescriptionListItem;
 
         public GuildDialog(INativeGraphicsManager nativeGraphicsManager,
@@ -122,18 +136,14 @@ namespace EndlessClient.Dialogs
             _contentProvider = contentProvider;
 
             _stateStack = new Stack<State>();
-            _modifyGuildDescriptionListItem = Option.None<ListDialogItem>();
+            _cachedMembers = new HashSet<GuildMember>();
 
             _stateTransitions = new Dictionary<State, Action>
             {
                 { State.Initial, SetupInitialState },
                 { State.Information, SetupInformationState },
                 { State.Management, SetupManagementState },
-                { State.Modify, SetupModifyState },
-                { State.ManageRankings, () => { } },
-                { State.AssignRank, () => { } },
-                { State.RemoveMember, () => { } },
-                { State.Disband, () => { } },
+                { State.Modify, SetupModifyState }
             };
 
             SetState(State.Initial);
@@ -145,18 +155,80 @@ namespace EndlessClient.Dialogs
 
         protected override void OnUpdateControl(GameTime gameTime)
         {
-            if (_state.DialogState == GuildDialogState.Modify)
+            switch (_state.DialogState)
             {
-                _modifyGuildDescriptionListItem.MatchSome(item =>
-                {
-                    if (item.PrimaryText != _guildSessionProvider.GuildDescription)
+                case GuildDialogState.Modify:
+                    _modifyGuildDescriptionListItem.MatchSome(item =>
                     {
-                        item.PrimaryText = _guildSessionProvider.GuildDescription;
+                        if (item.PrimaryText != _guildSessionProvider.GuildDescription)
+                        {
+                            item.PrimaryText = _guildSessionProvider.GuildDescription;
+                        }
+                    });
+                    break;
+
+                case GuildDialogState.Lookup:
+                    _cachedGuildInfo.Match(
+                        some: cachedGuildInfo =>
+                        {
+                            _guildSessionProvider.GuildInfo.MatchSome(
+                                some: repoGuildInfo =>
+                                {
+                                    if (cachedGuildInfo.Equals(repoGuildInfo))
+                                        return;
+                                    CacheAndSetGuildInfo(repoGuildInfo);
+                                }
+                            );
+                        },
+                        none: () => _guildSessionProvider.GuildInfo.MatchSome(CacheAndSetGuildInfo)
+                    );
+                    break;
+
+                case GuildDialogState.ViewMembers:
+                    if (!_cachedMembers.SetEquals(_guildSessionProvider.GuildMembers))
+                    {
+                        ClearItemList();
+
+                        _cachedMembers = _guildSessionProvider.GuildMembers.ToHashSet();
+                        AddTextAsKeyValueListItems(
+                            _cachedMembers.Select(x => ($"{x.Rank}  {x.Name}", char.ToUpper(x.RankName[0]) + x.RankName[1..])).ToArray()
+                        );
                     }
-                });
+
+                    break;
             }
 
             base.OnUpdateControl(gameTime);
+
+            void CacheAndSetGuildInfo(GuildInfo guildInfo)
+            {
+                _cachedGuildInfo = Option.Some(guildInfo);
+
+                ClearItemList();
+
+                AddTextAsListItems(
+                    _contentProvider.Fonts[Constants.FontSize08pt5],
+                    false,
+                    new List<Action>(),
+                    $"{guildInfo.Name} [{guildInfo.Tag}]",
+                    " ",
+                    _localizedStringFinder.GetString(EOResourceID.GUILD_SIGNUP_DATE),
+                    guildInfo.CreateDate.ToString("yyyy/MM/dd"),
+                    " ",
+                    _localizedStringFinder.GetString(EOResourceID.GUILD_DESCRIPTION),
+                    guildInfo.Description,
+                    " ",
+                    _localizedStringFinder.GetString(EOResourceID.GUILD_BANK_STATUS),
+                    guildInfo.Wealth,
+                    " ",
+                    _localizedStringFinder.GetString(EOResourceID.GUILD_RANKING_SYSTEM),
+                    string.Join("\n", guildInfo.Ranks.Select((x, n) => $"{n + 1}  {char.ToUpper(x[0]) + x[1..]}")),
+                    " ",
+                    _localizedStringFinder.GetString(EOResourceID.GUILD_LEADERS),
+                    string.Join("\n", guildInfo.Staff.Select(x => $"{x.Name}{(x.Rank == 0 ? " (founder)" : string.Empty)}")),
+                    " "
+                );
+            }
         }
 
         private void BackButton_Click(object sender, EventArgs e) => GoBack();
@@ -164,6 +236,9 @@ namespace EndlessClient.Dialogs
         private void GoBack()
         {
             _modifyGuildDescriptionListItem = Option.None<ListDialogItem>();
+            _cachedGuildInfo = Option.None<GuildInfo>();
+            _cachedMembers.Clear();
+
             SetState(_stateStack.Count > 0 ? _stateStack.Pop() : State.Initial, pushState: false);
         }
 
@@ -180,7 +255,8 @@ namespace EndlessClient.Dialogs
             ListItemType = _state.ListItemStyle;
             Buttons = _state.Buttons;
 
-            _stateTransitions[_state].Invoke();
+            if (_stateTransitions.ContainsKey(_state))
+                _stateTransitions[_state].Invoke();
         }
 
         private void SetupInitialState()
@@ -266,7 +342,10 @@ namespace EndlessClient.Dialogs
                 var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_TO_VIEW_INFORMATION_ABOUT_A_GUILD_ENTER_ITS_TAG), 3);
                 dlg.DialogClosing += (_, e) =>
                 {
-                    if (dlg.ResponseText.Length < 2 && !showOnce && e.Result != XNADialogResult.Cancel)
+                    if (e.Result != XNADialogResult.OK)
+                        return;
+
+                    if (dlg.ResponseText.Length < 2 && !showOnce)
                     {
                         var invalidGuildTag = _messageBoxFactory.CreateMessageBox(
                             _localizedStringFinder.GetString(DialogResourceID.GUILD_CREATE_TAG_TOO_SHORT),
@@ -274,6 +353,11 @@ namespace EndlessClient.Dialogs
                             EODialogButtons.OkCancel);
                         invalidGuildTag.ShowDialog();
                         showOnce = true;
+                    }
+                    else
+                    {
+                        SetState(State.GuildLookup);
+                        _guildActions.Lookup(dlg.ResponseText);
                     }
                 };
                 dlg.ShowDialog();
@@ -285,7 +369,10 @@ namespace EndlessClient.Dialogs
                 var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_TO_VIEW_INFORMATION_ABOUT_A_GUILD_ENTER_ITS_TAG), 3);
                 dlg.DialogClosing += (_, e) =>
                 {
-                    if (dlg.ResponseText.Length < 2 && !showOnce && e.Result != XNADialogResult.Cancel)
+                    if (e.Result != XNADialogResult.OK)
+                        return;
+
+                    if (dlg.ResponseText.Length < 2 && !showOnce)
                     {
                         var invalidGuildTag = _messageBoxFactory.CreateMessageBox(
                             _localizedStringFinder.GetString(DialogResourceID.GUILD_CREATE_TAG_TOO_SHORT),
@@ -293,6 +380,11 @@ namespace EndlessClient.Dialogs
                             EODialogButtons.OkCancel);
                         invalidGuildTag.ShowDialog();
                         showOnce = true;
+                    }
+                    else
+                    {
+                        SetState(State.ViewMembers);
+                        _guildActions.ViewMembers(dlg.ResponseText);
                     }
                 };
                 dlg.ShowDialog();
