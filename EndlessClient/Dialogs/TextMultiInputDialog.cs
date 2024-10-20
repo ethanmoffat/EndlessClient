@@ -84,8 +84,26 @@ namespace EndlessClient.Dialogs
                     cancelButtonPosition = new Vector2(166, 125);
                     break;
 
-                case DialogSize.NineWithScroll:
+                case DialogSize.Three:
+                    if (inputInfo.Length != 3)
+                    {
+                        throw new ArgumentException("Not enough input labels were provided");
+                    }
 
+                    _backgroundSourceRectangle = new Rectangle(0, 0, 330, 194);
+
+                    SetSize(330, 194);
+                    _bottomOverlayDrawPosition = new Vector2(0, 134);
+                    _bottomOverlaySource = new Rectangle(0, 240, 330, 59);
+
+                    _inputLabels = new XNALabel[3];
+                    _inputBoxes = new XNATextBox[3];
+
+                    okButtonPosition = new Vector2(73, 148);
+                    cancelButtonPosition = new Vector2(166, 148);
+                    break;
+
+                case DialogSize.NineWithScroll:
                     if (inputInfo.Length != 9)
                     {
                         throw new ArgumentException("Not enough input labels were provided");
@@ -150,7 +168,6 @@ namespace EndlessClient.Dialogs
                     Text = inputInfo[i].Label,
                     DrawPosition = new Vector2(24, yCoord),
                 };
-                _inputLabels[i].Initialize();
                 _inputLabels[i].SetParentControl(this);
 
                 _inputBoxes[i] = new XNATextBox(new Rectangle(126, yCoord, 168, 19), Constants.FontSize08, caretTexture: contentProvider.Textures[ContentProvider.Cursor])
@@ -182,10 +199,14 @@ namespace EndlessClient.Dialogs
             DialogClosed += (_, _) => chatTextBoxActions.FocusChatTextBox();
 
             CenterInGameView();
+
+            DrawPosition += new Vector2(-160, 0);
         }
 
         public override void Initialize()
         {
+            foreach (var label in _inputLabels)
+                label.Initialize();
             foreach (var box in _inputBoxes)
                 box.Initialize();
 
