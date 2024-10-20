@@ -1,4 +1,5 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EOLib.Domain.Interact.Guild;
 using EOLib.Domain.Login;
 using EOLib.Net.Handlers;
@@ -9,25 +10,24 @@ namespace EOLib.PacketHandlers.Guild
 {
     [AutoMappedType]
 
-    public class GuildTakeHandler : InGameOnlyPacketHandler<GuildTakeServerPacket>
+    public class GuildTellHandler : InGameOnlyPacketHandler<GuildTellServerPacket>
     {
         private readonly IGuildSessionRepository _guildSessionRepository;
 
         public override PacketFamily Family => PacketFamily.Guild;
 
-        public override PacketAction Action => PacketAction.Take;
+        public override PacketAction Action => PacketAction.Tell;
 
-        public GuildTakeHandler(IPlayerInfoProvider playerInfoProvider,
-                                 IGuildSessionRepository guildSessionRepository)
+        public GuildTellHandler(IPlayerInfoProvider playerInfoProvider,
+                                IGuildSessionRepository guildSessionRepository)
             : base(playerInfoProvider)
         {
             _guildSessionRepository = guildSessionRepository;
         }
 
-        public override bool HandlePacket(GuildTakeServerPacket packet)
+        public override bool HandlePacket(GuildTellServerPacket packet)
         {
-            _guildSessionRepository.GuildDescription = packet.Description;
-
+            _guildSessionRepository.GuildMembers = new List<GuildMember>(packet.Members);
             return true;
         }
     }
