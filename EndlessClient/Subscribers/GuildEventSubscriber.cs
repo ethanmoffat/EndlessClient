@@ -1,5 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Audio;
+using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Factories;
 using EOLib.Domain.Interact.Guild;
 using EOLib.Domain.Notifiers;
@@ -7,6 +8,7 @@ using EOLib.Localization;
 using EOLib.Net.Communication;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using XNAControls;
 
 namespace EndlessClient.Subscribers
 {
@@ -94,6 +96,14 @@ namespace EndlessClient.Subscribers
             {
                 GuildReply.Updated => DialogResourceID.GUILD_DETAILS_UPDATED,
                 GuildReply.NotFound => DialogResourceID.GUILD_DOES_NOT_EXIST,
+                GuildReply.RecruiterOffline => DialogResourceID.GUILD_RECRUITER_NOT_FOUND,
+                GuildReply.RecruiterNotHere => DialogResourceID.GUILD_RECRUITER_NOT_HERE,
+                GuildReply.RecruiterWrongGuild => DialogResourceID.GUILD_RECRUITER_NOT_MEMBER,
+                GuildReply.NotRecruiter => DialogResourceID.GUILD_RECRUITER_RANK_TOO_LOW,
+                GuildReply.Busy => DialogResourceID.GUILD_MASTER_IS_BUSY,
+                GuildReply.NotApproved => DialogResourceID.GUILD_CREATE_NAME_NOT_APPROVED,
+                GuildReply.Exists => DialogResourceID.GUILD_TAG_OR_NAME_ALREADY_EXISTS,
+                GuildReply.NoCandidates => DialogResourceID.GUILD_CREATE_NO_CANDIDATES,
                 _ => default
             };
 
@@ -104,45 +114,16 @@ namespace EndlessClient.Subscribers
             dlg.ShowDialog();
         }
 
-        public void NotifyRecruiterOffline()
-        {
-            var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_RECRUITER_NOT_FOUND);
-            dlg.Show();
-        }
-
-        public void NotifyRecruiterNotHere()
-        {
-            var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_RECRUITER_NOT_HERE);
-            dlg.Show();
-        }
-
-        public void NotifyRecruiterWrongGuild()
-        {
-            var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_RECRUITER_NOT_MEMBER);
-            dlg.Show();
-        }
-
-        public void NotifyNotRecruiter()
-        {
-            var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_RECRUITER_RANK_TOO_LOW);
-            dlg.Show();
-        }
-
-        public void NotifyBusy()
-        {
-            var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_MASTER_IS_BUSY);
-            dlg.Show();
-        }
-
         public void NotifyConfirmCreateGuild()
         {
-            _sfxPlayer.PlaySfx(SoundEffectID.ServerMessage);
             _guildSessionProvider.CreationSession.MatchSome(creationSession =>
             {
-                var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_WILL_BE_CREATED, whichButtons: Dialogs.EODialogButtons.OkCancel);
+                _sfxPlayer.PlaySfx(SoundEffectID.ServerMessage);
+
+                var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_WILL_BE_CREATED, whichButtons: EODialogButtons.OkCancel);
                 dlg.DialogClosing += (_, e) =>
                 {
-                    if (e.Result == XNAControls.XNADialogResult.OK)
+                    if (e.Result == XNADialogResult.OK)
                     {
                         _packetSendService.SendPacket(new GuildCreateClientPacket()
                         {
@@ -155,24 +136,6 @@ namespace EndlessClient.Subscribers
                 };
                 dlg.Show();
             });
-        }
-
-        public void NotifyNotApproved()
-        {
-            var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_CREATE_NAME_NOT_APPROVED);
-            dlg.Show();
-        }
-
-        public void NotifyExists()
-        {
-            var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_TAG_OR_NAME_ALREADY_EXISTS);
-            dlg.Show();
-        }
-
-        public void NotifyNoCandidates()
-        {
-            var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_CREATE_NO_CANDIDATES);
-            dlg.Show();
         }
     }
 }

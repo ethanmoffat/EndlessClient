@@ -41,25 +41,19 @@ namespace EOLib.PacketHandlers.Guild
                     }
                 case GuildReply.Updated:
                 case GuildReply.NotFound:
-                    foreach (var notifier in _guildNotifiers)
-                        notifier.NotifyGuildReply(packet.ReplyCode);
-                    break;
                 case GuildReply.RecruiterOffline:
-                    foreach (var notifier in _guildNotifiers)
-                        notifier.NotifyRecruiterOffline();
-                    break;
                 case GuildReply.RecruiterNotHere:
-                    foreach (var notifier in _guildNotifiers)
-                        notifier.NotifyRecruiterNotHere();
-                    break;
                 case GuildReply.RecruiterWrongGuild:
-                    foreach (var notifier in _guildNotifiers)
-                        notifier.NotifyRecruiterWrongGuild();
-                    break;
                 case GuildReply.NotRecruiter:
-                    foreach (var notifier in _guildNotifiers)
-                        notifier.NotifyNotRecruiter();
-                    break;
+                case GuildReply.NotApproved:
+                case GuildReply.Exists:
+                case GuildReply.NoCandidates:
+                case GuildReply.Busy:
+                    {
+                        foreach (var notifier in _guildNotifiers)
+                            notifier.NotifyGuildReply(packet.ReplyCode);
+                        break;
+                    }
                 case GuildReply.CreateBegin:
                     {
                         _guildSessionRepository.CreationSession.MatchSome(creationSession =>
@@ -68,22 +62,6 @@ namespace EOLib.PacketHandlers.Guild
                         });
                         break;
                     }
-                case GuildReply.NotApproved:
-                    foreach (var notifier in _guildNotifiers)
-                        notifier.NotifyNotApproved();
-                    break;
-                case GuildReply.Exists:
-                    foreach (var notifier in _guildNotifiers)
-                        notifier.NotifyExists();
-                    break;
-                case GuildReply.NoCandidates:
-                    foreach (var notifier in _guildNotifiers)
-                        notifier.NotifyNoCandidates();
-                    break;
-                case GuildReply.Busy:
-                    foreach (var notifier in _guildNotifiers)
-                        notifier.NotifyBusy();
-                    break;
                 case GuildReply.CreateAdd:
                     {
                         _guildSessionRepository.CreationSession.MatchSome(creationSession =>
