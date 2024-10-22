@@ -408,10 +408,7 @@ namespace EndlessClient.Dialogs
 
                     if (dlg.ResponseText.Length < 2 && !showOnce)
                     {
-                        var invalidGuildTag = _messageBoxFactory.CreateMessageBox(
-                            _localizedStringFinder.GetString(DialogResourceID.GUILD_CREATE_TAG_TOO_SHORT),
-                            _localizedStringFinder.GetString(DialogResourceID.GUILD_WRONG_INPUT),
-                            EODialogButtons.OkCancel);
+                        var invalidGuildTag = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_CREATE_TAG_TOO_SHORT);
                         invalidGuildTag.ShowDialog();
                         showOnce = true;
                     }
@@ -434,10 +431,7 @@ namespace EndlessClient.Dialogs
 
                     if (dlg.ResponseText.Length < 2 && !showOnce)
                     {
-                        var invalidGuildTag = _messageBoxFactory.CreateMessageBox(
-                            _localizedStringFinder.GetString(DialogResourceID.GUILD_CREATE_TAG_TOO_SHORT),
-                            _localizedStringFinder.GetString(DialogResourceID.GUILD_WRONG_INPUT),
-                            EODialogButtons.OkCancel);
+                        var invalidGuildTag = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_CREATE_TAG_TOO_SHORT);
                         invalidGuildTag.ShowDialog();
                         showOnce = true;
                     }
@@ -664,7 +658,7 @@ namespace EndlessClient.Dialogs
                     var guildTag = dlgJoin.Responses[0];
                     var recruiterName = dlgJoin.Responses[1];
 
-                    if (guildTag.Length == 0)
+                    if (string.IsNullOrEmpty(guildTag))
                     {
                         e.Cancel = true;
                         var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_CREATE_TAG_FIELD_EMPTY);
@@ -672,7 +666,7 @@ namespace EndlessClient.Dialogs
                         return;
                     }
 
-                    if (recruiterName.Length == 0)
+                    if (string.IsNullOrEmpty(recruiterName))
                     {
                         e.Cancel = true;
                         var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_RECRUITER_INPUT_MISSING);
@@ -736,7 +730,7 @@ namespace EndlessClient.Dialogs
                         return;
                     }
 
-                    if (guildTag.Length == 0)
+                    if (string.IsNullOrEmpty(guildTag))
                     {
                         e.Cancel = true;
                         var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_CREATE_TAG_FIELD_EMPTY);
@@ -744,7 +738,7 @@ namespace EndlessClient.Dialogs
                         return;
                     }
 
-                    if (guildName.Length == 0)
+                    if (string.IsNullOrEmpty(guildName))
                     {
                         e.Cancel = true;
                         var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_CREATE_NAME_FIELD_EMPTY);
@@ -771,7 +765,7 @@ namespace EndlessClient.Dialogs
                     if (char.ToLower(guildTag[0]) != char.ToLower(guildName[0]))
                     {
                         e.Cancel = true;
-                        var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_CREATE_NAME_FIELD_EMPTY);
+                        var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_TAG_NAME_LETTER_MUST_MATCH);
                         dlg.ShowDialog();
                         return;
                     }
