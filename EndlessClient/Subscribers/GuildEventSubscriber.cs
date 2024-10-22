@@ -130,8 +130,12 @@ namespace EndlessClient.Subscribers
                     {
                         _guildActions.ConfirmGuildCreate(creationSession);
                     }
+                    else
+                    {
+                        _guildActions.CancelGuildCreate();
+                    }
                 };
-                dlg.Show();
+                dlg.ShowDialog();
             });
         }
     }

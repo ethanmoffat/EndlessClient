@@ -176,6 +176,7 @@ namespace EndlessClient.Dialogs
                     LeftPadding = 4,
                     TextColor = ColorConstants.LightBeigeText,
                     MaxWidth = 160,
+                    TabOrder = i,
                 };
                 _inputBoxes[i].SetParentControl(this);
 

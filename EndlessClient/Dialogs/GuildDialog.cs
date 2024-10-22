@@ -137,9 +137,9 @@ namespace EndlessClient.Dialogs
         private State _state;
 
         private HashSet<GuildMember> _cachedMembers;
+        private HashSet<string> _cachedCreationMembers;
         private Option<GuildInfo> _cachedGuildInfo;
         private Option<ListDialogItem> _modifyGuildDescriptionListItem;
-        private int _creationMemberCount;
 
         public GuildDialog(INativeGraphicsManager nativeGraphicsManager,
                            IEODialogButtonService dialogButtonService,
@@ -172,6 +172,7 @@ namespace EndlessClient.Dialogs
 
             _stateStack = new Stack<State>();
             _cachedMembers = new HashSet<GuildMember>();
+            _cachedCreationMembers = new HashSet<string>();
 
             _stateTransitions = new Dictionary<State, Action>
             {
@@ -248,13 +249,11 @@ namespace EndlessClient.Dialogs
                 case GuildDialogState.WaitingForMembers:
                     _guildSessionProvider.CreationSession.MatchSome(creationSession =>
                     {
-                        if (creationSession.Members.Count != _creationMemberCount)
+                        if (!_cachedCreationMembers.SetEquals(creationSession.Members))
                         {
-                            AddItemToList(new ListDialogItem(this, ListDialogItem.ListItemStyle.Small, 0)
-                            {
-                                PrimaryText = Capitalize(creationSession.Members.Last())
-                            }, false);
-                            _creationMemberCount += 1;
+                            _cachedCreationMembers = creationSession.Members.ToHashSet();
+                            ClearItemList();
+                            AddTextAsListItems(_contentProvider.Fonts[Constants.FontSize08pt5], false, new List<Action> { }, _cachedCreationMembers.ToArray());
                         }
                     });
                     break;
@@ -694,6 +693,13 @@ namespace EndlessClient.Dialogs
 
         private void ShowLeaveGuildMessageBox()
         {
+            if (!_characterProvider.MainCharacter.InGuild)
+            {
+                var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_NOT_IN_GUILD);
+                dlg.ShowDialog();
+                return;
+            }
+
             var dlgLeave = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_PROMPT_LEAVE_GUILD, whichButtons: EODialogButtons.OkCancel);
             dlgLeave.DialogClosing += (_, e) =>
             {
@@ -703,9 +709,7 @@ namespace EndlessClient.Dialogs
                     _guildActions.LeaveGuild();
                 }
             };
-
             dlgLeave.ShowDialog();
-
         }
 
         private void ShowRegisterGuildMessageBox()
@@ -785,7 +789,7 @@ namespace EndlessClient.Dialogs
         {
             if (!_characterProvider.MainCharacter.InGuild)
             {
-                var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_ALREADY_A_MEMBER);
+                var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_NOT_IN_GUILD);
                 dlg.ShowDialog();
                 return;
             }

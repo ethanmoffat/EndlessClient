@@ -78,7 +78,8 @@ namespace EOLib.Domain.Interact.Guild
                 {
                     Tag = guildTag,
                     Name = guildName,
-                    Description = guildDescription
+                    Description = guildDescription,
+                    Members = new HashSet<string>()
                 }.ToImmutable());
 
             _packetSendService.SendPacket(new GuildRequestClientPacket
@@ -91,13 +92,18 @@ namespace EOLib.Domain.Interact.Guild
 
         public void ConfirmGuildCreate(GuildCreationSession creationSession)
         {
-            _packetSendService.SendPacket(new GuildCreateClientPacket()
+            _packetSendService.SendPacket(new GuildCreateClientPacket
             {
                 SessionId = _guildSessionRepository.SessionID,
                 GuildTag = creationSession.Tag,
                 GuildName = creationSession.Name,
                 Description = creationSession.Description,
             });
+        }
+
+        public void CancelGuildCreate()
+        {
+            _guildSessionRepository.CreationSession = Option.None<GuildCreationSession>();
         }
     }
 
@@ -118,5 +124,7 @@ namespace EOLib.Domain.Interact.Guild
         void RequestToCreateGuild(string guildTag, string guildName, string guildDescription);
 
         void ConfirmGuildCreate(GuildCreationSession creationSession);
+
+        void CancelGuildCreate();
     }
 }
