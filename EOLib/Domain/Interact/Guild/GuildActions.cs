@@ -56,7 +56,14 @@ namespace EOLib.Domain.Interact.Guild
 
         public void RequestToCreateGuild(string guildTag, string guildName, string guildDescription)
         {
-            _guildSessionRepository.CreationSession = Option.Some(new GuildCreationSession(guildTag, guildName, guildDescription));
+            _guildSessionRepository.CreationSession = Option.Some(
+                new GuildCreationSession.Builder
+                {
+                    Tag = guildTag,
+                    Name = guildName,
+                    Description = guildDescription
+                }.ToImmutable());
+
             _packetSendService.SendPacket(new GuildRequestClientPacket
             {
                 SessionId = _guildSessionRepository.SessionID,

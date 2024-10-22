@@ -1,22 +1,19 @@
 ﻿using System.Collections.Generic;
+using Amadevus.RecordGenerator;
 
 namespace EOLib.Domain.Interact.Guild
 {
-    public class GuildCreationSession
+    [Record]
+    public sealed partial class GuildCreationSession
     {
-        public string Tag { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public List<string> Members { get; set; }
-        public bool Approved { get; set; }
+        public string Tag { get; }
 
-        public GuildCreationSession(string tag, string name, string description)
-        {
-            Tag = tag;
-            Name = name;
-            Description = description;
-            Members = new List<string>();
-            Approved = false;
-        }
+        public string Name { get; }
+
+        public string Description { get; }
+
+        public IReadOnlyCollection<string> Members { get; } = new HashSet<string>();
+
+        public bool Approved { get; }
     }
 }

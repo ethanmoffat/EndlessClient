@@ -6,6 +6,7 @@ using EOLib.Domain.Notifiers;
 using EOLib.Net.Handlers;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using Optional;
 
 namespace EOLib.PacketHandlers.Guild
 {
@@ -58,7 +59,7 @@ namespace EOLib.PacketHandlers.Guild
                     {
                         _guildSessionRepository.CreationSession.MatchSome(creationSession =>
                         {
-                            creationSession.Approved = true;
+                            _guildSessionRepository.CreationSession = Option.Some(creationSession.WithApproved(true));
                         });
                         break;
                     }
@@ -66,9 +67,9 @@ namespace EOLib.PacketHandlers.Guild
                     {
                         _guildSessionRepository.CreationSession.MatchSome(creationSession =>
                         {
-                            var data = (GuildReplyServerPacket.ReplyCodeDataCreateAdd)(packet.ReplyCodeData);
-                            if (!creationSession.Members.Contains(data.Name))
-                                creationSession.Members.Add(data.Name);
+                            var data = (GuildReplyServerPacket.ReplyCodeDataCreateAdd)packet.ReplyCodeData;
+                            var updatedMemberList = new HashSet<string>(creationSession.Members) { data.Name };
+                            _guildSessionRepository.CreationSession = Option.Some(creationSession.WithMembers(updatedMemberList));
                         });
                         
                         break;
@@ -77,8 +78,9 @@ namespace EOLib.PacketHandlers.Guild
                     {
                         _guildSessionRepository.CreationSession.MatchSome(creationSession =>
                         {
-                            var data = (GuildReplyServerPacket.ReplyCodeDataCreateAddConfirm)(packet.ReplyCodeData);
-                            creationSession.Members.Add(data.Name);
+                            var data = (GuildReplyServerPacket.ReplyCodeDataCreateAddConfirm)packet.ReplyCodeData;
+                            var updatedMemberList = new HashSet<string>(creationSession.Members) { data.Name };
+                            _guildSessionRepository.CreationSession = Option.Some(creationSession.WithMembers(updatedMemberList));
 
                             foreach (var notifier in _guildNotifiers)
                                 notifier.NotifyConfirmCreateGuild();
