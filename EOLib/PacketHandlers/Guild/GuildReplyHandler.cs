@@ -40,8 +40,9 @@ namespace EOLib.PacketHandlers.Guild
                         break;
                     }
                 case GuildReply.Updated:
+                case GuildReply.NotFound:
                     foreach (var notifier in _guildNotifiers)
-                        notifier.NotifyGuildDetailsUpdated();
+                        notifier.NotifyGuildReply(packet.ReplyCode);
                     break;
                 case GuildReply.RecruiterOffline:
                     foreach (var notifier in _guildNotifiers)
