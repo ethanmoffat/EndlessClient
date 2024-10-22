@@ -199,8 +199,6 @@ namespace EndlessClient.Dialogs
             DialogClosed += (_, _) => chatTextBoxActions.FocusChatTextBox();
 
             CenterInGameView();
-
-            DrawPosition += new Vector2(-160, 0);
         }
 
         public override void Initialize()
@@ -268,6 +266,16 @@ namespace EndlessClient.Dialogs
                 _previousScrollOffset = _scrollBar.ScrollOffset;
             }
             base.OnUpdateControl(gameTime);
+        }
+
+        public override void CenterInGameView()
+        {
+            var viewport = Game.GraphicsDevice.Viewport;
+            var area = _backgroundSourceRectangle;
+            DrawPosition = new Vector2((viewport.Width - area.Width) / 2, (viewport.Height - area.Height) / 2);
+
+            if (!Game.Window.AllowUserResizing)
+                DrawPosition = new Vector2(DrawPosition.X, (330 - DrawArea.Height) / 2f);
         }
     }
 }
