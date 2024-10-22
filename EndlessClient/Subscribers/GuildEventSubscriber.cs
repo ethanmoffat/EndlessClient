@@ -16,18 +16,21 @@ namespace EndlessClient.Subscribers
     public class GuildEventSubscriber : IGuildNotifier
     {
         private readonly IEOMessageBoxFactory _messageBoxFactory;
+        private readonly IGuildActions _guildActions;
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly IPacketSendService _packetSendService;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IGuildSessionProvider _guildSessionProvider;
 
         public GuildEventSubscriber(IEOMessageBoxFactory messageBoxFactory,
+            IGuildActions guildActions,
             ILocalizedStringFinder localizedStringFinder,
             IPacketSendService packetSendService,
             ISfxPlayer sfxPlayer,
             IGuildSessionProvider guildSessionProvider)
         {
             _messageBoxFactory = messageBoxFactory;
+            _guildActions = guildActions;
             _localizedStringFinder = localizedStringFinder;
             _packetSendService = packetSendService;
             _sfxPlayer = sfxPlayer;
@@ -125,13 +128,7 @@ namespace EndlessClient.Subscribers
                 {
                     if (e.Result == XNADialogResult.OK)
                     {
-                        _packetSendService.SendPacket(new GuildCreateClientPacket()
-                        {
-                            SessionId = _guildSessionProvider.SessionID,
-                            GuildTag = creationSession.Tag,
-                            GuildName = creationSession.Name,
-                            Description = creationSession.Description,
-                        });
+                        _guildActions.ConfirmGuildCreate(creationSession);
                     }
                 };
                 dlg.Show();

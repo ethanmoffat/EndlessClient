@@ -39,6 +39,29 @@ namespace EOLib.Domain.Interact.Guild
             _packetSendService.SendPacket(new GuildTellClientPacket { SessionId = _guildSessionRepository.SessionID, GuildIdentity = identity });
         }
 
+        public void GetGuildDescription(string guildTag)
+        {
+            _packetSendService.SendPacket(new GuildTakeClientPacket
+            {
+                SessionId = _guildSessionRepository.SessionID,
+                InfoType = GuildInfoType.Description,
+                GuildTag = guildTag
+            });
+        }
+
+        public void SetGuildDescription(string description)
+        {
+            _packetSendService.SendPacket(new GuildAgreeClientPacket()
+            {
+                SessionId = _guildSessionRepository.SessionID,
+                InfoType = GuildInfoType.Description,
+                InfoTypeData = new GuildAgreeClientPacket.InfoTypeDataDescription()
+                {
+                    Description = description
+                }
+            });
+        }
+
         public void RequestToJoinGuild(string guildTag, string recruiterName)
         {
             _packetSendService.SendPacket(new GuildPlayerClientPacket { SessionId = _guildSessionRepository.SessionID, GuildTag = guildTag, RecruiterName = recruiterName });
@@ -72,26 +95,14 @@ namespace EOLib.Domain.Interact.Guild
             });
         }
 
-        public void GetGuildDescription(string guildTag)
+        public void ConfirmGuildCreate(GuildCreationSession creationSession)
         {
-            _packetSendService.SendPacket(new GuildTakeClientPacket
+            _packetSendService.SendPacket(new GuildCreateClientPacket()
             {
                 SessionId = _guildSessionRepository.SessionID,
-                InfoType = GuildInfoType.Description,
-                GuildTag = guildTag
-            });
-        }
-
-        public void SetGuildDescription(string description)
-        {
-            _packetSendService.SendPacket(new GuildAgreeClientPacket()
-            {
-                SessionId = _guildSessionRepository.SessionID,
-                InfoType = GuildInfoType.Description,
-                InfoTypeData = new GuildAgreeClientPacket.InfoTypeDataDescription()
-                {
-                    Description = description
-                }
+                GuildTag = creationSession.Tag,
+                GuildName = creationSession.Name,
+                Description = creationSession.Description,
             });
         }
     }
@@ -111,5 +122,7 @@ namespace EOLib.Domain.Interact.Guild
         void LeaveGuild();
 
         void RequestToCreateGuild(string guildTag, string guildName, string guildDescription);
+
+        void ConfirmGuildCreate(GuildCreationSession creationSession);
     }
 }
