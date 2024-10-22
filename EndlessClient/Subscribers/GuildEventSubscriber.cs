@@ -5,6 +5,7 @@ using EOLib.Domain.Notifiers;
 using EOLib.Localization;
 using EOLib.Net.Communication;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EndlessClient.Subscribers
 {
@@ -80,13 +81,19 @@ namespace EndlessClient.Subscribers
             dlg.ShowDialog();
         }
 
-        public void NotifyGuildDetailsUpdated()
+        public void NotifyGuildReply(GuildReply reply)
         {
-            var dlg = _messageBoxFactory.CreateMessageBox(_localizedStringFinder.GetString(DialogResourceID.GUILD_DETAILS_HAVE_BEEN_UPDATED),
-                caption: _localizedStringFinder.GetString(DialogResourceID.GUILD_ACCEPTED),
-                whichButtons: Dialogs.EODialogButtons.Ok,
-                style: Dialogs.EOMessageBoxStyle.SmallDialogSmallHeader);
+            var dialogMessage = reply switch
+            {
+                GuildReply.Updated => DialogResourceID.GUILD_DETAILS_UPDATED,
+                GuildReply.NotFound => DialogResourceID.GUILD_DOES_NOT_EXIST,
+                _ => default
+            };
 
+            if (dialogMessage == default)
+                return;
+
+            var dlg = _messageBoxFactory.CreateMessageBox(dialogMessage);
             dlg.ShowDialog();
         }
     }

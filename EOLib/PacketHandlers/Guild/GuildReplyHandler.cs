@@ -34,8 +34,9 @@ namespace EOLib.PacketHandlers.Guild
                         notifier.NotifyRequestToJoinGuild(joinRequestData.PlayerId, joinRequestData.Name);
                     break;
                 case GuildReply.Updated:
+                case GuildReply.NotFound:
                     foreach (var notifier in _guildNotifiers)
-                        notifier.NotifyGuildDetailsUpdated();
+                        notifier.NotifyGuildReply(packet.ReplyCode);
                     break;
             }
 
