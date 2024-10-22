@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.Content;
 using EndlessClient.Dialogs.Services;
 using EOLib.Domain.Character;
@@ -25,6 +26,7 @@ namespace EndlessClient.Dialogs.Factories
         private readonly IContentProvider _contentProvider;
         private readonly ICharacterInventoryProvider _characterInventoryProvider;
         private readonly IEIFFileProvider _eifFileProvider;
+        private readonly ISfxPlayer _sfxPlayer;
 
         public GuildDialogFactory(INativeGraphicsManager nativeGraphicsManager,
                                 IEODialogButtonService dialogButtonService,
@@ -38,7 +40,8 @@ namespace EndlessClient.Dialogs.Factories
                                 ITextMultiInputDialogFactory textMultiInputDialogFactory,
                                 IContentProvider contentProvider,
                                 ICharacterInventoryProvider characterInventoryProvider,
-                                IEIFFileProvider eifFileProvider)
+                                IEIFFileProvider eifFileProvider,
+                                ISfxPlayer sfxPlayer)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _dialogButtonService = dialogButtonService;
@@ -53,6 +56,7 @@ namespace EndlessClient.Dialogs.Factories
             _contentProvider = contentProvider;
             _characterInventoryProvider = characterInventoryProvider;
             _eifFileProvider = eifFileProvider;
+            _sfxPlayer = sfxPlayer;
         }
 
         public GuildDialog Create()
@@ -69,7 +73,8 @@ namespace EndlessClient.Dialogs.Factories
                                    _textMultiInputDialogFactory,
                                    _contentProvider,
                                    _characterInventoryProvider,
-                                   _eifFileProvider);
+                                   _eifFileProvider,
+                                   _sfxPlayer);
         }
     }
 

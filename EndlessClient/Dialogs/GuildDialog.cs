@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using EndlessClient.Audio;
 using EndlessClient.Content;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.Dialogs.Services;
@@ -130,7 +131,7 @@ namespace EndlessClient.Dialogs
         private readonly IContentProvider _contentProvider;
         private readonly ICharacterInventoryProvider _characterInventoryProvider;
         private readonly IEIFFileProvider _eifFileProvider;
-
+        private readonly ISfxPlayer _sfxPlayer;
         private readonly Stack<State> _stateStack;
 
         private State _state;
@@ -152,7 +153,8 @@ namespace EndlessClient.Dialogs
                            ITextMultiInputDialogFactory textMultiInputDialogFactory,
                            IContentProvider contentProvider,
                            ICharacterInventoryProvider characterInventoryProvider,
-                           IEIFFileProvider eifFileProvider)
+                           IEIFFileProvider eifFileProvider,
+                           ISfxPlayer sfxPlayer)
             : base(nativeGraphicsManager, dialogButtonService, DialogType.Guild)
         {
             _dialogIconService = dialogIconService;
@@ -166,6 +168,7 @@ namespace EndlessClient.Dialogs
             _contentProvider = contentProvider;
             _characterInventoryProvider = characterInventoryProvider;
             _eifFileProvider = eifFileProvider;
+            _sfxPlayer = sfxPlayer;
 
             _stateStack = new Stack<State>();
             _cachedMembers = new HashSet<GuildMember>();
@@ -696,6 +699,7 @@ namespace EndlessClient.Dialogs
             {
                 if (e.Result == XNADialogResult.OK)
                 {
+                    _sfxPlayer.PlaySfx(SoundEffectID.LeaveGuild);
                     _guildActions.LeaveGuild();
                 }
             };

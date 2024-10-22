@@ -11,22 +11,17 @@ namespace EOLib.Domain.Interact.Guild
     [AutoMappedType]
     public class GuildActions : IGuildActions
     {
-        private const byte LeaveGuildSfx = 6;
-
         private readonly IGuildSessionRepository _guildSessionRepository;
         private readonly IPacketSendService _packetSendService;
         private readonly ICharacterRepository _characterRepository;
-        private readonly IEnumerable<ISoundNotifier> _soundNotifiers;
 
         public GuildActions(IGuildSessionRepository guildSessionRespository,
                           IPacketSendService packetSendService,
-                          ICharacterRepository characterRepository,
-                          IEnumerable<ISoundNotifier> soundNotifiers)
+                          ICharacterRepository characterRepository)
         {
             _guildSessionRepository = guildSessionRespository;
             _packetSendService = packetSendService;
             _characterRepository = characterRepository;
-            _soundNotifiers = soundNotifiers;
         }
 
         public void Lookup(string identity)
@@ -70,11 +65,10 @@ namespace EOLib.Domain.Interact.Guild
         public void LeaveGuild()
         {
             _packetSendService.SendPacket(new GuildRemoveClientPacket { SessionId = _guildSessionRepository.SessionID });
-
-            _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithGuildTag("   ").WithGuildName("").WithGuildRank("");
-
-            foreach (var notifier in _soundNotifiers)
-                notifier.NotifySoundEffect(LeaveGuildSfx);
+            _characterRepository.MainCharacter = _characterRepository.MainCharacter
+                .WithGuildTag("   ")
+                .WithGuildName(string.Empty)
+                .WithGuildRank(string.Empty);
         }
 
         public void RequestToCreateGuild(string guildTag, string guildName, string guildDescription)
