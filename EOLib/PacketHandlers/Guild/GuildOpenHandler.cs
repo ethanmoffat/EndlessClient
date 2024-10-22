@@ -3,11 +3,9 @@ using AutomaticTypeMapper;
 using EOLib.Domain.Interact;
 using EOLib.Domain.Interact.Guild;
 using EOLib.Domain.Login;
-using EOLib.Domain.Map;
 using EOLib.Net.Handlers;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using Optional;
 
 namespace EOLib.PacketHandlers.Guild
 {
@@ -34,6 +32,7 @@ namespace EOLib.PacketHandlers.Guild
 
         public override bool HandlePacket(GuildOpenServerPacket packet)
         {
+            _guildSessionRepository.ResetState();
             _guildSessionRepository.SessionID = packet.SessionId;
 
             foreach (var notifier in _npcInteractionNotifiers)

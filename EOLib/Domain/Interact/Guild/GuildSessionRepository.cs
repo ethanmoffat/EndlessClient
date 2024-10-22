@@ -16,7 +16,7 @@ namespace EOLib.Domain.Interact.Guild
         IReadOnlyList<GuildMember> GuildMembers { get; }
     }
 
-    public interface IGuildSessionRepository
+    public interface IGuildSessionRepository : IResettable
     {
         int SessionID { get; set; }
 
@@ -42,8 +42,13 @@ namespace EOLib.Domain.Interact.Guild
 
         public GuildSessionRepository()
         {
+            ResetState();
+        }
+
+        public void ResetState()
+        {
             SessionID = 0;
-            GuildDescription = "";
+            GuildDescription = string.Empty;
             GuildInfo = Option.None<GuildInfo>();
             GuildMembers = new List<GuildMember>();
         }

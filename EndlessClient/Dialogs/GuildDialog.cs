@@ -167,7 +167,7 @@ namespace EndlessClient.Dialogs
                     });
                     break;
 
-                case GuildDialogState.Lookup:
+                case GuildDialogState.Information:
                     _cachedGuildInfo.Match(
                         some: cachedGuildInfo =>
                         {
@@ -182,11 +182,10 @@ namespace EndlessClient.Dialogs
                         },
                         none: () => _guildSessionProvider.GuildInfo.MatchSome(CacheAndSetGuildInfo)
                     );
-                    break;
 
-                case GuildDialogState.ViewMembers:
                     if (!_cachedMembers.SetEquals(_guildSessionProvider.GuildMembers))
                     {
+                        SetState(State.ViewMembers);
                         ClearItemList();
 
                         _cachedMembers = _guildSessionProvider.GuildMembers.ToHashSet();
@@ -202,6 +201,8 @@ namespace EndlessClient.Dialogs
 
             void CacheAndSetGuildInfo(GuildInfo guildInfo)
             {
+                SetState(State.Information);
+
                 _cachedGuildInfo = Option.Some(guildInfo);
 
                 ClearItemList();
@@ -236,8 +237,6 @@ namespace EndlessClient.Dialogs
         private void GoBack()
         {
             _modifyGuildDescriptionListItem = Option.None<ListDialogItem>();
-            _cachedGuildInfo = Option.None<GuildInfo>();
-            _cachedMembers.Clear();
 
             SetState(_stateStack.Count > 0 ? _stateStack.Pop() : State.Initial, pushState: false);
         }
@@ -356,7 +355,6 @@ namespace EndlessClient.Dialogs
                     }
                     else
                     {
-                        SetState(State.GuildLookup);
                         _guildActions.Lookup(dlg.ResponseText);
                     }
                 };
@@ -383,7 +381,6 @@ namespace EndlessClient.Dialogs
                     }
                     else
                     {
-                        SetState(State.ViewMembers);
                         _guildActions.ViewMembers(dlg.ResponseText);
                     }
                 };
