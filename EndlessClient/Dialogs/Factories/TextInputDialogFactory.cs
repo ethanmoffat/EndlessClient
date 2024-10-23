@@ -29,14 +29,15 @@ namespace EndlessClient.Dialogs.Factories
             _sfxPlayer = sfxPlayer;
         }
 
-        public TextInputDialog Create(string prompt, int maxInputChars = 12)
+        public TextInputDialog Create(string prompt, int maxInputChars = 12, bool upperCase = false)
         {
             var dlg = new TextInputDialog(_nativeGraphicsManager,
                 _chatTextBoxActions,
                 _eoDialogButtonService,
                 _contentProvider,
                 prompt,
-                maxInputChars);
+                maxInputChars,
+                upperCase);
             dlg.DialogClosing += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
             return dlg;
         }
@@ -44,6 +45,6 @@ namespace EndlessClient.Dialogs.Factories
 
     public interface ITextInputDialogFactory
     {
-        TextInputDialog Create(string prompt, int maxInputChars = 12);
+        TextInputDialog Create(string prompt, int maxInputChars = 12, bool upperCase = false);
     }
 }

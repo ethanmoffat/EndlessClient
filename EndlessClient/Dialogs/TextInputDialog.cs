@@ -11,6 +11,9 @@ namespace EndlessClient.Dialogs
     public class TextInputDialog : BaseEODialog
     {
         private readonly IXNATextBox _inputBox;
+        private readonly bool _upperCase;
+
+        private bool _suppressTextChangedEvent;
 
         public string ResponseText => _inputBox.Text;
 
@@ -19,7 +22,8 @@ namespace EndlessClient.Dialogs
                                IEODialogButtonService eoDialogButtonService,
                                IContentProvider contentProvider,
                                string prompt,
-                               int maxInputChars = 12)
+                               int maxInputChars = 12,
+                               bool upperCase = false)
             : base(nativeGraphicsManager, isInGame: true)
         {
             BackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 54);
@@ -40,9 +44,22 @@ namespace EndlessClient.Dialogs
             {
                 MaxChars = maxInputChars,
                 LeftPadding = 4,
-                TextColor = ColorConstants.LightBeigeText,
+                TextColor = ColorConstants.LightBeigeText
             };
             _inputBox.SetParentControl(this);
+
+            _upperCase = upperCase;
+            if (_upperCase)
+            {
+                _inputBox.OnTextChanged += (_, _) =>
+                {
+                    if (_suppressTextChangedEvent) return;
+
+                    _suppressTextChangedEvent = true;
+                    _inputBox.Text = _inputBox.Text.ToUpper();
+                    _suppressTextChangedEvent = false;
+                };
+            }
 
             var ok = new XNAButton(eoDialogButtonService.SmallButtonSheet,
                 new Vector2(41, 103),

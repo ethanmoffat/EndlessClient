@@ -407,7 +407,7 @@ namespace EndlessClient.Dialogs
             void GuildLookup_Click(object sender, MouseEventArgs e)
             {
                 var showOnce = false;
-                var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_TO_VIEW_INFORMATION_ABOUT_A_GUILD_ENTER_ITS_TAG), 3);
+                var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_TO_VIEW_INFORMATION_ABOUT_A_GUILD_ENTER_ITS_TAG), maxInputChars: 3, upperCase: true);
                 dlg.DialogClosing += (_, e) =>
                 {
                     if (e.Result != XNADialogResult.OK)
@@ -430,7 +430,7 @@ namespace EndlessClient.Dialogs
             void ViewMembers_Click(object sender, MouseEventArgs e)
             {
                 var showOnce = false;
-                var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_TO_VIEW_INFORMATION_ABOUT_A_GUILD_ENTER_ITS_TAG), 3);
+                var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_TO_VIEW_INFORMATION_ABOUT_A_GUILD_ENTER_ITS_TAG), 3, upperCase: true);
                 dlg.DialogClosing += (_, e) =>
                 {
                     if (e.Result != XNADialogResult.OK)
@@ -654,8 +654,8 @@ namespace EndlessClient.Dialogs
                 _localizedStringFinder.GetString(DialogResourceID.GUILD_JOIN_GUILD),
                 _localizedStringFinder.GetString(DialogResourceID.GUILD_JOIN_GUILD + 1),
                 TextMultiInputDialog.DialogSize.Two,
-                new TextMultiInputDialog.InputInfo { Label = _localizedStringFinder.GetString(EOResourceID.GUILD_GUILD_TAG), MaxChars = 3 },
-                new TextMultiInputDialog.InputInfo { Label = _localizedStringFinder.GetString(EOResourceID.GUILD_RECRUITER), MaxChars = 12 }
+                new TextMultiInputDialog.InputInfo(_localizedStringFinder.GetString(EOResourceID.GUILD_GUILD_TAG), 3, true),
+                new TextMultiInputDialog.InputInfo(_localizedStringFinder.GetString(EOResourceID.GUILD_RECRUITER), 12)
             );
 
             dlgJoin.DialogClosing += (sender, e) =>
@@ -730,9 +730,9 @@ namespace EndlessClient.Dialogs
                 _localizedStringFinder.GetString(EOResourceID.GUILD_REGISTER_GUILD),
                 _localizedStringFinder.GetString(EOResourceID.GUILD_ENTER_YOUR_GUILD_DETAILS),
                 TextMultiInputDialog.DialogSize.Three,
-                new TextMultiInputDialog.InputInfo { Label = _localizedStringFinder.GetString(EOResourceID.GUILD_GUILD_TAG), MaxChars = 3 },
-                new TextMultiInputDialog.InputInfo { Label = _localizedStringFinder.GetString(EOResourceID.GUILD_GUILD_NAME), MaxChars = 24 },
-                new TextMultiInputDialog.InputInfo { Label = _localizedStringFinder.GetString(EOResourceID.GUILD_GUILD_DESCRIPTION), MaxChars = 240 }
+                new TextMultiInputDialog.InputInfo(_localizedStringFinder.GetString(EOResourceID.GUILD_GUILD_TAG), 3, true),
+                new TextMultiInputDialog.InputInfo(_localizedStringFinder.GetString(EOResourceID.GUILD_GUILD_NAME), 24),
+                new TextMultiInputDialog.InputInfo(_localizedStringFinder.GetString(EOResourceID.GUILD_GUILD_DESCRIPTION), 240)
             );
 
             dlgRegister.DialogClosing += (_, e) =>
