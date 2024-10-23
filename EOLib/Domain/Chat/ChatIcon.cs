@@ -26,7 +26,7 @@ namespace EOLib.Domain.Chat
         DownArrow,
         UpArrow,
         DotDotDotDot,
-        GSymbol,
+        Guild,
         Skeleton,
         Trophy,
         Information,

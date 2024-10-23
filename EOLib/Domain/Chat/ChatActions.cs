@@ -101,6 +101,7 @@ namespace EOLib.Domain.Chat
                 ChatType.PM => ChatResult.HideSpeechBubble,
                 ChatType.Global => ChatResult.HideSpeechBubble,
                 ChatType.Admin => ChatResult.HideSpeechBubble,
+                ChatType.Guild => ChatResult.HideSpeechBubble,
                 ChatType.Announce => ChatResult.AdminAnnounce,
                 _ => ChatResult.Ok,
             }, chat);
@@ -168,8 +169,7 @@ namespace EOLib.Domain.Chat
                     _chatRepository.AllChat[ChatTab.Global].Add(new ChatData(ChatTab.Global, who, chat));
                     break;
                 case ChatType.Guild:
-                    //todo: there are special cases here for guild chat that aren't handled
-                    _chatRepository.AllChat[ChatTab.Group].Add(new ChatData(ChatTab.Group, who, chat));
+                    _chatRepository.AllChat[ChatTab.Group].Add(new ChatData(ChatTab.Group, who, chat, ChatIcon.Guild));
                     break;
                 case ChatType.Party:
                     _chatRepository.AllChat[ChatTab.Local].Add(new ChatData(ChatTab.Local, who, chat, ChatIcon.PlayerPartyDark, ChatColor.PM, log: false));
