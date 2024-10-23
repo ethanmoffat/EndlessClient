@@ -677,7 +677,7 @@ namespace EndlessClient.Dialogs
                 _contentProvider.Fonts[Constants.FontSize08pt5],
                 insertLineBreaks: true,
                 new List<Action> { ShowBankDepositMessageBox },
-                _localizedStringFinder.GetString(EOResourceID.GUILD_BANK_STATUS),
+                $"{_localizedStringFinder.GetString(EOResourceID.GUILD_BANK_STATUS)} {_guildSessionProvider.GuildBalance}",
                 _localizedStringFinder.GetString(EOResourceID.GUILD_BANK_DESCRIPTION_1),
                 _localizedStringFinder.GetString(EOResourceID.GUILD_BANK_DESCRIPTION_2),
                 _localizedStringFinder.GetString(EOResourceID.GUILD_BANK_DESCRIPTION_3)
