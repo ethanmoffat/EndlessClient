@@ -138,5 +138,13 @@ namespace EndlessClient.Subscribers
                 dlg.ShowDialog();
             });
         }
+
+        public void NotifyNewGuildBankBalance(int balance)
+        {
+            _sfxPlayer.PlaySfx(SoundEffectID.BuySell);
+
+            var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_DEPOSIT_NEW_BALANCE, $" {balance}");
+            dlg.ShowDialog();
+        }
     }
 }
