@@ -194,7 +194,7 @@ namespace EndlessClient.Dialogs
             Title = _localizedStringFinder.GetString(EOResourceID.GUILD_GUILD_MASTER);
         }
 
-        protected override void OnUpdateControl(GameTime gameTime)
+        protected override void OnUnconditionalUpdateControl(GameTime gameTime)
         {
             switch (_state.DialogState)
             {
@@ -251,15 +251,21 @@ namespace EndlessClient.Dialogs
                     {
                         if (!_cachedCreationMembers.SetEquals(creationSession.Members))
                         {
+                            foreach (var member in creationSession.Members.Where(c => !_cachedCreationMembers.Contains(c)))
+                            {
+                                AddItemToList(new ListDialogItem(this, ListDialogItem.ListItemStyle.Small)
+                                {
+                                    PrimaryText = member
+                                },
+                                sortList: false);
+                            }
                             _cachedCreationMembers = creationSession.Members.ToHashSet();
-                            ClearItemList();
-                            AddTextAsListItems(_contentProvider.Fonts[Constants.FontSize08pt5], false, new List<Action> { }, _cachedCreationMembers.ToArray());
                         }
                     });
                     break;
             }
 
-            base.OnUpdateControl(gameTime);
+            base.OnUnconditionalUpdateControl(gameTime);
 
             void CacheAndSetGuildInfo(GuildInfo guildInfo)
             {
@@ -299,7 +305,6 @@ namespace EndlessClient.Dialogs
         private void GoBack()
         {
             _modifyGuildDescriptionListItem = Option.None<ListDialogItem>();
-
             SetState(_stateStack.Count > 0 ? _stateStack.Pop() : State.Initial, pushState: false);
         }
 
@@ -714,6 +719,13 @@ namespace EndlessClient.Dialogs
 
         private void ShowRegisterGuildMessageBox()
         {
+            if (_characterProvider.MainCharacter.InGuild)
+            {
+                var dlgAlreadyMember = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_ALREADY_A_MEMBER);
+                dlgAlreadyMember.ShowDialog();
+                return;
+            }
+
             var dlgRegister = _textMultiInputDialogFactory.Create(
                 _localizedStringFinder.GetString(EOResourceID.GUILD_REGISTER_GUILD),
                 _localizedStringFinder.GetString(EOResourceID.GUILD_ENTER_YOUR_GUILD_DETAILS),
