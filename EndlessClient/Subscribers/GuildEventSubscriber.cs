@@ -4,6 +4,7 @@ using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Factories;
 using EOLib.Domain.Interact.Guild;
 using EOLib.Domain.Notifiers;
+using EOLib.IO.Repositories;
 using EOLib.Localization;
 using EOLib.Net.Communication;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
@@ -21,13 +22,15 @@ namespace EndlessClient.Subscribers
         private readonly IPacketSendService _packetSendService;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IGuildSessionProvider _guildSessionProvider;
+        private readonly IEIFFileProvider _itemFileProvider;
 
         public GuildEventSubscriber(IEOMessageBoxFactory messageBoxFactory,
             IGuildActions guildActions,
             ILocalizedStringFinder localizedStringFinder,
             IPacketSendService packetSendService,
             ISfxPlayer sfxPlayer,
-            IGuildSessionProvider guildSessionProvider)
+            IGuildSessionProvider guildSessionProvider,
+            IEIFFileProvider itemFileProvider)
         {
             _messageBoxFactory = messageBoxFactory;
             _guildActions = guildActions;
@@ -35,6 +38,7 @@ namespace EndlessClient.Subscribers
             _packetSendService = packetSendService;
             _sfxPlayer = sfxPlayer;
             _guildSessionProvider = guildSessionProvider;
+            _itemFileProvider = itemFileProvider;
         }
 
         public void NotifyGuildCreationRequest(int creatorPlayerID, string guildIdentity)
@@ -137,6 +141,15 @@ namespace EndlessClient.Subscribers
                 };
                 dlg.ShowDialog();
             });
+        }
+
+        public void NotifyNewGuildBankBalance(int balance)
+        {
+            _sfxPlayer.PlaySfx(SoundEffectID.BuySell);
+
+            var goldName = _itemFileProvider.EIFFile[1].Name;
+            var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_DEPOSIT_NEW_BALANCE, $" {balance} {goldName}");
+            dlg.ShowDialog();
         }
     }
 }

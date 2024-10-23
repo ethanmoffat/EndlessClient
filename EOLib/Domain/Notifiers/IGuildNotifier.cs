@@ -12,6 +12,8 @@ namespace EOLib.Domain.Notifiers
         void NotifyGuildReply(GuildReply reply);
 
         void NotifyConfirmCreateGuild();
+
+        void NotifyNewGuildBankBalance(int balance);
     }
 
     [AutoMappedType]
@@ -21,5 +23,6 @@ namespace EOLib.Domain.Notifiers
         public void NotifyRequestToJoinGuild(int playerId, string name) { }
         public void NotifyGuildReply(GuildReply reply) { }
         public void NotifyConfirmCreateGuild() { }
+        public void NotifyNewGuildBankBalance(int balance) { }
     }
 }

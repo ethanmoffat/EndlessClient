@@ -15,6 +15,7 @@ using Microsoft.Xna.Framework;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using MonoGame.Extended.Input.InputListeners;
 using Optional;
+using Optional.Collections;
 using XNAControls;
 
 namespace EndlessClient.Dialogs
@@ -47,6 +48,9 @@ namespace EndlessClient.Dialogs
             AssignRank,
             RemoveMember,
             Disband,
+
+            // Bank List Items
+            Deposit
         }
 
         private class State
@@ -85,6 +89,8 @@ namespace EndlessClient.Dialogs
 
             public static State Disband => new(GuildDialogState.Disband);
 
+            public static State Deposit => new(GuildDialogState.Deposit);
+
             private State(GuildDialogState dialogState)
             {
                 DialogState = dialogState;
@@ -100,6 +106,7 @@ namespace EndlessClient.Dialogs
                     case GuildDialogState.LeaveGuild:
                     case GuildDialogState.RegisterGuild:
                     case GuildDialogState.WaitingForMembers:
+                    case GuildDialogState.Deposit:
                         ListItemStyle = ListDialogItem.ListItemStyle.Small;
                         break;
                 }
@@ -128,6 +135,7 @@ namespace EndlessClient.Dialogs
         private readonly IGuildActions _guildActions;
         private readonly ITextInputDialogFactory _textInputDialogFactory;
         private readonly ITextMultiInputDialogFactory _textMultiInputDialogFactory;
+        private readonly IItemTransferDialogFactory _itemTransferDialogFactory;
         private readonly IContentProvider _contentProvider;
         private readonly ICharacterInventoryProvider _characterInventoryProvider;
         private readonly IEIFFileProvider _eifFileProvider;
@@ -139,7 +147,8 @@ namespace EndlessClient.Dialogs
         private HashSet<GuildMember> _cachedMembers;
         private HashSet<string> _cachedCreationMembers;
         private Option<GuildInfo> _cachedGuildInfo;
-        private Option<ListDialogItem> _modifyGuildDescriptionListItem;
+        private Option<ListDialogItem> _modifyGuildDescriptionListItem, _guildBalanceListItem;
+        private int _lastGuildBalance;
 
         public GuildDialog(INativeGraphicsManager nativeGraphicsManager,
                            IEODialogButtonService dialogButtonService,
@@ -151,6 +160,7 @@ namespace EndlessClient.Dialogs
                            IGuildActions guildActions,
                            ITextInputDialogFactory textInputDialogFactory,
                            ITextMultiInputDialogFactory textMultiInputDialogFactory,
+                           IItemTransferDialogFactory itemTransferDialogFactory,
                            IContentProvider contentProvider,
                            ICharacterInventoryProvider characterInventoryProvider,
                            IEIFFileProvider eifFileProvider,
@@ -165,6 +175,7 @@ namespace EndlessClient.Dialogs
             _guildActions = guildActions;
             _textInputDialogFactory = textInputDialogFactory;
             _textMultiInputDialogFactory = textMultiInputDialogFactory;
+            _itemTransferDialogFactory = itemTransferDialogFactory;
             _contentProvider = contentProvider;
             _characterInventoryProvider = characterInventoryProvider;
             _eifFileProvider = eifFileProvider;
@@ -185,6 +196,7 @@ namespace EndlessClient.Dialogs
                 { State.LeaveGuild, SetupLeaveGuildState },
                 { State.RegisterGuild, SetupRegisterGuildState },
                 { State.WaitingForMembers, SetupWaitingForMembersState },
+                { State.Deposit, SetupDepositState },
             };
 
             SetState(State.Initial);
@@ -263,6 +275,17 @@ namespace EndlessClient.Dialogs
                         }
                     });
                     break;
+
+                case GuildDialogState.Deposit:
+                    if (_lastGuildBalance != _guildSessionProvider.GuildBalance)
+                    {
+                        _guildBalanceListItem.MatchSome(item =>
+                        {
+                            item.PrimaryText = $"{_localizedStringFinder.GetString(EOResourceID.GUILD_BANK_STATUS)} {_guildSessionProvider.GuildBalance}";
+                            _lastGuildBalance = _guildSessionProvider.GuildBalance;
+                        });
+                    }
+                    break;
             }
 
             base.OnUnconditionalUpdateControl(gameTime);
@@ -305,6 +328,9 @@ namespace EndlessClient.Dialogs
         private void GoBack()
         {
             _modifyGuildDescriptionListItem = Option.None<ListDialogItem>();
+            _guildBalanceListItem = Option.None<ListDialogItem>();
+            _lastGuildBalance = 0;
+
             SetState(_stateStack.Count > 0 ? _stateStack.Pop() : State.Initial, pushState: false);
         }
 
@@ -372,6 +398,8 @@ namespace EndlessClient.Dialogs
                 SubText = _localizedStringFinder.GetString(EOResourceID.GUILD_DEPOSIT_TO_GUILD_ACCOUNT),
                 OffsetY = 45,
             };
+            bankAccountItem.LeftClick += (_, _) => SetStateIfInGuild(State.Deposit);
+            bankAccountItem.RightClick += (_, _) => SetStateIfInGuild(State.Deposit);
 
             SetItemList(new List<ListDialogItem> { informationItem, administrationItem, managementItem, bankAccountItem });
         }
@@ -575,7 +603,7 @@ namespace EndlessClient.Dialogs
 
             void ShowChangeDescriptionMessageBox()
             {
-                var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_GUILD_DESCRIPTION), 240);
+                var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_WORD_DESCRIPTION), 240);
                 dlg.DialogClosing += (_, e) =>
                 {
                     if (e.Result == XNADialogResult.OK)
@@ -639,6 +667,57 @@ namespace EndlessClient.Dialogs
                 " ",
                 Capitalize(_characterProvider.MainCharacter.Name)
             );
+        }
+
+        private void SetupDepositState()
+        {
+            _guildActions.GetGuildBankBalance(_characterProvider.MainCharacter.GuildTag);
+
+            AddTextAsListItems(
+                _contentProvider.Fonts[Constants.FontSize08pt5],
+                insertLineBreaks: true,
+                new List<Action> { ShowBankDepositMessageBox },
+                $"{_localizedStringFinder.GetString(EOResourceID.GUILD_BANK_STATUS)} {_guildSessionProvider.GuildBalance}",
+                _localizedStringFinder.GetString(EOResourceID.GUILD_BANK_DESCRIPTION_1),
+                _localizedStringFinder.GetString(EOResourceID.GUILD_BANK_DESCRIPTION_2),
+                _localizedStringFinder.GetString(EOResourceID.GUILD_BANK_DESCRIPTION_3)
+            );
+
+            _guildBalanceListItem = Option.Some(ChildControls.OfType<ListDialogItem>().ToList()[0]);
+
+            void ShowBankDepositMessageBox()
+            {
+                var hasEnoughMinimumGold = _characterInventoryProvider.ItemInventory
+                    .SingleOrNone(x => x.ItemID == 1)
+                    .Match(some: x => x.Amount >= 1000, none: () => false);
+                if (!hasEnoughMinimumGold)
+                {
+                    var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_MINIMUM_DEPOSIT_IS_1000);
+                    dlg.ShowDialog();
+                    return;
+                }
+
+                var goldName = _eifFileProvider.EIFFile[1].Name;
+                var goldInventoryItem = _characterInventoryProvider.ItemInventory.Single(x => x.ItemID == 1);
+                var transferDialog = _itemTransferDialogFactory.CreateItemTransferDialog(goldName, ItemTransferDialog.TransferType.DropItems, goldInventoryItem.Amount, EOResourceID.DIALOG_TRANSFER_DROP);
+                transferDialog.DialogClosing += (_, e) =>
+                {
+                    if (e.Result != XNADialogResult.OK)
+                        return;
+
+                    if (transferDialog.SelectedAmount < 1000)
+                    {
+                        var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_MINIMUM_DEPOSIT_IS_1000);
+                        dlg.ShowDialog();
+                        return;
+                    }
+
+                    _guildActions.BankDeposit(transferDialog.SelectedAmount);
+
+                    GoBack();
+                };
+                transferDialog.ShowDialog();
+            }
         }
 
         private void ShowJoinGuildMessageBox()
@@ -732,7 +811,7 @@ namespace EndlessClient.Dialogs
                 TextMultiInputDialog.DialogSize.Three,
                 new TextMultiInputDialog.InputInfo(_localizedStringFinder.GetString(EOResourceID.GUILD_GUILD_TAG), MaxChars: 3, UpperCase: true),
                 new TextMultiInputDialog.InputInfo(_localizedStringFinder.GetString(EOResourceID.GUILD_GUILD_NAME), MaxChars: 24),
-                new TextMultiInputDialog.InputInfo(_localizedStringFinder.GetString(EOResourceID.GUILD_GUILD_DESCRIPTION), MaxChars: 240)
+                new TextMultiInputDialog.InputInfo(_localizedStringFinder.GetString(EOResourceID.GUILD_WORD_DESCRIPTION), MaxChars: 240)
             );
 
             dlgRegister.DialogClosing += (_, e) =>

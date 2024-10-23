@@ -57,6 +57,25 @@ namespace EOLib.Domain.Interact.Guild
             });
         }
 
+        public void GetGuildBankBalance(string guildTag)
+        {
+            _packetSendService.SendPacket(new GuildTakeClientPacket
+            {
+                SessionId = _guildSessionRepository.SessionID,
+                InfoType = GuildInfoType.Bank,
+                GuildTag = guildTag
+            });
+        }
+
+        public void BankDeposit(int depositAmount)
+        {
+            _packetSendService.SendPacket(new GuildBuyClientPacket
+            {
+                SessionId = _guildSessionRepository.SessionID,
+                GoldAmount = depositAmount
+            });
+        }
+
         public void RequestToJoinGuild(string guildTag, string recruiterName)
         {
             _packetSendService.SendPacket(new GuildPlayerClientPacket { SessionId = _guildSessionRepository.SessionID, GuildTag = guildTag, RecruiterName = recruiterName });
@@ -116,6 +135,10 @@ namespace EOLib.Domain.Interact.Guild
         void GetGuildDescription(string guildTag);
 
         void SetGuildDescription(string description);
+
+        void GetGuildBankBalance(string guildTag);
+
+        void BankDeposit(int depositAmount);
 
         void RequestToJoinGuild(string guildTag, string recruiterName);
 

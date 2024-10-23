@@ -13,6 +13,8 @@ namespace EOLib.Domain.Interact.Guild
 
         string GuildDescription { get; }
 
+        int GuildBalance { get; }
+
         Option<GuildInfo> GuildInfo { get; }
 
         IReadOnlyList<GuildMember> GuildMembers { get; }
@@ -25,6 +27,8 @@ namespace EOLib.Domain.Interact.Guild
         Option<GuildCreationSession> CreationSession { get; set; }
 
         string GuildDescription { get; set; }
+
+        int GuildBalance { get; set; }
 
         Option<GuildInfo> GuildInfo { get; set; }
 
@@ -39,6 +43,8 @@ namespace EOLib.Domain.Interact.Guild
         public Option<GuildCreationSession> CreationSession { get; set; }
 
         public string GuildDescription { get; set; }
+
+        public int GuildBalance { get; set; }
 
         public Option<GuildInfo> GuildInfo { get; set; }
 
@@ -56,6 +62,7 @@ namespace EOLib.Domain.Interact.Guild
             SessionID = 0;
             CreationSession = Option.None<GuildCreationSession>();
             GuildDescription = string.Empty;
+            GuildBalance = 0;
             GuildInfo = Option.None<GuildInfo>();
             GuildMembers = new List<GuildMember>();
         }

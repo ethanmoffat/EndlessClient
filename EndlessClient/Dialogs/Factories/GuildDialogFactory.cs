@@ -23,6 +23,7 @@ namespace EndlessClient.Dialogs.Factories
         private readonly IGuildActions _guildActions;
         private readonly ITextInputDialogFactory _textInputDialogFactory;
         private readonly ITextMultiInputDialogFactory _textMultiInputDialogFactory;
+        private readonly IItemTransferDialogFactory _itemTransferDialogFactory;
         private readonly IContentProvider _contentProvider;
         private readonly ICharacterInventoryProvider _characterInventoryProvider;
         private readonly IEIFFileProvider _eifFileProvider;
@@ -38,6 +39,7 @@ namespace EndlessClient.Dialogs.Factories
                                 IGuildActions guildActions,
                                 ITextInputDialogFactory textInputDialogFactory,
                                 ITextMultiInputDialogFactory textMultiInputDialogFactory,
+                                IItemTransferDialogFactory itemTransferDialogFactory,
                                 IContentProvider contentProvider,
                                 ICharacterInventoryProvider characterInventoryProvider,
                                 IEIFFileProvider eifFileProvider,
@@ -53,6 +55,7 @@ namespace EndlessClient.Dialogs.Factories
             _guildActions = guildActions;
             _textInputDialogFactory = textInputDialogFactory;
             _textMultiInputDialogFactory = textMultiInputDialogFactory;
+            _itemTransferDialogFactory = itemTransferDialogFactory;
             _contentProvider = contentProvider;
             _characterInventoryProvider = characterInventoryProvider;
             _eifFileProvider = eifFileProvider;
@@ -71,6 +74,7 @@ namespace EndlessClient.Dialogs.Factories
                                    _guildActions,
                                    _textInputDialogFactory,
                                    _textMultiInputDialogFactory,
+                                   _itemTransferDialogFactory,
                                    _contentProvider,
                                    _characterInventoryProvider,
                                    _eifFileProvider,
