@@ -24,11 +24,8 @@ namespace EndlessClient.Dialogs
             FiveWithScroll,
             NineWithScroll
         }
-        public struct InputInfo
-        {
-            public string Label;
-            public int MaxChars;
-        }
+
+        public record InputInfo(string Label, int MaxChars = 12, bool UpperCase = false);
 
         // can't use base class functionality because otherwise the bottom part of the dialog is drawn over the buttons
         private readonly Texture2D _background;
@@ -45,6 +42,9 @@ namespace EndlessClient.Dialogs
         private readonly INativeGraphicsManager _nativeGraphicsManager;
 
         private int _previousScrollOffset = -1;
+
+        private bool _suppressTextChangedEvent;
+
         public IReadOnlyList<string> Responses => _inputBoxes.Select(x => x.Text).ToList();
 
         public TextMultiInputDialog(INativeGraphicsManager nativeGraphicsManager,
@@ -179,6 +179,21 @@ namespace EndlessClient.Dialogs
                     TabOrder = i,
                 };
                 _inputBoxes[i].SetParentControl(this);
+
+                if (inputInfo[i].UpperCase)
+                {
+                    _inputBoxes[i].OnTextChanged += (sender, _) =>
+                    {
+                        if (_suppressTextChangedEvent) return;
+
+                        if (sender is XNATextBox inputBox)
+                        {
+                            _suppressTextChangedEvent = true;
+                            inputBox.Text = inputBox.Text.ToUpper();
+                            _suppressTextChangedEvent = false;
+                        }
+                    };
+                }
 
                 yCoord += 24;
             }
