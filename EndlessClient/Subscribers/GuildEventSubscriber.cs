@@ -1,11 +1,14 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Audio;
+using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Factories;
+using EOLib.Domain.Interact.Guild;
 using EOLib.Domain.Notifiers;
 using EOLib.Localization;
 using EOLib.Net.Communication;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using XNAControls;
 
 namespace EndlessClient.Subscribers
 {
@@ -13,16 +16,25 @@ namespace EndlessClient.Subscribers
     public class GuildEventSubscriber : IGuildNotifier
     {
         private readonly IEOMessageBoxFactory _messageBoxFactory;
+        private readonly IGuildActions _guildActions;
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly IPacketSendService _packetSendService;
         private readonly ISfxPlayer _sfxPlayer;
+        private readonly IGuildSessionProvider _guildSessionProvider;
 
-        public GuildEventSubscriber(IEOMessageBoxFactory messageBoxFactory, ILocalizedStringFinder localizedStringFinder, IPacketSendService packetSendService, ISfxPlayer sfxPlayer)
+        public GuildEventSubscriber(IEOMessageBoxFactory messageBoxFactory,
+            IGuildActions guildActions,
+            ILocalizedStringFinder localizedStringFinder,
+            IPacketSendService packetSendService,
+            ISfxPlayer sfxPlayer,
+            IGuildSessionProvider guildSessionProvider)
         {
             _messageBoxFactory = messageBoxFactory;
+            _guildActions = guildActions;
             _localizedStringFinder = localizedStringFinder;
             _packetSendService = packetSendService;
             _sfxPlayer = sfxPlayer;
+            _guildSessionProvider = guildSessionProvider;
         }
 
         public void NotifyGuildCreationRequest(int creatorPlayerID, string guildIdentity)
@@ -87,6 +99,14 @@ namespace EndlessClient.Subscribers
             {
                 GuildReply.Updated => DialogResourceID.GUILD_DETAILS_UPDATED,
                 GuildReply.NotFound => DialogResourceID.GUILD_DOES_NOT_EXIST,
+                GuildReply.RecruiterOffline => DialogResourceID.GUILD_RECRUITER_NOT_FOUND,
+                GuildReply.RecruiterNotHere => DialogResourceID.GUILD_RECRUITER_NOT_HERE,
+                GuildReply.RecruiterWrongGuild => DialogResourceID.GUILD_RECRUITER_NOT_MEMBER,
+                GuildReply.NotRecruiter => DialogResourceID.GUILD_RECRUITER_RANK_TOO_LOW,
+                GuildReply.Busy => DialogResourceID.GUILD_MASTER_IS_BUSY,
+                GuildReply.NotApproved => DialogResourceID.GUILD_CREATE_NAME_NOT_APPROVED,
+                GuildReply.Exists => DialogResourceID.GUILD_TAG_OR_NAME_ALREADY_EXISTS,
+                GuildReply.NoCandidates => DialogResourceID.GUILD_CREATE_NO_CANDIDATES,
                 _ => default
             };
 
@@ -95,6 +115,28 @@ namespace EndlessClient.Subscribers
 
             var dlg = _messageBoxFactory.CreateMessageBox(dialogMessage);
             dlg.ShowDialog();
+        }
+
+        public void NotifyConfirmCreateGuild()
+        {
+            _guildSessionProvider.CreationSession.MatchSome(creationSession =>
+            {
+                _sfxPlayer.PlaySfx(SoundEffectID.ServerMessage);
+
+                var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_WILL_BE_CREATED, whichButtons: EODialogButtons.OkCancel);
+                dlg.DialogClosing += (_, e) =>
+                {
+                    if (e.Result == XNADialogResult.OK)
+                    {
+                        _guildActions.ConfirmGuildCreate(creationSession);
+                    }
+                    else
+                    {
+                        _guildActions.CancelGuildCreate();
+                    }
+                };
+                dlg.ShowDialog();
+            });
         }
     }
 }

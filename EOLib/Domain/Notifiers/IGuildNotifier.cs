@@ -10,6 +10,8 @@ namespace EOLib.Domain.Notifiers
         void NotifyRequestToJoinGuild(int playerId, string name);
 
         void NotifyGuildReply(GuildReply reply);
+
+        void NotifyConfirmCreateGuild();
     }
 
     [AutoMappedType]
@@ -18,5 +20,6 @@ namespace EOLib.Domain.Notifiers
         public void NotifyGuildCreationRequest(int creatorPlayerID, string guildIdentity) { }
         public void NotifyRequestToJoinGuild(int playerId, string name) { }
         public void NotifyGuildReply(GuildReply reply) { }
+        public void NotifyConfirmCreateGuild() { }
     }
 }

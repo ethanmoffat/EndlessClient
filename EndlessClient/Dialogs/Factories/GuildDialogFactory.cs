@@ -1,9 +1,11 @@
 ﻿using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.Content;
 using EndlessClient.Dialogs.Services;
 using EOLib.Domain.Character;
 using EOLib.Domain.Interact.Guild;
 using EOLib.Graphics;
+using EOLib.IO.Repositories;
 using EOLib.Localization;
 
 namespace EndlessClient.Dialogs.Factories
@@ -20,7 +22,11 @@ namespace EndlessClient.Dialogs.Factories
         private readonly IGuildSessionProvider _guildSessionProvider;
         private readonly IGuildActions _guildActions;
         private readonly ITextInputDialogFactory _textInputDialogFactory;
+        private readonly ITextMultiInputDialogFactory _textMultiInputDialogFactory;
         private readonly IContentProvider _contentProvider;
+        private readonly ICharacterInventoryProvider _characterInventoryProvider;
+        private readonly IEIFFileProvider _eifFileProvider;
+        private readonly ISfxPlayer _sfxPlayer;
 
         public GuildDialogFactory(INativeGraphicsManager nativeGraphicsManager,
                                 IEODialogButtonService dialogButtonService,
@@ -31,7 +37,11 @@ namespace EndlessClient.Dialogs.Factories
                                 IGuildSessionProvider guildSessionProvider,
                                 IGuildActions guildActions,
                                 ITextInputDialogFactory textInputDialogFactory,
-                                IContentProvider contentProvider)
+                                ITextMultiInputDialogFactory textMultiInputDialogFactory,
+                                IContentProvider contentProvider,
+                                ICharacterInventoryProvider characterInventoryProvider,
+                                IEIFFileProvider eifFileProvider,
+                                ISfxPlayer sfxPlayer)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _dialogButtonService = dialogButtonService;
@@ -42,7 +52,11 @@ namespace EndlessClient.Dialogs.Factories
             _guildSessionProvider = guildSessionProvider;
             _guildActions = guildActions;
             _textInputDialogFactory = textInputDialogFactory;
+            _textMultiInputDialogFactory = textMultiInputDialogFactory;
             _contentProvider = contentProvider;
+            _characterInventoryProvider = characterInventoryProvider;
+            _eifFileProvider = eifFileProvider;
+            _sfxPlayer = sfxPlayer;
         }
 
         public GuildDialog Create()
@@ -56,7 +70,11 @@ namespace EndlessClient.Dialogs.Factories
                                    _guildSessionProvider,
                                    _guildActions,
                                    _textInputDialogFactory,
-                                   _contentProvider);
+                                   _textMultiInputDialogFactory,
+                                   _contentProvider,
+                                   _characterInventoryProvider,
+                                   _eifFileProvider,
+                                   _sfxPlayer);
         }
     }
 

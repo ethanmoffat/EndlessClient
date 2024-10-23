@@ -9,6 +9,8 @@ namespace EOLib.Domain.Interact.Guild
     {
         int SessionID { get; }
 
+        Option<GuildCreationSession> CreationSession { get; }
+
         string GuildDescription { get; }
 
         Option<GuildInfo> GuildInfo { get; }
@@ -20,9 +22,11 @@ namespace EOLib.Domain.Interact.Guild
     {
         int SessionID { get; set; }
 
+        Option<GuildCreationSession> CreationSession { get; set; }
+
         string GuildDescription { get; set; }
 
-        Option<GuildInfo >GuildInfo { get; set; }
+        Option<GuildInfo> GuildInfo { get; set; }
 
         List<GuildMember> GuildMembers { get; set; }
     }
@@ -31,6 +35,8 @@ namespace EOLib.Domain.Interact.Guild
     public class GuildSessionRepository : IGuildSessionRepository, IGuildSessionProvider
     {
         public int SessionID { get; set; }
+
+        public Option<GuildCreationSession> CreationSession { get; set; }
 
         public string GuildDescription { get; set; }
 
@@ -48,6 +54,7 @@ namespace EOLib.Domain.Interact.Guild
         public void ResetState()
         {
             SessionID = 0;
+            CreationSession = Option.None<GuildCreationSession>();
             GuildDescription = string.Empty;
             GuildInfo = Option.None<GuildInfo>();
             GuildMembers = new List<GuildMember>();

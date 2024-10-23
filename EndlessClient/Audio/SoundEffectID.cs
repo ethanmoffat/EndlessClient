@@ -18,6 +18,7 @@
         ServerMessage = Login,
         DeleteCharacter,
         MapMutation = DeleteCharacter,
+        LeaveGuild = DeleteCharacter,
         Banned,
         Reboot = Banned,
         ScreenCapture = 8,
