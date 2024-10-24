@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using AutomaticTypeMapper;
 using EOLib.Domain.Character;
-using EOLib.Domain.Notifiers;
 using EOLib.Net.Communication;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 using Optional;
@@ -124,6 +123,11 @@ namespace EOLib.Domain.Interact.Guild
         {
             _guildSessionRepository.CreationSession = Option.None<GuildCreationSession>();
         }
+
+        public void DisbandGuild()
+        {
+            _packetSendService.SendPacket(new GuildJunkClientPacket { SessionId = _guildSessionRepository.SessionID });
+        }
     }
 
     public interface IGuildActions
@@ -149,5 +153,6 @@ namespace EOLib.Domain.Interact.Guild
         void ConfirmGuildCreate(GuildCreationSession creationSession);
 
         void CancelGuildCreate();
+        void DisbandGuild();
     }
 }
