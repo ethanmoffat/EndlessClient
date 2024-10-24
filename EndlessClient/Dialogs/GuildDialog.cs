@@ -48,9 +48,6 @@ namespace EndlessClient.Dialogs
             AssignRank,
             RemoveMember,
             Disband,
-
-            // Bank List Items
-            Deposit
         }
 
         private class State
@@ -66,6 +63,8 @@ namespace EndlessClient.Dialogs
             public static State Administration => new(GuildDialogState.Administration);
 
             public static State Management => new(GuildDialogState.Management);
+
+            public static State BankAccount => new(GuildDialogState.BankAccount);
 
             public static State GuildLookup => new(GuildDialogState.Lookup);
 
@@ -89,8 +88,6 @@ namespace EndlessClient.Dialogs
 
             public static State Disband => new(GuildDialogState.Disband);
 
-            public static State Deposit => new(GuildDialogState.Deposit);
-
             private State(GuildDialogState dialogState)
             {
                 DialogState = dialogState;
@@ -106,7 +103,7 @@ namespace EndlessClient.Dialogs
                     case GuildDialogState.LeaveGuild:
                     case GuildDialogState.RegisterGuild:
                     case GuildDialogState.WaitingForMembers:
-                    case GuildDialogState.Deposit:
+                    case GuildDialogState.BankAccount:
                         ListItemStyle = ListDialogItem.ListItemStyle.Small;
                         break;
                 }
@@ -188,15 +185,27 @@ namespace EndlessClient.Dialogs
             _stateTransitions = new Dictionary<State, Action>
             {
                 { State.Initial, SetupInitialState },
+
+                // top-level state transitions
                 { State.Information, SetupInformationState },
                 { State.Administration, SetupAdministrationState },
                 { State.Management, SetupManagementState },
-                { State.Modify, SetupModifyState },
+                { State.BankAccount, SetupBankAccountState },
+
+                // Information state transitions
+                // (none: handled elsewhere)
+                // TODO: investigate if they can be moved here
+
+                // Administration state transitions
                 { State.JoinGuild, SetupJoinGuildState },
                 { State.LeaveGuild, SetupLeaveGuildState },
                 { State.RegisterGuild, SetupRegisterGuildState },
                 { State.WaitingForMembers, SetupWaitingForMembersState },
-                { State.Deposit, SetupDepositState },
+
+                // Management state transitions
+                { State.Modify, SetupModifyState },
+                // TODO: ranking states
+                { State.Disband, SetupDisbandState },
             };
 
             SetState(State.Initial);
@@ -276,7 +285,7 @@ namespace EndlessClient.Dialogs
                     });
                     break;
 
-                case GuildDialogState.Deposit:
+                case GuildDialogState.BankAccount:
                     if (_lastGuildBalance != _guildSessionProvider.GuildBalance)
                     {
                         _guildBalanceListItem.MatchSome(item =>
@@ -398,8 +407,8 @@ namespace EndlessClient.Dialogs
                 SubText = _localizedStringFinder.GetString(EOResourceID.GUILD_DEPOSIT_TO_GUILD_ACCOUNT),
                 OffsetY = 45,
             };
-            bankAccountItem.LeftClick += (_, _) => SetStateIfInGuild(State.Deposit);
-            bankAccountItem.RightClick += (_, _) => SetStateIfInGuild(State.Deposit);
+            bankAccountItem.LeftClick += (_, _) => SetStateIfInGuild(State.BankAccount);
+            bankAccountItem.RightClick += (_, _) => SetStateIfInGuild(State.BankAccount);
 
             SetItemList(new List<ListDialogItem> { informationItem, administrationItem, managementItem, bankAccountItem });
         }
@@ -585,34 +594,54 @@ namespace EndlessClient.Dialogs
             SetItemList(new List<ListDialogItem> { modifyGuildItem, manageRankingItem, assignRankItem, removeMemberItem, disbandItem });
         }
 
-        private void SetupModifyState()
+        private void SetupBankAccountState()
         {
-            _guildActions.GetGuildDescription(_characterProvider.MainCharacter.GuildTag);
+            _guildActions.GetGuildBankBalance(_characterProvider.MainCharacter.GuildTag);
 
             AddTextAsListItems(
                 _contentProvider.Fonts[Constants.FontSize08pt5],
-                insertLineBreaks: false,
-                new List<Action> { ShowChangeDescriptionMessageBox },
-                _localizedStringFinder.GetString(EOResourceID.GUILD_CURRENT_DESCRIPTION),
-                _guildSessionProvider.GuildDescription,
-                " ",
-                _localizedStringFinder.GetString(EOResourceID.GUILD_CLICK_HERE_TO_CHANGE_THE_DESCRIPTION)
+                insertLineBreaks: true,
+                new List<Action> { ShowBankDepositMessageBox },
+                $"{_localizedStringFinder.GetString(EOResourceID.GUILD_BANK_STATUS)} {_guildSessionProvider.GuildBalance}",
+                _localizedStringFinder.GetString(EOResourceID.GUILD_BANK_DESCRIPTION_1),
+                _localizedStringFinder.GetString(EOResourceID.GUILD_BANK_DESCRIPTION_2),
+                _localizedStringFinder.GetString(EOResourceID.GUILD_BANK_DESCRIPTION_3)
             );
 
-            _modifyGuildDescriptionListItem = Option.Some(ChildControls.OfType<ListDialogItem>().ToList()[1]);
+            _guildBalanceListItem = Option.Some(ChildControls.OfType<ListDialogItem>().ToList()[0]);
 
-            void ShowChangeDescriptionMessageBox()
+            void ShowBankDepositMessageBox()
             {
-                var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_WORD_DESCRIPTION), 240);
-                dlg.DialogClosing += (_, e) =>
+                var hasEnoughMinimumGold = _characterInventoryProvider.ItemInventory
+                    .SingleOrNone(x => x.ItemID == 1)
+                    .Match(some: x => x.Amount >= 1000, none: () => false);
+                if (!hasEnoughMinimumGold)
                 {
-                    if (e.Result == XNADialogResult.OK)
+                    var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_MINIMUM_DEPOSIT_IS_1000);
+                    dlg.ShowDialog();
+                    return;
+                }
+
+                var goldName = _eifFileProvider.EIFFile[1].Name;
+                var goldInventoryItem = _characterInventoryProvider.ItemInventory.Single(x => x.ItemID == 1);
+                var transferDialog = _itemTransferDialogFactory.CreateItemTransferDialog(goldName, ItemTransferDialog.TransferType.DropItems, goldInventoryItem.Amount, EOResourceID.DIALOG_TRANSFER_DROP);
+                transferDialog.DialogClosing += (_, e) =>
+                {
+                    if (e.Result != XNADialogResult.OK)
+                        return;
+
+                    if (transferDialog.SelectedAmount < 1000)
                     {
-                        _guildActions.SetGuildDescription(dlg.ResponseText);
-                        GoBack();
+                        var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_MINIMUM_DEPOSIT_IS_1000);
+                        dlg.ShowDialog();
+                        return;
                     }
+
+                    _guildActions.BankDeposit(transferDialog.SelectedAmount);
+
+                    GoBack();
                 };
-                dlg.ShowDialog();
+                transferDialog.ShowDialog();
             }
         }
 
@@ -669,54 +698,61 @@ namespace EndlessClient.Dialogs
             );
         }
 
-        private void SetupDepositState()
+        private void SetupModifyState()
         {
-            _guildActions.GetGuildBankBalance(_characterProvider.MainCharacter.GuildTag);
+            _guildActions.GetGuildDescription(_characterProvider.MainCharacter.GuildTag);
 
             AddTextAsListItems(
                 _contentProvider.Fonts[Constants.FontSize08pt5],
-                insertLineBreaks: true,
-                new List<Action> { ShowBankDepositMessageBox },
-                $"{_localizedStringFinder.GetString(EOResourceID.GUILD_BANK_STATUS)} {_guildSessionProvider.GuildBalance}",
-                _localizedStringFinder.GetString(EOResourceID.GUILD_BANK_DESCRIPTION_1),
-                _localizedStringFinder.GetString(EOResourceID.GUILD_BANK_DESCRIPTION_2),
-                _localizedStringFinder.GetString(EOResourceID.GUILD_BANK_DESCRIPTION_3)
+                insertLineBreaks: false,
+                new List<Action> { ShowChangeDescriptionMessageBox },
+                _localizedStringFinder.GetString(EOResourceID.GUILD_CURRENT_DESCRIPTION),
+                _guildSessionProvider.GuildDescription,
+                " ",
+                _localizedStringFinder.GetString(EOResourceID.GUILD_CLICK_HERE_TO_CHANGE_THE_DESCRIPTION)
             );
 
-            _guildBalanceListItem = Option.Some(ChildControls.OfType<ListDialogItem>().ToList()[0]);
+            _modifyGuildDescriptionListItem = Option.Some(ChildControls.OfType<ListDialogItem>().ToList()[1]);
 
-            void ShowBankDepositMessageBox()
+            void ShowChangeDescriptionMessageBox()
             {
-                var hasEnoughMinimumGold = _characterInventoryProvider.ItemInventory
-                    .SingleOrNone(x => x.ItemID == 1)
-                    .Match(some: x => x.Amount >= 1000, none: () => false);
-                if (!hasEnoughMinimumGold)
+                var dlg = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_WORD_DESCRIPTION), 240);
+                dlg.DialogClosing += (_, e) =>
                 {
-                    var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_MINIMUM_DEPOSIT_IS_1000);
-                    dlg.ShowDialog();
-                    return;
-                }
-
-                var goldName = _eifFileProvider.EIFFile[1].Name;
-                var goldInventoryItem = _characterInventoryProvider.ItemInventory.Single(x => x.ItemID == 1);
-                var transferDialog = _itemTransferDialogFactory.CreateItemTransferDialog(goldName, ItemTransferDialog.TransferType.DropItems, goldInventoryItem.Amount, EOResourceID.DIALOG_TRANSFER_DROP);
-                transferDialog.DialogClosing += (_, e) =>
-                {
-                    if (e.Result != XNADialogResult.OK)
-                        return;
-
-                    if (transferDialog.SelectedAmount < 1000)
+                    if (e.Result == XNADialogResult.OK)
                     {
-                        var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_MINIMUM_DEPOSIT_IS_1000);
-                        dlg.ShowDialog();
-                        return;
+                        _guildActions.SetGuildDescription(dlg.ResponseText);
+                        GoBack();
                     }
-
-                    _guildActions.BankDeposit(transferDialog.SelectedAmount);
-
-                    GoBack();
                 };
-                transferDialog.ShowDialog();
+                dlg.ShowDialog();
+            }
+        }
+
+        private void SetupDisbandState()
+        {
+            AddTextAsListItems(
+                _contentProvider.Fonts[Constants.FontSize08pt5],
+                insertLineBreaks: true,
+                new List<Action> { ShowDisbandGuildConfirmation },
+                _localizedStringFinder.GetString(EOResourceID.GUILD_DISBAND),
+                _localizedStringFinder.GetString(EOResourceID.GUILD_DISBAND_DESCRIPTION_1),
+                _localizedStringFinder.GetString(EOResourceID.GUILD_DISBAND_DESCRIPTION_2),
+                _localizedStringFinder.GetString(EOResourceID.GUILD_DISBAND_DESCRIPTION_3)
+            );
+
+            void ShowDisbandGuildConfirmation()
+            {
+                var confirmDlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_PROMPT_DISBAND_GUILD, EODialogButtons.OkCancel);
+                confirmDlg.DialogClosing += (_, e) =>
+                {
+                    if (e.Result == XNADialogResult.OK)
+                    {
+                        _guildActions.DisbandGuild();
+                        _sfxPlayer.PlaySfx(SoundEffectID.LeaveGuild);
+                    }
+                };
+                confirmDlg.ShowDialog();
             }
         }
 
