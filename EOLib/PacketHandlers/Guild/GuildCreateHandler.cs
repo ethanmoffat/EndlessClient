@@ -46,9 +46,9 @@ namespace EOLib.PacketHandlers.Guild
             _characterInventoryRepository.ItemInventory.Add(gold);
 
             _characterRepository.MainCharacter = _characterRepository.MainCharacter
-                .WithGuildTag(packet.GuildTag)
-                .WithGuildName(packet.GuildName)
-                .WithGuildRank(packet.RankName);
+                .WithGuildTag(packet.GuildTag.ToUpper())
+                .WithGuildName(char.ToUpper(packet.GuildName[0]) + packet.GuildName.Substring(1))
+                .WithGuildRank(char.ToUpper(packet.RankName[0]) + packet.RankName.Substring(1));
 
             _guildSessionRepository.CreationSession = Option.None<GuildCreationSession>();
 

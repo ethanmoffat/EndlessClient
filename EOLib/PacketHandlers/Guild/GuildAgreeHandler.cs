@@ -37,9 +37,9 @@ namespace EOLib.PacketHandlers.Guild
         public override bool HandlePacket(GuildAgreeServerPacket packet)
         {
             _characterRepository.MainCharacter = _characterRepository.MainCharacter
-                .WithGuildTag(packet.GuildTag)
-                .WithGuildName(packet.GuildName)
-                .WithGuildRank(packet.RankName);
+                .WithGuildTag(packet.GuildTag.ToUpper())
+                .WithGuildName(char.ToUpper(packet.GuildName[0]) + packet.GuildName.Substring(1))
+                .WithGuildRank(char.ToUpper(packet.RankName[0]) + packet.RankName.Substring(1));
 
             foreach (var notifier in _soundNotifiers)
                 notifier.NotifySoundEffect(JoinGuildSfx);
