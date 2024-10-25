@@ -106,13 +106,24 @@ namespace EndlessClient.Subscribers
                 GuildReply.NotApproved => DialogResourceID.GUILD_CREATE_NAME_NOT_APPROVED,
                 GuildReply.Exists => DialogResourceID.GUILD_TAG_OR_NAME_ALREADY_EXISTS,
                 GuildReply.NoCandidates => DialogResourceID.GUILD_CREATE_NO_CANDIDATES,
+                GuildReply.RemoveLeader => DialogResourceID.GUILD_REMOVE_PLAYER_IS_LEADER,
+                GuildReply.RemoveNotMember => DialogResourceID.GUILD_REMOVE_PLAYER_NOT_MEMBER,
+                GuildReply.Removed => DialogResourceID.GUILD_REMOVE_SUCCESS,
                 _ => default
+            };
+
+            var prependData = reply switch
+            {
+                GuildReply.RemoveLeader or
+                GuildReply.RemoveNotMember or
+                GuildReply.Removed => $"{_guildSessionProvider.RemoveCandidate} ",
+                _ => string.Empty
             };
 
             if (dialogMessage == default)
                 return;
 
-            var dlg = _messageBoxFactory.CreateMessageBox(dialogMessage);
+            var dlg = _messageBoxFactory.CreateMessageBox(prependData, dialogMessage);
             dlg.ShowDialog();
         }
 

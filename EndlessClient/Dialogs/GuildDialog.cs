@@ -103,6 +103,7 @@ namespace EndlessClient.Dialogs
                     case GuildDialogState.LeaveGuild:
                     case GuildDialogState.RegisterGuild:
                     case GuildDialogState.WaitingForMembers:
+                    case GuildDialogState.RemoveMember:
                     case GuildDialogState.BankAccount:
                         ListItemStyle = ListDialogItem.ListItemStyle.Small;
                         break;
@@ -205,6 +206,7 @@ namespace EndlessClient.Dialogs
                 // Management state transitions
                 { State.Modify, SetupModifyState },
                 // TODO: ranking states
+                { State.RemoveMember, SetupRemoveMemberState },
                 { State.Disband, SetupDisbandState },
             };
 
@@ -726,6 +728,40 @@ namespace EndlessClient.Dialogs
                     }
                 };
                 dlg.ShowDialog();
+            }
+        }
+
+        private void SetupRemoveMemberState()
+        {
+            AddTextAsListItems(
+                _contentProvider.Fonts[Constants.FontSize08pt5],
+                insertLineBreaks: true,
+                new List<Action> { ShowRemoveMemberInputBox },
+                _localizedStringFinder.GetString(EOResourceID.GUILD_REMOVE_MEMBER),
+                _localizedStringFinder.GetString(EOResourceID.GUILD_REMOVE_MEMBER_DESCRIPTION_1),
+                _localizedStringFinder.GetString(EOResourceID.GUILD_REMOVE_MEMBER_DESCRIPTION_2),
+                _localizedStringFinder.GetString(EOResourceID.GUILD_REMOVE_MEMBER_DESCRIPTION_3)
+            );
+
+            void ShowRemoveMemberInputBox()
+            {
+                var removeMemberInput = _textInputDialogFactory.Create(_localizedStringFinder.GetString(EOResourceID.GUILD_WHO_DO_YOU_WANT_TO_REMOVE));
+                removeMemberInput.DialogClosing += (_, e) =>
+                {
+                    if (e.Result == XNADialogResult.OK)
+                    {
+                        if (removeMemberInput.ResponseText.Length < 4)
+                        {
+                            e.Cancel = true;
+                            var tooShortDlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.CHARACTER_CREATE_NAME_TOO_SHORT);
+                            tooShortDlg.ShowDialog();
+                            return;
+                        }
+
+                        _guildActions.KickMember(removeMemberInput.ResponseText);
+                    }
+                };
+                removeMemberInput.ShowDialog();
             }
         }
 

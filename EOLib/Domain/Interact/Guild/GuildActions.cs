@@ -124,6 +124,17 @@ namespace EOLib.Domain.Interact.Guild
             _guildSessionRepository.CreationSession = Option.None<GuildCreationSession>();
         }
 
+        public void KickMember(string member)
+        {
+            _guildSessionRepository.RemoveCandidate = char.ToUpper(member[0]) + member.Substring(1).ToLower();
+
+            _packetSendService.SendPacket(new GuildKickClientPacket
+            {
+                SessionId = _guildSessionRepository.SessionID,
+                MemberName = member
+            });
+        }
+
         public void DisbandGuild()
         {
             _packetSendService.SendPacket(new GuildJunkClientPacket { SessionId = _guildSessionRepository.SessionID });
@@ -153,6 +164,9 @@ namespace EOLib.Domain.Interact.Guild
         void ConfirmGuildCreate(GuildCreationSession creationSession);
 
         void CancelGuildCreate();
+
+        void KickMember(string responseText);
+
         void DisbandGuild();
     }
 }
