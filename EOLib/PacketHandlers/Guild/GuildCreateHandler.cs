@@ -4,6 +4,7 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Interact.Guild;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
+using EOLib.Extensions;
 using EOLib.Net.Handlers;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
@@ -47,8 +48,8 @@ namespace EOLib.PacketHandlers.Guild
 
             _characterRepository.MainCharacter = _characterRepository.MainCharacter
                 .WithGuildTag(packet.GuildTag.ToUpper())
-                .WithGuildName(char.ToUpper(packet.GuildName[0]) + packet.GuildName.Substring(1))
-                .WithGuildRank(char.ToUpper(packet.RankName[0]) + packet.RankName.Substring(1));
+                .WithGuildName(packet.GuildName.Capitalize())
+                .WithGuildRank(packet.RankName.Capitalize());
 
             _guildSessionRepository.CreationSession = Option.None<GuildCreationSession>();
 
