@@ -13,11 +13,8 @@ namespace EOLib.PacketHandlers.Guild
 
     public class GuildAgreeHandler : InGameOnlyPacketHandler<GuildAgreeServerPacket>
     {
-        private const byte JoinGuildSfx = 18;
-
         private readonly ICharacterRepository _characterRepository;
         private readonly IEnumerable<IGuildNotifier> _guildNotifiers;
-        private readonly IEnumerable<ISoundNotifier> _soundNotifiers;
 
         public override PacketFamily Family => PacketFamily.Guild;
 
@@ -25,13 +22,11 @@ namespace EOLib.PacketHandlers.Guild
 
         public GuildAgreeHandler(IPlayerInfoProvider playerInfoProvider,
                                  ICharacterRepository characterRepository,
-                                 IEnumerable<IGuildNotifier> guildNotifiers,
-                                 IEnumerable<ISoundNotifier> soundNotifiers)
+                                 IEnumerable<IGuildNotifier> guildNotifiers)
             : base(playerInfoProvider)
         {
             _characterRepository = characterRepository;
             _guildNotifiers = guildNotifiers;
-            _soundNotifiers = soundNotifiers;
         }
 
         public override bool HandlePacket(GuildAgreeServerPacket packet)
@@ -41,8 +36,8 @@ namespace EOLib.PacketHandlers.Guild
                 .WithGuildName(char.ToUpper(packet.GuildName[0]) + packet.GuildName.Substring(1))
                 .WithGuildRank(char.ToUpper(packet.RankName[0]) + packet.RankName.Substring(1));
 
-            foreach (var notifier in _soundNotifiers)
-                notifier.NotifySoundEffect(JoinGuildSfx);
+            foreach (var notifier in _guildNotifiers)
+                notifier.NotifyAcceptedIntoGuild();
 
             return true;
         }

@@ -109,6 +109,7 @@ namespace EndlessClient.Subscribers
                 GuildReply.RemoveLeader => DialogResourceID.GUILD_REMOVE_PLAYER_IS_LEADER,
                 GuildReply.RemoveNotMember => DialogResourceID.GUILD_REMOVE_PLAYER_NOT_MEMBER,
                 GuildReply.Removed => DialogResourceID.GUILD_REMOVE_SUCCESS,
+                GuildReply.Accepted => DialogResourceID.GUILD_MEMBER_HAS_BEEN_ACCEPTED,
                 _ => default
             };
 
@@ -155,6 +156,14 @@ namespace EndlessClient.Subscribers
 
             var goldName = _itemFileProvider.EIFFile[1].Name;
             var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_DEPOSIT_NEW_BALANCE, $" {balance} {goldName}");
+            dlg.ShowDialog();
+        }
+
+        public void NotifyAcceptedIntoGuild()
+        {
+            _sfxPlayer.PlaySfx(SoundEffectID.JoinGuild);
+
+            var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_YOU_HAVE_BEEN_ACCEPTED);
             dlg.ShowDialog();
         }
     }
