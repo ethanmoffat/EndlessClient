@@ -96,27 +96,33 @@ namespace EndlessClient.Subscribers
         {
             var dialogMessage = reply switch
             {
-                GuildReply.Updated => DialogResourceID.GUILD_DETAILS_UPDATED,
-                GuildReply.NotFound => DialogResourceID.GUILD_DOES_NOT_EXIST,
+                GuildReply.Busy => DialogResourceID.GUILD_MASTER_IS_BUSY,
+                GuildReply.NotApproved => DialogResourceID.GUILD_CREATE_NAME_NOT_APPROVED,
+                GuildReply.AlreadyMember => DialogResourceID.GUILD_ALREADY_A_MEMBER, // todo: confirm official client behavior for this reply
+                GuildReply.NoCandidates => DialogResourceID.GUILD_CREATE_NO_CANDIDATES,
+                GuildReply.Exists => DialogResourceID.GUILD_TAG_OR_NAME_ALREADY_EXISTS,
                 GuildReply.RecruiterOffline => DialogResourceID.GUILD_RECRUITER_NOT_FOUND,
                 GuildReply.RecruiterNotHere => DialogResourceID.GUILD_RECRUITER_NOT_HERE,
                 GuildReply.RecruiterWrongGuild => DialogResourceID.GUILD_RECRUITER_NOT_MEMBER,
                 GuildReply.NotRecruiter => DialogResourceID.GUILD_RECRUITER_RANK_TOO_LOW,
-                GuildReply.Busy => DialogResourceID.GUILD_MASTER_IS_BUSY,
-                GuildReply.NotApproved => DialogResourceID.GUILD_CREATE_NAME_NOT_APPROVED,
-                GuildReply.Exists => DialogResourceID.GUILD_TAG_OR_NAME_ALREADY_EXISTS,
-                GuildReply.NoCandidates => DialogResourceID.GUILD_CREATE_NO_CANDIDATES,
-                GuildReply.RemoveLeader => DialogResourceID.GUILD_REMOVE_PLAYER_IS_LEADER,
-                GuildReply.RemoveNotMember => DialogResourceID.GUILD_REMOVE_PLAYER_NOT_MEMBER,
-                GuildReply.Removed => DialogResourceID.GUILD_REMOVE_SUCCESS,
+                GuildReply.NotPresent => DialogResourceID.GUILD_RECRUITER_NOT_HERE, // todo: confirm official client behavior for this reply
+                GuildReply.AccountLow => DialogResourceID.GUILD_BANK_ACCOUNT_LOW,
                 GuildReply.Accepted => DialogResourceID.GUILD_MEMBER_HAS_BEEN_ACCEPTED,
+                GuildReply.NotFound => DialogResourceID.GUILD_DOES_NOT_EXIST,
+                GuildReply.Updated => DialogResourceID.GUILD_DETAILS_UPDATED,
+                GuildReply.RanksUpdated => DialogResourceID.GUILD_DETAILS_UPDATED, // todo: confirm official client behavior for this reply
+                GuildReply.RemoveLeader or
+                GuildReply.RankingLeader => DialogResourceID.GUILD_REMOVE_PLAYER_IS_LEADER,
+                GuildReply.RemoveNotMember or
+                GuildReply.RankingNotMember => DialogResourceID.GUILD_REMOVE_PLAYER_NOT_MEMBER,
+                GuildReply.Removed => DialogResourceID.GUILD_REMOVE_SUCCESS,
                 _ => default
             };
 
             var prependData = reply switch
             {
-                GuildReply.RemoveLeader or
-                GuildReply.RemoveNotMember or
+                GuildReply.RemoveLeader or GuildReply.RankingLeader or
+                GuildReply.RemoveNotMember or GuildReply.RankingNotMember or
                 GuildReply.Removed => $"{_guildSessionProvider.RemoveCandidate} ",
                 _ => string.Empty
             };

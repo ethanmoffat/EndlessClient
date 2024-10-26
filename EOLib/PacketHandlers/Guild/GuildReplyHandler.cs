@@ -33,27 +33,26 @@ namespace EOLib.PacketHandlers.Guild
         {
             switch (packet.ReplyCode)
             {
-                case GuildReply.JoinRequest:
-                    {
-                        var data = (GuildReplyServerPacket.ReplyCodeDataJoinRequest)(packet.ReplyCodeData);
-                        foreach (var notifier in _guildNotifiers)
-                            notifier.NotifyRequestToJoinGuild(data.PlayerId, data.Name);
-                        break;
-                    }
-                case GuildReply.Updated:
-                case GuildReply.NotFound:
+                case GuildReply.Busy:
+                case GuildReply.NotApproved:
+                case GuildReply.AlreadyMember:
+                case GuildReply.NoCandidates:
+                case GuildReply.Exists:
                 case GuildReply.RecruiterOffline:
                 case GuildReply.RecruiterNotHere:
                 case GuildReply.RecruiterWrongGuild:
                 case GuildReply.NotRecruiter:
-                case GuildReply.NotApproved:
-                case GuildReply.Exists:
-                case GuildReply.NoCandidates:
-                case GuildReply.Busy:
+                case GuildReply.NotPresent:
+                case GuildReply.AccountLow:
+                case GuildReply.Accepted:
+                case GuildReply.NotFound:
+                case GuildReply.Updated:
+                case GuildReply.RanksUpdated:
                 case GuildReply.RemoveLeader:
                 case GuildReply.RemoveNotMember:
                 case GuildReply.Removed:
-                case GuildReply.Accepted:
+                case GuildReply.RankingLeader:
+                case GuildReply.RankingNotMember:
                     {
                         foreach (var notifier in _guildNotifiers)
                             notifier.NotifyGuildReply(packet.ReplyCode);
@@ -65,17 +64,6 @@ namespace EOLib.PacketHandlers.Guild
                         {
                             _guildSessionRepository.CreationSession = Option.Some(creationSession.WithApproved(true));
                         });
-                        break;
-                    }
-                case GuildReply.CreateAdd:
-                    {
-                        _guildSessionRepository.CreationSession.MatchSome(creationSession =>
-                        {
-                            var data = (GuildReplyServerPacket.ReplyCodeDataCreateAdd)packet.ReplyCodeData;
-                            var updatedMemberList = new HashSet<string>(creationSession.Members) { data.Name };
-                            _guildSessionRepository.CreationSession = Option.Some(creationSession.WithMembers(updatedMemberList));
-                        });
-                        
                         break;
                     }
                 case GuildReply.CreateAddConfirm:
@@ -91,6 +79,25 @@ namespace EOLib.PacketHandlers.Guild
                         });
                         break;
                     }
+                case GuildReply.CreateAdd:
+                    {
+                        _guildSessionRepository.CreationSession.MatchSome(creationSession =>
+                        {
+                            var data = (GuildReplyServerPacket.ReplyCodeDataCreateAdd)packet.ReplyCodeData;
+                            var updatedMemberList = new HashSet<string>(creationSession.Members) { data.Name };
+                            _guildSessionRepository.CreationSession = Option.Some(creationSession.WithMembers(updatedMemberList));
+                        });
+                        
+                        break;
+                    }
+                case GuildReply.JoinRequest:
+                    {
+                        var data = (GuildReplyServerPacket.ReplyCodeDataJoinRequest)(packet.ReplyCodeData);
+                        foreach (var notifier in _guildNotifiers)
+                            notifier.NotifyRequestToJoinGuild(data.PlayerId, data.Name);
+                        break;
+                    }
+
             }
 
             return true;
