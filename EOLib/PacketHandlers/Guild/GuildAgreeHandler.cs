@@ -3,6 +3,7 @@ using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
+using EOLib.Extensions;
 using EOLib.Net.Handlers;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
@@ -13,11 +14,8 @@ namespace EOLib.PacketHandlers.Guild
 
     public class GuildAgreeHandler : InGameOnlyPacketHandler<GuildAgreeServerPacket>
     {
-        private const byte JoinGuildSfx = 18;
-
         private readonly ICharacterRepository _characterRepository;
         private readonly IEnumerable<IGuildNotifier> _guildNotifiers;
-        private readonly IEnumerable<ISoundNotifier> _soundNotifiers;
 
         public override PacketFamily Family => PacketFamily.Guild;
 
@@ -25,24 +23,22 @@ namespace EOLib.PacketHandlers.Guild
 
         public GuildAgreeHandler(IPlayerInfoProvider playerInfoProvider,
                                  ICharacterRepository characterRepository,
-                                 IEnumerable<IGuildNotifier> guildNotifiers,
-                                 IEnumerable<ISoundNotifier> soundNotifiers)
+                                 IEnumerable<IGuildNotifier> guildNotifiers)
             : base(playerInfoProvider)
         {
             _characterRepository = characterRepository;
             _guildNotifiers = guildNotifiers;
-            _soundNotifiers = soundNotifiers;
         }
 
         public override bool HandlePacket(GuildAgreeServerPacket packet)
         {
             _characterRepository.MainCharacter = _characterRepository.MainCharacter
-                .WithGuildTag(packet.GuildTag)
-                .WithGuildName(packet.GuildName)
-                .WithGuildRank(packet.RankName);
+                .WithGuildTag(packet.GuildTag.ToUpper())
+                .WithGuildName(packet.GuildName.Capitalize())
+                .WithGuildRank(packet.RankName.Capitalize());
 
-            foreach (var notifier in _soundNotifiers)
-                notifier.NotifySoundEffect(JoinGuildSfx);
+            foreach (var notifier in _guildNotifiers)
+                notifier.NotifyAcceptedIntoGuild();
 
             return true;
         }

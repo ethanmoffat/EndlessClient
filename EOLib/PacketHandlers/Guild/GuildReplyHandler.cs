@@ -50,6 +50,10 @@ namespace EOLib.PacketHandlers.Guild
                 case GuildReply.Exists:
                 case GuildReply.NoCandidates:
                 case GuildReply.Busy:
+                case GuildReply.RemoveLeader:
+                case GuildReply.RemoveNotMember:
+                case GuildReply.Removed:
+                case GuildReply.Accepted:
                     {
                         foreach (var notifier in _guildNotifiers)
                             notifier.NotifyGuildReply(packet.ReplyCode);

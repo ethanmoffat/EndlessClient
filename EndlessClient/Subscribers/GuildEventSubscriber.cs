@@ -18,7 +18,6 @@ namespace EndlessClient.Subscribers
     {
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly IGuildActions _guildActions;
-        private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly IPacketSendService _packetSendService;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IGuildSessionProvider _guildSessionProvider;
@@ -26,7 +25,6 @@ namespace EndlessClient.Subscribers
 
         public GuildEventSubscriber(IEOMessageBoxFactory messageBoxFactory,
             IGuildActions guildActions,
-            ILocalizedStringFinder localizedStringFinder,
             IPacketSendService packetSendService,
             ISfxPlayer sfxPlayer,
             IGuildSessionProvider guildSessionProvider,
@@ -34,7 +32,6 @@ namespace EndlessClient.Subscribers
         {
             _messageBoxFactory = messageBoxFactory;
             _guildActions = guildActions;
-            _localizedStringFinder = localizedStringFinder;
             _packetSendService = packetSendService;
             _sfxPlayer = sfxPlayer;
             _guildSessionProvider = guildSessionProvider;
@@ -46,18 +43,17 @@ namespace EndlessClient.Subscribers
             _sfxPlayer.PlaySfx(SoundEffectID.ServerMessage);
 
             var dlg = _messageBoxFactory.CreateMessageBox(
-                $"{guildIdentity}" +
-                " " + _localizedStringFinder.GetString(DialogResourceID.GUILD_INVITES_YOU_TO_JOIN) +
-                " " + _localizedStringFinder.GetString(EOResourceID.GUILD_JOINING_A_GUILD_IS_FREE) +
-                " " + _localizedStringFinder.GetString(EOResourceID.GUILD_PLEASE_CONSIDER_CAREFULLY) +
-                " " + _localizedStringFinder.GetString(EOResourceID.GUILD_DO_YOU_ACCEPT),
-                caption: _localizedStringFinder.GetString(DialogResourceID.GUILD_INVITATION),
-                whichButtons: Dialogs.EODialogButtons.OkCancel,
-                style: Dialogs.EOMessageBoxStyle.LargeDialogSmallHeader);
+                prependData: $"{guildIdentity} ",
+                resource: DialogResourceID.GUILD_INVITATION_INVITES_YOU,
+                whichButtons: EODialogButtons.OkCancel,
+                style: EOMessageBoxStyle.LargeDialogSmallHeader,
+                EOResourceID.GUILD_JOINING_A_GUILD_IS_FREE,
+                EOResourceID.GUILD_PLEASE_CONSIDER_CAREFULLY,
+                EOResourceID.GUILD_DO_YOU_ACCEPT);
 
             dlg.DialogClosing += (_, e) =>
             {
-                if (e.Result == XNAControls.XNADialogResult.OK)
+                if (e.Result == XNADialogResult.OK)
                 {
                     _packetSendService.SendPacket(new GuildAcceptClientPacket()
                     {
@@ -74,18 +70,17 @@ namespace EndlessClient.Subscribers
             _sfxPlayer.PlaySfx(SoundEffectID.ServerMessage);
 
             var dlg = _messageBoxFactory.CreateMessageBox(
-                $"{name}" +
-                " " + _localizedStringFinder.GetString(DialogResourceID.GUILD_REQUESTED_TO_JOIN) +
-                " " + _localizedStringFinder.GetString(EOResourceID.GUILD_YOUR_ACCOUNT_WILL_BE_CHARGED) +
-                " " + _localizedStringFinder.GetString(EOResourceID.GUILD_PLEASE_CONSIDER_CAREFULLY_RECRUIT) +
-                " " + _localizedStringFinder.GetString(EOResourceID.GUILD_DO_YOU_ACCEPT),
-                caption: _localizedStringFinder.GetString(DialogResourceID.GUILD_PLAYER_WANTS_TO_JOIN),
-                whichButtons: Dialogs.EODialogButtons.OkCancel,
-                style: Dialogs.EOMessageBoxStyle.LargeDialogSmallHeader);
+                prependData: $"{name} ",
+                resource: DialogResourceID.GUILD_PLAYER_WANTS_TO_JOIN,
+                whichButtons: EODialogButtons.OkCancel,
+                style: EOMessageBoxStyle.LargeDialogSmallHeader,
+                EOResourceID.GUILD_YOUR_ACCOUNT_WILL_BE_CHARGED,
+                EOResourceID.GUILD_PLEASE_CONSIDER_CAREFULLY_RECRUIT,
+                EOResourceID.GUILD_DO_YOU_ACCEPT);
 
             dlg.DialogClosing += (_, e) =>
             {
-                if (e.Result == XNAControls.XNADialogResult.OK)
+                if (e.Result == XNADialogResult.OK)
                 {
                     _packetSendService.SendPacket(new GuildUseClientPacket()
                     {
@@ -111,13 +106,25 @@ namespace EndlessClient.Subscribers
                 GuildReply.NotApproved => DialogResourceID.GUILD_CREATE_NAME_NOT_APPROVED,
                 GuildReply.Exists => DialogResourceID.GUILD_TAG_OR_NAME_ALREADY_EXISTS,
                 GuildReply.NoCandidates => DialogResourceID.GUILD_CREATE_NO_CANDIDATES,
+                GuildReply.RemoveLeader => DialogResourceID.GUILD_REMOVE_PLAYER_IS_LEADER,
+                GuildReply.RemoveNotMember => DialogResourceID.GUILD_REMOVE_PLAYER_NOT_MEMBER,
+                GuildReply.Removed => DialogResourceID.GUILD_REMOVE_SUCCESS,
+                GuildReply.Accepted => DialogResourceID.GUILD_MEMBER_HAS_BEEN_ACCEPTED,
                 _ => default
+            };
+
+            var prependData = reply switch
+            {
+                GuildReply.RemoveLeader or
+                GuildReply.RemoveNotMember or
+                GuildReply.Removed => $"{_guildSessionProvider.RemoveCandidate} ",
+                _ => string.Empty
             };
 
             if (dialogMessage == default)
                 return;
 
-            var dlg = _messageBoxFactory.CreateMessageBox(dialogMessage);
+            var dlg = _messageBoxFactory.CreateMessageBox(prependData, dialogMessage);
             dlg.ShowDialog();
         }
 
@@ -149,6 +156,14 @@ namespace EndlessClient.Subscribers
 
             var goldName = _itemFileProvider.EIFFile[1].Name;
             var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_DEPOSIT_NEW_BALANCE, $" {balance} {goldName}");
+            dlg.ShowDialog();
+        }
+
+        public void NotifyAcceptedIntoGuild()
+        {
+            _sfxPlayer.PlaySfx(SoundEffectID.JoinGuild);
+
+            var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_YOU_HAVE_BEEN_ACCEPTED);
             dlg.ShowDialog();
         }
     }

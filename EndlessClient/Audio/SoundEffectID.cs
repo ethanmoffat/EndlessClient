@@ -33,6 +33,7 @@
         TradeAccepted,
         JoinParty = TradeAccepted,
         GroupChatReceived,
+        JoinGuild = GroupChatReceived,
         PrivateMessageSent,
         InventoryPickup = 20,
         InventoryPlace,
