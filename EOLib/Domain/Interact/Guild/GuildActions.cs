@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using AutomaticTypeMapper;
 using EOLib.Domain.Character;
+using EOLib.Extensions;
 using EOLib.Net.Communication;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 using Optional;
@@ -126,7 +127,7 @@ namespace EOLib.Domain.Interact.Guild
 
         public void KickMember(string member)
         {
-            _guildSessionRepository.RemoveCandidate = char.ToUpper(member[0]) + member.Substring(1).ToLower();
+            _guildSessionRepository.RemoveCandidate = member.Capitalize();
 
             _packetSendService.SendPacket(new GuildKickClientPacket
             {

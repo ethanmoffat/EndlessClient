@@ -8,6 +8,7 @@ using EndlessClient.Dialogs.Services;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Interact.Guild;
+using EOLib.Extensions;
 using EOLib.Graphics;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
@@ -254,7 +255,7 @@ namespace EndlessClient.Dialogs
 
                         _cachedMembers = _guildSessionProvider.GuildMembers.ToHashSet();
                         AddTextAsKeyValueListItems(
-                            _cachedMembers.Select(x => ($"{x.Rank}  {x.Name}", Capitalize(x.RankName))).ToArray()
+                            _cachedMembers.Select(x => ($"{x.Rank}  {x.Name}", x.RankName.Capitalize())).ToArray()
                         );
                     }
                     break;
@@ -325,7 +326,7 @@ namespace EndlessClient.Dialogs
                     guildInfo.Wealth,
                     " ",
                     _localizedStringFinder.GetString(EOResourceID.GUILD_RANKING_SYSTEM),
-                    string.Join("\n", guildInfo.Ranks.Select((x, n) => $"{n + 1}  {Capitalize(x)}")),
+                    string.Join("\n", guildInfo.Ranks.Select((x, n) => $"{n + 1}  {x.Capitalize()}")),
                     " ",
                     _localizedStringFinder.GetString(EOResourceID.GUILD_LEADERS),
                     string.Join("\n", guildInfo.Staff.Select(x => $"{x.Name}{(x.Rank == 0 ? " (founder)" : string.Empty)}")),
@@ -696,7 +697,7 @@ namespace EndlessClient.Dialogs
                 new List<Action> { },
                 _localizedStringFinder.GetString(EOResourceID.GUILD_PLEASE_WAIT_FOR_ALL_MEMBERS_TO_JOIN),
                 " ",
-                Capitalize(_characterProvider.MainCharacter.Name)
+                _characterProvider.MainCharacter.Name.Capitalize()
             );
         }
 
@@ -971,8 +972,5 @@ namespace EndlessClient.Dialogs
 
             SetState(state);
         }
-
-        private static string Capitalize(string input) =>
-            string.IsNullOrEmpty(input) ? string.Empty : char.ToUpper(input[0]) + input[1..].ToLower();
     }
 }
