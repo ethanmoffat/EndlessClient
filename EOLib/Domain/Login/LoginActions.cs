@@ -98,6 +98,7 @@ namespace EOLib.Domain.Login
                 .WithName(data.Name.Capitalize())
                 .WithTitle(data.Title)
                 .WithGuildName(data.GuildName.Capitalize())
+                .WithGuildRankID(data.GuildRank)
                 .WithGuildRank(data.GuildRankName.Capitalize())
                 .WithGuildTag(data.GuildTag.ToUpper())
                 .WithClassID(data.ClassId)

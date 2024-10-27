@@ -37,6 +37,8 @@ namespace EOLib.Domain.Character
 
         public string GuildRank { get; }
 
+        public int GuildRankID { get; }
+
         public string GuildTag { get; }
 
         public bool InGuild => GuildTag != "   ";
