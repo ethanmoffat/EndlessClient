@@ -19,7 +19,7 @@ namespace EOLib.Domain.Interact.Guild
 
         IReadOnlyList<GuildMember> GuildMembers { get; }
 
-        string RemoveCandidate { get; }
+        string GuildPlayerModifyCandidate { get; }
     }
 
     public interface IGuildSessionRepository : IResettable
@@ -36,7 +36,7 @@ namespace EOLib.Domain.Interact.Guild
 
         List<GuildMember> GuildMembers { get; set; }
 
-        string RemoveCandidate { get; set; }
+        string GuildPlayerModifyCandidate { get; set; }
     }
 
     [AutoMappedType(IsSingleton = true)]
@@ -54,7 +54,7 @@ namespace EOLib.Domain.Interact.Guild
 
         public List<GuildMember> GuildMembers { get; set; }
 
-        public string RemoveCandidate { get; set; }
+        public string GuildPlayerModifyCandidate { get; set; }
 
         IReadOnlyList<GuildMember> IGuildSessionProvider.GuildMembers => GuildMembers;
 
@@ -71,7 +71,7 @@ namespace EOLib.Domain.Interact.Guild
             GuildBalance = 0;
             GuildInfo = Option.None<GuildInfo>();
             GuildMembers = new List<GuildMember>();
-            RemoveCandidate = string.Empty;
+            GuildPlayerModifyCandidate = string.Empty;
         }
     }
 }

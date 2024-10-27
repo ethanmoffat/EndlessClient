@@ -1,4 +1,5 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Collections.Generic;
+using AutomaticTypeMapper;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOLib.Domain.Notifiers
@@ -16,6 +17,8 @@ namespace EOLib.Domain.Notifiers
         void NotifyNewGuildBankBalance(int balance);
 
         void NotifyAcceptedIntoGuild();
+
+        void NotifyRanks(IReadOnlyList<string> ranks);
     }
 
     [AutoMappedType]
@@ -27,5 +30,6 @@ namespace EOLib.Domain.Notifiers
         public void NotifyConfirmCreateGuild() { }
         public void NotifyNewGuildBankBalance(int balance) { }
         public void NotifyAcceptedIntoGuild() { }
+        public void NotifyRanks(IReadOnlyList<string> ranks) { }
     }
 }
