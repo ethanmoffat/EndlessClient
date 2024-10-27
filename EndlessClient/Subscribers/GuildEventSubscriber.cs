@@ -1,9 +1,12 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Collections.Generic;
+using System.Linq;
+using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Factories;
 using EOLib.Domain.Interact.Guild;
 using EOLib.Domain.Notifiers;
+using EOLib.Extensions;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
 using EOLib.Net.Communication;
@@ -17,25 +20,31 @@ namespace EndlessClient.Subscribers
     public class GuildEventSubscriber : IGuildNotifier
     {
         private readonly IEOMessageBoxFactory _messageBoxFactory;
+        private readonly ITextMultiInputDialogFactory _textMultiInputDialogFactory;
         private readonly IGuildActions _guildActions;
         private readonly IPacketSendService _packetSendService;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IGuildSessionProvider _guildSessionProvider;
         private readonly IEIFFileProvider _itemFileProvider;
+        private readonly ILocalizedStringFinder _localizedStringFinder;
 
         public GuildEventSubscriber(IEOMessageBoxFactory messageBoxFactory,
+            ITextMultiInputDialogFactory textMultiInputDialogFactory,
             IGuildActions guildActions,
             IPacketSendService packetSendService,
             ISfxPlayer sfxPlayer,
             IGuildSessionProvider guildSessionProvider,
-            IEIFFileProvider itemFileProvider)
+            IEIFFileProvider itemFileProvider,
+            ILocalizedStringFinder localizedStringFinder)
         {
             _messageBoxFactory = messageBoxFactory;
+            _textMultiInputDialogFactory = textMultiInputDialogFactory;
             _guildActions = guildActions;
             _packetSendService = packetSendService;
             _sfxPlayer = sfxPlayer;
             _guildSessionProvider = guildSessionProvider;
             _itemFileProvider = itemFileProvider;
+            _localizedStringFinder = localizedStringFinder;
         }
 
         public void NotifyGuildCreationRequest(int creatorPlayerID, string guildIdentity)
@@ -98,19 +107,19 @@ namespace EndlessClient.Subscribers
             {
                 GuildReply.Busy => DialogResourceID.GUILD_MASTER_IS_BUSY,
                 GuildReply.NotApproved => DialogResourceID.GUILD_CREATE_NAME_NOT_APPROVED,
-                GuildReply.AlreadyMember => DialogResourceID.GUILD_ALREADY_A_MEMBER, // todo: confirm official client behavior for this reply
+                GuildReply.AlreadyMember => DialogResourceID.GUILD_ALREADY_A_MEMBER,
                 GuildReply.NoCandidates => DialogResourceID.GUILD_CREATE_NO_CANDIDATES,
                 GuildReply.Exists => DialogResourceID.GUILD_TAG_OR_NAME_ALREADY_EXISTS,
                 GuildReply.RecruiterOffline => DialogResourceID.GUILD_RECRUITER_NOT_FOUND,
                 GuildReply.RecruiterNotHere => DialogResourceID.GUILD_RECRUITER_NOT_HERE,
                 GuildReply.RecruiterWrongGuild => DialogResourceID.GUILD_RECRUITER_NOT_MEMBER,
                 GuildReply.NotRecruiter => DialogResourceID.GUILD_RECRUITER_RANK_TOO_LOW,
-                GuildReply.NotPresent => DialogResourceID.GUILD_RECRUITER_NOT_HERE, // todo: confirm official client behavior for this reply
+                GuildReply.NotPresent => DialogResourceID.GUILD_RECRUITER_NOT_HERE,
                 GuildReply.AccountLow => DialogResourceID.GUILD_BANK_ACCOUNT_LOW,
                 GuildReply.Accepted => DialogResourceID.GUILD_MEMBER_HAS_BEEN_ACCEPTED,
                 GuildReply.NotFound => DialogResourceID.GUILD_DOES_NOT_EXIST,
                 GuildReply.Updated => DialogResourceID.GUILD_DETAILS_UPDATED,
-                GuildReply.RanksUpdated => DialogResourceID.GUILD_DETAILS_UPDATED, // todo: confirm official client behavior for this reply
+                GuildReply.RanksUpdated => DialogResourceID.GUILD_DETAILS_UPDATED,
                 GuildReply.RemoveLeader or
                 GuildReply.RankingLeader => DialogResourceID.GUILD_REMOVE_PLAYER_IS_LEADER,
                 GuildReply.RemoveNotMember or
@@ -123,7 +132,7 @@ namespace EndlessClient.Subscribers
             {
                 GuildReply.RemoveLeader or GuildReply.RankingLeader or
                 GuildReply.RemoveNotMember or GuildReply.RankingNotMember or
-                GuildReply.Removed => $"{_guildSessionProvider.RemoveCandidate} ",
+                GuildReply.Removed => $"{_guildSessionProvider.GuildPlayerModifyCandidate} ",
                 _ => string.Empty
             };
 
@@ -171,6 +180,29 @@ namespace EndlessClient.Subscribers
 
             var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_YOU_HAVE_BEEN_ACCEPTED);
             dlg.ShowDialog();
+        }
+
+        public void NotifyRanks(IReadOnlyList<string> ranks)
+        {
+            var inputs = ranks.Select(
+                (rankString, i) => new TextMultiInputDialog.InputInfo(
+                    Label: $"{_localizedStringFinder.GetString(EOResourceID.GUILD_RANKING)} {i + 1}",
+                    DefaultValue: rankString.Capitalize(),
+                    MaxChars: 16
+                )
+            );
+
+            var dialog = _textMultiInputDialogFactory.Create(
+                _localizedStringFinder.GetString(EOResourceID.GUILD_RANKING),
+                _localizedStringFinder.GetString(EOResourceID.GUILD_ENTER_YOUR_RANKINGS),
+                TextMultiInputDialog.DialogSize.NineWithScroll,
+                inputs.ToArray());
+            dialog.DialogClosing += (_, e) =>
+            {
+                if (e.Result == XNADialogResult.OK)
+                    _guildActions.SetGuildRanks(dialog.Responses);
+            };
+            dialog.ShowDialog();
         }
     }
 }

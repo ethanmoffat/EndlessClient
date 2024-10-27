@@ -45,7 +45,6 @@ namespace EndlessClient.Dialogs
 
             // Management List Items
             Modify,
-            ManageRankings,
             AssignRank,
             RemoveMember,
             Disband,
@@ -81,8 +80,6 @@ namespace EndlessClient.Dialogs
 
             public static State Modify => new(GuildDialogState.Modify);
 
-            public static State ManageRankings => new(GuildDialogState.ManageRankings);
-
             public static State AssignRank => new(GuildDialogState.AssignRank);
 
             public static State RemoveMember => new(GuildDialogState.RemoveMember);
@@ -106,6 +103,7 @@ namespace EndlessClient.Dialogs
                     case GuildDialogState.WaitingForMembers:
                     case GuildDialogState.RemoveMember:
                     case GuildDialogState.BankAccount:
+                    case GuildDialogState.AssignRank:
                         ListItemStyle = ListDialogItem.ListItemStyle.Small;
                         break;
                 }
@@ -206,7 +204,7 @@ namespace EndlessClient.Dialogs
 
                 // Management state transitions
                 { State.Modify, SetupModifyState },
-                // TODO: ranking states
+                { State.AssignRank, SetupAssignRankState },
                 { State.RemoveMember, SetupRemoveMemberState },
                 { State.Disband, SetupDisbandState },
             };
@@ -255,7 +253,7 @@ namespace EndlessClient.Dialogs
 
                         _cachedMembers = _guildSessionProvider.GuildMembers.ToHashSet();
                         AddTextAsKeyValueListItems(
-                            _cachedMembers.Select(x => ($"{x.Rank}  {x.Name}", x.RankName.Capitalize())).ToArray()
+                            _cachedMembers.Select(x => ($"{x.Rank}  {x.Name.Capitalize()}", x.RankName.Capitalize())).ToArray()
                         );
                     }
                     break;
@@ -329,7 +327,7 @@ namespace EndlessClient.Dialogs
                     string.Join("\n", guildInfo.Ranks.Select((x, n) => $"{n + 1}  {x.Capitalize()}")),
                     " ",
                     _localizedStringFinder.GetString(EOResourceID.GUILD_LEADERS),
-                    string.Join("\n", guildInfo.Staff.Select(x => $"{x.Name}{(x.Rank == 0 ? " (founder)" : string.Empty)}")),
+                    string.Join("\n", guildInfo.Staff.Select(x => $"{x.Name.Capitalize()}{(x.Rank == 0 ? " (founder)" : string.Empty)}")),
                     " "
                 );
             }
@@ -339,6 +337,11 @@ namespace EndlessClient.Dialogs
 
         private void GoBack()
         {
+            _guildActions.ClearLocalState();
+
+            _cachedMembers.Clear();
+            _cachedGuildInfo = Option.None<GuildInfo>();
+
             _modifyGuildDescriptionListItem = Option.None<ListDialogItem>();
             _guildBalanceListItem = Option.None<ListDialogItem>();
             _lastGuildBalance = 0;
@@ -543,8 +546,8 @@ namespace EndlessClient.Dialogs
                 SubText = _localizedStringFinder.GetString(EOResourceID.GUILD_CHANGE_YOUR_GUILD_DETAILS),
                 OffsetY = 45,
             };
-            modifyGuildItem.LeftClick += (_, _) => SetStateIfInGuild(State.Modify);
-            modifyGuildItem.RightClick += (_, _) => SetStateIfInGuild(State.Modify);
+            modifyGuildItem.LeftClick += (_, _) => SetStateIfLeaderRank(State.Modify);
+            modifyGuildItem.RightClick += (_, _) => SetStateIfLeaderRank(State.Modify);
 
             var manageRankingItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
             {
@@ -555,8 +558,8 @@ namespace EndlessClient.Dialogs
                 SubText = _localizedStringFinder.GetString(EOResourceID.GUILD_MANAGE_MEMBER_RANKINGS),
                 OffsetY = 45,
             };
-            manageRankingItem.LeftClick += (_, _) => SetStateIfInGuild(State.ManageRankings);
-            manageRankingItem.RightClick += (_, _) => SetStateIfInGuild(State.ManageRankings);
+            manageRankingItem.LeftClick += (_, _) => ShowManageRankingsDialog();
+            manageRankingItem.RightClick += (_, _) => ShowManageRankingsDialog();
 
             var assignRankItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
             {
@@ -567,8 +570,8 @@ namespace EndlessClient.Dialogs
                 SubText = _localizedStringFinder.GetString(EOResourceID.GUILD_ASSIGN_RANK_TO_MEMBER),
                 OffsetY = 45,
             };
-            assignRankItem.LeftClick += (_, _) => SetStateIfInGuild(State.AssignRank);
-            assignRankItem.RightClick += (_, _) => SetStateIfInGuild(State.AssignRank);
+            assignRankItem.LeftClick += (_, _) => SetStateIfLeaderRank(State.AssignRank);
+            assignRankItem.RightClick += (_, _) => SetStateIfLeaderRank(State.AssignRank);
 
             var removeMemberItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
             {
@@ -579,8 +582,8 @@ namespace EndlessClient.Dialogs
                 SubText = _localizedStringFinder.GetString(EOResourceID.GUILD_REMOVE_A_MEMBER_FROM_GUILD),
                 OffsetY = 45,
             };
-            removeMemberItem.LeftClick += (_, _) => SetStateIfInGuild(State.RemoveMember);
-            removeMemberItem.RightClick += (_, _) => SetStateIfInGuild(State.RemoveMember);
+            removeMemberItem.LeftClick += (_, _) => SetStateIfLeaderRank(State.RemoveMember);
+            removeMemberItem.RightClick += (_, _) => SetStateIfLeaderRank(State.RemoveMember);
 
             var disbandItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
             {
@@ -591,8 +594,8 @@ namespace EndlessClient.Dialogs
                 SubText = _localizedStringFinder.GetString(EOResourceID.GUILD_DISBAND_YOUR_GUILD),
                 OffsetY = 45,
             };
-            disbandItem.LeftClick += (_, _) => SetStateIfInGuild(State.Disband);
-            disbandItem.RightClick += (_, _) => SetStateIfInGuild(State.Disband);
+            disbandItem.LeftClick += (_, _) => SetStateIfLeaderRank(State.Disband);
+            disbandItem.RightClick += (_, _) => SetStateIfLeaderRank(State.Disband);
 
             SetItemList(new List<ListDialogItem> { modifyGuildItem, manageRankingItem, assignRankItem, removeMemberItem, disbandItem });
         }
@@ -732,6 +735,74 @@ namespace EndlessClient.Dialogs
             }
         }
 
+        private void ShowManageRankingsDialog()
+        {
+            if (!_characterProvider.MainCharacter.InGuild)
+            {
+                var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_NOT_IN_GUILD);
+                dlg.ShowDialog();
+                return;
+            }
+
+            if (_characterProvider.MainCharacter.GuildRankID >= 2)
+            {
+                var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_RANK_TOO_LOW);
+                dlg.ShowDialog();
+                return;
+            }
+
+            // guild ranks dialog pops up on response from server (see GuildEventSubscriber)
+            _guildActions.GetGuildRanks(_characterProvider.MainCharacter.GuildTag);
+        }
+
+        private void SetupAssignRankState()
+        {
+            AddTextAsListItems(
+                _contentProvider.Fonts[Constants.FontSize08pt5],
+                insertLineBreaks: true,
+                new List<Action> { ShowAssignRankInputBox },
+                _localizedStringFinder.GetString(EOResourceID.GUILD_RANKING),
+                _localizedStringFinder.GetString(EOResourceID.GUILD_RANK_DESCRIPTION_1),
+                _localizedStringFinder.GetString(EOResourceID.GUILD_RANK_DESCRIPTION_2),
+                _localizedStringFinder.GetString(EOResourceID.GUILD_RANK_DESCRIPTION_3)
+            );
+
+            void ShowAssignRankInputBox()
+            {
+                var dlg = _textMultiInputDialogFactory.Create(
+                    _localizedStringFinder.GetString(EOResourceID.GUILD_RANKING),
+                    _localizedStringFinder.GetString(EOResourceID.GUILD_ASSIGN_RANK_TO_MEMBER),
+                    TextMultiInputDialog.DialogSize.Two,
+                    new TextMultiInputDialog.InputInfo(_localizedStringFinder.GetString(EOResourceID.GUILD_RANK_ASSIGN_NAME)),
+                    new TextMultiInputDialog.InputInfo(
+                        _localizedStringFinder.GetString(EOResourceID.GUILD_RANK_ASSIGN_RANK),
+                        MaxChars: 1,
+                        InputRestriction: TextMultiInputDialog.InputInfo.InputRestrict.Numeric
+                    )
+                );
+
+                dlg.DialogClosing += (_, e) =>
+                {
+                    if (e.Result == XNADialogResult.OK)
+                    {
+                        // The only input validation the official client does is that none of the fields are empty
+
+                        if (dlg.Responses.Any(string.IsNullOrWhiteSpace))
+                        {
+                            var errorDlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.ACCOUNT_CREATE_FIELDS_STILL_EMPTY);
+                            errorDlg.ShowDialog();
+
+                            e.Cancel = true;
+                            return;
+                        }
+
+                        _guildActions.AssignRank(dlg.Responses[0], int.Parse(dlg.Responses[1]));
+                    }
+                };
+                dlg.ShowDialog();
+            }
+        }
+
         private void SetupRemoveMemberState()
         {
             AddTextAsListItems(
@@ -806,7 +877,7 @@ namespace EndlessClient.Dialogs
                 _localizedStringFinder.GetString(DialogResourceID.GUILD_JOIN_GUILD),
                 _localizedStringFinder.GetString(DialogResourceID.GUILD_JOIN_GUILD + 1),
                 TextMultiInputDialog.DialogSize.Two,
-                new TextMultiInputDialog.InputInfo(_localizedStringFinder.GetString(EOResourceID.GUILD_GUILD_TAG), MaxChars: 3, UpperCase: true),
+                new TextMultiInputDialog.InputInfo(_localizedStringFinder.GetString(EOResourceID.GUILD_GUILD_TAG), MaxChars: 3, InputRestriction: TextMultiInputDialog.InputInfo.InputRestrict.Uppercase),
                 new TextMultiInputDialog.InputInfo(_localizedStringFinder.GetString(EOResourceID.GUILD_RECRUITER), MaxChars: 12)
             );
 
@@ -882,7 +953,7 @@ namespace EndlessClient.Dialogs
                 _localizedStringFinder.GetString(EOResourceID.GUILD_REGISTER_GUILD),
                 _localizedStringFinder.GetString(EOResourceID.GUILD_ENTER_YOUR_GUILD_DETAILS),
                 TextMultiInputDialog.DialogSize.Three,
-                new TextMultiInputDialog.InputInfo(_localizedStringFinder.GetString(EOResourceID.GUILD_GUILD_TAG), MaxChars: 3, UpperCase: true),
+                new TextMultiInputDialog.InputInfo(_localizedStringFinder.GetString(EOResourceID.GUILD_GUILD_TAG), MaxChars: 3, InputRestriction: TextMultiInputDialog.InputInfo.InputRestrict.Uppercase),
                 new TextMultiInputDialog.InputInfo(_localizedStringFinder.GetString(EOResourceID.GUILD_GUILD_NAME), MaxChars: 24),
                 new TextMultiInputDialog.InputInfo(_localizedStringFinder.GetString(EOResourceID.GUILD_WORD_DESCRIPTION), MaxChars: 240)
             );
@@ -954,6 +1025,25 @@ namespace EndlessClient.Dialogs
             if (!_characterProvider.MainCharacter.InGuild)
             {
                 var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_NOT_IN_GUILD);
+                dlg.ShowDialog();
+                return;
+            }
+
+            SetState(state);
+        }
+
+        private void SetStateIfLeaderRank(State state)
+        {
+            if (!_characterProvider.MainCharacter.InGuild)
+            {
+                var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_NOT_IN_GUILD);
+                dlg.ShowDialog();
+                return;
+            }
+
+            if (_characterProvider.MainCharacter.GuildRankID >= 2)
+            {
+                var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.GUILD_RANK_TOO_LOW);
                 dlg.ShowDialog();
                 return;
             }
