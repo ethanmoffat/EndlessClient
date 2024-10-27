@@ -16,6 +16,7 @@ using EOLib.Domain.Chat;
 using EOLib.Domain.Interact;
 using EOLib.Domain.Interact.Bank;
 using EOLib.Domain.Item;
+using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Trade;
 using EOLib.IO;
@@ -118,6 +119,9 @@ namespace EndlessClient.Controllers
             {
                 //usable items
                 case ItemType.Teleport:
+                    if (_characterProvider.MainCharacter.Frozen)
+                        break;
+
                     if (!_currentMapProvider.CurrentMap.Properties.CanScroll)
                     {
                         _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_NOTHING_HAPPENED);

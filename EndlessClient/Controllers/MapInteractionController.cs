@@ -20,6 +20,7 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Interact;
 using EOLib.Domain.Item;
+using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Spells;
 using EOLib.IO.Extensions;
@@ -127,6 +128,9 @@ namespace EndlessClient.Controllers
             // vanilla client prioritizes standing first, then board interaction
             else if (_characterProvider.MainCharacter.RenderProperties.SitState != SitState.Standing)
             {
+                if (_characterProvider.MainCharacter.Frozen)
+                    return;
+
                 var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
                 _characterActions.Sit(mapRenderer.GridCoordinates);
             }
@@ -143,6 +147,9 @@ namespace EndlessClient.Controllers
                     }
                     else if (cellState.TileSpec.IsChair())
                     {
+                        if (_characterProvider.MainCharacter.Frozen)
+                            return;
+
                         _characterActions.Sit(cellState.Coordinate, isChair: true);
                     }
                     else

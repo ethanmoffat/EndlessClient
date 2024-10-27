@@ -27,9 +27,13 @@ namespace EOLib.Domain.Character
 
         public AttackValidationError ValidateCharacterStateBeforeAttacking()
         {
+            if (_characterProvider.MainCharacter.Frozen)
+                return AttackValidationError.Frozen;
+
             if (_characterProvider.MainCharacter.Stats[CharacterStat.Weight] >
                 _characterProvider.MainCharacter.Stats[CharacterStat.MaxWeight])
                 return AttackValidationError.Overweight;
+
             if (_characterProvider.MainCharacter.Stats[CharacterStat.SP] <= 0)
                 return AttackValidationError.Exhausted;
 
@@ -73,6 +77,7 @@ namespace EOLib.Domain.Character
         Overweight,
         Exhausted,
         NotYourBattle,
-        MissingArrows
+        MissingArrows,
+        Frozen,
     }
 }

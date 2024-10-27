@@ -3,6 +3,7 @@ using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
+using EOLib.Domain.Notifiers;
 using EOLib.Net.Handlers;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
@@ -17,17 +18,20 @@ namespace EOLib.PacketHandlers.AdminInteract
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
+        private readonly IEnumerable<IEffectNotifier> _effectNotifiers;
 
         public override PacketFamily Family => PacketFamily.AdminInteract;
         public override PacketAction Action => PacketAction.Agree;
 
         public AdminInteractAgree(IPlayerInfoProvider playerInfoProvider,
                                   ICharacterRepository characterRepository,
-                                  ICurrentMapStateRepository currentMapStateRepository)
+                                  ICurrentMapStateRepository currentMapStateRepository,
+                                  IEnumerable<IEffectNotifier> effectNotifiers)
             : base(playerInfoProvider)
         {
             _characterRepository = characterRepository;
             _currentMapStateRepository = currentMapStateRepository;
+            _effectNotifiers = effectNotifiers;
         }
 
         public override bool HandlePacket(AdminInteractAgreeServerPacket packet)
@@ -46,8 +50,12 @@ namespace EOLib.PacketHandlers.AdminInteract
                 else
                 {
                     _currentMapStateRepository.UnknownPlayerIDs.Add(packet.PlayerId);
+                    return true;
                 }
             }
+
+            foreach (var notifier in _effectNotifiers)
+                notifier.NotifyAdminHideEffect(packet.PlayerId);
 
             return true;
         }

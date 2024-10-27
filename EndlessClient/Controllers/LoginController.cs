@@ -290,6 +290,9 @@ namespace EndlessClient.Controllers
             {
                 chat.Clear();
             }
+
+            _chatRepository.PMTarget1 = string.Empty;
+            _chatRepository.PMTarget2 = string.Empty;
         }
 
         private void AddDefaultTextToChat()

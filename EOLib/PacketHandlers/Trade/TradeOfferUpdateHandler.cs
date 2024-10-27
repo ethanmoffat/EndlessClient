@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Trade;
@@ -23,13 +24,16 @@ namespace EOLib.PacketHandlers.Trade
             _tradeRepository = tradeRepository;
         }
 
-        protected void Handle(TradeItemData data)
+        protected void Handle(List<TradeItemData> data)
         {
-            var player1Id = data.PartnerPlayerId;
-            var player1Items = data.PartnerItems.Select(x => new InventoryItem(x.Id, x.Amount)).ToList();
+            if (data.Count != 2)
+                return;
 
-            var player2Id = data.YourPlayerId;
-            var player2Items = data.YourItems.Select(x => new InventoryItem(x.Id, x.Amount)).ToList();
+            var player1Id = data[0].PlayerId;
+            var player1Items = data[0].Items.Select(x => new InventoryItem(x.Id, x.Amount)).ToList();
+
+            var player2Id = data[1].PlayerId;
+            var player2Items = data[1].Items.Select(x => new InventoryItem(x.Id, x.Amount)).ToList();
 
             _tradeRepository.SomeWhen(x => x.PlayerOneOffer.PlayerID == player1Id)
                 .Match(some: x =>

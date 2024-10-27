@@ -15,6 +15,8 @@ namespace EOLib.Domain.Notifiers
         void NotifyMapEffect(IO.Map.MapEffect effect, int strength = 0);
 
         void NotifyEffectAtLocation(MapCoordinate location, int effectId);
+
+        void NotifyAdminHideEffect(int playerId);
     }
 
     [AutoMappedType]
@@ -29,5 +31,7 @@ namespace EOLib.Domain.Notifiers
         public void NotifyMapEffect(IO.Map.MapEffect effect, int strength = 0) { }
 
         public void NotifyEffectAtLocation(MapCoordinate location, int effectId) { }
+
+        public void NotifyAdminHideEffect(int playerId) { }
     }
 }

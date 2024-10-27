@@ -11,6 +11,8 @@ using EOLib.Domain.Chat;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended.BitmapFonts;
+using MonoGame.Extended.Input;
+using MonoGame.Extended.Input.InputListeners;
 using XNAControls;
 
 namespace EndlessClient.HUD.Panels
@@ -131,6 +133,16 @@ namespace EndlessClient.HUD.Panels
         public void ClosePMTab(ChatTab whichTab)
         {
             _tabs[whichTab].CloseTab();
+        }
+
+        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            if (eventArgs.Button == MouseButton.Right)
+            {
+                _tabs[CurrentTab].HandleRightClick(eventArgs);
+            }
+
+            return base.HandleClick(control, eventArgs);
         }
     }
 }

@@ -275,7 +275,7 @@ namespace EOBot
         {
             var renderProps = _characterRepository.MainCharacter.RenderProperties;
             ConsoleHelper.WriteMessage(ConsoleHelper.Type.Walk, $"{renderProps.GetDestinationX(),3},{renderProps.GetDestinationY(),3}");
-            await TrySend(_characterActions.Walk);
+            await TrySend(() => _characterActions.Walk(false));
             await Delay(WALK_BACKOFF_MS);
         }
 

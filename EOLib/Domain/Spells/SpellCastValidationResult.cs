@@ -7,5 +7,7 @@
         WrongTargetType,
         ExhaustedNoSp,
         ExhaustedNoTp,
+        NotMemberOfGroup,
+        Frozen,
     }
 }

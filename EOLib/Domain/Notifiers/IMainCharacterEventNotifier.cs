@@ -14,6 +14,8 @@ namespace EOLib.Domain.Notifiers
         void DropItem(int id, int amountDropped);
 
         void JunkItem(int id, int amountRemoved);
+
+        void NotifyFrozen();
     }
 
     [AutoMappedType]
@@ -28,5 +30,7 @@ namespace EOLib.Domain.Notifiers
         public void DropItem(int id, int amountDropped) { }
 
         public void JunkItem(int id, int amountTaken) { }
+
+        public void NotifyFrozen() { }
     }
 }

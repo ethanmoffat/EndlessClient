@@ -1,13 +1,16 @@
 ﻿using AutomaticTypeMapper;
+
 using EndlessClient.Audio;
 using EndlessClient.HUD;
 using EndlessClient.Input;
 using EndlessClient.Rendering.Character;
+
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.Localization;
+
 using Optional;
 
 namespace EndlessClient.Controllers
@@ -101,6 +104,9 @@ namespace EndlessClient.Controllers
 
         private void FaceOrAttemptWalk(EODirection direction)
         {
+            if (_characterProvider.MainCharacter.Frozen)
+                return;
+
             if (!CurrentDirectionIs(direction) && _characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Standing))
             {
                 _characterAnimationActions.Face(direction);
@@ -128,8 +134,13 @@ namespace EndlessClient.Controllers
                     _unwalkableTileActionsHandler.HandleUnwalkableTileActions(unwalkableActions, cellState);
                     break;
                 case WalkValidationResult.GhostComplete:
+                    _characterAnimationActions.StartWalking(Option.None<MapCoordinate>(), ghosted: true);
+                    break;
                 case WalkValidationResult.Walkable:
                     _characterAnimationActions.StartWalking(Option.None<MapCoordinate>());
+                    break;
+                case WalkValidationResult.Frozen:
+                    // no-op
                     break;
             }
         }
