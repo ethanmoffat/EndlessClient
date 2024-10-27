@@ -10,6 +10,7 @@ using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace EndlessClient.Dialogs
 {
@@ -25,7 +26,18 @@ namespace EndlessClient.Dialogs
             NineWithScroll
         }
 
-        public record InputInfo(string Label, int MaxChars = 12, bool UpperCase = false);
+        public record InputInfo(string Label,
+                                string DefaultValue = "",
+                                int MaxChars = 12,
+                                InputInfo.InputRestrict InputRestriction = InputInfo.InputRestrict.None)
+        {
+            public enum InputRestrict
+            {
+                None = 0,
+                Uppercase = 1,
+                Numeric = 2
+            }
+        }
 
         // can't use base class functionality because otherwise the bottom part of the dialog is drawn over the buttons
         private readonly Texture2D _background;
@@ -158,7 +170,7 @@ namespace EndlessClient.Dialogs
             lblPrompt.Initialize();
             lblPrompt.SetParentControl(this);
 
-            int yCoord = 69;
+            int yCoord = 69; // nice
             for (int i = 0; i < inputInfo.Length; i++)
             {
                 _inputLabels[i] = new XNALabel(Constants.FontSize10)
@@ -176,12 +188,16 @@ namespace EndlessClient.Dialogs
                     LeftPadding = 4,
                     TextColor = ColorConstants.LightBeigeText,
                     MaxWidth = 160,
-                    TabOrder = i,
+                    TabOrder = i
                 };
                 _inputBoxes[i].SetParentControl(this);
+                // Initialize must be called here because it sets up the label for text rendering; otherwise, the call to set the default value fails
+                _inputBoxes[i].Initialize();
+                _inputBoxes[i].Text = inputInfo[i].DefaultValue;
 
-                if (inputInfo[i].UpperCase)
+                if (inputInfo[i].InputRestriction != InputInfo.InputRestrict.None)
                 {
+                    var inputRestriction = inputInfo[i].InputRestriction;
                     _inputBoxes[i].OnTextChanged += (sender, _) =>
                     {
                         if (_suppressTextChangedEvent) return;
@@ -189,13 +205,27 @@ namespace EndlessClient.Dialogs
                         if (sender is XNATextBox inputBox)
                         {
                             _suppressTextChangedEvent = true;
-                            inputBox.Text = inputBox.Text.ToUpper();
+                            switch (inputRestriction)
+                            {
+                                case InputInfo.InputRestrict.Uppercase:
+                                    inputBox.Text = inputBox.Text.ToUpper();
+                                    break;
+                                case InputInfo.InputRestrict.Numeric:
+                                    if (inputBox.Text.Length > 0)
+                                    {
+                                        if (!char.IsNumber(inputBox.Text[inputBox.Text.Length - 1]))
+                                        {
+                                            inputBox.Text = inputBox.Text.Remove(inputBox.Text.Length - 1);
+                                        }
+                                    }
+                                    break;
+                            }
                             _suppressTextChangedEvent = false;
                         }
                     };
                 }
 
-                yCoord += 24;
+                yCoord += 23;
             }
 
             var ok = new XNAButton(eoDialogButtonService.SmallButtonSheet,
@@ -221,8 +251,6 @@ namespace EndlessClient.Dialogs
         {
             foreach (var label in _inputLabels)
                 label.Initialize();
-            foreach (var box in _inputBoxes)
-                box.Initialize();
 
             _inputBoxes[0].Selected = true;
 
@@ -268,8 +296,8 @@ namespace EndlessClient.Dialogs
                         currLabel.Visible = true;
 
                         int relativeIndex = i - _scrollBar.ScrollOffset;
-                        currBox.DrawPosition = new Vector2(currBox.DrawPosition.X, 69 + relativeIndex * 24);
-                        currLabel.DrawPosition = new Vector2(currLabel.DrawPosition.X, 69 + relativeIndex * 24);
+                        currBox.DrawPosition = new Vector2(currBox.DrawPosition.X, 69 + relativeIndex * 23);
+                        currLabel.DrawPosition = new Vector2(currLabel.DrawPosition.X, 69 + relativeIndex * 23);
                     }
 
                     else
