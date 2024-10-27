@@ -35,7 +35,8 @@ namespace EOLib.PacketHandlers.Guild
             _characterRepository.MainCharacter = _characterRepository.MainCharacter
                 .WithGuildTag(packet.GuildTag.ToUpper())
                 .WithGuildName(packet.GuildName.Capitalize())
-                .WithGuildRank(packet.RankName.Capitalize());
+                .WithGuildRank(packet.RankName.Capitalize())
+                .WithGuildRankID(9);
 
             foreach (var notifier in _guildNotifiers)
                 notifier.NotifyAcceptedIntoGuild();

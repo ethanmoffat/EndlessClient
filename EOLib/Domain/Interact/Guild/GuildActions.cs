@@ -130,7 +130,8 @@ namespace EOLib.Domain.Interact.Guild
             _characterRepository.MainCharacter = _characterRepository.MainCharacter
                 .WithGuildTag("   ")
                 .WithGuildName(string.Empty)
-                .WithGuildRank(string.Empty);
+                .WithGuildRank(string.Empty)
+                .WithGuildRankID(0);
         }
 
         public void RequestToCreateGuild(string guildTag, string guildName, string guildDescription)

@@ -29,7 +29,8 @@ namespace EOLib.PacketHandlers.Guild
             _characterRepository.MainCharacter = _characterRepository.MainCharacter
                 .WithGuildTag("   ")
                 .WithGuildName(string.Empty)
-                .WithGuildRank(string.Empty);
+                .WithGuildRank(string.Empty)
+                .WithGuildRankID(0);
             return true;
         }
     }
