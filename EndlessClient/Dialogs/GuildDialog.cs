@@ -713,7 +713,7 @@ namespace EndlessClient.Dialogs
                 insertLineBreaks: false,
                 new List<Action> { ShowChangeDescriptionMessageBox },
                 _localizedStringFinder.GetString(EOResourceID.GUILD_CURRENT_DESCRIPTION),
-                _guildSessionProvider.GuildDescription,
+                string.IsNullOrEmpty(_guildSessionProvider.GuildDescription) ? " " : _guildSessionProvider.GuildDescription,
                 " ",
                 _localizedStringFinder.GetString(EOResourceID.GUILD_CLICK_HERE_TO_CHANGE_THE_DESCRIPTION)
             );
