@@ -492,7 +492,7 @@ namespace EndlessClient.Dialogs.Actions
             dialog.DialogClosing += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
             dialog.BackAction += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.TextBoxFocus);
             dialog.NextAction += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.TextBoxFocus);
-            dialog.LinkClickAction += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.ButtonClick);
+            dialog.ClickSoundEffect += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.ButtonClick);
         }
     }
 

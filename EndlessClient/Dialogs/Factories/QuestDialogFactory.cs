@@ -4,6 +4,7 @@ using EndlessClient.Dialogs.Services;
 using EOLib.Domain.Interact.Quest;
 using EOLib.Graphics;
 using EOLib.IO.Repositories;
+using EOLib.Localization;
 
 namespace EndlessClient.Dialogs.Factories
 {
@@ -16,13 +17,15 @@ namespace EndlessClient.Dialogs.Factories
         private readonly IQuestDataProvider _questDataProvider;
         private readonly IENFFileProvider _enfFileProvider;
         private readonly IContentProvider _contentProvider;
+        private readonly ILocalizedStringFinder _localizedStringFinder;
 
         public QuestDialogFactory(INativeGraphicsManager nativeGraphicsManager,
                                   IQuestActions questActions,
                                   IEODialogButtonService dialogButtonService,
                                   IQuestDataProvider questDataProvider,
                                   IENFFileProvider enfFileProvider,
-                                  IContentProvider contentProvider)
+                                  IContentProvider contentProvider,
+                                  ILocalizedStringFinder localizedStringFinder)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _questActions = questActions;
@@ -30,6 +33,7 @@ namespace EndlessClient.Dialogs.Factories
             _questDataProvider = questDataProvider;
             _enfFileProvider = enfFileProvider;
             _contentProvider = contentProvider;
+            _localizedStringFinder = localizedStringFinder;
         }
 
         public QuestDialog Create()
@@ -39,7 +43,8 @@ namespace EndlessClient.Dialogs.Factories
                                    _dialogButtonService,
                                    _questDataProvider,
                                    _enfFileProvider,
-                                   _contentProvider);
+                                   _contentProvider,
+                                   _localizedStringFinder);
         }
     }
 
