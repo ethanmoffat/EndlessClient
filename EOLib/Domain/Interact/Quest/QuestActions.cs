@@ -18,6 +18,9 @@ namespace EOLib.Domain.Interact.Quest
             _questDataProvider = questDataProvider;
         }
 
+        public void RequestQuest(int npcIndex, int questId) =>
+            _packetSendService.SendPacket(new QuestUseClientPacket { NpcIndex = npcIndex, QuestId = questId });
+
         public void RespondToQuestDialog(DialogReply reply, int linkId = 0)
         {
             _questDataProvider.QuestDialogData.MatchSome(data =>
@@ -49,6 +52,8 @@ namespace EOLib.Domain.Interact.Quest
 
     public interface IQuestActions
     {
+        void RequestQuest(int npcIndex, int questId);
+
         void RespondToQuestDialog(DialogReply reply, int linkId = 0);
 
         void RequestQuestHistory(QuestPage page);
