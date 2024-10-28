@@ -40,11 +40,12 @@ namespace EndlessClient.Dialogs
             lblPrompt.Initialize();
             lblPrompt.SetParentControl(this);
 
-            _inputBox = new XNATextBox(new Rectangle(37, 74, 192, 19), Constants.FontSize08, caretTexture: contentProvider.Textures[ContentProvider.Cursor])
+            _inputBox = new XNATextBox(new Rectangle(37, 74, 180, 19), Constants.FontSize08, caretTexture: contentProvider.Textures[ContentProvider.Cursor])
             {
                 MaxChars = maxInputChars,
                 LeftPadding = 4,
-                TextColor = ColorConstants.LightBeigeText
+                TextColor = ColorConstants.LightBeigeText,
+                MaxWidth = 180
             };
             _inputBox.SetParentControl(this);
 
