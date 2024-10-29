@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Net;
 using AutomaticTypeMapper;
 using EndlessClient.Initialization;
 using EOLib.Config;
@@ -130,7 +129,8 @@ namespace EndlessClient.GameExecution
             return true;
         }
 
-        private void ShowErrorMessage(string message, string caption)
+#pragma warning disable CA1416
+        private static void ShowErrorMessage(string message, string caption)
         {
 #if !LINUX && !OSX
             MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -138,6 +138,7 @@ namespace EndlessClient.GameExecution
             Console.WriteLine(message);
 #endif
         }
+#pragma warning restore CA1416
 
         public virtual void RunGame()
         {
