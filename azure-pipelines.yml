@@ -108,7 +108,7 @@ steps:
 - task: ArchiveFiles@2
   displayName: 'ZIP EOBot'
   inputs:
-    rootFolderOrFile: $(Build.SourcesDirectory)/bin/$(buildConfiguration)/utils/EOBot/$(dropDir)/
+    rootFolderOrFile: $(Build.SourcesDirectory)/bin/$(buildConfiguration)/utils/EOBot/net8.0/
     archiveFile: $(Build.ArtifactStagingDirectory)/zip/EOBot.$(friendlyPlatform).zip
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifacts'
