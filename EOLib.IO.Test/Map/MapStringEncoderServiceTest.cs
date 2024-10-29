@@ -26,7 +26,7 @@ namespace EOLib.IO.Test.Map
             var bytes = _service.EncodeMapString(expected, expected.Length);
             var actual = _service.DecodeMapString(bytes);
 
-            Assert.AreEqual(expected, actual);
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         [Test]
@@ -40,7 +40,7 @@ namespace EOLib.IO.Test.Map
 
             var actualBytes = _service.EncodeMapString(name, name.Length);
 
-            CollectionAssert.AreEqual(expectedBytes, actualBytes);
+            Assert.That(expectedBytes, Is.EqualTo(actualBytes));
         }
 
         [Test]
@@ -54,7 +54,7 @@ namespace EOLib.IO.Test.Map
 
             var actual = _service.DecodeMapString(fullBytes);
 
-            Assert.AreEqual(expected, actual);
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         [Test]

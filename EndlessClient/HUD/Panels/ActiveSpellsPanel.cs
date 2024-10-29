@@ -532,7 +532,7 @@ namespace EndlessClient.HUD.Panels
             if (disposing)
             {
                 Game.Exiting -= SaveSpellsFile;
-                SaveSpellsFile(null, EventArgs.Empty);
+                SaveSpellsFile(null, new ExitingEventArgs());
             }
 
             base.Dispose(disposing);
@@ -599,7 +599,7 @@ namespace EndlessClient.HUD.Panels
             return retKey;
         }
 
-        private void SaveSpellsFile(object sender, EventArgs e)
+        private void SaveSpellsFile(object sender, ExitingEventArgs e)
         {
             var spells = new IniReader(Constants.SpellsFile);
 

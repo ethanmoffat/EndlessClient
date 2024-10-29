@@ -73,7 +73,7 @@ namespace EOLib.Test.Net.FileTransfer
 
                 _fileRequestService.RequestFile<EIFRecord>(type, 1);
 
-                Assert.IsTrue(packetIsCorrect, "Incorrect packet for {0}", type);
+                Assert.That(packetIsCorrect, Is.True, $"Incorrect packet for {type}");
             }
         }
 

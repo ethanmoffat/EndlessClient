@@ -53,10 +53,10 @@ namespace EOLib.Localization.Test
             var portugueseActual = _localizedStringFinder.GetString(EOLanguage.Portuguese, testID);
             var swedishActual = _localizedStringFinder.GetString(EOLanguage.Swedish, testID);
 
-            Assert.AreEqual("dutch", dutchActual);
-            Assert.AreEqual("english", englishActual);
-            Assert.AreEqual("portuguese", portugueseActual);
-            Assert.AreEqual("swedish", swedishActual);
+            Assert.That(dutchActual, Is.EqualTo("dutch"));
+            Assert.That(englishActual, Is.EqualTo("english"));
+            Assert.That(portugueseActual, Is.EqualTo("portuguese"));
+            Assert.That(swedishActual, Is.EqualTo("swedish"));
         }
 
         [Test]
@@ -74,10 +74,10 @@ namespace EOLib.Localization.Test
             var portugueseActual = _localizedStringFinder.GetString(EOLanguage.Portuguese, testID);
             var swedishActual = _localizedStringFinder.GetString(EOLanguage.Swedish, testID);
 
-            Assert.AreEqual("dutch", dutchActual);
-            Assert.AreEqual("english", englishActual);
-            Assert.AreEqual("portuguese", portugueseActual);
-            Assert.AreEqual("swedish", swedishActual);
+            Assert.That(dutchActual, Is.EqualTo("dutch"));
+            Assert.That(englishActual, Is.EqualTo("english"));
+            Assert.That(portugueseActual, Is.EqualTo("portuguese"));
+            Assert.That(swedishActual, Is.EqualTo("swedish"));
         }
 
         [Test]
@@ -91,7 +91,7 @@ namespace EOLib.Localization.Test
 
             var actualString = _localizedStringFinder.GetString(testID);
 
-            Assert.AreEqual(expectedResourceString, actualString);
+            Assert.That(actualString, Is.EqualTo(expectedResourceString));
         }
 
         [Test]
@@ -105,7 +105,7 @@ namespace EOLib.Localization.Test
 
             var actualString = _localizedStringFinder.GetString(testID);
 
-            Assert.AreEqual(expectedResourceString, actualString);
+            Assert.That(actualString, Is.EqualTo(expectedResourceString));
         }
 
         private void GivenFileHasStringForResourceID(DataFiles file, DialogResourceID id, string str)

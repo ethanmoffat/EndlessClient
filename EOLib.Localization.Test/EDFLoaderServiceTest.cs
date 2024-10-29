@@ -45,7 +45,7 @@ namespace EOLib.Localization.Test
                 "Curse", "Curse2", "CURSE345", "Ass"
             };
 
-            CollectionAssert.AreEqual(expectedCurses, file.Data.Values);
+            Assert.That(expectedCurses, Is.EqualTo(file.Data.Values));
         }
 
         [Test]
@@ -75,7 +75,7 @@ namespace EOLib.Localization.Test
                 "ABCDE", "FGHI", "JKL", "MNOPQR"
             };
 
-            CollectionAssert.AreEqual(expectedCurses, file.Data.Values);
+            Assert.That(expectedCurses, Is.EqualTo(file.Data.Values));
         }
 
         [TestCase(DataFiles.Credits, "Created By\nMe :)\nMe again!")]
@@ -87,7 +87,7 @@ namespace EOLib.Localization.Test
             var file = _edfLoaderService.LoadFile(FILE_NAME, whichFile);
 
             var expectedLines = content.Split('\n');
-            CollectionAssert.AreEqual(expectedLines, file.Data.Values);
+            Assert.That(expectedLines, Is.EqualTo(file.Data.Values));
         }
 
         [TestCase(DataFiles.Credits, new[] { "Created By", "Me :)", "Me again!" })]
@@ -110,7 +110,7 @@ namespace EOLib.Localization.Test
             GivenDataFileWithContents(FILE_NAME, fileData);
 
             var edf = _edfLoaderService.LoadFile(FILE_NAME, whichFile);
-            Assert.AreEqual(expectedString, edf.Data.Values.Single());
+            Assert.That(edf.Data.Values.Single(), Is.EqualTo(expectedString));
         }
 
         [TestCaseSource(nameof(GetStandardEDFFiles))]
@@ -122,7 +122,7 @@ namespace EOLib.Localization.Test
             GivenDataFileWithContents(FILE_NAME, fileData);
 
             var edf = _edfLoaderService.LoadFile(FILE_NAME, whichFile);
-            CollectionAssert.AreEqual(expectedStrings, edf.Data.Values);
+            Assert.That(expectedStrings, Is.EqualTo(edf.Data.Values));
         }
 
         [TestCaseSource(nameof(GetStandardEDFFiles))]
@@ -137,7 +137,7 @@ namespace EOLib.Localization.Test
             GivenDataFileWithContents(FILE_NAME, fileData);
 
             var edf = _edfLoaderService.LoadFile(FILE_NAME, whichFile);
-            Assert.AreEqual(expectedString, edf.Data.Values.Single());
+            Assert.That(edf.Data.Values.Single(), Is.EqualTo(expectedString));
         }
 
         [TestCaseSource(nameof(GetStandardEDFFiles))]

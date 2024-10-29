@@ -59,7 +59,7 @@ namespace EOLib.Localization.Test
 
             _actions.LoadDataFiles();
 
-            Assert.AreEqual(DataFileConstants.ExpectedNumberOfDataFiles, _dataFileRepository.DataFiles.Count);
+            Assert.That(_dataFileRepository.DataFiles.Count, Is.EqualTo(DataFileConstants.ExpectedNumberOfDataFiles));
         }
 
         private void CreateRequiredDirectory()

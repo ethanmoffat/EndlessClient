@@ -30,7 +30,7 @@ namespace EOLib.IO.Test.Map
         [Test]
         public void MapFileProperties_HasExpectedFileHeader()
         {
-            Assert.AreEqual("EMF", _props.FileType);
+            Assert.That(_props.FileType, Is.EqualTo("EMF"));
         }
 
         [Test]
@@ -41,7 +41,7 @@ namespace EOLib.IO.Test.Map
             var expectedBytes = CreateExpectedBytes(_props);
             var actualBytes = _mapPropertiesSerializer.SerializeToByteArray(_props);
 
-            CollectionAssert.AreEqual(expectedBytes, actualBytes);
+            Assert.That(expectedBytes, Is.EqualTo(actualBytes));
         }
 
         [Test]
@@ -58,9 +58,9 @@ namespace EOLib.IO.Test.Map
                 var actualValue = property.GetValue(_props);
 
                 if (expectedValue is ICollection && actualValue is ICollection)
-                    CollectionAssert.AreEqual((ICollection)expectedValue, (ICollection)actualValue);
+                    Assert.That((ICollection)expectedValue, Is.EqualTo(actualValue));
                 else
-                    Assert.AreEqual(expectedValue, actualValue, "Property {0} is not equal!", property.Name);
+                    Assert.That(actualValue, Is.EqualTo(expectedValue), "Property {0} is not equal", property.Name);
             }
         }
 
@@ -72,9 +72,9 @@ namespace EOLib.IO.Test.Map
 
             _props = _mapPropertiesSerializer.DeserializeFromByteArray(bytes);
 
-            Assert.AreEqual(new MapFileProperties().MapID, _props.MapID);
-            Assert.AreEqual(new MapFileProperties().FileSize, _props.FileSize);
-            Assert.AreEqual(new MapFileProperties().HasTimedSpikes, _props.HasTimedSpikes);
+            Assert.That(_props.MapID, Is.EqualTo(new MapFileProperties().MapID));
+            Assert.That(_props.FileSize, Is.EqualTo(new MapFileProperties().FileSize));
+            Assert.That(_props.HasTimedSpikes, Is.EqualTo(new MapFileProperties().HasTimedSpikes));
         }
 
         [Test]

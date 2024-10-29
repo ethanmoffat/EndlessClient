@@ -176,10 +176,6 @@ BatchMap corrects for a number of errors, including:
 
 BatchMap can easily be modified to take care of other batch processing tasks, such as dumping out values in map files for debugging or comparison.
 
-#### BatchPub
-
-BatchPub is designed to do batch processing of items within the EIF file. It can be used to bulk change properties in the pubs based on certain criteria.
-
 #### EOBot
 
 EOBot has recently been updated with an interpreter to make scripting of bots possible. The scripting language is the unholy offspring of javascript and php (really just inspired by the syntax of those languages). Run `EOBot --help` without any arguments to see more information on the command-line parameters it expects.

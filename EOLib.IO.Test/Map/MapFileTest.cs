@@ -39,14 +39,14 @@ namespace EOLib.IO.Test.Map
         {
             _mapFile = new MapFile().WithMapID(123);
 
-            Assert.AreEqual(123, _mapFile.Properties.MapID);
-            Assert.IsNotNull(_mapFile.NPCSpawns);
-            Assert.IsNotNull(_mapFile.Unknowns);
-            Assert.IsNotNull(_mapFile.Chests);
-            Assert.IsNotNull(_mapFile.Tiles);
-            Assert.IsNotNull(_mapFile.Warps);
-            Assert.IsNotNull(_mapFile.GFX);
-            Assert.IsNotNull(_mapFile.Signs);
+            Assert.That(_mapFile.Properties.MapID, Is.EqualTo(123));
+            Assert.That(_mapFile.NPCSpawns, Is.Not.Null);
+            Assert.That(_mapFile.Unknowns, Is.Not.Null);
+            Assert.That(_mapFile.Chests, Is.Not.Null);
+            Assert.That(_mapFile.Tiles, Is.Not.Null);
+            Assert.That(_mapFile.Warps, Is.Not.Null);
+            Assert.That(_mapFile.GFX, Is.Not.Null);
+            Assert.That(_mapFile.Signs, Is.Not.Null);
         }
 
         [Test]
@@ -57,7 +57,7 @@ namespace EOLib.IO.Test.Map
             var mapData = CreateDataForMap(new MapFileProperties().WithWidth(1).WithHeight(1), TileSpec.None);
             _mapFile = _serializer.DeserializeFromByteArray(mapData);
 
-            Assert.AreEqual(mapData.Length, _mapFile.Properties.FileSize);
+            Assert.That(_mapFile.Properties.FileSize, Is.EqualTo(mapData.Length));
         }
 
         [Test]
@@ -68,7 +68,7 @@ namespace EOLib.IO.Test.Map
             var mapData = CreateDataForMap(new MapFileProperties().WithWidth(1).WithHeight(1), TileSpec.AmbientSource);
             _mapFile = _serializer.DeserializeFromByteArray(mapData);
 
-            Assert.IsFalse(_mapFile.Properties.HasTimedSpikes);
+            Assert.That(_mapFile.Properties.HasTimedSpikes, Is.False);
         }
 
         [Test]
@@ -79,7 +79,7 @@ namespace EOLib.IO.Test.Map
             var mapData = CreateDataForMap(new MapFileProperties().WithWidth(1).WithHeight(1), TileSpec.SpikesTimed);
             _mapFile = _serializer.DeserializeFromByteArray(mapData);
 
-            Assert.IsTrue(_mapFile.Properties.HasTimedSpikes);
+            Assert.That(_mapFile.Properties.HasTimedSpikes, Is.True);
         }
 
         [Test]
@@ -92,7 +92,7 @@ namespace EOLib.IO.Test.Map
 
             var actualData = _serializer.SerializeToByteArray(_mapFile, rewriteChecksum: false);
 
-            CollectionAssert.AreEqual(mapData, actualData);
+            Assert.That(mapData, Is.EqualTo(actualData));
         }
 
         [Test]
@@ -103,9 +103,9 @@ namespace EOLib.IO.Test.Map
             var mapData = CreateDataForMap(new MapFileProperties().WithWidth(1).WithHeight(1), TileSpec.Board5, 999);
             _mapFile = _serializer.DeserializeFromByteArray(mapData);
 
-            Assert.AreEqual(TileSpec.Board5, _mapFile.Tiles[1, 1]);
+            Assert.That(_mapFile.Tiles[1, 1], Is.EqualTo(TileSpec.Board5));
             foreach (var kvp in _mapFile.GFX)
-                Assert.AreEqual(999, kvp.Value[1, 1]);
+                Assert.That(kvp.Value[1, 1], Is.EqualTo(999));
         }
 
         [Test]
