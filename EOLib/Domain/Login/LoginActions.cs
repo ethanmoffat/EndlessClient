@@ -6,6 +6,7 @@ using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
+using EOLib.Extensions;
 using EOLib.IO;
 using EOLib.Net;
 using EOLib.Net.Communication;
@@ -94,11 +95,12 @@ namespace EOLib.Domain.Login
 
             _characterRepository.MainCharacter = character
                 .WithID(data.CharacterId)
-                .WithName(char.ToUpper(data.Name[0]) + data.Name.Substring(1))
+                .WithName(data.Name.Capitalize())
                 .WithTitle(data.Title)
-                .WithGuildName(data.GuildName)
-                .WithGuildRank(data.GuildRankName)
-                .WithGuildTag(data.GuildTag)
+                .WithGuildName(data.GuildName.Capitalize())
+                .WithGuildRankID(data.GuildRank)
+                .WithGuildRank(data.GuildRankName.Capitalize())
+                .WithGuildTag(data.GuildTag.ToUpper())
                 .WithClassID(data.ClassId)
                 .WithMapID(data.MapId)
                 .WithAdminLevel(data.Admin)
@@ -111,10 +113,10 @@ namespace EOLib.Domain.Login
             _currentMapStateRepository.JailMapID = data.Settings.JailMap;
 
             _paperdollRepository.VisibleCharacterPaperdolls[data.SessionId] = new PaperdollData()
-                .WithName(char.ToUpper(data.Name[0]) + data.Name.Substring(1))
+                .WithName(data.Name.Capitalize())
                 .WithTitle(data.Title)
-                .WithGuild(data.GuildName)
-                .WithRank(data.GuildRankName)
+                .WithGuild(data.GuildName.Capitalize())
+                .WithRank(data.GuildRankName.Capitalize())
                 .WithClass(data.ClassId)
                 .WithPlayerID(data.SessionId)
                 .WithPaperdoll(data.Equipment.GetPaperdoll());

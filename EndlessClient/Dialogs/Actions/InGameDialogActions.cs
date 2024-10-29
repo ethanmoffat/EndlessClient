@@ -38,6 +38,7 @@ namespace EndlessClient.Dialogs.Actions
         private readonly IJukeboxDialogFactory _jukeboxDialogFactory;
         private readonly IInnkeeperDialogFactory _innkeeperDialogFactory;
         private readonly ILawDialogFactory _lawDialogFactory;
+        private readonly IGuildDialogFactory _guildDialogFactory;
         private readonly IHelpDialogFactory _helpDialogFactory;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IStatusLabelSetter _statusLabelSetter;
@@ -67,6 +68,7 @@ namespace EndlessClient.Dialogs.Actions
                                    IJukeboxDialogFactory jukeboxDialogFactory,
                                    IInnkeeperDialogFactory innkeeperDialogFactory,
                                    ILawDialogFactory lawDialogFactory,
+                                   IGuildDialogFactory guildDialogFactory,
                                    IHelpDialogFactory helpDialogFactory,
                                    ISfxPlayer sfxPlayer,
                                    IStatusLabelSetter statusLabelSetter,
@@ -92,6 +94,7 @@ namespace EndlessClient.Dialogs.Actions
             _jukeboxDialogFactory = jukeboxDialogFactory;
             _innkeeperDialogFactory = innkeeperDialogFactory;
             _lawDialogFactory = lawDialogFactory;
+            _guildDialogFactory = guildDialogFactory;
             _helpDialogFactory = helpDialogFactory;
             _sfxPlayer = sfxPlayer;
             _statusLabelSetter = statusLabelSetter;
@@ -438,6 +441,20 @@ namespace EndlessClient.Dialogs.Actions
             });
         }
 
+        public void ShowGuildDialog()
+        {
+            _activeDialogRepository.GuildDialog.MatchNone(() =>
+            {
+                var dlg = _guildDialogFactory.Create();
+                dlg.DialogClosed += (_, _) => _activeDialogRepository.GuildDialog = Option.None<GuildDialog>();
+                _activeDialogRepository.GuildDialog = Option.Some(dlg);
+
+                dlg.Show();
+
+                UseDefaultDialogSounds(dlg);
+            });
+        }
+
         public void ShowHelpDialog()
         {
             _activeDialogRepository.HelpDialog.MatchNone(() =>
@@ -539,6 +556,8 @@ namespace EndlessClient.Dialogs.Actions
         void ShowInnkeeperDialog();
 
         void ShowLawDialog();
+
+        void ShowGuildDialog();
 
         void ShowHelpDialog();
 

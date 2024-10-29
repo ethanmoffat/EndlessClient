@@ -73,6 +73,9 @@ namespace EndlessClient.Controllers
                 case EOLib.IO.NPCType.Barber:
                     _mapNpcActions.RequestBarber(npc);
                     break;
+                case EOLib.IO.NPCType.Guild:
+                    _mapNpcActions.RequestGuild(npc);
+                    break;
             }
         }
     }

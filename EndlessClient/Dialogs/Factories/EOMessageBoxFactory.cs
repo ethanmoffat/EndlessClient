@@ -1,3 +1,4 @@
+using System.Text;
 using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Dialogs.Services;
@@ -84,6 +85,22 @@ namespace EndlessClient.Dialogs.Factories
         {
             var message = _localizedStringFinder.GetString(resource + 1) + extraData;
             return CreateMessageBox(message,
+                _localizedStringFinder.GetString(resource),
+                whichButtons,
+                style);
+        }
+
+        public IXNADialog CreateMessageBox(string prependData,
+                                           DialogResourceID resource,
+                                           EODialogButtons whichButtons = EODialogButtons.Ok,
+                                           EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader,
+                                           params EOResourceID[] appendResources)
+        {
+            var message = new StringBuilder(prependData);
+            message.Append(_localizedStringFinder.GetString(resource + 1));
+            foreach (var resourceId in appendResources)
+                message.Append(" " + _localizedStringFinder.GetString(resourceId));
+            return CreateMessageBox(message.ToString(),
                 _localizedStringFinder.GetString(resource),
                 whichButtons,
                 style);

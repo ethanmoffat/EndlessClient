@@ -1,4 +1,5 @@
-﻿using AutomaticTypeMapper;
+﻿using System.Linq;
+using AutomaticTypeMapper;
 
 using Optional;
 
