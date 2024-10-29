@@ -38,7 +38,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         public abstract MapRenderLayer RenderLayer { get; }
 
-        public bool ShouldRenderLast => RenderLayer == MapRenderLayer.Overlay2 || RenderLayer == MapRenderLayer.MainCharacterTransparent;
+        public bool ShouldRenderLast => RenderLayer == MapRenderLayer.Overlay ||
+                                        RenderLayer == MapRenderLayer.Overlay2 ||
+                                        RenderLayer == MapRenderLayer.MainCharacterTransparent;
 
         protected abstract int RenderDistance { get; }
 
