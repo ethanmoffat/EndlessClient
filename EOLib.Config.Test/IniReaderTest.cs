@@ -23,14 +23,14 @@ namespace EOLib.Config.Test
         {
             var reader = new IniReader(FullPath);
 
-            Assert.IsFalse(Directory.Exists(TestDirectory));
-            Assert.IsFalse(File.Exists(FullPath));
+            Assert.That(Directory.Exists(TestDirectory), Is.False);
+            Assert.That(File.Exists(FullPath), Is.False);
 
             var result = reader.Load();
 
-            Assert.IsFalse(result);
-            Assert.IsTrue(Directory.Exists(TestDirectory));
-            Assert.IsTrue(File.Exists(FullPath));
+            Assert.That(result, Is.False);
+            Assert.That(Directory.Exists(TestDirectory), Is.True);
+            Assert.That(File.Exists(FullPath), Is.True);
         }
 
         [Test]
@@ -42,7 +42,7 @@ namespace EOLib.Config.Test
             var reader = new IniReader(FullPath);
             var result = reader.Load();
 
-            Assert.IsTrue(result);
+            Assert.That(result, Is.True);
         }
 
         [Test]
@@ -54,7 +54,7 @@ namespace EOLib.Config.Test
             var reader = new IniReader(FullPath);
             var result = reader.Load();
 
-            Assert.IsTrue(result);
+            Assert.That(result, Is.True);
         }
 
         [Test]
@@ -66,7 +66,7 @@ namespace EOLib.Config.Test
             var reader = new IniReader(FullPath);
             var result = reader.Load();
 
-            Assert.IsTrue(result);
+            Assert.That(result, Is.True);
         }
 
         [Test]
@@ -78,7 +78,7 @@ namespace EOLib.Config.Test
             var reader = new IniReader(FullPath);
             var result = reader.Load();
 
-            Assert.IsTrue(result);
+            Assert.That(result, Is.True);
         }
 
         [Test]
@@ -90,7 +90,7 @@ namespace EOLib.Config.Test
             var reader = new IniReader(FullPath);
             var result = reader.Load();
 
-            Assert.IsTrue(result);
+            Assert.That(result, Is.True);
         }
 
         [Test]
@@ -101,11 +101,11 @@ namespace EOLib.Config.Test
 
             var reader = new IniReader(FullPath);
             var loadResult = reader.Load();
-            Assert.IsTrue(loadResult);
+            Assert.That(loadResult, Is.True);
 
             string value;
             var result = reader.GetValue("BadHeader", "Testdata", out value);
-            Assert.IsFalse(result);
+            Assert.That(result, Is.False);
         }
 
         [Test]
@@ -116,11 +116,11 @@ namespace EOLib.Config.Test
 
             var reader = new IniReader(FullPath);
             var loadResult = reader.Load();
-            Assert.IsTrue(loadResult);
+            Assert.That(loadResult, Is.True);
 
             string value;
             var result = reader.GetValue("Header", "BadTestdata", out value);
-            Assert.IsFalse(result);
+            Assert.That(result, Is.False);
         }
 
         [Test]
@@ -131,11 +131,11 @@ namespace EOLib.Config.Test
 
             var reader = new IniReader(FullPath);
             var loadResult = reader.Load();
-            Assert.IsTrue(loadResult);
+            Assert.That(loadResult, Is.True);
 
             int value;
             var result = reader.GetValue("BadHeader", "Testdata", out value);
-            Assert.IsFalse(result);
+            Assert.That(result, Is.False);
         }
 
         [Test]
@@ -146,11 +146,11 @@ namespace EOLib.Config.Test
 
             var reader = new IniReader(FullPath);
             var loadResult = reader.Load();
-            Assert.IsTrue(loadResult);
+            Assert.That(loadResult, Is.True);
 
             int value;
             var result = reader.GetValue("Header", "BadTestdata", out value);
-            Assert.IsFalse(result);
+            Assert.That(result, Is.False);
         }
 
         [Test]
@@ -161,11 +161,11 @@ namespace EOLib.Config.Test
 
             var reader = new IniReader(FullPath);
             var loadResult = reader.Load();
-            Assert.IsTrue(loadResult);
+            Assert.That(loadResult, Is.True);
 
             int value;
             var result = reader.GetValue("Header", "Testdata", out value);
-            Assert.IsFalse(result);
+            Assert.That(result, Is.False);
         }
 
         [Test]
@@ -176,11 +176,11 @@ namespace EOLib.Config.Test
 
             var reader = new IniReader(FullPath);
             var loadResult = reader.Load();
-            Assert.IsTrue(loadResult);
+            Assert.That(loadResult, Is.True);
 
             bool value;
             var result = reader.GetValue("BadHeader", "Testdata", out value);
-            Assert.IsFalse(result);
+            Assert.That(result, Is.False);
         }
 
         [Test]
@@ -191,11 +191,11 @@ namespace EOLib.Config.Test
 
             var reader = new IniReader(FullPath);
             var loadResult = reader.Load();
-            Assert.IsTrue(loadResult);
+            Assert.That(loadResult, Is.True);
 
             bool value;
             var result = reader.GetValue("Header", "BadTestdata", out value);
-            Assert.IsFalse(result);
+            Assert.That(result, Is.False);
         }
 
         [Test]
@@ -206,11 +206,11 @@ namespace EOLib.Config.Test
 
             var reader = new IniReader(FullPath);
             var loadResult = reader.Load();
-            Assert.IsTrue(loadResult);
+            Assert.That(loadResult, Is.True);
 
             bool value;
             var result = reader.GetValue("Header", "Testdata", out value);
-            Assert.IsFalse(result);
+            Assert.That(result, Is.False);
         }
 
         [Test]
@@ -221,12 +221,12 @@ namespace EOLib.Config.Test
 
             var reader = new IniReader(FullPath);
             var loadResult = reader.Load();
-            Assert.IsTrue(loadResult);
+            Assert.That(loadResult, Is.True);
 
             string value;
             var result = reader.GetValue("Header", "Testdata", out value);
-            Assert.IsTrue(result);
-            Assert.AreEqual("123", value);
+            Assert.That(result, Is.True);
+            Assert.That(value, Is.EqualTo("123"));
         }
 
         [Test]
@@ -237,12 +237,12 @@ namespace EOLib.Config.Test
 
             var reader = new IniReader(FullPath);
             var loadResult = reader.Load();
-            Assert.IsTrue(loadResult);
+            Assert.That(loadResult, Is.True);
 
             int value;
             var result = reader.GetValue("Header", "Testdata", out value);
-            Assert.IsTrue(result);
-            Assert.AreEqual(123, value);
+            Assert.That(result, Is.True);
+            Assert.That(value, Is.EqualTo(123));
         }
 
         [Test]
@@ -253,12 +253,12 @@ namespace EOLib.Config.Test
 
             var reader = new IniReader(FullPath);
             var loadResult = reader.Load();
-            Assert.IsTrue(loadResult);
+            Assert.That(loadResult, Is.True);
 
             bool value;
             var result = reader.GetValue("Header", "Testdata", out value);
-            Assert.IsTrue(result);
-            Assert.IsTrue(value);
+            Assert.That(result, Is.True);
+            Assert.That(value, Is.True);
         }
 
         [Test]
@@ -269,14 +269,14 @@ namespace EOLib.Config.Test
 
             var reader = new IniReader(FullPath);
             var loadResult = reader.Load();
-            Assert.IsTrue(loadResult);
+            Assert.That(loadResult, Is.True);
 
             for (int i = 1; i <= 3; ++i)
             {
                 bool value;
                 var result = reader.GetValue("Header", "Item" + i, out value);
-                Assert.IsTrue(result);
-                Assert.IsTrue(value);
+                Assert.That(result, Is.True);
+                Assert.That(value, Is.True);
             }
         }
 
@@ -288,14 +288,14 @@ namespace EOLib.Config.Test
 
             var reader = new IniReader(FullPath);
             var loadResult = reader.Load();
-            Assert.IsTrue(loadResult);
+            Assert.That(loadResult, Is.True);
 
             for (int i = 1; i <= 3; ++i)
             {
                 bool value;
                 var result = reader.GetValue("Header", "Item" + i, out value);
-                Assert.IsTrue(result);
-                Assert.IsFalse(value);
+                Assert.That(result, Is.True);
+                Assert.That(value, Is.False);
             }
         }
 

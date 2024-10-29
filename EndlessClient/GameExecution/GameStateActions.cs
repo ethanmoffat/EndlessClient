@@ -56,7 +56,7 @@ namespace EndlessClient.GameExecution
             {
                 _playerInfoRepository.PlayerIsInGame = false;
 
-                StorePanelLayout(Game, EventArgs.Empty);
+                StorePanelLayout(Game, new ExitingEventArgs());
                 Game.Exiting -= StorePanelLayout;
             }
 
@@ -134,7 +134,7 @@ namespace EndlessClient.GameExecution
                 .ToList();
         }
 
-        private void StorePanelLayout(object sender, EventArgs e)
+        private void StorePanelLayout(object sender, ExitingEventArgs e)
         {
             if (!_clientWindowSizeProvider.Resizable) return;
 

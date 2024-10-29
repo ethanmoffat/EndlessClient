@@ -38,31 +38,31 @@ namespace EOLib.Config.Test
             CreateTestConfigurationInDirectory("[Invalid]\nContents=heyayayayay");
             _configFileLoadActions.LoadConfigFile();
 
-            Assert.AreEqual(ConfigDefaults.MajorVersion, _configurationRepository.VersionMajor);
-            Assert.AreEqual(ConfigDefaults.MinorVersion, _configurationRepository.VersionMinor);
-            Assert.AreEqual(ConfigDefaults.ClientVersion, _configurationRepository.VersionBuild);
+            Assert.That(_configurationRepository.VersionMajor, Is.EqualTo(ConfigDefaults.MajorVersion));
+            Assert.That(_configurationRepository.VersionMinor, Is.EqualTo(ConfigDefaults.MinorVersion));
+            Assert.That(_configurationRepository.VersionBuild, Is.EqualTo(ConfigDefaults.ClientVersion));
 
-            Assert.AreEqual(ConfigDefaults.Host, _configurationRepository.Host);
-            Assert.AreEqual(ConfigDefaults.Port, _configurationRepository.Port);
+            Assert.That(_configurationRepository.Host, Is.EqualTo(ConfigDefaults.Host));
+            Assert.That(_configurationRepository.Port, Is.EqualTo(ConfigDefaults.Port));
 
-            Assert.AreEqual(ConfigDefaults.NPCDropProtectionSeconds, _configurationRepository.NPCDropProtectTime);
-            Assert.AreEqual(ConfigDefaults.PlayerDropProtectionSeconds, _configurationRepository.PlayerDropProtectTime);
+            Assert.That(_configurationRepository.NPCDropProtectTime, Is.EqualTo(ConfigDefaults.NPCDropProtectionSeconds));
+            Assert.That(_configurationRepository.PlayerDropProtectTime, Is.EqualTo(ConfigDefaults.PlayerDropProtectionSeconds));
 
-            Assert.AreEqual(EOLanguage.English, _configurationRepository.Language);
-            Assert.IsFalse(_configurationRepository.CurseFilterEnabled);
-            Assert.IsFalse(_configurationRepository.StrictFilterEnabled);
+            Assert.That(_configurationRepository.Language, Is.EqualTo(EOLanguage.English));
+            Assert.That(_configurationRepository.CurseFilterEnabled, Is.False);
+            Assert.That(_configurationRepository.StrictFilterEnabled, Is.False);
 
-            Assert.IsTrue(_configurationRepository.ShowShadows);
-            Assert.IsTrue(_configurationRepository.ShowChatBubbles);
-            Assert.IsFalse(_configurationRepository.ShowTransition);
+            Assert.That(_configurationRepository.ShowShadows, Is.True);
+            Assert.That(_configurationRepository.ShowChatBubbles, Is.True);
+            Assert.That(_configurationRepository.ShowTransition, Is.False);
 
-            Assert.IsFalse(_configurationRepository.MusicEnabled);
-            Assert.IsFalse(_configurationRepository.SoundEnabled);
+            Assert.That(_configurationRepository.MusicEnabled, Is.False);
+            Assert.That(_configurationRepository.SoundEnabled, Is.False);
 
-            Assert.IsTrue(_configurationRepository.HearWhispers);
-            Assert.IsTrue(_configurationRepository.Interaction);
-            Assert.IsFalse(_configurationRepository.LogChatToFile);
-            Assert.IsFalse(_configurationRepository.EnableLog);
+            Assert.That(_configurationRepository.HearWhispers, Is.True);
+            Assert.That(_configurationRepository.Interaction, Is.True);
+            Assert.That(_configurationRepository.LogChatToFile, Is.False);
+            Assert.That(_configurationRepository.EnableLog, Is.False);
         }
 
         [Test]
@@ -100,33 +100,33 @@ Interaction=false";
 
             _configFileLoadActions.LoadConfigFile();
 
-            Assert.AreEqual(10, _configurationRepository.VersionMajor);
-            Assert.AreEqual(20, _configurationRepository.VersionMinor);
-            Assert.AreEqual(30, _configurationRepository.VersionBuild);
+            Assert.That(_configurationRepository.VersionMajor, Is.EqualTo(10));
+            Assert.That(_configurationRepository.VersionMinor, Is.EqualTo(20));
+            Assert.That(_configurationRepository.VersionBuild, Is.EqualTo(30));
 
-            Assert.AreEqual("ewmoffat.ddns.net", _configurationRepository.Host);
-            Assert.AreEqual(12345, _configurationRepository.Port);
+            Assert.That(_configurationRepository.Host, Is.EqualTo("ewmoffat.ddns.net"));
+            Assert.That(_configurationRepository.Port, Is.EqualTo(12345));
 
-            Assert.AreEqual(5000, _configurationRepository.NPCDropProtectTime);
-            Assert.AreEqual(10000, _configurationRepository.PlayerDropProtectTime);
+            Assert.That(_configurationRepository.NPCDropProtectTime, Is.EqualTo(5000));
+            Assert.That(_configurationRepository.PlayerDropProtectTime, Is.EqualTo(10000));
 
-            Assert.AreEqual(EOLanguage.Swedish, _configurationRepository.Language);
-            Assert.IsTrue(_configurationRepository.CurseFilterEnabled);
-            Assert.IsTrue(_configurationRepository.StrictFilterEnabled);
+            Assert.That(_configurationRepository.Language, Is.EqualTo(EOLanguage.Swedish));
+            Assert.That(_configurationRepository.CurseFilterEnabled, Is.True);
+            Assert.That(_configurationRepository.StrictFilterEnabled, Is.True);
 
-            Assert.IsFalse(_configurationRepository.ShowShadows);
-            Assert.IsFalse(_configurationRepository.ShowChatBubbles);
-            Assert.IsTrue(_configurationRepository.ShowTransition);
-            Assert.AreEqual(123, _configurationRepository.InGameWidth);
-            Assert.AreEqual(321, _configurationRepository.InGameHeight);
+            Assert.That(_configurationRepository.ShowShadows, Is.False);
+            Assert.That(_configurationRepository.ShowChatBubbles, Is.False);
+            Assert.That(_configurationRepository.ShowTransition, Is.True);
+            Assert.That(_configurationRepository.InGameWidth, Is.EqualTo(123));
+            Assert.That(_configurationRepository.InGameHeight, Is.EqualTo(321));
 
-            Assert.IsTrue(_configurationRepository.MusicEnabled);
-            Assert.IsTrue(_configurationRepository.SoundEnabled);
+            Assert.That(_configurationRepository.MusicEnabled, Is.True);
+            Assert.That(_configurationRepository.SoundEnabled, Is.True);
 
-            Assert.IsFalse(_configurationRepository.HearWhispers);
-            Assert.IsFalse(_configurationRepository.Interaction);
-            Assert.IsTrue(_configurationRepository.LogChatToFile);
-            Assert.IsTrue(_configurationRepository.EnableLog);
+            Assert.That(_configurationRepository.HearWhispers, Is.False);
+            Assert.That(_configurationRepository.Interaction, Is.False);
+            Assert.That(_configurationRepository.LogChatToFile, Is.True);
+            Assert.That(_configurationRepository.EnableLog, Is.True);
         }
 
         private static void CreateTestConfigurationInDirectory(string contents)

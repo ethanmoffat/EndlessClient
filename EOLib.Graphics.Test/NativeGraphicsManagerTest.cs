@@ -96,7 +96,7 @@ namespace EOLib.Graphics.Test
             LoadGFXReturnsBitmap(GFXTypes.PreLoginUI, requestedResource);
             _nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, requestedResource, reloadFromFile: true);
 
-            Assert.IsTrue(textureHasBeenDisposed);
+            Assert.That(textureHasBeenDisposed, Is.True);
         }
 
         [Test]
@@ -145,7 +145,7 @@ namespace EOLib.Graphics.Test
             var data = new Microsoft.Xna.Framework.Color[resultTexture.Width * resultTexture.Height];
             resultTexture.GetData(data);
 
-            Assert.IsTrue(data.All(x => x.A == 0));
+            Assert.That(data.All(x => x.A == 0), Is.True);
         }
 
         [Test]
@@ -161,7 +161,7 @@ namespace EOLib.Graphics.Test
             var data = new Microsoft.Xna.Framework.Color[resultTexture.Width * resultTexture.Height];
             resultTexture.GetData(data);
 
-            Assert.IsTrue(data.All(x => x.A == 0));
+            Assert.That(data.All(x => x.A == 0), Is.True);
         }
 
         [Test]
@@ -177,7 +177,7 @@ namespace EOLib.Graphics.Test
             var data = new Color[resultTexture.Width * resultTexture.Height];
             resultTexture.GetData(data);
 
-            Assert.IsTrue(data.All(x => x.A == 0));
+            Assert.That(data.All(x => x.A == 0), Is.True);
         }
 
         [Test]
@@ -189,7 +189,7 @@ namespace EOLib.Graphics.Test
             LoadGFXReturnsBitmap(GFXTypes.PreLoginUI, requestedResource, () => GetTextureAgain(GFXTypes.PreLoginUI, requestedResource));
             resultTexture = _nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, requestedResource);
 
-            Assert.IsFalse(resultTexture.IsDisposed);
+            Assert.That(resultTexture.IsDisposed, Is.False);
         }
 
         // Manually builds a byte array that is a valid bitmap image (10x10 pixels, 32bpp)

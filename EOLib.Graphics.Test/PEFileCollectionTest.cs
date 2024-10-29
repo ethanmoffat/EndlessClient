@@ -51,8 +51,8 @@ namespace EOLib.Graphics.Test
 
             _collection.PopulateCollectionWithStandardGFX();
 
-            Assert.AreEqual(25, _collection.Count);
-            CollectionAssert.AreEqual(expectedKeys, _collection.Keys.ToList());
+            Assert.That(_collection, Has.Count.EqualTo(25));
+            Assert.That(_collection.Keys, Is.EqualTo(expectedKeys));
         }
 
         [Test]

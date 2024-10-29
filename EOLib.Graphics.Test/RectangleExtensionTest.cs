@@ -16,11 +16,11 @@ namespace EOLib.Graphics.Test
 
             var newRectangle = rectangle.WithPosition(new Vector2(newX, newY));
 
-            Assert.AreEqual(105, newRectangle.X);
-            Assert.AreEqual(110, newRectangle.Y);
-            Assert.AreEqual(15, newRectangle.Width);
-            Assert.AreEqual(20, newRectangle.Height);
-            Assert.AreNotEqual(newRectangle, rectangle);
+            Assert.That(newRectangle.X, Is.EqualTo(105));
+            Assert.That(newRectangle.Y, Is.EqualTo(110));
+            Assert.That(newRectangle.Width, Is.EqualTo(15));
+            Assert.That(newRectangle.Height, Is.EqualTo(20));
+            Assert.That(rectangle, Is.Not.EqualTo(newRectangle));
         }
 
         [Test]
@@ -32,11 +32,11 @@ namespace EOLib.Graphics.Test
 
             var newRectangle = rectangle.WithPosition(new Vector2(newX, newY));
 
-            Assert.AreEqual(5, rectangle.X);
-            Assert.AreEqual(10, rectangle.Y);
-            Assert.AreEqual(15, rectangle.Width);
-            Assert.AreEqual(20, rectangle.Height);
-            Assert.AreNotEqual(newRectangle, rectangle);
+            Assert.That(rectangle.X, Is.EqualTo(5));
+            Assert.That(rectangle.Y, Is.EqualTo(10));
+            Assert.That(rectangle.Width, Is.EqualTo(15));
+            Assert.That(rectangle.Height, Is.EqualTo(20));
+            Assert.That(rectangle, Is.Not.EqualTo(newRectangle));
         }
     }
 }
