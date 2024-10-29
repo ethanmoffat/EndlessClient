@@ -1,5 +1,9 @@
 name: 1.0.$(rev:rrr)
 
+pr:
+- master
+- feature/*
+
 trigger:
 - master
 - release/*
