@@ -92,7 +92,7 @@ namespace EOLib.IO.Test.Services.Serializers
 
             var actualBytes = serializer.SerializeToByteArray(file, rewriteChecksum: false);
 
-            CollectionAssert.AreEqual(expectedBytes, actualBytes);
+            Assert.That(expectedBytes, Is.EqualTo(actualBytes));
         }
 
         [Test]
@@ -115,8 +115,10 @@ namespace EOLib.IO.Test.Services.Serializers
             var serializer = CreateSerializer();
             var file = serializer.DeserializeFromByteArray(1, bytes, () => new T());
 
-            CollectionAssert.AreEqual(records.Select(x => new { x.ID, x.Name }).ToList(),
-                                      file.Select(x => new { x.ID, x.Name }).ToList());
+            Assert.That(
+                file.Select(x => new { x.ID, x.Name }).ToList(),
+                Is.EqualTo(records.Select(x => new { x.ID, x.Name }).ToList())
+            );
         }
 
         private byte[] MakePubFileBytes(List<int> checksum, int length, params IPubRecord[] records)

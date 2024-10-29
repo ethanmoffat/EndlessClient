@@ -278,7 +278,7 @@ namespace EndlessClient.HUD.Panels
                 // todo: IResettable should work but it doesn't
                 _inventorySlotRepository.FilledSlots = new Matrix<bool>(InventoryRows, InventoryRowSlots, false);
 
-                SaveInventoryFile(null, EventArgs.Empty);
+                SaveInventoryFile(null, new ExitingEventArgs());
             }
 
             base.Dispose(disposing);
@@ -353,7 +353,7 @@ namespace EndlessClient.HUD.Panels
             return retKey;
         }
 
-        private void SaveInventoryFile(object sender, EventArgs e)
+        private void SaveInventoryFile(object sender, ExitingEventArgs e)
         {
             var inventory = new IniReader(Constants.InventoryFile);
             var inventoryKey = $"{_configProvider.Host}:{_playerInfoProvider.LoggedInAccountName}";
