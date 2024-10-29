@@ -33,8 +33,8 @@ namespace EOLib.Domain.Interact.Quest
                     NpcIndex = data.VendorID,
                     ReplyType = reply,
                     ReplyTypeData = reply == DialogReply.Link
-                        ? new QuestAcceptClientPacket.ReplyTypeDataLink { Action = linkId }
-                        : null
+                        ? (QuestAcceptClientPacket.IReplyTypeData)new QuestAcceptClientPacket.ReplyTypeDataLink { Action = linkId }
+                        : new QuestAcceptClientPacket.ReplyTypeDataOk()
                 };
                 _packetSendService.SendPacket(packet);
             });
