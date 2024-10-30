@@ -61,19 +61,20 @@ namespace EOBot
             {
             }
 
-            public void StartNPCAttackAnimation(int npcIndex)
+            public void StartNPCAttackAnimation(int npcIndex, EODirection direction)
             {
             }
 
-            public void StartNPCWalkAnimation(int npcIndex)
+            public void StartNPCWalkAnimation(int npcIndex, MapCoordinate coordinate, EODirection direction)
             {
-                // immediately walk the NPC to the destination index
-                var npc = _currentMapStateRepository.NPCs.SingleOrDefault(x => x.Index == npcIndex);
-                if (npc == null) return;
-
-                var newNpc = npc.WithX(npc.GetDestinationX()).WithY(npc.GetDestinationY()).WithFrame(NPCFrame.Standing);
-                _currentMapStateRepository.NPCs.Remove(npc);
-                _currentMapStateRepository.NPCs.Add(newNpc);
+                if (_currentMapStateRepository.NPCs.TryGetValue(npcIndex, out var npc))
+                {
+                    // immediately walk the NPC to the destination index
+                    _currentMapStateRepository.NPCs.Update(
+                        npc,
+                        npc.WithDirection(direction).WithX(coordinate.X).WithY(coordinate.Y)
+                    );
+                }
             }
 
             public void NPCDropItem(MapItem item)

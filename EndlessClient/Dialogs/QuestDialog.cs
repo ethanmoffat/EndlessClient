@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using EndlessClient.Content;
 using EndlessClient.Dialogs.Services;
@@ -170,49 +169,23 @@ namespace EndlessClient.Dialogs
             {
                 case State.TalkToNpc:
                     {
-                        var rows = new List<string>();
-
-                        var ts = new TextSplitter(repoData.PageText[_pageIndex], _contentProvider.Fonts[Constants.FontSize09]);
-                        if (!ts.NeedsProcessing)
-                            rows.Add(repoData.PageText[_pageIndex]);
-                        else
-                            rows.AddRange(ts.SplitIntoLines());
-
-                        int index = 0;
-                        foreach (var row in rows)
-                        {
-                            var rowItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Small, index++)
-                            {
-                                PrimaryText = row,
-                            };
-
-                            AddItemToList(rowItem, sortList: false);
-                        }
+                        AddTextAsListItems(_contentProvider.Fonts[Constants.FontSize08pt5], insertLineBreaks: true, [], repoData.PageText[_pageIndex].Replace("\n", string.Empty));
 
                         // The links are only shown on the last page of the quest dialog
                         if (_pageIndex < repoData.PageText.Count - 1)
                             return;
 
-                        var item = new ListDialogItem(this, ListDialogItem.ListItemStyle.Small, index++) { PrimaryText = " " };
-                        AddItemToList(item, sortList: false);
-
-                        foreach (var action in repoData.Actions)
+                        var linkClickActions = repoData.Actions.Select(action =>
                         {
-                            var actionItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Small, index++)
-                            {
-                                PrimaryText = action.DisplayText
-                            };
-
                             var linkIndex = action.ActionID;
-                            actionItem.SetPrimaryClickAction((_, _) =>
-                            {
-                                _questActions.RespondToQuestDialog(DialogReply.Link, linkIndex);
-                                ClickSoundEffect?.Invoke(this, EventArgs.Empty);
-                                Close(XNADialogResult.Cancel);
-                            });
-
-                            AddItemToList(actionItem, sortList: false);
-                        }
+                            return new Action(() =>
+                                {
+                                    _questActions.RespondToQuestDialog(DialogReply.Link, linkIndex);
+                                    ClickSoundEffect?.Invoke(this, EventArgs.Empty);
+                                    Close(XNADialogResult.Cancel);
+                                });
+                        }).ToList();
+                        AddTextAsListItems(_contentProvider.Fonts[Constants.FontSize08pt5], insertLineBreaks: false, linkClickActions, repoData.Actions.Select(x => $"*{x.DisplayText}").ToArray());
                     }
                     break;
                 case State.SwitchQuest:

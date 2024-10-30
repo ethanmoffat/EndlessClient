@@ -1,4 +1,5 @@
-﻿using EndlessClient.Rendering.Map;
+﻿using System.Collections.Generic;
+using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
@@ -30,16 +31,35 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         protected override bool ElementExistsAt(int row, int col)
         {
-            return CurrentMap.GFX[MapLayer.Roof][row, col] > 0;
+            if (row == CurrentMap.Properties.Height)
+            {
+                return CurrentMap.GFX[MapLayer.Roof][row, col] > 0 ||
+                    CurrentMap.GFX[MapLayer.Roof][row - 1, col] > 0;
+            }
+
+            return row - 1 >= 0 && CurrentMap.GFX[MapLayer.Roof][row - 1, col] > 0;
         }
 
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
         {
-            int gfxNum = CurrentMap.GFX[MapLayer.Roof][row, col];
-            var gfx = _nativeGraphicsManager.TextureFromResource(GFXTypes.MapWallTop, gfxNum, true);
+            var gfxCandidates = new List<int>();
+            if (CurrentMap.GFX[MapLayer.Roof][row - 1, col] > 0)
+            {
+                gfxCandidates.Add(CurrentMap.GFX[MapLayer.Roof][row - 1, col]);
+            }
 
-            var pos = GetDrawCoordinatesFromGridUnits(col, row);
-            spriteBatch.Draw(gfx, pos + additionalOffset, Color.FromNonPremultiplied(255, 255, 255, alpha));
+            if (row == CurrentMap.Properties.Height && CurrentMap.GFX[MapLayer.Roof][row, col] > 0)
+            {
+                gfxCandidates.Add(CurrentMap.GFX[MapLayer.Roof][row, col]);
+            }
+
+            foreach (var gfxNum in gfxCandidates)
+            {
+                var gfx = _nativeGraphicsManager.TextureFromResource(GFXTypes.MapWallTop, gfxNum, true);
+
+                var pos = GetDrawCoordinatesFromGridUnits(col, row - 1);
+                spriteBatch.Draw(gfx, pos + additionalOffset, Color.FromNonPremultiplied(255, 255, 255, alpha));
+            }
         }
 
         private IMapFile CurrentMap => _currentMapProvider.CurrentMap;

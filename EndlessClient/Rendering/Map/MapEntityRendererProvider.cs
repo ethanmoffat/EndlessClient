@@ -43,16 +43,16 @@ namespace EndlessClient.Rendering.Map
                                                 currentMapProvider,
                                                 characterProvider,
                                                 gridDrawCoordinateCalculator,
-                                                clientWindowSizeProvider),
-                new MapItemLayerRenderer(characterProvider,
-                                         gridDrawCoordinateCalculator,
-                                         clientWindowSizeProvider,
-                                         currentMapStateProvider,
-                                         mapItemGraphicProvider)
+                                                clientWindowSizeProvider)
             };
 
             MapEntityRenderers = new List<IMapEntityRenderer>
             {
+                new MapItemLayerRenderer(characterProvider,
+                                         gridDrawCoordinateCalculator,
+                                         clientWindowSizeProvider,
+                                         currentMapStateProvider,
+                                         mapItemGraphicProvider),
                 new ShadowLayerRenderer(nativeGraphicsManager,
                                         currentMapProvider,
                                         characterProvider,

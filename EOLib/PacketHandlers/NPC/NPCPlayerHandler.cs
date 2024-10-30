@@ -11,9 +11,6 @@ using EOLib.IO.Repositories;
 using EOLib.Net.Handlers;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
-using Optional;
-using Optional.Collections;
-using DomainNPC = EOLib.Domain.NPC.NPC;
 
 namespace EOLib.PacketHandlers.NPC
 {
@@ -78,18 +75,15 @@ namespace EOLib.PacketHandlers.NPC
         {
             foreach (var position in positions)
             {
-                var npc = GetNPC(position.NpcIndex);
-                npc.Match(
-                    some: n =>
-                    {
-                        var updated = n.WithDirection((EODirection)position.Direction);
-                        updated = EnsureCorrectXAndY(updated, position.Coords.X, position.Coords.Y);
-                        _currentMapStateRepository.NPCs.Update(n, updated);
-
-                        foreach (var notifier in _npcAnimationNotifiers)
-                            notifier.StartNPCWalkAnimation(n.Index);
-                    },
-                    none: () => _currentMapStateRepository.UnknownNPCIndexes.Add(position.NpcIndex));
+                if (_currentMapStateRepository.NPCs.TryGetValue(position.NpcIndex, out var npc))
+                {
+                    foreach (var notifier in _npcAnimationNotifiers)
+                        notifier.StartNPCWalkAnimation(npc.Index, position.Coords.ToCoordinate(), (EODirection)position.Direction);
+                }
+                else
+                {
+                    _currentMapStateRepository.UnknownNPCIndexes.Add(position.NpcIndex);
+                }
             }
         }
 
@@ -130,17 +124,15 @@ namespace EOLib.PacketHandlers.NPC
                     _currentMapStateRepository.UnknownPlayerIDs.Add(characterID);
                 }
 
-                var npc = GetNPC(index);
-                npc.Match(
-                    some: n =>
-                    {
-                        var updated = n.WithDirection(npcDirection);
-                        _currentMapStateRepository.NPCs.Update(n, updated);
-
-                        foreach (var notifier in _npcAnimationNotifiers)
-                            notifier.StartNPCAttackAnimation(index);
-                    },
-                    none: () => _currentMapStateRepository.UnknownNPCIndexes.Add(index));
+                if (_currentMapStateRepository.NPCs.TryGetValue(index, out var npc))
+                {
+                    foreach (var notifier in _npcAnimationNotifiers)
+                        notifier.StartNPCAttackAnimation(index, (EODirection)attack.Direction);
+                }
+                else
+                {
+                    _currentMapStateRepository.UnknownNPCIndexes.Add(index);
+                }
             }
         }
 
@@ -148,37 +140,21 @@ namespace EOLib.PacketHandlers.NPC
         {
             foreach (var chat in chats)
             {
-                var npc = GetNPC(chat.NpcIndex);
-                npc.Match(
-                    some: n =>
-                    {
-                        var npcData = _enfFileProvider.ENFFile[n.ID];
+                if (_currentMapStateRepository.NPCs.TryGetValue(chat.NpcIndex, out var npc))
+                {
+                    var npcData = _enfFileProvider.ENFFile[npc.ID];
 
-                        var chatData = new ChatData(ChatTab.Local, npcData.Name, chat.Message, ChatIcon.Note, filter: false);
-                        _chatRepository.AllChat[ChatTab.Local].Add(chatData);
+                    var chatData = new ChatData(ChatTab.Local, npcData.Name, chat.Message, ChatIcon.Note, filter: false);
+                    _chatRepository.AllChat[ChatTab.Local].Add(chatData);
 
-                        foreach (var notifier in _npcAnimationNotifiers)
-                            notifier.ShowNPCSpeechBubble(chat.NpcIndex, chat.Message);
-                    },
-                    none: () => _currentMapStateRepository.UnknownNPCIndexes.Add(chat.NpcIndex));
+                    foreach (var notifier in _npcAnimationNotifiers)
+                        notifier.ShowNPCSpeechBubble(chat.NpcIndex, chat.Message);
+                }
+                else
+                {
+                    _currentMapStateRepository.UnknownNPCIndexes.Add(chat.NpcIndex);
+                }
             }
-        }
-
-        private Option<DomainNPC> GetNPC(int index)
-        {
-            return _currentMapStateRepository.NPCs.SingleOrNone(n => n.Index == index);
-        }
-
-        private static DomainNPC EnsureCorrectXAndY(DomainNPC npc, int destinationX, int destinationY)
-        {
-            var opposite = npc.Direction.Opposite();
-            var tempNPC = npc
-                .WithDirection(opposite)
-                .WithX(destinationX)
-                .WithY(destinationY);
-            return npc
-                .WithX(tempNPC.GetDestinationX())
-                .WithY(tempNPC.GetDestinationY());
         }
     }
 }

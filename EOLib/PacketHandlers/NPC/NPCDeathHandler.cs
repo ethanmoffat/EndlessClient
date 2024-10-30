@@ -121,13 +121,13 @@ namespace EOLib.PacketHandlers.NPC
                 foreach (var notifier in _mainCharacterEventNotifiers)
                     notifier.NotifyGainedExp(expDifference);
 
-                UpdateCharacterStat(CharacterStat.Experience, experienceValue);
-
                 _characterSessionRepository.LastKillExp = expDifference;
                 if (expDifference > _characterSessionRepository.BestKillExp)
                     _characterSessionRepository.BestKillExp = expDifference;
                 _characterSessionRepository.TodayTotalExp += Convert.ToUInt64(Math.Max(expDifference, 0));
             }
+
+            UpdateCharacterStat(CharacterStat.Experience, experienceValue);
         }
 
         protected void ApplyStats(LevelUpStats levelUpStats)
