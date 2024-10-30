@@ -44,14 +44,15 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         {
             var gfxCandidates = new List<int>();
             if (CurrentMap.GFX[MapLayer.Roof][row - 1, col] > 0)
-                gfxCandidates.Add(CurrentMap.GFX[MapLayer.Roof][row - 1, col]);
-            if (row == CurrentMap.Properties.Height)
             {
-                if (CurrentMap.GFX[MapLayer.Roof][row, col] > 0)
-                    gfxCandidates.Add(CurrentMap.GFX[MapLayer.Roof][row, col]);
+                gfxCandidates.Add(CurrentMap.GFX[MapLayer.Roof][row - 1, col]);
             }
 
-            //int gfxNum = CurrentMap.GFX[MapLayer.Roof][row-1, col];
+            if (row == CurrentMap.Properties.Height && CurrentMap.GFX[MapLayer.Roof][row, col] > 0)
+            {
+                gfxCandidates.Add(CurrentMap.GFX[MapLayer.Roof][row, col]);
+            }
+
             foreach (var gfxNum in gfxCandidates)
             {
                 var gfx = _nativeGraphicsManager.TextureFromResource(GFXTypes.MapWallTop, gfxNum, true);
