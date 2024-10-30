@@ -109,8 +109,6 @@ namespace EndlessClient.HUD.Panels
                 AutoSize = false
             };
 
-            _inventorySlotRepository.SlotMap = GetItemSlotMap(_playerInfoProvider.LoggedInAccountName, _characterProvider.MainCharacter.Name, _configProvider.Host);
-
             var weirdOffsetSheet = NativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 27);
 
             _paperdoll = new XNAButton(weirdOffsetSheet, new Vector2(385, 9), new Rectangle(39, 385, 88, 19), new Rectangle(126, 385, 88, 19));
@@ -154,8 +152,8 @@ namespace EndlessClient.HUD.Panels
             _junk.Initialize();
             _junk.SetParentControl(this);
 
+            _inventorySlotRepository.SlotMap = GetItemSlotMap(_playerInfoProvider.LoggedInAccountName, _characterProvider.MainCharacter.Name, _configProvider.Host);
             OnUpdateControl(new GameTime());
-            _inventorySlotRepository.SlotMap.Clear();
 
             base.Initialize();
         }

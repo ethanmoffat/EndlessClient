@@ -602,10 +602,11 @@ namespace EndlessClient.HUD.Panels
         private void SaveSpellsFile(object sender, ExitingEventArgs e)
         {
             var spells = new IniReader(Constants.SpellsFile);
+            var spellsKey = $"{_configProvider.Host}:{_playerInfoProvider.LoggedInAccountName}";
 
-            var section = spells.Load() && spells.Sections.ContainsKey(_playerInfoProvider.LoggedInAccountName)
-                ? spells.Sections[_playerInfoProvider.LoggedInAccountName]
-                : new SortedList<string, string>();
+            var section = spells.Load() && spells.Sections.ContainsKey(spellsKey)
+                ? spells.Sections[spellsKey]
+                : [];
 
             var existing = section.Where(x => x.Key.Contains(_characterProvider.MainCharacter.Name)).Select(x => x.Key).ToList();
             foreach (var key in existing)
@@ -614,7 +615,7 @@ namespace EndlessClient.HUD.Panels
             foreach (var item in _childItems.OfType<SpellPanelItem>())
                 section[$"{_characterProvider.MainCharacter.Name}.{item.Slot}"] = $"{item.InventorySpell.ID}";
 
-            spells.Sections[_playerInfoProvider.LoggedInAccountName] = section;
+            spells.Sections[spellsKey] = section;
 
             spells.Save();
         }
