@@ -1,12 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using EndlessClient.GameExecution;
 using EOLib;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
 using Microsoft.Xna.Framework;
-using Optional.Collections;
 
 namespace EndlessClient.Rendering.NPC
 {
@@ -14,8 +12,11 @@ namespace EndlessClient.Rendering.NPC
     {
         private const int TICKS_PER_ACTION_FRAME = 8; // 8 x10ms ticks per action frame
 
-        private readonly List<RenderFrameActionTime> _npcStartWalkingTimes;
-        private readonly List<RenderFrameActionTime> _npcStartAttackingTimes;
+        private readonly Dictionary<int, RenderFrameActionTime> _npcStartWalkingTimes = [];
+        private readonly Dictionary<int, RenderFrameActionTime> _npcStartAttackingTimes = [];
+        private readonly Dictionary<int, (MapCoordinate Coord, EODirection Direction)> _queuedWalk = [];
+        private readonly Dictionary<int, EODirection> _queuedAttack = [];
+
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
 
@@ -26,8 +27,6 @@ namespace EndlessClient.Rendering.NPC
         {
             _currentMapStateRepository = currentMapStateRepository;
             _fixedTimeStepRepository = fixedTimeStepRepository;
-            _npcStartWalkingTimes = new List<RenderFrameActionTime>();
-            _npcStartAttackingTimes = new List<RenderFrameActionTime>();
         }
 
         public override void Update(GameTime gameTime)
@@ -38,86 +37,164 @@ namespace EndlessClient.Rendering.NPC
             base.Update(gameTime);
         }
 
-        public void StartWalkAnimation(int npcIndex)
+        public void StartWalkAnimation(int npcIndex, MapCoordinate coords, EODirection direction)
         {
-            if (_npcStartWalkingTimes.Any(x => x.UniqueID == npcIndex))
-                return;
+            if (_npcStartWalkingTimes.TryGetValue(npcIndex, out RenderFrameActionTime value))
+            {
+                value.SetReplay();
+                _queuedWalk[npcIndex] = (coords, direction);
+            }
+            else if (_npcStartAttackingTimes.ContainsKey(npcIndex))
+            {
+                _queuedWalk[npcIndex] = (coords, direction);
+            }
+            else
+            {
+                var startWalkingTimeAndID = new RenderFrameActionTime(npcIndex, _fixedTimeStepRepository.TickCount);
+                _npcStartWalkingTimes.Add(npcIndex, startWalkingTimeAndID);
 
-            var startWalkingTimeAndID = new RenderFrameActionTime(npcIndex, _fixedTimeStepRepository.TickCount);
-
-            _npcStartWalkingTimes.Add(startWalkingTimeAndID);
+                if (_currentMapStateRepository.NPCs.TryGetValue(npcIndex, out var npc))
+                {
+                    _currentMapStateRepository.NPCs.Update(npc, EnsureCorrectXAndY(npc, coords, direction));
+                }
+            }
         }
 
-        public void StartAttackAnimation(int npcIndex)
+        public void StartAttackAnimation(int npcIndex, EODirection direction)
         {
-            if (_npcStartAttackingTimes.Any(x => x.UniqueID == npcIndex))
-                return;
+            if (_npcStartAttackingTimes.TryGetValue(npcIndex, out RenderFrameActionTime value))
+            {
+                value.SetReplay();
+                _queuedAttack[npcIndex] = direction;
+            }
+            else if (_npcStartWalkingTimes.ContainsKey(npcIndex))
+            {
+                _queuedAttack[npcIndex] = direction;
+            }
+            else
+            {
+                var startAttackingTimeAndID = new RenderFrameActionTime(npcIndex, _fixedTimeStepRepository.TickCount);
+                _npcStartAttackingTimes.Add(npcIndex, startAttackingTimeAndID);
 
-            var startAttackingTimeAndID = new RenderFrameActionTime(npcIndex, _fixedTimeStepRepository.TickCount);
-
-            _npcStartAttackingTimes.Add(startAttackingTimeAndID);
+                if (_currentMapStateRepository.NPCs.TryGetValue(npcIndex, out var npc))
+                {
+                    _currentMapStateRepository.NPCs.Update(npc, npc.WithDirection(direction));
+                }
+            }
         }
 
         public void StopAllAnimations()
         {
             _npcStartWalkingTimes.Clear();
+            _npcStartAttackingTimes.Clear();
+            _queuedWalk.Clear();
+            _queuedAttack.Clear();
         }
 
         private void AnimateNPCWalking()
         {
-            var npcsDoneWalking = new List<RenderFrameActionTime>();
-            foreach (var pair in _npcStartWalkingTimes)
+            var npcsDoneWalking = new List<int>();
+            foreach (var pair in _npcStartWalkingTimes.Values)
             {
-                if ((_fixedTimeStepRepository.TickCount - pair.ActionTick) >= TICKS_PER_ACTION_FRAME)
+                if (_fixedTimeStepRepository.TickCount - pair.ActionTick >= TICKS_PER_ACTION_FRAME)
                 {
-                    var npc = _currentMapStateRepository.NPCs.SingleOrNone(x => x.Index == pair.UniqueID);
+                    if (_currentMapStateRepository.NPCs.TryGetValue(pair.UniqueID, out var npc))
+                    {
+                        var nextFrameNPC = AnimateOneWalkFrame(npc);
+                        pair.UpdateActionStartTime(_fixedTimeStepRepository.TickCount);
 
-                    npc.Match(
-                        some: n =>
+                        if (nextFrameNPC.IsActing(NPCActionState.Standing))
                         {
-                            var nextFrameNPC = AnimateOneWalkFrame(n);
-                            pair.UpdateActionStartTime(_fixedTimeStepRepository.TickCount);
+                            if (pair.Replay)
+                            {
+                                nextFrameNPC = AnimateOneWalkFrame(nextFrameNPC);
 
-                            if (nextFrameNPC.Frame == NPCFrame.Standing)
-                                npcsDoneWalking.Add(pair);
+                                if (_queuedWalk.TryGetValue(pair.UniqueID, out var update))
+                                {
+                                    nextFrameNPC = EnsureCorrectXAndY(nextFrameNPC, update.Coord, update.Direction);
+                                    _queuedWalk.Remove(pair.UniqueID);
+                                }
 
-                            _currentMapStateRepository.NPCs.Remove(n);
-                            _currentMapStateRepository.NPCs.Add(nextFrameNPC);
-                        },
-                        none: () => npcsDoneWalking.Add(pair));
+                                pair.ClearReplay();
+                            }
+                            else
+                            {
+                                npcsDoneWalking.Add(pair.UniqueID);
+
+                                if (_queuedAttack.TryGetValue(pair.UniqueID, out var update))
+                                {
+                                    nextFrameNPC = nextFrameNPC.WithDirection(update);
+                                    _npcStartAttackingTimes.Add(pair.UniqueID, pair);
+                                    _queuedAttack.Remove(pair.UniqueID);
+                                }
+                            }
+                        }
+
+                        _currentMapStateRepository.NPCs.Update(npc, nextFrameNPC);
+                    }
+                    else
+                    {
+                        npcsDoneWalking.Add(pair.UniqueID);
+                    }
                 }
             }
 
-            _npcStartWalkingTimes.RemoveAll(npcsDoneWalking.Contains);
+            foreach (var index in npcsDoneWalking)
+                _npcStartWalkingTimes.Remove(index);
         }
 
         private void AnimateNPCAttacking()
         {
-            var npcsDoneAttacking = new List<RenderFrameActionTime>();
-            foreach (var pair in _npcStartAttackingTimes)
+            var npcsDoneAttacking = new List<int>();
+            foreach (var pair in _npcStartAttackingTimes.Values)
             {
-                if ((_fixedTimeStepRepository.TickCount - pair.ActionTick) >= TICKS_PER_ACTION_FRAME)
+                if (_fixedTimeStepRepository.TickCount - pair.ActionTick >= TICKS_PER_ACTION_FRAME)
                 {
-                    var npc = _currentMapStateRepository.NPCs.SingleOrNone(x => x.Index == pair.UniqueID);
+                    if (_currentMapStateRepository.NPCs.TryGetValue(pair.UniqueID, out var npc))
+                    {
+                        var nextFrameNPC = npc.WithNextAttackFrame();
+                        pair.UpdateActionStartTime(_fixedTimeStepRepository.TickCount);
 
-                    npc.Match(
-                        some: n =>
+                        if (nextFrameNPC.Frame == NPCFrame.Standing)
                         {
-                            var nextFrameNPC = n.WithNextAttackFrame();
-                            pair.UpdateActionStartTime(_fixedTimeStepRepository.TickCount);
+                            if (pair.Replay)
+                            {
+                                nextFrameNPC = npc.WithNextAttackFrame();
 
-                            if (nextFrameNPC.Frame == NPCFrame.Standing)
-                                npcsDoneAttacking.Add(pair);
+                                if (_queuedAttack.TryGetValue(pair.UniqueID, out var update))
+                                {
+                                    nextFrameNPC = nextFrameNPC.WithDirection(update);
+                                    _queuedAttack.Remove(pair.UniqueID);
+                                }
 
-                            _currentMapStateRepository.NPCs.Remove(n);
-                            _currentMapStateRepository.NPCs.Add(nextFrameNPC);
+                                pair.ClearReplay();
+                            }
+                            else
+                            {
+                                npcsDoneAttacking.Add(pair.UniqueID);
 
-                        },
-                        none: () => npcsDoneAttacking.Add(pair));
+                                if (_queuedWalk.TryGetValue(pair.UniqueID, out var update))
+                                {
+                                    nextFrameNPC = EnsureCorrectXAndY(nextFrameNPC, update.Coord, update.Direction);
+                                    _queuedWalk.Remove(pair.UniqueID);
+
+                                    _npcStartWalkingTimes.Add(pair.UniqueID, pair);
+                                }
+                            }
+                        }
+
+                        _currentMapStateRepository.NPCs.Remove(npc);
+                        _currentMapStateRepository.NPCs.Add(nextFrameNPC);
+                    }
+                    else
+                    {
+                        npcsDoneAttacking.Add(pair.UniqueID);
+                    }
                 }
             }
 
-            _npcStartAttackingTimes.RemoveAll(npcsDoneAttacking.Contains);
+            foreach (var index in npcsDoneAttacking)
+                _npcStartAttackingTimes.Remove(index);
         }
 
         private static EOLib.Domain.NPC.NPC AnimateOneWalkFrame(EOLib.Domain.NPC.NPC npc)
@@ -133,13 +210,19 @@ namespace EndlessClient.Rendering.NPC
 
             return nextFrameNPC;
         }
+
+        private static EOLib.Domain.NPC.NPC EnsureCorrectXAndY(EOLib.Domain.NPC.NPC npc, MapCoordinate coordinate, EODirection direction)
+        {
+            var tmpNpc = npc.WithX(coordinate.X).WithY(coordinate.Y).WithDirection(direction.Opposite());
+            return npc.WithDirection(direction).WithX(tmpNpc.GetDestinationX()).WithY(tmpNpc.GetDestinationY());
+        }
     }
 
     public interface INPCAnimator : IGameComponent
     {
-        void StartWalkAnimation(int npcIndex);
+        void StartWalkAnimation(int npcIndex, MapCoordinate coords, EODirection direction);
 
-        void StartAttackAnimation(int npcIndex);
+        void StartAttackAnimation(int npcIndex, EODirection direction);
 
         void StopAllAnimations();
     }

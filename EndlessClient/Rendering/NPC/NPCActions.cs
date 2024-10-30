@@ -4,6 +4,7 @@ using EndlessClient.ControlSets;
 using EndlessClient.HUD.Chat;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Rendering.Character;
+using EOLib;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
@@ -50,20 +51,20 @@ namespace EndlessClient.Rendering.NPC
             _sfxPlayer = sfxPlayer;
         }
 
-        public void StartNPCWalkAnimation(int npcIndex)
+        public void StartNPCWalkAnimation(int npcIndex, MapCoordinate coords, EODirection direction)
         {
             if (!_hudControlProvider.IsInGame)
                 return;
 
-            Animator.StartWalkAnimation(npcIndex);
+            Animator.StartWalkAnimation(npcIndex, coords, direction);
         }
 
-        public void StartNPCAttackAnimation(int npcIndex)
+        public void StartNPCAttackAnimation(int npcIndex, EODirection direction)
         {
             if (!_hudControlProvider.IsInGame)
                 return;
 
-            Animator.StartAttackAnimation(npcIndex);
+            Animator.StartAttackAnimation(npcIndex, direction);
 
             _sfxPlayer.PlaySfx(SoundEffectID.PunchAttack);
         }
