@@ -48,8 +48,11 @@
     <Page Remove="packages\**" />
     <Content Remove="..\packages\monogame.extended.content.pipeline\3.8.0\contentFiles\**" />
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
     <MonoGameContentReference Include="ContentPipeline\Content.mgcb" />
+  </ItemGroup>
+  <ItemGroup Condition="!$([MSBuild]::IsOSPlatform('Windows'))">
+    <MonoGameContentReference Include="ContentPipeline\Content.Linux.mgcb" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EOLib.Config\EOLib.Config.csproj" />

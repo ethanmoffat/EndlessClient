@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using EndlessClient.Audio;
 using EndlessClient.Content;
 using EndlessClient.Input;
@@ -317,6 +319,10 @@ namespace EndlessClient.Rendering.Character
 
                 _sb.End();
                 GraphicsDevice.SetRenderTarget(null);
+
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ||
+                    RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                    ClipHair();
             }
         }
 
@@ -440,6 +446,30 @@ namespace EndlessClient.Rendering.Character
                 {
                     _sfxPlayer.PlaySfx(SoundEffectID.Dead);
                 }
+            }
+        }
+
+        [SupportedOSPlatform("Linux")]
+        [SupportedOSPlatform("macOS")]
+        private void ClipHair()
+        {
+            if (Character.RenderProperties.HatGraphic == 0 ||
+                _hatMetadataProvider.GetValueOrDefault(Character.RenderProperties.HatGraphic).ClipMode != HatMaskType.Standard)
+                return;
+
+            lock (_rt_locker_)
+            {
+                // oof. I really need to learn how to use shaders or stencil buffer.
+                // https://gamedev.stackexchange.com/questions/38118/best-way-to-mask-2d-sprites-in-xna/38150#38150
+
+                // note: this operation causes a high number of GC events as the character's frame changes (walking/attacking)
+                _charRenderTarget.GetData(_rtColorData);
+                for (int i = 0; i < _rtColorData.Length; i++)
+                {
+                    if (_rtColorData[i] == Color.Black)
+                        _rtColorData[i].A = 0;
+                }
+                _charRenderTarget.SetData(_rtColorData);
             }
         }
 
