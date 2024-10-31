@@ -257,12 +257,17 @@ namespace EndlessClient.Rendering.Character
 
             if (Visible)
             {
-                var hatMetadata = _hatMetadataProvider.GetValueOrDefault(Character.RenderProperties.HatGraphic);
-                var clipHair = Character.RenderProperties.HatGraphic != 0 && hatMetadata.ClipMode == HatMaskType.Standard;
-                if (clipHair)
+                var clipHair = false;
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    spriteBatch.End();
-                    spriteBatch.Begin(SpriteSortMode.Immediate, effect: _contentProvider.Effects[0]);
+                    var hatMetadata = _hatMetadataProvider.GetValueOrDefault(Character.RenderProperties.HatGraphic);
+                    clipHair = Character.RenderProperties.HatGraphic != 0 && hatMetadata.ClipMode == HatMaskType.Standard;
+
+                    if (clipHair)
+                    {
+                        spriteBatch.End();
+                        spriteBatch.Begin(SpriteSortMode.Immediate, effect: _contentProvider.Effects[0]);
+                    }
                 }
 
                 lock (_rt_locker_)
@@ -320,9 +325,10 @@ namespace EndlessClient.Rendering.Character
                 _sb.End();
                 GraphicsDevice.SetRenderTarget(null);
 
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ||
-                    RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                {
                     ClipHair();
+                }
             }
         }
 
@@ -459,9 +465,6 @@ namespace EndlessClient.Rendering.Character
 
             lock (_rt_locker_)
             {
-                // oof. I really need to learn how to use shaders or stencil buffer.
-                // https://gamedev.stackexchange.com/questions/38118/best-way-to-mask-2d-sprites-in-xna/38150#38150
-
                 // note: this operation causes a high number of GC events as the character's frame changes (walking/attacking)
                 _charRenderTarget.GetData(_rtColorData);
                 for (int i = 0; i < _rtColorData.Length; i++)

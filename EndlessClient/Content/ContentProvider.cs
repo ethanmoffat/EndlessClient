@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EOLib;
@@ -100,7 +101,9 @@ namespace EndlessClient.Content
             LoadSFX();
             LoadHarp();
             LoadGuitar();
-            LoadEffects();
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                LoadEffects();
         }
 
         private void RefreshTextures()

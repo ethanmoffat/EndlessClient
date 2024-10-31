@@ -29,6 +29,8 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <OutputPath>..\bin\$(Configuration)\client</OutputPath>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <!-- This defaults to true in MonoGame.Content.Builder.Task; when true, it includes files matching **/*.mgcb -->
+    <EnableMGCBItems>false</EnableMGCBItems>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Resources\Game.ico</ApplicationIcon>
