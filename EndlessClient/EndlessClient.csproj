@@ -5,7 +5,7 @@
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
     <TargetFramework>net8.0-windows</TargetFramework>
     <OutputType>WinExe</OutputType>
-    <MonoGamePlatform>Windows</MonoGamePlatform>
+    <MonoGamePlatform>DesktopGL</MonoGamePlatform>
     <UseWindowsForms>true</UseWindowsForms>
     <UseWPF>true</UseWPF>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>

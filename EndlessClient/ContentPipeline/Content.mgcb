@@ -3,7 +3,7 @@
 
 /outputDir:bin/Windows
 /intermediateDir:obj/Windows
-/platform:Windows
+/platform:DesktopGL
 /config:
 /profile:HiDef
 /compress:False
@@ -13,11 +13,6 @@
 /reference:..\..\packages\monogame.extended.content.pipeline\3.8.0\tools\MonoGame.Extended.Content.Pipeline.dll
 
 #---------------------------------- Content ---------------------------------#
-
-#begin BitmapFonts/sans_09px.fnt
-/importer:BitmapFontImporter
-/processor:BitmapFontProcessor
-/build:BitmapFonts/sans_09px.fnt
 
 #begin BitmapFonts/sans_09px_0.png
 /importer:TextureImporter
@@ -31,10 +26,10 @@
 /processorParam:TextureFormat=Color
 /build:BitmapFonts/sans_09px_0.png
 
-#begin BitmapFonts/sans_11px.fnt
+#begin BitmapFonts/sans_09px.fnt
 /importer:BitmapFontImporter
 /processor:BitmapFontProcessor
-/build:BitmapFonts/sans_11px.fnt
+/build:BitmapFonts/sans_09px.fnt
 
 #begin BitmapFonts/sans_11px_0.png
 /importer:TextureImporter
@@ -48,11 +43,6 @@
 /processorParam:TextureFormat=Color
 /build:BitmapFonts/sans_11px_0.png
 
-#begin BitmapFonts/sans_11px_103pct.fnt
-/importer:BitmapFontImporter
-/processor:BitmapFontProcessor
-/build:BitmapFonts/sans_11px_103pct.fnt
-
 #begin BitmapFonts/sans_11px_103pct_0.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -65,10 +55,15 @@
 /processorParam:TextureFormat=Color
 /build:BitmapFonts/sans_11px_103pct_0.png
 
-#begin BitmapFonts/sans_12px.fnt
+#begin BitmapFonts/sans_11px_103pct.fnt
 /importer:BitmapFontImporter
 /processor:BitmapFontProcessor
-/build:BitmapFonts/sans_12px.fnt
+/build:BitmapFonts/sans_11px_103pct.fnt
+
+#begin BitmapFonts/sans_11px.fnt
+/importer:BitmapFontImporter
+/processor:BitmapFontProcessor
+/build:BitmapFonts/sans_11px.fnt
 
 #begin BitmapFonts/sans_12px_0.png
 /importer:TextureImporter
@@ -82,10 +77,10 @@
 /processorParam:TextureFormat=Color
 /build:BitmapFonts/sans_12px_0.png
 
-#begin BitmapFonts/sans_13px.fnt
+#begin BitmapFonts/sans_12px.fnt
 /importer:BitmapFontImporter
 /processor:BitmapFontProcessor
-/build:BitmapFonts/sans_13px.fnt
+/build:BitmapFonts/sans_12px.fnt
 
 #begin BitmapFonts/sans_13px_0.png
 /importer:TextureImporter
@@ -98,6 +93,11 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:BitmapFonts/sans_13px_0.png
+
+#begin BitmapFonts/sans_13px.fnt
+/importer:BitmapFontImporter
+/processor:BitmapFontProcessor
+/build:BitmapFonts/sans_13px.fnt
 
 #begin ChatBubble/ML.png
 /importer:TextureImporter
@@ -230,6 +230,12 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:cursor.png
+
+#begin Effects/ClipBlack.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/ClipBlack.fx
 
 #begin Party/hp-green.png
 /importer:TextureImporter

@@ -23,6 +23,8 @@ namespace EndlessClient.Content
 
         IReadOnlyList<SoundEffect> GuitarNotes { get; }
 
+        IReadOnlyList<Effect> Effects { get; }
+
         void SetContentManager(ContentManager content);
 
         void Load();
@@ -36,6 +38,7 @@ namespace EndlessClient.Content
         private readonly Dictionary<SoundEffectID, SoundEffect> _sfx;
         private readonly List<SoundEffect> _harpNotes;
         private readonly List<SoundEffect> _guitarNotes;
+        private readonly List<Effect> _effects;
 
         private ContentManager _content;
 
@@ -56,6 +59,8 @@ namespace EndlessClient.Content
         public const string ChatRR = @"ChatBubble\RR";
         public const string ChatNUB = @"ChatBubble\NUB";
 
+        public const string ClipBlack = @"Effects\ClipBlack";
+
         public const string HPOutline = @"Party\hp-outline";
         public const string HPRed = @"Party\hp-red";
         public const string HPYellow = @"Party\hp-yellow";
@@ -71,13 +76,16 @@ namespace EndlessClient.Content
 
         public IReadOnlyList<SoundEffect> GuitarNotes => _guitarNotes;
 
+        public IReadOnlyList<Effect> Effects => _effects;
+
         public ContentProvider()
         {
-            _textures = new Dictionary<string, Texture2D>();
-            _fonts = new Dictionary<string, BitmapFont>();
-            _sfx = new Dictionary<SoundEffectID, SoundEffect>();
-            _harpNotes = new List<SoundEffect>();
-            _guitarNotes = new List<SoundEffect>();
+            _textures = [];
+            _fonts = [];
+            _sfx = [];
+            _harpNotes = [];
+            _guitarNotes = [];
+            _effects = [];
         }
 
         public void SetContentManager(ContentManager content)
@@ -92,6 +100,7 @@ namespace EndlessClient.Content
             LoadSFX();
             LoadHarp();
             LoadGuitar();
+            LoadEffects();
         }
 
         private void RefreshTextures()
@@ -150,6 +159,13 @@ namespace EndlessClient.Content
             _guitarNotes.AddRange(GetSoundEffects("gui*.wav"));
             if (_guitarNotes.Count != 36)
                 throw new FileNotFoundException("Unexpected number of guitar SFX");
+        }
+
+        private void LoadEffects()
+        {
+            var effect = _content.Load<Effect>(ClipBlack);
+            effect.CurrentTechnique = effect.Techniques[nameof(ClipBlack)];
+            _effects.Add(effect);
         }
 
         private static IEnumerable<SoundEffect> GetSoundEffects(string filter)

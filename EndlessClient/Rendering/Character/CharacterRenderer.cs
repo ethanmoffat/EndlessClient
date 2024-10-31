@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using EndlessClient.Audio;
-using EndlessClient.GameExecution;
+using EndlessClient.Content;
 using EndlessClient.Input;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Chat;
@@ -15,7 +15,6 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.Domain.Spells;
-using EOLib.Graphics;
 using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -41,6 +40,7 @@ namespace EndlessClient.Rendering.Character
         private readonly IMetadataProvider<WeaponMetadata> _weaponMetadataProvider;
         private readonly ISfxPlayer _sfxPlayer;
         private readonly IClientWindowSizeRepository _clientWindowSizeRepository;
+        private readonly IContentProvider _contentProvider;
         private readonly IEffectRenderer _effectRenderer;
 
         private readonly bool _isUiControl;
@@ -102,6 +102,7 @@ namespace EndlessClient.Rendering.Character
                                  IMetadataProvider<WeaponMetadata> weaponMetadataProvider,
                                  ISfxPlayer sfxPlayer,
                                  IClientWindowSizeRepository clientWindowSizeRepository,
+                                 IContentProvider contentProvider,
                                  EOLib.Domain.Character.Character character,
                                  bool isUiControl)
             : base(game)
@@ -120,6 +121,7 @@ namespace EndlessClient.Rendering.Character
             _effectRenderer = effectRendererFactory.Create();
             _sfxPlayer = sfxPlayer;
             _clientWindowSizeRepository = clientWindowSizeRepository;
+            _contentProvider = contentProvider;
             _character = character;
             _isUiControl = isUiControl;
 
@@ -253,9 +255,23 @@ namespace EndlessClient.Rendering.Character
 
             if (Visible)
             {
+                var hatMetadata = _hatMetadataProvider.GetValueOrDefault(Character.RenderProperties.HatGraphic);
+                var clipHair = Character.RenderProperties.HatGraphic != 0 && hatMetadata.ClipMode == HatMaskType.Standard;
+                if (clipHair)
+                {
+                    spriteBatch.End();
+                    spriteBatch.Begin(SpriteSortMode.Immediate, effect: _contentProvider.Effects[0]);
+                }
+
                 lock (_rt_locker_)
                 {
                     spriteBatch.Draw(_charRenderTarget, new Vector2(0, GetSteppingStoneOffset(Character.RenderProperties)), GetAlphaColor());
+                }
+
+                if (clipHair)
+                {
+                    spriteBatch.End();
+                    spriteBatch.Begin();
                 }
             }
 
@@ -301,8 +317,6 @@ namespace EndlessClient.Rendering.Character
 
                 _sb.End();
                 GraphicsDevice.SetRenderTarget(null);
-
-                ClipHair();
             }
         }
 
@@ -426,28 +440,6 @@ namespace EndlessClient.Rendering.Character
                 {
                     _sfxPlayer.PlaySfx(SoundEffectID.Dead);
                 }
-            }
-        }
-
-        private void ClipHair()
-        {
-            if (Character.RenderProperties.HatGraphic == 0 ||
-                _hatMetadataProvider.GetValueOrDefault(Character.RenderProperties.HatGraphic).ClipMode != HatMaskType.Standard)
-                return;
-
-            lock (_rt_locker_)
-            {
-                // oof. I really need to learn how to use shaders or stencil buffer.
-                // https://gamedev.stackexchange.com/questions/38118/best-way-to-mask-2d-sprites-in-xna/38150#38150
-
-                // note: this operation causes a high number of GC events as the character's frame changes (walking/attacking)
-                _charRenderTarget.GetData(_rtColorData);
-                for (int i = 0; i < _rtColorData.Length; i++)
-                {
-                    if (_rtColorData[i] == Color.Black)
-                        _rtColorData[i].A = 0;
-                }
-                _charRenderTarget.SetData(_rtColorData);
             }
         }
 
