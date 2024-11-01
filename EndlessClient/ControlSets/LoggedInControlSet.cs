@@ -99,7 +99,12 @@ namespace EndlessClient.ControlSets
             if (_loggedInActionTask == null)
             {
                 _loggedInActionTask = clickHandler();
-                _loggedInActionTask.ContinueWith(_ => _loggedInActionTask = null);
+                _loggedInActionTask
+                    .ContinueWith(t =>
+                    {
+                        _loggedInActionTask = null;
+                        t.ThrowIfFaulted();
+                    });
             }
         }
     }

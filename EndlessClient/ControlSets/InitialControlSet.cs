@@ -113,7 +113,12 @@ namespace EndlessClient.ControlSets
             if (_mainButtonClickTask == null)
             {
                 _mainButtonClickTask = clickHandler();
-                _mainButtonClickTask.ContinueWith(_ => _mainButtonClickTask = null);
+                _mainButtonClickTask
+                    .ContinueWith(t =>
+                    {
+                        _mainButtonClickTask = null;
+                        t.ThrowIfFaulted();
+                    });
             }
         }
 

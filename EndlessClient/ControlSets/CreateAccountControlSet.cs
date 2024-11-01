@@ -207,7 +207,12 @@ namespace EndlessClient.ControlSets
                                                 _tbRealName.Text,
                                                 _tbLocation.Text,
                                                 _tbEmail.Text));
-                _createAccountTask.ContinueWith(_ => _createAccountTask = null);
+                _createAccountTask
+                    .ContinueWith(t =>
+                    {
+                        _createAccountTask = null;
+                        t.ThrowIfFaulted();
+                    });
             }
         }
     }

@@ -149,7 +149,12 @@ namespace EndlessClient.ControlSets
             {
                 var loginParameters = new LoginParameters(_tbUsername.Text, _tbPassword.Text);
                 _loginTask = _loginController.LoginToAccount(loginParameters);
-                _loginTask.ContinueWith(_ => _loginTask = null);
+                _loginTask
+                    .ContinueWith(t =>
+                    {
+                        _loginTask = null;
+                        t.ThrowIfFaulted();
+                    });
             }
         }
 
