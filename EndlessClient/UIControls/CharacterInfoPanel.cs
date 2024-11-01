@@ -154,7 +154,19 @@ namespace EndlessClient.UIControls
             if (_activeTask == null)
             {
                 _activeTask = clickHandler();
-                _activeTask.ContinueWith(_ => _activeTask = null);
+                _activeTask.ContinueWith(t =>
+                {
+                    _activeTask = null;
+
+                    if (t.IsFaulted)
+                    {
+                        // Invoke any exception on the main game thread
+                        // Exceptions thrown by tasks are quietly swallowed
+                        // Invoking this on the main thread ensures the Update() loop catches it and handles it
+                        //   in the global exception handler (see EndlessGame::Update)
+                        Task.Run(DispatcherGameComponent.Invoke(() => throw t.Exception).RunSynchronously);
+                    }
+                });
             }
         }
 
