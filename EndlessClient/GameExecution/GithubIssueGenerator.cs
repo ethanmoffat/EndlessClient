@@ -1,8 +1,8 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Text.Encodings.Web;
 using System.Text;
-using System;
+using System.Text.Encodings.Web;
 
 namespace EndlessClient.GameExecution
 {
@@ -33,8 +33,23 @@ namespace EndlessClient.GameExecution
         {
             var sb = new StringBuilder("https://github.com/ethanmoffat/EndlessClient/issues/new?");
 
-            sb.Append("labels=bug,userreport");
-            sb.Append($"&title=Unhandled+Client+Exception+Needs+Triage");
+            string crashMethod;
+            try
+            {
+                crashMethod = ex.InnerException == null
+                    ? ex.StackTrace.Split(' ', StringSplitOptions.RemoveEmptyEntries)[1]
+                     : ex.InnerException.StackTrace.Split(' ', StringSplitOptions.RemoveEmptyEntries)[1];
+                crashMethod = crashMethod[..crashMethod.IndexOf('(')];
+            }
+            catch
+            {
+                crashMethod = string.Empty;
+            }
+
+            var title = $"Unhandled+Client+Exception{(crashMethod == "" ? "" : $" in {crashMethod}")}";
+            sb.Append($"title={UrlEncoder.Default.Encode(title)}");
+
+            sb.Append("&labels=bug,userreport");
             sb.Append("&assignees=ethanmoffat");
 
             var body = @$"Thank you for your report! Please fill in the following information to help me better triage/resolve this issue.
@@ -50,26 +65,10 @@ namespace EndlessClient.GameExecution
 **Expected behavior (other than it not crashing)?**
 <Answer>
 
-*Diagnostic Information added automatically. Please do not delete!*
+**Diagnostic Information**
 
-**Exception message**: {ex.Message}
-**Stack Trace**:
-```
-{ex.StackTrace}
-```";
-
-            if (ex.InnerException != null)
-            {
-                body += @$"
-
-**Inner Exception**: {ex.InnerException.Message}
-**Stack Trace**:
-```
-{ex.InnerException.StackTrace}
-```
+{ex}
 ";
-            }
-
             var encoded = UrlEncoder.Default.Encode(body);
             sb.Append($"&body={encoded}");
 

@@ -218,7 +218,6 @@ namespace EndlessClient.GameExecution
             }
         }
 
-
         protected override void Draw(GameTime gameTime)
         {
             var isTestMode = _controlSetRepository.CurrentControlSet.GameState == GameStates.TestMode;
@@ -308,10 +307,8 @@ namespace EndlessClient.GameExecution
                 _contentProvider.Fonts[Constants.FontSize08pt5],
                 insertLineBreaks: true,
                 linkClickActions: [() => GithubIssueGenerator.FileIssue(ex)],
-                $"Client caused an exception: {ex.Message}",
-                ex.StackTrace,
-                $"Inner exception: {ex.InnerException?.Message ?? "(no inner exception)"}",
-                ex.InnerException?.StackTrace ?? "(no innner stacktrace)",
+                $"Client caused an exception",
+                ex.ToString(),
                 "*Report this exception as a GitHub issue");
             dlg.ShowDialog();
         }
