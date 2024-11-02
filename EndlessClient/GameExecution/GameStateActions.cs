@@ -66,18 +66,19 @@ namespace EndlessClient.GameExecution
             RemoveOldComponents(currentSet, nextSet);
             AddNewComponents(nextSet);
 
-            _gameStateRepository.CurrentState = newState;
-            _controlSetRepository.CurrentControlSet = nextSet;
-
-            switch (_gameStateRepository.CurrentState)
+            switch (newState)
             {
                 case GameStates.None:
                 case GameStates.Initial:
                     {
-                        _sfxPlayer.StopLoopingSfx();
+                        if (newState == GameStates.None ||
+                            _gameStateRepository.CurrentState == GameStates.PlayingTheGame)
+                        {
+                            _sfxPlayer.StopLoopingSfx();
 
-                        // this replicates behavior of the vanilla client where returning to the main menu stops playing the background music
-                        _mfxPlayer.StopBackgroundMusic();
+                            // this replicates behavior of the vanilla client where returning to the main menu stops playing the background music
+                            _mfxPlayer.StopBackgroundMusic();
+                        }
                     }
                     break;
                 case GameStates.LoggedIn: _sfxPlayer.PlaySfx(SoundEffectID.Login); break;
@@ -87,6 +88,9 @@ namespace EndlessClient.GameExecution
                     }
                     break;
             }
+
+            _gameStateRepository.CurrentState = newState;
+            _controlSetRepository.CurrentControlSet = nextSet;
         }
 
         public void RefreshCurrentState()
