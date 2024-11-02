@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using EndlessClient.Audio;
 using EndlessClient.Controllers;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.Input;
@@ -29,6 +30,7 @@ namespace EndlessClient.UIControls
         private readonly ISpriteSheet _adminGraphic;
         private readonly IUserInputProvider _userInputProvider;
         private readonly IXnaControlSoundMapper _xnaControlSoundMapper;
+        private readonly ISfxPlayer _sfxPlayer;
         private readonly Texture2D _backgroundImage;
 
         private readonly IXNAButton _loginButton, _deleteButton;
@@ -74,7 +76,8 @@ namespace EndlessClient.UIControls
                                   ICharacterRendererFactory rendererFactory,
                                   IRendererRepositoryResetter rendererRepositoryResetter,
                                   IUserInputProvider userInputProvider,
-                                  IXnaControlSoundMapper xnaControlSoundMapper)
+                                  IXnaControlSoundMapper xnaControlSoundMapper,
+                                  ISfxPlayer sfxPlayer)
             : this(characterIndex, gfxManager, dialogButtonService)
         {
             _character = character;
@@ -83,6 +86,7 @@ namespace EndlessClient.UIControls
             _rendererRepositoryResetter = rendererRepositoryResetter;
             _userInputProvider = userInputProvider;
             _xnaControlSoundMapper = xnaControlSoundMapper;
+            _sfxPlayer = sfxPlayer;
 
             _characterControl = new CharacterControl(character, rendererFactory)
             {
@@ -172,6 +176,7 @@ namespace EndlessClient.UIControls
             if (currentKeyState.IsKeyPressedOnce(previousKeyState, Keys.D1 + _characterIndex) &&
                 !Game.Components.OfType<IXNADialog>().Any())
             {
+                _sfxPlayer.PlaySfx(SoundEffectID.ButtonClick);
                 AsyncButtonClick(() => _loginController.LoginToCharacter(_character));
             }
         }
