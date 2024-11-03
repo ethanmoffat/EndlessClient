@@ -297,7 +297,7 @@ namespace EndlessClient.GameExecution
             foreach (var xnaControl in _controlSetRepository.CurrentControlSet.AllComponents)
                 xnaControl.Initialize();
         }
-    
+
         private void ShowExceptionDetailDialog(Exception ex)
         {
             var dlg = _scrollingListDialogFactory.Create(Dialogs.DialogType.Message);

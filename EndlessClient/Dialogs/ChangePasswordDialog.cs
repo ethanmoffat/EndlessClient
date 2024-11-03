@@ -51,7 +51,7 @@ namespace EndlessClient.Dialogs
             _inputBoxes = new IXNATextBox[4];
             for (int i = 0; i < _inputBoxes.Length; ++i)
             {
-                var tb = new XNATextBox(new Rectangle(198, 60 + i * 30, 137, 19), Constants.FontSize08, caretTexture: cursorTexture)
+                var tb = new ClearableTextBox(new Rectangle(198, 60 + i * 30, 137, 19), Constants.FontSize08, caretTexture: cursorTexture)
                 {
                     LeftPadding = 5,
                     DefaultText = " ",

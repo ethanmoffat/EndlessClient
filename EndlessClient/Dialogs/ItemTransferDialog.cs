@@ -2,6 +2,7 @@
 using EndlessClient.Content;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.HUD.Chat;
+using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Graphics;
 using EOLib.Localization;
@@ -93,7 +94,7 @@ namespace EndlessClient.Dialogs
                 Text = $"{localizedStringFinder.GetString(EOResourceID.DIALOG_TRANSFER_HOW_MUCH)} {itemName} {localizedStringFinder.GetString(message)}"
             };
 
-            _amount = new XNATextBox(new Rectangle(163, 95, 77, 19), Constants.FontSize08, caretTexture: contentProvider.Textures[ContentProvider.Cursor])
+            _amount = new ClearableTextBox(new Rectangle(163, 95, 77, 19), Constants.FontSize08, caretTexture: contentProvider.Textures[ContentProvider.Cursor])
             {
                 Visible = true,
                 Enabled = true,

@@ -55,7 +55,7 @@ namespace EndlessClient.Dialogs
             _charCreateSheet = GraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 22);
 
             var cursorTexture = contentProvider.Textures[ContentProvider.Cursor];
-            _inputBox = new XNATextBox(new Rectangle(80, 57, 138, 19), Constants.FontSize08, caretTexture: cursorTexture)
+            _inputBox = new ClearableTextBox(new Rectangle(80, 57, 138, 19), Constants.FontSize08, caretTexture: cursorTexture)
             {
                 LeftPadding = 5,
                 DefaultText = " ",

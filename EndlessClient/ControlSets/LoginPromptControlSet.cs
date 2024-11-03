@@ -5,6 +5,7 @@ using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
+using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Config;
 using EOLib.Domain.Login;
@@ -90,7 +91,7 @@ namespace EndlessClient.ControlSets
 
         private IXNATextBox GetLoginUserNameTextBox()
         {
-            var textBox = new XNATextBox(
+            var textBox = new ClearableTextBox(
                 new Rectangle(402, 322, 140, _textBoxBackground.Height),
                 Constants.FontSize08,
                 _textBoxBackground,
@@ -112,7 +113,7 @@ namespace EndlessClient.ControlSets
 
         private IXNATextBox GetLoginPasswordTextBox()
         {
-            var textBox = new XNATextBox(
+            var textBox = new ClearableTextBox(
                 new Rectangle(402, 358, 140, _textBoxBackground.Height),
                 Constants.FontSize08,
                 _textBoxBackground,

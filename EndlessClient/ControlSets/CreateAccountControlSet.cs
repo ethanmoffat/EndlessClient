@@ -6,6 +6,7 @@ using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
 using EndlessClient.Rendering;
+using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Account;
 using EOLib.Graphics;
@@ -148,7 +149,7 @@ namespace EndlessClient.ControlSets
             //set the second 3 Y coord to start at 260 and move up by 51 each time
             var txtYCoord = (i < 3 ? 69 : 260) + i % 3 * 51;
             var drawArea = new Rectangle(358, txtYCoord, 240, _textBoxBackground.Height);
-            return new XNATextBox(drawArea,
+            return new ClearableTextBox(drawArea,
                 Constants.FontSize08,
                 _textBoxBackground,
                 _textBoxLeft,
