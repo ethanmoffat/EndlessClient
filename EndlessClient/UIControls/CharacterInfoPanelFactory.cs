@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using AutomaticTypeMapper;
+using EndlessClient.Audio;
 using EndlessClient.Controllers;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.Input;
@@ -20,6 +21,8 @@ namespace EndlessClient.UIControls
         private readonly IEODialogButtonService _eoDialogButtonService;
         private readonly IUserInputProvider _userInputProvider;
         private readonly IXnaControlSoundMapper _xnaControlSoundMapper;
+        private readonly ISfxPlayer _sfxPlayer;
+
         private ILoginController _loginController;
         private ICharacterManagementController _characterManagementController;
 
@@ -28,7 +31,8 @@ namespace EndlessClient.UIControls
                                          IRendererRepositoryResetter rendererRepositoryResetter,
                                          IEODialogButtonService eoDialogButtonService,
                                          IUserInputProvider userInputProvider,
-                                         IXnaControlSoundMapper xnaControlSoundMapper)
+                                         IXnaControlSoundMapper xnaControlSoundMapper,
+                                         ISfxPlayer sfxPlayer)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _characterRendererFactory = characterRendererFactory;
@@ -36,6 +40,7 @@ namespace EndlessClient.UIControls
             _eoDialogButtonService = eoDialogButtonService;
             _userInputProvider = userInputProvider;
             _xnaControlSoundMapper = xnaControlSoundMapper;
+            _sfxPlayer = sfxPlayer;
         }
 
         public void InjectLoginController(ILoginController loginController)
@@ -65,7 +70,8 @@ namespace EndlessClient.UIControls
                                                     _characterRendererFactory,
                                                     _rendererRepositoryResetter,
                                                     _userInputProvider,
-                                                    _xnaControlSoundMapper);
+                                                    _xnaControlSoundMapper,
+                                                    _sfxPlayer);
             }
 
             for (; i < 3; ++i)

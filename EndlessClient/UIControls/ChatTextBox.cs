@@ -8,14 +8,13 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.Input.InputListeners;
 using Optional;
-using XNAControls;
 
 namespace EndlessClient.UIControls
 {
     /// <summary>
     /// Special instance of an XNATextBox that should ignore input from the number pad (which is used for Emotes)
     /// </summary>
-    public class ChatTextBox : XNATextBox
+    public class ChatTextBox : ClearableTextBox
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
@@ -114,25 +113,15 @@ namespace EndlessClient.UIControls
             if (_ignoreAllInput)
                 return false;
 
-            if (IsSpecialInput(eventArgs.Key, eventArgs.Modifiers))
-                HandleSpecialInput(eventArgs.Key);
-            else
+            if (!IsSpecialInput(eventArgs.Key, eventArgs.Modifiers))
                 base.HandleTextInput(eventArgs);
 
             return true;
         }
 
-        private void HandleSpecialInput(Keys key)
-        {
-            if (key == Keys.Escape)
-                Text = "";
-        }
-
         private bool IsSpecialInput(Keys k, KeyboardModifiers modifiers)
         {
-            return k == Keys.Escape || k == Keys.Decimal ||
-                   (k >= Keys.NumPad0 && k <= Keys.NumPad9) ||
-                   modifiers == KeyboardModifiers.Alt;
+            return k == Keys.Decimal || (k >= Keys.NumPad0 && k <= Keys.NumPad9) || modifiers == KeyboardModifiers.Alt;
         }
     }
 }

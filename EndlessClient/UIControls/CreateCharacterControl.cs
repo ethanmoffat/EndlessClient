@@ -43,7 +43,7 @@ namespace EndlessClient.UIControls
             _lastPosition = actualDrawPosition;
         }
 
-        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        protected override bool HandleMouseDown(IXNAControl control, MouseEventArgs eventArgs)
         {
             var nextDirectionInt = (int)RenderProperties.Direction + 1;
             var nextDirection = (EODirection)(nextDirectionInt % 4);

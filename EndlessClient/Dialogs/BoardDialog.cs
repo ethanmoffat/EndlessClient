@@ -67,7 +67,7 @@ namespace EndlessClient.Dialogs
             _state = BoardDialogState.ViewList;
             _cachedPostInfo = new HashSet<BoardPostInfo>();
 
-            _subject = new XNATextBox(new Rectangle(150, 44, 315, 19), Constants.FontSize08, caretTexture: contentProvider.Textures[ContentProvider.Cursor])
+            _subject = new ClearableTextBox(new Rectangle(150, 44, 315, 19), Constants.FontSize08, caretTexture: contentProvider.Textures[ContentProvider.Cursor])
             {
                 TextAlignment = LabelAlignment.MiddleLeft,
                 TextColor = ColorConstants.LightGrayText,
@@ -77,7 +77,7 @@ namespace EndlessClient.Dialogs
             _subject.SetScrollWheelHandler(_scrollBar);
             _subject.SetParentControl(this);
 
-            _message = new XNATextBox(new Rectangle(18, 80, 430, 168), Constants.FontSize08, caretTexture: contentProvider.Textures[ContentProvider.Cursor])
+            _message = new ClearableTextBox(new Rectangle(18, 80, 430, 168), Constants.FontSize08, caretTexture: contentProvider.Textures[ContentProvider.Cursor])
             {
                 TextAlignment = LabelAlignment.TopLeft,
                 TextColor = ColorConstants.LightGrayText,
@@ -91,8 +91,8 @@ namespace EndlessClient.Dialogs
             _message.SetScrollWheelHandler(_scrollBar);
             _message.SetParentControl(this);
 
-            _add.OnClick += AddButton_Click;
-            _delete.OnClick += DeleteButton_Click;
+            _add.OnMouseDown += AddButton_Click;
+            _delete.OnMouseDown += DeleteButton_Click;
         }
 
         public override void Initialize()

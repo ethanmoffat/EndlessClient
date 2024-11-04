@@ -102,7 +102,7 @@ namespace EndlessClient.HUD.Panels
 
             _filterClickArea = new ClickableArea(new Rectangle(2, 2, 14, 14));
             _filterClickArea.SetParentControl(this);
-            _filterClickArea.OnClick += FilterClickArea_Click;
+            _filterClickArea.OnMouseDown += FilterClickArea_Click;
 
             _weirdOffsetTextureSheet = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 27, true);
             _chatIconsTexture = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 32, true);
@@ -182,7 +182,7 @@ namespace EndlessClient.HUD.Panels
             _spriteBatch.End();
         }
 
-        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        protected override bool HandleMouseDown(IXNAControl control, MouseEventArgs eventArgs)
         {
             if (eventArgs.Button != MouseButton.Right)
                 return false;

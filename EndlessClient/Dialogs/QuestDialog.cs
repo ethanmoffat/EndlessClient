@@ -71,8 +71,8 @@ namespace EndlessClient.Dialogs
             {
                 Visible = false,
             };
-            _questSwitcher.OnClick += (_, _) => ToggleSwitcherState();
-            _questSwitcher.OnClick += (_, _) => ClickSoundEffect?.Invoke(this, EventArgs.Empty);
+            _questSwitcher.OnMouseDown += (_, _) => ToggleSwitcherState();
+            _questSwitcher.OnMouseDown += (_, _) => ClickSoundEffect?.Invoke(this, EventArgs.Empty);
             _questSwitcher.SetParentControl(this);
         }
 

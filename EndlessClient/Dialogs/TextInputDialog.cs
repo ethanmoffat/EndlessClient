@@ -1,6 +1,7 @@
 ﻿using EndlessClient.Content;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.HUD.Chat;
+using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
@@ -40,7 +41,7 @@ namespace EndlessClient.Dialogs
             lblPrompt.Initialize();
             lblPrompt.SetParentControl(this);
 
-            _inputBox = new XNATextBox(new Rectangle(37, 74, 180, 19), Constants.FontSize08, caretTexture: contentProvider.Textures[ContentProvider.Cursor])
+            _inputBox = new ClearableTextBox(new Rectangle(37, 74, 180, 19), Constants.FontSize08, caretTexture: contentProvider.Textures[ContentProvider.Cursor])
             {
                 MaxChars = maxInputChars,
                 LeftPadding = 4,
@@ -66,14 +67,14 @@ namespace EndlessClient.Dialogs
                 new Vector2(41, 103),
                 eoDialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Ok),
                 eoDialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Ok));
-            ok.OnClick += (_, _) => Close(XNADialogResult.OK);
+            ok.OnMouseDown += (_, _) => Close(XNADialogResult.OK);
             ok.SetParentControl(this);
 
             var cancel = new XNAButton(eoDialogButtonService.SmallButtonSheet,
                 new Vector2(134, 103),
                 eoDialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Cancel),
                 eoDialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Cancel));
-            cancel.OnClick += (_, _) => Close(XNADialogResult.Cancel);
+            cancel.OnMouseDown += (_, _) => Close(XNADialogResult.Cancel);
             cancel.SetParentControl(this);
 
             DialogClosed += (_, _) => chatTextBoxActions.FocusChatTextBox();

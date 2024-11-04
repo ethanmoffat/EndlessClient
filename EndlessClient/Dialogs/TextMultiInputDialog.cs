@@ -48,7 +48,7 @@ namespace EndlessClient.Dialogs
         private readonly Vector2 _rightOverlayDrawPosition;
         private readonly Rectangle _rightOverlaySource;
         private readonly ScrollBar _scrollBar;
-        private readonly XNATextBox[] _inputBoxes;
+        private readonly ClearableTextBox[] _inputBoxes;
         private XNALabel[] _inputLabels;
         private readonly DialogSize _dialogSize;
         private readonly INativeGraphicsManager _nativeGraphicsManager;
@@ -90,7 +90,7 @@ namespace EndlessClient.Dialogs
                     _bottomOverlaySource = new Rectangle(0, 240, 330, 59);
 
                     _inputLabels = new XNALabel[2];
-                    _inputBoxes = new XNATextBox[2];
+                    _inputBoxes = new ClearableTextBox[2];
 
                     okButtonPosition = new Vector2(73, 125);
                     cancelButtonPosition = new Vector2(166, 125);
@@ -109,7 +109,7 @@ namespace EndlessClient.Dialogs
                     _bottomOverlaySource = new Rectangle(0, 240, 330, 59);
 
                     _inputLabels = new XNALabel[3];
-                    _inputBoxes = new XNATextBox[3];
+                    _inputBoxes = new ClearableTextBox[3];
 
                     okButtonPosition = new Vector2(73, 148);
                     cancelButtonPosition = new Vector2(166, 148);
@@ -138,7 +138,7 @@ namespace EndlessClient.Dialogs
                     SetScrollWheelHandler(_scrollBar);
 
                     _inputLabels = new XNALabel[9];
-                    _inputBoxes = new XNATextBox[9];
+                    _inputBoxes = new ClearableTextBox[9];
 
                     okButtonPosition = new Vector2(73, 195);
                     cancelButtonPosition = new Vector2(166, 195);
@@ -182,7 +182,7 @@ namespace EndlessClient.Dialogs
                 };
                 _inputLabels[i].SetParentControl(this);
 
-                _inputBoxes[i] = new XNATextBox(new Rectangle(126, yCoord, 168, 19), Constants.FontSize08, caretTexture: contentProvider.Textures[ContentProvider.Cursor])
+                _inputBoxes[i] = new ClearableTextBox(new Rectangle(126, yCoord, 168, 19), Constants.FontSize08, caretTexture: contentProvider.Textures[ContentProvider.Cursor])
                 {
                     MaxChars = inputInfo[i].MaxChars,
                     LeftPadding = 4,
@@ -232,14 +232,14 @@ namespace EndlessClient.Dialogs
                 okButtonPosition,
                 eoDialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Ok),
                 eoDialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Ok));
-            ok.OnClick += (_, _) => Close(XNADialogResult.OK);
+            ok.OnMouseDown += (_, _) => Close(XNADialogResult.OK);
             ok.SetParentControl(this);
 
             var cancel = new XNAButton(eoDialogButtonService.SmallButtonSheet,
                 cancelButtonPosition,
                 eoDialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Cancel),
                 eoDialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Cancel));
-            cancel.OnClick += (_, _) => Close(XNADialogResult.Cancel);
+            cancel.OnMouseDown += (_, _) => Close(XNADialogResult.Cancel);
             cancel.SetParentControl(this);
 
             DialogClosed += (_, _) => chatTextBoxActions.FocusChatTextBox();

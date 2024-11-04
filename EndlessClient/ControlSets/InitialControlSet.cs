@@ -83,28 +83,28 @@ namespace EndlessClient.ControlSets
         private IXNAButton GetMainCreateAccountButton()
         {
             var button = MainButtonCreationHelper(GameControlIdentifier.InitialCreateAccount);
-            button.OnClick += (o, e) => AsyncMainButtonClick(_mainButtonController.ClickCreateAccount);
+            button.OnMouseDown += (o, e) => AsyncMainButtonClick(_mainButtonController.ClickCreateAccount);
             return button;
         }
 
         private IXNAButton GetMainLoginButton()
         {
             var button = MainButtonCreationHelper(GameControlIdentifier.InitialLogin);
-            button.OnClick += (o, e) => AsyncMainButtonClick(_mainButtonController.ClickLogin);
+            button.OnMouseDown += (o, e) => AsyncMainButtonClick(_mainButtonController.ClickLogin);
             return button;
         }
 
         private IXNAButton GetViewCreditsButton()
         {
             var button = MainButtonCreationHelper(GameControlIdentifier.InitialViewCredits);
-            button.OnClick += (o, e) => _mainButtonController.ClickViewCredits();
+            button.OnMouseDown += (o, e) => _mainButtonController.ClickViewCredits();
             return button;
         }
 
         private IXNAButton GetExitButton()
         {
             var button = MainButtonCreationHelper(GameControlIdentifier.InitialExitGame);
-            button.OnClick += (o, e) => _mainButtonController.ClickExit();
+            button.OnMouseDown += (o, e) => _mainButtonController.ClickExit();
             return button;
         }
 
@@ -113,7 +113,12 @@ namespace EndlessClient.ControlSets
             if (_mainButtonClickTask == null)
             {
                 _mainButtonClickTask = clickHandler();
-                _mainButtonClickTask.ContinueWith(_ => _mainButtonClickTask = null);
+                _mainButtonClickTask
+                    .ContinueWith(t =>
+                    {
+                        _mainButtonClickTask = null;
+                        t.ThrowIfFaulted();
+                    });
             }
         }
 

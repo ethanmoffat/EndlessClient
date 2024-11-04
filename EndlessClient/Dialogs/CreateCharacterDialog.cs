@@ -55,7 +55,7 @@ namespace EndlessClient.Dialogs
             _charCreateSheet = GraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 22);
 
             var cursorTexture = contentProvider.Textures[ContentProvider.Cursor];
-            _inputBox = new XNATextBox(new Rectangle(80, 57, 138, 19), Constants.FontSize08, caretTexture: cursorTexture)
+            _inputBox = new ClearableTextBox(new Rectangle(80, 57, 138, 19), Constants.FontSize08, caretTexture: cursorTexture)
             {
                 LeftPadding = 5,
                 DefaultText = " ",
@@ -74,7 +74,7 @@ namespace EndlessClient.Dialogs
                     new Vector2(196, 85 + i * 26),
                     new Rectangle(185, 38, 19, 19),
                     new Rectangle(206, 38, 19, 19));
-                btn.OnClick += ArrowButtonClick;
+                btn.OnMouseDown += ArrowButtonClick;
                 btn.SetParentControl(this);
                 _arrowButtons[i] = btn;
             }
@@ -94,14 +94,14 @@ namespace EndlessClient.Dialogs
                 new Vector2(157, 195),
                 eoDialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Ok),
                 eoDialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Ok));
-            _ok.OnClick += (s, e) => ClickOk();
+            _ok.OnMouseDown += (s, e) => ClickOk();
             _ok.SetParentControl(this);
 
             _cancel = new XNAButton(eoDialogButtonService.SmallButtonSheet,
                 new Vector2(250, 195),
                 eoDialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Cancel),
                 eoDialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Cancel));
-            _cancel.OnClick += (s, e) => Close(XNADialogResult.Cancel);
+            _cancel.OnMouseDown += (s, e) => Close(XNADialogResult.Cancel);
             _cancel.SetParentControl(this);
 
             CenterInGameView();

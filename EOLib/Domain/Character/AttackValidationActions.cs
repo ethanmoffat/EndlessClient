@@ -3,6 +3,8 @@ using AutomaticTypeMapper;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.IO.Repositories;
+using Optional;
+using Optional.Collections;
 
 namespace EOLib.Domain.Character
 {
@@ -39,12 +41,13 @@ namespace EOLib.Domain.Character
 
             var rp = _characterProvider.MainCharacter.RenderProperties;
 
-            var isRangedWeapon = _eifFileProvider.EIFFile
-                .Where(x => x.Type == IO.ItemType.Weapon && x.SubType == IO.ItemSubType.Ranged)
-                .Any(x => x.DollGraphic == rp.WeaponGraphic);
-            var isArrows = _eifFileProvider.EIFFile
-                .Where(x => x.Type == IO.ItemType.Shield && x.SubType == IO.ItemSubType.Arrows)
-                .Any(x => x.DollGraphic == rp.ShieldGraphic);
+            var matchingWeapon = _eifFileProvider.EIFFile
+                .SingleOrNone(x => x.DollGraphic == rp.WeaponGraphic && x.Type == IO.ItemType.Weapon);
+            var matchingArrows = _eifFileProvider.EIFFile
+                .SingleOrNone(x => x.DollGraphic == rp.ShieldGraphic && x.Type == IO.ItemType.Shield);
+
+            var isRangedWeapon = matchingWeapon.Map(x => x.SubType == IO.ItemSubType.Ranged).ValueOr(false);
+            var isArrows = matchingArrows.Map(x => x.SubType == IO.ItemSubType.Arrows).ValueOr(false);
 
             if (isRangedWeapon && (rp.ShieldGraphic == 0 || !isArrows))
                 return AttackValidationError.MissingArrows;

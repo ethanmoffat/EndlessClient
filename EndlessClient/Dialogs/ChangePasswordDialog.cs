@@ -51,7 +51,7 @@ namespace EndlessClient.Dialogs
             _inputBoxes = new IXNATextBox[4];
             for (int i = 0; i < _inputBoxes.Length; ++i)
             {
-                var tb = new XNATextBox(new Rectangle(198, 60 + i * 30, 137, 19), Constants.FontSize08, caretTexture: cursorTexture)
+                var tb = new ClearableTextBox(new Rectangle(198, 60 + i * 30, 137, 19), Constants.FontSize08, caretTexture: cursorTexture)
                 {
                     LeftPadding = 5,
                     DefaultText = " ",
@@ -70,14 +70,14 @@ namespace EndlessClient.Dialogs
                 new Vector2(157, 195),
                 dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Ok),
                 dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Ok));
-            _ok.OnClick += OnButtonPressed;
+            _ok.OnMouseDown += OnButtonPressed;
 
             _cancel = new XNAButton(
                 dialogButtonService.SmallButtonSheet,
                 new Vector2(250, 195),
                 dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Cancel),
                 dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Cancel));
-            _cancel.OnClick += (s, e) => Close(XNADialogResult.Cancel);
+            _cancel.OnMouseDown += (s, e) => Close(XNADialogResult.Cancel);
 
             CenterInGameView();
         }

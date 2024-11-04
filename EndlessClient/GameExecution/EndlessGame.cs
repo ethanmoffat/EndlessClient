@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
 using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Content;
@@ -21,8 +18,13 @@ using EOLib.Logger;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using EndlessClient.Dialogs.Factories;
+
+#if DEBUG
+using System.Diagnostics;
 using MonoGame.Extended.BitmapFonts;
 using MonoGame.Extended.Input;
+#endif
 
 namespace EndlessClient.GameExecution
 {
@@ -44,6 +46,7 @@ namespace EndlessClient.GameExecution
         private readonly IXnaControlSoundMapper _soundMapper;
         private readonly IFixedTimeStepRepository _fixedTimeStepRepository;
         private readonly IMainButtonController _mainButtonController;
+        private readonly IScrollingListDialogFactory _scrollingListDialogFactory;
 
         private GraphicsDeviceManager _graphicsDeviceManager;
 
@@ -71,7 +74,8 @@ namespace EndlessClient.GameExecution
                            IMfxPlayer mfxPlayer,
                            IXnaControlSoundMapper soundMapper,
                            IFixedTimeStepRepository fixedTimeStepRepository,
-                           IMainButtonController mainButtonController)
+                           IMainButtonController mainButtonController,
+                           IScrollingListDialogFactory scrollingListDialogFactory)
         {
             _windowSizeRepository = windowSizeRepository;
             _contentProvider = contentProvider;
@@ -88,6 +92,7 @@ namespace EndlessClient.GameExecution
             _soundMapper = soundMapper;
             _fixedTimeStepRepository = fixedTimeStepRepository;
             _mainButtonController = mainButtonController;
+            _scrollingListDialogFactory = scrollingListDialogFactory;
 
             _graphicsDeviceManager = new GraphicsDeviceManager(this)
             {
@@ -192,12 +197,11 @@ namespace EndlessClient.GameExecution
 #endif
                 _fixedTimeStepRepository.Tick();
 
-#if !DEBUG
                 try
                 {
                     base.Update(gameTime);
                 }
-                catch
+                catch (Exception ex)
                 {
                     if (_configurationProvider.DebugCrashes)
                     {
@@ -205,17 +209,14 @@ namespace EndlessClient.GameExecution
                     }
                     else
                     {
-                        _mainButtonController.GoToInitialStateAndDisconnect(showLostConnection: true);
+                        _mainButtonController.GoToInitialStateAndDisconnect(showLostConnection: false);
+                        ShowExceptionDetailDialog(ex);
                     }
                 }
-#else
-                base.Update(gameTime);
-#endif
 
                 _lastFrameUpdate = gameTime.TotalGameTime;
             }
         }
-
 
         protected override void Draw(GameTime gameTime)
         {
@@ -295,6 +296,21 @@ namespace EndlessClient.GameExecution
             //  doesn't call the Initialize() method on any controls, so it must be done here
             foreach (var xnaControl in _controlSetRepository.CurrentControlSet.AllComponents)
                 xnaControl.Initialize();
+        }
+
+        private void ShowExceptionDetailDialog(Exception ex)
+        {
+            var dlg = _scrollingListDialogFactory.Create(Dialogs.DialogType.Message);
+            dlg.Title = "Unhandled Exception";
+            dlg.Buttons = Dialogs.ScrollingListDialogButtons.Ok;
+            dlg.AddTextAsListItems(
+                _contentProvider.Fonts[Constants.FontSize08pt5],
+                insertLineBreaks: true,
+                linkClickActions: [() => GithubIssueGenerator.FileIssue(ex)],
+                $"Client caused an exception",
+                ex.ToString(),
+                "*Report this exception as a GitHub issue");
+            dlg.ShowDialog();
         }
     }
 }

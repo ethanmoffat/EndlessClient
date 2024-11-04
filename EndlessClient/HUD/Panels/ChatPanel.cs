@@ -135,14 +135,14 @@ namespace EndlessClient.HUD.Panels
             _tabs[whichTab].CloseTab();
         }
 
-        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        protected override bool HandleMouseDown(IXNAControl control, MouseEventArgs eventArgs)
         {
             if (eventArgs.Button == MouseButton.Right)
             {
                 _tabs[CurrentTab].HandleRightClick(eventArgs);
             }
 
-            return base.HandleClick(control, eventArgs);
+            return base.HandleMouseDown(control, eventArgs);
         }
     }
 }

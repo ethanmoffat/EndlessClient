@@ -6,6 +6,7 @@ using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
 using EndlessClient.Rendering;
+using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Account;
 using EOLib.Graphics;
@@ -148,7 +149,7 @@ namespace EndlessClient.ControlSets
             //set the second 3 Y coord to start at 260 and move up by 51 each time
             var txtYCoord = (i < 3 ? 69 : 260) + i % 3 * 51;
             var drawArea = new Rectangle(358, txtYCoord, 240, _textBoxBackground.Height);
-            return new XNATextBox(drawArea,
+            return new ClearableTextBox(drawArea,
                 Constants.FontSize08,
                 _textBoxBackground,
                 _textBoxLeft,
@@ -169,7 +170,7 @@ namespace EndlessClient.ControlSets
                                        new Vector2(481, 417),
                                        new Rectangle(0, 40, 120, 40),
                                        new Rectangle(120, 40, 120, 40));
-            button.OnClick += (o, e) => _mainButtonController.GoToInitialState();
+            button.OnMouseDown += (o, e) => _mainButtonController.GoToInitialState();
             return button;
         }
 
@@ -192,7 +193,7 @@ namespace EndlessClient.ControlSets
         protected override IXNAButton GetCreateButton()
         {
             var button = base.GetCreateButton();
-            button.OnClick += DoCreateAccount;
+            button.OnMouseDown += DoCreateAccount;
             return button;
         }
 
@@ -207,7 +208,12 @@ namespace EndlessClient.ControlSets
                                                 _tbRealName.Text,
                                                 _tbLocation.Text,
                                                 _tbEmail.Text));
-                _createAccountTask.ContinueWith(_ => _createAccountTask = null);
+                _createAccountTask
+                    .ContinueWith(t =>
+                    {
+                        _createAccountTask = null;
+                        t.ThrowIfFaulted();
+                    });
             }
         }
     }

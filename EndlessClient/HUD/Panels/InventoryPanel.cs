@@ -109,13 +109,11 @@ namespace EndlessClient.HUD.Panels
                 AutoSize = false
             };
 
-            _inventorySlotRepository.SlotMap = GetItemSlotMap(_playerInfoProvider.LoggedInAccountName, _characterProvider.MainCharacter.Name, _configProvider.Host);
-
             var weirdOffsetSheet = NativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 27);
 
             _paperdoll = new XNAButton(weirdOffsetSheet, new Vector2(385, 9), new Rectangle(39, 385, 88, 19), new Rectangle(126, 385, 88, 19));
             _paperdoll.OnMouseEnter += MouseOverButton;
-            _paperdoll.OnClick += (_, _) =>
+            _paperdoll.OnMouseDown += (_, _) =>
             {
                 _inventoryController.ShowPaperdollDialog();
                 _sfxPlayer.PlaySfx(SoundEffectID.ButtonClick);
@@ -123,11 +121,11 @@ namespace EndlessClient.HUD.Panels
 
             _drop = new XNAButton(weirdOffsetSheet, new Vector2(389, 68), new Rectangle(0, 15, 38, 37), new Rectangle(0, 52, 38, 37));
             _drop.OnMouseEnter += MouseOverButton;
-            _drop.OnClick += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);
+            _drop.OnMouseDown += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);
 
             _junk = new XNAButton(weirdOffsetSheet, new Vector2(431, 68), new Rectangle(0, 89, 38, 37), new Rectangle(0, 126, 38, 37));
             _junk.OnMouseEnter += MouseOverButton;
-            _junk.OnClick += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);
+            _junk.OnMouseDown += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.InventoryPlace);
 
             _cachedStats = Option.None<CharacterStats>();
             _cachedInventory = new HashSet<InventoryItem>();
@@ -154,8 +152,8 @@ namespace EndlessClient.HUD.Panels
             _junk.Initialize();
             _junk.SetParentControl(this);
 
+            _inventorySlotRepository.SlotMap = GetItemSlotMap(_playerInfoProvider.LoggedInAccountName, _characterProvider.MainCharacter.Name, _configProvider.Host);
             OnUpdateControl(new GameTime());
-            _inventorySlotRepository.SlotMap.Clear();
 
             base.Initialize();
         }

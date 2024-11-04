@@ -5,6 +5,7 @@ using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
+using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Config;
 using EOLib.Domain.Login;
@@ -90,7 +91,7 @@ namespace EndlessClient.ControlSets
 
         private IXNATextBox GetLoginUserNameTextBox()
         {
-            var textBox = new XNATextBox(
+            var textBox = new ClearableTextBox(
                 new Rectangle(402, 322, 140, _textBoxBackground.Height),
                 Constants.FontSize08,
                 _textBoxBackground,
@@ -112,7 +113,7 @@ namespace EndlessClient.ControlSets
 
         private IXNATextBox GetLoginPasswordTextBox()
         {
-            var textBox = new XNATextBox(
+            var textBox = new ClearableTextBox(
                 new Rectangle(402, 358, 140, _textBoxBackground.Height),
                 Constants.FontSize08,
                 _textBoxBackground,
@@ -139,7 +140,7 @@ namespace EndlessClient.ControlSets
             {
                 DrawOrder = _personPicture.DrawOrder + 2
             };
-            button.OnClick += DoLogin;
+            button.OnMouseDown += DoLogin;
             return button;
         }
 
@@ -149,7 +150,12 @@ namespace EndlessClient.ControlSets
             {
                 var loginParameters = new LoginParameters(_tbUsername.Text, _tbPassword.Text);
                 _loginTask = _loginController.LoginToAccount(loginParameters);
-                _loginTask.ContinueWith(_ => _loginTask = null);
+                _loginTask
+                    .ContinueWith(t =>
+                    {
+                        _loginTask = null;
+                        t.ThrowIfFaulted();
+                    });
             }
         }
 
@@ -159,7 +165,7 @@ namespace EndlessClient.ControlSets
             {
                 DrawOrder = _personPicture.DrawOrder + 2
             };
-            button.OnClick += (o, e) => _mainButtonController.GoToInitialState();
+            button.OnMouseDown += (o, e) => _mainButtonController.GoToInitialState();
             return button;
         }
     }

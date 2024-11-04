@@ -2,6 +2,7 @@
 using EndlessClient.Content;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.HUD.Chat;
+using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Graphics;
 using EOLib.Localization;
@@ -74,7 +75,7 @@ namespace EndlessClient.Dialogs
             {
                 Visible = true
             };
-            _okButton.OnClick += (s, e) => Close(XNADialogResult.OK);
+            _okButton.OnMouseDown += (s, e) => Close(XNADialogResult.OK);
 
             _cancelButton = new XNAButton(eoDialogButtonService.SmallButtonSheet,
                 new Vector2(153, 125),
@@ -83,7 +84,7 @@ namespace EndlessClient.Dialogs
             {
                 Visible = true
             };
-            _cancelButton.OnClick += (s, e) => Close(XNADialogResult.Cancel);
+            _cancelButton.OnMouseDown += (s, e) => Close(XNADialogResult.Cancel);
 
             _descLabel = new XNALabel(Constants.FontSize10)
             {
@@ -93,7 +94,7 @@ namespace EndlessClient.Dialogs
                 Text = $"{localizedStringFinder.GetString(EOResourceID.DIALOG_TRANSFER_HOW_MUCH)} {itemName} {localizedStringFinder.GetString(message)}"
             };
 
-            _amount = new XNATextBox(new Rectangle(163, 95, 77, 19), Constants.FontSize08, caretTexture: contentProvider.Textures[ContentProvider.Cursor])
+            _amount = new ClearableTextBox(new Rectangle(163, 95, 77, 19), Constants.FontSize08, caretTexture: contentProvider.Textures[ContentProvider.Cursor])
             {
                 Visible = true,
                 Enabled = true,

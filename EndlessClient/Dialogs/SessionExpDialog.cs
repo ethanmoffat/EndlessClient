@@ -39,7 +39,7 @@ namespace EndlessClient.Dialogs
                 new Vector2(98, 214),
                 dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Ok),
                 dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Ok));
-            okButton.OnClick += (_, _) => Close(XNADialogResult.OK);
+            okButton.OnMouseDown += (_, _) => Close(XNADialogResult.OK);
             okButton.SetParentControl(this);
             okButton.Initialize();
 

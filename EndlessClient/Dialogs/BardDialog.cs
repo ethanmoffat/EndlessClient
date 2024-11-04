@@ -37,7 +37,7 @@ namespace EndlessClient.Dialogs
                 dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Cancel));
             cancel.Initialize();
             cancel.SetParentControl(this);
-            cancel.OnClick += (_, _) => Close(XNADialogResult.Cancel);
+            cancel.OnMouseDown += (_, _) => Close(XNADialogResult.Cancel);
 
             CenterInGameView();
 
@@ -63,7 +63,7 @@ namespace EndlessClient.Dialogs
             });
         }
 
-        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        protected override bool HandleMouseDown(IXNAControl control, MouseEventArgs eventArgs)
         {
             if (eventArgs.Button == MouseButton.Left && _currentTick > 8)
             {

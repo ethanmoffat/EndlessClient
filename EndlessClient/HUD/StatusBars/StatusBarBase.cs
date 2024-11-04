@@ -100,7 +100,7 @@ namespace EndlessClient.HUD.StatusBars
             base.OnDrawControl(gameTime);
         }
 
-        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        protected override bool HandleMouseDown(IXNAControl control, MouseEventArgs eventArgs)
         {
             _label.Visible = !_label.Visible;
             _labelShowTime = _label.SomeWhen(x => x.Visible).Map(_ => DateTime.Now);

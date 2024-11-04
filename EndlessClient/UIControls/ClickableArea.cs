@@ -19,6 +19,10 @@ namespace EndlessClient.UIControls
             set => throw new InvalidOperationException("Unable to get flash speed on clickable area");
         }
 
+        public event EventHandler<MouseEventArgs> OnMouseDown;
+
+        public event EventHandler<MouseEventArgs> OnMouseUp;
+
         public event EventHandler<MouseEventArgs> OnClick;
 
         public event EventHandler<MouseEventArgs> OnClickDrag
@@ -30,6 +34,18 @@ namespace EndlessClient.UIControls
         public ClickableArea(Rectangle area)
         {
             ClickArea = area;
+        }
+
+        protected override bool HandleMouseDown(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            OnMouseDown?.Invoke(control, eventArgs);
+            return true;
+        }
+
+        protected override bool HandleMouseUp(IXNAControl control, MouseEventArgs eventArgs)
+        {
+            OnMouseUp?.Invoke(control, eventArgs);
+            return true;
         }
 
         protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)

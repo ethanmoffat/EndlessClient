@@ -231,7 +231,7 @@ namespace EndlessClient.Dialogs
                 UpdateOrder = 1,
             };
             _add.SetParentControl(this);
-            _add.OnClick += (o, e) => AddAction?.Invoke(o, e);
+            _add.OnMouseDown += (o, e) => AddAction?.Invoke(o, e);
 
             _back = new XNAButton(dialogButtonService.SmallButtonSheet, Vector2.Zero,
                 dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Back),
@@ -241,7 +241,7 @@ namespace EndlessClient.Dialogs
                 UpdateOrder = 1,
             };
             _back.SetParentControl(this);
-            _back.OnClick += (o, e) => BackAction?.Invoke(o, e);
+            _back.OnMouseDown += (o, e) => BackAction?.Invoke(o, e);
 
             _next = new XNAButton(dialogButtonService.SmallButtonSheet, Vector2.Zero,
                 dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Next),
@@ -251,7 +251,7 @@ namespace EndlessClient.Dialogs
                 UpdateOrder = 1,
             };
             _next.SetParentControl(this);
-            _next.OnClick += (o, e) => NextAction?.Invoke(o, e);
+            _next.OnMouseDown += (o, e) => NextAction?.Invoke(o, e);
 
             _history = new XNAButton(dialogButtonService.SmallButtonSheet, Vector2.Zero,
                 dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.History),
@@ -261,7 +261,7 @@ namespace EndlessClient.Dialogs
                 UpdateOrder = 1,
             };
             _history.SetParentControl(this);
-            _history.OnClick += (o, e) => HistoryAction?.Invoke(o, e);
+            _history.OnMouseDown += (o, e) => HistoryAction?.Invoke(o, e);
 
             _progress = new XNAButton(dialogButtonService.SmallButtonSheet, Vector2.Zero,
                 dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Progress),
@@ -271,7 +271,7 @@ namespace EndlessClient.Dialogs
                 UpdateOrder = 1,
             };
             _progress.SetParentControl(this);
-            _progress.OnClick += (o, e) => ProgressAction?.Invoke(o, e);
+            _progress.OnMouseDown += (o, e) => ProgressAction?.Invoke(o, e);
 
             _delete = new XNAButton(dialogButtonService.SmallButtonSheet, Vector2.Zero,
                 dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Delete),
@@ -281,7 +281,7 @@ namespace EndlessClient.Dialogs
                 UpdateOrder = 1,
             };
             _delete.SetParentControl(this);
-            _delete.OnClick += (o, e) => ProgressAction?.Invoke(o, e);
+            _delete.OnMouseDown += (o, e) => ProgressAction?.Invoke(o, e);
 
             _ok = new XNAButton(dialogButtonService.SmallButtonSheet, Vector2.Zero,
                 dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Ok),
@@ -291,7 +291,7 @@ namespace EndlessClient.Dialogs
                 UpdateOrder = 2,
             };
             _ok.SetParentControl(this);
-            _ok.OnClick += CloseButton_Click;
+            _ok.OnMouseDown += CloseButton_Click;
 
             _cancel = new XNAButton(dialogButtonService.SmallButtonSheet, Vector2.Zero,
                 dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Cancel),
@@ -301,7 +301,7 @@ namespace EndlessClient.Dialogs
                 UpdateOrder = 2,
             };
             _cancel.SetParentControl(this);
-            _cancel.OnClick += CloseButton_Click;
+            _cancel.OnMouseDown += CloseButton_Click;
 
             _button1Position = GetButton1Position(DrawArea, _ok.DrawArea, DialogType);
             _button2Position = GetButton2Position(DrawArea, _ok.DrawArea, DialogType);

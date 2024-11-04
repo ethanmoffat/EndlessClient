@@ -194,7 +194,7 @@ namespace EndlessClient.Dialogs
                 Underline = UnderlineLinks
             };
 
-            ((XNAHyperLink)_primaryText).OnClick += onClickAction;
+            ((XNAHyperLink)_primaryText).OnMouseDown += onClickAction;
 
             _primaryText.SetParentControl(this);
             _primaryText.Initialize();
@@ -223,7 +223,7 @@ namespace EndlessClient.Dialogs
                 Underline = UnderlineLinks
             };
 
-            ((XNAHyperLink)_subText).OnClick += onClickAction;
+            ((XNAHyperLink)_subText).OnMouseDown += onClickAction;
 
             _subText.SetParentControl(this);
             _subText.Initialize();
@@ -270,7 +270,7 @@ namespace EndlessClient.Dialogs
             _spriteBatch.End();
         }
 
-        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        protected override bool HandleMouseDown(IXNAControl control, MouseEventArgs eventArgs)
         {
             if (eventArgs.Button == MouseButton.Left)
             {

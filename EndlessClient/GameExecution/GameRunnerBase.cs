@@ -15,7 +15,7 @@ namespace EndlessClient.GameExecution
 {
     public abstract class GameRunnerBase : IGameRunner
     {
-        private readonly ITypeRegistry _registry;
+        protected readonly ITypeRegistry _registry;
         private readonly string[] _args;
 
         protected GameRunnerBase(ITypeRegistry registry, string[] args)

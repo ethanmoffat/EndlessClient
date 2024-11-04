@@ -1,5 +1,4 @@
 ﻿using System;
-using EndlessClient.Rendering;
 using MonoGame.Extended.Input.InputListeners;
 using Optional;
 using XNAControls;
@@ -21,7 +20,7 @@ namespace EndlessClient.HUD.Panels
             _enableDragging = enableDragging;
         }
 
-        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        protected override bool HandleMouseDown(IXNAControl control, MouseEventArgs eventArgs)
         {
             Activated?.Invoke();
             return true;

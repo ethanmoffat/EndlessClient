@@ -140,13 +140,13 @@ namespace EndlessClient.Dialogs
             _ok = new XNAButton(dialogButtonService.SmallButtonSheet, new Vector2(356, 252),
                 dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Ok),
                 dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Ok));
-            _ok.OnClick += OkButtonClicked;
+            _ok.OnMouseDown += OkButtonClicked;
             _ok.SetParentControl(this);
 
             _cancel = new XNAButton(dialogButtonService.SmallButtonSheet, new Vector2(449, 252),
                 dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Cancel),
                 dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Cancel));
-            _cancel.OnClick += CancelButtonClicked;
+            _cancel.OnMouseDown += CancelButtonClicked;
             _cancel.SetParentControl(this);
 
             _leftItems = new List<ListDialogItem>();

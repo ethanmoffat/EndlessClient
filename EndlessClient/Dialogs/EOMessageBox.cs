@@ -74,23 +74,23 @@ namespace EndlessClient.Dialogs
             {
                 case EODialogButtons.Ok:
                     _ok = new XNAButton(smallButtonSheet, new Vector2(181, 113), okOut, okOver);
-                    _ok.OnClick += (sender, e) => Close(XNADialogResult.OK);
+                    _ok.OnMouseDown += (sender, e) => Close(XNADialogResult.OK);
                     _ok.SetParentControl(this);
                     break;
                 case EODialogButtons.Cancel:
                     _cancel = new XNAButton(smallButtonSheet, new Vector2(181, 113), cancelOut, cancelOver);
-                    _cancel.OnClick += (sender, e) => Close(XNADialogResult.Cancel);
+                    _cancel.OnMouseDown += (sender, e) => Close(XNADialogResult.Cancel);
                     _cancel.SetParentControl(this);
                     break;
                 case EODialogButtons.OkCancel:
                     //implement this more fully when it is needed
                     //update draw location of ok button to be on left?
                     _ok = new XNAButton(smallButtonSheet, new Vector2(89, 113), okOut, okOver);
-                    _ok.OnClick += (sender, e) => Close(XNADialogResult.OK);
+                    _ok.OnMouseDown += (sender, e) => Close(XNADialogResult.OK);
                     _ok.SetParentControl(this);
 
                     _cancel = new XNAButton(smallButtonSheet, new Vector2(181, 113), cancelOut, cancelOver);
-                    _cancel.OnClick += (s, e) => Close(XNADialogResult.Cancel);
+                    _cancel.OnMouseDown += (s, e) => Close(XNADialogResult.Cancel);
                     _cancel.SetParentControl(this);
                     break;
             }
