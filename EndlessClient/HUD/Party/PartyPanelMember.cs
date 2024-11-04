@@ -71,7 +71,7 @@ namespace EndlessClient.HUD.Party
                     : new Rectangle(0, delta, removeTexture.Width, delta));
 
             if (isRemovable)
-                _removeButton.OnClick += (o, e) => RemoveAction?.Invoke(o, e);
+                _removeButton.OnMouseDown += (o, e) => RemoveAction?.Invoke(o, e);
             _removeButton.SetParentControl(this);
 
             _nameLabel = new XNALabel(Constants.FontSize08)

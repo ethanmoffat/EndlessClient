@@ -53,14 +53,14 @@ namespace EndlessClient.UIControls
                 new Vector2(161, 57),
                 dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Login),
                 dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Login));
-            _loginButton.OnClick += (o, e) => AsyncButtonClick(() => _loginController.LoginToCharacter(_character));
+            _loginButton.OnMouseDown += (o, e) => AsyncButtonClick(() => _loginController.LoginToCharacter(_character));
             _loginButton.SetParentControl(this);
 
             _deleteButton = new XNAButton(dialogButtonService.SmallButtonSheet,
                 new Vector2(161, 85),
                 dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Delete),
                 dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Delete));
-            _deleteButton.OnClick += (o, e) => AsyncButtonClick(() => _characterManagementController.DeleteCharacter(_character));
+            _deleteButton.OnMouseDown += (o, e) => AsyncButtonClick(() => _characterManagementController.DeleteCharacter(_character));
             _deleteButton.SetParentControl(this);
 
             _backgroundImage = _gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 11);

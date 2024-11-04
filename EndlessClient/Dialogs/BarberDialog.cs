@@ -76,7 +76,7 @@ namespace EndlessClient.Dialogs
         private void InitializeDialogItems(IEODialogButtonService dialogButtonService)
         {
             var cancel = CreateButton(dialogButtonService, new Vector2(215, 151), SmallButton.Cancel);
-            cancel.OnClick += (_, _) => Close(XNADialogResult.Cancel);
+            cancel.OnMouseDown += (_, _) => Close(XNADialogResult.Cancel);
 
             _changeHairItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
             {

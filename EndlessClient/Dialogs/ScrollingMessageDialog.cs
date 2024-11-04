@@ -73,7 +73,7 @@ namespace EndlessClient.Dialogs
                 new Vector2(138, 197),
                 eoDialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Ok),
                 eoDialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Ok));
-            _ok.OnClick += (sender, e) => Close(XNADialogResult.OK);
+            _ok.OnMouseDown += (sender, e) => Close(XNADialogResult.OK);
             _ok.SetParentControl(this);
 
             _scrollBar = new ScrollBar(new Vector2(320, 66), new Vector2(16, 119),

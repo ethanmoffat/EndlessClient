@@ -57,7 +57,7 @@ namespace EndlessClient.Dialogs
                 new Vector2(181, 113),
                 eoDialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Cancel),
                 eoDialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Cancel));
-            _cancelButton.OnClick += DoCancel;
+            _cancelButton.OnMouseDown += DoCancel;
             _cancelButton.SetParentControl(this);
 
             _pbBackgroundTexture = GraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 19);

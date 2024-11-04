@@ -97,13 +97,13 @@ namespace EndlessClient.HUD.Spells
             base.OnDrawControl(gameTime);
         }
 
-        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        protected override bool HandleMouseDown(IXNAControl control, MouseEventArgs eventArgs)
         {
             if (_parentContainer.NoItemsDragging())
                 _sfxPlayer.PlaySfx(SoundEffectID.InventoryPickup);
 
             Click?.Invoke(control, eventArgs);
-            return base.HandleClick(control, eventArgs);
+            return base.HandleMouseDown(control, eventArgs);
         }
 
         protected override bool HandleDragStart(IXNAControl control, MouseEventArgs eventArgs)

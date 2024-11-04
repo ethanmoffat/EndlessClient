@@ -78,14 +78,14 @@ namespace EndlessClient.ControlSets
                 new Vector2(454, 417),
                 new Rectangle(0, 120, 120, 40),
                 new Rectangle(120, 120, 120, 40));
-            button.OnClick += (o, e) => AsyncButtonAction(_accountController.ChangePassword);
+            button.OnMouseDown += (o, e) => AsyncButtonAction(_accountController.ChangePassword);
             return button;
         }
 
         protected override IXNAButton GetCreateButton()
         {
             var button = base.GetCreateButton();
-            button.OnClick += (o, e) => AsyncButtonAction(_characterManagementController.CreateCharacter);
+            button.OnMouseDown += (o, e) => AsyncButtonAction(_characterManagementController.CreateCharacter);
             return button;
         }
 

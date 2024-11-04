@@ -71,11 +71,11 @@ namespace EndlessClient.UIControls
             var scrollBox = new Rectangle(0, vertOff, 16, 15);
 
             _upButton = new XNAButton(scrollSpriteSheet, Vector2.Zero, upArrows[0], upArrows[1]);
-            _upButton.OnClick += arrowClicked;
+            _upButton.OnMouseDown += arrowClicked;
             _upButton.SetParentControl(this);
 
             _downButton = new XNAButton(scrollSpriteSheet, new Vector2(0, size.Y - 15), downArrows[0], downArrows[1]);
-            _downButton.OnClick += arrowClicked;
+            _downButton.OnMouseDown += arrowClicked;
             _downButton.SetParentControl(this);
 
             _scrollButton = new XNAButton(scrollSpriteSheet, new Vector2(0, 15), scrollBox, scrollBox);

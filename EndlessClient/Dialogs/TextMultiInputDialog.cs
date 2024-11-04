@@ -232,14 +232,14 @@ namespace EndlessClient.Dialogs
                 okButtonPosition,
                 eoDialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Ok),
                 eoDialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Ok));
-            ok.OnClick += (_, _) => Close(XNADialogResult.OK);
+            ok.OnMouseDown += (_, _) => Close(XNADialogResult.OK);
             ok.SetParentControl(this);
 
             var cancel = new XNAButton(eoDialogButtonService.SmallButtonSheet,
                 cancelButtonPosition,
                 eoDialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Cancel),
                 eoDialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Cancel));
-            cancel.OnClick += (_, _) => Close(XNADialogResult.Cancel);
+            cancel.OnMouseDown += (_, _) => Close(XNADialogResult.Cancel);
             cancel.SetParentControl(this);
 
             DialogClosed += (_, _) => chatTextBoxActions.FocusChatTextBox();

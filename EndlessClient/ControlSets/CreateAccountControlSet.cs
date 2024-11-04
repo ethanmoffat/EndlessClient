@@ -170,7 +170,7 @@ namespace EndlessClient.ControlSets
                                        new Vector2(481, 417),
                                        new Rectangle(0, 40, 120, 40),
                                        new Rectangle(120, 40, 120, 40));
-            button.OnClick += (o, e) => _mainButtonController.GoToInitialState();
+            button.OnMouseDown += (o, e) => _mainButtonController.GoToInitialState();
             return button;
         }
 
@@ -193,7 +193,7 @@ namespace EndlessClient.ControlSets
         protected override IXNAButton GetCreateButton()
         {
             var button = base.GetCreateButton();
-            button.OnClick += DoCreateAccount;
+            button.OnMouseDown += DoCreateAccount;
             return button;
         }
 

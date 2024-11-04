@@ -50,7 +50,7 @@ namespace EndlessClient.ControlSets
                 DrawOrder = 100,
                 ClickArea = new Rectangle(4, 16, 16, 16)
             };
-            button.OnClick += DoBackButtonClick;
+            button.OnMouseDown += DoBackButtonClick;
 
             _clientWindowSizeRepository.GameWindowSizeChanged += (o, e) =>
             {

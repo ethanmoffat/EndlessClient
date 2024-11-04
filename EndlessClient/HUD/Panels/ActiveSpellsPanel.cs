@@ -143,14 +143,14 @@ namespace EndlessClient.HUD.Panels
                 FlashSpeed = 500,
                 Visible = false
             };
-            _levelUpButton1.OnClick += LevelUp_Click;
+            _levelUpButton1.OnMouseDown += LevelUp_Click;
 
             _levelUpButton2 = new XNAButton(buttonSheet, new Vector2(71, 95), new Rectangle(215, 386, 19, 15), new Rectangle(234, 386, 19, 15))
             {
                 FlashSpeed = 500,
                 Visible = false
             };
-            _levelUpButton2.OnClick += LevelUp_Click;
+            _levelUpButton2.OnMouseDown += LevelUp_Click;
 
             _scrollBar = new ScrollBar(new Vector2(467, 2), new Vector2(16, 115), ScrollBarColors.LightOnMed, NativeGraphicsManager)
             {

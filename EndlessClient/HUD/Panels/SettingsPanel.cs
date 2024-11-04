@@ -115,7 +115,7 @@ namespace EndlessClient.HUD.Panels
             foreach (var pair in _buttons)
             {
                 var button = pair.Value;
-                button.OnClick += (_, _) => SettingChange(pair.Key);
+                button.OnMouseDown += (_, _) => SettingChange(pair.Key);
                 button.OnMouseEnter += (_, _) => _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_BUTTON, EOResourceID.STATUS_LABEL_SETTINGS_CLICK_TO_CHANGE);
                 button.SetParentControl(this);
                 button.Initialize();

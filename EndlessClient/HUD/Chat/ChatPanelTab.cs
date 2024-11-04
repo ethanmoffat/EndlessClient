@@ -85,19 +85,19 @@ namespace EndlessClient.HUD.Chat
             DrawArea = GetTabClickableArea();
 
             _tab = new ClickableArea(new Rectangle(0, 0, DrawArea.Width, DrawArea.Height));
-            _tab.OnClick += (_, _) => SelectThisTab();
+            _tab.OnMouseDown += (_, _) => SelectThisTab();
             _tab.SetParentControl(this);
 
             if (Tab == ChatTab.Private1)
             {
                 _closeButton = new ClickableArea(new Rectangle(3, 3, 11, 11));
-                _closeButton.OnClick += (_, _) => CloseTab();
+                _closeButton.OnMouseDown += (_, _) => CloseTab();
                 _closeButton.SetParentControl(this);
             }
             else if (Tab == ChatTab.Private2)
             {
                 _closeButton = new ClickableArea(new Rectangle(3, 3, 11, 11));
-                _closeButton.OnClick += (_, _) => CloseTab();
+                _closeButton.OnMouseDown += (_, _) => CloseTab();
                 _closeButton.SetParentControl(this);
             }
 

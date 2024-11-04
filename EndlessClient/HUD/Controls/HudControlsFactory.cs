@@ -301,7 +301,7 @@ namespace EndlessClient.HUD.Controls
                 };
             }
 
-            retButton.OnClick += (_, _) => DoHudStateChangeClick(whichState);
+            retButton.OnMouseDown += (_, _) => DoHudStateChangeClick(whichState);
             retButton.OnMouseEnter += (_, _) => _statusLabelSetter.SetStatusLabel(
                 EOResourceID.STATUS_LABEL_TYPE_BUTTON,
                 EOResourceID.STATUS_LABEL_HUD_BUTTON_HOVER_FIRST + buttonIndex);
@@ -319,8 +319,8 @@ namespace EndlessClient.HUD.Controls
             {
                 DrawOrder = HUD_CONTROL_LAYER + 10
             };
-            button.OnClick += (_, _) => _hudButtonController.ClickFriendList();
-            button.OnClick += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.ButtonClick);
+            button.OnMouseDown += (_, _) => _hudButtonController.ClickFriendList();
+            button.OnMouseDown += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.ButtonClick);
             button.OnMouseOver += (o, e) => _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_BUTTON, EOResourceID.STATUS_LABEL_FRIEND_LIST);
 
             if (_clientWindowSizeRepository.Resizable)
@@ -342,8 +342,8 @@ namespace EndlessClient.HUD.Controls
             {
                 DrawOrder = HUD_CONTROL_LAYER + 10
             };
-            button.OnClick += (_, _) => _hudButtonController.ClickIgnoreList();
-            button.OnClick += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.ButtonClick);
+            button.OnMouseDown += (_, _) => _hudButtonController.ClickIgnoreList();
+            button.OnMouseDown += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.ButtonClick);
             button.OnMouseOver += (o, e) => _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_BUTTON, EOResourceID.STATUS_LABEL_IGNORE_LIST);
 
             if (_clientWindowSizeRepository.Resizable)
@@ -471,8 +471,8 @@ namespace EndlessClient.HUD.Controls
             {
                 DrawOrder = HUD_CONTROL_LAYER
             };
-            btn.OnClick += (_, _) => _hudButtonController.ClickSessionExp();
-            btn.OnClick += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
+            btn.OnMouseDown += (_, _) => _hudButtonController.ClickSessionExp();
+            btn.OnMouseDown += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
             return btn;
         }
 
@@ -486,8 +486,8 @@ namespace EndlessClient.HUD.Controls
             {
                 DrawOrder = HUD_CONTROL_LAYER
             };
-            btn.OnClick += (_, _) => _hudButtonController.ClickQuestStatus();
-            btn.OnClick += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
+            btn.OnMouseDown += (_, _) => _hudButtonController.ClickQuestStatus();
+            btn.OnMouseDown += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
             return btn;
         }
 

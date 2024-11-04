@@ -491,7 +491,7 @@ namespace EndlessClient.Dialogs.Actions
             UseDefaultDialogSounds((BaseEODialog)dialog);
 
             foreach (var button in dialog.ChildControls.OfType<IXNAButton>())
-                button.OnClick += Handler;
+                button.OnMouseDown += Handler;
 
             void Handler(object sender, EventArgs e) => _sfxPlayer.PlaySfx(SoundEffectID.DialogButtonClick);
         }

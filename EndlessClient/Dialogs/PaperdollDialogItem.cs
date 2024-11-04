@@ -50,7 +50,7 @@ namespace EndlessClient.Dialogs
             StretchMode = StretchMode.CenterInFrame;
         }
 
-        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        protected override bool HandleMouseDown(IXNAControl control, MouseEventArgs eventArgs)
         {
             if (!_isMainCharacter || !_itemInfo.HasValue)
                 return false;

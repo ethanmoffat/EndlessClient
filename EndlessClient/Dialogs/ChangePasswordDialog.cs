@@ -70,14 +70,14 @@ namespace EndlessClient.Dialogs
                 new Vector2(157, 195),
                 dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Ok),
                 dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Ok));
-            _ok.OnClick += OnButtonPressed;
+            _ok.OnMouseDown += OnButtonPressed;
 
             _cancel = new XNAButton(
                 dialogButtonService.SmallButtonSheet,
                 new Vector2(250, 195),
                 dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Cancel),
                 dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Cancel));
-            _cancel.OnClick += (s, e) => Close(XNADialogResult.Cancel);
+            _cancel.OnMouseDown += (s, e) => Close(XNADialogResult.Cancel);
 
             CenterInGameView();
         }

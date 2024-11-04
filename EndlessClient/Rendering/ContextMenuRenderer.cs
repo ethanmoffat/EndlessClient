@@ -214,7 +214,7 @@ namespace EndlessClient.Rendering
             }
         }
 
-        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        protected override bool HandleMouseDown(IXNAControl control, MouseEventArgs eventArgs)
         {
             if (eventArgs.Button == MouseButton.Left)
             {

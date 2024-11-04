@@ -75,7 +75,7 @@ namespace EndlessClient.Dialogs
             {
                 Visible = true
             };
-            _okButton.OnClick += (s, e) => Close(XNADialogResult.OK);
+            _okButton.OnMouseDown += (s, e) => Close(XNADialogResult.OK);
 
             _cancelButton = new XNAButton(eoDialogButtonService.SmallButtonSheet,
                 new Vector2(153, 125),
@@ -84,7 +84,7 @@ namespace EndlessClient.Dialogs
             {
                 Visible = true
             };
-            _cancelButton.OnClick += (s, e) => Close(XNADialogResult.Cancel);
+            _cancelButton.OnMouseDown += (s, e) => Close(XNADialogResult.Cancel);
 
             _descLabel = new XNALabel(Constants.FontSize10)
             {

@@ -91,8 +91,8 @@ namespace EndlessClient.Dialogs
             _message.SetScrollWheelHandler(_scrollBar);
             _message.SetParentControl(this);
 
-            _add.OnClick += AddButton_Click;
-            _delete.OnClick += DeleteButton_Click;
+            _add.OnMouseDown += AddButton_Click;
+            _delete.OnMouseDown += DeleteButton_Click;
         }
 
         public override void Initialize()

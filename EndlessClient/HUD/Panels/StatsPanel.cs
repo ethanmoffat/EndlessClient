@@ -138,7 +138,7 @@ namespace EndlessClient.HUD.Panels
         public override void Initialize()
         {
             foreach (var control in _arrowButtons)
-                control.OnClick += HandleArrowButtonClick;
+                control.OnMouseDown += HandleArrowButtonClick;
 
             var controls = _basicStats.Concat<IXNAControl>(_characterStats)
                                       .Concat(_arrowButtons)

@@ -75,7 +75,7 @@ namespace EndlessClient.Rendering.Map
             _npcInteractionController = npcInteractionController;
         }
 
-        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        protected override bool HandleMouseDown(IXNAControl control, MouseEventArgs eventArgs)
         {
             _contextMenuRepository.ContextMenu.MatchSome(contextMenu =>
             {

@@ -83,7 +83,7 @@ namespace EndlessClient.HUD.Controls
             return true;
         }
 
-        protected override bool HandleClick(IXNAControl control, MouseEventArgs eventArgs)
+        protected override bool HandleMouseDown(IXNAControl control, MouseEventArgs eventArgs)
         {
             if (_followMouse)
             {

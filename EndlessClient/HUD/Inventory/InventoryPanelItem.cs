@@ -168,7 +168,7 @@ namespace EndlessClient.HUD.Inventory
             if (IsDragging)
             {
                 // roll back the first click in the double click
-                base.HandleClick(control, eventArgs);
+                base.HandleMouseDown(control, eventArgs);
             }
 
             DoubleClick?.Invoke(control, Data);

@@ -140,7 +140,7 @@ namespace EndlessClient.ControlSets
             {
                 DrawOrder = _personPicture.DrawOrder + 2
             };
-            button.OnClick += DoLogin;
+            button.OnMouseDown += DoLogin;
             return button;
         }
 
@@ -165,7 +165,7 @@ namespace EndlessClient.ControlSets
             {
                 DrawOrder = _personPicture.DrawOrder + 2
             };
-            button.OnClick += (o, e) => _mainButtonController.GoToInitialState();
+            button.OnMouseDown += (o, e) => _mainButtonController.GoToInitialState();
             return button;
         }
     }
