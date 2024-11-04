@@ -37,8 +37,8 @@ namespace EOLib.Domain.Item
                         item.DropTime.Match(
                             some: dropTime =>
                             {
-                                if (item.IsNPCDrop && (now - dropTime).TotalSeconds <= _configurationProvider.NPCDropProtectTime ||
-                                    !item.IsNPCDrop && (now - dropTime).TotalSeconds <= _configurationProvider.PlayerDropProtectTime)
+                                if (item.IsNPCDrop && (now - dropTime).TotalSeconds <= Constants.NPCDropProtectSeconds ||
+                                    !item.IsNPCDrop && (now - dropTime).TotalSeconds <= Constants.PlayerDropProtectSeconds)
                                     return ItemPickupResult.DropProtection;
 
                                 return ItemPickupResult.Ok;

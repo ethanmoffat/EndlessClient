@@ -19,7 +19,6 @@ namespace EOLib.Config
         public const string Settings = "SETTINGS";
         public const string ShowShadows = "ShowShadows";
         public const string ShowTransition = "ShowTransition";
-        public const string EnableLogging = "EnableLogging";
         public const string Music = "Music";
         public const string Sound = "Sound";
         public const string ShowBaloons = "ShowBaloons";
@@ -28,9 +27,6 @@ namespace EOLib.Config
         public static string InGameHeight = nameof(InGameHeight);
 
         public const string Custom = "CUSTOM";
-        public const string NPCDropProtectTime = "NPCDropProtectTime";
-        public const string PlayerDropProtectTime = "PlayerDropProtectTime";
-        public const string MainCloneCompat = nameof(MainCloneCompat);
         public const string AccountCreateTimeout = nameof(AccountCreateTimeout);
 
         public const string LANGUAGE = "LANGUAGE";

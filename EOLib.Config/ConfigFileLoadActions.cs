@@ -36,16 +36,6 @@ namespace EOLib.Config
                 ? (EOLanguage)tempInt
                 : EOLanguage.English;
 
-            _configRepository.PlayerDropProtectTime = configFile.GetValue(ConfigStrings.Custom,
-                ConfigStrings.PlayerDropProtectTime, out tempInt)
-                ? tempInt
-                : ConfigDefaults.PlayerDropProtectionSeconds;
-
-            _configRepository.NPCDropProtectTime = configFile.GetValue(ConfigStrings.Custom, ConfigStrings.NPCDropProtectTime,
-                out tempInt)
-                ? tempInt
-                : ConfigDefaults.NPCDropProtectionSeconds;
-
             bool tempBool;
             _configRepository.CurseFilterEnabled = configFile.GetValue(ConfigStrings.Chat, ConfigStrings.Filter, out tempBool) && tempBool;
             _configRepository.StrictFilterEnabled = configFile.GetValue(ConfigStrings.Chat, ConfigStrings.FilterAll, out tempBool) && tempBool;
@@ -56,7 +46,6 @@ namespace EOLib.Config
             _configRepository.SoundEnabled = configFile.GetValue(ConfigStrings.Settings, ConfigStrings.Sound, out tempBool) && tempBool;
             _configRepository.ShowChatBubbles = !configFile.GetValue(ConfigStrings.Settings, ConfigStrings.ShowBaloons, out tempBool) || tempBool;
 
-            _configRepository.EnableLog = configFile.GetValue(ConfigStrings.Settings, ConfigStrings.EnableLogging, out tempBool) && tempBool;
             _configRepository.HearWhispers = !configFile.GetValue(ConfigStrings.Chat, ConfigStrings.HearWhisper, out tempBool) || tempBool;
             _configRepository.Interaction = !configFile.GetValue(ConfigStrings.Chat, ConfigStrings.Interaction, out tempBool) || tempBool;
             _configRepository.LogChatToFile = configFile.GetValue(ConfigStrings.Chat, ConfigStrings.LogChat, out tempBool) && tempBool;

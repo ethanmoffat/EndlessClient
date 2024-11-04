@@ -36,6 +36,10 @@
         //not a config option because this shouldn't be exposed at the user level
         public static readonly int[] TrapSpikeGFXObjectIDs = { 449, 450, 451, 452 };
 
+        //not a config option because this shouldn't be exposed at the user level
+        public const int NPCDropProtectSeconds = 30;
+        public const int PlayerDropProtectSeconds = 5;
+
         // Weapon graphics of instruments (there is no pub flag for this)
         public static readonly int[] Instruments = { 49, 50 };
         public const string FontSize07 = @"BitmapFonts/sans_09px";
