@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using EndlessClient.GameExecution;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -8,13 +9,15 @@ using Optional;
 
 namespace EndlessClient.Rendering
 {
-    public class HealthBarRenderer : IHealthBarRenderer
+    public class HealthBarRenderer : DrawableGameComponent, IHealthBarRenderer
     {
         private const int DigitWidth = 9;
 
         private readonly IMapActor _parentReference;
 
+        private readonly SpriteBatch _spriteBatch;
         private readonly Texture2D _sourceTexture;
+
         private static readonly Point _numberSpritesOffset, _healthBarSpritesOffset;
         private static readonly Rectangle _healthBarBackgroundSource;
 
@@ -26,8 +29,6 @@ namespace EndlessClient.Rendering
         private float _frameOffset;
         private Vector2 _damageCounterPosition, _healthBarPosition;
 
-        public bool Visible { get; private set; }
-
         static HealthBarRenderer()
         {
             _numberSpritesOffset = new Point(40, 28);
@@ -35,17 +36,29 @@ namespace EndlessClient.Rendering
             _healthBarBackgroundSource = new Rectangle(0, 28, 40, 7);
         }
 
-        public HealthBarRenderer(INativeGraphicsManager nativeGraphicsManager,
+        public HealthBarRenderer(IEndlessGameProvider endlessGameProvider,
+                                 INativeGraphicsManager nativeGraphicsManager,
                                  IMapActor parentReference)
+            : base((Game)endlessGameProvider.Game)
         {
             _parentReference = parentReference;
+
+            _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
             _sourceTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 58, true);
-            _numberSourceRectangles = new List<Rectangle>();
+
+            _numberSourceRectangles = [];
+            UpdateOrder = DrawOrder = 99;
+            Enabled = Visible = false;
+        }
+
+        public override void Initialize()
+        {
+            base.Initialize();
         }
 
         public void SetDamage(Option<int> value, int percentHealth, Action doneCallback = null)
         {
-            Visible = true;
+            Enabled = Visible = true;
             _isMiss = !value.HasValue;
             _doneCallback = doneCallback;
             _frameOffset = 0;
@@ -64,7 +77,7 @@ namespace EndlessClient.Rendering
 
         public void SetHealth(int value, int percentHealth, Action doneCallback = null)
         {
-            Visible = true;
+            Enabled = Visible = true;
             _isMiss = false;
             _doneCallback = doneCallback;
             _frameOffset = 0;
@@ -78,14 +91,12 @@ namespace EndlessClient.Rendering
             _healthBarSourceRectangle = new Rectangle(_healthBarSpritesOffset + _healthBarSourceRectangle.Location, _healthBarSourceRectangle.Size);
         }
 
-        public void Update(GameTime gameTime)
+        public override void Update(GameTime gameTime)
         {
-            if (!Visible) return;
-
             _frameOffset += .1f;
             if (_frameOffset > 4)
             {
-                Visible = false;
+                Enabled = Visible = false;
                 _doneCallback?.Invoke();
             }
 
@@ -108,19 +119,31 @@ namespace EndlessClient.Rendering
             }
         }
 
-        public void DrawToSpriteBatch(SpriteBatch spriteBatch)
+        public override void Draw(GameTime gameTime)
         {
-            if (!Visible) return;
+            _spriteBatch.Begin();
 
             var numberNdx = 0;
             foreach (var numberSource in _numberSourceRectangles)
             {
-                spriteBatch.Draw(_sourceTexture, _damageCounterPosition + new Vector2(numberNdx * DigitWidth, 0), numberSource, Color.White);
+                _spriteBatch.Draw(_sourceTexture, _damageCounterPosition + new Vector2(numberNdx * DigitWidth, 0), numberSource, Color.White);
                 numberNdx++;
             }
 
-            spriteBatch.Draw(_sourceTexture, _healthBarPosition, _healthBarBackgroundSource, Color.White);
-            spriteBatch.Draw(_sourceTexture, _healthBarPosition, _healthBarSourceRectangle, Color.White);
+            _spriteBatch.Draw(_sourceTexture, _healthBarPosition, _healthBarBackgroundSource, Color.White);
+            _spriteBatch.Draw(_sourceTexture, _healthBarPosition, _healthBarSourceRectangle, Color.White);
+
+            _spriteBatch.End();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _spriteBatch.Dispose();
+            }
+
+            base.Dispose(disposing);
         }
 
         private static IEnumerable<Rectangle> GetNumberSourceRectangles(int value, bool isHeal)
@@ -150,16 +173,10 @@ namespace EndlessClient.Rendering
         }
     }
 
-    public interface IHealthBarRenderer
+    public interface IHealthBarRenderer : IDrawable, IGameComponent, IDisposable
     {
-        bool Visible { get; }
-
         void SetDamage(Option<int> value, int percentHealth, Action doneCallback = null);
 
         void SetHealth(int value, int percentHealth, Action doneCallback = null);
-
-        void Update(GameTime gameTime);
-
-        void DrawToSpriteBatch(SpriteBatch spriteBatch);
     }
 }

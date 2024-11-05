@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using EndlessClient.Audio;
-using EndlessClient.GameExecution;
 using EndlessClient.Input;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Chat;
@@ -15,7 +14,6 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.Domain.Spells;
-using EOLib.Graphics;
 using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -26,7 +24,7 @@ namespace EndlessClient.Rendering.Character
 {
     public class CharacterRenderer : DrawableGameComponent, ICharacterRenderer
     {
-        private readonly object _rt_locker_ = new object();
+        private readonly object _rt_locker_ = new();
 
         private readonly IRenderTargetFactory _renderTargetFactory;
         private readonly IHealthBarRendererFactory _healthBarRendererFactory;
@@ -157,6 +155,7 @@ namespace EndlessClient.Rendering.Character
                 _nameLabel.DrawPosition = GetNameLabelPosition();
 
                 _healthBarRenderer = _healthBarRendererFactory.CreateHealthBarRenderer(this);
+                Game.Components.Add(_healthBarRenderer);
             }
 
             base.Initialize();
@@ -195,9 +194,6 @@ namespace EndlessClient.Rendering.Character
             if (!_isUiControl)
             {
                 UpdateNameLabel();
-
-                _healthBarRenderer?.Update(gameTime);
-
                 CheckForDead();
             }
 
@@ -260,9 +256,6 @@ namespace EndlessClient.Rendering.Character
             }
 
             _effectRenderer.DrawInFrontOfTarget(spriteBatch);
-
-            if (!_isUiControl)
-                _healthBarRenderer?.DrawToSpriteBatch(spriteBatch);
         }
 
         public void ShowName() => _showName = true;
@@ -534,9 +527,20 @@ namespace EndlessClient.Rendering.Character
             {
                 _outline?.Dispose();
 
-                if (Game != null && Game.Components != null && Game.Components.Contains(_nameLabel))
-                    Game.Components.Remove(_nameLabel);
+                if (Game != null && Game.Components != null)
+                {
+                    if (Game.Components.Contains(_nameLabel))
+                    {
+                        Game.Components.Remove(_nameLabel);
+                    }
+
+                    if (Game.Components.Contains(_healthBarRenderer))
+                    {
+                        Game.Components.Remove(_healthBarRenderer);
+                    }
+                }
                 _nameLabel?.Dispose();
+                _healthBarRenderer?.Dispose();
 
                 if (_chatBubble.IsValueCreated)
                     _chatBubble.Value?.Dispose();

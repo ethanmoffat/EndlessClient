@@ -129,6 +129,8 @@ namespace EndlessClient.Rendering.NPC
             _npcSpriteDataCache.Populate(graphic);
             _isBlankSprite = _npcSpriteDataCache.IsBlankSprite(graphic);
 
+            Game.Components.Add(_healthBarRenderer);
+
             base.Initialize();
         }
 
@@ -155,7 +157,6 @@ namespace EndlessClient.Rendering.NPC
             }
 
             _effectRenderer.Update();
-            _healthBarRenderer.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -183,8 +184,6 @@ namespace EndlessClient.Rendering.NPC
             if (_npcRenderTarget != null)
                 spriteBatch.Draw(_npcRenderTarget, Vector2.Zero, Color.White);
             _effectRenderer.DrawInFrontOfTarget(spriteBatch);
-
-            _healthBarRenderer.DrawToSpriteBatch(spriteBatch);
         }
 
         public void StartDying()
@@ -330,6 +329,9 @@ namespace EndlessClient.Rendering.NPC
         {
             if (disposing)
             {
+                Game.Components.Remove(_healthBarRenderer);
+                _healthBarRenderer.Dispose();
+
                 _nameLabel.Dispose();
                 _chatBubble?.Dispose();
                 _spriteBatch?.Dispose();
