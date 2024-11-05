@@ -41,7 +41,6 @@ namespace EOLib.Config
             _configRepository.StrictFilterEnabled = configFile.GetValue(ConfigStrings.Chat, ConfigStrings.FilterAll, out tempBool) && tempBool;
 
             _configRepository.ShowShadows = !configFile.GetValue(ConfigStrings.Settings, ConfigStrings.ShowShadows, out tempBool) || tempBool;
-            _configRepository.ShowTransition = configFile.GetValue(ConfigStrings.Settings, ConfigStrings.ShowTransition, out tempBool) && tempBool;
             _configRepository.MusicEnabled = configFile.GetValue(ConfigStrings.Settings, ConfigStrings.Music, out tempBool) && tempBool;
             _configRepository.SoundEnabled = configFile.GetValue(ConfigStrings.Settings, ConfigStrings.Sound, out tempBool) && tempBool;
             _configRepository.ShowChatBubbles = !configFile.GetValue(ConfigStrings.Settings, ConfigStrings.ShowBaloons, out tempBool) || tempBool;
@@ -50,17 +49,15 @@ namespace EOLib.Config
             _configRepository.Interaction = !configFile.GetValue(ConfigStrings.Chat, ConfigStrings.Interaction, out tempBool) || tempBool;
             _configRepository.LogChatToFile = configFile.GetValue(ConfigStrings.Chat, ConfigStrings.LogChat, out tempBool) && tempBool;
 
-            _configRepository.AccountCreateTimeout = TimeSpan.FromMilliseconds(
-                configFile.GetValue(ConfigStrings.Custom, ConfigStrings.AccountCreateTimeout, out tempInt)
-                    ? tempInt
-                    : ConfigDefaults.AccountCreateTimeout);
+            var timeoutValue = configFile.GetValue(ConfigStrings.Custom, ConfigStrings.AccountCreateTimeout, out tempInt) ? tempInt : ConfigDefaults.AccountCreateTimeout;
+            _configRepository.AccountCreateTimeout = TimeSpan.FromMilliseconds(timeoutValue);
+            _configRepository.ShowTransition = configFile.GetValue(ConfigStrings.Custom, ConfigStrings.ShowTransition, out tempBool) && tempBool;
+            _configRepository.InGameWidth = configFile.GetValue(ConfigStrings.Custom, ConfigStrings.InGameWidth, out tempInt) ? tempInt : 0;
+            _configRepository.InGameHeight = configFile.GetValue(ConfigStrings.Custom, ConfigStrings.InGameHeight, out tempInt) ? tempInt : 0;
 
             string host;
             _configRepository.Host = configFile.GetValue(ConfigStrings.Connection, ConfigStrings.Host, out host) ? host : ConfigDefaults.Host;
             _configRepository.Port = configFile.GetValue(ConfigStrings.Connection, ConfigStrings.Port, out tempInt) ? tempInt : ConfigDefaults.Port;
-
-            _configRepository.InGameWidth = configFile.GetValue(ConfigStrings.Settings, ConfigStrings.InGameWidth, out tempInt) ? tempInt : 0;
-            _configRepository.InGameHeight = configFile.GetValue(ConfigStrings.Settings, ConfigStrings.InGameHeight, out tempInt) ? tempInt : 0;
         }
     }
 }
