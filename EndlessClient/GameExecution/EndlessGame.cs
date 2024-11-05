@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
+using EndlessClient.Dialogs.Factories;
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Test;
@@ -12,14 +14,10 @@ using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Config;
 using EOLib.Graphics;
-using EOLib.IO;
 using EOLib.IO.Actions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using EndlessClient.Dialogs.Factories;
-using System.Windows.Documents;
-using System.Collections.Generic;
 
 
 
