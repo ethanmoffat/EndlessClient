@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using NUnit.Framework;
 
@@ -45,9 +46,6 @@ namespace EOLib.Config.Test
             Assert.That(_configurationRepository.Host, Is.EqualTo(ConfigDefaults.Host));
             Assert.That(_configurationRepository.Port, Is.EqualTo(ConfigDefaults.Port));
 
-            Assert.That(_configurationRepository.NPCDropProtectTime, Is.EqualTo(ConfigDefaults.NPCDropProtectionSeconds));
-            Assert.That(_configurationRepository.PlayerDropProtectTime, Is.EqualTo(ConfigDefaults.PlayerDropProtectionSeconds));
-
             Assert.That(_configurationRepository.Language, Is.EqualTo(EOLanguage.English));
             Assert.That(_configurationRepository.CurseFilterEnabled, Is.False);
             Assert.That(_configurationRepository.StrictFilterEnabled, Is.False);
@@ -62,14 +60,13 @@ namespace EOLib.Config.Test
             Assert.That(_configurationRepository.HearWhispers, Is.True);
             Assert.That(_configurationRepository.Interaction, Is.True);
             Assert.That(_configurationRepository.LogChatToFile, Is.False);
-            Assert.That(_configurationRepository.EnableLog, Is.False);
         }
 
         [Test]
         public void ValidConfigFile_LoadsSpecifiedSettings()
         {
             const string contents = @"[CONNECTION]
-Host=ewmoffat.ddns.net
+Host=eoserv.moffat.io
 Port=12345
 [VERSION]
 Major=10
@@ -80,13 +77,11 @@ Music=on
 Sound=on
 ShowBaloons=off
 ShowShadows=no
-ShowTransition=true
-EnableLogging=true
+[CUSTOM]
 InGameWidth=123
 InGameHeight=321
-[CUSTOM]
-NPCDropProtectTime=5000
-PlayerDropProtectTime=10000
+ShowTransition=true
+AccountCreateTimeout=12345
 [LANGUAGE]
 Language=2
 [CHAT]
@@ -100,33 +95,34 @@ Interaction=false";
 
             _configFileLoadActions.LoadConfigFile();
 
-            Assert.That(_configurationRepository.VersionMajor, Is.EqualTo(10));
-            Assert.That(_configurationRepository.VersionMinor, Is.EqualTo(20));
-            Assert.That(_configurationRepository.VersionBuild, Is.EqualTo(30));
+            Assert.Multiple(() =>
+            {
+                Assert.That(_configurationRepository.VersionMajor, Is.EqualTo(10));
+                Assert.That(_configurationRepository.VersionMinor, Is.EqualTo(20));
+                Assert.That(_configurationRepository.VersionBuild, Is.EqualTo(30));
 
-            Assert.That(_configurationRepository.Host, Is.EqualTo("ewmoffat.ddns.net"));
-            Assert.That(_configurationRepository.Port, Is.EqualTo(12345));
+                Assert.That(_configurationRepository.Host, Is.EqualTo("eoserv.moffat.io"));
+                Assert.That(_configurationRepository.Port, Is.EqualTo(12345));
 
-            Assert.That(_configurationRepository.NPCDropProtectTime, Is.EqualTo(5000));
-            Assert.That(_configurationRepository.PlayerDropProtectTime, Is.EqualTo(10000));
+                Assert.That(_configurationRepository.Language, Is.EqualTo(EOLanguage.Swedish));
+                Assert.That(_configurationRepository.CurseFilterEnabled, Is.True);
+                Assert.That(_configurationRepository.StrictFilterEnabled, Is.True);
 
-            Assert.That(_configurationRepository.Language, Is.EqualTo(EOLanguage.Swedish));
-            Assert.That(_configurationRepository.CurseFilterEnabled, Is.True);
-            Assert.That(_configurationRepository.StrictFilterEnabled, Is.True);
+                Assert.That(_configurationRepository.ShowShadows, Is.False);
+                Assert.That(_configurationRepository.ShowChatBubbles, Is.False);
 
-            Assert.That(_configurationRepository.ShowShadows, Is.False);
-            Assert.That(_configurationRepository.ShowChatBubbles, Is.False);
-            Assert.That(_configurationRepository.ShowTransition, Is.True);
-            Assert.That(_configurationRepository.InGameWidth, Is.EqualTo(123));
-            Assert.That(_configurationRepository.InGameHeight, Is.EqualTo(321));
+                Assert.That(_configurationRepository.ShowTransition, Is.True);
+                Assert.That(_configurationRepository.InGameWidth, Is.EqualTo(123));
+                Assert.That(_configurationRepository.InGameHeight, Is.EqualTo(321));
+                Assert.That(_configurationRepository.AccountCreateTimeout, Is.EqualTo(TimeSpan.FromMilliseconds(12345)));
 
-            Assert.That(_configurationRepository.MusicEnabled, Is.True);
-            Assert.That(_configurationRepository.SoundEnabled, Is.True);
+                Assert.That(_configurationRepository.MusicEnabled, Is.True);
+                Assert.That(_configurationRepository.SoundEnabled, Is.True);
 
-            Assert.That(_configurationRepository.HearWhispers, Is.False);
-            Assert.That(_configurationRepository.Interaction, Is.False);
-            Assert.That(_configurationRepository.LogChatToFile, Is.True);
-            Assert.That(_configurationRepository.EnableLog, Is.True);
+                Assert.That(_configurationRepository.HearWhispers, Is.False);
+                Assert.That(_configurationRepository.Interaction, Is.False);
+                Assert.That(_configurationRepository.LogChatToFile, Is.True);
+            });
         }
 
         private static void CreateTestConfigurationInDirectory(string contents)

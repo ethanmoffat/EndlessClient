@@ -13,20 +13,17 @@ namespace EOLib.Net.PacketProcessing
     public class PacketProcessActions : IPacketProcessActions
     {
         private readonly IPacketEncoderService _encoderService;
-        private readonly ILoggerProvider _loggerProvider;
         private readonly IPacketEncoderRepository _encoderRepository;
         private readonly ISequenceRepository _sequenceRepository;
 
         public PacketProcessActions(ISequenceRepository sequenceNumberRepository,
                                     IPacketEncoderRepository encoderRepository,
-                                    IPacketEncoderService encoderService,
-                                    ILoggerProvider loggerProvider)
+                                    IPacketEncoderService encoderService)
         {
             _sequenceRepository = sequenceNumberRepository;
             _encoderRepository = encoderRepository;
 
             _encoderService = encoderService;
-            _loggerProvider = loggerProvider;
         }
 
         public void SetSequenceStart(ISequenceStart sequenceStart)
@@ -42,9 +39,6 @@ namespace EOLib.Net.PacketProcessing
         {
             _encoderRepository.ReceiveMultiplier = emulti_d;
             _encoderRepository.SendMultiplier = emulti_e;
-
-            _loggerProvider.Logger.Log("**** PACKET ENCODING MULTIPLES FOR THIS SESSION ARE: RECV={0} SEND={1}",
-                                       _encoderRepository.ReceiveMultiplier, _encoderRepository.SendMultiplier);
         }
 
         public byte[] EncodePacket(IPacket pkt)

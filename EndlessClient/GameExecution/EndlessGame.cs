@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
+using EndlessClient.Dialogs.Factories;
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Test;
@@ -12,13 +14,12 @@ using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Config;
 using EOLib.Graphics;
-using EOLib.IO;
 using EOLib.IO.Actions;
-using EOLib.Logger;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using EndlessClient.Dialogs.Factories;
+
+
 
 #if DEBUG
 using System.Diagnostics;
@@ -39,7 +40,6 @@ namespace EndlessClient.GameExecution
         private readonly IControlSetFactory _controlSetFactory;
         private readonly ITestModeLauncher _testModeLauncher;
         private readonly IPubFileLoadActions _pubFileLoadActions;
-        private readonly ILoggerProvider _loggerProvider;
         private readonly IChatBubbleTextureProvider _chatBubbleTextureProvider;
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IMfxPlayer _mfxPlayer;
@@ -68,7 +68,6 @@ namespace EndlessClient.GameExecution
                            IControlSetFactory controlSetFactory,
                            ITestModeLauncher testModeLauncher,
                            IPubFileLoadActions pubFileLoadActions,
-                           ILoggerProvider loggerProvider,
                            IChatBubbleTextureProvider chatBubbleTextureProvider,
                            IConfigurationProvider configurationProvider,
                            IMfxPlayer mfxPlayer,
@@ -85,7 +84,6 @@ namespace EndlessClient.GameExecution
             _controlSetFactory = controlSetFactory;
             _testModeLauncher = testModeLauncher;
             _pubFileLoadActions = pubFileLoadActions;
-            _loggerProvider = loggerProvider;
             _chatBubbleTextureProvider = chatBubbleTextureProvider;
             _configurationProvider = configurationProvider;
             _mfxPlayer = mfxPlayer;
@@ -201,18 +199,18 @@ namespace EndlessClient.GameExecution
                 {
                     base.Update(gameTime);
                 }
+#if DEBUG
+                catch
+                {
+                    throw;
+                }
+#else
                 catch (Exception ex)
                 {
-                    if (_configurationProvider.DebugCrashes)
-                    {
-                        throw;
-                    }
-                    else
-                    {
-                        _mainButtonController.GoToInitialStateAndDisconnect(showLostConnection: false);
-                        ShowExceptionDetailDialog(ex);
-                    }
+                    _mainButtonController.GoToInitialStateAndDisconnect(showLostConnection: false);
+                    ShowExceptionDetailDialog(ex);
                 }
+#endif
 
                 _lastFrameUpdate = gameTime.TotalGameTime;
             }
@@ -246,42 +244,22 @@ namespace EndlessClient.GameExecution
 
         private void AttemptToLoadPubFiles()
         {
-            const string PUB_LOG_MSG = "**** Unable to load default PUB file: {0}. Exception message: {1}";
+            List<Action> pubFileLoadActions = [
+                _pubFileLoadActions.LoadItemFile,
+                _pubFileLoadActions.LoadNPCFile,
+                _pubFileLoadActions.LoadSpellFile,
+                _pubFileLoadActions.LoadClassFile
+            ];
 
-            try
+            foreach (var action in pubFileLoadActions)
             {
-                _pubFileLoadActions.LoadItemFile();
-            }
-            catch (Exception ex) when (ex is IOException || ex is ArgumentException)
-            {
-                _loggerProvider.Logger.Log(PUB_LOG_MSG, string.Format(PubFileNameConstants.EIFFormat, 1), ex.Message);
-            }
-
-            try
-            {
-                _pubFileLoadActions.LoadNPCFile();
-            }
-            catch (Exception ex) when (ex is IOException || ex is ArgumentException)
-            {
-                _loggerProvider.Logger.Log(PUB_LOG_MSG, string.Format(PubFileNameConstants.ENFFormat, 1), ex.Message);
-            }
-
-            try
-            {
-                _pubFileLoadActions.LoadSpellFile();
-            }
-            catch (Exception ex) when (ex is IOException || ex is ArgumentException)
-            {
-                _loggerProvider.Logger.Log(PUB_LOG_MSG, string.Format(PubFileNameConstants.ESFFormat, 1), ex.Message);
-            }
-
-            try
-            {
-                _pubFileLoadActions.LoadClassFile();
-            }
-            catch (Exception ex) when (ex is IOException || ex is ArgumentException)
-            {
-                _loggerProvider.Logger.Log(PUB_LOG_MSG, string.Format(PubFileNameConstants.ECFFormat, 1), ex.Message);
+                try
+                {
+                    action();
+                }
+                catch (Exception ex) when (ex is IOException || ex is ArgumentException)
+                {
+                }
             }
         }
 

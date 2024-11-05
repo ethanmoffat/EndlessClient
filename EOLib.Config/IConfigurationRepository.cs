@@ -20,8 +20,6 @@ namespace EOLib.Config
         bool ShowShadows { get; set; }
         bool ShowChatBubbles { get; set; }
         bool ShowTransition { get; set; }
-        int PlayerDropProtectTime { get; set; }
-        int NPCDropProtectTime { get; set; }
 
         bool MusicEnabled { get; set; }
         bool SoundEnabled { get; set; }
@@ -32,12 +30,8 @@ namespace EOLib.Config
 
         TimeSpan AccountCreateTimeout { get; set; }
 
-        bool EnableLog { get; set; }
-
         int InGameWidth { get; set; }
         int InGameHeight { get; set; }
-
-        bool DebugCrashes { get; set; }
     }
 
     public interface IConfigurationProvider
@@ -57,8 +51,6 @@ namespace EOLib.Config
         bool ShowShadows { get; }
         bool ShowChatBubbles { get; }
         bool ShowTransition { get; }
-        int PlayerDropProtectTime { get; }
-        int NPCDropProtectTime { get; }
 
         bool MusicEnabled { get; }
         bool SoundEnabled { get; }
@@ -69,12 +61,8 @@ namespace EOLib.Config
 
         TimeSpan AccountCreateTimeout { get; }
 
-        bool EnableLog { get; }
-
         int InGameWidth { get; }
         int InGameHeight { get; }
-
-        bool DebugCrashes { get; }
     }
 
     [AutoMappedType(IsSingleton = true)]
@@ -95,8 +83,6 @@ namespace EOLib.Config
         public bool ShowShadows { get; set; }
         public bool ShowChatBubbles { get; set; }
         public bool ShowTransition { get; set; }
-        public int PlayerDropProtectTime { get; set; }
-        public int NPCDropProtectTime { get; set; }
 
         public bool MusicEnabled { get; set; }
         public bool SoundEnabled { get; set; }
@@ -107,11 +93,7 @@ namespace EOLib.Config
 
         public TimeSpan AccountCreateTimeout { get; set; }
 
-        public bool EnableLog { get; set; }
-
         public int InGameWidth { get; set; }
         public int InGameHeight { get; set; }
-
-        public bool DebugCrashes { get; set; }
     }
 }
