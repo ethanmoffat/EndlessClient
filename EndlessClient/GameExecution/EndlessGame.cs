@@ -19,8 +19,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-
-
 #if DEBUG
 using System.Diagnostics;
 using MonoGame.Extended.BitmapFonts;

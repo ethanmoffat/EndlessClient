@@ -145,6 +145,8 @@ namespace EOBot
             }
 
             public void NotifyFrozen() { }
+
+            public void NotifySit() { }
         }
 
         [AutoMappedType]

@@ -27,6 +27,7 @@
         UnknownWarpSound,
         PrivateMessageTargetNotFound = 12,
         HudStatusBarClick,
+        Sit = HudStatusBarClick,
         AdminAnnounceReceived,
         MeleeWeaponAttack,
         MemberLeftParty = 16,

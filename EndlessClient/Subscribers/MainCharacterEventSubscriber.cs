@@ -89,9 +89,8 @@ namespace EndlessClient.Subscribers
                 $" {amountRemoved} {rec.Name}");
         }
 
-        public void NotifyFrozen()
-        {
-            _sfxPlayer.PlaySfx(SoundEffectID.PlayerFrozen);
-        }
+        public void NotifyFrozen() => _sfxPlayer.PlaySfx(SoundEffectID.PlayerFrozen);
+
+        public void NotifySit() => _sfxPlayer.PlaySfx(SoundEffectID.Sit);
     }
 }
