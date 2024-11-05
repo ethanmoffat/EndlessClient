@@ -10,6 +10,9 @@
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
     <DefineConstants>$(DefineConstants);LINUX</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
+    <DefineConstants>$(DefineConstants);OSX</DefineConstants>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration.Contains(`Debug`))'">
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
