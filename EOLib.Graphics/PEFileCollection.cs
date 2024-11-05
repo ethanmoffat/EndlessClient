@@ -21,7 +21,7 @@ namespace EOLib.Graphics
             var number = ((int)file).ToString("D3");
             var fName = Path.Combine("gfx", "gfx" + number + ".egf");
 
-            return new PEFile(fName);
+            return new PEFile(fName, shared: true);
         }
 
         public void Dispose()
