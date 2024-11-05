@@ -46,7 +46,7 @@ namespace EndlessClient.GameExecution
                 crashMethod = string.Empty;
             }
 
-            var title = $"Unhandled+Client+Exception{(crashMethod == "" ? "" : $" in {crashMethod}")}";
+            var title = $"Unhandled Client Exception{(crashMethod == "" ? "" : $" in {crashMethod}")}";
             sb.Append($"title={UrlEncoder.Default.Encode(title)}");
 
             sb.Append("&labels=bug,userreport");
@@ -67,7 +67,9 @@ namespace EndlessClient.GameExecution
 
 **Diagnostic Information**
 
+```
 {ex}
+```
 ";
             var encoded = UrlEncoder.Default.Encode(body);
             sb.Append($"&body={encoded}");
