@@ -34,6 +34,10 @@ namespace EOLib.IO.Services.Serializers
             }
 
             record = record.WithNames(names);
+
+            if (names.Count >= 1 && names[0].Equals("eof", StringComparison.OrdinalIgnoreCase))
+                return record;
+
             foreach (var propertyKvp in record.Bag)
             {
                 var property = propertyKvp.Value;
