@@ -7,6 +7,7 @@ using EndlessClient.Rendering;
 using EOLib.Domain.Map;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
+using XNAControls;
 
 namespace EndlessClient.HUD
 {
@@ -34,10 +35,10 @@ namespace EndlessClient.HUD
             _clientWindowSizeProvider = clientWindowSizeProvider;
         }
 
-        public void SwitchToState(InGameStates newState)
+        public IHudPanel SwitchToState(InGameStates newState)
         {
             if (!_hudControlProvider.IsInGame)
-                return;
+                return null;
 
             if (newState != InGameStates.News)
                 _hudControlProvider.GetComponent<IHudPanel>(Controls.HudControlIdentifier.NewsPanel).Visible = false;
@@ -50,6 +51,8 @@ namespace EndlessClient.HUD
 
             if (targetPanel.Visible && _clientWindowSizeProvider.Resizable)
                 targetPanel.DrawOrder = _hudControlProvider.HudPanels.Select(x => x.DrawOrder).Max() + 1;
+
+            return targetPanel;
         }
 
         public void ToggleMapView()
