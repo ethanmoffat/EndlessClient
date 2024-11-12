@@ -239,8 +239,8 @@ namespace EndlessClient.Controllers
                 {
                     _clientWindowSizeRepository.Width = loaded ? width : _configurationProvider.InGameWidth;
                     _clientWindowSizeRepository.Height = loaded ? height : _configurationProvider.InGameHeight;
+                    _clientWindowSizeRepository.Resizable = true;
                 });
-                _clientWindowSizeRepository.Resizable = true;
             }
 
             await DispatcherGameComponent.Invoke(() =>
