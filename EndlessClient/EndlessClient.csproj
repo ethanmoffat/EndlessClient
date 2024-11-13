@@ -22,6 +22,9 @@
     <DefineConstants>$(DefineConstants);OSX</DefineConstants>
     <MonoGamePlatform>MacOSX</MonoGamePlatform>
     <ApplicationId>io.moffat.endlessclient</ApplicationId>
+    <NoNFloatUsing>true</NoNFloatUsing>
+    <SupportedOSPlatformVersion>11.0</SupportedOSPlatformVersion>
+    <RuntimeIdentifiers>osx-x64;osx-arm64</RuntimeIdentifiers>
   </PropertyGroup>
   <PropertyGroup>
     <_ResolveReferenceDependencies>true</_ResolveReferenceDependencies>
@@ -29,23 +32,15 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <OutputPath>..\bin\$(Configuration)\client</OutputPath>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <EndlessClientBinariesPackageVersion>1.4.0.2</EndlessClientBinariesPackageVersion>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Resources\Game.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="ContentPipeline\bin\**" />
-    <Compile Remove="ContentPipeline\obj\**" />
-    <Compile Remove="packages\**" />
-    <EmbeddedResource Remove="ContentPipeline\bin\**" />
-    <EmbeddedResource Remove="ContentPipeline\obj\**" />
-    <EmbeddedResource Remove="packages\**" />
     <None Remove="ContentPipeline\bin\**" />
     <None Remove="ContentPipeline\obj\**" />
     <None Remove="packages\**" />
-    <Page Remove="ContentPipeline\bin\**" />
-    <Page Remove="ContentPipeline\obj\**" />
-    <Page Remove="packages\**" />
     <Content Remove="..\packages\monogame.extended.content.pipeline\3.8.0\contentFiles\**" />
   </ItemGroup>
   <ItemGroup>
@@ -60,17 +55,8 @@
     <ProjectReference Include="..\EOLib\EOLib.csproj" />
   </ItemGroup>
   <ItemGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
-    <None Include="..\bin\$(Configuration)\client\net8.0-macos\osx-x64\config\*" Link="config\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" PublishFolderType="RootDirectory" />
-    <None Include="..\bin\$(Configuration)\client\net8.0-macos\osx-x64\data\*" Link="data\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" PublishFolderType="RootDirectory" />
-    <None Include="..\bin\$(Configuration)\client\net8.0-macos\osx-x64\gfx\*" Link="gfx\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" PublishFolderType="RootDirectory" />
-    <None Include="..\bin\$(Configuration)\client\net8.0-macos\osx-x64\help\*" Link="help\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" PublishFolderType="RootDirectory" />
-    <None Include="..\bin\$(Configuration)\client\net8.0-macos\osx-x64\jbox\*" Link="jbox\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" PublishFolderType="RootDirectory" />
-    <None Include="..\bin\$(Configuration)\client\net8.0-macos\osx-x64\mfx\*" Link="mfx\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" PublishFolderType="RootDirectory" />
-    <None Include="..\bin\$(Configuration)\client\net8.0-macos\osx-x64\sfx\*" Link="sfx\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" PublishFolderType="RootDirectory" />
-    <None Include="ContentPipeline\bin\MacOSX\Content\*.xnb" Link="ContentPipeline\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" PublishFolderType="Resource" />
-    <None Include="ContentPipeline\bin\MacOSX\Content\ChatBubble\*.xnb" Link="ContentPipeline\ChatBubble\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" PublishFolderType="Resource" />
-    <None Include="ContentPipeline\bin\MacOSX\Content\BitmapFonts\*.xnb" Link="ContentPipeline\BitmapFonts\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" PublishFolderType="Resource" />
-    <None Include="ContentPipeline\bin\MacOSX\Content\Party\*.xnb" Link="ContentPipeline\Party\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" PublishFolderType="Resource" />
+    <_client Include="$(MSBuildThisFileDirectory)\..\packages\endlessclient.binaries\$(EndlessClientBinariesPackageVersion)\build\net462\client\**\*.*" />
+    <None Include="@(_client)" CopyToOutputDirectory="Always" PublishFolderType="Resource" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\Game.ico" />
@@ -80,7 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Amadevus.RecordGenerator" Version="0.6.0" />
-    <PackageReference Include="EndlessClient.Binaries" Version="1.4.0.2" />
+    <PackageReference Include="EndlessClient.Binaries" Version="$(EndlessClientBinariesPackageVersion)" />
     <PackageReference Include="managed-midi" Version="1.10.1" />
     <PackageReference Include="Moffat.EndlessOnline.SDK" Version="1.0.0" />
     <PackageReference Include="Monogame.Content.Builder.Task" Version="3.8.2.1105" />
@@ -88,6 +74,6 @@
     <PackageReference Include="MonoGame.Extended.Input" Version="3.8.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="8.0.10" />
-    <PackageReference Include="XNAControls" Version="2.3.0" />
+    <PackageReference Include="XNAControls" Version="2.3.1" />
   </ItemGroup>
 </Project>

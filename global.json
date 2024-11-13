@@ -1,6 +1,7 @@
 {
-    "sdk" : {
-        "version": "8.0.0",
-        "rollForward": "latestFeature"
+    "sdk": {
+        // todo: need to see if there's a way to only set 8.0.204 on macOS
+        "version": "8.0.204",
+        "rollForward": "disable"
     }
 }

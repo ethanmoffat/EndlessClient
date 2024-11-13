@@ -1,11 +1,14 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Runtime.InteropServices;
 
 namespace EOLib.Config
 {
     [ExcludeFromCodeCoverage]
     public static class ConfigStrings
     {
-        public const string Default_Config_File = "config/settings.ini";
+        public static string Default_Config_File { get; } = GetPath("config/settings.ini");
 
         public const string Connection = "CONNECTION";
         public const string Host = "Host";
@@ -38,5 +41,18 @@ namespace EOLib.Config
         public const string HearWhisper = "HearWhisper";
         public const string Interaction = "Interaction";
         public const string LogChat = "LogChat";
+
+        private static string GetPath(string inputPath)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                var home = Environment.GetEnvironmentVariable("HOME");
+                return Path.Combine(home, ".endlessclient", inputPath);
+            }
+            else
+            {
+                return inputPath;
+            }
+        }
     }
 }

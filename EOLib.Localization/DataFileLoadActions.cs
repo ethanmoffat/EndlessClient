@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using AutomaticTypeMapper;
 
 namespace EOLib.Localization
@@ -19,10 +20,10 @@ namespace EOLib.Localization
 
         public void LoadDataFiles()
         {
-            if (!Directory.Exists(DataFileConstants.DataFilePath))
+            if (!Directory.Exists(GetPath(DataFileConstants.DataFilePath)))
                 throw new DataFileLoadException();
 
-            var files = Directory.GetFiles(DataFileConstants.DataFilePath, "*.edf")
+            var files = Directory.GetFiles(GetPath(DataFileConstants.DataFilePath), "*.edf")
                                  .OrderBy(x => x)
                                  .ToArray();
             if (files.Length != DataFileConstants.ExpectedNumberOfDataFiles)
@@ -41,8 +42,20 @@ namespace EOLib.Localization
 
         private bool DataFileNameIsValid(int fileNumber, string fileName)
         {
-            var expectedFormat = $"data/dat0{fileNumber:00}.edf";
+            var expectedFormat = GetPath($"data/dat0{fileNumber:00}.edf");
             return expectedFormat == fileName;
+        }
+
+        private string GetPath(string inputPath)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                return Path.Combine("Contents", "Resources", inputPath);
+            }
+            else
+            {
+                return inputPath;
+            }
         }
     }
 

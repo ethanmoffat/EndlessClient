@@ -95,8 +95,6 @@ namespace EndlessClient.GameExecution
                 PreferredBackBufferWidth = ClientWindowSizeRepository.DEFAULT_BACKBUFFER_WIDTH,
                 PreferredBackBufferHeight = ClientWindowSizeRepository.DEFAULT_BACKBUFFER_HEIGHT
             };
-
-            Content.RootDirectory = "Content";
         }
 
         protected override void Initialize()

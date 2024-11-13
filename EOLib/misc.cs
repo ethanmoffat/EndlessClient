@@ -1,4 +1,8 @@
-﻿namespace EOLib
+﻿using System;
+using System.IO;
+using System.Runtime.InteropServices;
+
+namespace EOLib
 {
     public static class Constants
     {
@@ -17,20 +21,17 @@
 
         public const int GhostTime = 5;
 
-        public const string LogFilePath = "log/debug.log";
-        public const string LogFileFmt = "log/{0}-debug.log";
+        public static string SfxDirectory { get; } = GetPath("sfx");
+        public static string MfxDirectory { get; } = GetPath("mfx");
+        public static string JboxDirectory { get; } = GetPath("jbox");
 
-        public const string SfxDirectory = "sfx";
-        public const string MfxDirectory = "mfx";
-        public const string JboxDirectory = "jbox";
+        public static string FriendListFile { get; } = GetModifiablePath("config/friends.ini");
+        public static string IgnoreListFile { get; } = GetModifiablePath("config/ignore.ini");
 
-        public const string FriendListFile = "config/friends.ini";
-        public const string IgnoreListFile = "config/ignore.ini";
-
-        public const string InventoryFile = "config/inventory.ini";
-        public const string SpellsFile = "config/spells.ini";
-        public const string PanelLayoutFile = "config/layout.ini";
-        public const string ChatLogFile = "chatlog.txt";
+        public static string InventoryFile { get; } = GetModifiablePath("config/inventory.ini");
+        public static string SpellsFile { get; } = GetModifiablePath("config/spells.ini");
+        public static string PanelLayoutFile { get; } = GetModifiablePath("config/layout.ini");
+        public static string ChatLogFile { get; } = GetModifiablePath("chatlog.txt");
 
         //Should be easily customizable between different clients (based on graphics)
         //not a config option because this shouldn't be exposed at the user level
@@ -67,5 +68,30 @@ Contributors :
 -- CoderDanUK";
 
         public const string VersionInfoFormat = "{0}.{1:000}.{2:000} - {3}:{4}";
+
+        private static string GetPath(string inputPath)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                return Path.Combine("Contents", "Resources", inputPath);
+            }
+            else
+            {
+                return inputPath;
+            }
+        }
+
+        private static string GetModifiablePath(string inputPath)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                var home = Environment.GetEnvironmentVariable("HOME");
+                return Path.Combine(home, ".endlessclient", inputPath);
+            }
+            else
+            {
+                return inputPath;
+            }
+        }
     }
 }

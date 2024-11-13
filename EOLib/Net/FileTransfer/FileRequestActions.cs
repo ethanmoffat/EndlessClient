@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
-using EOLib.Domain.Protocol;
 using EOLib.IO;
 using EOLib.IO.Extensions;
 using EOLib.IO.Pub;
@@ -87,7 +87,7 @@ namespace EOLib.Net.FileTransfer
 
             var itemFiles = await _fileRequestService.RequestFile<EIFRecord>(FileType.Eif, sessionID);
             foreach (var file in itemFiles)
-                _pubFileSaveService.SaveFile(string.Format(PubFileNameConstants.EIFFormat, file.ID), file, rewriteChecksum: false);
+                _pubFileSaveService.SaveFile(GetPath(string.Format(PubFileNameConstants.EIFFormat, file.ID)), file, rewriteChecksum: false);
 
             _pubFileRepository.EIFFiles = itemFiles;
             _pubFileRepository.EIFFile = PubFileExtensions.Merge(itemFiles);
@@ -99,7 +99,7 @@ namespace EOLib.Net.FileTransfer
 
             var npcFiles = await _fileRequestService.RequestFile<ENFRecord>(FileType.Enf, sessionID);
             foreach (var file in npcFiles)
-                _pubFileSaveService.SaveFile(string.Format(PubFileNameConstants.ENFFormat, file.ID), file, rewriteChecksum: false);
+                _pubFileSaveService.SaveFile(GetPath(string.Format(PubFileNameConstants.ENFFormat, file.ID)), file, rewriteChecksum: false);
             _pubFileRepository.ENFFiles = npcFiles;
             _pubFileRepository.ENFFile = PubFileExtensions.Merge(npcFiles);
         }
@@ -110,7 +110,7 @@ namespace EOLib.Net.FileTransfer
 
             var spellFiles = await _fileRequestService.RequestFile<ESFRecord>(FileType.Esf, sessionID);
             foreach (var file in spellFiles)
-                _pubFileSaveService.SaveFile(string.Format(PubFileNameConstants.ESFFormat, file.ID), file, rewriteChecksum: false);
+                _pubFileSaveService.SaveFile(GetPath(string.Format(PubFileNameConstants.ESFFormat, file.ID)), file, rewriteChecksum: false);
             _pubFileRepository.ESFFiles = spellFiles;
             _pubFileRepository.ESFFile = PubFileExtensions.Merge(spellFiles);
         }
@@ -121,7 +121,7 @@ namespace EOLib.Net.FileTransfer
 
             var classFiles = await _fileRequestService.RequestFile<ECFRecord>(FileType.Ecf, sessionID);
             foreach (var file in classFiles)
-                _pubFileSaveService.SaveFile(string.Format(PubFileNameConstants.ECFFormat, file.ID), file, rewriteChecksum: false);
+                _pubFileSaveService.SaveFile(GetPath(string.Format(PubFileNameConstants.ECFFormat, file.ID)), file, rewriteChecksum: false);
             _pubFileRepository.ECFFiles = classFiles;
             _pubFileRepository.ECFFile = PubFileExtensions.Merge(classFiles);
         }
@@ -166,10 +166,23 @@ namespace EOLib.Net.FileTransfer
         {
             try
             {
-                foreach (var file in Directory.GetFiles("pub", filter))
+                foreach (var file in Directory.GetFiles(GetPath(PubFileNameConstants.PubDirectory), filter))
                     File.Delete(file);
             }
             catch (IOException) { }
+        }
+
+        private static string GetPath(string inputPath)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                var home = Environment.GetEnvironmentVariable("HOME");
+                return Path.Combine(home, ".endlessclient", inputPath);
+            }
+            else
+            {
+                return inputPath;
+            }
         }
     }
 
