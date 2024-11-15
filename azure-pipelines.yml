@@ -128,7 +128,7 @@ steps:
 # EndlessClient + EOBot archive
 - task: ArchiveFiles@2
   displayName: 'ZIP EndlessClient'
-  condition: not(eq(variables.friendlyPlatform, 'macOS'))
+  condition: and(succeeded(), not(eq(variables.friendlyPlatform, 'macOS')))
   inputs:
     rootFolderOrFile: $(Build.SourcesDirectory)/bin/$(buildConfiguration)/client/$(dropDir)/
     archiveFile: $(Build.ArtifactStagingDirectory)/zip/EndlessClient.$(friendlyPlatform).zip
@@ -140,13 +140,13 @@ steps:
 # EndlessClient archive (macOS multi-target)
 - task: ArchiveFiles@2
   displayName: 'ZIP EndlessClient (arm64)'
-  condition: eq(variables.friendlyPlatform, 'macOS')
+  condition: and(succeeded(), eq(variables.friendlyPlatform, 'macOS'))
   inputs:
     rootFolderOrFile: $(Build.SourcesDirectory)/bin/$(buildConfiguration)/client/$(dropDir)/osx-arm64/EndlessClient.app
     archiveFile: $(Build.ArtifactStagingDirectory)/zip/EndlessClient.$(friendlyPlatform).zip
 - task: ArchiveFiles@2
   displayName: 'ZIP EndlessClient (x64)'
-  condition: eq(variables.friendlyPlatform, 'macOS')
+  condition: and(succeeded(), eq(variables.friendlyPlatform, 'macOS'))
   inputs:
     rootFolderOrFile: $(Build.SourcesDirectory)/bin/$(buildConfiguration)/client/$(dropDir)/osx-x64/EndlessClient.app
     archiveFile: $(Build.ArtifactStagingDirectory)/zip/EndlessClient.$(friendlyPlatform).zip
