@@ -13,7 +13,6 @@ As of 2020-05-09, this project is relicensed under the MIT license. Older versio
  - [Contributing](contributing.md)
  - [Getting started](#GettingStarted)
  - [Todo list](#ToDo)
- - [New features (also todo)](#NewFeatures)
  - [Changes from the Original Client](#Changes)
  - [Included Utility Projects](#Utility)
  - [EOBot](#EOBot)
@@ -23,17 +22,23 @@ As of 2020-05-09, this project is relicensed under the MIT license. Older versio
 
 ### Dependencies
 
-Source builds require Visual Studio, the .Net 6.0 SDK, and the .Net 3.1 runtime (for building content with the MonoGame content builder pipeline tool). Other dependencies are installed via Nuget. MonoGame no longer needs to be installed ahead of time!
+Source builds require Visual Studio and the .Net 8.0 SDK. Other dependencies are installed via Nuget. MonoGame no longer needs to be installed ahead of time, and as of the .Net 8.0 upgrade, it no longer requires the .Net 3.1 runtime!
 
-.Net 6.0 runtime is required to run the pre-built binary.
+.Net 8.0 runtime is required to run the pre-built binary.
 
 ### Pre-built binary
 
-See [releases](https://github.com/ethanmoffat/EndlessClient/releases) on GitHub for Linux and Windows binaries. .Net 6.0 runtime must be installed.
+See [releases](https://github.com/ethanmoffat/EndlessClient/releases) on GitHub for Windows/Linux binaries and macOS app (compiled for both Intel and Apple CPU architectures). .Net 8.0 runtime must be installed.
 
 ### How to play
 
-Download the appropriate [release](https://github.com/ethanmoffat/EndlessClient/releases) for your platform, then copy the data directories (data, gfx, jbox, mfx, sfx) from whichever client you normally use to EndlessClient's unzip location. Run EndlessClient by double-clicking the icon (any platform) or running `./EndlessClient` (Linux).
+**Windows/Linux**
+
+Download the appropriate [release](https://github.com/ethanmoffat/EndlessClient/releases) for your platform, then copy the data directories (data, gfx, jbox, mfx, sfx) from whichever client you normally use to EndlessClient's unzip location. Run EndlessClient by double-clicking the icon.
+
+**macOS**
+
+Unzip EndlessClient.app to your hard drive and double-click the app icon. You will need to enable apps from any source to run in your system security settings.
 
 ### Building from source
 
@@ -41,7 +46,7 @@ After installing, clone (or fork+clone) this repository locally and open the sol
 
 > ⚠️ If you have previously built EndlessClient, you mean need to clear your dotnet tool cache and nuget package cache
 >
-> Run the following commands:
+> Run the following commands (Windows):
 > - `dotnet nuget locals all --clear`
 > - Windows: `rmdir -recurse -force $env:USERPROFILE\\.dotnet\\toolResolverCache`
 > - Linux: `rm -rf ~/.dotnet/toolResolverCache`
@@ -54,13 +59,10 @@ After installing, clone (or fork+clone) this repository locally and open the sol
 
 ### Building on Mac
 
-1. Download and install the [.NET 6.0 SDK (x64)](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-6.0.403-macos-x64-installer).
-2. Link the binary to so it's in path `sudo ln -s /usr/local/share/dotnet/x64/dotnet /usr/local/bin/dotnet`
-3. Install XCode from the [AppStore](https://apps.apple.com/us/app/xcode/id497799835?ls=1&mt=12)
-4. Run `dotnet build /p:PublishReadyToRun=false /p:TieredCompilation=false --self-contained EndlessClient`
-5. The build will fail due to a using alias already being declared
-6. Run `echo '' > EndlessClient/obj/Debug/net6.0-macos/osx-x64/EndlessClient.GlobalUsings.g.*.generated.cs`
-7. Run the build again `dotnet build /p:PublishReadyToRun=false /p:TieredCompilation=false --self-contained EndlessClient`
+1. Download and install the [.NET 8.0 SDK (x64)](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-8.0.204-macos-x64-installer) or [Apple Silicon (e.g. M1)](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-8.0.204-macos-arm64-installer).
+    ⚠️ The latest .NET 8.0 SDK forces the minimum version of the compiled app to macOS 15 (sequoia). If this is not desired, use a prior version. 8.0.204 is a known working version.
+2. Install XCode from the [AppStore](https://apps.apple.com/us/app/xcode/id497799835?ls=1&mt=12)
+3. Run `dotnet build /p:PublishReadyToRun=false /p:TieredCompilation=false --self-contained EndlessClient`
 
 #### Mac errors
 
@@ -71,18 +73,6 @@ Solution: run the command `sudo dotnet workload restore EndlessClient/EndlessCli
 ---------------------
 
 See the Github issues for planned features. Anything marked with the 'in progress' label is actively being worked on.
-
-<a name="NewFeatures">New features (also todo)</a>
-------------------
-
-Here's a working list of things I want to add that would be additional features on top of the original client specs:
- - Use built-in patching system prior to log-in to transfer files
- - More than 3 characters per account
- - Trading items between characters on the same account
- - Better display scaling, ~~resizable display~~ (done)
- - Timed map weather systems
- - Passive skills
- - Better inventory
 
 <a name="Changes">Changes From Original Client</a>
 -------------------------------------
@@ -132,7 +122,7 @@ Activating background music on linux takes a bit of extra work, due to the fact 
 
 For troubleshooting purposes, follow the guide here: http://www.tedfelix.com/linux/linux-midi.html
 
-#### Resizable Game Display (experimental)
+#### Resizable Game Display
 
 The in-game experience can be modified for larger displays by setting the following configuration options in `config/settings.ini`:
 

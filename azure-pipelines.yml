@@ -19,15 +19,24 @@ schedules:
 strategy:
   matrix:
     linux:
-      imageName: "ubuntu-latest"
-      solutionName: "EndlessClient.sln"
+      imageName: "ubuntu-22.04"
       friendlyPlatform: "Linux"
       dropDir: net8.0
+      buildArgs: ""
+      dotnetVersion: 8.0.x
     windows:
-      imageName: "windows-latest"
-      solutionName: "EndlessClient.sln"
+      imageName: "windows-2022"
       friendlyPlatform: "Windows"
       dropDir: net8.0-windows
+      buildArgs: ""
+      dotnetVersion: 8.0.x
+    macos:
+      imageName: "macos-15-arm64"
+      friendlyPlatform: "macOS"
+      dropDir: net8.0-macos
+      buildArgs: ""
+      #buildArgs: "/p:PublishReadyToRun=false /p:TieredCompilation=false --self-contained"
+      dotnetVersion: "8.0.204"
 
 pool:
   vmImage: $(imageName)
@@ -41,7 +50,26 @@ steps:
 - task: UseDotNet@2
   displayName: 'Install .Net 8 runtime/sdk'
   inputs:
-    version: 8.0.x
+    version: $(dotnetVersion)
+- script: |
+    echo Mac OS version:
+    sw_vers -productVersion
+    echo
+    echo Installed Xcode versions:
+    ls /Applications | grep 'Xcode'
+    echo
+    echo currently selected xcode:
+    xcrun xcode-select --print-path
+    echo
+    echo selecting latest xcode...
+    sudo xcode-select -s /Applications/Xcode_16.1_Release_Candidate.app
+    xcrun xcode-select --print-path
+    xcodebuild -version
+  displayName: Select Xcode Version
+  condition: eq(variables.friendlyPlatform, 'macOS')
+
+#############################################
+# Assembly info and nuget properties
 - task: Assembly-Info-NetCore@3
   displayName: 'Set assembly version and copyright info'
   inputs:
@@ -52,7 +80,7 @@ steps:
     WriteBOM: false
     GenerateDocumentationFile: 'false'
     Authors: 'Ethan Moffat'
-    Copyright: 'Copyright © 2014-2024 Ethan Moffat'
+    Copyright: 'Copyright © 2014-2025 Ethan Moffat'
     VersionNumber: '$(Build.BuildNumber)'
     FileVersionNumber: '$(Build.BuildNumber)'
     InformationalVersion: '$(Build.BuildNumber)'
@@ -80,28 +108,50 @@ steps:
     LogLevel: 'verbose'
     FailOnWarning: false
     DisableTelemetry: false
+#############################################
+
+#############################################
+# Restore/Build/Test
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet workload restore'
+  condition: eq(variables.friendlyPlatform, 'macOS')
+  inputs:
+    command: 'custom'
+    custom: 'workload'
+    arguments: 'restore $(Build.SourcesDirectory)/EndlessClient/EndlessClient.csproj'
 - task: DotNetCoreCLI@2
   displayName: 'dotnet restore'
   inputs:
     command: 'restore'
     verbosityRestore: 'minimal'
-    projects: '$(Build.SourcesDirectory)/$(solutionName)'
+    projects: '$(Build.SourcesDirectory)/EndlessClient.sln'
 - task: DotNetCoreCLI@2
   displayName: 'dotnet build'
   inputs:
     command: 'build'
-    projects: '$(Build.SourcesDirectory)/$(solutionName)'
-    arguments: '--configuration $(buildConfiguration)'
+    projects: '$(Build.SourcesDirectory)/EndlessClient.sln'
+    arguments: '--configuration $(buildConfiguration) $(buildArgs)'
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet build - osx-arm64'
+  condition: eq(variables.friendlyPlatform, 'macOS')
+  inputs:
+    command: 'build'
+    projects: '$(Build.SourcesDirectory)/EndlessClient/EndlessClient.csproj'
+    arguments: '--configuration $(buildConfiguration) -r osx-arm64'
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test - skipping EOLib.Graphics.Test (not supported on VSTS agent)'
   inputs:
     command: 'test'
-    projects: '$(Build.SourcesDirectory)/$(solutionName)'
-    arguments: '--filter "TestCategory!=GraphicsDevice" --configuration $(buildConfiguration)'
+    projects: '$(Build.SourcesDirectory)/EndlessClient.sln'
+    arguments: '--no-build --filter "TestCategory!=GraphicsDevice" --configuration $(buildConfiguration)'
     testRunTitle: $(friendlyPlatform)
+#############################################
 
+#############################################
+# EndlessClient + EOBot archive
 - task: ArchiveFiles@2
   displayName: 'ZIP EndlessClient'
+  condition: and(succeeded(), not(eq(variables.friendlyPlatform, 'macOS')))
   inputs:
     rootFolderOrFile: $(Build.SourcesDirectory)/bin/$(buildConfiguration)/client/$(dropDir)/
     archiveFile: $(Build.ArtifactStagingDirectory)/zip/EndlessClient.$(friendlyPlatform).zip
@@ -110,11 +160,26 @@ steps:
   inputs:
     rootFolderOrFile: $(Build.SourcesDirectory)/bin/$(buildConfiguration)/utils/EOBot/net8.0/
     archiveFile: $(Build.ArtifactStagingDirectory)/zip/EOBot.$(friendlyPlatform).zip
+# EndlessClient archive (macOS multi-target)
+- task: ArchiveFiles@2
+  displayName: 'ZIP EndlessClient (arm64)'
+  condition: and(succeeded(), eq(variables.friendlyPlatform, 'macOS'))
+  inputs:
+    rootFolderOrFile: $(Build.SourcesDirectory)/bin/$(buildConfiguration)/client/$(dropDir)/osx-arm64/EndlessClient.app
+    archiveFile: $(Build.ArtifactStagingDirectory)/zip/EndlessClient.$(friendlyPlatform).arm64.zip
+- task: ArchiveFiles@2
+  displayName: 'ZIP EndlessClient (x64)'
+  condition: and(succeeded(), eq(variables.friendlyPlatform, 'macOS'))
+  inputs:
+    rootFolderOrFile: $(Build.SourcesDirectory)/bin/$(buildConfiguration)/client/$(dropDir)/osx-x64/EndlessClient.app
+    archiveFile: $(Build.ArtifactStagingDirectory)/zip/EndlessClient.$(friendlyPlatform).x64.zip
+# Publish zip artifacts
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifacts'
   inputs:
     PathtoPublish: $(Build.ArtifactStagingDirectory)/zip
     ArtifactName: EndlessClient
+#############################################
 
 - task: CopyFiles@2
   displayName: 'Copy nuget packages'
