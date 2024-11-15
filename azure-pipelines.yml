@@ -23,17 +23,20 @@ strategy:
       friendlyPlatform: "Linux"
       dropDir: net8.0
       buildArgs: ""
+      dotnetVersion: 8.0.x
     windows:
       imageName: "windows-2022"
       friendlyPlatform: "Windows"
       dropDir: net8.0-windows
       buildArgs: ""
+      dotnetVersion: 8.0.x
     macos:
       imageName: "macos-14"
       friendlyPlatform: "macOS"
       dropDir: net8.0-macos
       buildArgs: ""
       #buildArgs: "/p:PublishReadyToRun=false /p:TieredCompilation=false --self-contained"
+      dotnetVersion: "8.0.204"
 
 pool:
   vmImage: $(imageName)
@@ -47,7 +50,7 @@ steps:
 - task: UseDotNet@2
   displayName: 'Install .Net 8 runtime/sdk'
   inputs:
-    version: 8.0.x
+    version: $(dotnetVersion)
 
 #############################################
 # Assembly info and nuget properties
@@ -61,7 +64,7 @@ steps:
     WriteBOM: false
     GenerateDocumentationFile: 'false'
     Authors: 'Ethan Moffat'
-    Copyright: 'Copyright © 2014-2024 Ethan Moffat'
+    Copyright: 'Copyright © 2014-2025 Ethan Moffat'
     VersionNumber: '$(Build.BuildNumber)'
     FileVersionNumber: '$(Build.BuildNumber)'
     InformationalVersion: '$(Build.BuildNumber)'
@@ -94,7 +97,7 @@ steps:
 #############################################
 # Restore/Build/Test
 - task: DotNetCoreCLI@2
-  displayName: 'dotnet workload restore (macOS)'
+  displayName: 'dotnet workload restore'
   condition: eq(variables.friendlyPlatform, 'macOS')
   inputs:
     command: 'custom'
@@ -136,13 +139,13 @@ steps:
     archiveFile: $(Build.ArtifactStagingDirectory)/zip/EOBot.$(friendlyPlatform).zip
 # EndlessClient archive (macOS multi-target)
 - task: ArchiveFiles@2
-  displayName: 'ZIP EndlessClient - macOS (arm)'
+  displayName: 'ZIP EndlessClient (arm64)'
   condition: eq(variables.friendlyPlatform, 'macOS')
   inputs:
     rootFolderOrFile: $(Build.SourcesDirectory)/bin/$(buildConfiguration)/client/$(dropDir)/osx-arm64/EndlessClient.app
     archiveFile: $(Build.ArtifactStagingDirectory)/zip/EndlessClient.$(friendlyPlatform).zip
 - task: ArchiveFiles@2
-  displayName: 'ZIP EndlessClient - macOS (x64)'
+  displayName: 'ZIP EndlessClient (x64)'
   condition: eq(variables.friendlyPlatform, 'macOS')
   inputs:
     rootFolderOrFile: $(Build.SourcesDirectory)/bin/$(buildConfiguration)/client/$(dropDir)/osx-x64/EndlessClient.app
