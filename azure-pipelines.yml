@@ -128,6 +128,13 @@ steps:
     projects: '$(Build.SourcesDirectory)/EndlessClient.sln'
     arguments: '--configuration $(buildConfiguration)'
 - task: DotNetCoreCLI@2
+  displayName: 'dotnet build - osx-arm64'
+  condition: eq(variables.friendlyPlatform, 'macOS')
+  inputs:
+    command: 'build'
+    projects: '$(Build.SourcesDirectory)/EndlessClient/EndlessClient.csproj'
+    arguments: '--configuration $(buildConfiguration) -r osx-arm64'
+- task: DotNetCoreCLI@2
   displayName: 'dotnet test - skipping EOLib.Graphics.Test (not supported on VSTS agent)'
   inputs:
     command: 'test'
