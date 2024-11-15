@@ -6,11 +6,14 @@ namespace EOLib.Shared
 {
     public static class PathResolver
     {
+        public const string LocalFilesRoot = ".endlessclient";
+        public static string ResourcesRoot { get; } = Path.Combine("Contents", "Resources");
+
         public static string GetPath(string inputPath)
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                return Path.Combine("Contents", "Resources", inputPath);
+                return Path.Combine(ResourcesRoot, inputPath);
             }
             else
             {
@@ -25,7 +28,7 @@ namespace EOLib.Shared
                 var home = Environment.GetEnvironmentVariable("HOME");
                 if (home != null)
                 {
-                    return Path.Combine(home, ".endlessclient", inputPath);
+                    return Path.Combine(home, LocalFilesRoot, inputPath);
                 }
             }
 
