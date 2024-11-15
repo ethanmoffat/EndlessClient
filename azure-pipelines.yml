@@ -28,7 +28,7 @@ strategy:
       friendlyPlatform: "Windows"
       dropDir: net8.0-windows
       buildArgs: ""
-    macos-arm:
+    macos:
       imageName: "macos-14"
       friendlyPlatform: "macOS"
       dropDir: net8.0-macos
