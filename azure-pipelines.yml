@@ -143,13 +143,13 @@ steps:
   condition: and(succeeded(), eq(variables.friendlyPlatform, 'macOS'))
   inputs:
     rootFolderOrFile: $(Build.SourcesDirectory)/bin/$(buildConfiguration)/client/$(dropDir)/osx-arm64/EndlessClient.app
-    archiveFile: $(Build.ArtifactStagingDirectory)/zip/EndlessClient.$(friendlyPlatform).zip
+    archiveFile: $(Build.ArtifactStagingDirectory)/zip/EndlessClient.$(friendlyPlatform).arm64.zip
 - task: ArchiveFiles@2
   displayName: 'ZIP EndlessClient (x64)'
   condition: and(succeeded(), eq(variables.friendlyPlatform, 'macOS'))
   inputs:
     rootFolderOrFile: $(Build.SourcesDirectory)/bin/$(buildConfiguration)/client/$(dropDir)/osx-x64/EndlessClient.app
-    archiveFile: $(Build.ArtifactStagingDirectory)/zip/EndlessClient.$(friendlyPlatform).zip
+    archiveFile: $(Build.ArtifactStagingDirectory)/zip/EndlessClient.$(friendlyPlatform).x64.zip
 # Publish zip artifacts
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifacts'
