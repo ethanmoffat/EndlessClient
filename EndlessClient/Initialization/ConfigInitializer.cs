@@ -20,18 +20,21 @@ namespace EndlessClient.Initialization
         public void Initialize()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                CopyDefaultConfigFiles();
-            }
+                InitializeDefaultConfigFiles();
+
             _configFileLoadActions.LoadConfigFile();
         }
 
+        /// <summary>
+        /// Copy default configuration files out of the macOS app bundle into ~/.endlessclient/config. This is done only if the files do not already exist.
+        /// </summary>
         [SupportedOSPlatform("OSX")]
-        private void CopyDefaultConfigFiles()
+        private static void InitializeDefaultConfigFiles()
         {
-            if (!Directory.Exists(Path.GetDirectoryName(Constants.Default_Config_File)))
+            var configDirectory = Path.GetDirectoryName(Constants.Default_Config_File);
+            if (!Directory.Exists(configDirectory))
             {
-                Directory.CreateDirectory(Constants.Default_Config_File);
+                Directory.CreateDirectory(configDirectory);
             }
 
             var files = new[] {
@@ -44,10 +47,10 @@ namespace EndlessClient.Initialization
             };
             foreach (var file in files)
             {
-                if (!File.Exists(file))
+                if (!File.Exists(file) && file.Contains(PathResolver.LocalFilesRoot))
                 {
-                    var index = file.IndexOf(".endlessclient") + 15;
-                    var source = Path.Combine("Contents", "Resources", file[index..]);
+                    var index = file.IndexOf(PathResolver.LocalFilesRoot) + PathResolver.LocalFilesRoot.Length + 1;
+                    var source = Path.Combine(PathResolver.ResourcesRoot, file[index..]);
                     if (File.Exists(source))
                     {
                         File.Copy(source, file);
