@@ -51,6 +51,22 @@ steps:
   displayName: 'Install .Net 8 runtime/sdk'
   inputs:
     version: $(dotnetVersion)
+- script: |
+    echo Mac OS version:
+    sw_vers -productVersion
+    echo
+    echo Installed Xcode versions:
+    ls /Applications | grep 'Xcode'
+    echo
+    echo currently selected xcode:
+    xcrun xcode-select --print-path
+    echo
+    echo selecting latest xcode...
+    sudo xcode-select -s /Applications/Xcode_16.1_Release_Candidate.app
+    xcrun xcode-select --print-path
+    xcodebuild -version
+  displayName: Select Xcode Version
+  condition: eq(variables.friendlyPlatform, 'macOS')
 
 #############################################
 # Assembly info and nuget properties
