@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using AutomaticTypeMapper;
+using EOLib.Shared;
 
 namespace EOLib.Localization
 {
@@ -14,7 +15,7 @@ namespace EOLib.Localization
 
         public DataFileRepository()
         {
-            _dataFiles = new Dictionary<DataFiles, IEDFFile>(DataFileConstants.ExpectedNumberOfDataFiles);
+            _dataFiles = new Dictionary<DataFiles, IEDFFile>(Constants.ExpectedNumberOfDataFiles);
         }
     }
 

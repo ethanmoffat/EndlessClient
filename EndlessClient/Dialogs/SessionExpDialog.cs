@@ -1,9 +1,9 @@
 ﻿using System;
 using EndlessClient.Dialogs.Services;
-using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.Localization;
+using EOLib.Shared;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;

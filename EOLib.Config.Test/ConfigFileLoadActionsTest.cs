@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using EOLib.Shared;
 using NUnit.Framework;
 
 namespace EOLib.Config.Test
@@ -130,7 +131,7 @@ Interaction=false";
             if (!Directory.Exists(ConfigDirectory))
                 Directory.CreateDirectory(ConfigDirectory);
 
-            File.WriteAllText(ConfigStrings.Default_Config_File, contents);
+            File.WriteAllText(Constants.Default_Config_File, contents);
         }
     }
 }

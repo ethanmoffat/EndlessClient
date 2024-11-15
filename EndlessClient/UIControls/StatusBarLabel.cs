@@ -1,8 +1,8 @@
 ﻿using System;
 using EndlessClient.HUD;
 using EndlessClient.Rendering;
-using EOLib;
 using EOLib.Graphics;
+using EOLib.Shared;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
@@ -26,7 +26,7 @@ namespace EndlessClient.UIControls
         public StatusBarLabel(INativeGraphicsManager nativeGraphicsManager,
                               IClientWindowSizeProvider clientWindowSizeProvider,
                               IStatusLabelTextProvider statusLabelTextProvider)
-            : base(Constants.FontSize07)
+            : base(spriteFontName: Constants.FontSize07)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _clientWindowSizeProvider = clientWindowSizeProvider;

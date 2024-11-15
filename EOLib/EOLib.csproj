@@ -18,6 +18,7 @@
     <ProjectReference Include="..\EOLib.IO\EOLib.IO.csproj" />
     <ProjectReference Include="..\EOLib.Localization\EOLib.Localization.csproj" />
     <ProjectReference Include="..\EOLib.Logger\EOLib.Logger.csproj" />
+    <ProjectReference Include="..\EOLib.Shared\EOLib.Shared.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Amadevus.RecordGenerator" Version="0.6.0" />

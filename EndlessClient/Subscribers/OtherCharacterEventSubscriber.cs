@@ -4,10 +4,10 @@ using AutomaticTypeMapper;
 using EndlessClient.HUD.Chat;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Services;
-using EOLib;
 using EOLib.Config;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Notifiers;
+using EOLib.Shared;
 
 namespace EndlessClient.Subscribers
 {

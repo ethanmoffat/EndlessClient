@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
-using System.Runtime.InteropServices;
 using AutomaticTypeMapper;
 using EOLib.IO.Map;
 using EOLib.IO.Services.Serializers;
+using EOLib.Shared;
 
 namespace EOLib.IO.Services
 {
@@ -19,11 +19,11 @@ namespace EOLib.IO.Services
 
         public void SaveFileToDefaultDirectory(IMapFile mapFile, bool rewriteChecksum = true)
         {
-            var directoryName = GetPath(Path.GetDirectoryName(string.Format(MapFile.MapFileFormatString, 1)) ?? "");
+            var directoryName = Constants.MapDirectory;
             if (!Directory.Exists(directoryName))
                 Directory.CreateDirectory(directoryName);
 
-            File.WriteAllBytes(GetPath(string.Format(MapFile.MapFileFormatString, mapFile.Properties.MapID)),
+            File.WriteAllBytes(string.Format(Constants.MapFileFormatString, mapFile.Properties.MapID),
                                _mapFileSerializer.SerializeToByteArray(mapFile, rewriteChecksum));
         }
 
@@ -33,19 +33,6 @@ namespace EOLib.IO.Services
                 throw new ArgumentException("Must specify an emf file", nameof(path));
 
             File.WriteAllBytes(path, _mapFileSerializer.SerializeToByteArray(mapFile, rewriteChecksum));
-        }
-
-        private string GetPath(string inputPath)
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                var home = Environment.GetEnvironmentVariable("HOME");
-                return Path.Combine(home, ".endlessclient", inputPath);
-            }
-            else
-            {
-                return inputPath;
-            }
         }
     }
 }

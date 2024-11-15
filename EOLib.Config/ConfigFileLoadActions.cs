@@ -2,6 +2,7 @@
 using System.IO;
 using System.Runtime.InteropServices;
 using AutomaticTypeMapper;
+using EOLib.Shared;
 
 namespace EOLib.Config
 {
@@ -17,7 +18,7 @@ namespace EOLib.Config
 
         public void LoadConfigFile()
         {
-            var configFile = new IniReader(ConfigStrings.Default_Config_File);
+            var configFile = new IniReader(Constants.Default_Config_File);
             if (!configFile.Load())
                 throw new ConfigLoadException();
 

@@ -2,8 +2,8 @@
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using AutomaticTypeMapper;
-using EOLib;
 using EOLib.Config;
+using EOLib.Shared;
 
 namespace EndlessClient.Initialization
 {
@@ -29,13 +29,13 @@ namespace EndlessClient.Initialization
         [SupportedOSPlatform("OSX")]
         private void CopyDefaultConfigFiles()
         {
-            if (!Directory.Exists(Path.GetDirectoryName(ConfigStrings.Default_Config_File)))
+            if (!Directory.Exists(Path.GetDirectoryName(Constants.Default_Config_File)))
             {
-                Directory.CreateDirectory(ConfigStrings.Default_Config_File);
+                Directory.CreateDirectory(Constants.Default_Config_File);
             }
 
             var files = new[] {
-                ConfigStrings.Default_Config_File,
+                Constants.Default_Config_File,
                 Constants.InventoryFile,
                 Constants.SpellsFile,
                 Constants.FriendListFile,

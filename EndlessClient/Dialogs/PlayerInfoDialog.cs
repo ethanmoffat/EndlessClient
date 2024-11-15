@@ -1,10 +1,9 @@
 ﻿using EndlessClient.Dialogs.Services;
-using EOLib;
 using EOLib.Domain.Character;
-using EOLib.Domain.Online;
 using EOLib.Extensions;
 using EOLib.Graphics;
 using EOLib.IO.Repositories;
+using EOLib.Shared;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;

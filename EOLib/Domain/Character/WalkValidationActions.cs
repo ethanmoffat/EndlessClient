@@ -4,6 +4,7 @@ using AutomaticTypeMapper;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.IO.Map;
+using EOLib.Shared;
 using Optional;
 
 namespace EOLib.Domain.Character

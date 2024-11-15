@@ -15,6 +15,7 @@ using EOLib;
 using EOLib.Config;
 using EOLib.Graphics;
 using EOLib.IO.Actions;
+using EOLib.Shared;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;

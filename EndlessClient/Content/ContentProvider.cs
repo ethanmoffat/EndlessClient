@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using AutomaticTypeMapper;
 using EndlessClient.Audio;
-using EOLib;
+using EOLib.Shared;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;

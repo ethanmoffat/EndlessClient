@@ -12,7 +12,7 @@ namespace EOLib.IO.Actions
         private readonly IMapFileLoadService _mapFileLoadService;
 
         public MapFileLoadActions(IMapFileRepository mapFileRepository,
-                               IMapFileLoadService mapFileLoadService)
+                                  IMapFileLoadService mapFileLoadService)
         {
             _mapFileRepository = mapFileRepository;
             _mapFileLoadService = mapFileLoadService;

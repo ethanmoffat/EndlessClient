@@ -1,6 +1,6 @@
 ﻿using System;
 using EndlessClient.Rendering;
-using EOLib;
+using EOLib.Shared;
 using Microsoft.Xna.Framework;
 using XNAControls;
 

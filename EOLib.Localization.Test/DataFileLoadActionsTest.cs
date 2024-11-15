@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using EOLib.Shared;
 using NUnit.Framework;
 
 namespace EOLib.Localization.Test
@@ -22,8 +23,8 @@ namespace EOLib.Localization.Test
         [TearDown]
         public void TearDown()
         {
-            if (Directory.Exists(DataFileConstants.DataFilePath))
-                Directory.Delete(DataFileConstants.DataFilePath, true);
+            if (Directory.Exists(Constants.DataFilePath))
+                Directory.Delete(Constants.DataFilePath, true);
         }
 
         [Test]
@@ -59,20 +60,20 @@ namespace EOLib.Localization.Test
 
             _actions.LoadDataFiles();
 
-            Assert.That(_dataFileRepository.DataFiles.Count, Is.EqualTo(DataFileConstants.ExpectedNumberOfDataFiles));
+            Assert.That(_dataFileRepository.DataFiles.Count, Is.EqualTo(Constants.ExpectedNumberOfDataFiles));
         }
 
         private void CreateRequiredDirectory()
         {
-            if (!Directory.Exists(DataFileConstants.DataFilePath))
-                Directory.CreateDirectory(DataFileConstants.DataFilePath);
+            if (!Directory.Exists(Constants.DataFilePath))
+                Directory.CreateDirectory(Constants.DataFilePath);
         }
 
-        private void GivenEDFFilesInRequiredDirectory(int numberOfFiles = DataFileConstants.ExpectedNumberOfDataFiles,
+        private void GivenEDFFilesInRequiredDirectory(int numberOfFiles = Constants.ExpectedNumberOfDataFiles,
                                                       string nameFormat = "dat0{0:00}.edf")
         {
             for (int i = 1; i <= numberOfFiles; ++i)
-                File.Create(string.Format(Path.Combine(DataFileConstants.DataFilePath, nameFormat), i)).Close();
+                File.Create(string.Format(Path.Combine(Constants.DataFilePath, nameFormat), i)).Close();
         }
     }
 }

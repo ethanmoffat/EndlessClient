@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using EndlessClient.GameExecution;
-using EOLib;
 using EOLib.Config;
+using EOLib.Shared;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Optional;

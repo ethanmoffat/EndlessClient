@@ -1,9 +1,9 @@
 ﻿using System;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering;
-using EOLib;
 using EOLib.Graphics;
 using EOLib.Localization;
+using EOLib.Shared;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;

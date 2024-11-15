@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
 using EndlessClient.Rendering.Chat;
@@ -13,6 +11,7 @@ using EOLib.Domain.NPC;
 using EOLib.Domain.Spells;
 using EOLib.Graphics;
 using EOLib.IO.Repositories;
+using EOLib.Shared;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Optional;

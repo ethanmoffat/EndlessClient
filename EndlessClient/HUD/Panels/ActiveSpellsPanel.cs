@@ -13,7 +13,6 @@ using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Spells;
 using EndlessClient.Rendering;
 using EndlessClient.UIControls;
-using EOLib;
 using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
@@ -21,6 +20,7 @@ using EOLib.Graphics;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
+using EOLib.Shared;
 using Microsoft.Win32;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -29,7 +29,6 @@ using MonoGame.Extended.Input;
 using Optional;
 using Optional.Collections;
 using XNAControls;
-using static EndlessClient.HUD.Spells.SpellPanelItem;
 
 namespace EndlessClient.HUD.Panels
 {

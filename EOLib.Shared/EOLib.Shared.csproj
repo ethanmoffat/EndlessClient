@@ -2,9 +2,11 @@
   <Import Project="../common.targets" />
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>8.0</LangVersion>
     <OutputType>Library</OutputType>
     <OutputPath>..\bin\$(Configuration)\lib\</OutputPath>
-    <Description>Library for interacting with Endless Online configuration files</Description>
+    <Nullable>enable</Nullable>
+    <Description>Base library for Endless Online development</Description>
   </PropertyGroup>
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
     <DefineConstants>$(DefineConstants);LINUX</DefineConstants>
@@ -12,10 +14,4 @@
   <PropertyGroup Condition="'$(Configuration.Contains(`Debug`))'">
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="AutomaticTypeMapper" Version="1.4.1" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\EOLib.Shared\EOLib.Shared.csproj" />
-  </ItemGroup>
 </Project>

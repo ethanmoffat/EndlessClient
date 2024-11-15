@@ -11,7 +11,6 @@ using EndlessClient.HUD.Chat;
 using EndlessClient.Input;
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Map;
-using EOLib;
 using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
@@ -22,6 +21,7 @@ using EOLib.Localization;
 using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.FileTransfer;
+using EOLib.Shared;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 

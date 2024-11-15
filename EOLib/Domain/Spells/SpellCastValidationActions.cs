@@ -7,6 +7,7 @@ using EOLib.Domain.Map;
 using EOLib.Domain.Party;
 using EOLib.IO;
 using EOLib.IO.Repositories;
+using EOLib.Shared;
 
 namespace EOLib.Domain.Spells
 {

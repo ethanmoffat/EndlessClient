@@ -5,12 +5,11 @@ using EndlessClient.Content;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.HUD.Chat;
 using EndlessClient.UIControls;
-using EOLib;
 using EOLib.Graphics;
+using EOLib.Shared;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace EndlessClient.Dialogs
 {

@@ -4,13 +4,13 @@ using System.Linq;
 using EndlessClient.Content;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.Dialogs.Services;
-using EOLib;
 using EOLib.Domain.Interact.Law;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
+using EOLib.Shared;
 using Optional.Collections;
 using XNAControls;
 

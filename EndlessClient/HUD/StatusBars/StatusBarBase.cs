@@ -1,8 +1,8 @@
 ﻿using System;
 using EndlessClient.Rendering;
-using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
+using EOLib.Shared;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.Input.InputListeners;

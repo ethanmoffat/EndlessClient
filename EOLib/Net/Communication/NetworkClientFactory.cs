@@ -1,7 +1,6 @@
 ﻿using System;
 using AutomaticTypeMapper;
 using EOLib.IO.Services;
-using EOLib.Logger;
 using EOLib.Net.Handlers;
 using EOLib.Net.PacketProcessing;
 
@@ -23,7 +22,7 @@ namespace EOLib.Net.Communication
             _numberEncoderService = numberEncoderService;
         }
 
-        public INetworkClient CreateNetworkClient(int timeout = Constants.ResponseTimeout)
+        public INetworkClient CreateNetworkClient(int timeout = TimeoutConstants.ResponseTimeout)
         {
             return new NetworkClient(_packetProcessActions, _packetHandlingActions, _numberEncoderService, TimeSpan.FromMilliseconds(timeout));
         }

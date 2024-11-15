@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using EndlessClient.Services;
-using EOLib;
 using EOLib.Domain.Chat;
 using EOLib.Graphics;
-using Microsoft.Xna.Framework.Graphics;
+using EOLib.Shared;
 using MonoGame.Extended.BitmapFonts;
 using XNAControls;
 

@@ -6,8 +6,6 @@ namespace EOLib.IO.Map
 {
     public class MapFile : IMapFile
     {
-        public const string MapFileFormatString = "maps/{0,5:D5}.emf";
-
         public IMapFileProperties Properties { get; private set; }
 
         public IReadOnlyMatrix<TileSpec> Tiles => _mutableTiles;

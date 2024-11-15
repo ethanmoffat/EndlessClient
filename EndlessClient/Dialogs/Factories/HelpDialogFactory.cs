@@ -4,9 +4,9 @@ using AutomaticTypeMapper;
 using EndlessClient.Content;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Services;
-using EOLib;
 using EOLib.Graphics;
 using EOLib.Localization;
+using EOLib.Shared;
 
 namespace EndlessClient.Dialogs.Factories
 {

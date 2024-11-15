@@ -3,9 +3,9 @@ using System.IO;
 using System.Linq;
 using AutomaticTypeMapper;
 using Commons.Music.Midi;
-using EOLib;
 using EOLib.Config;
 using EOLib.IO.Map;
+using EOLib.Shared;
 
 namespace EndlessClient.Audio
 {
