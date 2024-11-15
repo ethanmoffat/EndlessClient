@@ -111,7 +111,7 @@ steps:
   inputs:
     command: 'build'
     projects: '$(Build.SourcesDirectory)/EndlessClient.sln'
-    arguments: '--no-restore --configuration $(buildConfiguration) $(buildArgs)'
+    arguments: '--configuration $(buildConfiguration) $(buildArgs)'
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test - skipping EOLib.Graphics.Test (not supported on VSTS agent)'
   inputs:
