@@ -31,7 +31,7 @@ strategy:
       buildArgs: ""
       dotnetVersion: 8.0.x
     macos:
-      imageName: "macos-14"
+      imageName: "macos-15"
       friendlyPlatform: "macOS"
       dropDir: net8.0-macos
       buildArgs: ""
