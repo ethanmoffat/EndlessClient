@@ -43,9 +43,6 @@
             "type": "process",
             "args": [
                 "build",
-                "/p:PublishReadyToRun=false",
-                "/p:TieredCompilation=false",
-                "--self-contained",
                 "${workspaceFolder}/EndlessClient/EndlessClient.csproj",
                 "-r",
                 "osx-arm64"

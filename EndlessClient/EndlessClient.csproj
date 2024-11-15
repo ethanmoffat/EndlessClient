@@ -25,6 +25,7 @@
     <NoNFloatUsing>true</NoNFloatUsing>
     <SupportedOSPlatformVersion>11.0</SupportedOSPlatformVersion>
     <RuntimeIdentifiers>osx-x64;osx-arm64</RuntimeIdentifiers>
+    <SelfContained>true</SelfContained>
   </PropertyGroup>
   <PropertyGroup>
     <_ResolveReferenceDependencies>true</_ResolveReferenceDependencies>
