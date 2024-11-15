@@ -49,7 +49,7 @@ namespace EndlessClient.Initialization
             {
                 if (!File.Exists(file) && file.Contains(PathResolver.LocalFilesRoot))
                 {
-                    var index = file.IndexOf(PathResolver.LocalFilesRoot) + PathResolver.LocalFilesRoot.Length;
+                    var index = file.IndexOf(PathResolver.LocalFilesRoot) + PathResolver.LocalFilesRoot.Length + 1;
                     var source = Path.Combine(PathResolver.ResourcesRoot, file[index..]);
                     if (File.Exists(source))
                     {
