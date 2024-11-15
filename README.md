@@ -62,7 +62,7 @@ After installing, clone (or fork+clone) this repository locally and open the sol
 1. Download and install the [.NET 8.0 SDK (x64)](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-8.0.204-macos-x64-installer) or [Apple Silicon (e.g. M1)](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-8.0.204-macos-arm64-installer).
     ⚠️ The latest .NET 8.0 SDK forces the minimum version of the compiled app to macOS 15 (sequoia). If this is not desired, use a prior version. 8.0.204 is a known working version.
 2. Install XCode from the [AppStore](https://apps.apple.com/us/app/xcode/id497799835?ls=1&mt=12)
-3. Run `dotnet build /p:PublishReadyToRun=false /p:TieredCompilation=false --self-contained EndlessClient`
+3. Run `dotnet build`
 
 #### Mac errors
 
