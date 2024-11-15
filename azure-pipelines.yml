@@ -22,20 +22,16 @@ strategy:
       imageName: "ubuntu-22.04"
       friendlyPlatform: "Linux"
       dropDir: net8.0
-      buildArgs: ""
       dotnetVersion: 8.0.x
     windows:
       imageName: "windows-2022"
       friendlyPlatform: "Windows"
       dropDir: net8.0-windows
-      buildArgs: ""
       dotnetVersion: 8.0.x
     macos:
-      imageName: "macos-15-arm64"
+      imageName: "macos-15"
       friendlyPlatform: "macOS"
       dropDir: net8.0-macos
-      buildArgs: ""
-      #buildArgs: "/p:PublishReadyToRun=false /p:TieredCompilation=false --self-contained"
       dotnetVersion: "8.0.204"
 
 pool:
@@ -130,7 +126,7 @@ steps:
   inputs:
     command: 'build'
     projects: '$(Build.SourcesDirectory)/EndlessClient.sln'
-    arguments: '--configuration $(buildConfiguration) $(buildArgs)'
+    arguments: '--configuration $(buildConfiguration)'
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test - skipping EOLib.Graphics.Test (not supported on VSTS agent)'
   inputs:
