@@ -2,11 +2,11 @@
 using System.Linq;
 using EndlessClient.Content;
 using EndlessClient.Dialogs.Services;
-using EOLib;
 using EOLib.Domain.Interact.Quest;
 using EOLib.Graphics;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
+using EOLib.Shared;
 using Microsoft.Xna.Framework;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 using Optional;

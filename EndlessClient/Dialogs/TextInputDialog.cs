@@ -2,8 +2,8 @@
 using EndlessClient.Dialogs.Services;
 using EndlessClient.HUD.Chat;
 using EndlessClient.UIControls;
-using EOLib;
 using EOLib.Graphics;
+using EOLib.Shared;
 using Microsoft.Xna.Framework;
 using XNAControls;
 

@@ -3,15 +3,14 @@ using System.Linq;
 using AutomaticTypeMapper;
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Services;
-using EndlessClient.GameExecution;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Services;
 using EndlessClient.UIControls;
-using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Online;
 using EOLib.Graphics;
 using EOLib.Localization;
+using EOLib.Shared;
 using XNAControls;
 
 namespace EndlessClient.Dialogs.Factories

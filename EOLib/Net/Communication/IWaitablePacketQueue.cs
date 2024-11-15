@@ -7,6 +7,6 @@ namespace EOLib.Net.Communication
     {
         void EnqueuePacketAndSignalConsumer(IPacket packet);
 
-        Task<IPacket> WaitForPacketAndDequeue(int timeOut = Constants.ResponseTimeout);
+        Task<IPacket> WaitForPacketAndDequeue(int timeOut = TimeoutConstants.ResponseTimeout);
     }
 }

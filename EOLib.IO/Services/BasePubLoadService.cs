@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using EOLib.IO.Pub;
 using EOLib.IO.Services.Serializers;
+using EOLib.Shared;
 
 namespace EOLib.IO.Services
 {
@@ -20,7 +21,7 @@ namespace EOLib.IO.Services
 
         public IEnumerable<IPubFile<TRecord>> LoadPubFromDefaultFile()
         {
-            return LoadPubFromExplicitFile(PubFileNameConstants.PubDirectory, FileFilter);
+            return LoadPubFromExplicitFile(Constants.PubDirectory, FileFilter);
         }
 
         public IEnumerable<IPubFile<TRecord>> LoadPubFromExplicitFile(string directory, string searchPattern)

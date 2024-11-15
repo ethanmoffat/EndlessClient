@@ -4,5 +4,7 @@
 <dict>
     <key>CFBundleIconFile</key>
     <string>Game.icns</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>11.0</string>
 </dict>
 </plist>

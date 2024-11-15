@@ -28,6 +28,7 @@ using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.Localization;
+using EOLib.Shared;
 using Microsoft.Xna.Framework;
 using XNAControls;
 

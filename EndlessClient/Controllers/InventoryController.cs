@@ -10,19 +10,18 @@ using EndlessClient.HUD;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Map;
-using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Interact;
 using EOLib.Domain.Interact.Bank;
 using EOLib.Domain.Item;
-using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Trade;
 using EOLib.IO;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
+using EOLib.Shared;
 using XNAControls;
 
 namespace EndlessClient.Controllers

@@ -1,5 +1,5 @@
-﻿using EOLib;
-using EOLib.Graphics;
+﻿using EOLib.Graphics;
+using EOLib.Shared;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Moffat.EndlessOnline.SDK.Protocol.Net;

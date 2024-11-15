@@ -1,7 +1,10 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Runtime.InteropServices;
 using AutomaticTypeMapper;
 using EOLib.IO.Map;
 using EOLib.IO.Services.Serializers;
+using EOLib.Shared;
 
 namespace EOLib.IO.Services
 {
@@ -17,7 +20,7 @@ namespace EOLib.IO.Services
 
         public IMapFile LoadMapByID(int mapID)
         {
-            var mapFileBytes = File.ReadAllBytes(string.Format(MapFile.MapFileFormatString, mapID));
+            var mapFileBytes = File.ReadAllBytes(string.Format(Constants.MapFileFormatString, mapID));
 
             var mapFile = _mapFileSerializer
                 .DeserializeFromByteArray(mapFileBytes)

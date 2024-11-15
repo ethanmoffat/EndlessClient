@@ -4,10 +4,10 @@ using EndlessClient.Controllers;
 using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.Rendering;
-using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Graphics;
+using EOLib.Shared;
 using Microsoft.Xna.Framework;
 using XNAControls;
 

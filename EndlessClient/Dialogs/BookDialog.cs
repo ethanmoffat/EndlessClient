@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.UIControls;
-using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.IO.Repositories;
+using EOLib.Shared;
 using Microsoft.Xna.Framework;
 using XNAControls;
 using static EndlessClient.Dialogs.QuestStatusListDialogItem;

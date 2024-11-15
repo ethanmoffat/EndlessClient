@@ -12,6 +12,7 @@ using EOLib;
 using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
+using EOLib.Shared;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;

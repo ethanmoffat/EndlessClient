@@ -15,6 +15,7 @@ using EOLib;
 using EOLib.Config;
 using EOLib.Graphics;
 using EOLib.IO.Actions;
+using EOLib.Shared;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -95,8 +96,6 @@ namespace EndlessClient.GameExecution
                 PreferredBackBufferWidth = ClientWindowSizeRepository.DEFAULT_BACKBUFFER_WIDTH,
                 PreferredBackBufferHeight = ClientWindowSizeRepository.DEFAULT_BACKBUFFER_HEIGHT
             };
-
-            Content.RootDirectory = "Content";
         }
 
         protected override void Initialize()

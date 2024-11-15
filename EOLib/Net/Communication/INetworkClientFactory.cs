@@ -2,6 +2,6 @@
 {
     public interface INetworkClientFactory
     {
-        INetworkClient CreateNetworkClient(int timeout = Constants.ResponseTimeout);
+        INetworkClient CreateNetworkClient(int timeout = TimeoutConstants.ResponseTimeout);
     }
 }

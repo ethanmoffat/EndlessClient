@@ -17,4 +17,7 @@
     <PackageReference Include="Moffat.EndlessOnline.SDK" Version="1.0.0" />
     <PackageReference Include="System.Memory" Version="4.5.5" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EOLib.Shared\EOLib.Shared.csproj" />
+  </ItemGroup>
 </Project>

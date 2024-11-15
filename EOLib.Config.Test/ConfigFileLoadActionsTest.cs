@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using EOLib.Shared;
 using NUnit.Framework;
 
 namespace EOLib.Config.Test
@@ -8,7 +9,7 @@ namespace EOLib.Config.Test
     [TestFixture, ExcludeFromCodeCoverage]
     public class ConfigFileLoadActionsTest
     {
-        private const string ConfigDirectory = "config";
+        private static readonly string _configDirectory = PathResolver.GetModifiablePath("config");
 
         private IConfigFileLoadActions _configFileLoadActions;
         private IConfigurationRepository _configurationRepository;
@@ -23,8 +24,8 @@ namespace EOLib.Config.Test
         [TearDown]
         public static void TearDown()
         {
-            if (Directory.Exists(ConfigDirectory))
-                Directory.Delete(ConfigDirectory, true);
+            if (Directory.Exists(_configDirectory))
+                Directory.Delete(_configDirectory, true);
         }
 
         [Test]
@@ -127,10 +128,10 @@ Interaction=false";
 
         private static void CreateTestConfigurationInDirectory(string contents)
         {
-            if (!Directory.Exists(ConfigDirectory))
-                Directory.CreateDirectory(ConfigDirectory);
+            if (!Directory.Exists(_configDirectory))
+                Directory.CreateDirectory(_configDirectory);
 
-            File.WriteAllText(ConfigStrings.Default_Config_File, contents);
+            File.WriteAllText(Constants.Default_Config_File, contents);
         }
     }
 }

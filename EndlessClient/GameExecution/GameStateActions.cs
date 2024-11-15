@@ -7,10 +7,9 @@ using EndlessClient.ControlSets;
 using EndlessClient.HUD.Panels;
 using EndlessClient.Network;
 using EndlessClient.Rendering;
-using EOLib;
 using EOLib.Config;
-using EOLib.Domain.Character;
 using EOLib.Domain.Login;
+using EOLib.Shared;
 using Microsoft.Xna.Framework;
 using XNAControls.Input;
 

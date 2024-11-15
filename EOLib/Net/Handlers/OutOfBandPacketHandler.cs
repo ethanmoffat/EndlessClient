@@ -1,5 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Net.Communication;
+using EOLib.Shared;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 
 namespace EOLib.Net.Handlers

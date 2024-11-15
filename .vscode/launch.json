@@ -38,13 +38,13 @@
             "stopAtEntry": false
         },
         {
-            "name": "EndlessClient - Mac",
+            "name": "EndlessClient - Mac (arm64)",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "build-client-mac",
-            "program": "${workspaceFolder}/bin/Debug/client/net6.0-macos/osx-x64/EndlessClient.app/Contents/MacOS/EndlessClient",
+            "preLaunchTask": "build-client-mac-arm",
+            "program": "${workspaceFolder}/bin/Debug/client/net8.0-macos/osx-arm64/EndlessClient.app/Contents/MacOS/EndlessClient",
             "args": [],
-            "cwd": "${workspaceFolder}/bin/Debug/client/net6.0-macos/osx-x64/EndlessClient.app",
+            "cwd": "${workspaceFolder}/bin/Debug/client/net8.0-macos/osx-arm64/EndlessClient.app",
             "console": "internalConsole",
             "stopAtEntry": false
         },

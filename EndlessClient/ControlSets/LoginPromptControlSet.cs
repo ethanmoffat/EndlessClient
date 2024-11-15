@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
-using EndlessClient.Input;
 using EndlessClient.UIControls;
-using EOLib;
 using EOLib.Config;
 using EOLib.Domain.Login;
 using EOLib.Graphics;
+using EOLib.Shared;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;

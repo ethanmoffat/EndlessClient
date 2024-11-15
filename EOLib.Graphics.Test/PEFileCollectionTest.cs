@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Linq;
+using EOLib.Shared;
 using Moq;
 using NUnit.Framework;
 using PELoaderLib;
@@ -11,7 +11,8 @@ namespace EOLib.Graphics.Test
     [TestFixture, ExcludeFromCodeCoverage]
     public class PEFileCollectionTest
     {
-        private const string ExpectedDirectory = "gfx";
+        private static readonly string _expectedDirectory = PathResolver.GetPath("gfx");
+        private static readonly string _expectedDirectoryRoot = _expectedDirectory.Split(Path.DirectorySeparatorChar)[0];
 
         private IPEFileCollection _collection;
 
@@ -26,8 +27,8 @@ namespace EOLib.Graphics.Test
         {
             _collection.Dispose();
 
-            if (Directory.Exists(ExpectedDirectory))
-                Directory.Delete(ExpectedDirectory, true);
+            if (Directory.Exists(_expectedDirectoryRoot))
+                Directory.Delete(_expectedDirectoryRoot, recursive: true);
         }
 
         [Test]
@@ -67,11 +68,16 @@ namespace EOLib.Graphics.Test
                 Mock.Get(file).Verify(x => x.Dispose(), Times.Once);
         }
 
-        private void CreateExpectedDirectoryWithFiles(int numFiles = 0, string fileNameFormat = "gfx{0:D3}.egf")
+        private static void CreateExpectedDirectoryWithFiles(int numFiles = 0, string fileNameFormat = "gfx{0:D3}.egf")
         {
-            Directory.CreateDirectory(ExpectedDirectory);
+            var components = _expectedDirectory.Split(Path.DirectorySeparatorChar);
+            foreach (var component in components)
+                Directory.CreateDirectory(_expectedDirectory);
+
             for (int i = 1; i <= numFiles; ++i)
-                File.WriteAllText(string.Format(Path.Combine(ExpectedDirectory, fileNameFormat), i), "test contents");
+            {
+                File.WriteAllText(string.Format(Path.Combine(_expectedDirectory, fileNameFormat), i), "test contents");
+            }
         }
     }
 }

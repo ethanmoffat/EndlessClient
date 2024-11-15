@@ -3,6 +3,7 @@ using System.IO;
 using AutomaticTypeMapper;
 using EOLib.IO.Map;
 using EOLib.IO.Services.Serializers;
+using EOLib.Shared;
 
 namespace EOLib.IO.Services
 {
@@ -18,11 +19,11 @@ namespace EOLib.IO.Services
 
         public void SaveFileToDefaultDirectory(IMapFile mapFile, bool rewriteChecksum = true)
         {
-            var directoryName = Path.GetDirectoryName(string.Format(MapFile.MapFileFormatString, 1)) ?? "";
+            var directoryName = Constants.MapDirectory;
             if (!Directory.Exists(directoryName))
                 Directory.CreateDirectory(directoryName);
 
-            File.WriteAllBytes(string.Format(MapFile.MapFileFormatString, mapFile.Properties.MapID),
+            File.WriteAllBytes(string.Format(Constants.MapFileFormatString, mapFile.Properties.MapID),
                                _mapFileSerializer.SerializeToByteArray(mapFile, rewriteChecksum));
         }
 

@@ -5,8 +5,6 @@ namespace EOLib.Config
     [ExcludeFromCodeCoverage]
     public static class ConfigStrings
     {
-        public const string Default_Config_File = "config/settings.ini";
-
         public const string Connection = "CONNECTION";
         public const string Host = "Host";
         public const string Port = "Port";

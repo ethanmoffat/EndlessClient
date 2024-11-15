@@ -1,8 +1,8 @@
 ﻿using System;
 using EndlessClient.Content;
 using EndlessClient.Rendering;
-using EOLib;
 using EOLib.Graphics;
+using EOLib.Shared;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;

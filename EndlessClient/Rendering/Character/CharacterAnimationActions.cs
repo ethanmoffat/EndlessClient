@@ -11,19 +11,17 @@ using EndlessClient.Rendering.Map;
 using EndlessClient.Rendering.Metadata;
 using EndlessClient.Rendering.Metadata.Models;
 using EOLib;
-using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.Domain.Spells;
-using EOLib.IO;
 using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
+using EOLib.Shared;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
-using Optional.Collections;
 
 namespace EndlessClient.Rendering.Character
 {

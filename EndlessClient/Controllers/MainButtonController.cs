@@ -5,11 +5,11 @@ using AutomaticTypeMapper;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering;
-using EOLib;
 using EOLib.Domain;
 using EOLib.Net.Communication;
 using EOLib.Net.Connection;
 using EOLib.Net.PacketProcessing;
+using EOLib.Shared;
 using Moffat.EndlessOnline.SDK.Packet;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 

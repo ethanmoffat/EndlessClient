@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
-using EOLib.Domain.Protocol;
-using EOLib.IO;
 using EOLib.IO.Extensions;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
+using EOLib.Shared;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Client;
 using Optional;
 
@@ -83,11 +82,11 @@ namespace EOLib.Net.FileTransfer
 
         public async Task GetItemFileFromServer(int sessionID)
         {
-            DeleteExisting(PubFileNameConstants.EIFFilter);
+            DeleteExisting(Constants.EIFFilter);
 
             var itemFiles = await _fileRequestService.RequestFile<EIFRecord>(FileType.Eif, sessionID);
             foreach (var file in itemFiles)
-                _pubFileSaveService.SaveFile(string.Format(PubFileNameConstants.EIFFormat, file.ID), file, rewriteChecksum: false);
+                _pubFileSaveService.SaveFile(string.Format(Constants.EIFFormat, file.ID), file, rewriteChecksum: false);
 
             _pubFileRepository.EIFFiles = itemFiles;
             _pubFileRepository.EIFFile = PubFileExtensions.Merge(itemFiles);
@@ -95,33 +94,33 @@ namespace EOLib.Net.FileTransfer
 
         public async Task GetNPCFileFromServer(int sessionID)
         {
-            DeleteExisting(PubFileNameConstants.ENFFilter);
+            DeleteExisting(Constants.ENFFilter);
 
             var npcFiles = await _fileRequestService.RequestFile<ENFRecord>(FileType.Enf, sessionID);
             foreach (var file in npcFiles)
-                _pubFileSaveService.SaveFile(string.Format(PubFileNameConstants.ENFFormat, file.ID), file, rewriteChecksum: false);
+                _pubFileSaveService.SaveFile(string.Format(Constants.ENFFormat, file.ID), file, rewriteChecksum: false);
             _pubFileRepository.ENFFiles = npcFiles;
             _pubFileRepository.ENFFile = PubFileExtensions.Merge(npcFiles);
         }
 
         public async Task GetSpellFileFromServer(int sessionID)
         {
-            DeleteExisting(PubFileNameConstants.ESFFilter);
+            DeleteExisting(Constants.ESFFilter);
 
             var spellFiles = await _fileRequestService.RequestFile<ESFRecord>(FileType.Esf, sessionID);
             foreach (var file in spellFiles)
-                _pubFileSaveService.SaveFile(string.Format(PubFileNameConstants.ESFFormat, file.ID), file, rewriteChecksum: false);
+                _pubFileSaveService.SaveFile(string.Format(Constants.ESFFormat, file.ID), file, rewriteChecksum: false);
             _pubFileRepository.ESFFiles = spellFiles;
             _pubFileRepository.ESFFile = PubFileExtensions.Merge(spellFiles);
         }
 
         public async Task GetClassFileFromServer(int sessionID)
         {
-            DeleteExisting(PubFileNameConstants.ECFFilter);
+            DeleteExisting(Constants.ECFFilter);
 
             var classFiles = await _fileRequestService.RequestFile<ECFRecord>(FileType.Ecf, sessionID);
             foreach (var file in classFiles)
-                _pubFileSaveService.SaveFile(string.Format(PubFileNameConstants.ECFFormat, file.ID), file, rewriteChecksum: false);
+                _pubFileSaveService.SaveFile(string.Format(Constants.ECFFormat, file.ID), file, rewriteChecksum: false);
             _pubFileRepository.ECFFiles = classFiles;
             _pubFileRepository.ECFFile = PubFileExtensions.Merge(classFiles);
         }
@@ -166,7 +165,7 @@ namespace EOLib.Net.FileTransfer
         {
             try
             {
-                foreach (var file in Directory.GetFiles("pub", filter))
+                foreach (var file in Directory.GetFiles(Constants.PubDirectory, filter))
                     File.Delete(file);
             }
             catch (IOException) { }

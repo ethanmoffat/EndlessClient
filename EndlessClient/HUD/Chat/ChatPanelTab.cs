@@ -7,11 +7,10 @@ using EndlessClient.HUD.Panels;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Sprites;
 using EndlessClient.UIControls;
-using EOLib;
 using EOLib.Domain.Chat;
+using EOLib.Shared;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended.BitmapFonts;
-using MonoGame.Extended.Input;
 using MonoGame.Extended.Input.InputListeners;
 using XNAControls;
 

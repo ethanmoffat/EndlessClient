@@ -5,11 +5,11 @@ using EndlessClient.Audio;
 using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.Rendering;
-using EOLib;
 using EOLib.Config;
 using EOLib.Domain.Chat;
 using EOLib.Graphics;
 using EOLib.Localization;
+using EOLib.Shared;
 using Microsoft.Xna.Framework;
 using XNAControls;
 

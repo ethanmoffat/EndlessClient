@@ -10,7 +10,6 @@ using EndlessClient.HUD.Spells;
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Services;
-using EOLib;
 using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
@@ -21,6 +20,7 @@ using EOLib.Domain.Party;
 using EOLib.Graphics;
 using EOLib.IO.Repositories;
 using EOLib.Localization;
+using EOLib.Shared;
 
 namespace EndlessClient.HUD.Panels
 {

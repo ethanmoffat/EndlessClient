@@ -38,14 +38,14 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "build-client-mac",
+            "label": "build-client-mac-arm",
             "command": "dotnet",
             "type": "process",
             "args": [
                 "build",
                 "${workspaceFolder}/EndlessClient/EndlessClient.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary"
+                "-r",
+                "osx-arm64"
             ],
             "problemMatcher": "$msCompile"
         },

@@ -1,6 +1,8 @@
 ﻿using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using AutomaticTypeMapper;
+using EOLib.Shared;
 
 namespace EOLib.Localization
 {
@@ -19,17 +21,17 @@ namespace EOLib.Localization
 
         public void LoadDataFiles()
         {
-            if (!Directory.Exists(DataFileConstants.DataFilePath))
+            if (!Directory.Exists(Constants.DataFilePath))
                 throw new DataFileLoadException();
 
-            var files = Directory.GetFiles(DataFileConstants.DataFilePath, "*.edf")
+            var files = Directory.GetFiles(Constants.DataFilePath, "*.edf")
                                  .OrderBy(x => x)
                                  .ToArray();
-            if (files.Length != DataFileConstants.ExpectedNumberOfDataFiles)
+            if (files.Length != Constants.ExpectedNumberOfDataFiles)
                 throw new DataFileLoadException();
 
             _dataFileRepository.DataFiles.Clear();
-            for (int i = 1; i <= DataFileConstants.ExpectedNumberOfDataFiles; ++i)
+            for (int i = 1; i <= Constants.ExpectedNumberOfDataFiles; ++i)
             {
                 if (!DataFileNameIsValid(i, files[i - 1]))
                     throw new DataFileLoadException();
@@ -41,7 +43,7 @@ namespace EOLib.Localization
 
         private bool DataFileNameIsValid(int fileNumber, string fileName)
         {
-            var expectedFormat = $"data/dat0{fileNumber:00}.edf";
+            var expectedFormat = string.Format(Constants.DataFileFormat, fileNumber).Replace('/', Path.DirectorySeparatorChar);
             return expectedFormat == fileName;
         }
     }

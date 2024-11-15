@@ -2,6 +2,7 @@
 using AutomaticTypeMapper;
 using EOLib.Config;
 using EOLib.Logger;
+using EOLib.Shared;
 
 namespace EOLib.Domain.Chat
 {

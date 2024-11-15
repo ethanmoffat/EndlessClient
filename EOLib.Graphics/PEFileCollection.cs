@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using AutomaticTypeMapper;
+using EOLib.Shared;
 using PELoaderLib;
 
 namespace EOLib.Graphics
@@ -18,9 +18,7 @@ namespace EOLib.Graphics
 
         private IPEFile CreateGFXFile(GFXTypes file)
         {
-            var number = ((int)file).ToString("D3");
-            var fName = Path.Combine("gfx", "gfx" + number + ".egf");
-
+            var fName = string.Format(Constants.GFXFormat, (int)file);
 #if LINUX || OSX
             return new PEFile(fName);
 #else
