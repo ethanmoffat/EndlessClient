@@ -28,7 +28,7 @@ Source builds require Visual Studio and the .Net 8.0 SDK. Other dependencies are
 
 ### Pre-built binary
 
-See [releases](https://github.com/ethanmoffat/EndlessClient/releases) on GitHub for Windows/Linux binaries and macOS app (compiled for both Intel and Apple CPU architectures). .Net 8.0 runtime must be installed.
+See [releases](https://github.com/ethanmoffat/EndlessClient/releases) on GitHub for Windows/Linux binaries and macOS app (compiled for both Intel and Apple CPU architectures).
 
 ### How to play
 
@@ -40,34 +40,30 @@ Download the appropriate [release](https://github.com/ethanmoffat/EndlessClient/
 
 Unzip EndlessClient.app to your hard drive and double-click the app icon. You will need to enable apps from any source to run in your system security settings.
 
+> ⚠️ If the app fails to run with an error "EndlessClient.app is damaged and can't be opened", open a terminal, run the following command: `xattr -dr com.apple.quarantine /path/to/EndlessClient.app`, and relaunch.
+
+Assets for alternate servers may be copied to the app package under `Contents/Resources`. To view package contents, right-click the `EndlessClient.app` file and select "View Package Contents".
+
+Note that the configuration file for the app is stored under `~/.endlessclient/config/settings.ini`. This file will need to be modified to select the new server host and version number.
+
 ### Building from source
 
-After installing, clone (or fork+clone) this repository locally and open the solution in your IDE of choice for your platform.
+Clone (or fork+clone) this repository locally and open the solution in your IDE of choice for your platform. VSCode is supported on all OS flavors. Visual Studio 2022 is supported on Windows.
 
-> ⚠️ If you have previously built EndlessClient, you mean need to clear your dotnet tool cache and nuget package cache
+The .Net 8.0 SDK is required. Install the correct version for your platform/architecture. On macOS, XCode 16.0 or later is required (install from the App Store).
+
+> ⚠️ macOS requires a specific version of the .Net SDK: 8.0.204, due to the .Net team forcing minos version of macOS 15 in later SDKs. If you only want to build for macOS 15 and up, you can use the latest SDK.
+
+> ⚠️ If you have previously built EndlessClient, you may need to clear your dotnet tool cache and nuget package cache
 >
-> Run the following commands (Windows):
+> Run the following commands:
 > - `dotnet nuget locals all --clear`
-> - Windows: `rmdir -recurse -force $env:USERPROFILE\\.dotnet\\toolResolverCache`
-> - Linux: `rm -rf ~/.dotnet/toolResolverCache`
+> - Windows (powershell): `rmdir -recurse -force $env:USERPROFILE\\.dotnet\\toolResolverCache`
+> - Linux/macOS: `rm -rf ~/.dotnet/toolResolverCache`
 
 > ⚠️ If you get build errors due to formatting
 >
-> Run the following commands:
-> - Windows: `dotnet format EndlessClient.sln`
-> - Linux: `dotnet format EndlessClient.Linux.sln`
-
-### Building on Mac
-
-1. Download and install the [.NET 8.0 SDK (x64)](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-8.0.204-macos-x64-installer) or [Apple Silicon (e.g. M1)](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-8.0.204-macos-arm64-installer).
-    ⚠️ The latest .NET 8.0 SDK forces the minimum version of the compiled app to macOS 15 (sequoia). If this is not desired, use a prior version. 8.0.204 is a known working version.
-2. Install XCode from the [AppStore](https://apps.apple.com/us/app/xcode/id497799835?ls=1&mt=12)
-3. Run `dotnet build /p:PublishReadyToRun=false /p:TieredCompilation=false --self-contained EndlessClient`
-
-#### Mac errors
-
-Problem: `error NETSDK1139: The target platform identifier macos was not recognized.`
-Solution: run the command `sudo dotnet workload restore EndlessClient/EndlessClient.csproj` which will install the macos workload for you.
+> Run: `dotnet format EndlessClient.sln`
 
 <a name="Todo">Todo list</a>
 ---------------------
