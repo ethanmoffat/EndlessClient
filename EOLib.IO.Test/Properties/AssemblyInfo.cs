@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("EOLib.IO.Test")]
-[assembly: AssemblyCopyright("Copyright © Ethan Moffat 2014-2016")]
+[assembly: AssemblyCopyright("Copyright © Ethan Moffat 2014-2025")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

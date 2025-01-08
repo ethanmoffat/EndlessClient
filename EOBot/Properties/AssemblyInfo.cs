@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("EOBot")]
-[assembly: AssemblyCopyright("Copyright © Ethan Moffat 2014-2016")]
+[assembly: AssemblyCopyright("Copyright © Ethan Moffat 2014-2025")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

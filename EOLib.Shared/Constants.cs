@@ -81,7 +81,8 @@ Contributors :
 -- Sorokya
 -- Septharoth
 -- miou-gh
--- CoderDanUK";
+-- MrDanOak
+-- sjbmcg";
 
         public const string VersionInfoFormat = "{0}.{1:000}.{2:000} - {3}:{4}";
     }
