@@ -1,4 +1,4 @@
-name: 1.0.$(rev:rrr)
+name: 1.1.$(rev:rrr)
 
 pr:
 - master
