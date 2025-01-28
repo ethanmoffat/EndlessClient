@@ -105,8 +105,8 @@
         DIALOG_TRANSFER_NOT_ENOUGH_WEIGHT = 108,
         STATUS_LABEL_TRADE_OTHER_PLAYER_CHANGED_OFFER = 109,
         //STATUS_LABEL_CHEST_YOU_OPENED = 110, //duplicate of 92?
-        //chest seems broken - not sure when this is used
-        //door seems broken - not sure when this is used
+        STATUS_LABEL_THE_CHEST_SEEMS_BROKEN = 111,
+        STATUS_LABEL_THE_DOOR_SEEMS_BROKEN = 112,
         STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION = 113,
         STATUS_LABEL_THE_DOOR_IS_LOCKED_EXCLAMATION = 114,
         STATUS_LABEL_DRAG_AND_DROP_ITEMS = 115,

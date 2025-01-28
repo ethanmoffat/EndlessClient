@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
 using EOLib.IO.Map;
@@ -8,6 +9,10 @@ using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 
 namespace EOLib.PacketHandlers.Chest
 {
+    /// <summary>
+    /// Sent when a chest is locked or broken (key invalid)
+    /// </summary>
+    [AutoMappedType]
     public class ChestCloseHandler : InGameOnlyPacketHandler<ChestCloseServerPacket>
     {
         private readonly IEnumerable<IChestEventNotifier> _chestEventNotifiers;
