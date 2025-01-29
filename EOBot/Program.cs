@@ -217,8 +217,8 @@ namespace EOBot
             {
                 using (f = new BotFramework(parsedArgs))
                 {
-                    await f.InitializeAsync(botFactory, parsedArgs.InitDelay);
-                    await f.RunAsync();
+                    await f.InitializeAsync(botFactory, parsedArgs.InitDelay).ConfigureAwait(false);
+                    await f.RunAsync().ConfigureAwait(false);
                 }
 
                 Console.WriteLine();
