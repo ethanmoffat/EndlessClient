@@ -1,4 +1,5 @@
-﻿using EOLib.IO.Map;
+﻿using AutomaticTypeMapper;
+using EOLib.IO.Map;
 
 namespace EOLib.Domain.Notifiers
 {
@@ -9,6 +10,7 @@ namespace EOLib.Domain.Notifiers
         void NotifyChestBroken();
     }
 
+    [AutoMappedType]
     public class NoOpChestEventNotifier : IChestEventNotifier
     {
         public void NotifyChestLocked(ChestKey key) { }

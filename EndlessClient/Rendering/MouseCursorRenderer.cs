@@ -200,7 +200,6 @@ namespace EndlessClient.Rendering
             switch (tileSpec)
             {
                 case TileSpec.Wall:
-                case TileSpec.JammedDoor:
                 case TileSpec.MapEdge:
                 case TileSpec.FakeWall:
                 case TileSpec.VultTypo:

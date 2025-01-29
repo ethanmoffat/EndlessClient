@@ -120,7 +120,6 @@ namespace EOLib.Domain.Character
                 case TileSpec.ChairDownRight:
                 case TileSpec.ChairUpLeft:
                 case TileSpec.ChairAll:
-                case TileSpec.JammedDoor:
                 case TileSpec.Chest:
                 case TileSpec.BankVault:
                 case TileSpec.MapEdge:
@@ -149,7 +148,7 @@ namespace EOLib.Domain.Character
                 default:
                     // These values were tested with the Vanilla 0.28 client
                     // TileSpec 10, 12, and 31 are walkable while other unknown values are not
-                    return (int)tileSpec == 10 || (int)tileSpec == 12 || (int)tileSpec == 31;
+                    return (int)tileSpec == 8 || (int)tileSpec == 10 || (int)tileSpec == 12 || (int)tileSpec == 31;
             }
         }
 

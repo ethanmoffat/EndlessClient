@@ -17,6 +17,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AutomaticTypeMapper" Version="1.4.1" />
-    <PackageReference Include="Moffat.EndlessOnline.SDK" Version="1.0.0" />
+    <PackageReference Include="Moffat.EndlessOnline.SDK" Version="1.0.1" />
   </ItemGroup>
 </Project>
