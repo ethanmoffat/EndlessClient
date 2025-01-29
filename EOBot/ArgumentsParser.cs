@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using EOBot.Interpreter.Variables;
 
 namespace EOBot
 {
@@ -19,7 +18,8 @@ namespace EOBot
         InvalidInitDelay,
         InvalidPath,
         InvalidScriptArgs,
-        AutoConnectRequired
+        AutoConnectRequired,
+        InvalidInitRetryAttempts,
     }
 
     public class ArgumentsParser
@@ -41,6 +41,8 @@ namespace EOBot
         public string Character { get; private set; }
 
         public bool AutoConnect { get; private set; } = true;
+
+        public int InitRetryAttempts { get; private set; } = 5;
 
         public List<string> UserArgs { get; internal set; }
 
@@ -119,6 +121,10 @@ namespace EOBot
                         case "character":
                             Character = pair[1];
                             break;
+                        case "initattempts":
+                            if (!ParseRetries(pair[1]))
+                                return;
+                            break;
                         default:
                             Error = ArgsError.BadFormat;
                             return;
@@ -150,8 +156,7 @@ namespace EOBot
 
         private bool ParsePort(string portStr)
         {
-            ushort port;
-            if (!ushort.TryParse(portStr, out port))
+            if (!ushort.TryParse(portStr, out var port))
             {
                 Error = ArgsError.InvalidPort;
                 return false;
@@ -172,8 +177,8 @@ namespace EOBot
 
             bool needSimul = both.Length == 2;
 
-            int numBots, simul = -1;
-            if (!int.TryParse(both[0], out numBots))
+            int simul = -1;
+            if (!int.TryParse(both[0], out var numBots))
             {
                 Error = ArgsError.InvalidNumberOfBots;
                 return false;
@@ -201,14 +206,26 @@ namespace EOBot
 
         private bool ParseInitDelay(string initDelay)
         {
-            int delay;
-            if (!int.TryParse(initDelay, out delay) || delay < 1100)
+            if (!int.TryParse(initDelay, out var delay) || delay < 1100)
             {
                 Error = ArgsError.InvalidInitDelay;
                 return false;
             }
 
             InitDelay = delay;
+
+            return true;
+        }
+
+        private bool ParseRetries(string retries)
+        {
+            if (!int.TryParse(retries, out var attempts) || attempts < 1)
+            {
+                Error = ArgsError.InvalidInitRetryAttempts;
+                return false;
+            }
+
+            InitRetryAttempts = attempts;
 
             return true;
         }

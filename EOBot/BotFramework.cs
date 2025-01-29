@@ -13,6 +13,7 @@ namespace EOBot
         private readonly List<IBot> _botsList;
         private readonly string _host;
         private readonly ushort _port;
+        private readonly int _initRetryAttempts;
 
         private Semaphore _doneSignal;
         private bool _initialized;
@@ -28,8 +29,6 @@ namespace EOBot
 
             var numberOfBots = parsedArgs.NumBots;
             var simultaneousBots = parsedArgs.SimultaneousBots;
-            var host = parsedArgs.Host;
-            var port = parsedArgs.Port;
 
             if (numberOfBots > NUM_BOTS_MAX || simultaneousBots > NUM_BOTS_MAX || simultaneousBots > numberOfBots)
                 throw new ArgumentException("Too many bots requested");
@@ -38,8 +37,9 @@ namespace EOBot
                 throw new ArgumentException("Not enough bots requested");
 
             _numBots = numberOfBots;
-            _host = host;
-            _port = port;
+            _host = parsedArgs.Host;
+            _port = parsedArgs.Port;
+            _initRetryAttempts = parsedArgs.InitRetryAttempts;
 
             _botsList = new List<IBot>(numberOfBots);
 
@@ -51,17 +51,15 @@ namespace EOBot
             if (_initialized)
                 throw new InvalidOperationException("Unable to initialize bot framework a second time.");
 
-            const int InitRetries = 5;
-
             int numFailed = 0;
             for (int i = 0; i < _numBots; i++)
             {
                 if (_terminating)
                     throw new BotException("Received termination signal; initialization has been cancelled");
 
-                for (int attempt = 1; attempt <= InitRetries; attempt++)
+                for (int attempt = 1; attempt <= _initRetryAttempts; attempt++)
                 {
-                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, $"Initializing bot {i} [attempt {attempt}/{InitRetries}]");
+                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, $"Initializing bot {i} [attempt {attempt}/{_initRetryAttempts}]");
                     try
                     {
                         var bot = botFactory.CreateBot(i);
@@ -76,9 +74,9 @@ namespace EOBot
                     {
                         ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, ex.Message, ConsoleColor.DarkRed);
 
-                        if (attempt == InitRetries)
+                        if (attempt == _initRetryAttempts)
                         {
-                            ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Bot {i} failed to initialize after {InitRetries} attempts.", ConsoleColor.DarkRed);
+                            ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Bot {i} failed to initialize after {_initRetryAttempts} attempts.", ConsoleColor.DarkRed);
                             numFailed++;
                         }
                         else
