@@ -6,10 +6,8 @@ using AutomaticTypeMapper;
 using EOBot.Interpreter;
 using EOLib;
 using EOLib.Domain.Character;
-using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.Domain.NPC;
 using EOLib.Domain.Spells;
 using EOLib.IO.Repositories;
 using Optional;
@@ -305,6 +303,9 @@ namespace EOBot
                 case ArgsError.AutoConnectRequired:
                     Console.WriteLine("Invalid: AutoConnect is required when using a script with more than 1 bot due to eoserv connection throttling.");
                     break;
+                case ArgsError.InvalidInitRetryAttempts:
+                    Console.WriteLine("Invalid: Retry attempts must be >= 1.");
+                    break;
             }
 
             Console.WriteLine("\n\nUsage: (enter arguments in any order) (angle brackets is entry) (square brackets is optional)");
@@ -317,6 +318,7 @@ namespace EOBot
                               "          character=<character>\n" +
                               "          script=<file>\n" +
                               "          autoconnect=<true|false>" +
+                              "          initAttempts=<numRetries>\n" +
                               "          [-- arg1, [arg2..argn]]");
             Console.WriteLine("\t host:           hostname or IP address");
             Console.WriteLine("\t port:           port to connect on (probably 8078)");
@@ -327,6 +329,7 @@ namespace EOBot
             Console.WriteLine("\t character:      character to use (created if it does not exist)");
             Console.WriteLine("\t script:         script file to execute\n\t         if script is not specified, default trainer bot will be used");
             Console.WriteLine("\t autoconnect:    (default true) true to automatically connect/disconnect to server with initDelay timeout between connection attempts for bots, false otherwise");
+            Console.WriteLine("\t initAttempts:    (default 5) number of attempts to make when initializing each bot (uses exponential backoff retry strategy)");
             Console.WriteLine("\t --: Any arguments passed after '--' will be available in a script under the '$args' array");
 
             if (!args.ExtendedHelp)

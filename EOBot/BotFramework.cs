@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EOLib.Net.Handlers;
 
 namespace EOBot
 {
@@ -15,6 +13,7 @@ namespace EOBot
         private readonly List<IBot> _botsList;
         private readonly string _host;
         private readonly ushort _port;
+        private readonly int _initRetryAttempts;
 
         private Semaphore _doneSignal;
         private bool _initialized;
@@ -30,8 +29,6 @@ namespace EOBot
 
             var numberOfBots = parsedArgs.NumBots;
             var simultaneousBots = parsedArgs.SimultaneousBots;
-            var host = parsedArgs.Host;
-            var port = parsedArgs.Port;
 
             if (numberOfBots > NUM_BOTS_MAX || simultaneousBots > NUM_BOTS_MAX || simultaneousBots > numberOfBots)
                 throw new ArgumentException("Too many bots requested");
@@ -40,8 +37,9 @@ namespace EOBot
                 throw new ArgumentException("Not enough bots requested");
 
             _numBots = numberOfBots;
-            _host = host;
-            _port = port;
+            _host = parsedArgs.Host;
+            _port = parsedArgs.Port;
+            _initRetryAttempts = parsedArgs.InitRetryAttempts;
 
             _botsList = new List<IBot>(numberOfBots);
 
@@ -54,27 +52,41 @@ namespace EOBot
                 throw new InvalidOperationException("Unable to initialize bot framework a second time.");
 
             int numFailed = 0;
-            for (int i = 0; i < _numBots; ++i)
+            for (int i = 0; i < _numBots; i++)
             {
                 if (_terminating)
                     throw new BotException("Received termination signal; initialization has been cancelled");
 
-                try
+                for (int attempt = 1; attempt <= _initRetryAttempts; attempt++)
                 {
-                    var bot = botFactory.CreateBot(i);
-                    bot.WorkCompleted += () => _doneSignal.Release();
-                    await bot.InitializeAsync(_host, _port);
-                    _botsList.Add(bot);
-                }
-                catch (Exception ex)
-                {
-                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, ex.Message, ConsoleColor.DarkRed);
-                    numFailed++;
-                    continue;
-                }
+                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, $"Initializing bot {i} [attempt {attempt}/{_initRetryAttempts}]");
+                    try
+                    {
+                        var bot = botFactory.CreateBot(i);
+                        bot.WorkCompleted += () => _doneSignal.Release();
+                        await bot.InitializeAsync(_host, _port);
+                        _botsList.Add(bot);
 
-                ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, $"Bot {i} initialized.");
-                await Task.Delay(delayBetweenInitsMS); //minimum for this is 1sec server-side
+                        ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, $"Bot {i} initialized.");
+                        await Task.Delay(delayBetweenInitsMS); // minimum for this is 1sec server-side
+                    }
+                    catch (Exception ex)
+                    {
+                        ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, ex.Message, ConsoleColor.DarkRed);
+
+                        if (attempt == _initRetryAttempts)
+                        {
+                            ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Bot {i} failed to initialize after {_initRetryAttempts} attempts.", ConsoleColor.DarkRed);
+                            numFailed++;
+                        }
+                        else
+                        {
+                            var retryDelayTime = TimeSpan.FromMilliseconds(delayBetweenInitsMS + (1000 * attempt * attempt));
+                            ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"Bot {i} failed to initialize. Retrying in {retryDelayTime.TotalMilliseconds}ms...", ConsoleColor.DarkYellow);
+                            await Task.Delay(retryDelayTime);
+                        }
+                    }
+                }
             }
 
             if (numFailed > 0)
@@ -129,24 +141,10 @@ namespace EOBot
             _cancellationTokenSource.Cancel();
         }
 
-        ~BotFramework()
-        {
-            Dispose(false);
-            GC.SuppressFinalize(this);
-        }
-
         public void Dispose()
         {
-            Dispose(true);
-        }
-
-        private void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                _doneSignal?.Dispose();
-                _cancellationTokenSource?.Dispose();
-            }
+            _doneSignal?.Dispose();
+            _cancellationTokenSource?.Dispose();
         }
     }
 }
