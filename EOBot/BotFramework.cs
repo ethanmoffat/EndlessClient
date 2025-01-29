@@ -64,11 +64,13 @@ namespace EOBot
                     {
                         var bot = botFactory.CreateBot(i);
                         bot.WorkCompleted += () => _doneSignal.Release();
-                        await bot.InitializeAsync(_host, _port);
+                        await bot.InitializeAsync(_host, _port).ConfigureAwait(false);
                         _botsList.Add(bot);
 
                         ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, $"Bot {i} initialized.");
-                        await Task.Delay(delayBetweenInitsMS); // minimum for this is 1sec server-side
+                        await Task.Delay(delayBetweenInitsMS).ConfigureAwait(false); // minimum for this is 1sec server-side
+
+                        break;
                     }
                     catch (Exception ex)
                     {
@@ -83,7 +85,7 @@ namespace EOBot
                         {
                             var retryDelayTime = TimeSpan.FromMilliseconds(delayBetweenInitsMS + (1000 * attempt * attempt));
                             ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"Bot {i} failed to initialize. Retrying in {retryDelayTime.TotalMilliseconds}ms...", ConsoleColor.DarkYellow);
-                            await Task.Delay(retryDelayTime);
+                            await Task.Delay(retryDelayTime).ConfigureAwait(false);
                         }
                     }
                 }
@@ -123,7 +125,7 @@ namespace EOBot
             var continuation = Task.WhenAll(botTasks);
             try
             {
-                await continuation;
+                await continuation.ConfigureAwait(false);
             }
             catch { }
 

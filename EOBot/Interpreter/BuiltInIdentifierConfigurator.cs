@@ -116,14 +116,14 @@ namespace EOBot.Interpreter
             configRepo.VersionBuild = ((IntVariable)_state.SymbolTable[PredefinedIdentifiers.VERSION].Identifiable).Value;
 
             var connectionActions = c.Resolve<INetworkConnectionActions>();
-            var connectResult = await connectionActions.ConnectToServer();
+            var connectResult = await connectionActions.ConnectToServer().ConfigureAwait(false);
             if (connectResult != ConnectResult.Success)
                 throw new ArgumentException($"Bot {_botIndex}: Unable to connect to server! Host={host} Port={port}");
 
             var backgroundReceiveActions = c.Resolve<IBackgroundReceiveActions>();
             backgroundReceiveActions.RunBackgroundReceiveLoop();
 
-            var handshakeResult = await connectionActions.BeginHandshake(_random.Next(Constants.MaxChallenge));
+            var handshakeResult = await connectionActions.BeginHandshake(_random.Next(Constants.MaxChallenge)).ConfigureAwait(false);
 
             if (handshakeResult.ReplyCode != InitReply.Ok)
                 throw new InvalidOperationException($"Bot {_botIndex}: Invalid response from server or connection failed! Must receive an OK reply.");
@@ -149,20 +149,20 @@ namespace EOBot.Interpreter
 
         private async Task<int> CreateAccountAsync(string user, string pass)
         {
-            return (int)await _botHelper.CreateAccountAsync(user, pass);
+            return (int)await _botHelper.CreateAccountAsync(user, pass).ConfigureAwait(false);
         }
 
         private async Task<int> LoginAsync(string user, string pass)
         {
-            return (int)await _botHelper.LoginToAccountAsync(user, pass);
+            return (int)await _botHelper.LoginToAccountAsync(user, pass).ConfigureAwait(false);
         }
 
         private async Task<int> CreateAndLoginAsync(string user, string pass)
         {
-            var accountReply = (AccountReply)await CreateAccountAsync(user, pass);
+            var accountReply = (AccountReply)await CreateAccountAsync(user, pass).ConfigureAwait(false);
             if (accountReply == AccountReply.Created || accountReply == AccountReply.Exists)
             {
-                return await LoginAsync(user, pass);
+                return await LoginAsync(user, pass).ConfigureAwait(false);
             }
 
             return (int)LoginReply.WrongUser;
@@ -170,17 +170,17 @@ namespace EOBot.Interpreter
 
         private async Task<int> ChangePasswordAsync(string user, string oldPass, string newPass)
         {
-            return (int)await _botHelper.ChangePasswordAsync(user, oldPass, newPass);
+            return (int)await _botHelper.ChangePasswordAsync(user, oldPass, newPass).ConfigureAwait(false);
         }
 
         private async Task<int> CreateCharacterAsync(string charName)
         {
-            return (int)await _botHelper.CreateCharacterAsync(charName);
+            return (int)await _botHelper.CreateCharacterAsync(charName).ConfigureAwait(false);
         }
 
         private async Task<int> DeleteCharacterAsync(string charName, bool force)
         {
-            return (int)await _botHelper.DeleteCharacterAsync(charName, force);
+            return (int)await _botHelper.DeleteCharacterAsync(charName, force).ConfigureAwait(false);
         }
 
         private Task LoginToCharacterAsync(string charName)

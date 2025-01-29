@@ -32,7 +32,7 @@ namespace EOBot
                     throw new InvalidOperationException("Something went wrong getting the connect function out of the symbol table");
 
                 // call connect function that uses user-defined $version variable instead of base logic that has it hard-coded
-                await connectFunction.CallAsync(new StringVariable(_parsedArgs.Host), new IntVariable(_parsedArgs.Port));
+                await connectFunction.CallAsync(new StringVariable(_parsedArgs.Host), new IntVariable(_parsedArgs.Port)).ConfigureAwait(false);
 
                 WorkCompleted += () =>
                 {
@@ -51,7 +51,7 @@ namespace EOBot
             if (_programState == null)
                 throw new InvalidOperationException("Scripted bot must be initialized before it is run");
 
-            await _interpreter.Run(_programState);
+            await _interpreter.Run(_programState).ConfigureAwait(false);
         }
     }
 }
