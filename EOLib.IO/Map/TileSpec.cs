@@ -10,7 +10,6 @@ namespace EOLib.IO.Map
         ChairDownRight = 5,
         ChairUpLeft = 6,
         ChairAll = 7,
-        JammedDoor = 8,
         Chest = 9,
         BankVault = 16,
         NPCBoundary = 17,
