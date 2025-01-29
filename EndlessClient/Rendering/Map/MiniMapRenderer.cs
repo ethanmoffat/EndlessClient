@@ -145,7 +145,7 @@ namespace EndlessClient.Rendering.Map
                 case TileSpec.ChairDownRight:
                 case TileSpec.ChairUpLeft:
                 case TileSpec.Chest:
-                case TileSpec.JammedDoor:
+                case (TileSpec)8:
                 // Unknown TileSpecs 10-15 have been confirmed in the vanilla client to show a Blue ! on the minimap
                 case (TileSpec)10:
                 case (TileSpec)11:
