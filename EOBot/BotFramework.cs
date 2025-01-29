@@ -143,24 +143,10 @@ namespace EOBot
             _cancellationTokenSource.Cancel();
         }
 
-        ~BotFramework()
-        {
-            Dispose(false);
-            GC.SuppressFinalize(this);
-        }
-
         public void Dispose()
         {
-            Dispose(true);
-        }
-
-        private void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                _doneSignal?.Dispose();
-                _cancellationTokenSource?.Dispose();
-            }
+            _doneSignal?.Dispose();
+            _cancellationTokenSource?.Dispose();
         }
     }
 }
