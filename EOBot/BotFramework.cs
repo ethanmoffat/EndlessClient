@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EOLib.Net.Handlers;
 
 namespace EOBot
 {
@@ -53,28 +51,44 @@ namespace EOBot
             if (_initialized)
                 throw new InvalidOperationException("Unable to initialize bot framework a second time.");
 
+            const int InitRetries = 5;
+
             int numFailed = 0;
-            for (int i = 0; i < _numBots; ++i)
+            for (int i = 0; i < _numBots; i++)
             {
                 if (_terminating)
                     throw new BotException("Received termination signal; initialization has been cancelled");
 
-                try
+                for (int attempt = 1; attempt <= InitRetries; attempt++)
                 {
-                    var bot = botFactory.CreateBot(i);
-                    bot.WorkCompleted += () => _doneSignal.Release();
-                    await bot.InitializeAsync(_host, _port);
-                    _botsList.Add(bot);
-                }
-                catch (Exception ex)
-                {
-                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, ex.Message, ConsoleColor.DarkRed);
-                    numFailed++;
-                    continue;
-                }
+                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, $"Initializing bot {i} [attempt {attempt}/{InitRetries}]");
+                    try
+                    {
+                        var bot = botFactory.CreateBot(i);
+                        bot.WorkCompleted += () => _doneSignal.Release();
+                        await bot.InitializeAsync(_host, _port);
+                        _botsList.Add(bot);
 
-                ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, $"Bot {i} initialized.");
-                await Task.Delay(delayBetweenInitsMS); //minimum for this is 1sec server-side
+                        ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, $"Bot {i} initialized.");
+                        await Task.Delay(delayBetweenInitsMS); // minimum for this is 1sec server-side
+                    }
+                    catch (Exception ex)
+                    {
+                        ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, ex.Message, ConsoleColor.DarkRed);
+
+                        if (attempt == InitRetries)
+                        {
+                            ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Bot {i} failed to initialize after {InitRetries} attempts.", ConsoleColor.DarkRed);
+                            numFailed++;
+                        }
+                        else
+                        {
+                            var retryDelayTime = TimeSpan.FromMilliseconds(delayBetweenInitsMS + (1000 * attempt * attempt));
+                            ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"Bot {i} failed to initialize. Retrying in {retryDelayTime.TotalMilliseconds}ms...", ConsoleColor.DarkYellow);
+                            await Task.Delay(retryDelayTime);
+                        }
+                    }
+                }
             }
 
             if (numFailed > 0)
