@@ -106,7 +106,7 @@ namespace EndlessClient.Controllers
 
             if (reply == LoginReply.Ok)
             {
-                await DispatcherGameComponent.Invoke(() => _gameStateActions.ChangeToState(GameStates.LoggedIn));
+                await DispatcherGameComponent.InvokeAsync(() => _gameStateActions.ChangeToState(GameStates.LoggedIn));
             }
             else
             {
@@ -235,7 +235,7 @@ namespace EndlessClient.Controllers
                 int height = _configurationProvider.InGameHeight;
                 var loaded = layoutConfig.Load() && layoutConfig.GetValue("DISPLAY", "Width", out width) && layoutConfig.GetValue("DISPLAY", "Height", out height);
 
-                await DispatcherGameComponent.Invoke(() =>
+                await DispatcherGameComponent.InvokeAsync(() =>
                 {
                     _clientWindowSizeRepository.Width = loaded ? width : _configurationProvider.InGameWidth;
                     _clientWindowSizeRepository.Height = loaded ? height : _configurationProvider.InGameHeight;
@@ -243,7 +243,7 @@ namespace EndlessClient.Controllers
                 });
             }
 
-            await DispatcherGameComponent.Invoke(() =>
+            await DispatcherGameComponent.InvokeAsync(() =>
             {
                 _gameStateActions.ChangeToState(GameStates.PlayingTheGame);
                 _chatTextBoxActions.FocusChatTextBox();

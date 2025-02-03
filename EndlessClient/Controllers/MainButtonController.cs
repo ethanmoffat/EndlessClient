@@ -74,7 +74,7 @@ namespace EndlessClient.Controllers
 
             if (result)
             {
-                await DispatcherGameComponent.Invoke(() =>
+                await DispatcherGameComponent.InvokeAsync(() =>
                 {
                     _gameStateActions.ChangeToState(GameStates.CreateAccount);
                     _accountDialogDisplayActions.ShowInitialCreateWarningDialog();
@@ -88,7 +88,7 @@ namespace EndlessClient.Controllers
 
             if (result)
             {
-                await DispatcherGameComponent.Invoke(() => _gameStateActions.ChangeToState(GameStates.Login));
+                await DispatcherGameComponent.InvokeAsync(() => _gameStateActions.ChangeToState(GameStates.Login));
             }
         }
 

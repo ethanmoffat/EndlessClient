@@ -5,6 +5,7 @@ using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD;
+using EndlessClient.Rendering;
 using EOLib.Domain.Character;
 using EOLib.Domain.Interact.Quest;
 using EOLib.Domain.Interact.Shop;
@@ -375,7 +376,7 @@ namespace EndlessClient.Dialogs.Actions
 
         public void CloseTradeDialog()
         {
-            _activeDialogRepository.TradeDialog.MatchSome(dlg => dlg.Close());
+            DispatcherGameComponent.Invoke(() => _activeDialogRepository.TradeDialog.MatchSome(dlg => dlg.Close()));
         }
 
         public void ShowBoardDialog()

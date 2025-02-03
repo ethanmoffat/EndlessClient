@@ -3,6 +3,7 @@ using EndlessClient.Audio;
 using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD;
+using EndlessClient.Rendering;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.IO.Map;
@@ -34,7 +35,7 @@ namespace EndlessClient.Subscribers
 
         public void NotifyChestBroken()
         {
-            _activeDialogRepository.ChestDialog.MatchSome(x => x.Close());
+            DispatcherGameComponent.Invoke(() => _activeDialogRepository.ChestDialog.MatchSome(x => x.Close()));
 
             var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.CHEST_BROKEN);
             dlg.ShowDialog();
@@ -44,7 +45,7 @@ namespace EndlessClient.Subscribers
 
         public void NotifyChestLocked(ChestKey key)
         {
-            _activeDialogRepository.ChestDialog.MatchSome(x => x.Close());
+            DispatcherGameComponent.Invoke(() => _activeDialogRepository.ChestDialog.MatchSome(x => x.Close()));
 
             var dlg = _messageBoxFactory.CreateMessageBox(DialogResourceID.CHEST_LOCKED);
             dlg.ShowDialog();

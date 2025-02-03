@@ -13,7 +13,7 @@ namespace EndlessClient.Controllers
                 // Exceptions thrown by tasks are quietly swallowed
                 // Invoking this on the main thread ensures the Update() loop catches it and
                 //   handles it in the global exception handler (see EndlessGame::Update)
-                Task.Run(DispatcherGameComponent.Invoke(() => throw t.Exception).RunSynchronously);
+                Task.Run(DispatcherGameComponent.InvokeAsync(() => throw t.Exception).RunSynchronously);
             }
 
             return t;
