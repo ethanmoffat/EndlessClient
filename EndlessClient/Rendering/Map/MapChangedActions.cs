@@ -244,7 +244,9 @@ namespace EndlessClient.Rendering.Map
         private void CloseAllDialogs()
         {
             foreach (var dlg in _dialogProvider.ActiveDialogs)
-                dlg.MatchSome(x => ((BaseEODialog)x).Close());
+            {
+                DispatcherGameComponent.Invoke(() => dlg.MatchSome(x => ((BaseEODialog)x).Close()));
+            }
         }
     }
 
