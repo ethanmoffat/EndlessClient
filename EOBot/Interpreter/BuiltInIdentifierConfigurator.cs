@@ -8,13 +8,17 @@ using EOBot.Interpreter.Variables;
 using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
+using EOLib.Domain.Extensions;
+using EOLib.Domain.Item;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
 using EOLib.Domain.Party;
+using EOLib.Domain.Pathing;
 using EOLib.IO.Repositories;
 using EOLib.Net.Communication;
 using EOLib.Net.Connection;
+using EOLib.Net.Handlers;
 using EOLib.Net.PacketProcessing;
 using EOLib.Shared;
 using Moffat.EndlessOnline.SDK.Packet;
@@ -66,9 +70,25 @@ namespace EOBot.Interpreter
             _state.SymbolTable[PredefinedIdentifiers.DELETE_CHARACTER_FUNC] = Readonly(new AsyncFunction<string, bool, int>(PredefinedIdentifiers.DELETE_CHARACTER_FUNC, DeleteCharacterAsync));
             _state.SymbolTable[PredefinedIdentifiers.LOGIN_CHARACTER_FUNC] = Readonly(new AsyncVoidFunction<string>(PredefinedIdentifiers.LOGIN_CHARACTER_FUNC, LoginToCharacterAsync));
 
+            // game flow
+            _state.SymbolTable[PredefinedIdentifiers.TICK] = Readonly(new VoidFunction(PredefinedIdentifiers.TICK, Tick));
+            _state.SymbolTable[PredefinedIdentifiers.GETPATHTO] = Readonly(new Function<int, int, List<IVariable>>(PredefinedIdentifiers.GETPATHTO, GetPathTo));
+
             // in-game stuff
             _state.SymbolTable[PredefinedIdentifiers.JOIN_PARTY] = Readonly(new VoidFunction<int>(PredefinedIdentifiers.JOIN_PARTY, JoinParty));
             _state.SymbolTable[PredefinedIdentifiers.CHAT] = Readonly(new VoidFunction<string>(PredefinedIdentifiers.CHAT, Chat));
+
+            // character inputs
+            _state.SymbolTable[PredefinedIdentifiers.FACE] = Readonly(new VoidFunction<int>(PredefinedIdentifiers.FACE, Face));
+            _state.SymbolTable[PredefinedIdentifiers.WALK] = Readonly(new VoidFunction(PredefinedIdentifiers.WALK, Walk));
+            _state.SymbolTable[PredefinedIdentifiers.ATTACK] = Readonly(new VoidFunction(PredefinedIdentifiers.ATTACK, Attack));
+            _state.SymbolTable[PredefinedIdentifiers.SIT] = Readonly(new VoidFunction(PredefinedIdentifiers.SIT, Sit));
+
+            // items
+            _state.SymbolTable[PredefinedIdentifiers.USEITEM] = Readonly(new VoidFunction<int>(PredefinedIdentifiers.USEITEM, UseItem));
+            _state.SymbolTable[PredefinedIdentifiers.DROP] = Readonly(new VoidFunction<int, int>(PredefinedIdentifiers.DROP, Drop));
+            _state.SymbolTable[PredefinedIdentifiers.PICKUP] = Readonly(new VoidFunction<int>(PredefinedIdentifiers.PICKUP, Pickup));
+            _state.SymbolTable[PredefinedIdentifiers.JUNK] = Readonly(new VoidFunction<int, int>(PredefinedIdentifiers.JUNK, Junk));
         }
 
         public void SetupBuiltInVariables()
@@ -188,6 +208,34 @@ namespace EOBot.Interpreter
             return _botHelper.LoginToCharacterAsync(charName);
         }
 
+        private void Tick()
+        {
+            Thread.Sleep(120);
+
+            DependencyMaster
+                .TypeRegistry[_botIndex]
+                .Resolve<IOutOfBandPacketHandler>()
+                .PollForPacketsAndHandle();
+        }
+
+        private List<IVariable> GetPathTo(int x, int y)
+        {
+            var c = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICharacterProvider>().MainCharacter;
+
+            var astarPathFinder = DependencyMaster.TypeRegistry[_botIndex].Resolve<IPathFinder>();
+            var path = astarPathFinder.FindPath(c.RenderProperties.Coordinates(), new MapCoordinate(x, y));
+
+            return path.Select(
+                entry => (IVariable)new ObjectVariable(
+                    new Dictionary<string, (bool, IIdentifiable)>
+                    {
+                        { "x", Readonly(new IntVariable(entry.X)) },
+                        { "y", Readonly(new IntVariable(entry.Y)) },
+                    }
+                )
+            ).ToList();
+        }
+
         private void JoinParty(int characterId)
         {
             var c = DependencyMaster.TypeRegistry[_botIndex];
@@ -198,6 +246,78 @@ namespace EOBot.Interpreter
         {
             var c = DependencyMaster.TypeRegistry[_botIndex];
             c.Resolve<IChatActions>().SendChatToServer(chatText, string.Empty, ChatType.Local);
+        }
+
+        private void Face(int direction)
+        {
+            DependencyMaster
+                .TypeRegistry[_botIndex]
+                .Resolve<ICharacterActions>()
+                .Face((EOLib.EODirection)direction);
+        }
+
+        private void Walk()
+        {
+            DependencyMaster
+                .TypeRegistry[_botIndex]
+                .Resolve<ICharacterActions>()
+                .Walk(ghosted: false);
+        }
+
+        private void Attack()
+        {
+            DependencyMaster
+                .TypeRegistry[_botIndex]
+                .Resolve<ICharacterActions>()
+                .Attack();
+        }
+
+        private void Sit()
+        {
+            var c = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICharacterProvider>().MainCharacter;
+
+            DependencyMaster
+                .TypeRegistry[_botIndex]
+                .Resolve<ICharacterActions>()
+                .Sit(c.RenderProperties.Coordinates());
+        }
+
+        private void UseItem(int itemId)
+        {
+            DependencyMaster
+                .TypeRegistry[_botIndex]
+                .Resolve<IItemActions>()
+                .UseItem(itemId);
+        }
+
+        private void Drop(int itemId, int amount)
+        {
+            var c = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICharacterProvider>().MainCharacter;
+
+            DependencyMaster
+                .TypeRegistry[_botIndex]
+                .Resolve<IItemActions>()
+                .DropItem(itemId, amount, c.RenderProperties.Coordinates());
+        }
+
+        private void Pickup(int itemIndex)
+        {
+            var items = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICurrentMapStateProvider>().MapItems;
+            if (!items.TryGetValue(itemIndex, out var item))
+                throw new BotScriptErrorException("Invalid item index for item pickup");
+
+            DependencyMaster
+                .TypeRegistry[_botIndex]
+                .Resolve<IMapActions>()
+                .PickUpItem(item);
+        }
+
+        private void Junk(int itemId, int amount)
+        {
+            DependencyMaster
+                .TypeRegistry[_botIndex]
+                .Resolve<IItemActions>()
+                .JunkItem(itemId, amount);
         }
 
         private (bool, IIdentifiable) SetupAccountObject()
@@ -276,12 +396,11 @@ namespace EOBot.Interpreter
 
         private (bool, IIdentifiable) SetupMapStateObject()
         {
-            var ms = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICurrentMapStateProvider>();
-
             var mapStateObj = new RuntimeEvaluatedMemberObjectVariable();
-            mapStateObj.SymbolTable["characters"] = (true, () => new ArrayVariable(ms.Characters.Select(GetMapStateCharacter).ToList()));
-            mapStateObj.SymbolTable["npcs"] = (true, () => new ArrayVariable(ms.NPCs.Select(GetMapStateNPC).ToList()));
-            mapStateObj.SymbolTable["items"] = (true, () => new ArrayVariable(ms.MapItems.Select(GetMapStateItem).ToList()));
+
+            mapStateObj.SymbolTable["characters"] = (true, () => new ArrayVariable(DependencyMaster.TypeRegistry[_botIndex].Resolve<ICurrentMapStateProvider>().Characters.Select(GetMapStateCharacter).ToList()));
+            mapStateObj.SymbolTable["npcs"] = (true, () => new ArrayVariable(DependencyMaster.TypeRegistry[_botIndex].Resolve<ICurrentMapStateProvider>().NPCs.Select(GetMapStateNPC).ToList()));
+            mapStateObj.SymbolTable["items"] = (true, () => new ArrayVariable(DependencyMaster.TypeRegistry[_botIndex].Resolve<ICurrentMapStateProvider>().MapItems.Select(GetMapStateItem).ToList()));
 
             return Readonly(mapStateObj);
         }

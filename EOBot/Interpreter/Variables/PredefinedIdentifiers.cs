@@ -45,7 +45,21 @@
         public const string LOGIN_CHARACTER_FUNC = "LoginCharacter";
         public const string DELETE_CHARACTER_FUNC = "DeleteCharacter";
 
+        public const string TICK = "Tick";
+        public const string GETPATHTO = "GetPath";
+
         public const string JOIN_PARTY = "JoinParty";
         public const string CHAT = "Chat";
+
+        public const string FACE = "Face";
+        public const string WALK = "Walk";
+        public const string WALK_TO = "WalkTo";
+        public const string ATTACK = "Attack";
+        public const string SIT = "Sit";
+
+        public const string USEITEM = "UseItem";
+        public const string DROP = "Drop";
+        public const string PICKUP = "Pickup";
+        public const string JUNK = "Junk";
     }
 }
