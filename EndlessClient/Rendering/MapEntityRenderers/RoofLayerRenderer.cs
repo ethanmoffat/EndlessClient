@@ -42,22 +42,22 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
         {
-            var gfxCandidates = new List<int>();
+            var gfxCandidates = new List<(int GFX, int Row)>();
             if (CurrentMap.GFX[MapLayer.Roof][row - 1, col] > 0)
             {
-                gfxCandidates.Add(CurrentMap.GFX[MapLayer.Roof][row - 1, col]);
+                gfxCandidates.Add((CurrentMap.GFX[MapLayer.Roof][row - 1, col], row - 1));
             }
 
             if (row == CurrentMap.Properties.Height && CurrentMap.GFX[MapLayer.Roof][row, col] > 0)
             {
-                gfxCandidates.Add(CurrentMap.GFX[MapLayer.Roof][row, col]);
+                gfxCandidates.Add((CurrentMap.GFX[MapLayer.Roof][row, col], row));
             }
 
-            foreach (var gfxNum in gfxCandidates)
+            foreach (var pair in gfxCandidates)
             {
-                var gfx = _nativeGraphicsManager.TextureFromResource(GFXTypes.MapWallTop, gfxNum, true);
+                var gfx = _nativeGraphicsManager.TextureFromResource(GFXTypes.MapWallTop, pair.GFX, true);
 
-                var pos = GetDrawCoordinatesFromGridUnits(col, row - 1);
+                var pos = GetDrawCoordinatesFromGridUnits(col, pair.Row);
                 spriteBatch.Draw(gfx, pos + additionalOffset, Color.FromNonPremultiplied(255, 255, 255, alpha));
             }
         }
