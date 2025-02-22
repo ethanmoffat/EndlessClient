@@ -5,7 +5,7 @@ using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 
-namespace EndlessClient.HUD
+namespace EOLib.Domain.Pathing
 {
     // Implemented from https://en.wikipedia.org/wiki/A*_search_algorithm#Pseudocode
     [AutoMappedType]
@@ -35,7 +35,7 @@ namespace EndlessClient.HUD
 
             while (openSet.Any())
             {
-                MapCoordinate current = new MapCoordinate(0, 0);
+                var current = new MapCoordinate(0, 0);
                 var lowest = int.MaxValue;
                 foreach (var n in openSet)
                 {

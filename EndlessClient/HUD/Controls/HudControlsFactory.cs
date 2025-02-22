@@ -26,6 +26,7 @@ using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
+using EOLib.Domain.Pathing;
 using EOLib.Graphics;
 using EOLib.Localization;
 using EOLib.Shared;
