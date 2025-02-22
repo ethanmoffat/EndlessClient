@@ -11,6 +11,7 @@ namespace EndlessClient
 
         [STAThread]
         public static void Main(string[] args)
+
         {
             var assemblyNames = new[]
             {

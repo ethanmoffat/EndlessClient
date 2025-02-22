@@ -1,7 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="dotnet format ./EndlessClient.csproj --verify-no-changes" />
-  </Target>
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
     <TargetFramework>net8.0-windows</TargetFramework>
     <OutputType>WinExe</OutputType>
@@ -34,6 +31,7 @@
     <OutputPath>..\bin\$(Configuration)\client</OutputPath>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <EndlessClientBinariesPackageVersion>1.4.0.2</EndlessClientBinariesPackageVersion>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Resources\Game.ico</ApplicationIcon>

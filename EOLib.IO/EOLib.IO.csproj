@@ -5,6 +5,7 @@
     <OutputType>Library</OutputType>
     <OutputPath>..\bin\$(Configuration)\lib\</OutputPath>
     <Description>Library for interacting with Endless Online pub and map files</Description>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
     <DefineConstants>$(DefineConstants);LINUX</DefineConstants>

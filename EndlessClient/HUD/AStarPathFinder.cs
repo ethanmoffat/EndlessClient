@@ -30,7 +30,7 @@ namespace EndlessClient.HUD
 
             var guessScores = new Dictionary<MapCoordinate, int>
             {
-                { start, heuristic(start, finish) }
+                { start, Heuristic(start, finish) }
             };
 
             while (openSet.Any())
@@ -47,10 +47,10 @@ namespace EndlessClient.HUD
                 }
 
                 if (current.Equals(finish))
-                    return reconstructPath(start, cameFrom, current);
+                    return ReconstructPath(start, cameFrom, current);
 
                 openSet.Remove(current);
-                foreach (var neighbor in getNeighbors(current))
+                foreach (var neighbor in GetNeighbors(current))
                 {
                     var tentativeScore = scores[current] + 1;
                     if (!scores.TryGetValue(neighbor, out var _))
@@ -60,7 +60,7 @@ namespace EndlessClient.HUD
                     {
                         cameFrom[neighbor] = current;
                         scores[neighbor] = tentativeScore;
-                        guessScores[neighbor] = tentativeScore + heuristic(neighbor, finish);
+                        guessScores[neighbor] = tentativeScore + Heuristic(neighbor, finish);
 
                         if (!openSet.Contains(neighbor))
                             openSet.Add(neighbor);
@@ -71,10 +71,10 @@ namespace EndlessClient.HUD
             return new Queue<MapCoordinate>();
         }
 
-        private static int heuristic(MapCoordinate current, MapCoordinate goal)
+        private static int Heuristic(MapCoordinate current, MapCoordinate goal)
             => Math.Abs(current.X - goal.X) + Math.Abs(current.Y - goal.Y);
 
-        private Queue<MapCoordinate> reconstructPath(MapCoordinate start, Dictionary<MapCoordinate, MapCoordinate> cameFrom, MapCoordinate current)
+        private Queue<MapCoordinate> ReconstructPath(MapCoordinate start, Dictionary<MapCoordinate, MapCoordinate> cameFrom, MapCoordinate current)
         {
             var retList = new List<MapCoordinate> { current };
             while (cameFrom.ContainsKey(current))
@@ -86,7 +86,7 @@ namespace EndlessClient.HUD
             return new Queue<MapCoordinate>(retList);
         }
 
-        private IEnumerable<MapCoordinate> getNeighbors(MapCoordinate current)
+        private IEnumerable<MapCoordinate> GetNeighbors(MapCoordinate current)
         {
             var points = new MapCoordinate[]
             {

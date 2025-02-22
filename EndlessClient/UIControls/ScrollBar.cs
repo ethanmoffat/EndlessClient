@@ -71,11 +71,11 @@ namespace EndlessClient.UIControls
             var scrollBox = new Rectangle(0, vertOff, 16, 15);
 
             _upButton = new XNAButton(scrollSpriteSheet, Vector2.Zero, upArrows[0], upArrows[1]);
-            _upButton.OnMouseDown += arrowClicked;
+            _upButton.OnMouseDown += ArrowClicked;
             _upButton.SetParentControl(this);
 
             _downButton = new XNAButton(scrollSpriteSheet, new Vector2(0, size.Y - 15), downArrows[0], downArrows[1]);
-            _downButton.OnMouseDown += arrowClicked;
+            _downButton.OnMouseDown += ArrowClicked;
             _downButton.SetParentControl(this);
 
             _scrollButton = new XNAButton(scrollSpriteSheet, new Vector2(0, 15), scrollBox, scrollBox);
@@ -123,7 +123,7 @@ namespace EndlessClient.UIControls
         public void ScrollToEnd()
         {
             while (ScrollOffset < _totalHeight - LinesToRender)
-                arrowClicked(_downButton, new EventArgs());
+                ArrowClicked(_downButton, new EventArgs());
         }
 
         public void SetScrollOffset(int offset)
@@ -152,7 +152,7 @@ namespace EndlessClient.UIControls
         //     a way that ScrollOffset is updated and the Y coordinate for the scroll box is updated.
         //     ScrollOffset provides a value that is used within the EOScrollDialog.Draw method.
         //     The Y coordinate for the scroll box determines where it is drawn.
-        private void arrowClicked(object btn, EventArgs e)
+        private void ArrowClicked(object btn, EventArgs e)
         {
             //_totalHeight contains the number of lines to render
             //any less than LinesToRender shouldn't scroll
