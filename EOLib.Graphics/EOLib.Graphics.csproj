@@ -6,6 +6,7 @@
     <OutputPath>..\bin\$(Configuration)\lib\</OutputPath>
     <Description>Library for interacting with Endless Online gfx files</Description>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
     <DefineConstants>$(DefineConstants);LINUX</DefineConstants>

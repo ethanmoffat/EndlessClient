@@ -6,6 +6,7 @@
     <OutputType>Library</OutputType>
     <OutputPath>..\bin\$(Configuration)\lib\</OutputPath>
     <Description>Base library for Endless Online development</Description>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
     <DefineConstants>$(DefineConstants);LINUX</DefineConstants>

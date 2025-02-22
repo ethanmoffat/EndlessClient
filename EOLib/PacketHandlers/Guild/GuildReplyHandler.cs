@@ -87,7 +87,6 @@ namespace EOLib.PacketHandlers.Guild
                             var updatedMemberList = new HashSet<string>(creationSession.Members) { data.Name };
                             _guildSessionRepository.CreationSession = Option.Some(creationSession.WithMembers(updatedMemberList));
                         });
-                        
                         break;
                     }
                 case GuildReply.JoinRequest:
