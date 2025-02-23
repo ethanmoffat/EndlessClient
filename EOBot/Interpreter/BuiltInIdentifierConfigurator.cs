@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EOBot.Interpreter.States;
 using EOBot.Interpreter.Variables;
+using EOLib;
 using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
@@ -29,6 +30,10 @@ namespace EOBot.Interpreter
 {
     public class BuiltInIdentifierConfigurator
     {
+        private const int ATTACK_BACKOFF_MS = 600;
+        private const int WALK_BACKOFF_MS = 480;
+        private const int FACE_BACKOFF_MS = 120;
+
         private readonly ProgramState _state;
         private readonly int _botIndex;
         private readonly ArgumentsParser _parsedArgs;
@@ -71,24 +76,24 @@ namespace EOBot.Interpreter
             _state.SymbolTable[PredefinedIdentifiers.LOGIN_CHARACTER_FUNC] = Readonly(new AsyncVoidFunction<string>(PredefinedIdentifiers.LOGIN_CHARACTER_FUNC, LoginToCharacterAsync));
 
             // game flow
-            _state.SymbolTable[PredefinedIdentifiers.TICK] = Readonly(new VoidFunction(PredefinedIdentifiers.TICK, Tick));
+            _state.SymbolTable[PredefinedIdentifiers.TICK] = Readonly(new AsyncVoidFunction(PredefinedIdentifiers.TICK, () => Tick()));
             _state.SymbolTable[PredefinedIdentifiers.GETPATHTO] = Readonly(new Function<int, int, List<IVariable>>(PredefinedIdentifiers.GETPATHTO, GetPathTo));
 
             // in-game stuff
             _state.SymbolTable[PredefinedIdentifiers.JOIN_PARTY] = Readonly(new VoidFunction<int>(PredefinedIdentifiers.JOIN_PARTY, JoinParty));
-            _state.SymbolTable[PredefinedIdentifiers.CHAT] = Readonly(new VoidFunction<string>(PredefinedIdentifiers.CHAT, Chat));
+            _state.SymbolTable[PredefinedIdentifiers.CHAT] = Readonly(new AsyncVoidFunction<string>(PredefinedIdentifiers.CHAT, Chat));
 
             // character inputs
-            _state.SymbolTable[PredefinedIdentifiers.FACE] = Readonly(new VoidFunction<int>(PredefinedIdentifiers.FACE, Face));
-            _state.SymbolTable[PredefinedIdentifiers.WALK] = Readonly(new VoidFunction(PredefinedIdentifiers.WALK, Walk));
-            _state.SymbolTable[PredefinedIdentifiers.ATTACK] = Readonly(new VoidFunction(PredefinedIdentifiers.ATTACK, Attack));
-            _state.SymbolTable[PredefinedIdentifiers.SIT] = Readonly(new VoidFunction(PredefinedIdentifiers.SIT, Sit));
+            _state.SymbolTable[PredefinedIdentifiers.FACE] = Readonly(new AsyncVoidFunction<int>(PredefinedIdentifiers.FACE, Face));
+            _state.SymbolTable[PredefinedIdentifiers.WALK] = Readonly(new AsyncVoidFunction(PredefinedIdentifiers.WALK, Walk));
+            _state.SymbolTable[PredefinedIdentifiers.ATTACK] = Readonly(new AsyncVoidFunction(PredefinedIdentifiers.ATTACK, Attack));
+            _state.SymbolTable[PredefinedIdentifiers.SIT] = Readonly(new AsyncVoidFunction(PredefinedIdentifiers.SIT, Sit));
 
             // items
-            _state.SymbolTable[PredefinedIdentifiers.USEITEM] = Readonly(new VoidFunction<int>(PredefinedIdentifiers.USEITEM, UseItem));
-            _state.SymbolTable[PredefinedIdentifiers.DROP] = Readonly(new VoidFunction<int, int>(PredefinedIdentifiers.DROP, Drop));
-            _state.SymbolTable[PredefinedIdentifiers.PICKUP] = Readonly(new VoidFunction<int>(PredefinedIdentifiers.PICKUP, Pickup));
-            _state.SymbolTable[PredefinedIdentifiers.JUNK] = Readonly(new VoidFunction<int, int>(PredefinedIdentifiers.JUNK, Junk));
+            _state.SymbolTable[PredefinedIdentifiers.USEITEM] = Readonly(new AsyncVoidFunction<int>(PredefinedIdentifiers.USEITEM, UseItem));
+            _state.SymbolTable[PredefinedIdentifiers.DROP] = Readonly(new AsyncVoidFunction<int, int>(PredefinedIdentifiers.DROP, Drop));
+            _state.SymbolTable[PredefinedIdentifiers.PICKUP] = Readonly(new AsyncVoidFunction<int>(PredefinedIdentifiers.PICKUP, Pickup));
+            _state.SymbolTable[PredefinedIdentifiers.JUNK] = Readonly(new AsyncVoidFunction<int, int>(PredefinedIdentifiers.JUNK, Junk));
         }
 
         public void SetupBuiltInVariables()
@@ -208,9 +213,13 @@ namespace EOBot.Interpreter
             return _botHelper.LoginToCharacterAsync(charName);
         }
 
-        private void Tick()
+        private async Task Tick(int delay = 0)
         {
-            Thread.Sleep(120);
+            if (delay > 0)
+            {
+                DependencyMaster.TypeRegistry[_botIndex].Resolve<IFixedTimeStepRepository>().Tick((uint)delay / 10);
+                await Task.Delay(delay);
+            }
 
             DependencyMaster
                 .TypeRegistry[_botIndex]
@@ -242,37 +251,51 @@ namespace EOBot.Interpreter
             c.Resolve<IPartyActions>().RequestParty(PartyRequestType.Join, characterId);
         }
 
-        private void Chat(string chatText)
+        private Task Chat(string chatText)
         {
             var c = DependencyMaster.TypeRegistry[_botIndex];
             c.Resolve<IChatActions>().SendChatToServer(chatText, string.Empty, ChatType.Local);
+
+            return Tick(FACE_BACKOFF_MS);
         }
 
-        private void Face(int direction)
+        private Task Face(int direction)
         {
             DependencyMaster
                 .TypeRegistry[_botIndex]
                 .Resolve<ICharacterActions>()
-                .Face((EOLib.EODirection)direction);
+                .Face((EODirection)direction);
+
+            return Tick(FACE_BACKOFF_MS);
         }
 
-        private void Walk()
+        private Task Walk()
         {
+            var cr = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICharacterRepository>();
+            // MainCharacter is normally updated with destination coordinates by CharacterAnimator, not by reply packet
+            cr.MainCharacter = cr.MainCharacter.WithRenderProperties(
+                cr.MainCharacter.RenderProperties.WithCoordinates(cr.MainCharacter.RenderProperties.DestinationCoordinates())
+            );
+
             DependencyMaster
                 .TypeRegistry[_botIndex]
                 .Resolve<ICharacterActions>()
                 .Walk(ghosted: false);
+
+            return Tick(WALK_BACKOFF_MS);
         }
 
-        private void Attack()
+        private Task Attack()
         {
             DependencyMaster
                 .TypeRegistry[_botIndex]
                 .Resolve<ICharacterActions>()
                 .Attack();
+
+            return Tick(ATTACK_BACKOFF_MS);
         }
 
-        private void Sit()
+        private Task Sit()
         {
             var c = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICharacterProvider>().MainCharacter;
 
@@ -280,17 +303,22 @@ namespace EOBot.Interpreter
                 .TypeRegistry[_botIndex]
                 .Resolve<ICharacterActions>()
                 .Sit(c.RenderProperties.Coordinates());
+
+            return Tick(ATTACK_BACKOFF_MS);
         }
 
-        private void UseItem(int itemId)
+        private Task UseItem(int itemId)
         {
             DependencyMaster
                 .TypeRegistry[_botIndex]
                 .Resolve<IItemActions>()
                 .UseItem(itemId);
+
+
+            return Tick(ATTACK_BACKOFF_MS);
         }
 
-        private void Drop(int itemId, int amount)
+        private Task Drop(int itemId, int amount)
         {
             var c = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICharacterProvider>().MainCharacter;
 
@@ -298,9 +326,11 @@ namespace EOBot.Interpreter
                 .TypeRegistry[_botIndex]
                 .Resolve<IItemActions>()
                 .DropItem(itemId, amount, c.RenderProperties.Coordinates());
+
+            return Tick(ATTACK_BACKOFF_MS);
         }
 
-        private void Pickup(int itemIndex)
+        private Task Pickup(int itemIndex)
         {
             var items = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICurrentMapStateProvider>().MapItems;
             if (!items.TryGetValue(itemIndex, out var item))
@@ -310,14 +340,18 @@ namespace EOBot.Interpreter
                 .TypeRegistry[_botIndex]
                 .Resolve<IMapActions>()
                 .PickUpItem(item);
+
+            return Tick(ATTACK_BACKOFF_MS);
         }
 
-        private void Junk(int itemId, int amount)
+        private Task Junk(int itemId, int amount)
         {
             DependencyMaster
                 .TypeRegistry[_botIndex]
                 .Resolve<IItemActions>()
                 .JunkItem(itemId, amount);
+
+            return Tick(ATTACK_BACKOFF_MS);
         }
 
         private (bool, IIdentifiable) SetupAccountObject()

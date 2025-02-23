@@ -120,5 +120,13 @@ namespace EOLib.Domain.Extensions
         public static MapCoordinate Coordinates(this CharacterRenderProperties rp) => new MapCoordinate(rp.MapX, rp.MapY);
 
         public static MapCoordinate DestinationCoordinates(this CharacterRenderProperties rp) => new MapCoordinate(rp.GetDestinationX(), rp.GetDestinationY());
+
+        public static CharacterRenderProperties WithCoordinates(this CharacterRenderProperties rp, MapCoordinate coords)
+        {
+            var props = rp.ToBuilder();
+            props.MapX = coords.X;
+            props.MapY = coords.Y;
+            return props.ToImmutable();
+        }
     }
 }
