@@ -20,6 +20,9 @@ namespace EOLib.Domain.Pathing
 
         public Queue<MapCoordinate> FindPath(MapCoordinate start, MapCoordinate finish)
         {
+            if (start == finish)
+                return new Queue<MapCoordinate>();
+
             var openSet = new HashSet<MapCoordinate>(new[] { start });
             var cameFrom = new Dictionary<MapCoordinate, MapCoordinate>();
 
