@@ -24,17 +24,27 @@ namespace EOBot.Interpreter.States
 
                 // if we get an RParen, the nested expression has been evaluated
                 if (input.Expect(BotTokenType.RParen))
-                    return NegateIfNeeded(input);
+                {
+                    // check for an expression tail after the close paren
+                    evalRes = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input);
+                    if (evalRes.Result == EvalResult.NotMatch)
+                        return NegateIfNeeded(input); // default logic if no expression tail: negate as needed and return
+                    else if (evalRes.Result == EvalResult.Failed)
+                        return evalRes;
 
-                // expression_tail is optional
-                evalRes = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input);
-                if (evalRes.Result == EvalResult.NotMatch)
-                    return EvaluateSingleOperand(input);
-                else if (evalRes.Result == EvalResult.Failed)
-                    return evalRes;
+                    // fallthrough to default operand handling logic below if we successfully evaluated an expression tail
+                }
+                else
+                {
+                    evalRes = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input);
+                    if (evalRes.Result == EvalResult.NotMatch)
+                        return EvaluateSingleOperand(input);
+                    else if (evalRes.Result == EvalResult.Failed)
+                        return evalRes;
 
-                if (!input.Expect(BotTokenType.RParen))
-                    return Error(input.Current(), BotTokenType.RParen);
+                    if (!input.Expect(BotTokenType.RParen))
+                        return Error(input.Current(), BotTokenType.RParen);
+                }
             }
             else
             {
@@ -104,10 +114,13 @@ namespace EOBot.Interpreter.States
                 case BotTokenType.GreaterThanOperator: res.Result = new BoolVariable(operand1.VariableValue.CompareTo(operand2.VariableValue) > 0); break;
                 case BotTokenType.LessThanEqOperator: res.Result = new BoolVariable(operand1.VariableValue.CompareTo(operand2.VariableValue) <= 0); break;
                 case BotTokenType.GreaterThanEqOperator: res.Result = new BoolVariable(operand1.VariableValue.CompareTo(operand2.VariableValue) >= 0); break;
+                case BotTokenType.LogicalAndOperator: res = LogicalAnd(operand1.VariableValue, operand2.VariableValue); break;
+                case BotTokenType.LogicalOrOperator: res = LogicalOr(operand1.VariableValue, operand2.VariableValue); break;
                 case BotTokenType.PlusOperator: res = Add((dynamic)operand1.VariableValue, (dynamic)operand2.VariableValue); break;
                 case BotTokenType.MinusOperator: res = Subtract((dynamic)operand1.VariableValue, (dynamic)operand2.VariableValue); break;
                 case BotTokenType.MultiplyOperator: res = Multiply((dynamic)operand1.VariableValue, (dynamic)operand2.VariableValue); break;
                 case BotTokenType.DivideOperator: res = Divide((dynamic)operand1.VariableValue, (dynamic)operand2.VariableValue); break;
+                case BotTokenType.ModuloOperator: res = Modulo((dynamic)operand1.VariableValue, (dynamic)operand2.VariableValue); break;
                 default: return UnsupportedOperatorError(@operator);
             }
 
@@ -200,7 +213,7 @@ namespace EOBot.Interpreter.States
             {
                 var notOperator = input.OperationStack.Pop();
 
-                var boolOperand = varToken.VariableValue as BoolVariable;
+                var boolOperand = CoerceToBool(varToken.VariableValue);
                 if (boolOperand == null)
                     return UnsupportedOperatorError(notOperator);
 
@@ -209,6 +222,40 @@ namespace EOBot.Interpreter.States
 
             input.OperationStack.Push(varToken);
             return Success();
+        }
+
+        private static BoolVariable CoerceToBool(IVariable variable)
+        {
+            if (variable is BoolVariable boolVar)
+                return boolVar;
+            else if (variable is IntVariable intVar)
+                return new BoolVariable(intVar.Value != 0);
+            else if (variable is StringVariable stringVar)
+                return new BoolVariable(!string.IsNullOrEmpty(stringVar.Value));
+            else
+                return null;
+        }
+
+        private static (IVariable, string) LogicalAnd(IVariable a, IVariable b)
+        {
+            var aVal = CoerceToBool(a);
+            var bVal = CoerceToBool(b);
+
+            if (aVal == null || bVal == null)
+                return (null, $"Error evaluating logical AND expression: operands {a} and {b} could not be coerced to bool");
+
+            return (new BoolVariable(aVal.Value && bVal.Value), string.Empty);
+        }
+
+        private static (IVariable, string) LogicalOr(IVariable a, IVariable b)
+        {
+            var aVal = CoerceToBool(a);
+            var bVal = CoerceToBool(b);
+
+            if (aVal == null || bVal == null)
+                return (null, $"Error evaluating logical OR expression: operands {a} and {b} could not be coerced to bool");
+
+            return (new BoolVariable(aVal.Value || bVal.Value), string.Empty);
         }
 
         private (IVariable, string) Add(IntVariable a, IntVariable b) => (new IntVariable(a.Value + b.Value), string.Empty);
@@ -225,5 +272,8 @@ namespace EOBot.Interpreter.States
 
         private (IVariable, string) Divide(IntVariable a, IntVariable b) => (new IntVariable(a.Value / b.Value), string.Empty);
         private (IVariable, string) Divide(object a, object b) => (null, $"Objects {a} and {b} could not be divided (currently the operands must be int)");
+
+        private (IVariable, string) Modulo(IntVariable a, IntVariable b) => (new IntVariable(a.Value % b.Value), string.Empty);
+        private (IVariable, string) Modulo(object a, object b) => (null, $"Objects {a} and {b} could not be modulo'd (currently the operands must be int)");
     }
 }

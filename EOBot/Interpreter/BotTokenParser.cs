@@ -197,10 +197,39 @@ namespace EOBot.Interpreter
 
                             return Token(BotTokenType.Variable, variable);
                         }
+                    case '|':
+                        {
+                            if (_inputStream.EndOfStream)
+                                return Token(BotTokenType.Error, inputChar.ToString());
+
+                            switch (Peek())
+                            {
+                                case '|':
+                                    var nextChar = Read();
+                                    return Token(BotTokenType.LogicalOrOperator, inputChar.ToString() + nextChar);
+                                default:
+                                    return Token(BotTokenType.Error, inputChar.ToString());
+                            }
+                        }
+                    case '&':
+                        {
+                            if (_inputStream.EndOfStream)
+                                return Token(BotTokenType.Error, inputChar.ToString());
+
+                            switch (Peek())
+                            {
+                                case '&':
+                                    var nextChar = Read();
+                                    return Token(BotTokenType.LogicalAndOperator, inputChar.ToString() + nextChar);
+                                default:
+                                    return Token(BotTokenType.Error, inputChar.ToString());
+                            }
+                        }
                     case '+': return Token(BotTokenType.PlusOperator, inputChar.ToString());
                     case '-': return Token(BotTokenType.MinusOperator, inputChar.ToString());
                     case '*': return Token(BotTokenType.MultiplyOperator, inputChar.ToString());
                     case '/': return Token(BotTokenType.DivideOperator, inputChar.ToString());
+                    case '%': return Token(BotTokenType.ModuloOperator, inputChar.ToString());
                     case '.': return Token(BotTokenType.Dot, inputChar.ToString());
                     default: return Token(BotTokenType.Error, inputChar.ToString());
                 }
