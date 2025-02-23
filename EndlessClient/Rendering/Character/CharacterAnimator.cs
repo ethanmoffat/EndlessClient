@@ -107,10 +107,6 @@ namespace EndlessClient.Rendering.Character
                 return;
             }
 
-            var renderProperties = _characterRepository.MainCharacter.RenderProperties.WithDirection(direction);
-            var newMainCharacter = _characterRepository.MainCharacter.WithRenderProperties(renderProperties);
-            _characterRepository.MainCharacter = newMainCharacter;
-
             _characterActions.Face(direction);
         }
 
