@@ -30,8 +30,8 @@ namespace EOBot.Interpreter
 {
     public class BuiltInIdentifierConfigurator
     {
-        private const int ATTACK_BACKOFF_MS = 600;
-        private const int WALK_BACKOFF_MS = 480;
+        private const int ATTACK_BACKOFF_MS = 480;
+        private const int WALK_BACKOFF_MS = 600;
         private const int FACE_BACKOFF_MS = 120;
 
         private readonly ProgramState _state;
@@ -54,6 +54,8 @@ namespace EOBot.Interpreter
             _state.SymbolTable[PredefinedIdentifiers.PRINT_FUNC] = Readonly(new VoidFunction<object>(PredefinedIdentifiers.PRINT_FUNC, param1 => ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, param1.ToString())));
             _state.SymbolTable[PredefinedIdentifiers.LEN_FUNC] = Readonly(new Function<ArrayVariable, int>(PredefinedIdentifiers.LEN_FUNC, param1 => param1.Value.Count));
             _state.SymbolTable[PredefinedIdentifiers.ARRAY_FUNC] = Readonly(new Function<int, List<IVariable>>(PredefinedIdentifiers.ARRAY_FUNC, param1 => Enumerable.Repeat(UndefinedVariable.Instance, param1).Cast<IVariable>().ToList()));
+            _state.SymbolTable[PredefinedIdentifiers.APPEND_FUNC] = Readonly(new VoidFunction<ArrayVariable, IVariable>(PredefinedIdentifiers.APPEND_FUNC, (array, var) => array.Value.Add(var)));
+            _state.SymbolTable[PredefinedIdentifiers.CLEAR_FUNC] = Readonly(new VoidFunction<ArrayVariable>(PredefinedIdentifiers.CLEAR_FUNC, array => array.Value.Clear()));
             _state.SymbolTable[PredefinedIdentifiers.SLEEP_FUNC] = Readonly(new VoidFunction<int>(PredefinedIdentifiers.SLEEP_FUNC, param1 => Thread.Sleep(param1)));
             _state.SymbolTable[PredefinedIdentifiers.TIME_FUNC] = Readonly(new Function<string>(PredefinedIdentifiers.TIME_FUNC, () => DateTime.Now.ToLongTimeString()));
             _state.SymbolTable[PredefinedIdentifiers.OBJECT_FUNC] = Readonly(new Function<ObjectVariable>(PredefinedIdentifiers.OBJECT_FUNC, () => new ObjectVariable()));
@@ -62,6 +64,7 @@ namespace EOBot.Interpreter
             _state.SymbolTable[PredefinedIdentifiers.ERROR_FUNC] = Readonly(new VoidFunction<string>(PredefinedIdentifiers.ERROR_FUNC, message => throw new BotScriptErrorException(message)));
             _state.SymbolTable[PredefinedIdentifiers.LOWER_FUNC] = Readonly(new Function<string, string>(PredefinedIdentifiers.LOWER_FUNC, s => s.ToLower()));
             _state.SymbolTable[PredefinedIdentifiers.UPPER_FUNC] = Readonly(new Function<string, string>(PredefinedIdentifiers.UPPER_FUNC, s => s.ToUpper()));
+            _state.SymbolTable[PredefinedIdentifiers.RAND_FUNC] = Readonly(new Function<int, int, int>(PredefinedIdentifiers.RAND_FUNC, (min, max) => min + _random.Next(max) % (max - min)));
 
             BotDependencySetup();
             // pre-game flow

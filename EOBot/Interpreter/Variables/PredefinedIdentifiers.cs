@@ -25,6 +25,8 @@
         public const string PRINT_FUNC = "print";
         public const string LEN_FUNC = "len";
         public const string ARRAY_FUNC = "array";
+        public const string APPEND_FUNC = "append";
+        public const string CLEAR_FUNC = "clear";
         public const string OBJECT_FUNC = "object";
         public const string SLEEP_FUNC = "sleep";
         public const string TIME_FUNC = "time";
@@ -33,6 +35,7 @@
         public const string ERROR_FUNC = "error";
         public const string LOWER_FUNC = "lower";
         public const string UPPER_FUNC = "upper";
+        public const string RAND_FUNC = "rand";
 
         // game functions
         public const string CONNECT_FUNC = "Connect";
@@ -46,7 +49,7 @@
         public const string DELETE_CHARACTER_FUNC = "DeleteCharacter";
 
         public const string TICK = "Tick";
-        public const string GETPATHTO = "GetPath";
+        public const string GETPATHTO = "GetPathTo";
 
         public const string JOIN_PARTY = "JoinParty";
         public const string CHAT = "Chat";
