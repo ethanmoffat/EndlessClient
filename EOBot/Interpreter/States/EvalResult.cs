@@ -13,6 +13,10 @@
         /// <summary>
         /// The evaluator was not a match for the program's current execution point
         /// </summary>
-        NotMatch
+        NotMatch,
+        /// <summary>
+        /// The operation was cancelled by the user
+        /// </summary>
+        Cancelled
     }
 }

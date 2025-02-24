@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using EOBot.Interpreter.Extensions;
 using EOBot.Interpreter.Variables;
@@ -12,13 +13,16 @@ namespace EOBot.Interpreter.States
             : base(evaluators) { }
 
         // todo: this code is a mess and could use cleaning up (lots of copy/paste...)
-        public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input)
+        public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                return (EvalResult.Cancelled, string.Empty, null);
+
             input.Match(BotTokenType.NotOperator);
 
             if (input.Expect(BotTokenType.LParen))
             {
-                var evalRes = await Evaluator<ExpressionEvaluator>().EvaluateAsync(input);
+                var evalRes = await Evaluator<ExpressionEvaluator>().EvaluateAsync(input, ct);
                 if (evalRes.Result != EvalResult.Ok)
                     return evalRes;
 
@@ -26,7 +30,7 @@ namespace EOBot.Interpreter.States
                 if (input.Expect(BotTokenType.RParen))
                 {
                     // check for an expression tail after the close paren
-                    evalRes = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input);
+                    evalRes = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input, ct);
                     if (evalRes.Result == EvalResult.NotMatch)
                         return NegateIfNeeded(input); // default logic if no expression tail: negate as needed and return
                     else if (evalRes.Result == EvalResult.Failed)
@@ -36,7 +40,7 @@ namespace EOBot.Interpreter.States
                 }
                 else
                 {
-                    evalRes = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input);
+                    evalRes = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input, ct);
                     if (evalRes.Result == EvalResult.NotMatch)
                         return EvaluateSingleOperand(input);
                     else if (evalRes.Result == EvalResult.Failed)
@@ -49,33 +53,39 @@ namespace EOBot.Interpreter.States
             else
             {
                 // an expression can be a function call
-                var evalRes = await Evaluator<FunctionEvaluator>().EvaluateAsync(input);
+                var evalRes = await Evaluator<FunctionEvaluator>().EvaluateAsync(input, ct);
                 if (evalRes.Result == EvalResult.Ok)
                 {
                     // there may or may not be an expression tail after a function call
                     // if there is an expression tail, evaluate the operands below, otherwise return early
-                    evalRes = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input);
+                    evalRes = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input, ct);
                     if (evalRes.Result == EvalResult.NotMatch)
                     {
                         // function call as single operand expression - negate the result if needed
                         return NegateIfNeeded(input);
                     }
-                    else if (evalRes.Result == EvalResult.Failed)
+                    else if (evalRes.Result != EvalResult.Ok)
+                    {
                         return evalRes;
+                    }
                 }
                 else if (evalRes.Result == EvalResult.NotMatch)
                 {
                     // if not a function, evaluate operand and expression tail (basic expression)
-                    evalRes = await Evaluator<OperandEvaluator>().EvaluateAsync(input);
+                    evalRes = await Evaluator<OperandEvaluator>().EvaluateAsync(input, ct);
                     if (evalRes.Result != EvalResult.Ok)
                         return evalRes;
 
                     // expression_tail is optional, if not set no need to evaluate operation stack below / return early
-                    evalRes = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input);
+                    evalRes = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input, ct);
                     if (evalRes.Result == EvalResult.NotMatch)
+                    {
                         return EvaluateSingleOperand(input);
-                    else if (evalRes.Result == EvalResult.Failed)
+                    }
+                    else if (evalRes.Result != EvalResult.Ok)
+                    {
                         return evalRes;
+                    }
                 }
                 else
                 {

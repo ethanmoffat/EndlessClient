@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace EOBot.Interpreter.States
@@ -15,7 +16,7 @@ namespace EOBot.Interpreter.States
             _evaluators = evaluators;
         }
 
-        public abstract Task<(EvalResult Result, string Reason, BotToken Token)> EvaluateAsync(ProgramState input);
+        public abstract Task<(EvalResult Result, string Reason, BotToken Token)> EvaluateAsync(ProgramState input, CancellationToken ct);
 
         protected IScriptEvaluator Evaluator<T>() where T : IScriptEvaluator
         {

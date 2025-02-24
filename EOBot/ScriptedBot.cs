@@ -20,25 +20,29 @@ namespace EOBot
             _parsedArgs = parsedArgs;
         }
 
-        public override async Task InitializeAsync(string host, int port)
+        public override async Task InitializeAsync(string host, int port, CancellationToken cancellationToken)
         {
-            var tokens = _interpreter.Parse();
-            _programState = _interpreter.Prepare(_index, _parsedArgs, tokens);
+            _programState = _interpreter.Parse();
+
+            var configurator = new BuiltInIdentifierConfigurator(_index, _parsedArgs);
+            configurator.SetupBuiltInFunctions(_programState);
+            configurator.SetupBuiltInVariables(_programState);
 
             if (_parsedArgs.AutoConnect)
             {
-                var connectFunction = _programState.SymbolTable[PredefinedIdentifiers.CONNECT_FUNC].Identifiable as AsyncVoidFunction<string, int>;
-                if (connectFunction == null)
+                if (_programState.SymbolTable[PredefinedIdentifiers.CONNECT_FUNC].Identifiable is not AsyncVoidFunction<string, int> connectFunction)
                     throw new InvalidOperationException("Something went wrong getting the connect function out of the symbol table");
 
                 // call connect function that uses user-defined $version variable instead of base logic that has it hard-coded
-                await connectFunction.CallAsync(new StringVariable(_parsedArgs.Host), new IntVariable(_parsedArgs.Port)).ConfigureAwait(false);
+                await connectFunction.CallAsync(cancellationToken, new StringVariable(_parsedArgs.Host), new IntVariable(_parsedArgs.Port)).ConfigureAwait(false);
 
                 WorkCompleted += () =>
                 {
                     Thread.Sleep(2000);
 
-                    var disconnectionFunction = _programState.SymbolTable[PredefinedIdentifiers.DISCONNECT_FUNC].Identifiable as VoidFunction;
+                    if (_programState.SymbolTable[PredefinedIdentifiers.DISCONNECT_FUNC].Identifiable is not VoidFunction disconnectionFunction)
+                        throw new InvalidOperationException("Something went wrong getting the disconnect function out of the symbol table");
+
                     disconnectionFunction.Call();
                 };
             }
@@ -51,7 +55,7 @@ namespace EOBot
             if (_programState == null)
                 throw new InvalidOperationException("Scripted bot must be initialized before it is run");
 
-            await _interpreter.Run(_programState).ConfigureAwait(false);
+            await _interpreter.Run(_programState, ct).ConfigureAwait(false);
         }
     }
 }

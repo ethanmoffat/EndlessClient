@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using EOBot.Interpreter.Extensions;
 using EOBot.Interpreter.Variables;
@@ -11,16 +12,19 @@ namespace EOBot.Interpreter.States
         public AssignmentEvaluator(IEnumerable<IScriptEvaluator> evaluators)
             : base(evaluators) { }
 
-        public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input)
+        public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input, CancellationToken ct)
         {
-            var eval = await Evaluator<VariableEvaluator>().EvaluateAsync(input);
+            if (ct.IsCancellationRequested)
+                return (EvalResult.Cancelled, string.Empty, null);
+
+            var eval = await Evaluator<VariableEvaluator>().EvaluateAsync(input, ct);
             if (eval.Result != EvalResult.Ok)
                 return eval;
 
             if (!input.Match(BotTokenType.AssignOperator))
                 return Error(input.Current(), BotTokenType.AssignOperator);
 
-            eval = await Evaluator<ExpressionEvaluator>().EvaluateAsync(input);
+            eval = await Evaluator<ExpressionEvaluator>().EvaluateAsync(input, ct);
             if (eval.Result != EvalResult.Ok)
                 return eval;
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using EOBot.Interpreter.Extensions;
 
@@ -9,8 +10,11 @@ namespace EOBot.Interpreter.States
         public IfEvaluator(IEnumerable<IScriptEvaluator> evaluators)
             : base(evaluators) { }
 
-        public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input)
+        public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                return (EvalResult.Cancelled, string.Empty, null);
+
             // ensure we have the right keyword before advancing the program
             var current = input.Current();
             if (current.TokenType != BotTokenType.Keyword || current.TokenValue != "if")
@@ -18,12 +22,12 @@ namespace EOBot.Interpreter.States
 
             var ifStartIndex = input.ExecutionIndex;
 
-            var (result, reason, token) = await EvaluateConditionAsync(ifStartIndex, input);
+            var (result, reason, token) = await EvaluateConditionAsync(ifStartIndex, input, ct);
             if (result == EvalResult.Ok)
             {
                 if (bool.TryParse(token.TokenValue, out var conditionValue) && conditionValue)
                 {
-                    var ifRes = await EvaluateBlockAsync(input);
+                    var ifRes = await EvaluateBlockAsync(input, ct);
                     if (ifRes.Item1 == EvalResult.Ok)
                         SkipElseBlocks(input);
 
@@ -38,7 +42,7 @@ namespace EOBot.Interpreter.States
                 {
                     input.Expect(BotTokenType.Keyword);
 
-                    var elseIfRes = await Evaluator<IfEvaluator>().EvaluateAsync(input);
+                    var elseIfRes = await Evaluator<IfEvaluator>().EvaluateAsync(input, ct);
                     if (elseIfRes.Result == EvalResult.Failed)
                         return elseIfRes;
                     else if (elseIfRes.Result == EvalResult.Ok)
@@ -48,7 +52,7 @@ namespace EOBot.Interpreter.States
                     }
 
                     // if not a match for else if, it is an else block
-                    return await EvaluateBlockAsync(input);
+                    return await EvaluateBlockAsync(input, ct);
                 }
             }
 

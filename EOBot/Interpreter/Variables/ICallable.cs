@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace EOBot.Interpreter.Variables
 {
@@ -17,11 +18,11 @@ namespace EOBot.Interpreter.Variables
 
     public interface IAsyncCallable : IAsyncFunction
     {
-        Task CallAsync(params IIdentifiable[] parameters);
+        Task CallAsync(CancellationToken ct, params IIdentifiable[] parameters);
     }
 
     public interface IAsyncCallable<T> : IAsyncFunction
     {
-        Task<T> CallAsync(params IIdentifiable[] parameters);
+        Task<T> CallAsync(CancellationToken ct, params IIdentifiable[] parameters);
     }
 }

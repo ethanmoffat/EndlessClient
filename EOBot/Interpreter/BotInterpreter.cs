@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using EOBot.Interpreter.States;
 
@@ -9,6 +10,7 @@ namespace EOBot.Interpreter
     public class BotInterpreter
     {
         private readonly BotTokenParser _parser;
+        private readonly IScriptEvaluator _scriptEvaluator;
 
         public BotInterpreter(string filePath)
             : this(File.OpenText(filePath))
@@ -16,11 +18,31 @@ namespace EOBot.Interpreter
         }
 
         public BotInterpreter(StreamReader inputStream)
+            : this()
         {
             _parser = new BotTokenParser(inputStream);
         }
 
-        public IReadOnlyList<BotToken> Parse()
+        private BotInterpreter()
+        {
+            var evaluators = new List<IScriptEvaluator>();
+            evaluators.Add(new StatementListEvaluator(evaluators));
+            evaluators.Add(new StatementEvaluator(evaluators));
+            evaluators.Add(new AssignmentEvaluator(evaluators));
+            evaluators.Add(new KeywordEvaluator(evaluators));
+            evaluators.Add(new LabelEvaluator());
+            evaluators.Add(new FunctionEvaluator(evaluators));
+            evaluators.Add(new VariableEvaluator(evaluators));
+            evaluators.Add(new ExpressionEvaluator(evaluators));
+            evaluators.Add(new ExpressionTailEvaluator(evaluators));
+            evaluators.Add(new OperandEvaluator(evaluators));
+            evaluators.Add(new IfEvaluator(evaluators));
+            evaluators.Add(new WhileEvaluator(evaluators));
+            evaluators.Add(new GotoEvaluator());
+            _scriptEvaluator = new ScriptEvaluator(evaluators);
+        }
+
+        public ProgramState Parse()
         {
             _parser.Reset();
 
@@ -39,52 +61,29 @@ namespace EOBot.Interpreter
                 retList.Add(nextToken);
             } while (nextToken.TokenType != BotTokenType.EOF);
 
-            return retList;
+            return new ProgramState(retList);
         }
 
-        internal ProgramState Prepare(int botIndex, ArgumentsParser parsedArgs, IReadOnlyList<BotToken> tokens)
+        public async Task Run(ProgramState programState, CancellationToken ct)
         {
-            ProgramState input = new ProgramState(tokens);
+            var (result, reason, token) = await _scriptEvaluator.EvaluateAsync(programState, ct).ConfigureAwait(false);
 
-            var setup = new BuiltInIdentifierConfigurator(input, botIndex, parsedArgs);
-            setup.SetupBuiltInFunctions();
-            setup.SetupBuiltInVariables();
-
-            return input;
-        }
-
-        public async Task Run(ProgramState programState)
-        {
-            var evaluators = new List<IScriptEvaluator>();
-            evaluators.Add(new StatementListEvaluator(evaluators));
-            evaluators.Add(new StatementEvaluator(evaluators));
-            evaluators.Add(new AssignmentEvaluator(evaluators));
-            evaluators.Add(new KeywordEvaluator(evaluators));
-            evaluators.Add(new LabelEvaluator());
-            evaluators.Add(new FunctionEvaluator(evaluators));
-            evaluators.Add(new VariableEvaluator(evaluators));
-            evaluators.Add(new ExpressionEvaluator(evaluators));
-            evaluators.Add(new ExpressionTailEvaluator(evaluators));
-            evaluators.Add(new OperandEvaluator(evaluators));
-            evaluators.Add(new IfEvaluator(evaluators));
-            evaluators.Add(new WhileEvaluator(evaluators));
-            evaluators.Add(new GotoEvaluator());
-
-            IScriptEvaluator scriptEvaluator = new ScriptEvaluator(evaluators);
-
-            var result = await scriptEvaluator.EvaluateAsync(programState);
-            if (result.Result == EvalResult.Failed)
+            if (result == EvalResult.Failed)
             {
-                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Error during execution at line {result.Token.LineNumber} column {result.Token.Column}", ConsoleColor.DarkRed);
-                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, result.Reason, ConsoleColor.DarkRed);
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Error during execution at line {token.LineNumber} column {token.Column}", ConsoleColor.DarkRed);
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, reason, ConsoleColor.DarkRed);
             }
-            else if (result.Result == EvalResult.NotMatch)
+            else if (result == EvalResult.NotMatch)
             {
-                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Error at line {result.Token.LineNumber} column {result.Token.Column}: {result.Token.TokenType} {result.Token.TokenValue} was unexpected", ConsoleColor.DarkRed);
-                if (!string.IsNullOrWhiteSpace(result.Reason))
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Error at line {token.LineNumber} column {token.Column}: {token.TokenType} {token.TokenValue} was unexpected", ConsoleColor.DarkRed);
+                if (!string.IsNullOrWhiteSpace(reason))
                 {
-                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, result.Reason, ConsoleColor.DarkRed);
+                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, reason, ConsoleColor.DarkRed);
                 }
+            }
+            else if (result == EvalResult.Cancelled)
+            {
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, "Execution was cancelled");
             }
         }
     }

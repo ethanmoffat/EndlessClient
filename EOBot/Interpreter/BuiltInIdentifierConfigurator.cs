@@ -34,88 +34,86 @@ namespace EOBot.Interpreter
         private const int WALK_BACKOFF_MS = 600;
         private const int FACE_BACKOFF_MS = 120;
 
-        private readonly ProgramState _state;
         private readonly int _botIndex;
         private readonly ArgumentsParser _parsedArgs;
         private readonly BotHelper _botHelper;
         private readonly Random _random;
 
-        public BuiltInIdentifierConfigurator(ProgramState state, int botIndex, ArgumentsParser parsedArgs)
+        public BuiltInIdentifierConfigurator(int botIndex, ArgumentsParser parsedArgs)
         {
-            _state = state;
             _botIndex = botIndex;
             _parsedArgs = parsedArgs;
             _botHelper = new BotHelper(_botIndex);
             _random = new Random();
         }
 
-        public void SetupBuiltInFunctions()
+        public void SetupBuiltInFunctions(ProgramState programState)
         {
-            _state.SymbolTable[PredefinedIdentifiers.PRINT_FUNC] = Readonly(new VoidFunction<object>(PredefinedIdentifiers.PRINT_FUNC, param1 => ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, param1.ToString())));
-            _state.SymbolTable[PredefinedIdentifiers.LEN_FUNC] = Readonly(new Function<ArrayVariable, int>(PredefinedIdentifiers.LEN_FUNC, param1 => param1.Value.Count));
-            _state.SymbolTable[PredefinedIdentifiers.ARRAY_FUNC] = Readonly(new Function<int, List<IVariable>>(PredefinedIdentifiers.ARRAY_FUNC, param1 => Enumerable.Repeat(UndefinedVariable.Instance, param1).Cast<IVariable>().ToList()));
-            _state.SymbolTable[PredefinedIdentifiers.APPEND_FUNC] = Readonly(new VoidFunction<ArrayVariable, IVariable>(PredefinedIdentifiers.APPEND_FUNC, (array, var) => array.Value.Add(var)));
-            _state.SymbolTable[PredefinedIdentifiers.CLEAR_FUNC] = Readonly(new VoidFunction<ArrayVariable>(PredefinedIdentifiers.CLEAR_FUNC, array => array.Value.Clear()));
-            _state.SymbolTable[PredefinedIdentifiers.SLEEP_FUNC] = Readonly(new VoidFunction<int>(PredefinedIdentifiers.SLEEP_FUNC, param1 => Thread.Sleep(param1)));
-            _state.SymbolTable[PredefinedIdentifiers.TIME_FUNC] = Readonly(new Function<string>(PredefinedIdentifiers.TIME_FUNC, () => DateTime.Now.ToLongTimeString()));
-            _state.SymbolTable[PredefinedIdentifiers.OBJECT_FUNC] = Readonly(new Function<ObjectVariable>(PredefinedIdentifiers.OBJECT_FUNC, () => new ObjectVariable()));
-            _state.SymbolTable[PredefinedIdentifiers.SETENV_FUNC] = Readonly(new VoidFunction<string, string>(PredefinedIdentifiers.SETENV_FUNC, (varName, varValue) => Environment.SetEnvironmentVariable(varName, varValue, EnvironmentVariableTarget.User)));
-            _state.SymbolTable[PredefinedIdentifiers.GETENV_FUNC] = Readonly(new Function<string, string>(PredefinedIdentifiers.GETENV_FUNC, varName => Environment.GetEnvironmentVariable(varName, EnvironmentVariableTarget.User)));
-            _state.SymbolTable[PredefinedIdentifiers.ERROR_FUNC] = Readonly(new VoidFunction<string>(PredefinedIdentifiers.ERROR_FUNC, message => throw new BotScriptErrorException(message)));
-            _state.SymbolTable[PredefinedIdentifiers.LOWER_FUNC] = Readonly(new Function<string, string>(PredefinedIdentifiers.LOWER_FUNC, s => s.ToLower()));
-            _state.SymbolTable[PredefinedIdentifiers.UPPER_FUNC] = Readonly(new Function<string, string>(PredefinedIdentifiers.UPPER_FUNC, s => s.ToUpper()));
-            _state.SymbolTable[PredefinedIdentifiers.RAND_FUNC] = Readonly(new Function<int, int, int>(PredefinedIdentifiers.RAND_FUNC, (min, max) => min + _random.Next(max) % (max - min)));
+            programState.SymbolTable[PredefinedIdentifiers.PRINT_FUNC] = Readonly(new VoidFunction<object>(PredefinedIdentifiers.PRINT_FUNC, param1 => ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, param1.ToString())));
+            programState.SymbolTable[PredefinedIdentifiers.LEN_FUNC] = Readonly(new Function<ArrayVariable, int>(PredefinedIdentifiers.LEN_FUNC, param1 => param1.Value.Count));
+            programState.SymbolTable[PredefinedIdentifiers.ARRAY_FUNC] = Readonly(new Function<int, List<IVariable>>(PredefinedIdentifiers.ARRAY_FUNC, param1 => Enumerable.Repeat(UndefinedVariable.Instance, param1).Cast<IVariable>().ToList()));
+            programState.SymbolTable[PredefinedIdentifiers.APPEND_FUNC] = Readonly(new VoidFunction<ArrayVariable, IVariable>(PredefinedIdentifiers.APPEND_FUNC, (array, var) => array.Value.Add(var)));
+            programState.SymbolTable[PredefinedIdentifiers.CLEAR_FUNC] = Readonly(new VoidFunction<ArrayVariable>(PredefinedIdentifiers.CLEAR_FUNC, array => array.Value.Clear()));
+            programState.SymbolTable[PredefinedIdentifiers.SLEEP_FUNC] = Readonly(new AsyncVoidFunction<int>(PredefinedIdentifiers.SLEEP_FUNC, Task.Delay));
+            programState.SymbolTable[PredefinedIdentifiers.TIME_FUNC] = Readonly(new Function<string>(PredefinedIdentifiers.TIME_FUNC, () => DateTime.Now.ToLongTimeString()));
+            programState.SymbolTable[PredefinedIdentifiers.OBJECT_FUNC] = Readonly(new Function<ObjectVariable>(PredefinedIdentifiers.OBJECT_FUNC, () => new ObjectVariable()));
+            programState.SymbolTable[PredefinedIdentifiers.SETENV_FUNC] = Readonly(new VoidFunction<string, string>(PredefinedIdentifiers.SETENV_FUNC, (varName, varValue) => Environment.SetEnvironmentVariable(varName, varValue, EnvironmentVariableTarget.User)));
+            programState.SymbolTable[PredefinedIdentifiers.GETENV_FUNC] = Readonly(new Function<string, string>(PredefinedIdentifiers.GETENV_FUNC, varName => Environment.GetEnvironmentVariable(varName, EnvironmentVariableTarget.User)));
+            programState.SymbolTable[PredefinedIdentifiers.ERROR_FUNC] = Readonly(new VoidFunction<string>(PredefinedIdentifiers.ERROR_FUNC, message => throw new BotScriptErrorException(message)));
+            programState.SymbolTable[PredefinedIdentifiers.LOWER_FUNC] = Readonly(new Function<string, string>(PredefinedIdentifiers.LOWER_FUNC, s => s.ToLower()));
+            programState.SymbolTable[PredefinedIdentifiers.UPPER_FUNC] = Readonly(new Function<string, string>(PredefinedIdentifiers.UPPER_FUNC, s => s.ToUpper()));
+            programState.SymbolTable[PredefinedIdentifiers.RAND_FUNC] = Readonly(new Function<int, int, int>(PredefinedIdentifiers.RAND_FUNC, (min, max) => min + _random.Next(max) % (max - min)));
 
             BotDependencySetup();
             // pre-game flow
-            _state.SymbolTable[PredefinedIdentifiers.CONNECT_FUNC] = Readonly(new AsyncVoidFunction<string, int>(PredefinedIdentifiers.CONNECT_FUNC, ConnectAsync));
-            _state.SymbolTable[PredefinedIdentifiers.DISCONNECT_FUNC] = Readonly(new VoidFunction(PredefinedIdentifiers.DISCONNECT_FUNC, Disconnect));
-            _state.SymbolTable[PredefinedIdentifiers.CREATE_ACCOUNT_FUNC] = Readonly(new AsyncFunction<string, string, int>(PredefinedIdentifiers.CREATE_ACCOUNT_FUNC, CreateAccountAsync));
-            _state.SymbolTable[PredefinedIdentifiers.LOGIN_FUNC] = Readonly(new AsyncFunction<string, string, int>(PredefinedIdentifiers.LOGIN_FUNC, LoginAsync));
-            _state.SymbolTable[PredefinedIdentifiers.CREATE_AND_LOGIN_FUNC] = Readonly(new AsyncFunction<string, string, int>(PredefinedIdentifiers.CREATE_AND_LOGIN_FUNC, CreateAndLoginAsync));
-            _state.SymbolTable[PredefinedIdentifiers.CHANGE_PASS_FUNC] = Readonly(new AsyncFunction<string, string, string, int>(PredefinedIdentifiers.CHANGE_PASS_FUNC, ChangePasswordAsync));
-            _state.SymbolTable[PredefinedIdentifiers.CREATE_CHARACTER_FUNC] = Readonly(new AsyncFunction<string, int>(PredefinedIdentifiers.CREATE_CHARACTER_FUNC, CreateCharacterAsync));
-            _state.SymbolTable[PredefinedIdentifiers.DELETE_CHARACTER_FUNC] = Readonly(new AsyncFunction<string, bool, int>(PredefinedIdentifiers.DELETE_CHARACTER_FUNC, DeleteCharacterAsync));
-            _state.SymbolTable[PredefinedIdentifiers.LOGIN_CHARACTER_FUNC] = Readonly(new AsyncVoidFunction<string>(PredefinedIdentifiers.LOGIN_CHARACTER_FUNC, LoginToCharacterAsync));
+            programState.SymbolTable[PredefinedIdentifiers.CONNECT_FUNC] = Readonly(new AsyncVoidFunction<string, int>(PredefinedIdentifiers.CONNECT_FUNC, (host, port, ct) => ConnectAsync(programState, host, port, ct)));
+            programState.SymbolTable[PredefinedIdentifiers.DISCONNECT_FUNC] = Readonly(new VoidFunction(PredefinedIdentifiers.DISCONNECT_FUNC, Disconnect));
+            programState.SymbolTable[PredefinedIdentifiers.CREATE_ACCOUNT_FUNC] = Readonly(new AsyncFunction<string, string, int>(PredefinedIdentifiers.CREATE_ACCOUNT_FUNC, CreateAccountAsync));
+            programState.SymbolTable[PredefinedIdentifiers.LOGIN_FUNC] = Readonly(new AsyncFunction<string, string, int>(PredefinedIdentifiers.LOGIN_FUNC, LoginAsync));
+            programState.SymbolTable[PredefinedIdentifiers.CREATE_AND_LOGIN_FUNC] = Readonly(new AsyncFunction<string, string, int>(PredefinedIdentifiers.CREATE_AND_LOGIN_FUNC, CreateAndLoginAsync));
+            programState.SymbolTable[PredefinedIdentifiers.CHANGE_PASS_FUNC] = Readonly(new AsyncFunction<string, string, string, int>(PredefinedIdentifiers.CHANGE_PASS_FUNC, ChangePasswordAsync));
+            programState.SymbolTable[PredefinedIdentifiers.CREATE_CHARACTER_FUNC] = Readonly(new AsyncFunction<string, int>(PredefinedIdentifiers.CREATE_CHARACTER_FUNC, CreateCharacterAsync));
+            programState.SymbolTable[PredefinedIdentifiers.DELETE_CHARACTER_FUNC] = Readonly(new AsyncFunction<string, bool, int>(PredefinedIdentifiers.DELETE_CHARACTER_FUNC, DeleteCharacterAsync));
+            programState.SymbolTable[PredefinedIdentifiers.LOGIN_CHARACTER_FUNC] = Readonly(new AsyncVoidFunction<string>(PredefinedIdentifiers.LOGIN_CHARACTER_FUNC, LoginToCharacterAsync));
 
             // game flow
-            _state.SymbolTable[PredefinedIdentifiers.TICK] = Readonly(new AsyncVoidFunction(PredefinedIdentifiers.TICK, () => Tick()));
-            _state.SymbolTable[PredefinedIdentifiers.GETPATHTO] = Readonly(new Function<int, int, List<IVariable>>(PredefinedIdentifiers.GETPATHTO, GetPathTo));
+            programState.SymbolTable[PredefinedIdentifiers.TICK] = Readonly(new AsyncVoidFunction(PredefinedIdentifiers.TICK, ct => Tick()));
+            programState.SymbolTable[PredefinedIdentifiers.GETPATHTO] = Readonly(new Function<int, int, List<IVariable>>(PredefinedIdentifiers.GETPATHTO, GetPathTo));
 
             // in-game stuff
-            _state.SymbolTable[PredefinedIdentifiers.JOIN_PARTY] = Readonly(new VoidFunction<int>(PredefinedIdentifiers.JOIN_PARTY, JoinParty));
-            _state.SymbolTable[PredefinedIdentifiers.CHAT] = Readonly(new AsyncVoidFunction<string>(PredefinedIdentifiers.CHAT, Chat));
+            programState.SymbolTable[PredefinedIdentifiers.JOIN_PARTY] = Readonly(new VoidFunction<int>(PredefinedIdentifiers.JOIN_PARTY, JoinParty));
+            programState.SymbolTable[PredefinedIdentifiers.CHAT] = Readonly(new AsyncVoidFunction<string>(PredefinedIdentifiers.CHAT, Chat));
 
             // character inputs
-            _state.SymbolTable[PredefinedIdentifiers.FACE] = Readonly(new AsyncVoidFunction<int>(PredefinedIdentifiers.FACE, Face));
-            _state.SymbolTable[PredefinedIdentifiers.WALK] = Readonly(new AsyncVoidFunction(PredefinedIdentifiers.WALK, Walk));
-            _state.SymbolTable[PredefinedIdentifiers.ATTACK] = Readonly(new AsyncVoidFunction(PredefinedIdentifiers.ATTACK, Attack));
-            _state.SymbolTable[PredefinedIdentifiers.SIT] = Readonly(new AsyncVoidFunction(PredefinedIdentifiers.SIT, Sit));
+            programState.SymbolTable[PredefinedIdentifiers.FACE] = Readonly(new AsyncVoidFunction<int>(PredefinedIdentifiers.FACE, Face));
+            programState.SymbolTable[PredefinedIdentifiers.WALK] = Readonly(new AsyncVoidFunction(PredefinedIdentifiers.WALK, Walk));
+            programState.SymbolTable[PredefinedIdentifiers.ATTACK] = Readonly(new AsyncVoidFunction(PredefinedIdentifiers.ATTACK, Attack));
+            programState.SymbolTable[PredefinedIdentifiers.SIT] = Readonly(new AsyncVoidFunction(PredefinedIdentifiers.SIT, Sit));
 
             // items
-            _state.SymbolTable[PredefinedIdentifiers.USEITEM] = Readonly(new AsyncVoidFunction<int>(PredefinedIdentifiers.USEITEM, UseItem));
-            _state.SymbolTable[PredefinedIdentifiers.DROP] = Readonly(new AsyncVoidFunction<int, int>(PredefinedIdentifiers.DROP, Drop));
-            _state.SymbolTable[PredefinedIdentifiers.PICKUP] = Readonly(new AsyncVoidFunction<int>(PredefinedIdentifiers.PICKUP, Pickup));
-            _state.SymbolTable[PredefinedIdentifiers.JUNK] = Readonly(new AsyncVoidFunction<int, int>(PredefinedIdentifiers.JUNK, Junk));
+            programState.SymbolTable[PredefinedIdentifiers.USEITEM] = Readonly(new AsyncVoidFunction<int>(PredefinedIdentifiers.USEITEM, UseItem));
+            programState.SymbolTable[PredefinedIdentifiers.DROP] = Readonly(new AsyncVoidFunction<int, int>(PredefinedIdentifiers.DROP, Drop));
+            programState.SymbolTable[PredefinedIdentifiers.PICKUP] = Readonly(new AsyncVoidFunction<int>(PredefinedIdentifiers.PICKUP, Pickup));
+            programState.SymbolTable[PredefinedIdentifiers.JUNK] = Readonly(new AsyncVoidFunction<int, int>(PredefinedIdentifiers.JUNK, Junk));
         }
 
-        public void SetupBuiltInVariables()
+        public void SetupBuiltInVariables(ProgramState programState)
         {
-            _state.SymbolTable[PredefinedIdentifiers.HOST] = Readonly(new StringVariable(_parsedArgs.Host));
-            _state.SymbolTable[PredefinedIdentifiers.PORT] = Readonly(new IntVariable(_parsedArgs.Port));
-            _state.SymbolTable[PredefinedIdentifiers.USER] = Readonly(new StringVariable(_parsedArgs.Account));
-            _state.SymbolTable[PredefinedIdentifiers.PASS] = Readonly(new StringVariable(_parsedArgs.Password));
-            _state.SymbolTable[PredefinedIdentifiers.BOTINDEX] = Readonly(new IntVariable(_botIndex));
-            _state.SymbolTable[PredefinedIdentifiers.ARGS] = Readonly(new ArrayVariable(
+            programState.SymbolTable[PredefinedIdentifiers.HOST] = Readonly(new StringVariable(_parsedArgs.Host));
+            programState.SymbolTable[PredefinedIdentifiers.PORT] = Readonly(new IntVariable(_parsedArgs.Port));
+            programState.SymbolTable[PredefinedIdentifiers.USER] = Readonly(new StringVariable(_parsedArgs.Account));
+            programState.SymbolTable[PredefinedIdentifiers.PASS] = Readonly(new StringVariable(_parsedArgs.Password));
+            programState.SymbolTable[PredefinedIdentifiers.BOTINDEX] = Readonly(new IntVariable(_botIndex));
+            programState.SymbolTable[PredefinedIdentifiers.ARGS] = Readonly(new ArrayVariable(
                 (_parsedArgs.UserArgs ?? new List<string>()).Select(x => new StringVariable(x)).Cast<IVariable>().ToList()));
 
             // default to version 0.0.28
-            _state.SymbolTable[PredefinedIdentifiers.VERSION] = (false, new IntVariable(28));
+            programState.SymbolTable[PredefinedIdentifiers.VERSION] = (false, new IntVariable(28));
 
-            _state.SymbolTable[PredefinedIdentifiers.RESULT] = (false, UndefinedVariable.Instance);
-            _state.SymbolTable[PredefinedIdentifiers.ACCOUNT] = SetupAccountObject();
-            _state.SymbolTable[PredefinedIdentifiers.CHARACTER] = SetupCharacterObject();
-            _state.SymbolTable[PredefinedIdentifiers.MAPSTATE] = SetupMapStateObject();
+            programState.SymbolTable[PredefinedIdentifiers.RESULT] = (false, UndefinedVariable.Instance);
+            programState.SymbolTable[PredefinedIdentifiers.ACCOUNT] = SetupAccountObject();
+            programState.SymbolTable[PredefinedIdentifiers.CHARACTER] = SetupCharacterObject();
+            programState.SymbolTable[PredefinedIdentifiers.MAPSTATE] = SetupMapStateObject();
         }
 
         private static (bool, IIdentifiable) Readonly(IIdentifiable identifiable)
@@ -133,7 +131,7 @@ namespace EOBot.Interpreter
             networkClientRepository.NetworkClient = networkClientFactory.CreateNetworkClient(LongReceiveTimeout);
         }
 
-        private async Task ConnectAsync(string host, int port)
+        private async Task ConnectAsync(ProgramState programState, string host, int port, CancellationToken ct)
         {
             var c = DependencyMaster.TypeRegistry[_botIndex];
 
@@ -141,7 +139,7 @@ namespace EOBot.Interpreter
             configRepo.Host = host;
             configRepo.Port = port;
 
-            configRepo.VersionBuild = ((IntVariable)_state.SymbolTable[PredefinedIdentifiers.VERSION].Identifiable).Value;
+            configRepo.VersionBuild = ((IntVariable)programState.SymbolTable[PredefinedIdentifiers.VERSION].Identifiable).Value;
 
             var connectionActions = c.Resolve<INetworkConnectionActions>();
             var connectResult = await connectionActions.ConnectToServer().ConfigureAwait(false);
@@ -175,43 +173,43 @@ namespace EOBot.Interpreter
             connectionActions.DisconnectFromServer();
         }
 
-        private async Task<int> CreateAccountAsync(string user, string pass)
+        private async Task<int> CreateAccountAsync(string user, string pass, CancellationToken ct)
         {
             return (int)await _botHelper.CreateAccountAsync(user, pass).ConfigureAwait(false);
         }
 
-        private async Task<int> LoginAsync(string user, string pass)
+        private async Task<int> LoginAsync(string user, string pass, CancellationToken ct)
         {
             return (int)await _botHelper.LoginToAccountAsync(user, pass).ConfigureAwait(false);
         }
 
-        private async Task<int> CreateAndLoginAsync(string user, string pass)
+        private async Task<int> CreateAndLoginAsync(string user, string pass, CancellationToken ct)
         {
-            var accountReply = (AccountReply)await CreateAccountAsync(user, pass).ConfigureAwait(false);
+            var accountReply = (AccountReply)await CreateAccountAsync(user, pass, ct).ConfigureAwait(false);
             if (accountReply == AccountReply.Created || accountReply == AccountReply.Exists)
             {
-                return await LoginAsync(user, pass).ConfigureAwait(false);
+                return await LoginAsync(user, pass, ct);
             }
 
             return (int)LoginReply.WrongUser;
         }
 
-        private async Task<int> ChangePasswordAsync(string user, string oldPass, string newPass)
+        private async Task<int> ChangePasswordAsync(string user, string oldPass, string newPass, CancellationToken ct)
         {
             return (int)await _botHelper.ChangePasswordAsync(user, oldPass, newPass).ConfigureAwait(false);
         }
 
-        private async Task<int> CreateCharacterAsync(string charName)
+        private async Task<int> CreateCharacterAsync(string charName, CancellationToken ct)
         {
             return (int)await _botHelper.CreateCharacterAsync(charName).ConfigureAwait(false);
         }
 
-        private async Task<int> DeleteCharacterAsync(string charName, bool force)
+        private async Task<int> DeleteCharacterAsync(string charName, bool force, CancellationToken ct)
         {
             return (int)await _botHelper.DeleteCharacterAsync(charName, force).ConfigureAwait(false);
         }
 
-        private Task LoginToCharacterAsync(string charName)
+        private Task LoginToCharacterAsync(string charName, CancellationToken ct)
         {
             return _botHelper.LoginToCharacterAsync(charName);
         }
@@ -221,7 +219,7 @@ namespace EOBot.Interpreter
             if (delay > 0)
             {
                 DependencyMaster.TypeRegistry[_botIndex].Resolve<IFixedTimeStepRepository>().Tick((uint)delay / 10);
-                await Task.Delay(delay);
+                await Task.Delay(delay).ConfigureAwait(false);
             }
 
             DependencyMaster
@@ -254,7 +252,7 @@ namespace EOBot.Interpreter
             c.Resolve<IPartyActions>().RequestParty(PartyRequestType.Join, characterId);
         }
 
-        private Task Chat(string chatText)
+        private Task Chat(string chatText, CancellationToken ct)
         {
             var c = DependencyMaster.TypeRegistry[_botIndex];
             c.Resolve<IChatActions>().SendChatToServer(chatText, string.Empty, ChatType.Local);
@@ -262,7 +260,7 @@ namespace EOBot.Interpreter
             return Tick(FACE_BACKOFF_MS);
         }
 
-        private Task Face(int direction)
+        private Task Face(int direction, CancellationToken ct)
         {
             DependencyMaster
                 .TypeRegistry[_botIndex]
@@ -272,7 +270,7 @@ namespace EOBot.Interpreter
             return Tick(FACE_BACKOFF_MS);
         }
 
-        private Task Walk()
+        private Task Walk(CancellationToken ct)
         {
             var cr = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICharacterRepository>();
             // MainCharacter is normally updated with destination coordinates by CharacterAnimator, not by reply packet
@@ -288,7 +286,7 @@ namespace EOBot.Interpreter
             return Tick(WALK_BACKOFF_MS);
         }
 
-        private Task Attack()
+        private Task Attack(CancellationToken ct)
         {
             DependencyMaster
                 .TypeRegistry[_botIndex]
@@ -298,7 +296,7 @@ namespace EOBot.Interpreter
             return Tick(ATTACK_BACKOFF_MS);
         }
 
-        private Task Sit()
+        private Task Sit(CancellationToken ct)
         {
             var c = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICharacterProvider>().MainCharacter;
 
@@ -310,7 +308,7 @@ namespace EOBot.Interpreter
             return Tick(ATTACK_BACKOFF_MS);
         }
 
-        private Task UseItem(int itemId)
+        private Task UseItem(int itemId, CancellationToken ct)
         {
             DependencyMaster
                 .TypeRegistry[_botIndex]
@@ -321,7 +319,7 @@ namespace EOBot.Interpreter
             return Tick(ATTACK_BACKOFF_MS);
         }
 
-        private Task Drop(int itemId, int amount)
+        private Task Drop(int itemId, int amount, CancellationToken ct)
         {
             var c = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICharacterProvider>().MainCharacter;
 
@@ -333,7 +331,7 @@ namespace EOBot.Interpreter
             return Tick(ATTACK_BACKOFF_MS);
         }
 
-        private Task Pickup(int itemIndex)
+        private Task Pickup(int itemIndex, CancellationToken ct)
         {
             var items = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICurrentMapStateProvider>().MapItems;
             if (!items.TryGetValue(itemIndex, out var item))
@@ -347,7 +345,7 @@ namespace EOBot.Interpreter
             return Tick(ATTACK_BACKOFF_MS);
         }
 
-        private Task Junk(int itemId, int amount)
+        private Task Junk(int itemId, int amount, CancellationToken ct)
         {
             DependencyMaster
                 .TypeRegistry[_botIndex]

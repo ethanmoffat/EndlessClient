@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using EOBot.Interpreter.Extensions;
 
@@ -9,14 +10,17 @@ namespace EOBot.Interpreter.States
         protected BlockEvaluator(IEnumerable<IScriptEvaluator> evaluators)
             : base(evaluators) { }
 
-        protected async Task<(EvalResult, string, BotToken)> EvaluateConditionAsync(int blockStartIndex, ProgramState input)
+        protected async Task<(EvalResult, string, BotToken)> EvaluateConditionAsync(int blockStartIndex, ProgramState input, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                return (EvalResult.Cancelled, string.Empty, null);
+
             input.Goto(blockStartIndex);
 
             if (!input.ExpectPair(BotTokenType.Keyword, BotTokenType.LParen))
                 return (EvalResult.Failed, "Missing keyword and lparen to start condition evaluation", input.Current());
 
-            var evalResult = await Evaluator<ExpressionEvaluator>().EvaluateAsync(input);
+            var evalResult = await Evaluator<ExpressionEvaluator>().EvaluateAsync(input, ct);
             if (evalResult.Result != EvalResult.Ok)
                 return evalResult;
 
@@ -29,8 +33,11 @@ namespace EOBot.Interpreter.States
             return Success(input.OperationStack.Pop());
         }
 
-        protected async Task<(EvalResult, string, BotToken)> EvaluateBlockAsync(ProgramState input)
+        protected async Task<(EvalResult, string, BotToken)> EvaluateBlockAsync(ProgramState input, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                return (EvalResult.Cancelled, string.Empty, null);
+
             input.Expect(BotTokenType.NewLine);
 
             (EvalResult Result, string, BotToken) evalResult;
@@ -40,13 +47,13 @@ namespace EOBot.Interpreter.States
             // evaluated in separate blocks because we want to check statement list OR statement, not both
             if (input.Expect(BotTokenType.LBrace))
             {
-                evalResult = await Evaluator<StatementListEvaluator>().EvaluateAsync(input);
+                evalResult = await Evaluator<StatementListEvaluator>().EvaluateAsync(input, ct);
                 if (evalResult.Result != EvalResult.Ok)
                     return evalResult;
             }
             else
             {
-                evalResult = await Evaluator<StatementEvaluator>().EvaluateAsync(input);
+                evalResult = await Evaluator<StatementEvaluator>().EvaluateAsync(input, ct);
                 if (evalResult.Result != EvalResult.Ok)
                     return evalResult;
             }

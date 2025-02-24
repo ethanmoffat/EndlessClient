@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using EOBot.Interpreter.Extensions;
 using EOBot.Interpreter.Variables;
@@ -10,15 +11,18 @@ namespace EOBot.Interpreter.States
         public VariableEvaluator(IEnumerable<IScriptEvaluator> evaluators)
             : base(evaluators) { }
 
-        public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input)
+        public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                return (EvalResult.Cancelled, string.Empty, null);
+
             if (!input.Match(BotTokenType.Variable))
                 return (EvalResult.NotMatch, string.Empty, input.Current());
 
             int? arrayIndex = null;
             if (input.Expect(BotTokenType.LBracket))
             {
-                var expressionEval = await Evaluator<ExpressionEvaluator>().EvaluateAsync(input);
+                var expressionEval = await Evaluator<ExpressionEvaluator>().EvaluateAsync(input, ct);
                 if (expressionEval.Result != EvalResult.Ok)
                     return expressionEval;
 
@@ -38,7 +42,7 @@ namespace EOBot.Interpreter.States
             IdentifierBotToken nestedIdentifier = null;
             if (input.Match(BotTokenType.Dot))
             {
-                var evalRes = await Evaluator<VariableEvaluator>().EvaluateAsync(input);
+                var evalRes = await Evaluator<VariableEvaluator>().EvaluateAsync(input, ct);
                 if (evalRes.Result != EvalResult.Ok)
                     return evalRes;
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AutomaticTypeMapper;
 using EOBot.Interpreter;
@@ -16,7 +17,8 @@ namespace EOBot
 {
     static class Program
     {
-        private static BotFramework f;
+        private static CancellationTokenSource _cts = new();
+        private static BotFramework _botFramework;
 
         [AutoMappedType]
         class NpcWalkNotifier : INPCActionNotifier
@@ -215,11 +217,10 @@ namespace EOBot
 
             try
             {
-                using (f = new BotFramework(parsedArgs))
-                {
-                    await f.InitializeAsync(botFactory, parsedArgs.InitDelay).ConfigureAwait(false);
-                    await f.RunAsync().ConfigureAwait(false);
-                }
+                _botFramework = new BotFramework(parsedArgs);
+
+                await _botFramework.InitializeAsync(botFactory, parsedArgs.InitDelay, _cts.Token).ConfigureAwait(false);
+                await _botFramework.RunAsync(_cts.Token).ConfigureAwait(false);
 
                 Console.WriteLine();
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, "All bots completed.");
@@ -251,16 +252,22 @@ namespace EOBot
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Unhandled error: {ex.Message}\nStack Trace:\n{ex.StackTrace}", ConsoleColor.DarkRed);
                 return 1;
             }
+            finally
+            {
+                _botFramework?.Dispose();
+                _cts?.Dispose();
+            }
 
             return 0;
         }
 
         static void HandleCtrlC(object sender, ConsoleCancelEventArgs e)
         {
+            e.Cancel = true;
+
             var name = Enum.GetName(e.SpecialKey.GetType(), e.SpecialKey);
             ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, $"Exiting due to {name} event from system");
-
-            f?.TerminateBots();
+            _cts.Cancel();
         }
 
         static void ShowError(ArgumentsParser args)

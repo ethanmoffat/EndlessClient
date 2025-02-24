@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace EOBot.Interpreter.States
@@ -8,16 +9,19 @@ namespace EOBot.Interpreter.States
         public KeywordEvaluator(IEnumerable<IScriptEvaluator> evaluators)
             : base(evaluators) { }
 
-        public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input)
+        public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input, CancellationToken ct)
         {
-            var res = await Evaluator<IfEvaluator>().EvaluateAsync(input);
+            if (ct.IsCancellationRequested)
+                return (EvalResult.Cancelled, string.Empty, null);
+
+            var res = await Evaluator<IfEvaluator>().EvaluateAsync(input, ct);
             if (res.Result == EvalResult.NotMatch)
             {
-                res = await Evaluator<WhileEvaluator>().EvaluateAsync(input);
+                res = await Evaluator<WhileEvaluator>().EvaluateAsync(input, ct);
 
                 if (res.Result == EvalResult.NotMatch)
                 {
-                    res = await Evaluator<GotoEvaluator>().EvaluateAsync(input);
+                    res = await Evaluator<GotoEvaluator>().EvaluateAsync(input, ct);
                 }
             }
 

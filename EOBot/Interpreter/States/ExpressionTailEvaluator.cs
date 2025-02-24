@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using EOBot.Interpreter.Extensions;
 
@@ -9,8 +10,11 @@ namespace EOBot.Interpreter.States
         public ExpressionTailEvaluator(IEnumerable<IScriptEvaluator> evaluators)
             : base(evaluators) { }
 
-        public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input)
+        public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                return (EvalResult.Cancelled, string.Empty, null);
+
             var expectedTokens = new[]
             {
                 BotTokenType.EqualOperator, BotTokenType.NotEqualOperator, BotTokenType.GreaterThanOperator,
@@ -22,7 +26,7 @@ namespace EOBot.Interpreter.States
             if (!input.MatchOneOf(expectedTokens))
                 return (EvalResult.NotMatch, string.Empty, input.Current());
 
-            return await Evaluator<ExpressionEvaluator>().EvaluateAsync(input);
+            return await Evaluator<ExpressionEvaluator>().EvaluateAsync(input, ct);
         }
     }
 }

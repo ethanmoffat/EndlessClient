@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using EOBot.Interpreter.Extensions;
 
@@ -9,8 +10,11 @@ namespace EOBot.Interpreter.States
         public WhileEvaluator(IEnumerable<IScriptEvaluator> evaluators)
             : base(evaluators) { }
 
-        public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input)
+        public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input, CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                return (EvalResult.Cancelled, string.Empty, null);
+
             // ensure we have the right keyword before advancing the program
             var current = input.Current();
             if (current.TokenType != BotTokenType.Keyword || current.TokenValue != "while")
@@ -21,11 +25,11 @@ namespace EOBot.Interpreter.States
             EvalResult result;
             string reason;
             BotToken token;
-            for ((result, reason, token) = await EvaluateConditionAsync(whileLoopStartIndex, input);
+            for ((result, reason, token) = await EvaluateConditionAsync(whileLoopStartIndex, input, ct);
                  result == EvalResult.Ok && bool.TryParse(token.TokenValue, out var conditionValue) && conditionValue;
-                 (result, reason, token) = await EvaluateConditionAsync(whileLoopStartIndex, input))
+                 (result, reason, token) = await EvaluateConditionAsync(whileLoopStartIndex, input, ct))
             {
-                var blockEval = await EvaluateBlockAsync(input);
+                var blockEval = await EvaluateBlockAsync(input, ct);
                 if (blockEval.Item1 != EvalResult.Ok)
                     return blockEval;
             }
