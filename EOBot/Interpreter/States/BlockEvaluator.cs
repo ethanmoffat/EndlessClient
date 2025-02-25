@@ -10,7 +10,7 @@ namespace EOBot.Interpreter.States
         protected BlockEvaluator(IEnumerable<IScriptEvaluator> evaluators)
             : base(evaluators) { }
 
-        protected async Task<(EvalResult, string, BotToken)> EvaluateConditionAsync(int blockStartIndex, ProgramState input, CancellationToken ct)
+        protected virtual async Task<(EvalResult, string, BotToken)> EvaluateConditionAsync(int blockStartIndex, ProgramState input, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
                 return (EvalResult.Cancelled, string.Empty, null);
@@ -66,8 +66,7 @@ namespace EOBot.Interpreter.States
         protected void SkipBlock(ProgramState input)
         {
             // ensure that for 'else if' the if condition is skipped as well
-            var current = input.Current();
-            if (current.TokenType == BotTokenType.Keyword && current.TokenValue == "if")
+            if (input.Current().Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_IF))
             {
                 input.Expect(BotTokenType.Keyword);
                 input.Expect(BotTokenType.LParen);

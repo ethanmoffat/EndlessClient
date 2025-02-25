@@ -15,9 +15,7 @@ namespace EOBot.Interpreter.States
             if (ct.IsCancellationRequested)
                 return (EvalResult.Cancelled, string.Empty, null);
 
-            // ensure we have the right keyword before advancing the program
-            var current = input.Current();
-            if (current.TokenType != BotTokenType.Keyword || current.TokenValue != "while")
+            if (!input.Current().Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_WHILE))
                 return (EvalResult.NotMatch, string.Empty, input.Current());
 
             var whileLoopStartIndex = input.ExecutionIndex;

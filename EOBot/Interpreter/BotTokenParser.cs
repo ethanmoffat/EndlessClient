@@ -6,19 +6,23 @@ namespace EOBot.Interpreter
 {
     public sealed class BotTokenParser : IDisposable
     {
-        private static readonly HashSet<string> Keywords = new HashSet<string>
-        {
-            "if",
-            "while",
-            "goto",
-            "else",
-        };
+        public const string KEYWORD_IF = "if";
+        public const string KEYWORD_WHILE = "while";
+        public const string KEYWORD_GOTO = "goto";
+        public const string KEYWORD_ELSE = "else";
 
-        private static readonly HashSet<string> Literals = new HashSet<string>
-        {
-            "true",
-            "false"
-        };
+        public const string KEYWORD_TRUE = "true";
+        public const string KEYWORD_FALSE = "false";
+
+        private static readonly HashSet<string> Keywords =
+        [
+            KEYWORD_IF,
+            KEYWORD_WHILE,
+            KEYWORD_GOTO,
+            KEYWORD_ELSE,
+        ];
+
+        private static readonly HashSet<string> Literals = [KEYWORD_TRUE, KEYWORD_FALSE];
 
         private readonly StreamReader _inputStream;
         private readonly bool _streamNeedsDispose;

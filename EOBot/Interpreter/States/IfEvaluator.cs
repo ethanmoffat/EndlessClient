@@ -15,9 +15,7 @@ namespace EOBot.Interpreter.States
             if (ct.IsCancellationRequested)
                 return (EvalResult.Cancelled, string.Empty, null);
 
-            // ensure we have the right keyword before advancing the program
-            var current = input.Current();
-            if (current.TokenType != BotTokenType.Keyword || current.TokenValue != "if")
+            if (!input.Current().Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_IF))
                 return (EvalResult.NotMatch, string.Empty, input.Current());
 
             var ifStartIndex = input.ExecutionIndex;
@@ -38,13 +36,15 @@ namespace EOBot.Interpreter.States
 
                 while (input.Expect(BotTokenType.NewLine)) ;
 
-                if (IsElse(input))
+                if (input.Current().Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_ELSE))
                 {
                     input.Expect(BotTokenType.Keyword);
 
                     var elseIfRes = await Evaluator<IfEvaluator>().EvaluateAsync(input, ct);
                     if (elseIfRes.Result == EvalResult.Failed)
+                    {
                         return elseIfRes;
+                    }
                     else if (elseIfRes.Result == EvalResult.Ok)
                     {
                         SkipElseBlocks(input);
@@ -60,18 +60,12 @@ namespace EOBot.Interpreter.States
             return (result, reason, token);
         }
 
-        private bool IsElse(ProgramState input)
-        {
-            var current = input.Current();
-            return current.TokenType == BotTokenType.Keyword && current.TokenValue == "else";
-        }
-
         private void SkipElseBlocks(ProgramState input)
         {
             while (input.Expect(BotTokenType.NewLine)) ;
 
             // skip the rest of the following blocks if evaluated
-            while (IsElse(input))
+            while (input.Current().Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_ELSE))
             {
                 input.Expect(BotTokenType.Keyword);
                 SkipBlock(input);
