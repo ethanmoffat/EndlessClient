@@ -10,6 +10,7 @@ namespace EOBot.Interpreter
         public const string KEYWORD_WHILE = "while";
         public const string KEYWORD_GOTO = "goto";
         public const string KEYWORD_ELSE = "else";
+        public const string KEYWORD_FOR = "for";
 
         public const string KEYWORD_TRUE = "true";
         public const string KEYWORD_FALSE = "false";
@@ -20,6 +21,7 @@ namespace EOBot.Interpreter
             KEYWORD_WHILE,
             KEYWORD_GOTO,
             KEYWORD_ELSE,
+            KEYWORD_FOR,
         ];
 
         private static readonly HashSet<string> Literals = [KEYWORD_TRUE, KEYWORD_FALSE];
@@ -235,6 +237,7 @@ namespace EOBot.Interpreter
                     case '/': return Token(BotTokenType.DivideOperator, inputChar.ToString());
                     case '%': return Token(BotTokenType.ModuloOperator, inputChar.ToString());
                     case '.': return Token(BotTokenType.Dot, inputChar.ToString());
+                    case ';': return Token(BotTokenType.Semicolon, inputChar.ToString());
                     default: return Token(BotTokenType.Error, inputChar.ToString());
                 }
             }

@@ -14,15 +14,22 @@ namespace EOBot.Interpreter.States
             if (ct.IsCancellationRequested)
                 return (EvalResult.Cancelled, string.Empty, null);
 
-            var res = await Evaluator<IfEvaluator>().EvaluateAsync(input, ct);
-            if (res.Result == EvalResult.NotMatch)
-            {
-                res = await Evaluator<WhileEvaluator>().EvaluateAsync(input, ct);
+            List<IScriptEvaluator> evaluators =
+            [
+                Evaluator<IfEvaluator>(),
+                Evaluator<WhileEvaluator>(),
+                Evaluator<ForEvaluator>(),
+                // ForEachEvaluator
+                // FunctionEvaluator
+                Evaluator<GotoEvaluator>(),
+            ];
 
-                if (res.Result == EvalResult.NotMatch)
-                {
-                    res = await Evaluator<GotoEvaluator>().EvaluateAsync(input, ct);
-                }
+            (EvalResult Result, string, BotToken) res = default;
+            foreach (var evaluator in evaluators)
+            {
+                res = await evaluator.EvaluateAsync(input, ct);
+                if (res.Result != EvalResult.NotMatch)
+                    return res;
             }
 
             return res;

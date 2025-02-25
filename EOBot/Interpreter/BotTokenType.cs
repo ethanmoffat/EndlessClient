@@ -31,6 +31,7 @@
         LogicalAndOperator,
         LogicalOrOperator,
         Dot,
+        Semicolon,
         NewLine,
         Error,
     }
