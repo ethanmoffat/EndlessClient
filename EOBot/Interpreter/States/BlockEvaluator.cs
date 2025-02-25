@@ -63,15 +63,28 @@ namespace EOBot.Interpreter.States
             return evalResult;
         }
 
-        protected void SkipBlock(ProgramState input)
+        protected static void SkipTokensBookendedBy(ProgramState input, BotTokenType left, BotTokenType right)
+        {
+            int rCount = 1;
+            while (rCount > 0)
+            {
+                if (input.Current().TokenType == left)
+                    rCount++;
+                else if (input.Current().TokenType == right)
+                    rCount--;
+
+                input.SkipToken();
+            }
+        }
+
+        protected static void SkipBlock(ProgramState input)
         {
             // ensure that for 'else if' the if condition is skipped as well
             if (input.Current().Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_IF))
             {
                 input.Expect(BotTokenType.Keyword);
                 input.Expect(BotTokenType.LParen);
-                while (!input.Expect(BotTokenType.RParen))
-                    input.SkipToken();
+                SkipTokensBookendedBy(input, BotTokenType.LParen, BotTokenType.RParen);
             }
 
             // potential newline character - skip so we can advance execution beyond the block
@@ -80,16 +93,7 @@ namespace EOBot.Interpreter.States
             // skip the rest of the block
             if (input.Expect(BotTokenType.LBrace))
             {
-                int rBraceCount = 1;
-                while (rBraceCount > 0 && input.Current().TokenType != BotTokenType.EOF)
-                {
-                    if (input.Current().TokenType == BotTokenType.LBrace)
-                        rBraceCount++;
-                    else if (input.Current().TokenType == BotTokenType.RBrace)
-                        rBraceCount--;
-
-                    input.SkipToken();
-                }
+                SkipTokensBookendedBy(input, BotTokenType.LBrace, BotTokenType.RBrace);
             }
             else
             {
@@ -97,6 +101,7 @@ namespace EOBot.Interpreter.States
                 while (input.Current().TokenType == BotTokenType.NewLine && input.Current().TokenType != BotTokenType.EOF)
                     input.SkipToken();
 
+                // 'statement' will be everything before the next newline
                 while (input.Current().TokenType != BotTokenType.NewLine && input.Current().TokenType != BotTokenType.EOF)
                     input.SkipToken();
 
