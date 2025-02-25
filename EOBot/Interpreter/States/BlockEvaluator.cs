@@ -93,8 +93,9 @@ namespace EOBot.Interpreter.States
             }
             else
             {
-                // optional newline before statement
-                input.Expect(BotTokenType.NewLine);
+                // optional newline(s) before statement
+                while (input.Current().TokenType == BotTokenType.NewLine && input.Current().TokenType != BotTokenType.EOF)
+                    input.SkipToken();
 
                 while (input.Current().TokenType != BotTokenType.NewLine && input.Current().TokenType != BotTokenType.EOF)
                     input.SkipToken();
