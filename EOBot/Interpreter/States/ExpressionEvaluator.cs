@@ -107,8 +107,8 @@ namespace EOBot.Interpreter.States
                 return (result, reason, token);
 
             input.OperationStack.Push(token);
-            return Success();
 
+            return Success();
         }
 
         private (EvalResult, string, BotToken) EvaluateTree(ProgramState input, SyntaxTree.Node node)
@@ -196,19 +196,19 @@ namespace EOBot.Interpreter.States
         // todo: a lot of this code is the same as what's in AssignmentEvaluator::Assign, see if it can be split out/shared
         private (EvalResult, string, BotToken) GetOperand(Dictionary<string, (bool, IIdentifiable)> symbols, BotToken nextToken)
         {
-            if (nextToken.TokenType == BotTokenType.Literal)
-            {
-                if (int.TryParse(nextToken.TokenValue, out var intValue))
-                    return Success(new VariableBotToken(BotTokenType.Literal, nextToken.TokenValue, new IntVariable(intValue)));
-                else if (bool.TryParse(nextToken.TokenValue, out var boolValue))
-                    return Success(new VariableBotToken(BotTokenType.Literal, nextToken.TokenValue, new BoolVariable(boolValue)));
-                else
-                    return Success(new VariableBotToken(BotTokenType.Literal, nextToken.TokenValue, new StringVariable(nextToken.TokenValue)));
-            }
-
             var operand = nextToken as VariableBotToken;
             if (operand == null)
             {
+                if (nextToken.TokenType == BotTokenType.Literal)
+                {
+                    if (int.TryParse(nextToken.TokenValue, out var intValue))
+                        return Success(new VariableBotToken(BotTokenType.Literal, nextToken.TokenValue, new IntVariable(intValue)));
+                    else if (bool.TryParse(nextToken.TokenValue, out var boolValue))
+                        return Success(new VariableBotToken(BotTokenType.Literal, nextToken.TokenValue, new BoolVariable(boolValue)));
+                    else
+                        return Success(new VariableBotToken(BotTokenType.Literal, nextToken.TokenValue, new StringVariable(nextToken.TokenValue)));
+                }
+
                 var identifier = nextToken as IdentifierBotToken;
                 if (identifier == null)
                     return (EvalResult.Failed, $"Expected operand of type Variable or Identifier but got {nextToken.TokenType}", nextToken);
