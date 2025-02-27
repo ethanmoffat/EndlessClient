@@ -433,9 +433,11 @@ namespace EOBot.Interpreter
         {
             var mapStateObj = new RuntimeEvaluatedMemberObjectVariable();
 
-            mapStateObj.SymbolTable["characters"] = (true, () => new ArrayVariable(DependencyMaster.TypeRegistry[_botIndex].Resolve<ICurrentMapStateProvider>().Characters.Select(GetMapStateCharacter).ToList()));
-            mapStateObj.SymbolTable["npcs"] = (true, () => new ArrayVariable(DependencyMaster.TypeRegistry[_botIndex].Resolve<ICurrentMapStateProvider>().NPCs.Select(GetMapStateNPC).ToList()));
-            mapStateObj.SymbolTable["items"] = (true, () => new ArrayVariable(DependencyMaster.TypeRegistry[_botIndex].Resolve<ICurrentMapStateProvider>().MapItems.Select(GetMapStateItem).ToList()));
+            var provider = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICurrentMapStateProvider>();
+
+            mapStateObj.SymbolTable["characters"] = (true, () => new ArrayVariable(provider.Characters.Select(GetMapStateCharacter).ToList()));
+            mapStateObj.SymbolTable["npcs"] = (true, () => new ArrayVariable(provider.NPCs.Select(GetMapStateNPC).ToList()));
+            mapStateObj.SymbolTable["items"] = (true, () => new ArrayVariable(provider.MapItems.Select(GetMapStateItem).ToList()));
 
             return Readonly(mapStateObj);
         }
