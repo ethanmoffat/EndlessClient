@@ -21,7 +21,7 @@ namespace EOBot.Interpreter.States
 
             input.Match(BotTokenType.NotOperator);
 
-            if (input.Expect(BotTokenType.LParen))
+            if (input.Match(BotTokenType.LParen))
             {
                 var evalRes = await Evaluator<ExpressionEvaluator>().EvaluateAsync(input, ct);
                 if (evalRes.Result != EvalResult.Ok)
@@ -45,6 +45,16 @@ namespace EOBot.Interpreter.States
                     if (!input.Expect(BotTokenType.RParen))
                         return Error(input.Current(), BotTokenType.RParen);
                 }
+
+                // take care of the LParen that we matched on
+                // LParen is used as a demarcation for when to stop evaluating a stream of tokens as a single expression
+                var tmp = input.OperationStack.Pop();
+
+                if (input.OperationStack.Peek().TokenType != BotTokenType.LParen)
+                    return StackTokenError(BotTokenType.LParen, input.OperationStack.Peek());
+
+                input.OperationStack.Pop();
+                input.OperationStack.Push(tmp);
             }
             else
             {
