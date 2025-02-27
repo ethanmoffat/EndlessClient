@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EOBot.Interpreter.Extensions;
@@ -27,7 +28,7 @@ namespace EOBot.Interpreter.States
                 return (result, reason, token);
 
             var targetVariable = (IdentifierBotToken)token;
-            if (targetVariable.Member != null || targetVariable.ArrayIndex != null)
+            if (targetVariable.Member != null || targetVariable.ArrayIndex != null || targetVariable.DictKey != null)
                 return (EvalResult.Failed, "foreach iteration must be assigned to simple identifier", targetVariable);
 
             if (!input.Current().Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_IN))
@@ -42,10 +43,25 @@ namespace EOBot.Interpreter.States
             if (result != EvalResult.Ok)
                 return (result, reason, token);
 
-            if (token is not VariableBotToken collectionVariable ||
-                collectionVariable.VariableValue is not ArrayVariable arrayVariable)
+            if (token is not VariableBotToken collectionVariable)
             {
-                return (EvalResult.Failed, "foreach iteration must be over an array", token);
+                return (EvalResult.Failed, "Expected variable token as iterable in foreach expression", token);
+            }
+
+            if (collectionVariable.VariableValue is not ArrayVariable arrayVariable)
+            {
+                if (collectionVariable.VariableValue is not DictVariable dictVariable)
+                {
+                    return (EvalResult.Failed, "foreach iteration must be over an array or dict", token);
+                }
+
+                arrayVariable = new ArrayVariable(
+                    dictVariable.Value.Select(x => (IVariable)new ObjectVariable(new Dictionary<string, (bool, IIdentifiable)>
+                    {
+                        ["key"] = (true, new StringVariable(x.Key)),
+                        ["value"] = (true, x.Value)
+                    })).ToList()
+                );
             }
 
             if (!input.Expect(BotTokenType.RParen))

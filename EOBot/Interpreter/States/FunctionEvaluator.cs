@@ -119,6 +119,14 @@ namespace EOBot.Interpreter.States
             input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, varResult.StringValue, varResult));
         }
 
+        private void Call(ProgramState input, ICallable<Dictionary<string, IVariable>> function, params IVariable[] variables)
+        {
+            var result = function.Call(variables);
+            var varResult = new DictVariable(result);
+            input.SymbolTable[PredefinedIdentifiers.RESULT] = (true, varResult);
+            input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, varResult.StringValue, varResult));
+        }
+
         private void Call(ProgramState input, ICallable<bool> function, params IVariable[] variables)
         {
             var result = function.Call(variables);

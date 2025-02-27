@@ -25,6 +25,7 @@
         public const string PRINT_FUNC = "print";
         public const string LEN_FUNC = "len";
         public const string ARRAY_FUNC = "array";
+        public const string DICT_FUNC = "dict";
         public const string APPEND_FUNC = "append";
         public const string CLEAR_FUNC = "clear";
         public const string OBJECT_FUNC = "object";
