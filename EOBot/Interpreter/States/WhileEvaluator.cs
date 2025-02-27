@@ -28,8 +28,14 @@ namespace EOBot.Interpreter.States
                  (result, reason, token) = await EvaluateConditionAsync(whileLoopStartIndex, input, ct))
             {
                 var blockEval = await EvaluateBlockAsync(input, ct);
-                if (blockEval.Item1 != EvalResult.Ok)
+                if (blockEval.Item1 == EvalResult.ControlFlow)
+                {
+                    if (IsBreak(input)) break;
+                }
+                else if (blockEval.Item1 != EvalResult.Ok)
+                {
                     return blockEval;
+                }
             }
 
             if (result == EvalResult.Ok)

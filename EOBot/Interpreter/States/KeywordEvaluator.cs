@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using EOBot.Interpreter.Extensions;
 
 namespace EOBot.Interpreter.States
 {
@@ -31,6 +32,13 @@ namespace EOBot.Interpreter.States
                 res = await evaluator.EvaluateAsync(input, ct);
                 if (res.Result != EvalResult.NotMatch)
                     return res;
+            }
+
+            if (input.Current().Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_CONTINUE) ||
+                input.Current().Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_BREAK))
+            {
+                input.OperationStack.Push(input.Current());
+                res.Result = EvalResult.ControlFlow;
             }
 
             return res;

@@ -41,8 +41,14 @@ namespace EOBot.Interpreter.States
             {
                 input.Goto(blockIndex);
                 var blockEval = await EvaluateBlockAsync(input, ct);
-                if (blockEval.Item1 != EvalResult.Ok)
+                if (blockEval.Item1 == EvalResult.ControlFlow)
+                {
+                    if (IsBreak(input)) break;
+                }
+                else if (blockEval.Item1 != EvalResult.Ok)
+                {
                     return blockEval;
+                }
 
                 (result, reason, token) = await EvaluateIteration(iterateOperationIndex, input, ct);
                 if (result != EvalResult.Ok)

@@ -48,19 +48,34 @@ namespace EOBot.Interpreter.States
             if (input.Expect(BotTokenType.LBrace))
             {
                 evalResult = await Evaluator<StatementListEvaluator>().EvaluateAsync(input, ct);
-                if (evalResult.Result != EvalResult.Ok)
-                    return evalResult;
             }
             else
             {
                 evalResult = await Evaluator<StatementEvaluator>().EvaluateAsync(input, ct);
-                if (evalResult.Result != EvalResult.Ok)
-                    return evalResult;
             }
-
 
             RestoreLastNewline(input);
             return evalResult;
+        }
+
+        protected static bool IsBreak(ProgramState input)
+        {
+            var res = false;
+
+            if (input.OperationStack.TryPeek(out var controlToken))
+            {
+                if (controlToken.Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_CONTINUE))
+                {
+                    input.OperationStack.Pop();
+                }
+                else if (controlToken.Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_BREAK))
+                {
+                    res = true;
+                    input.OperationStack.Pop();
+                }
+            }
+
+            return res;
         }
 
         protected static void SkipTokensBookendedBy(ProgramState input, BotTokenType left, BotTokenType right)

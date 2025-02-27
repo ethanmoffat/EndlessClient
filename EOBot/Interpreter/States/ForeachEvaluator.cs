@@ -60,8 +60,14 @@ namespace EOBot.Interpreter.States
                     input.SymbolTable[targetVariable.TokenValue] = (true, arrayVariable.Value[i]);
 
                     var blockEval = await EvaluateBlockAsync(input, ct);
-                    if (blockEval.Item1 != EvalResult.Ok)
+                    if (blockEval.Item1 == EvalResult.ControlFlow)
+                    {
+                        if (IsBreak(input)) break;
+                    }
+                    else if (blockEval.Item1 != EvalResult.Ok)
+                    {
                         return blockEval;
+                    }
                 }
                 finally
                 {

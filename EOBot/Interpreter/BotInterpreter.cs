@@ -74,6 +74,13 @@ namespace EOBot.Interpreter
             {
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Error during execution at line {token.LineNumber} column {token.Column}", ConsoleColor.DarkRed);
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, reason, ConsoleColor.DarkRed);
+
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, string.Empty);
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, "Operation stack:");
+                foreach (var item in programState.OperationStack)
+                {
+                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, $"{item} ({item.LineNumber}:{item.Column})");
+                }
             }
             else if (result == EvalResult.NotMatch)
             {

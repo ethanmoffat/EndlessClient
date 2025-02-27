@@ -13,6 +13,8 @@ namespace EOBot.Interpreter
         public const string KEYWORD_FOR = "for";
         public const string KEYWORD_FOREACH = "foreach";
         public const string KEYWORD_IN = "in";
+        public const string KEYWORD_CONTINUE = "continue";
+        public const string KEYWORD_BREAK = "break";
         //public const string KEYWORD_FUNCTION = "function";
         //public const string KEYWORD_RETURN = "return";
 
@@ -28,6 +30,8 @@ namespace EOBot.Interpreter
             KEYWORD_FOR,
             KEYWORD_FOREACH,
             KEYWORD_IN,
+            KEYWORD_CONTINUE,
+            KEYWORD_BREAK,
             //KEYWORD_FUNCTION,
             //KEYWORD_RETURN
         ];

@@ -17,6 +17,10 @@
         /// <summary>
         /// The operation was cancelled by the user
         /// </summary>
-        Cancelled
+        Cancelled,
+        /// <summary>
+        /// The result is a control flow operation that should be handled at a higher level of the evaluation stack
+        /// </summary>
+        ControlFlow
     }
 }
