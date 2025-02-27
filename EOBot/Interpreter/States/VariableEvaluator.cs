@@ -21,7 +21,7 @@ namespace EOBot.Interpreter.States
 
             int? arrayIndex = null;
             string dictKey = null;
-            if (input.Expect(BotTokenType.LBracket))
+            if (input.Match(BotTokenType.LBracket))
             {
                 var expressionEval = await Evaluator<ExpressionEvaluator>().EvaluateAsync(input, ct);
                 if (expressionEval.Result != EvalResult.Ok)
@@ -33,6 +33,12 @@ namespace EOBot.Interpreter.States
                 if (input.OperationStack.Count == 0)
                     return StackEmptyError(input.Current());
                 var expressionResult = (VariableBotToken)input.OperationStack.Pop();
+
+                if (input.OperationStack.Count == 0)
+                    return StackEmptyError(input.Current());
+                var lBracket = input.OperationStack.Pop();
+                if (!lBracket.Is(BotTokenType.LBracket))
+                    return StackTokenError(BotTokenType.LBracket, lBracket);
 
                 if (expressionResult.VariableValue is IntVariable iv)
                 {
