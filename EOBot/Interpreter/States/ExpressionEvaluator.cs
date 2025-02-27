@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EOBot.Interpreter.Extensions;
+using EOBot.Interpreter.Syntax;
 using EOBot.Interpreter.Variables;
 
 namespace EOBot.Interpreter.States
@@ -31,19 +32,14 @@ namespace EOBot.Interpreter.States
                 {
                     // check for an expression tail after the close paren
                     evalRes = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input, ct);
-                    if (evalRes.Result == EvalResult.NotMatch)
-                        return NegateIfNeeded(input); // default logic if no expression tail: negate as needed and return
-                    else if (evalRes.Result == EvalResult.Failed)
+                    if (evalRes.Result != EvalResult.Ok && evalRes.Result != EvalResult.NotMatch)
                         return evalRes;
-
-                    // fallthrough to default operand handling logic below if we successfully evaluated an expression tail
                 }
                 else
                 {
+                    // expression_tail is optional
                     evalRes = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input, ct);
-                    if (evalRes.Result == EvalResult.NotMatch)
-                        return EvaluateSingleOperand(input);
-                    else if (evalRes.Result == EvalResult.Failed)
+                    if (evalRes.Result != EvalResult.Ok && evalRes.Result != EvalResult.NotMatch)
                         return evalRes;
 
                     if (!input.Expect(BotTokenType.RParen))
@@ -56,15 +52,9 @@ namespace EOBot.Interpreter.States
                 var evalRes = await Evaluator<FunctionEvaluator>().EvaluateAsync(input, ct);
                 if (evalRes.Result == EvalResult.Ok)
                 {
-                    // there may or may not be an expression tail after a function call
-                    // if there is an expression tail, evaluate the operands below, otherwise return early
+                    // expression_tail is optional
                     evalRes = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input, ct);
-                    if (evalRes.Result == EvalResult.NotMatch)
-                    {
-                        // function call as single operand expression - negate the result if needed
-                        return NegateIfNeeded(input);
-                    }
-                    else if (evalRes.Result != EvalResult.Ok)
+                    if (evalRes.Result != EvalResult.Ok && evalRes.Result != EvalResult.NotMatch)
                     {
                         return evalRes;
                     }
@@ -76,13 +66,9 @@ namespace EOBot.Interpreter.States
                     if (evalRes.Result != EvalResult.Ok)
                         return evalRes;
 
-                    // expression_tail is optional, if not set no need to evaluate operation stack below / return early
+                    // expression_tail is optional
                     evalRes = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input, ct);
-                    if (evalRes.Result == EvalResult.NotMatch)
-                    {
-                        return EvaluateSingleOperand(input);
-                    }
-                    else if (evalRes.Result != EvalResult.Ok)
+                    if (evalRes.Result != EvalResult.Ok && evalRes.Result != EvalResult.NotMatch)
                     {
                         return evalRes;
                     }
@@ -93,66 +79,108 @@ namespace EOBot.Interpreter.States
                 }
             }
 
+            return EvaluateStackOperands(input);
+        }
+
+        private (EvalResult, string, BotToken) EvaluateStackOperands(ProgramState input)
+        {
             if (input.OperationStack.Count == 0)
                 return StackEmptyError(input.Current());
 
-            var (result, reason, op2) = GetOperand(input.SymbolTable, input.OperationStack.Pop());
-            if (result == EvalResult.Failed)
-                return (result, reason, op2);
-            var operand2 = op2 as VariableBotToken;
+            var syntaxTree = new SyntaxTree(input.OperationStack)
+            {
+                VisitOrder = SyntaxTree.Order.PostOrder
+            };
 
-            if (input.OperationStack.Count == 0)
-                return StackEmptyError(input.Current());
-            var @operator = input.OperationStack.Pop();
+            var (result, reason, token) = EvaluateTree(input, syntaxTree.Root);
+            if (result != EvalResult.Ok)
+                return (result, reason, token);
 
-            if (input.OperationStack.Count == 0)
-                return StackEmptyError(input.Current());
+            input.OperationStack.Push(token);
+            return Success();
 
-            BotToken op1;
-            (result, reason, op1) = GetOperand(input.SymbolTable, input.OperationStack.Pop());
-            if (result == EvalResult.Failed)
-                return (result, reason, op1);
-            var operand1 = op1 as VariableBotToken;
+        }
 
+        private (EvalResult, string, BotToken) EvaluateTree(ProgramState input, SyntaxTree.Node node)
+        {
+            if (node.Token.IsUnary())
+            {
+                var (res, reason, operand) = node.Left != null
+                    ? EvaluateTree(input, node.Left)
+                    : node.Right != null
+                        ? EvaluateTree(input, node.Right)
+                        : (EvalResult.Failed, "Error evaluating expression: no operands for operator", node.Token);
+                if (res == EvalResult.Failed)
+                    return (res, reason, operand);
+                if (operand is not VariableBotToken variable)
+                    return (EvalResult.Failed, $"Error evaluating expression: expected operand but got {operand.TokenType}", operand);
+
+                return HandleUnaryOperator(input, node.Token, variable);
+            }
+            else if (node.Token.IsBinary())
+            {
+                var (result, reason, resolved) = EvaluateTree(input, node.Right);
+                if (result == EvalResult.Failed)
+                    return (result, reason, node.Right.Token);
+                if (resolved is not VariableBotToken lhs)
+                    return (EvalResult.Failed, $"Error evaluating expression: expected operand but got {resolved.TokenType}", resolved);
+
+                (result, reason, resolved) = EvaluateTree(input, node.Left);
+                if (result == EvalResult.Failed)
+                    return (result, reason, node.Left.Token);
+                if (resolved is not VariableBotToken rhs)
+                    return (EvalResult.Failed, $"Error evaluating expression: expected operand but got {resolved.TokenType}", resolved);
+
+                return HandleBinaryOperator(input, node.Token, lhs, rhs);
+            }
+            else
+            {
+                return GetOperand(input.SymbolTable, node.Token);
+            }
+        }
+
+        private (EvalResult, string, BotToken) HandleUnaryOperator(ProgramState input, BotToken operatorToken, VariableBotToken operand)
+        {
             (IVariable Result, string Reason) res;
             res.Reason = string.Empty;
-            switch (@operator.TokenType)
+            switch (operatorToken.TokenType)
             {
-                case BotTokenType.EqualOperator: res.Result = new BoolVariable(operand1.VariableValue.Equals(operand2.VariableValue)); break;
-                case BotTokenType.NotEqualOperator: res.Result = new BoolVariable(!operand1.VariableValue.Equals(operand2.VariableValue)); break;
-                case BotTokenType.LessThanOperator: res.Result = new BoolVariable(operand1.VariableValue.CompareTo(operand2.VariableValue) < 0); break;
-                case BotTokenType.GreaterThanOperator: res.Result = new BoolVariable(operand1.VariableValue.CompareTo(operand2.VariableValue) > 0); break;
-                case BotTokenType.LessThanEqOperator: res.Result = new BoolVariable(operand1.VariableValue.CompareTo(operand2.VariableValue) <= 0); break;
-                case BotTokenType.GreaterThanEqOperator: res.Result = new BoolVariable(operand1.VariableValue.CompareTo(operand2.VariableValue) >= 0); break;
-                case BotTokenType.LogicalAndOperator: res = LogicalAnd(operand1.VariableValue, operand2.VariableValue); break;
-                case BotTokenType.LogicalOrOperator: res = LogicalOr(operand1.VariableValue, operand2.VariableValue); break;
-                case BotTokenType.PlusOperator: res = Add((dynamic)operand1.VariableValue, (dynamic)operand2.VariableValue); break;
-                case BotTokenType.MinusOperator: res = Subtract((dynamic)operand1.VariableValue, (dynamic)operand2.VariableValue); break;
-                case BotTokenType.MultiplyOperator: res = Multiply((dynamic)operand1.VariableValue, (dynamic)operand2.VariableValue); break;
-                case BotTokenType.DivideOperator: res = Divide((dynamic)operand1.VariableValue, (dynamic)operand2.VariableValue); break;
-                case BotTokenType.ModuloOperator: res = Modulo((dynamic)operand1.VariableValue, (dynamic)operand2.VariableValue); break;
-                default: return UnsupportedOperatorError(@operator);
+                case BotTokenType.NotOperator: res = Negate(operand.VariableValue); break;
+                default: return UnsupportedOperatorError(operatorToken);
             }
 
             if (res.Result == null)
                 return (EvalResult.Failed, $"Error evaluating expression: {res.Reason}", input.Current());
 
-            input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, res.Result.StringValue, res.Result));
-            return NegateIfNeeded(input);
+            return Success(new VariableBotToken(BotTokenType.Literal, res.Result.StringValue, res.Result));
         }
 
-        private (EvalResult, string, BotToken) EvaluateSingleOperand(ProgramState input)
+        private (EvalResult, string, BotToken) HandleBinaryOperator(ProgramState input, BotToken operatorToken, VariableBotToken lhs, VariableBotToken rhs)
         {
-            if (input.OperationStack.Count == 0)
-                return StackEmptyError(input.Current());
+            (IVariable Result, string Reason) res;
+            res.Reason = string.Empty;
+            switch (operatorToken.TokenType)
+            {
+                case BotTokenType.EqualOperator: res.Result = new BoolVariable(lhs.VariableValue.Equals(rhs.VariableValue)); break;
+                case BotTokenType.NotEqualOperator: res.Result = new BoolVariable(!lhs.VariableValue.Equals(rhs.VariableValue)); break;
+                case BotTokenType.LessThanOperator: res.Result = new BoolVariable(lhs.VariableValue.CompareTo(rhs.VariableValue) < 0); break;
+                case BotTokenType.GreaterThanOperator: res.Result = new BoolVariable(lhs.VariableValue.CompareTo(rhs.VariableValue) > 0); break;
+                case BotTokenType.LessThanEqOperator: res.Result = new BoolVariable(lhs.VariableValue.CompareTo(rhs.VariableValue) <= 0); break;
+                case BotTokenType.GreaterThanEqOperator: res.Result = new BoolVariable(lhs.VariableValue.CompareTo(rhs.VariableValue) >= 0); break;
+                case BotTokenType.LogicalAndOperator: res = LogicalAnd(lhs.VariableValue, rhs.VariableValue); break;
+                case BotTokenType.LogicalOrOperator: res = LogicalOr(lhs.VariableValue, rhs.VariableValue); break;
+                case BotTokenType.PlusOperator: res = Add((dynamic)lhs.VariableValue, (dynamic)rhs.VariableValue); break;
+                case BotTokenType.MinusOperator: res = Subtract((dynamic)lhs.VariableValue, (dynamic)rhs.VariableValue); break;
+                case BotTokenType.MultiplyOperator: res = Multiply((dynamic)lhs.VariableValue, (dynamic)rhs.VariableValue); break;
+                case BotTokenType.DivideOperator: res = Divide((dynamic)lhs.VariableValue, (dynamic)rhs.VariableValue); break;
+                case BotTokenType.ModuloOperator: res = Modulo((dynamic)lhs.VariableValue, (dynamic)rhs.VariableValue); break;
+                default: return UnsupportedOperatorError(operatorToken);
+            }
 
-            // convert to variable token (resolve identifier) so consumer of expression result can use it
-            var (localResult, localReason, singleOperand) = GetOperand(input.SymbolTable, input.OperationStack.Pop());
-            if (localResult != EvalResult.Ok)
-                return (localResult, localReason, singleOperand);
+            if (res.Result == null)
+                return (EvalResult.Failed, $"Error evaluating expression: {res.Reason}", input.Current());
 
-            input.OperationStack.Push(singleOperand);
-            return NegateIfNeeded(input);
+            return Success(new VariableBotToken(BotTokenType.Literal, res.Result.StringValue, res.Result));
         }
 
         // todo: a lot of this code is the same as what's in AssignmentEvaluator::Assign, see if it can be split out/shared
@@ -207,31 +235,12 @@ namespace EOBot.Interpreter.States
             return Success(operand);
         }
 
-        // negate the VariableBotToken on top of the stack if there as a 'not' operator immediately below it
-        private (EvalResult, string, BotToken) NegateIfNeeded(ProgramState input)
+        private (IVariable Result, string Reason) Negate(IVariable variable)
         {
-            if (input.OperationStack.Count == 0)
-                return StackEmptyError(input.Current());
-
-            var operand = input.OperationStack.Pop();
-
-            var varToken = operand as VariableBotToken;
-            if (varToken == null)
-                return StackTokenError(BotTokenType.Literal, operand);
-
-            while (input.OperationStack.Count > 0 && input.OperationStack.Peek().TokenType == BotTokenType.NotOperator)
-            {
-                var notOperator = input.OperationStack.Pop();
-
-                var boolOperand = CoerceToBool(varToken.VariableValue);
-                if (boolOperand == null)
-                    return UnsupportedOperatorError(notOperator);
-
-                varToken = new VariableBotToken(varToken.TokenType, (!boolOperand.Value).ToString(), new BoolVariable(!boolOperand.Value));
-            }
-
-            input.OperationStack.Push(varToken);
-            return Success();
+            var boolOperand = CoerceToBool(variable);
+            if (boolOperand == null)
+                return (null, "Unable to convert variable to bool");
+            return (new BoolVariable(!boolOperand.Value), string.Empty);
         }
 
         private static BoolVariable CoerceToBool(IVariable variable)
