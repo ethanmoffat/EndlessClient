@@ -11,6 +11,10 @@ namespace EOBot.Interpreter
         public const string KEYWORD_GOTO = "goto";
         public const string KEYWORD_ELSE = "else";
         public const string KEYWORD_FOR = "for";
+        public const string KEYWORD_FOREACH = "foreach";
+        public const string KEYWORD_IN = "in";
+        //public const string KEYWORD_FUNCTION = "function";
+        //public const string KEYWORD_RETURN = "return";
 
         public const string KEYWORD_TRUE = "true";
         public const string KEYWORD_FALSE = "false";
@@ -22,6 +26,10 @@ namespace EOBot.Interpreter
             KEYWORD_GOTO,
             KEYWORD_ELSE,
             KEYWORD_FOR,
+            KEYWORD_FOREACH,
+            KEYWORD_IN,
+            //KEYWORD_FUNCTION,
+            //KEYWORD_RETURN
         ];
 
         private static readonly HashSet<string> Literals = [KEYWORD_TRUE, KEYWORD_FALSE];

@@ -39,6 +39,7 @@ namespace EOBot.Interpreter
             evaluators.Add(new IfEvaluator(evaluators));
             evaluators.Add(new WhileEvaluator(evaluators));
             evaluators.Add(new ForEvaluator(evaluators));
+            evaluators.Add(new ForeachEvaluator(evaluators));
             evaluators.Add(new GotoEvaluator());
             _scriptEvaluator = new ScriptEvaluator(evaluators);
         }

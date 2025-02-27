@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EOBot.Interpreter.Extensions;
@@ -212,8 +211,7 @@ namespace EOBot.Interpreter.States
         // todo: a lot of this code is the same as what's in AssignmentEvaluator::Assign, see if it can be split out/shared
         private (EvalResult, string, BotToken) GetOperand(Dictionary<string, (bool, IIdentifiable)> symbols, BotToken nextToken)
         {
-            var operand = nextToken as VariableBotToken;
-            if (operand == null)
+            if (nextToken is not VariableBotToken operand)
             {
                 if (nextToken.TokenType == BotTokenType.Literal)
                 {
@@ -225,37 +223,7 @@ namespace EOBot.Interpreter.States
                         return Success(new VariableBotToken(BotTokenType.Literal, nextToken.TokenValue, new StringVariable(nextToken.TokenValue)));
                 }
 
-                var identifier = nextToken as IdentifierBotToken;
-                if (identifier == null)
-                    return (EvalResult.Failed, $"Expected operand of type Variable or Identifier but got {nextToken.TokenType}", nextToken);
-
-                if (identifier.Member == null)
-                {
-                    var getVariableRes = symbols.GetVariable(identifier.TokenValue, identifier.ArrayIndex);
-                    if (getVariableRes.Result != EvalResult.Ok)
-                        return (getVariableRes.Result, getVariableRes.Reason, identifier);
-
-                    operand = new VariableBotToken(BotTokenType.Literal, getVariableRes.Variable.ToString(), getVariableRes.Variable);
-                }
-                else
-                {
-                    var getVariableRes = symbols.GetVariable<ObjectVariable>(identifier.TokenValue, identifier.ArrayIndex);
-                    if (getVariableRes.Result != EvalResult.Ok)
-                    {
-                        var getRuntimeEvaluatedVariableRes = symbols.GetVariable<RuntimeEvaluatedMemberObjectVariable>(identifier.TokenValue, identifier.ArrayIndex);
-                        if (getRuntimeEvaluatedVariableRes.Result != EvalResult.Ok)
-                            return (EvalResult.Failed, $"Identifier '{identifier.TokenValue}' is not an object", identifier);
-
-                        getVariableRes.Result = getRuntimeEvaluatedVariableRes.Result;
-                        getVariableRes.Reason = getRuntimeEvaluatedVariableRes.Reason;
-                        getVariableRes.Variable = new ObjectVariable(
-                            getRuntimeEvaluatedVariableRes.Variable.SymbolTable
-                                .Select(x => (x.Key, (x.Value.ReadOnly, x.Value.Variable())))
-                                .ToDictionary(x => x.Key, x => x.Item2));
-                    }
-
-                    return GetOperand(getVariableRes.Variable.SymbolTable, identifier.Member);
-                }
+                return symbols.ResolveIdentifier(nextToken);
             }
 
             return Success(operand);

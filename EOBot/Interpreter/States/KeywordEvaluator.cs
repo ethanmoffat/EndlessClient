@@ -19,8 +19,9 @@ namespace EOBot.Interpreter.States
                 Evaluator<IfEvaluator>(),
                 Evaluator<WhileEvaluator>(),
                 Evaluator<ForEvaluator>(),
-                // ForEachEvaluator
-                // FunctionEvaluator
+                Evaluator<ForeachEvaluator>(),
+                // Evaluator<FunctionEvaluator>(),
+                // Evaluator<ReturnEvaluator>(),
                 Evaluator<GotoEvaluator>(),
             ];
 
