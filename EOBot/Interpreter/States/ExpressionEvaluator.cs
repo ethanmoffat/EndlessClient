@@ -145,7 +145,23 @@ namespace EOBot.Interpreter.States
             }
             else
             {
+                // Multiple parameters to a function will be popped off the stack and added to the expression tree since there are no delimiters
+                //   between them. Any additional parameters will be "orphaned" if not restored to the stack recursively.
+                RestoreToStack(node.Left);
+                RestoreToStack(node.Right);
+
                 return GetOperand(input.SymbolTable, node.Token);
+            }
+
+            void RestoreToStack(SyntaxTree.Node node)
+            {
+                if (node == null)
+                    return;
+
+                RestoreToStack(node.Left);
+                RestoreToStack(node.Right);
+
+                input.OperationStack.Push(node.Token);
             }
         }
 
