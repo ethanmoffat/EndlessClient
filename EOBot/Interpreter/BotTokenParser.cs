@@ -244,7 +244,21 @@ namespace EOBot.Interpreter
                             }
                         }
                     case '+': return Token(BotTokenType.PlusOperator, inputChar.ToString());
-                    case '-': return Token(BotTokenType.MinusOperator, inputChar.ToString());
+                    case '-':
+                        {
+                            var number = string.Empty;
+                            while (char.IsDigit(Peek()) && !_inputStream.EndOfStream)
+                                number += Read();
+
+                            if (number.Length > 0)
+                            {
+                                return Token(BotTokenType.Literal, $"{inputChar}{number}");
+                            }
+                            else
+                            {
+                                return Token(BotTokenType.MinusOperator, inputChar.ToString());
+                            }
+                        }
                     case '*': return Token(BotTokenType.MultiplyOperator, inputChar.ToString());
                     case '/': return Token(BotTokenType.DivideOperator, inputChar.ToString());
                     case '%': return Token(BotTokenType.ModuloOperator, inputChar.ToString());
