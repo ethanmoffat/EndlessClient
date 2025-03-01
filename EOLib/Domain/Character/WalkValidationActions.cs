@@ -68,6 +68,9 @@ namespace EOLib.Domain.Character
         {
             ClearGhostCache();
 
+            if (!cellState.InBounds)
+                return WalkValidationResult.NotWalkable;
+
             if (_characterProvider.MainCharacter.Frozen)
                 return WalkValidationResult.Frozen;
 
