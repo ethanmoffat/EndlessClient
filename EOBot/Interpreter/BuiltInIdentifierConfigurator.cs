@@ -31,8 +31,8 @@ namespace EOBot.Interpreter
 {
     public class BuiltInIdentifierConfigurator
     {
-        private const int ATTACK_BACKOFF_MS = 480;
-        private const int WALK_BACKOFF_MS = 600;
+        private const int ATTACK_BACKOFF_MS = 600;
+        private const int WALK_BACKOFF_MS = 720;
         private const int FACE_BACKOFF_MS = 120;
 
         private readonly int _botIndex;
@@ -277,8 +277,14 @@ namespace EOBot.Interpreter
 
         private Task Walk(CancellationToken ct)
         {
-            var cr = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICharacterRepository>();
+            var walkValidationActions = DependencyMaster.TypeRegistry[_botIndex].Resolve<IWalkValidationActions>();
+            if (walkValidationActions.CanMoveToDestinationCoordinates() != WalkValidationResult.Walkable)
+            {
+                return Task.CompletedTask;
+            }
+
             // MainCharacter is normally updated with destination coordinates by CharacterAnimator, not by reply packet
+            var cr = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICharacterRepository>();
             cr.MainCharacter = cr.MainCharacter.WithRenderProperties(
                 cr.MainCharacter.RenderProperties.WithCoordinates(cr.MainCharacter.RenderProperties.DestinationCoordinates())
             );
@@ -469,6 +475,7 @@ namespace EOBot.Interpreter
             npcObj.SymbolTable["y"] = Readonly(new IntVariable(npc.Y));
             npcObj.SymbolTable["id"] = Readonly(new IntVariable(npc.ID));
             npcObj.SymbolTable["direction"] = Readonly(new IntVariable((int)npc.Direction));
+            npcObj.SymbolTable["index"] = Readonly(new IntVariable(npc.Index));
             return npcObj;
         }
 
@@ -482,6 +489,7 @@ namespace EOBot.Interpreter
             itemObj.SymbolTable["y"] = Readonly(new IntVariable(item.Y));
             itemObj.SymbolTable["id"] = Readonly(new IntVariable(item.ItemID));
             itemObj.SymbolTable["amount"] = Readonly(new IntVariable(item.Amount));
+            itemObj.SymbolTable["index"] = Readonly(new IntVariable(item.UniqueID));
             return itemObj;
         }
 
