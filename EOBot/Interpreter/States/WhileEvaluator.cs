@@ -18,14 +18,10 @@ namespace EOBot.Interpreter.States
             if (!input.Current().Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_WHILE))
                 return (EvalResult.NotMatch, string.Empty, input.Current());
 
-            var whileLoopStartIndex = input.ExecutionIndex;
-
-            EvalResult result;
-            string reason;
-            BotToken token;
-            for ((result, reason, token) = await EvaluateConditionAsync(whileLoopStartIndex, input, ct);
-                 result == EvalResult.Ok && bool.TryParse(token.TokenValue, out var conditionValue) && conditionValue;
-                 (result, reason, token) = await EvaluateConditionAsync(whileLoopStartIndex, input, ct))
+            var conditionIndex = input.ExecutionIndex; // the index of the token starting the while loop condition expression
+            var (result, reason, token) = await EvaluateConditionAsync(conditionIndex, input, ct);
+            var blockStartIndex = input.ExecutionIndex; // the index of the token starting the while loop's execution block
+            while (result == EvalResult.Ok && bool.TryParse(token.TokenValue, out var conditionValue) && conditionValue)
             {
                 var blockEval = await EvaluateBlockAsync(input, ct);
                 if (blockEval.Item1 == EvalResult.ControlFlow)
@@ -36,10 +32,13 @@ namespace EOBot.Interpreter.States
                 {
                     return blockEval;
                 }
+
+                (result, reason, token) = await EvaluateConditionAsync(conditionIndex, input, ct);
             }
 
             if (result == EvalResult.Ok)
             {
+                input.Goto(blockStartIndex);
                 SkipBlock(input);
             }
 

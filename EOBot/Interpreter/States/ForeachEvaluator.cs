@@ -71,6 +71,8 @@ namespace EOBot.Interpreter.States
 
             for (int i = 0; i < arrayVariable.Value.Count; i++)
             {
+                input.Goto(blockStartIndex);
+
                 try
                 {
                     input.SymbolTable[targetVariable.TokenValue] = (true, arrayVariable.Value[i]);
@@ -89,12 +91,11 @@ namespace EOBot.Interpreter.States
                 {
                     input.SymbolTable.Remove(targetVariable.TokenValue);
                 }
-
-                input.Goto(blockStartIndex);
             }
 
             if (result == EvalResult.Ok)
             {
+                input.Goto(blockStartIndex);
                 SkipBlock(input);
             }
 
