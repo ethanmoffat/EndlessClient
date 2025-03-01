@@ -16,6 +16,7 @@ using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
 using EOLib.Domain.Party;
 using EOLib.Domain.Pathing;
+using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 using EOLib.Net.Communication;
 using EOLib.Net.Connection;
@@ -64,8 +65,10 @@ namespace EOBot.Interpreter
             programState.SymbolTable[PredefinedIdentifiers.LOWER_FUNC] = Readonly(new Function<string, string>(PredefinedIdentifiers.LOWER_FUNC, s => s.ToLower()));
             programState.SymbolTable[PredefinedIdentifiers.UPPER_FUNC] = Readonly(new Function<string, string>(PredefinedIdentifiers.UPPER_FUNC, s => s.ToUpper()));
             programState.SymbolTable[PredefinedIdentifiers.RAND_FUNC] = Readonly(new Function<int, int, int>(PredefinedIdentifiers.RAND_FUNC, (min, max) => min + _random.Next(max) % (max - min)));
+            programState.SymbolTable[PredefinedIdentifiers.ABS_FUNC] = Readonly(new Function<int, int>(PredefinedIdentifiers.ABS_FUNC, Math.Abs));
 
             BotDependencySetup();
+
             // pre-game flow
             programState.SymbolTable[PredefinedIdentifiers.CONNECT_FUNC] = Readonly(new AsyncVoidFunction<string, int>(PredefinedIdentifiers.CONNECT_FUNC, (host, port, ct) => ConnectAsync(programState, host, port, ct)));
             programState.SymbolTable[PredefinedIdentifiers.DISCONNECT_FUNC] = Readonly(new VoidFunction(PredefinedIdentifiers.DISCONNECT_FUNC, Disconnect));
@@ -106,7 +109,7 @@ namespace EOBot.Interpreter
             programState.SymbolTable[PredefinedIdentifiers.PASS] = Readonly(new StringVariable(_parsedArgs.Password));
             programState.SymbolTable[PredefinedIdentifiers.BOTINDEX] = Readonly(new IntVariable(_botIndex));
             programState.SymbolTable[PredefinedIdentifiers.ARGS] = Readonly(new ArrayVariable(
-                (_parsedArgs.UserArgs ?? new List<string>()).Select(x => new StringVariable(x)).Cast<IVariable>().ToList()));
+                (_parsedArgs.UserArgs ?? []).Select(x => (IVariable)new StringVariable(x)).ToList()));
 
             // default to version 0.0.28
             programState.SymbolTable[PredefinedIdentifiers.VERSION] = (false, new IntVariable(28));
@@ -115,6 +118,7 @@ namespace EOBot.Interpreter
             programState.SymbolTable[PredefinedIdentifiers.ACCOUNT] = SetupAccountObject();
             programState.SymbolTable[PredefinedIdentifiers.CHARACTER] = SetupCharacterObject();
             programState.SymbolTable[PredefinedIdentifiers.MAPSTATE] = SetupMapStateObject();
+            programState.SymbolTable[PredefinedIdentifiers.MAP] = SetupMapObject();
         }
 
         private static (bool, IIdentifiable) Readonly(IIdentifiable identifiable)
@@ -479,6 +483,30 @@ namespace EOBot.Interpreter
             itemObj.SymbolTable["id"] = Readonly(new IntVariable(item.ItemID));
             itemObj.SymbolTable["amount"] = Readonly(new IntVariable(item.Amount));
             return itemObj;
+        }
+
+        private (bool, IIdentifiable) SetupMapObject()
+        {
+            var mapObj = new RuntimeEvaluatedMemberObjectVariable();
+
+            var provider = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICurrentMapProvider>();
+
+            mapObj.SymbolTable["id"] = (true, () => new IntVariable(provider.CurrentMap.Properties.MapID));
+            mapObj.SymbolTable["warps"] = (true, () => new ArrayVariable(provider.CurrentMap.Warps.SelectMany(GetWarps).ToList()));
+
+            return Readonly(mapObj);
+
+            static IEnumerable<IVariable> GetWarps(IList<WarpMapEntity> warps)
+            {
+                foreach (var warp in warps.Where(x => x != null))
+                {
+                    var obj = new ObjectVariable();
+                    obj.SymbolTable["x"] = Readonly(new IntVariable(warp.X));
+                    obj.SymbolTable["y"] = Readonly(new IntVariable(warp.Y));
+                    obj.SymbolTable["map"] = Readonly(new IntVariable(warp.DestinationMapID));
+                    yield return obj;
+                }
+            }
         }
     }
 }

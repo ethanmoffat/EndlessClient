@@ -17,6 +17,7 @@
         public const string ACCOUNT = "account";
         public const string CHARACTER = "character";
         public const string MAPSTATE = "mapstate";
+        public const string MAP = "map";
 
         public const string NAME = "name";
         public const string CHARACTERS = "characters";
@@ -37,6 +38,7 @@
         public const string LOWER_FUNC = "lower";
         public const string UPPER_FUNC = "upper";
         public const string RAND_FUNC = "rand";
+        public const string ABS_FUNC = "abs";
 
         // game functions
         public const string CONNECT_FUNC = "Connect";
@@ -57,7 +59,6 @@
 
         public const string FACE = "Face";
         public const string WALK = "Walk";
-        public const string WALK_TO = "WalkTo";
         public const string ATTACK = "Attack";
         public const string SIT = "Sit";
 
