@@ -242,14 +242,15 @@ namespace EOBot
                     ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, ie.Message, ConsoleColor.DarkRed);
 
                 var otherExceptions = ae.InnerExceptions.Except(botExceptions);
-                foreach (var ie in otherExceptions)
-                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Unhandled error: {ie.Message}\nStack Trace:\n{ie.StackTrace}", ConsoleColor.DarkRed);
+                var aggregateChildren = ae.InnerExceptions.OfType<AggregateException>().SelectMany(x => x.InnerExceptions);
+                foreach (var ie in otherExceptions.Concat(aggregateChildren))
+                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Unhandled error ({ie.GetType().Name}): {ie.Message}\nStack Trace:\n{ie.StackTrace}", ConsoleColor.DarkRed);
 
                 return 1;
             }
             catch (Exception ex)
             {
-                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Unhandled error: {ex.Message}\nStack Trace:\n{ex.StackTrace}", ConsoleColor.DarkRed);
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Unhandled error ({ex.GetType().Name}): {ex.Message}\nStack Trace:\n{ex.StackTrace}", ConsoleColor.DarkRed);
                 return 1;
             }
             finally
