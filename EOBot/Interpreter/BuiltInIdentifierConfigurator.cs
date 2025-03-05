@@ -26,13 +26,14 @@ using EOLib.Shared;
 using Moffat.EndlessOnline.SDK.Packet;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
+using Optional.Collections;
 
 namespace EOBot.Interpreter
 {
     public class BuiltInIdentifierConfigurator
     {
         private const int ATTACK_BACKOFF_MS = 600;
-        private const int WALK_BACKOFF_MS = 720;
+        private const int WALK_BACKOFF_MS = 480;
         private const int FACE_BACKOFF_MS = 120;
 
         private readonly int _botIndex;
@@ -85,6 +86,7 @@ namespace EOBot.Interpreter
             // game flow
             programState.SymbolTable[PredefinedIdentifiers.TICK] = Readonly(new AsyncVoidFunction(PredefinedIdentifiers.TICK, ct => Tick()));
             programState.SymbolTable[PredefinedIdentifiers.GETPATHTO] = Readonly(new Function<int, int, List<IVariable>>(PredefinedIdentifiers.GETPATHTO, GetPathTo));
+            programState.SymbolTable[PredefinedIdentifiers.GETCELLSTATE] = Readonly(new Function<int, int, IVariable>(PredefinedIdentifiers.GETCELLSTATE, GetCellState));
 
             // in-game stuff
             programState.SymbolTable[PredefinedIdentifiers.JOIN_PARTY] = Readonly(new VoidFunction<int>(PredefinedIdentifiers.JOIN_PARTY, JoinParty));
@@ -92,7 +94,7 @@ namespace EOBot.Interpreter
 
             // character inputs
             programState.SymbolTable[PredefinedIdentifiers.FACE] = Readonly(new AsyncVoidFunction<int>(PredefinedIdentifiers.FACE, Face));
-            programState.SymbolTable[PredefinedIdentifiers.WALK] = Readonly(new AsyncVoidFunction(PredefinedIdentifiers.WALK, Walk));
+            programState.SymbolTable[PredefinedIdentifiers.WALK] = Readonly(new AsyncFunction<bool>(PredefinedIdentifiers.WALK, Walk));
             programState.SymbolTable[PredefinedIdentifiers.ATTACK] = Readonly(new AsyncVoidFunction(PredefinedIdentifiers.ATTACK, Attack));
             programState.SymbolTable[PredefinedIdentifiers.SIT] = Readonly(new AsyncVoidFunction(PredefinedIdentifiers.SIT, Sit));
 
@@ -268,6 +270,21 @@ namespace EOBot.Interpreter
             ).ToList();
         }
 
+        private IVariable GetCellState(int x, int y)
+        {
+            var csp = DependencyMaster.TypeRegistry[_botIndex].Resolve<IMapCellStateProvider>();
+            var cs = csp.GetCellStateAt(x, y);
+            return new ObjectVariable(new Dictionary<string, (bool, IIdentifiable)>
+            {
+                ["x"] = Readonly(new IntVariable(cs.Coordinate.X)),
+                ["y"] = Readonly(new IntVariable(cs.Coordinate.Y)),
+                ["spec"] = Readonly(new IntVariable((int)cs.TileSpec)),
+                ["character"] = cs.Character.Match(some: chr => Readonly(GetMapStateCharacter(chr)), none: () => Readonly(UndefinedVariable.Instance)),
+                ["npc"] = cs.NPC.Match(some: npc => Readonly(GetMapStateNPC(npc)), none: () => Readonly(UndefinedVariable.Instance)),
+                ["item"] = cs.Items.FirstOrNone().Match(some: item => Readonly(GetMapStateItem(item)), none: () => Readonly(UndefinedVariable.Instance))
+            });
+        }
+
         private void JoinParty(int characterId)
         {
             var c = DependencyMaster.TypeRegistry[_botIndex];
@@ -292,13 +309,19 @@ namespace EOBot.Interpreter
             return Tick(FACE_BACKOFF_MS);
         }
 
-        private Task Walk(CancellationToken ct)
+        private Task<bool> Walk(CancellationToken ct)
         {
             var walkValidationActions = DependencyMaster.TypeRegistry[_botIndex].Resolve<IWalkValidationActions>();
             if (walkValidationActions.CanMoveToDestinationCoordinates() != WalkValidationResult.Walkable)
             {
-                return Task.CompletedTask;
+                Tick(WALK_BACKOFF_MS).GetAwaiter().GetResult();
+                return Task.FromResult(false);
             }
+
+            DependencyMaster
+                .TypeRegistry[_botIndex]
+                .Resolve<ICharacterActions>()
+                .Walk(ghosted: false);
 
             // MainCharacter is normally updated with destination coordinates by CharacterAnimator, not by reply packet
             var cr = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICharacterRepository>();
@@ -306,12 +329,8 @@ namespace EOBot.Interpreter
                 cr.MainCharacter.RenderProperties.WithCoordinates(cr.MainCharacter.RenderProperties.DestinationCoordinates())
             );
 
-            DependencyMaster
-                .TypeRegistry[_botIndex]
-                .Resolve<ICharacterActions>()
-                .Walk(ghosted: false);
-
-            return Tick(WALK_BACKOFF_MS);
+            Tick(WALK_BACKOFF_MS).GetAwaiter().GetResult();
+            return Task.FromResult(true);
         }
 
         private Task Attack(CancellationToken ct)
@@ -414,6 +433,8 @@ namespace EOBot.Interpreter
             charObj.SymbolTable["map"] = (true, () => new IntVariable(cp.MainCharacter.MapID));
             charObj.SymbolTable["x"] = (true, () => new IntVariable(cp.MainCharacter.RenderProperties.MapX));
             charObj.SymbolTable["y"] = (true, () => new IntVariable(cp.MainCharacter.RenderProperties.MapY));
+            charObj.SymbolTable["destx"] = (true, () => new IntVariable(cp.MainCharacter.RenderProperties.GetDestinationX()));
+            charObj.SymbolTable["desty"] = (true, () => new IntVariable(cp.MainCharacter.RenderProperties.GetDestinationY()));
             charObj.SymbolTable["direction"] = (true, () => new IntVariable((int)cp.MainCharacter.RenderProperties.Direction));
             charObj.SymbolTable["admin"] = (true, () => new IntVariable((int)cp.MainCharacter.AdminLevel));
             charObj.SymbolTable["inventory"] = (true,
@@ -485,14 +506,17 @@ namespace EOBot.Interpreter
         private IVariable GetMapStateNPC(NPC npc)
         {
             var npcFile = DependencyMaster.TypeRegistry[_botIndex].Resolve<IPubFileProvider>().ENFFile;
+            var npcRecord = npcFile.Single(x => x.ID == npc.ID);
 
             var npcObj = new ObjectVariable();
-            npcObj.SymbolTable[PredefinedIdentifiers.NAME] = Readonly(new StringVariable(npcFile.Single(x => x.ID == npc.ID).Name));
+            npcObj.SymbolTable[PredefinedIdentifiers.NAME] = Readonly(new StringVariable(npcRecord.Name));
             npcObj.SymbolTable["x"] = Readonly(new IntVariable(npc.X));
             npcObj.SymbolTable["y"] = Readonly(new IntVariable(npc.Y));
             npcObj.SymbolTable["id"] = Readonly(new IntVariable(npc.ID));
             npcObj.SymbolTable["direction"] = Readonly(new IntVariable((int)npc.Direction));
             npcObj.SymbolTable["index"] = Readonly(new IntVariable(npc.Index));
+            npcObj.SymbolTable["ismonster"] = Readonly(new BoolVariable(npcRecord.Type == EOLib.IO.NPCType.Passive || npcRecord.Type == EOLib.IO.NPCType.Aggressive));
+            npcObj.SymbolTable["incombat"] = Readonly(new BoolVariable(npc.OpponentID.HasValue));
             return npcObj;
         }
 
@@ -517,6 +541,8 @@ namespace EOBot.Interpreter
             var provider = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICurrentMapProvider>();
 
             mapObj.SymbolTable["id"] = (true, () => new IntVariable(provider.CurrentMap.Properties.MapID));
+            mapObj.SymbolTable["width"] = (true, () => new IntVariable(provider.CurrentMap.Properties.Width));
+            mapObj.SymbolTable["height"] = (true, () => new IntVariable(provider.CurrentMap.Properties.Height));
             mapObj.SymbolTable["warps"] = (true, () => new ArrayVariable(provider.CurrentMap.Warps.SelectMany(GetWarps).ToList()));
 
             return Readonly(mapObj);

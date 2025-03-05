@@ -55,6 +55,7 @@
 
         public const string TICK = "Tick";
         public const string GETPATHTO = "GetPathTo";
+        public const string GETCELLSTATE = "GetCellState";
 
         public const string JOIN_PARTY = "JoinParty";
         public const string CHAT = "Chat";
