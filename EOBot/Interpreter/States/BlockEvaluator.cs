@@ -66,12 +66,12 @@ namespace EOBot.Interpreter.States
             {
                 if (controlToken.Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_CONTINUE))
                 {
-                    input.OperationStack.Pop();
+                    input.OperationStack.Clear();
                 }
                 else if (controlToken.Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_BREAK))
                 {
                     res = true;
-                    input.OperationStack.Pop();
+                    input.OperationStack.Clear();
                 }
             }
 
