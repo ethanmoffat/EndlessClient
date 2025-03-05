@@ -11,6 +11,7 @@ using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.Domain.Spells;
 using EOLib.IO.Repositories;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
 
 namespace EOBot
@@ -171,6 +172,27 @@ namespace EOBot
             public void StartOtherCharacterAttackAnimation(int characterID, int noteIndex) { }
             public void StartOtherCharacterWalkAnimation(int characterID, MapCoordinate destination, EODirection direction) { }
             public void NotifyGroupSpellCast(int playerId, int spellId, int spellHp, List<GroupSpellTarget> spellTargets) { }
+        }
+
+        [AutoMappedType]
+        class MapChangedNotifier : IMapChangedNotifier
+        {
+            private readonly ICurrentMapProvider _mapProvider;
+
+            public MapChangedNotifier(ICurrentMapProvider mapProvider)
+            {
+                _mapProvider = mapProvider;
+            }
+
+            public void NotifyMapChanged(WarpEffect warpEffect, bool differentMapID)
+            {
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, $"Warped to map {_mapProvider.CurrentMap.Properties.MapID}", ConsoleColor.Blue);
+            }
+
+            public void NotifyMapMutation()
+            {
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, "Map mutation detected!", ConsoleColor.Yellow);
+            }
         }
 
         static async Task<int> Main(string[] args)
