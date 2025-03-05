@@ -66,6 +66,8 @@ namespace EOBot.Interpreter
             programState.SymbolTable[PredefinedIdentifiers.UPPER_FUNC] = Readonly(new Function<string, string>(PredefinedIdentifiers.UPPER_FUNC, s => s.ToUpper()));
             programState.SymbolTable[PredefinedIdentifiers.RAND_FUNC] = Readonly(new Function<int, int, int>(PredefinedIdentifiers.RAND_FUNC, (min, max) => min + _random.Next(max) % (max - min)));
             programState.SymbolTable[PredefinedIdentifiers.ABS_FUNC] = Readonly(new Function<int, int>(PredefinedIdentifiers.ABS_FUNC, Math.Abs));
+            programState.SymbolTable[PredefinedIdentifiers.CONTAINS_FUNC] = Readonly(new Function<IVariable, IVariable, bool>(PredefinedIdentifiers.CONTAINS_FUNC, Contains));
+            programState.SymbolTable[PredefinedIdentifiers.PARSE_FUNC] = Readonly(new Function<string, int>(PredefinedIdentifiers.PARSE_FUNC, Parse));
 
             BotDependencySetup();
 
@@ -124,6 +126,21 @@ namespace EOBot.Interpreter
         private static (bool, IIdentifiable) Readonly(IIdentifiable identifiable)
         {
             return (true, identifiable);
+        }
+
+        private static bool Contains(IVariable haystack, IVariable needle)
+        {
+            if (haystack is ArrayVariable av)
+                return av.Value.Contains(needle);
+            if (haystack is DictVariable dv && needle is StringVariable sv)
+                return dv.Value.ContainsKey(sv.Value);
+
+            return haystack.StringValue.Contains(needle.StringValue);
+        }
+
+        private static int Parse(string input)
+        {
+            return int.TryParse(input, out var res) ? res : 0;
         }
 
         private void BotDependencySetup()

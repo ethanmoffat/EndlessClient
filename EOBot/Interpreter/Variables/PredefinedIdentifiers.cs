@@ -39,6 +39,8 @@
         public const string UPPER_FUNC = "upper";
         public const string RAND_FUNC = "rand";
         public const string ABS_FUNC = "abs";
+        public const string CONTAINS_FUNC = "contains";
+        public const string PARSE_FUNC = "parse";
 
         // game functions
         public const string CONNECT_FUNC = "Connect";
