@@ -26,14 +26,17 @@ namespace EOBot
         {
             private readonly ICurrentMapStateRepository _currentMapStateRepository;
             private readonly ICharacterProvider _characterProvider;
+            private readonly IEIFFileProvider _eifFileProvider;
             private readonly IENFFileProvider _enfFileProvider;
 
             public NpcWalkNotifier(ICurrentMapStateRepository currentMapStateRepository,
                                    ICharacterProvider characterProvider,
+                                   IEIFFileProvider eifFileProvider,
                                    IENFFileProvider enfFileProvider)
             {
                 _currentMapStateRepository = currentMapStateRepository;
                 _characterProvider = characterProvider;
+                _eifFileProvider = eifFileProvider;
                 _enfFileProvider = enfFileProvider;
             }
 
@@ -80,6 +83,8 @@ namespace EOBot
 
             public void NPCDropItem(MapItem item)
             {
+                var itemData = _eifFileProvider.EIFFile[item.ItemID];
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Drop, $"NPC dropped {itemData.Name}x{item.Amount}", ConsoleColor.Magenta);
             }
         }
 
