@@ -30,7 +30,14 @@ namespace EOBot.Interpreter.States
             if (input.OperationStack.Count == 0)
                 return StackEmptyError(input.Current());
 
-            return Success(input.OperationStack.Pop());
+            var retToken = input.OperationStack.Pop();
+            if (retToken is VariableBotToken vbt)
+            {
+                var boolValue = CoerceToBool(vbt.VariableValue);
+                retToken = new VariableBotToken(BotTokenType.Literal, boolValue.StringValue, boolValue);
+            }
+
+            return Success(retToken);
         }
 
         protected async Task<(EvalResult, string, BotToken)> EvaluateBlockAsync(ProgramState input, CancellationToken ct)

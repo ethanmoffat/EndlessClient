@@ -86,7 +86,7 @@ namespace EOBot.Interpreter
             // game flow
             programState.SymbolTable[PredefinedIdentifiers.TICK] = Readonly(new AsyncVoidFunction(PredefinedIdentifiers.TICK, ct => Tick()));
             programState.SymbolTable[PredefinedIdentifiers.GETPATHTO] = Readonly(new Function<int, int, List<IVariable>>(PredefinedIdentifiers.GETPATHTO, GetPathTo));
-            programState.SymbolTable[PredefinedIdentifiers.GETCELLSTATE] = Readonly(new Function<int, int, IVariable>(PredefinedIdentifiers.GETCELLSTATE, GetCellState));
+            programState.SymbolTable[PredefinedIdentifiers.GETCELLSTATE] = Readonly(new Function<int, int, ObjectVariable>(PredefinedIdentifiers.GETCELLSTATE, GetCellState));
 
             // in-game stuff
             programState.SymbolTable[PredefinedIdentifiers.JOIN_PARTY] = Readonly(new VoidFunction<int>(PredefinedIdentifiers.JOIN_PARTY, JoinParty));
@@ -270,7 +270,7 @@ namespace EOBot.Interpreter
             ).ToList();
         }
 
-        private IVariable GetCellState(int x, int y)
+        private ObjectVariable GetCellState(int x, int y)
         {
             var csp = DependencyMaster.TypeRegistry[_botIndex].Resolve<IMapCellStateProvider>();
             var cs = csp.GetCellStateAt(x, y);

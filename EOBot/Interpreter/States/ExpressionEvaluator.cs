@@ -237,18 +237,6 @@ namespace EOBot.Interpreter.States
             return (new BoolVariable(!boolOperand.Value), string.Empty);
         }
 
-        private static BoolVariable CoerceToBool(IVariable variable)
-        {
-            if (variable is BoolVariable boolVar)
-                return boolVar;
-            else if (variable is IntVariable intVar)
-                return new BoolVariable(intVar.Value != 0);
-            else if (variable is StringVariable stringVar)
-                return new BoolVariable(!string.IsNullOrEmpty(stringVar.Value));
-            else
-                return null;
-        }
-
         private static (IVariable, string) LogicalAnd(IVariable a, IVariable b)
         {
             var aVal = CoerceToBool(a);
