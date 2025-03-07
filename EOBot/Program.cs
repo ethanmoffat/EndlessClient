@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AutomaticTypeMapper;
 using EOBot.Interpreter;
@@ -10,27 +11,32 @@ using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.Domain.Spells;
 using EOLib.IO.Repositories;
+using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
 using Optional;
 
 namespace EOBot
 {
     static class Program
     {
-        private static BotFramework f;
+        private static CancellationTokenSource _cts = new();
+        private static BotFramework _botFramework;
 
         [AutoMappedType]
         class NpcWalkNotifier : INPCActionNotifier
         {
             private readonly ICurrentMapStateRepository _currentMapStateRepository;
             private readonly ICharacterProvider _characterProvider;
+            private readonly IEIFFileProvider _eifFileProvider;
             private readonly IENFFileProvider _enfFileProvider;
 
             public NpcWalkNotifier(ICurrentMapStateRepository currentMapStateRepository,
                                    ICharacterProvider characterProvider,
+                                   IEIFFileProvider eifFileProvider,
                                    IENFFileProvider enfFileProvider)
             {
                 _currentMapStateRepository = currentMapStateRepository;
                 _characterProvider = characterProvider;
+                _eifFileProvider = eifFileProvider;
                 _enfFileProvider = enfFileProvider;
             }
 
@@ -77,6 +83,8 @@ namespace EOBot
 
             public void NPCDropItem(MapItem item)
             {
+                var itemData = _eifFileProvider.EIFFile[item.ItemID];
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Drop, $"NPC dropped {itemData.Name}x{item.Amount}", ConsoleColor.Magenta);
             }
         }
 
@@ -171,6 +179,27 @@ namespace EOBot
             public void NotifyGroupSpellCast(int playerId, int spellId, int spellHp, List<GroupSpellTarget> spellTargets) { }
         }
 
+        [AutoMappedType]
+        class MapChangedNotifier : IMapChangedNotifier
+        {
+            private readonly ICurrentMapProvider _mapProvider;
+
+            public MapChangedNotifier(ICurrentMapProvider mapProvider)
+            {
+                _mapProvider = mapProvider;
+            }
+
+            public void NotifyMapChanged(WarpEffect warpEffect, bool differentMapID)
+            {
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, $"Warped to map {_mapProvider.CurrentMap.Properties.MapID}", ConsoleColor.Blue);
+            }
+
+            public void NotifyMapMutation()
+            {
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, "Map mutation detected!", ConsoleColor.Yellow);
+            }
+        }
+
         static async Task<int> Main(string[] args)
         {
             var assemblyNames = new[]
@@ -215,11 +244,10 @@ namespace EOBot
 
             try
             {
-                using (f = new BotFramework(parsedArgs))
-                {
-                    await f.InitializeAsync(botFactory, parsedArgs.InitDelay).ConfigureAwait(false);
-                    await f.RunAsync().ConfigureAwait(false);
-                }
+                _botFramework = new BotFramework(parsedArgs);
+
+                await _botFramework.InitializeAsync(botFactory, parsedArgs.InitDelay, _cts.Token).ConfigureAwait(false);
+                await _botFramework.RunAsync(_cts.Token).ConfigureAwait(false);
 
                 Console.WriteLine();
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, "All bots completed.");
@@ -241,15 +269,21 @@ namespace EOBot
                     ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, ie.Message, ConsoleColor.DarkRed);
 
                 var otherExceptions = ae.InnerExceptions.Except(botExceptions);
-                foreach (var ie in otherExceptions)
-                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Unhandled error: {ie.Message}\nStack Trace:\n{ie.StackTrace}", ConsoleColor.DarkRed);
+                var aggregateChildren = ae.InnerExceptions.OfType<AggregateException>().SelectMany(x => x.InnerExceptions);
+                foreach (var ie in otherExceptions.Concat(aggregateChildren))
+                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Unhandled error ({ie.GetType().Name}): {ie.Message}\nStack Trace:\n{ie.StackTrace}", ConsoleColor.DarkRed);
 
                 return 1;
             }
             catch (Exception ex)
             {
-                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Unhandled error: {ex.Message}\nStack Trace:\n{ex.StackTrace}", ConsoleColor.DarkRed);
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Unhandled error ({ex.GetType().Name}): {ex.Message}\nStack Trace:\n{ex.StackTrace}", ConsoleColor.DarkRed);
                 return 1;
+            }
+            finally
+            {
+                _botFramework?.Dispose();
+                _cts?.Dispose();
             }
 
             return 0;
@@ -257,10 +291,11 @@ namespace EOBot
 
         static void HandleCtrlC(object sender, ConsoleCancelEventArgs e)
         {
+            e.Cancel = true;
+
             var name = Enum.GetName(e.SpecialKey.GetType(), e.SpecialKey);
             ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, $"Exiting due to {name} event from system");
-
-            f?.TerminateBots();
+            _cts.Cancel();
         }
 
         static void ShowError(ArgumentsParser args)

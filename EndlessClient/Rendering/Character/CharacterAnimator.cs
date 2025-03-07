@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using EndlessClient.GameExecution;
-using EndlessClient.HUD;
 using EndlessClient.HUD.Spells;
 using EndlessClient.Rendering.Metadata;
 using EndlessClient.Rendering.Metadata.Models;
@@ -12,6 +11,7 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
+using EOLib.Domain.Pathing;
 using EOLib.Domain.Spells;
 using EOLib.IO.Map;
 using EOLib.IO.Pub;
@@ -106,10 +106,6 @@ namespace EndlessClient.Rendering.Character
                 _queuedDirections[_characterRepository.MainCharacter.ID] = direction;
                 return;
             }
-
-            var renderProperties = _characterRepository.MainCharacter.RenderProperties.WithDirection(direction);
-            var newMainCharacter = _characterRepository.MainCharacter.WithRenderProperties(renderProperties);
-            _characterRepository.MainCharacter = newMainCharacter;
 
             _characterActions.Face(direction);
         }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using EOBot.Interpreter.Extensions;
 
@@ -9,21 +10,21 @@ namespace EOBot.Interpreter.States
         public StatementEvaluator(IEnumerable<IScriptEvaluator> evaluators)
             : base(evaluators) { }
 
-        public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input)
+        public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input, CancellationToken ct)
         {
             while (input.Current().TokenType == BotTokenType.NewLine)
                 input.Expect(BotTokenType.NewLine);
 
-            var (result, reason, token) = await Evaluator<AssignmentEvaluator>().EvaluateAsync(input);
+            var (result, reason, token) = await Evaluator<AssignmentEvaluator>().EvaluateAsync(input, ct);
             if (result == EvalResult.NotMatch)
             {
-                (result, reason, token) = await Evaluator<KeywordEvaluator>().EvaluateAsync(input);
+                (result, reason, token) = await Evaluator<KeywordEvaluator>().EvaluateAsync(input, ct);
                 if (result == EvalResult.NotMatch)
                 {
-                    (result, reason, token) = await Evaluator<LabelEvaluator>().EvaluateAsync(input);
+                    (result, reason, token) = await Evaluator<LabelEvaluator>().EvaluateAsync(input, ct);
                     if (result == EvalResult.NotMatch)
                     {
-                        (result, reason, token) = await Evaluator<FunctionEvaluator>().EvaluateAsync(input);
+                        (result, reason, token) = await Evaluator<FunctionEvaluator>().EvaluateAsync(input, ct);
                     }
                 }
             }

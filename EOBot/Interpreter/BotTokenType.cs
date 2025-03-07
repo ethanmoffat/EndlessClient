@@ -26,8 +26,12 @@
         MinusOperator,
         MultiplyOperator,
         DivideOperator,
+        ModuloOperator,
         NotOperator,
+        LogicalAndOperator,
+        LogicalOrOperator,
         Dot,
+        Semicolon,
         NewLine,
         Error,
     }

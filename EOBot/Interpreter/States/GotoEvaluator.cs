@@ -1,15 +1,17 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using EOBot.Interpreter.Extensions;
 
 namespace EOBot.Interpreter.States
 {
     public class GotoEvaluator : BaseEvaluator
     {
-        public override Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input)
+        public override Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input, CancellationToken ct)
         {
-            // ensure we have the right keyword before advancing the program
-            var current = input.Current();
-            if (current.TokenType != BotTokenType.Keyword || current.TokenValue != "goto")
+            if (ct.IsCancellationRequested)
+                return Task.FromResult((EvalResult.Cancelled, string.Empty, (BotToken)null));
+
+            if (!input.Current().Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_GOTO))
                 return Task.FromResult((EvalResult.NotMatch, string.Empty, input.Current()));
 
             input.Expect(BotTokenType.Keyword);

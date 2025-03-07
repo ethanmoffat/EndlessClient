@@ -13,6 +13,14 @@
         /// <summary>
         /// The evaluator was not a match for the program's current execution point
         /// </summary>
-        NotMatch
+        NotMatch,
+        /// <summary>
+        /// The operation was cancelled by the user
+        /// </summary>
+        Cancelled,
+        /// <summary>
+        /// The result is a control flow operation that should be handled at a higher level of the evaluation stack
+        /// </summary>
+        ControlFlow
     }
 }

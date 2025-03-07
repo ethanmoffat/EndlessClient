@@ -34,6 +34,10 @@ namespace EOLib.Domain.Character
 
         public void Face(EODirection direction)
         {
+            var renderProperties = _characterRepository.MainCharacter.RenderProperties.WithDirection(direction);
+            var newMainCharacter = _characterRepository.MainCharacter.WithRenderProperties(renderProperties);
+            _characterRepository.MainCharacter = newMainCharacter;
+
             var packet = new FacePlayerClientPacket { Direction = (Direction)direction };
             _packetSendService.SendPacket(packet);
         }

@@ -14,7 +14,7 @@ namespace EOBot
         /// <summary>
         /// Initialization logic for the bot instance. Called automatically by the framework.
         /// </summary>
-        Task InitializeAsync(string host, int port);
+        Task InitializeAsync(string host, int port, CancellationToken cancellationToken);
 
         /// <summary>
         /// Run logic for the bot instance. Called automatically by the framework.

@@ -6,19 +6,37 @@ namespace EOBot.Interpreter
 {
     public sealed class BotTokenParser : IDisposable
     {
-        private static readonly HashSet<string> Keywords = new HashSet<string>
-        {
-            "if",
-            "while",
-            "goto",
-            "else",
-        };
+        public const string KEYWORD_IF = "if";
+        public const string KEYWORD_WHILE = "while";
+        public const string KEYWORD_GOTO = "goto";
+        public const string KEYWORD_ELSE = "else";
+        public const string KEYWORD_FOR = "for";
+        public const string KEYWORD_FOREACH = "foreach";
+        public const string KEYWORD_IN = "in";
+        public const string KEYWORD_CONTINUE = "continue";
+        public const string KEYWORD_BREAK = "break";
+        //public const string KEYWORD_FUNCTION = "function";
+        //public const string KEYWORD_RETURN = "return";
 
-        private static readonly HashSet<string> Literals = new HashSet<string>
-        {
-            "true",
-            "false"
-        };
+        public const string KEYWORD_TRUE = "true";
+        public const string KEYWORD_FALSE = "false";
+
+        private static readonly HashSet<string> Keywords =
+        [
+            KEYWORD_IF,
+            KEYWORD_WHILE,
+            KEYWORD_GOTO,
+            KEYWORD_ELSE,
+            KEYWORD_FOR,
+            KEYWORD_FOREACH,
+            KEYWORD_IN,
+            KEYWORD_CONTINUE,
+            KEYWORD_BREAK,
+            //KEYWORD_FUNCTION,
+            //KEYWORD_RETURN
+        ];
+
+        private static readonly HashSet<string> Literals = [KEYWORD_TRUE, KEYWORD_FALSE];
 
         private readonly StreamReader _inputStream;
         private readonly bool _streamNeedsDispose;
@@ -197,11 +215,55 @@ namespace EOBot.Interpreter
 
                             return Token(BotTokenType.Variable, variable);
                         }
+                    case '|':
+                        {
+                            if (_inputStream.EndOfStream)
+                                return Token(BotTokenType.Error, inputChar.ToString());
+
+                            switch (Peek())
+                            {
+                                case '|':
+                                    var nextChar = Read();
+                                    return Token(BotTokenType.LogicalOrOperator, inputChar.ToString() + nextChar);
+                                default:
+                                    return Token(BotTokenType.Error, inputChar.ToString());
+                            }
+                        }
+                    case '&':
+                        {
+                            if (_inputStream.EndOfStream)
+                                return Token(BotTokenType.Error, inputChar.ToString());
+
+                            switch (Peek())
+                            {
+                                case '&':
+                                    var nextChar = Read();
+                                    return Token(BotTokenType.LogicalAndOperator, inputChar.ToString() + nextChar);
+                                default:
+                                    return Token(BotTokenType.Error, inputChar.ToString());
+                            }
+                        }
                     case '+': return Token(BotTokenType.PlusOperator, inputChar.ToString());
-                    case '-': return Token(BotTokenType.MinusOperator, inputChar.ToString());
+                    case '-':
+                        {
+                            var number = string.Empty;
+                            while (char.IsDigit(Peek()) && !_inputStream.EndOfStream)
+                                number += Read();
+
+                            if (number.Length > 0)
+                            {
+                                return Token(BotTokenType.Literal, $"{inputChar}{number}");
+                            }
+                            else
+                            {
+                                return Token(BotTokenType.MinusOperator, inputChar.ToString());
+                            }
+                        }
                     case '*': return Token(BotTokenType.MultiplyOperator, inputChar.ToString());
                     case '/': return Token(BotTokenType.DivideOperator, inputChar.ToString());
+                    case '%': return Token(BotTokenType.ModuloOperator, inputChar.ToString());
                     case '.': return Token(BotTokenType.Dot, inputChar.ToString());
+                    case ';': return Token(BotTokenType.Semicolon, inputChar.ToString());
                     default: return Token(BotTokenType.Error, inputChar.ToString());
                 }
             }

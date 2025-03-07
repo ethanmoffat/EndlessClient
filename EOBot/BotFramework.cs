@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,23 +10,19 @@ namespace EOBot
     {
         public const int NUM_BOTS_MAX = 25;
 
-        private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly List<IBot> _botsList;
         private readonly string _host;
         private readonly ushort _port;
         private readonly int _initRetryAttempts;
+        private readonly Semaphore _doneSignal;
 
-        private Semaphore _doneSignal;
         private bool _initialized;
         private int _numBots;
-        private bool _terminating;
 
         public BotFramework(ArgumentsParser parsedArgs)
         {
             if (parsedArgs == null)
                 throw new ArgumentNullException(nameof(parsedArgs));
-
-            _cancellationTokenSource = new CancellationTokenSource();
 
             var numberOfBots = parsedArgs.NumBots;
             var simultaneousBots = parsedArgs.SimultaneousBots;
@@ -46,7 +43,7 @@ namespace EOBot
             _doneSignal = new Semaphore(simultaneousBots, simultaneousBots);
         }
 
-        public async Task InitializeAsync(IBotFactory botFactory, int delayBetweenInitsMS = 1100)
+        public async Task InitializeAsync(IBotFactory botFactory, int delayBetweenInitsMS, CancellationToken cancellationToken)
         {
             if (_initialized)
                 throw new InvalidOperationException("Unable to initialize bot framework a second time.");
@@ -54,7 +51,7 @@ namespace EOBot
             int numFailed = 0;
             for (int i = 0; i < _numBots; i++)
             {
-                if (_terminating)
+                if (cancellationToken.IsCancellationRequested)
                     throw new BotException("Received termination signal; initialization has been cancelled");
 
                 for (int attempt = 1; attempt <= _initRetryAttempts; attempt++)
@@ -64,11 +61,11 @@ namespace EOBot
                     {
                         var bot = botFactory.CreateBot(i);
                         bot.WorkCompleted += () => _doneSignal.Release();
-                        await bot.InitializeAsync(_host, _port).ConfigureAwait(false);
+                        await bot.InitializeAsync(_host, _port, cancellationToken).ConfigureAwait(false);
                         _botsList.Add(bot);
 
                         ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, $"Bot {i} initialized.");
-                        await Task.Delay(delayBetweenInitsMS).ConfigureAwait(false); // minimum for this is 1sec server-side
+                        await Task.Delay(delayBetweenInitsMS, cancellationToken).ConfigureAwait(false); // minimum for this is 1sec server-side
 
                         break;
                     }
@@ -85,7 +82,7 @@ namespace EOBot
                         {
                             var retryDelayTime = TimeSpan.FromMilliseconds(delayBetweenInitsMS + (1000 * attempt * attempt));
                             ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"Bot {i} failed to initialize. Retrying in {retryDelayTime.TotalMilliseconds}ms...", ConsoleColor.DarkYellow);
-                            await Task.Delay(retryDelayTime).ConfigureAwait(false);
+                            await Task.Delay(retryDelayTime, cancellationToken).ConfigureAwait(false);
                         }
                     }
                 }
@@ -104,21 +101,14 @@ namespace EOBot
             _initialized = true;
         }
 
-        public async Task RunAsync()
+        public async Task RunAsync(CancellationToken cancellationToken)
         {
             if (!_initialized)
                 throw new InvalidOperationException("Must call Initialize() before running!");
 
-            var botTasks = new List<Task>();
-
             ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, "Bot framework run has started.\n");
-            for (int i = 0; i < _numBots; ++i)
-            {
-                _doneSignal.WaitOne();
-                //acquire mutex for bot
-                //semaphore limits number of concurrently running bots based on cmd-line param
-                botTasks.Add(_botsList[i].RunAsync(_cancellationTokenSource.Token));
-            }
+
+            var botTasks = _botsList.Select(x => RunBot(x, cancellationToken));
 
             // this is done to force handling of exceptions as an Aggregate exception so errors from multiple bots are shown properly
             // otherwise, only the first exception from the first faulting task will be thrown
@@ -135,18 +125,18 @@ namespace EOBot
             }
         }
 
-        public void TerminateBots()
+        private async Task RunBot(IBot bot, CancellationToken cancellationToken)
         {
-            _terminating = true;
-            if (!_initialized) return;
+            //acquire mutex for bot
+            //semaphore limits number of concurrently running bots based on cmd-line param
+            _doneSignal.WaitOne();
 
-            _cancellationTokenSource.Cancel();
+            await bot.RunAsync(cancellationToken).ConfigureAwait(false);
         }
 
         public void Dispose()
         {
             _doneSignal?.Dispose();
-            _cancellationTokenSource?.Dispose();
         }
     }
 }

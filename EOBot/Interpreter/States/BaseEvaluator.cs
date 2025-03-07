@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using EOBot.Interpreter.Variables;
 
 namespace EOBot.Interpreter.States
 {
@@ -15,7 +17,7 @@ namespace EOBot.Interpreter.States
             _evaluators = evaluators;
         }
 
-        public abstract Task<(EvalResult Result, string Reason, BotToken Token)> EvaluateAsync(ProgramState input);
+        public abstract Task<(EvalResult Result, string Reason, BotToken Token)> EvaluateAsync(ProgramState input, CancellationToken ct);
 
         protected IScriptEvaluator Evaluator<T>() where T : IScriptEvaluator
         {
@@ -79,6 +81,22 @@ namespace EOBot.Interpreter.States
         protected (EvalResult, string, BotToken) GotoError(BotToken token)
         {
             return (EvalResult.Failed, $"Failed to goto label {token.TokenValue}", token);
+        }
+
+        protected static BoolVariable CoerceToBool(IVariable variable)
+        {
+            if (variable is BoolVariable boolVar)
+                return boolVar;
+            else if (variable is IntVariable intVar)
+                return new BoolVariable(intVar.Value != 0);
+            else if (variable is StringVariable stringVar)
+                return new BoolVariable(!string.IsNullOrEmpty(stringVar.Value));
+            else if (variable is ObjectVariable)
+                return new BoolVariable(true);
+            else if (variable is UndefinedVariable)
+                return new BoolVariable(false);
+            else
+                return null;
         }
     }
 }

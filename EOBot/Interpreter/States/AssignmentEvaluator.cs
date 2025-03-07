@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using EOBot.Interpreter.Extensions;
 using EOBot.Interpreter.Variables;
@@ -11,16 +12,19 @@ namespace EOBot.Interpreter.States
         public AssignmentEvaluator(IEnumerable<IScriptEvaluator> evaluators)
             : base(evaluators) { }
 
-        public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input)
+        public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input, CancellationToken ct)
         {
-            var eval = await Evaluator<VariableEvaluator>().EvaluateAsync(input);
+            if (ct.IsCancellationRequested)
+                return (EvalResult.Cancelled, string.Empty, null);
+
+            var eval = await Evaluator<VariableEvaluator>().EvaluateAsync(input, ct);
             if (eval.Result != EvalResult.Ok)
                 return eval;
 
             if (!input.Match(BotTokenType.AssignOperator))
                 return Error(input.Current(), BotTokenType.AssignOperator);
 
-            eval = await Evaluator<ExpressionEvaluator>().EvaluateAsync(input);
+            eval = await Evaluator<ExpressionEvaluator>().EvaluateAsync(input, ct);
             if (eval.Result != EvalResult.Ok)
                 return eval;
 
@@ -48,10 +52,10 @@ namespace EOBot.Interpreter.States
                 if (!symbols.ContainsKey(assignmentTarget.TokenValue))
                     return IdentifierNotFoundError(assignmentTarget);
 
-                var getVariableRes = symbols.GetVariable<ObjectVariable>(assignmentTarget.TokenValue, assignmentTarget.ArrayIndex);
+                var getVariableRes = symbols.GetVariable<ObjectVariable>(assignmentTarget.TokenValue, assignmentTarget.ArrayIndex, assignmentTarget.DictKey);
                 if (getVariableRes.Result != EvalResult.Ok)
                 {
-                    var getRuntimeEvaluatedVariableRes = symbols.GetVariable<RuntimeEvaluatedMemberObjectVariable>(assignmentTarget.TokenValue, assignmentTarget.ArrayIndex);
+                    var getRuntimeEvaluatedVariableRes = symbols.GetVariable<RuntimeEvaluatedMemberObjectVariable>(assignmentTarget.TokenValue, assignmentTarget.ArrayIndex, assignmentTarget.DictKey);
                     if (getRuntimeEvaluatedVariableRes.Result != EvalResult.Ok)
                         return (EvalResult.Failed, $"Identifier '{assignmentTarget.TokenValue}' is not an object", assignmentTarget);
 
@@ -78,6 +82,18 @@ namespace EOBot.Interpreter.States
 
                 var targetArray = getVariableResult.Variable;
                 targetArray.Value[assignmentTarget.ArrayIndex.Value] = expressionResult.VariableValue;
+            }
+            else if (assignmentTarget.DictKey != null)
+            {
+                if (!symbols.ContainsKey(assignmentTarget.TokenValue))
+                    return IdentifierNotFoundError(assignmentTarget);
+
+                var getVariableResult = symbols.GetVariable<DictVariable>(assignmentTarget.TokenValue);
+                if (getVariableResult.Result != EvalResult.Ok)
+                    return (getVariableResult.Result, getVariableResult.Reason, assignmentTarget);
+
+                var targetDict = getVariableResult.Variable;
+                targetDict.Value[assignmentTarget.DictKey] = expressionResult.VariableValue;
             }
             else
             {

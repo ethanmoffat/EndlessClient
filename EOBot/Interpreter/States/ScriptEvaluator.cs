@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using EOBot.Interpreter.Extensions;
 
@@ -9,9 +10,12 @@ namespace EOBot.Interpreter.States
         public ScriptEvaluator(IEnumerable<IScriptEvaluator> evaluators)
             : base(evaluators) { }
 
-        public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input)
+        public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input, CancellationToken ct)
         {
-            var evalResult = await Evaluator<StatementListEvaluator>().EvaluateAsync(input);
+            if (ct.IsCancellationRequested)
+                return (EvalResult.Cancelled, string.Empty, null);
+
+            var evalResult = await Evaluator<StatementListEvaluator>().EvaluateAsync(input, ct);
             if (evalResult.Result != EvalResult.Ok)
                 return evalResult;
 

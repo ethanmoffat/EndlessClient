@@ -28,7 +28,7 @@ namespace EOBot
         }
 
         //all bots are going to want to do the init handshake with the server
-        public virtual async Task InitializeAsync(string host, int port)
+        public virtual async Task InitializeAsync(string host, int port, CancellationToken cancellationToken)
         {
             var c = DependencyMaster.TypeRegistry[_index];
 

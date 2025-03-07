@@ -44,6 +44,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Editor", "Editor", "{D9B4D0
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EOBot.Test", "EOBot.Test\EOBot.Test.csproj", "{4B340723-B51B-4A4B-9D14-190046892CE7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -110,6 +112,10 @@ Global
 		{A71336EE-BAD7-4C90-87ED-A0B3A7A79EDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A71336EE-BAD7-4C90-87ED-A0B3A7A79EDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A71336EE-BAD7-4C90-87ED-A0B3A7A79EDA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B340723-B51B-4A4B-9D14-190046892CE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B340723-B51B-4A4B-9D14-190046892CE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B340723-B51B-4A4B-9D14-190046892CE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B340723-B51B-4A4B-9D14-190046892CE7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -129,6 +135,7 @@ Global
 		{09B4B9F7-64AF-4E6A-AAE1-52C41201179A} = {795A3BFF-4306-456D-86AB-6A680A2B7C0B}
 		{1061D316-7F0B-4BD5-9821-A8FF7DE32F6E} = {795A3BFF-4306-456D-86AB-6A680A2B7C0B}
 		{A71336EE-BAD7-4C90-87ED-A0B3A7A79EDA} = {9C490FC1-F83A-43E0-9FFE-2F2588669195}
+		{4B340723-B51B-4A4B-9D14-190046892CE7} = {7AD5F989-D76C-472E-90C7-66CCC2B8533C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CED36352-F489-4071-A4F8-51FC08795DC7}

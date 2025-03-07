@@ -5,7 +5,7 @@ using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 
-namespace EndlessClient.HUD
+namespace EOLib.Domain.Pathing
 {
     // Implemented from https://en.wikipedia.org/wiki/A*_search_algorithm#Pseudocode
     [AutoMappedType]
@@ -20,6 +20,9 @@ namespace EndlessClient.HUD
 
         public Queue<MapCoordinate> FindPath(MapCoordinate start, MapCoordinate finish)
         {
+            if (start == finish)
+                return new Queue<MapCoordinate>();
+
             var openSet = new HashSet<MapCoordinate>(new[] { start });
             var cameFrom = new Dictionary<MapCoordinate, MapCoordinate>();
 
@@ -35,7 +38,7 @@ namespace EndlessClient.HUD
 
             while (openSet.Any())
             {
-                MapCoordinate current = new MapCoordinate(0, 0);
+                var current = new MapCoordinate(0, 0);
                 var lowest = int.MaxValue;
                 foreach (var n in openSet)
                 {
