@@ -18,7 +18,10 @@ namespace EOBot.Interpreter.Extensions
 
         public static bool IsUnary(this BotToken token)
         {
-            return token != null && token.Is(BotTokenType.NotOperator);
+            return token != null && token.IsOneOf(
+                BotTokenType.NotOperator,
+                BotTokenType.Increment, BotTokenType.Decrement
+            );
         }
 
         public static bool IsBinary(this BotToken token)

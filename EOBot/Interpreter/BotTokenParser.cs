@@ -243,9 +243,21 @@ namespace EOBot.Interpreter
                                     return Token(BotTokenType.Error, inputChar.ToString());
                             }
                         }
-                    case '+': return Token(BotTokenType.PlusOperator, inputChar.ToString());
+                    case '+':
+                        if (_inputStream.EndOfStream)
+                            return Token(BotTokenType.PlusOperator, inputChar.ToString());
+
+                        return Peek() switch
+                        {
+                            '+' => Token(BotTokenType.Increment, $"{inputChar}{Read()}"),
+                            '=' => Token(BotTokenType.PlusEquals, $"{inputChar}{Read()}"),
+                            _ => Token(BotTokenType.PlusOperator, inputChar.ToString()),
+                        };
                     case '-':
                         {
+                            if (_inputStream.EndOfStream)
+                                return Token(BotTokenType.MinusOperator, inputChar.ToString());
+
                             var number = string.Empty;
                             while (char.IsDigit(Peek()) && !_inputStream.EndOfStream)
                                 number += Read();
@@ -254,13 +266,32 @@ namespace EOBot.Interpreter
                             {
                                 return Token(BotTokenType.Literal, $"{inputChar}{number}");
                             }
-                            else
+
+                            return Peek() switch
                             {
-                                return Token(BotTokenType.MinusOperator, inputChar.ToString());
-                            }
+                                '-' => Token(BotTokenType.Decrement, $"{inputChar}{Read()}"),
+                                '=' => Token(BotTokenType.MinusEquals, $"{inputChar}{Read()}"),
+                                _ => Token(BotTokenType.MinusOperator, inputChar.ToString()),
+                            };
                         }
-                    case '*': return Token(BotTokenType.MultiplyOperator, inputChar.ToString());
-                    case '/': return Token(BotTokenType.DivideOperator, inputChar.ToString());
+                    case '*':
+                        if (_inputStream.EndOfStream)
+                            return Token(BotTokenType.MultiplyOperator, inputChar.ToString());
+
+                        return Peek() switch
+                        {
+                            '=' => Token(BotTokenType.MultiplyEquals, $"{inputChar}{Read()}"),
+                            _ => Token(BotTokenType.MultiplyOperator, inputChar.ToString()),
+                        };
+                    case '/':
+                        if (_inputStream.EndOfStream)
+                            return Token(BotTokenType.DivideOperator, inputChar.ToString());
+
+                        return Peek() switch
+                        {
+                            '=' => Token(BotTokenType.DivideEquals, $"{inputChar}{Read()}"),
+                            _ => Token(BotTokenType.DivideOperator, inputChar.ToString()),
+                        };
                     case '%': return Token(BotTokenType.ModuloOperator, inputChar.ToString());
                     case '.': return Token(BotTokenType.Dot, inputChar.ToString());
                     case ';': return Token(BotTokenType.Semicolon, inputChar.ToString());

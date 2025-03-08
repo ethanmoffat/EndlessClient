@@ -517,6 +517,7 @@ namespace EOBot.Interpreter
             npcObj.SymbolTable["index"] = Readonly(new IntVariable(npc.Index));
             npcObj.SymbolTable["ismonster"] = Readonly(new BoolVariable(npcRecord.Type == EOLib.IO.NPCType.Passive || npcRecord.Type == EOLib.IO.NPCType.Aggressive));
             npcObj.SymbolTable["incombat"] = Readonly(new BoolVariable(npc.OpponentID.HasValue));
+            npcObj.SymbolTable["opponent"] = Readonly(npc.OpponentID.Match<IVariable>(x => new IntVariable(x), () => UndefinedVariable.Instance));
             return npcObj;
         }
 

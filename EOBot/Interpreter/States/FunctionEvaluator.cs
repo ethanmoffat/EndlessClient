@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using EOBot.Interpreter.Extensions;
 using EOBot.Interpreter.Variables;
+using Microsoft.CSharp.RuntimeBinder;
 
 namespace EOBot.Interpreter.States
 {
@@ -21,6 +23,8 @@ namespace EOBot.Interpreter.States
             if (!input.MatchPair(BotTokenType.Identifier, BotTokenType.LParen))
                 return (EvalResult.NotMatch, string.Empty, input.Current());
 
+            var parameterExpressions = new List<string>();
+
             var firstParam = true;
             while (!input.Match(BotTokenType.RParen))
             {
@@ -30,9 +34,14 @@ namespace EOBot.Interpreter.States
                 if (!firstParam && !input.Expect(BotTokenType.Comma))
                     return Error(input.Current(), BotTokenType.Comma);
 
+                var expressionStartIndex = input.ExecutionIndex;
+
                 var parameterExpression = await Evaluator<ExpressionEvaluator>().EvaluateAsync(input, ct);
                 if (parameterExpression.Result != EvalResult.Ok)
                     return parameterExpression;
+
+                var instructionsForParameter = input.Program.Skip(expressionStartIndex).Take(input.ExecutionIndex - expressionStartIndex).Select(x => x.TokenValue).ToArray();
+                parameterExpressions.Insert(0, string.Join(" ", instructionsForParameter));
 
                 firstParam = false;
             }
@@ -47,6 +56,12 @@ namespace EOBot.Interpreter.States
             while (input.OperationStack.Count > 0 && input.OperationStack.Peek().TokenType != BotTokenType.LParen)
             {
                 var parameter = (VariableBotToken)input.OperationStack.Pop();
+
+                if (parameter.VariableValue is UndefinedVariable)
+                {
+                    return (EvalResult.Failed, $"Function parameter is undefined: {parameterExpressions[parameters.Count]}", rParen);
+                }
+
                 parameters.Insert(0, parameter);
             }
 
