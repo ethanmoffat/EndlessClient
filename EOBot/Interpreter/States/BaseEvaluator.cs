@@ -24,12 +24,12 @@ namespace EOBot.Interpreter.States
             return _evaluators.OfType<T>().Single();
         }
 
-        protected (EvalResult, string, BotToken) Success(BotToken token = null)
+        protected static (EvalResult, string, BotToken) Success(BotToken token = null)
         {
             return (EvalResult.Ok, string.Empty, token);
         }
 
-        protected (EvalResult, string, BotToken) Error(BotToken current, params BotTokenType[] expectedTypes)
+        protected static (EvalResult, string, BotToken) Error(BotToken current, params BotTokenType[] expectedTypes)
         {
             var extra = string.IsNullOrWhiteSpace(current.TokenValue)
                 ? string.Empty
@@ -43,7 +43,7 @@ namespace EOBot.Interpreter.States
                 return (EvalResult.Failed, $"Expected one of [{string.Join(", ", expectedTypes)}], got {current.TokenType}{extra}", current);
         }
 
-        protected (EvalResult, string, BotToken) UnexpectedTokenError(BotToken current, params BotTokenType[] unexpectedTypes)
+        protected static (EvalResult, string, BotToken) UnexpectedTokenError(BotToken current, params BotTokenType[] unexpectedTypes)
         {
             if (unexpectedTypes.Length == 0)
                 return (EvalResult.Failed, string.Empty, current);
@@ -53,32 +53,32 @@ namespace EOBot.Interpreter.States
                 return (EvalResult.Failed, $"One of {string.Join(",", unexpectedTypes)} was unexpected", current);
         }
 
-        protected (EvalResult, string, BotToken) StackEmptyError(BotToken current)
+        protected static (EvalResult, string, BotToken) StackEmptyError(BotToken current)
         {
             return (EvalResult.Failed, $"Expected operation stack to have operands, but it was empty", current);
         }
 
-        protected (EvalResult, string, BotToken) UnsupportedOperatorError(BotToken actualToken)
+        protected static (EvalResult, string, BotToken) UnsupportedOperatorError(BotToken actualToken)
         {
             return (EvalResult.Failed, $"Unsupported operator evaluating expression: {actualToken.TokenType}", actualToken);
         }
 
-        protected (EvalResult, string, BotToken) StackTokenError(BotTokenType expectedTokenType, BotToken actualToken)
+        protected static (EvalResult, string, BotToken) StackTokenError(BotTokenType expectedTokenType, BotToken actualToken)
         {
             return (EvalResult.Failed, $"Expected operation stack to have {expectedTokenType} token, got {actualToken.TokenType}", actualToken);
         }
 
-        protected (EvalResult, string, BotToken) ReadOnlyVariableError(IdentifierBotToken token)
+        protected static (EvalResult, string, BotToken) ReadOnlyVariableError(IdentifierBotToken token)
         {
             return (EvalResult.Failed, $"Attempted to assign value to read-only variable {token.TokenValue}", token);
         }
 
-        protected (EvalResult, string, BotToken) IdentifierNotFoundError(IdentifierBotToken token)
+        protected static (EvalResult, string, BotToken) IdentifierNotFoundError(IdentifierBotToken token)
         {
             return (EvalResult.Failed, $"Identifier {token.TokenValue} is not defined", token);
         }
 
-        protected (EvalResult, string, BotToken) GotoError(BotToken token)
+        protected static (EvalResult, string, BotToken) GotoError(BotToken token)
         {
             return (EvalResult.Failed, $"Failed to goto label {token.TokenValue}", token);
         }
