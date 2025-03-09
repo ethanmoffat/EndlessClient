@@ -52,24 +52,34 @@ namespace EOBot.Interpreter.States
                     return eval;
             }
 
-            if (input.OperationStack.Count == 0)
-                return StackEmptyError(input.Current());
-            var expressionResult = (VariableBotToken)input.OperationStack.Pop();
+            // object initializers should keep the operands on the stack so that they can be assigned into the new object later
+            // an object initializer is determined to be when an LBrace is on the stack (usually these are not stored on the stack when evaluating blocks)
+            // todo: see if it's worth creating a separate assignment evaluator type that does this logic instead of branching based on presence of stack token
+            var isObjectInitializer = input.OperationStack.Any(x => x.TokenType == BotTokenType.LBrace);
+            if (!isObjectInitializer)
+            {
+                if (input.OperationStack.Count == 0)
+                    return StackEmptyError(input.Current());
 
-            if (input.OperationStack.Count == 0)
-                return StackEmptyError(input.Current());
-            var assignOp = input.OperationStack.Pop();
-            if (!AssignTokens.Contains(assignOp.TokenType))
-                return StackTokenError(BotTokenType.AssignOperator, assignOp);
+                var expressionResult = (VariableBotToken)input.OperationStack.Pop();
 
-            if (input.OperationStack.Count == 0)
-                return StackEmptyError(input.Current());
-            var assignmentTarget = (IdentifierBotToken)input.OperationStack.Pop();
+                if (input.OperationStack.Count == 0)
+                    return StackEmptyError(input.Current());
+                var assignOp = input.OperationStack.Pop();
+                if (!AssignTokens.Contains(assignOp.TokenType))
+                    return StackTokenError(BotTokenType.AssignOperator, assignOp);
 
-            return Assign(input.SymbolTable, assignmentTarget, expressionResult, assignOp);
+                if (input.OperationStack.Count == 0)
+                    return StackEmptyError(input.Current());
+                var assignmentTarget = (IdentifierBotToken)input.OperationStack.Pop();
+
+                return Assign(input.SymbolTable, assignmentTarget, expressionResult, assignOp);
+            }
+
+            return Success();
         }
 
-        private (EvalResult, string, BotToken) Assign(Dictionary<string, (bool ReadOnly, IIdentifiable Identifiable)> symbols,
+        private static (EvalResult, string, BotToken) Assign(Dictionary<string, (bool ReadOnly, IIdentifiable Identifiable)> symbols,
             IdentifierBotToken assignmentTarget,
             VariableBotToken expressionResult,
             BotToken assignOp)

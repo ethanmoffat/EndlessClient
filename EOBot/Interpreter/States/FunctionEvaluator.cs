@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using EOBot.Interpreter.Extensions;
 using EOBot.Interpreter.Variables;
-using Microsoft.CSharp.RuntimeBinder;
 
 namespace EOBot.Interpreter.States
 {
-    public class FunctionEvaluator : BaseEvaluator
+    public class FunctionEvaluator : CommaDelimitedListEvaluator
     {
         public FunctionEvaluator(IEnumerable<IScriptEvaluator> evaluators)
             : base(evaluators) { }
@@ -23,47 +21,13 @@ namespace EOBot.Interpreter.States
             if (!input.MatchPair(BotTokenType.Identifier, BotTokenType.LParen))
                 return (EvalResult.NotMatch, string.Empty, input.Current());
 
-            var parameterExpressions = new List<string>();
+            var res = await EvalCommaDelimitedList<ExpressionEvaluator>(input, BotTokenType.RParen, ct);
+            if (res.Result != EvalResult.Ok)
+                return res;
 
-            var firstParam = true;
-            while (!input.Match(BotTokenType.RParen))
-            {
-                if (input.Expect(BotTokenType.NewLine) || input.Expect(BotTokenType.EOF))
-                    return UnexpectedTokenError(input.Current(), BotTokenType.NewLine, BotTokenType.EOF);
-
-                if (!firstParam && !input.Expect(BotTokenType.Comma))
-                    return Error(input.Current(), BotTokenType.Comma);
-
-                var expressionStartIndex = input.ExecutionIndex;
-
-                var parameterExpression = await Evaluator<ExpressionEvaluator>().EvaluateAsync(input, ct);
-                if (parameterExpression.Result != EvalResult.Ok)
-                    return parameterExpression;
-
-                var instructionsForParameter = input.Program.Skip(expressionStartIndex).Take(input.ExecutionIndex - expressionStartIndex).Select(x => x.TokenValue).ToArray();
-                parameterExpressions.Insert(0, string.Join(" ", instructionsForParameter));
-
-                firstParam = false;
-            }
-
-            if (input.OperationStack.Count == 0)
-                return StackEmptyError(input.Current());
-            var rParen = input.OperationStack.Pop();
-            if (rParen.TokenType != BotTokenType.RParen)
-                return StackTokenError(BotTokenType.RParen, rParen);
-
-            var parameters = new List<VariableBotToken>();
-            while (input.OperationStack.Count > 0 && input.OperationStack.Peek().TokenType != BotTokenType.LParen)
-            {
-                var parameter = (VariableBotToken)input.OperationStack.Pop();
-
-                if (parameter.VariableValue is UndefinedVariable)
-                {
-                    return (EvalResult.Failed, $"Function parameter is undefined: {parameterExpressions[parameters.Count]}", rParen);
-                }
-
-                parameters.Insert(0, parameter);
-            }
+            var parameters = GetParametersFromStack(input, BotTokenType.LParen);
+            if (parameters.OfType<VariableBotToken>().Any(x => x.VariableValue is UndefinedVariable))
+                return (EvalResult.Failed, "Function parameter is undefined", input.Current());
 
             var lParen = input.OperationStack.Pop();
             if (lParen.TokenType != BotTokenType.LParen)

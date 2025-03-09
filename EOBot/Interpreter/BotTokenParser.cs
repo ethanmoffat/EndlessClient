@@ -88,6 +88,11 @@ namespace EOBot.Interpreter
                     do
                     {
                         inputChar = Read();
+                        if (inputChar == '\n')
+                        {
+                            LineNumber++;
+                            Column = 1;
+                        }
                     } while (!(inputChar == '*' && !_inputStream.EndOfStream && Peek() == '/'));
 
                     // skip the slash ending the comment and set input char to the character after the comment

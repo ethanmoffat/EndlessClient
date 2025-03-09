@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EOBot.Interpreter.Extensions;
@@ -7,7 +8,7 @@ using EOBot.Interpreter.Variables;
 
 namespace EOBot.Interpreter.States
 {
-    public class ExpressionEvaluator : BaseEvaluator
+    public class ExpressionEvaluator : CommaDelimitedListEvaluator
     {
         public ExpressionEvaluator(IEnumerable<IScriptEvaluator> evaluators)
             : base(evaluators) { }
@@ -17,7 +18,51 @@ namespace EOBot.Interpreter.States
             if (ct.IsCancellationRequested)
                 return (EvalResult.Cancelled, string.Empty, null);
 
-            input.Match(BotTokenType.NotOperator);
+            if (!input.Match(BotTokenType.NotOperator))
+            {
+                if (input.Match(BotTokenType.LBracket))
+                {
+                    var res = await EvalCommaDelimitedList<ExpressionEvaluator>(input, BotTokenType.RBracket, ct);
+                    if (res.Result == EvalResult.Ok)
+                    {
+                        // Array initializer: create array from stack params
+                        var arrayParams = GetParametersFromStack(input, BotTokenType.LBracket);
+                        var lbracket = input.OperationStack.Pop();
+                        if (lbracket.TokenType != BotTokenType.LBracket)
+                            return StackTokenError(BotTokenType.LBracket, lbracket);
+
+                        var arrayVariable = new ArrayVariable(arrayParams.Select(x => x.VariableValue).ToList());
+                        input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, arrayVariable.StringValue, arrayVariable));
+
+                        return Success();
+                    }
+                }
+                else if (input.Match(BotTokenType.LBrace))
+                {
+                    var res = await EvalCommaDelimitedList<AssignmentEvaluator>(input, BotTokenType.RBrace, ct);
+                    if (res.Result == EvalResult.Ok)
+                    {
+                        // Object initializer: create object from stack params
+                        var assignmentPairs = GetAssignmentPairsFromStack(input, BotTokenType.LBrace);
+                        var lBrace = input.OperationStack.Pop();
+                        if (lBrace.TokenType != BotTokenType.LBrace)
+                            return StackTokenError(BotTokenType.LBrace, lBrace);
+
+                        var objectVariable = new ObjectVariable(
+                            assignmentPairs.ToDictionary(
+                                p => p.Item1.TokenValue,
+                                v => (false, (IIdentifiable)v.Item2.VariableValue)
+                            )
+                        );
+                        input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, objectVariable.StringValue, objectVariable));
+                        return Success();
+                    }
+                    else if (res.Result != EvalResult.NotMatch)
+                    {
+                        return res;
+                    }
+                }
+            }
 
             if (input.Match(BotTokenType.LParen))
             {
