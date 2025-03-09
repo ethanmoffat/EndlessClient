@@ -31,7 +31,7 @@ namespace EOLib.Domain.Map
 
         public IMapCellState GetCellStateAt(int x, int y)
         {
-            if (x <= 0 || y <= 0 || x > CurrentMap.Properties.Width || y > CurrentMap.Properties.Height)
+            if (x < 0 || y < 0 || x > CurrentMap.Properties.Width || y > CurrentMap.Properties.Height)
                 return new MapCellState { InBounds = false, TileSpec = TileSpec.MapEdge };
 
             var tileSpec = CurrentMap.Tiles[y, x];

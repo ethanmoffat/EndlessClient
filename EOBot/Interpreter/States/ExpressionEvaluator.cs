@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EOBot.Interpreter.Extensions;
@@ -7,18 +8,61 @@ using EOBot.Interpreter.Variables;
 
 namespace EOBot.Interpreter.States
 {
-    public class ExpressionEvaluator : BaseEvaluator
+    public class ExpressionEvaluator : CommaDelimitedListEvaluator
     {
         public ExpressionEvaluator(IEnumerable<IScriptEvaluator> evaluators)
             : base(evaluators) { }
 
-        // todo: this code is a mess and could use cleaning up (lots of copy/paste...)
         public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input, CancellationToken ct)
         {
             if (ct.IsCancellationRequested)
                 return (EvalResult.Cancelled, string.Empty, null);
 
-            input.Match(BotTokenType.NotOperator);
+            if (!input.Match(BotTokenType.NotOperator))
+            {
+                if (input.Match(BotTokenType.LBracket))
+                {
+                    var res = await EvalCommaDelimitedList<ExpressionEvaluator>(input, BotTokenType.RBracket, ct);
+                    if (res.Result == EvalResult.Ok)
+                    {
+                        // Array initializer: create array from stack params
+                        var arrayParams = GetParametersFromStack(input, BotTokenType.LBracket);
+                        var lbracket = input.OperationStack.Pop();
+                        if (lbracket.TokenType != BotTokenType.LBracket)
+                            return StackTokenError(BotTokenType.LBracket, lbracket);
+
+                        var arrayVariable = new ArrayVariable(arrayParams.Select(x => x.VariableValue).ToList());
+                        input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, arrayVariable.StringValue, arrayVariable));
+
+                        return Success();
+                    }
+                }
+                else if (input.Match(BotTokenType.LBrace))
+                {
+                    var res = await EvalCommaDelimitedList<AssignmentEvaluator>(input, BotTokenType.RBrace, ct);
+                    if (res.Result == EvalResult.Ok)
+                    {
+                        // Object initializer: create object from stack params
+                        var assignmentPairs = GetAssignmentPairsFromStack(input, BotTokenType.LBrace);
+                        var lBrace = input.OperationStack.Pop();
+                        if (lBrace.TokenType != BotTokenType.LBrace)
+                            return StackTokenError(BotTokenType.LBrace, lBrace);
+
+                        var objectVariable = new ObjectVariable(
+                            assignmentPairs.ToDictionary(
+                                p => p.Item1.TokenValue,
+                                v => (false, (IIdentifiable)v.Item2.VariableValue)
+                            )
+                        );
+                        input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, objectVariable.StringValue, objectVariable));
+                        return Success();
+                    }
+                    else if (res.Result != EvalResult.NotMatch)
+                    {
+                        return res;
+                    }
+                }
+            }
 
             if (input.Match(BotTokenType.LParen))
             {
@@ -91,7 +135,7 @@ namespace EOBot.Interpreter.States
             return EvaluateStackOperands(input);
         }
 
-        private (EvalResult, string, BotToken) EvaluateStackOperands(ProgramState input)
+        private static (EvalResult, string, BotToken) EvaluateStackOperands(ProgramState input)
         {
             if (input.OperationStack.Count == 0)
                 return StackEmptyError(input.Current());
@@ -110,7 +154,7 @@ namespace EOBot.Interpreter.States
             return Success();
         }
 
-        private (EvalResult, string, BotToken) EvaluateTree(ProgramState input, SyntaxTree.Node node)
+        private static (EvalResult, string, BotToken) EvaluateTree(ProgramState input, SyntaxTree.Node node)
         {
             if (node.Token.IsUnary())
             {
@@ -146,25 +190,25 @@ namespace EOBot.Interpreter.States
             {
                 // Multiple parameters to a function will be popped off the stack and added to the expression tree since there are no delimiters
                 //   between them. Any additional parameters will be "orphaned" if not restored to the stack recursively.
-                RestoreToStack(node.Left);
-                RestoreToStack(node.Right);
+                RestoreToStack(input.OperationStack, node.Left);
+                RestoreToStack(input.OperationStack, node.Right);
 
                 return GetOperand(input.SymbolTable, node.Token);
             }
 
-            void RestoreToStack(SyntaxTree.Node node)
+            static void RestoreToStack(Stack<BotToken> opStack, SyntaxTree.Node node)
             {
                 if (node == null)
                     return;
 
-                RestoreToStack(node.Left);
-                RestoreToStack(node.Right);
+                RestoreToStack(opStack, node.Left);
+                RestoreToStack(opStack, node.Right);
 
-                input.OperationStack.Push(node.Token);
+                opStack.Push(node.Token);
             }
         }
 
-        private (EvalResult, string, BotToken) HandleUnaryOperator(ProgramState input, BotToken operatorToken, VariableBotToken operand)
+        private static (EvalResult, string, BotToken) HandleUnaryOperator(ProgramState input, BotToken operatorToken, VariableBotToken operand)
         {
             (IVariable Result, string Reason) res;
             res.Reason = string.Empty;
@@ -180,7 +224,7 @@ namespace EOBot.Interpreter.States
             return Success(new VariableBotToken(BotTokenType.Literal, res.Result.StringValue, res.Result));
         }
 
-        private (EvalResult, string, BotToken) HandleBinaryOperator(ProgramState input, BotToken operatorToken, VariableBotToken lhs, VariableBotToken rhs)
+        private static (EvalResult, string, BotToken) HandleBinaryOperator(ProgramState input, BotToken operatorToken, VariableBotToken lhs, VariableBotToken rhs)
         {
             (IVariable Result, string Reason) res;
             res.Reason = string.Empty;
@@ -209,7 +253,7 @@ namespace EOBot.Interpreter.States
         }
 
         // todo: a lot of this code is the same as what's in AssignmentEvaluator::Assign, see if it can be split out/shared
-        private (EvalResult, string, BotToken) GetOperand(Dictionary<string, (bool, IIdentifiable)> symbols, BotToken nextToken)
+        private static (EvalResult, string, BotToken) GetOperand(Dictionary<string, (bool, IIdentifiable)> symbols, BotToken nextToken)
         {
             if (nextToken is not VariableBotToken operand)
             {
@@ -229,7 +273,7 @@ namespace EOBot.Interpreter.States
             return Success(operand);
         }
 
-        private (IVariable Result, string Reason) Negate(IVariable variable)
+        private static (IVariable Result, string Reason) Negate(IVariable variable)
         {
             var boolOperand = CoerceToBool(variable);
             if (boolOperand == null)
@@ -259,22 +303,22 @@ namespace EOBot.Interpreter.States
             return (new BoolVariable(aVal.Value || bVal.Value), string.Empty);
         }
 
-        private (IVariable, string) Add(IntVariable a, IntVariable b) => (new IntVariable(a.Value + b.Value), string.Empty);
-        private (IVariable, string) Add(IntVariable a, StringVariable b) => (new StringVariable(a.Value + b.Value), string.Empty);
-        private (IVariable, string) Add(StringVariable a, IntVariable b) => (new StringVariable(a.Value + b.Value), string.Empty);
-        private (IVariable, string) Add(StringVariable a, StringVariable b) => (new StringVariable(a.Value + b.Value), string.Empty);
-        private (IVariable, string) Add(object a, object b) => (null, $"Objects {a} and {b} could not be added (currently the operands must be int or string)");
+        private static (IVariable, string) Add(IntVariable a, IntVariable b) => (new IntVariable(a.Value + b.Value), string.Empty);
+        private static (IVariable, string) Add(IntVariable a, StringVariable b) => (new StringVariable(a.Value + b.Value), string.Empty);
+        private static (IVariable, string) Add(StringVariable a, IntVariable b) => (new StringVariable(a.Value + b.Value), string.Empty);
+        private static (IVariable, string) Add(StringVariable a, StringVariable b) => (new StringVariable(a.Value + b.Value), string.Empty);
+        private static (IVariable, string) Add(object a, object b) => (null, $"Objects {a} and {b} could not be added (currently the operands must be int or string)");
 
-        private (IVariable, string) Subtract(IntVariable a, IntVariable b) => (new IntVariable(a.Value - b.Value), string.Empty);
-        private (IVariable, string) Subtract(object a, object b) => (null, $"Objects {a} and {b} could not be subtracted (currently the operands must be int)");
+        private static (IVariable, string) Subtract(IntVariable a, IntVariable b) => (new IntVariable(a.Value - b.Value), string.Empty);
+        private static (IVariable, string) Subtract(object a, object b) => (null, $"Objects {a} and {b} could not be subtracted (currently the operands must be int)");
 
-        private (IVariable, string) Multiply(IntVariable a, IntVariable b) => (new IntVariable(a.Value * b.Value), string.Empty);
-        private (IVariable, string) Multiply(object a, object b) => (null, $"Objects {a} and {b} could not be multiplied (currently the operands must be int)");
+        private static (IVariable, string) Multiply(IntVariable a, IntVariable b) => (new IntVariable(a.Value * b.Value), string.Empty);
+        private static (IVariable, string) Multiply(object a, object b) => (null, $"Objects {a} and {b} could not be multiplied (currently the operands must be int)");
 
-        private (IVariable, string) Divide(IntVariable a, IntVariable b) => (new IntVariable(a.Value / b.Value), string.Empty);
-        private (IVariable, string) Divide(object a, object b) => (null, $"Objects {a} and {b} could not be divided (currently the operands must be int)");
+        private static (IVariable, string) Divide(IntVariable a, IntVariable b) => (new IntVariable(a.Value / b.Value), string.Empty);
+        private static (IVariable, string) Divide(object a, object b) => (null, $"Objects {a} and {b} could not be divided (currently the operands must be int)");
 
-        private (IVariable, string) Modulo(IntVariable a, IntVariable b) => (new IntVariable(a.Value % b.Value), string.Empty);
-        private (IVariable, string) Modulo(object a, object b) => (null, $"Objects {a} and {b} could not be modulo'd (currently the operands must be int)");
+        private static (IVariable, string) Modulo(IntVariable a, IntVariable b) => (new IntVariable(a.Value % b.Value), string.Empty);
+        private static (IVariable, string) Modulo(object a, object b) => (null, $"Objects {a} and {b} could not be modulo'd (currently the operands must be int)");
     }
 }

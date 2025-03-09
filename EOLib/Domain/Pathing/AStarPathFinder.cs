@@ -11,14 +11,17 @@ namespace EOLib.Domain.Pathing
     [AutoMappedType]
     public class AStarPathFinder : IPathFinder
     {
+        private readonly IMapCellStateProvider _cellStateProvider;
         private readonly IWalkValidationActions _walkValidationActions;
 
-        public AStarPathFinder(IWalkValidationActions walkValidationActions)
+        public AStarPathFinder(IMapCellStateProvider cellStateProvider,
+            IWalkValidationActions walkValidationActions)
         {
+            _cellStateProvider = cellStateProvider;
             _walkValidationActions = walkValidationActions;
         }
 
-        public Queue<MapCoordinate> FindPath(MapCoordinate start, MapCoordinate finish)
+        public Queue<MapCoordinate> FindPath(MapCoordinate start, MapCoordinate finish, bool shouldAvoidWarps = false)
         {
             if (start == finish)
                 return new Queue<MapCoordinate>();
@@ -53,7 +56,7 @@ namespace EOLib.Domain.Pathing
                     return ReconstructPath(start, cameFrom, current);
 
                 openSet.Remove(current);
-                foreach (var neighbor in GetNeighbors(current))
+                foreach (var neighbor in GetNeighbors(current, shouldAvoidWarps))
                 {
                     var tentativeScore = scores[current] + 1;
                     if (!scores.TryGetValue(neighbor, out var _))
@@ -89,7 +92,7 @@ namespace EOLib.Domain.Pathing
             return new Queue<MapCoordinate>(retList);
         }
 
-        private IEnumerable<MapCoordinate> GetNeighbors(MapCoordinate current)
+        private IEnumerable<MapCoordinate> GetNeighbors(MapCoordinate current, bool shouldAvoidWarps)
         {
             var points = new MapCoordinate[]
             {
@@ -101,7 +104,12 @@ namespace EOLib.Domain.Pathing
 
             foreach (var coordinateOffset in points)
             {
-                if (_walkValidationActions.CanMoveToCoordinates(current.X + coordinateOffset.X, current.Y + coordinateOffset.Y) == WalkValidationResult.Walkable)
+                var cs = _cellStateProvider.GetCellStateAt(current.X + coordinateOffset.X, current.Y + coordinateOffset.Y);
+
+                if (shouldAvoidWarps && cs.Warp.HasValue)
+                    continue;
+
+                if (_walkValidationActions.IsCellStateWalkable(cs) == WalkValidationResult.Walkable)
                     yield return new MapCoordinate(current.X + coordinateOffset.X, current.Y + coordinateOffset.Y);
             }
         }
@@ -109,6 +117,6 @@ namespace EOLib.Domain.Pathing
 
     public interface IPathFinder
     {
-        Queue<MapCoordinate> FindPath(MapCoordinate start, MapCoordinate finish);
+        Queue<MapCoordinate> FindPath(MapCoordinate start, MapCoordinate finish, bool shouldAvoidWarps = false);
     }
 }

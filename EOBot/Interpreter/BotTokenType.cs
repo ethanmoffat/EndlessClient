@@ -33,6 +33,12 @@
         Dot,
         Semicolon,
         NewLine,
+        Increment,
+        Decrement,
+        PlusEquals,
+        MinusEquals,
+        MultiplyEquals,
+        DivideEquals,
         Error,
     }
 }

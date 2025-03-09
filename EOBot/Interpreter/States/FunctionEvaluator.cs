@@ -8,7 +8,7 @@ using EOBot.Interpreter.Variables;
 
 namespace EOBot.Interpreter.States
 {
-    public class FunctionEvaluator : BaseEvaluator
+    public class FunctionEvaluator : CommaDelimitedListEvaluator
     {
         public FunctionEvaluator(IEnumerable<IScriptEvaluator> evaluators)
             : base(evaluators) { }
@@ -21,34 +21,13 @@ namespace EOBot.Interpreter.States
             if (!input.MatchPair(BotTokenType.Identifier, BotTokenType.LParen))
                 return (EvalResult.NotMatch, string.Empty, input.Current());
 
-            var firstParam = true;
-            while (!input.Match(BotTokenType.RParen))
-            {
-                if (input.Expect(BotTokenType.NewLine) || input.Expect(BotTokenType.EOF))
-                    return UnexpectedTokenError(input.Current(), BotTokenType.NewLine, BotTokenType.EOF);
+            var res = await EvalCommaDelimitedList<ExpressionEvaluator>(input, BotTokenType.RParen, ct);
+            if (res.Result != EvalResult.Ok)
+                return res;
 
-                if (!firstParam && !input.Expect(BotTokenType.Comma))
-                    return Error(input.Current(), BotTokenType.Comma);
-
-                var parameterExpression = await Evaluator<ExpressionEvaluator>().EvaluateAsync(input, ct);
-                if (parameterExpression.Result != EvalResult.Ok)
-                    return parameterExpression;
-
-                firstParam = false;
-            }
-
-            if (input.OperationStack.Count == 0)
-                return StackEmptyError(input.Current());
-            var rParen = input.OperationStack.Pop();
-            if (rParen.TokenType != BotTokenType.RParen)
-                return StackTokenError(BotTokenType.RParen, rParen);
-
-            var parameters = new List<VariableBotToken>();
-            while (input.OperationStack.Count > 0 && input.OperationStack.Peek().TokenType != BotTokenType.LParen)
-            {
-                var parameter = (VariableBotToken)input.OperationStack.Pop();
-                parameters.Insert(0, parameter);
-            }
+            var parameters = GetParametersFromStack(input, BotTokenType.LParen);
+            if (parameters.OfType<VariableBotToken>().Any(x => x.VariableValue is UndefinedVariable))
+                return (EvalResult.Failed, "Function parameter is undefined", input.Current());
 
             var lParen = input.OperationStack.Pop();
             if (lParen.TokenType != BotTokenType.LParen)
