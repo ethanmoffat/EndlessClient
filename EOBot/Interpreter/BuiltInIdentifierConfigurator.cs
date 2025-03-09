@@ -85,7 +85,8 @@ namespace EOBot.Interpreter
 
             // game flow
             programState.SymbolTable[PredefinedIdentifiers.TICK] = Readonly(new AsyncVoidFunction(PredefinedIdentifiers.TICK, ct => Tick()));
-            programState.SymbolTable[PredefinedIdentifiers.GETPATHTO] = Readonly(new Function<int, int, List<IVariable>>(PredefinedIdentifiers.GETPATHTO, GetPathTo));
+            programState.SymbolTable[PredefinedIdentifiers.GETPATHTO] = Readonly(new Function<int, int, List<IVariable>>(PredefinedIdentifiers.GETPATHTO, (x, y) => GetPathTo(x, y, false)));
+            programState.SymbolTable[PredefinedIdentifiers.GETPATHTO_AVOIDINGWARPS] = Readonly(new Function<int, int, List<IVariable>>(PredefinedIdentifiers.GETPATHTO_AVOIDINGWARPS, (x, y) => GetPathTo(x, y, true)));
             programState.SymbolTable[PredefinedIdentifiers.GETCELLSTATE] = Readonly(new Function<int, int, ObjectVariable>(PredefinedIdentifiers.GETCELLSTATE, GetCellState));
 
             // in-game stuff
@@ -252,12 +253,12 @@ namespace EOBot.Interpreter
                 .PollForPacketsAndHandle();
         }
 
-        private List<IVariable> GetPathTo(int x, int y)
+        private List<IVariable> GetPathTo(int x, int y, bool shouldAvoidWarps)
         {
             var c = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICharacterProvider>().MainCharacter;
 
             var astarPathFinder = DependencyMaster.TypeRegistry[_botIndex].Resolve<IPathFinder>();
-            var path = astarPathFinder.FindPath(c.RenderProperties.Coordinates(), new MapCoordinate(x, y));
+            var path = astarPathFinder.FindPath(c.RenderProperties.Coordinates(), new MapCoordinate(x, y), shouldAvoidWarps);
 
             return path.Select(
                 entry => (IVariable)new ObjectVariable(

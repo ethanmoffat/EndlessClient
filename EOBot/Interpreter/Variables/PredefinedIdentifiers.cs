@@ -55,6 +55,7 @@
 
         public const string TICK = "Tick";
         public const string GETPATHTO = "GetPathTo";
+        public const string GETPATHTO_AVOIDINGWARPS = "GetPathToAvoidingWarps";
         public const string GETCELLSTATE = "GetCellState";
 
         public const string JOIN_PARTY = "JoinParty";
