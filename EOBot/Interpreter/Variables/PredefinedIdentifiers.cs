@@ -41,6 +41,7 @@
         public const string ABS_FUNC = "abs";
         public const string CONTAINS_FUNC = "contains";
         public const string PARSE_FUNC = "parse";
+        public const string BEEP_FUNC = "beep";
 
         // game functions
         public const string CONNECT_FUNC = "Connect";
@@ -65,6 +66,7 @@
         public const string WALK = "Walk";
         public const string ATTACK = "Attack";
         public const string SIT = "Sit";
+        public const string CAST = "Cast";
 
         public const string USEITEM = "UseItem";
         public const string DROP = "Drop";

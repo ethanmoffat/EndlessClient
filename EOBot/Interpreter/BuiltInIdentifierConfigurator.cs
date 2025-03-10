@@ -70,6 +70,11 @@ namespace EOBot.Interpreter
             programState.SymbolTable[PredefinedIdentifiers.CONTAINS_FUNC] = Readonly(new Function<IVariable, IVariable, bool>(PredefinedIdentifiers.CONTAINS_FUNC, Contains));
             programState.SymbolTable[PredefinedIdentifiers.PARSE_FUNC] = Readonly(new Function<string, int>(PredefinedIdentifiers.PARSE_FUNC, Parse));
 
+            if (OperatingSystem.IsWindows())
+                programState.SymbolTable[PredefinedIdentifiers.BEEP_FUNC] = Readonly(new VoidFunction<int, int>(PredefinedIdentifiers.BEEP_FUNC, Console.Beep));
+            else
+                programState.SymbolTable[PredefinedIdentifiers.BEEP_FUNC] = Readonly(new VoidFunction<int, int>(PredefinedIdentifiers.BEEP_FUNC, (_, _) => { }));
+
             BotDependencySetup();
 
             // pre-game flow
@@ -98,6 +103,7 @@ namespace EOBot.Interpreter
             programState.SymbolTable[PredefinedIdentifiers.WALK] = Readonly(new AsyncFunction<bool>(PredefinedIdentifiers.WALK, Walk));
             programState.SymbolTable[PredefinedIdentifiers.ATTACK] = Readonly(new AsyncVoidFunction(PredefinedIdentifiers.ATTACK, Attack));
             programState.SymbolTable[PredefinedIdentifiers.SIT] = Readonly(new AsyncVoidFunction(PredefinedIdentifiers.SIT, Sit));
+            programState.SymbolTable[PredefinedIdentifiers.CAST] = Readonly(new AsyncVoidFunction<int>(PredefinedIdentifiers.CAST, Cast));
 
             // items
             programState.SymbolTable[PredefinedIdentifiers.USEITEM] = Readonly(new AsyncVoidFunction<int>(PredefinedIdentifiers.USEITEM, UseItem));
@@ -354,6 +360,20 @@ namespace EOBot.Interpreter
                 .Sit(c.RenderProperties.Coordinates());
 
             return Tick(ATTACK_BACKOFF_MS);
+        }
+
+        private async Task Cast(int spellId, CancellationToken ct)
+        {
+            var esf = DependencyMaster.TypeRegistry[_botIndex].Resolve<IESFFileProvider>().ESFFile;
+            var characterActions = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICharacterActions>();
+            var cp = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICharacterProvider>();
+
+            var spellToUse = esf[spellId];
+            characterActions.PrepareCastSpell(spellToUse.ID);
+            await Tick(spellToUse.CastTime * WALK_BACKOFF_MS);
+
+            characterActions.CastSpell(spellToUse.ID, cp.MainCharacter);
+            await Tick(ATTACK_BACKOFF_MS); // 600ms cooldown between spell casts
         }
 
         private Task UseItem(int itemId, CancellationToken ct)
