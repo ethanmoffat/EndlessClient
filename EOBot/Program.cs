@@ -168,7 +168,12 @@ namespace EOBot
             public void NotifySelfSpellCast(int playerId, int spellId, int spellHp, int percentHealth)
             {
                 if (playerId == _characterProvider.MainCharacter.ID && spellHp > 0)
-                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Heal, $"{spellHp,7} - {percentHealth}% HP", ConsoleColor.DarkGreen);
+                {
+                    var stats = _characterProvider.MainCharacter.Stats;
+                    var tp = stats[CharacterStat.TP];
+                    var maxtp = stats[CharacterStat.MaxTP];
+                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Heal, $"{spellHp,7} - {percentHealth}% HP - {tp}/{maxtp} TP", ConsoleColor.DarkGreen);
+                }
             }
 
             public void NotifyStartSpellCast(int playerId, int spellId) { }
