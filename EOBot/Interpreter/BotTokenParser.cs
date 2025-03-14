@@ -18,6 +18,7 @@ namespace EOBot.Interpreter
         //public const string KEYWORD_FUNCTION = "function";
         //public const string KEYWORD_RETURN = "return";
 
+        public const string KEYWORD_UNDEFINED = "undefined";
         public const string KEYWORD_TRUE = "true";
         public const string KEYWORD_FALSE = "false";
 
@@ -36,7 +37,7 @@ namespace EOBot.Interpreter
             //KEYWORD_RETURN
         ];
 
-        private static readonly HashSet<string> Literals = [KEYWORD_TRUE, KEYWORD_FALSE];
+        private static readonly HashSet<string> Literals = [KEYWORD_TRUE, KEYWORD_FALSE, KEYWORD_UNDEFINED];
 
         private readonly StreamReader _inputStream;
         private readonly bool _streamNeedsDispose;

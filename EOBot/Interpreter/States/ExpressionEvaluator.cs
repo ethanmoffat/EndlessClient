@@ -259,7 +259,9 @@ namespace EOBot.Interpreter.States
             {
                 if (nextToken.TokenType == BotTokenType.Literal)
                 {
-                    if (int.TryParse(nextToken.TokenValue, out var intValue))
+                    if (nextToken.TokenValue == "undefined")
+                        return Success(new VariableBotToken(BotTokenType.Literal, nextToken.TokenValue, UndefinedVariable.Instance));
+                    else if (int.TryParse(nextToken.TokenValue, out var intValue))
                         return Success(new VariableBotToken(BotTokenType.Literal, nextToken.TokenValue, new IntVariable(intValue)));
                     else if (bool.TryParse(nextToken.TokenValue, out var boolValue))
                         return Success(new VariableBotToken(BotTokenType.Literal, nextToken.TokenValue, new BoolVariable(boolValue)));
