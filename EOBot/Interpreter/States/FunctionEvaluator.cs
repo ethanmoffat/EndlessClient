@@ -57,7 +57,7 @@ namespace EOBot.Interpreter.States
             {
                 // stack information isn't really important since this is only used to signal to the framework that a bot failed
                 // recreate the exception so it prints line number/column info with the error
-                throw new BotScriptErrorException(bse.Message, functionToken);
+                throw new BotScriptErrorException(bse.Message, functionToken, input.CallStack);
             }
             catch (ArgumentException ae)
             {

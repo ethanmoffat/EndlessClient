@@ -175,7 +175,7 @@ namespace EOBot.Interpreter
             var connectionActions = c.Resolve<INetworkConnectionActions>();
             var connectResult = await connectionActions.ConnectToServer().ConfigureAwait(false);
             if (connectResult != ConnectResult.Success)
-                throw new ArgumentException($"Bot {_botIndex}: Unable to connect to server! Host={host} Port={port}");
+                throw new BotScriptErrorException($"Bot {_botIndex}: Unable to connect to server! Host={host} Port={port}");
 
             var backgroundReceiveActions = c.Resolve<IBackgroundReceiveActions>();
             backgroundReceiveActions.RunBackgroundReceiveLoop();
@@ -183,7 +183,7 @@ namespace EOBot.Interpreter
             var handshakeResult = await connectionActions.BeginHandshake(_random.Next(Constants.MaxChallenge)).ConfigureAwait(false);
 
             if (handshakeResult.ReplyCode != InitReply.Ok)
-                throw new InvalidOperationException($"Bot {_botIndex}: Invalid response from server or connection failed! Must receive an OK reply.");
+                throw new BotScriptErrorException($"Bot {_botIndex}: Invalid response from server or connection failed! Must receive an OK reply.");
 
             var handshakeData = (InitInitServerPacket.ReplyCodeDataOk)handshakeResult.ReplyCodeData;
 
