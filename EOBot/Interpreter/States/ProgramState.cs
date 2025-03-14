@@ -141,7 +141,6 @@ namespace EOBot.Interpreter.States
         {
             var retDict = new Dictionary<string, (bool, IIdentifiable)>();
 
-            // todo: handle newlines
             for (int i = 0; i < program.Count; i++)
             {
                 if (!program[i].Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_FUNC))
@@ -163,12 +162,19 @@ namespace EOBot.Interpreter.States
                         commas.Add(program[i++]);
                     }
 
+                    while (i < program.Count && program[i].TokenType == BotTokenType.NewLine) i++;
+
                     var nextParam = program[i++];
                     paramSpecs.Add(nextParam);
                     firstParam = false;
+
+                    while (i < program.Count && program[i].TokenType == BotTokenType.NewLine) i++;
                 }
 
                 var rparen = program[i++];
+
+                while (i < program.Count && program[i].TokenType == BotTokenType.NewLine) i++;
+
                 var lbrace = program[i++];
 
                 var tokenStartIndex = i; // incremented past first LBrace
