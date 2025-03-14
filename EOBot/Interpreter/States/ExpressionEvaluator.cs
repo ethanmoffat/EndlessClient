@@ -306,10 +306,10 @@ namespace EOBot.Interpreter.States
         }
 
         private static (IVariable, string) Add(IntVariable a, IntVariable b) => (new IntVariable(a.Value + b.Value), string.Empty);
-        private static (IVariable, string) Add(IntVariable a, StringVariable b) => (new StringVariable(a.Value + b.Value), string.Empty);
-        private static (IVariable, string) Add(StringVariable a, IntVariable b) => (new StringVariable(a.Value + b.Value), string.Empty);
         private static (IVariable, string) Add(StringVariable a, StringVariable b) => (new StringVariable(a.Value + b.Value), string.Empty);
-        private static (IVariable, string) Add(object a, object b) => (null, $"Objects {a} and {b} could not be added (currently the operands must be int or string)");
+        private static (IVariable, string) Add(IVariable a, StringVariable b) => (new StringVariable(a.StringValue + b.Value), string.Empty);
+        private static (IVariable, string) Add(StringVariable a, IVariable b) => (new StringVariable(a.Value + b.StringValue), string.Empty);
+        private static (IVariable, string) Add(object a, object b) => (null, $"Objects {a} and {b} could not be added (currently the operands must be int or convertable to variable)");
 
         private static (IVariable, string) Subtract(IntVariable a, IntVariable b) => (new IntVariable(a.Value - b.Value), string.Empty);
         private static (IVariable, string) Subtract(object a, object b) => (null, $"Objects {a} and {b} could not be subtracted (currently the operands must be int)");

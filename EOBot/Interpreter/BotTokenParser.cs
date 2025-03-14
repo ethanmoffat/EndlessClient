@@ -15,8 +15,8 @@ namespace EOBot.Interpreter
         public const string KEYWORD_IN = "in";
         public const string KEYWORD_CONTINUE = "continue";
         public const string KEYWORD_BREAK = "break";
-        //public const string KEYWORD_FUNCTION = "function";
-        //public const string KEYWORD_RETURN = "return";
+        public const string KEYWORD_FUNC = "func";
+        public const string KEYWORD_RETURN = "return";
 
         public const string KEYWORD_UNDEFINED = "undefined";
         public const string KEYWORD_TRUE = "true";
@@ -33,8 +33,8 @@ namespace EOBot.Interpreter
             KEYWORD_IN,
             KEYWORD_CONTINUE,
             KEYWORD_BREAK,
-            //KEYWORD_FUNCTION,
-            //KEYWORD_RETURN
+            KEYWORD_FUNC,
+            KEYWORD_RETURN,
         ];
 
         private static readonly HashSet<string> Literals = [KEYWORD_TRUE, KEYWORD_FALSE, KEYWORD_UNDEFINED];

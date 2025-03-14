@@ -1,32 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using EOBot.Interpreter.Extensions;
 using EOBot.Interpreter.Variables;
 
 namespace EOBot.Interpreter.States
 {
     public class ProgramState
     {
-        public Stack<BotToken> OperationStack { get; }
+        public Stack<BotToken> OperationStack { get; } = [];
+
+        public Stack<(string, BotToken, int)> CallStack { get; private set; } = [];
 
         public IReadOnlyList<BotToken> Program { get; }
 
-        public Dictionary<string, (bool ReadOnly, IIdentifiable Identifiable)> SymbolTable { get; }
+        public Dictionary<string, (bool ReadOnly, IIdentifiable Identifiable)> SymbolTable { get; private set; }
 
         public Dictionary<string, int> Labels { get; }
 
         public int ExecutionIndex { get; private set; }
 
-        public ProgramState(IReadOnlyList<BotToken> program)
+        public ProgramState(List<BotToken> program)
         {
-            OperationStack = new Stack<BotToken>();
             Program = program;
-            SymbolTable = new Dictionary<string, (bool ReadOnly, IIdentifiable Identifiable)>();
-            Labels = Program
-                .Select((token, ndx) => (token, ndx))
-                .Where(x => x.token.TokenType == BotTokenType.Identifier && Program[x.ndx + 1].TokenType == BotTokenType.Colon)
-                .ToDictionary(x => x.token.TokenValue, y => y.ndx + 2);
-            ExecutionIndex = 0;
+
+            SymbolTable = GetFunctions(program);
+            Labels = GetLabels(Program);
+
+            OperationStack = [];
+            CallStack = [];
         }
 
         public void SkipToken()
@@ -112,6 +113,97 @@ namespace EOBot.Interpreter.States
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Inherits the state from the parent programState. This includes any read-only variables and call stack.
+        ///
+        /// This is a destructive operation that clears the symbol table and execution stacks.
+        /// </summary>
+        /// <param name="parentState">The parent program.</param>
+        public void InheritFrom(ProgramState parentState)
+        {
+            OperationStack.Clear();
+            SymbolTable = new Dictionary<string, (bool ReadOnly, IIdentifiable Identifiable)>(parentState.SymbolTable);
+            CallStack = parentState.CallStack;
+        }
+
+        private static Dictionary<string, int> GetLabels(IReadOnlyList<BotToken> program)
+        {
+            return program
+                .Select((token, ndx) => (token, ndx))
+                .Where(x => x.token.TokenType == BotTokenType.Identifier && program[x.ndx + 1].TokenType == BotTokenType.Colon)
+                .ToDictionary(x => x.token.TokenValue, y => y.ndx + 2);
+        }
+
+        // m o m ' s   s p a g h e t t i
+        private static Dictionary<string, (bool, IIdentifiable)> GetFunctions(List<BotToken> program)
+        {
+            var retDict = new Dictionary<string, (bool, IIdentifiable)>();
+
+            // todo: handle newlines
+            for (int i = 0; i < program.Count; i++)
+            {
+                if (!program[i].Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_FUNC))
+                    continue;
+
+                int funcStartIndex = i;
+
+                var funcToken = program[i++];
+                var funcName = program[i++];
+                var lparen = program[i++];
+
+                var paramSpecs = new List<BotToken>();
+                var commas = new List<BotToken>();
+                var firstParam = true;
+                while (program[i].TokenType != BotTokenType.RParen)
+                {
+                    if (!firstParam)
+                    {
+                        commas.Add(program[i++]);
+                    }
+
+                    var nextParam = program[i++];
+                    paramSpecs.Add(nextParam);
+                    firstParam = false;
+                }
+
+                var rparen = program[i++];
+                var lbrace = program[i++];
+
+                var tokenStartIndex = i; // incremented past first LBrace
+
+                var braceCount = 1;
+                while (braceCount > 0 && i < program.Count)
+                {
+                    if (program[i].TokenType == BotTokenType.LBrace)
+                        braceCount++;
+                    else if (program[i].TokenType == BotTokenType.RBrace)
+                        braceCount--;
+
+                    i++;
+                }
+
+                BotToken errorToken;
+                if (!(errorToken = funcToken).Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_FUNC) ||
+                    !(errorToken = funcName).Is(BotTokenType.Identifier) || !(errorToken = lparen).Is(BotTokenType.LParen) ||
+                    !paramSpecs.All(x => (errorToken = x).Is(BotTokenType.Variable)) ||
+                    !commas.All(x => (errorToken = x).Is(BotTokenType.Comma)) ||
+                    !(errorToken = rparen).Is(BotTokenType.RParen) || !(errorToken = lbrace).Is(BotTokenType.LBrace))
+                {
+                    throw new BotScriptErrorException("Unexpected token in function definition", errorToken);
+                }
+
+                var funcRange = program.GetRange(tokenStartIndex, i - tokenStartIndex - 1);
+                funcRange.Add(new BotToken(BotTokenType.EOF, string.Empty, 0, 0));
+
+                retDict[funcName.TokenValue] = (true, new UserDefinedFunction(funcName.TokenValue, funcRange, paramSpecs));
+
+                program.RemoveRange(funcStartIndex, i - funcStartIndex);
+                i = funcStartIndex;
+            }
+
+            return retDict;
         }
     }
 }

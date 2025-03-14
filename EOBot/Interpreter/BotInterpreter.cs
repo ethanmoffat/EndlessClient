@@ -10,7 +10,6 @@ namespace EOBot.Interpreter
     public class BotInterpreter
     {
         private readonly BotTokenParser _parser;
-        private readonly IScriptEvaluator _scriptEvaluator;
 
         public BotInterpreter(string filePath)
             : this(File.OpenText(filePath))
@@ -18,30 +17,8 @@ namespace EOBot.Interpreter
         }
 
         public BotInterpreter(StreamReader inputStream)
-            : this()
         {
             _parser = new BotTokenParser(inputStream);
-        }
-
-        private BotInterpreter()
-        {
-            var evaluators = new List<IScriptEvaluator>();
-            evaluators.Add(new StatementListEvaluator(evaluators));
-            evaluators.Add(new StatementEvaluator(evaluators));
-            evaluators.Add(new AssignmentEvaluator(evaluators));
-            evaluators.Add(new KeywordEvaluator(evaluators));
-            evaluators.Add(new LabelEvaluator());
-            evaluators.Add(new FunctionEvaluator(evaluators));
-            evaluators.Add(new VariableEvaluator(evaluators));
-            evaluators.Add(new ExpressionEvaluator(evaluators));
-            evaluators.Add(new ExpressionTailEvaluator(evaluators));
-            evaluators.Add(new OperandEvaluator(evaluators));
-            evaluators.Add(new IfEvaluator(evaluators));
-            evaluators.Add(new WhileEvaluator(evaluators));
-            evaluators.Add(new ForEvaluator(evaluators));
-            evaluators.Add(new ForeachEvaluator(evaluators));
-            evaluators.Add(new GotoEvaluator());
-            _scriptEvaluator = new ScriptEvaluator(evaluators);
         }
 
         public ProgramState Parse()
@@ -68,7 +45,7 @@ namespace EOBot.Interpreter
 
         public async Task Run(ProgramState programState, CancellationToken ct)
         {
-            var (result, reason, token) = await _scriptEvaluator.EvaluateAsync(programState, ct).ConfigureAwait(false);
+            var (result, reason, token) = await ScriptEvaluator.Instance.EvaluateAsync(programState, ct).ConfigureAwait(false);
 
             if (result == EvalResult.Failed)
             {
