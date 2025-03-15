@@ -30,6 +30,7 @@ namespace EOBot.Interpreter.Variables
             if (parameters.Length != _paramSpecs.Count)
                 throw new ArgumentException($"Calling function '{StringValue}' with wrong number of parameters");
 
+            var originalSymbols = new Dictionary<string, (bool, IIdentifiable)>(programState.SymbolTable);
             _funcState.InheritFrom(programState);
             var readOnlyItems = _funcState.SymbolTable.Where(x => x.Value.ReadOnly);
 
@@ -54,14 +55,17 @@ namespace EOBot.Interpreter.Variables
                     programState.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, iv.StringValue, iv));
                 }
 
-                foreach (var key in programState.SymbolTable.Keys)
-                {
-                    if (programState.SymbolTable[key].ReadOnly)
-                        continue;
+                // restore symbol table to state it was previously in prior to the function invocation
+                //   - this method of restoration allows for variables in the parent scope to be overwritten
+                //   - also want to restore the values of any parameters so that original values in outer
+                //     scope are preserved
+                var removeKeys = programState.SymbolTable.Keys.Where(x => !originalSymbols.ContainsKey(x));
+                foreach (var key in removeKeys)
+                    programState.SymbolTable.Remove(key);
 
-                    if (_funcState.SymbolTable.TryGetValue(key, out var updatedSymbol))
-                        programState.SymbolTable[key] = updatedSymbol;
-                }
+                foreach (var param in _paramSpecs)
+                    if (programState.SymbolTable.ContainsKey(param.TokenValue))
+                        programState.SymbolTable[param.TokenValue] = originalSymbols[param.TokenValue];
 
                 _funcState.CallStack.Pop();
             }

@@ -124,7 +124,7 @@ namespace EOBot.Interpreter.States
         public void InheritFrom(ProgramState parentState)
         {
             OperationStack.Clear();
-            SymbolTable = new Dictionary<string, (bool ReadOnly, IIdentifiable Identifiable)>(parentState.SymbolTable);
+            SymbolTable = parentState.SymbolTable;
             CallStack = parentState.CallStack;
         }
 
