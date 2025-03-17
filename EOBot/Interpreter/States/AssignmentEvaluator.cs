@@ -142,7 +142,10 @@ namespace EOBot.Interpreter.States
                 if (symbols.ContainsKey(assignmentTarget.TokenValue) && symbols[assignmentTarget.TokenValue].ReadOnly)
                     return ReadOnlyVariableError(assignmentTarget);
 
-                if (symbols.ContainsKey(assignmentTarget.TokenValue) && symbols[assignmentTarget.TokenValue].Identifiable.GetType() != expressionResult.VariableValue.GetType())
+                if (symbols.ContainsKey(assignmentTarget.TokenValue) &&
+                    symbols[assignmentTarget.TokenValue].Identifiable.GetType() != expressionResult.VariableValue.GetType()
+                    && symbols[assignmentTarget.TokenValue].Identifiable is not UndefinedVariable
+                    && expressionResult.VariableValue is not UndefinedVariable)
                 {
                     // todo: surface warnings to caller and let caller decide what to do with it instead of making the interpreter write to console directly
                     ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"Changing type of variable {assignmentTarget.TokenValue} from {symbols[assignmentTarget.TokenValue].Identifiable.GetType()} to {expressionResult.VariableValue.GetType()}", System.ConsoleColor.DarkYellow);
