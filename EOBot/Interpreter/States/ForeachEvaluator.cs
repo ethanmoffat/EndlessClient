@@ -79,7 +79,7 @@ namespace EOBot.Interpreter.States
                 for (int i = 0; i < arrayVariable.Value.Count; i++)
                 {
                     input.Goto(blockStartIndex);
-                    input.SymbolTable[targetVariable.TokenValue] = (true, arrayVariable.Value[i]);
+                    input.SymbolTable[targetVariable.TokenValue] = (false, arrayVariable.Value[i]);
 
                     var blockEval = await EvaluateBlockAsync(input, ct);
                     if (blockEval.Item1 == EvalResult.ControlFlow)
