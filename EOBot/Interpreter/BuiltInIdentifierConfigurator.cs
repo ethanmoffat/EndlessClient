@@ -69,6 +69,8 @@ namespace EOBot.Interpreter
             programState.SymbolTable[PredefinedIdentifiers.ABS_FUNC] = Readonly(new Function<int, int>(PredefinedIdentifiers.ABS_FUNC, Math.Abs));
             programState.SymbolTable[PredefinedIdentifiers.CONTAINS_FUNC] = Readonly(new Function<IVariable, IVariable, bool>(PredefinedIdentifiers.CONTAINS_FUNC, Contains));
             programState.SymbolTable[PredefinedIdentifiers.PARSE_FUNC] = Readonly(new Function<string, int>(PredefinedIdentifiers.PARSE_FUNC, Parse));
+            programState.SymbolTable[PredefinedIdentifiers.MAX_FUNC] = Readonly(new Function<int, int, int>(PredefinedIdentifiers.MAX_FUNC, Math.Max));
+            programState.SymbolTable[PredefinedIdentifiers.MIN_FUNC] = Readonly(new Function<int, int, int>(PredefinedIdentifiers.MIN_FUNC, Math.Min));
 
             if (OperatingSystem.IsWindows())
                 programState.SymbolTable[PredefinedIdentifiers.BEEP_FUNC] = Readonly(new VoidFunction<int, int>(PredefinedIdentifiers.BEEP_FUNC, Console.Beep));

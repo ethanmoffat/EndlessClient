@@ -41,6 +41,8 @@
         public const string ABS_FUNC = "abs";
         public const string CONTAINS_FUNC = "contains";
         public const string PARSE_FUNC = "parse";
+        public const string MAX_FUNC = "max";
+        public const string MIN_FUNC = "min";
         public const string BEEP_FUNC = "beep";
 
         // game functions
