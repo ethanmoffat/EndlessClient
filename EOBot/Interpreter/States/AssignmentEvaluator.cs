@@ -89,10 +89,10 @@ namespace EOBot.Interpreter.States
                 if (!symbols.ContainsKey(assignmentTarget.TokenValue))
                     return IdentifierNotFoundError(assignmentTarget);
 
-                var getVariableRes = symbols.GetVariable<ObjectVariable>(assignmentTarget.TokenValue, assignmentTarget.ArrayIndex, assignmentTarget.DictKey);
+                var getVariableRes = symbols.GetVariable<ObjectVariable>(assignmentTarget.TokenValue, assignmentTarget.Indexer);
                 if (getVariableRes.Result != EvalResult.Ok)
                 {
-                    var getRuntimeEvaluatedVariableRes = symbols.GetVariable<RuntimeEvaluatedMemberObjectVariable>(assignmentTarget.TokenValue, assignmentTarget.ArrayIndex, assignmentTarget.DictKey);
+                    var getRuntimeEvaluatedVariableRes = symbols.GetVariable<RuntimeEvaluatedMemberObjectVariable>(assignmentTarget.TokenValue, assignmentTarget.Indexer);
                     if (getRuntimeEvaluatedVariableRes.Result != EvalResult.Ok)
                         return (EvalResult.Failed, $"Identifier '{assignmentTarget.TokenValue}' is not an object", assignmentTarget);
 
@@ -108,34 +108,34 @@ namespace EOBot.Interpreter.States
                 return Assign(targetObject.SymbolTable, assignmentTarget.Member, expressionResult, assignOp);
             }
 
-            if (assignmentTarget.ArrayIndex != null)
+            if (assignmentTarget.Indexer != null)
             {
                 if (!symbols.ContainsKey(assignmentTarget.TokenValue))
                     return IdentifierNotFoundError(assignmentTarget);
 
-                var getVariableResult = symbols.GetVariable<ArrayVariable>(assignmentTarget.TokenValue);
-                if (getVariableResult.Result != EvalResult.Ok)
-                    return (getVariableResult.Result, getVariableResult.Reason, assignmentTarget);
+                var (result, reason, retVar) = symbols.GetVariable(assignmentTarget.TokenValue);
+                if (result != EvalResult.Ok)
+                    return (result, reason, assignmentTarget);
 
-                var targetArray = getVariableResult.Variable;
-                targetArray.Value[assignmentTarget.ArrayIndex.Value] = ApplyOp(assignOp, targetArray.Value[assignmentTarget.ArrayIndex.Value], expressionResult.VariableValue);
-            }
-            else if (assignmentTarget.DictKey != null)
-            {
-                if (!symbols.ContainsKey(assignmentTarget.TokenValue))
-                    return IdentifierNotFoundError(assignmentTarget);
+                if (retVar is DictVariable targetDict)
+                {
+                    IVariable lhs = null;
+                    if (targetDict.Value.TryGetValue(assignmentTarget.Indexer.StringValue, out var v))
+                        lhs = v;
 
-                var getVariableResult = symbols.GetVariable<DictVariable>(assignmentTarget.TokenValue);
-                if (getVariableResult.Result != EvalResult.Ok)
-                    return (getVariableResult.Result, getVariableResult.Reason, assignmentTarget);
+                    targetDict.Value[assignmentTarget.Indexer.StringValue] = ApplyOp(assignOp, lhs, expressionResult.VariableValue);
+                }
+                else if (retVar is ArrayVariable targetArray)
+                {
+                    if (assignmentTarget.Indexer is not IntVariable indexVar)
+                        return (EvalResult.Failed, $"Expected integer for array index, but got: {assignmentTarget.Indexer} ({assignmentTarget.Indexer.GetType().Name})", assignmentTarget);
 
-                var targetDict = getVariableResult.Variable;
-
-                IVariable lhs = null;
-                if (targetDict.Value.TryGetValue(assignmentTarget.DictKey, out var v))
-                    lhs = v;
-
-                targetDict.Value[assignmentTarget.DictKey] = ApplyOp(assignOp, lhs, expressionResult.VariableValue);
+                    targetArray.Value[indexVar.Value] = ApplyOp(assignOp, targetArray.Value[indexVar.Value], expressionResult.VariableValue);
+                }
+                else
+                {
+                    return (EvalResult.Failed, $"Indexer operation on non-indexable value: {retVar} ({retVar.GetType().Name})", assignmentTarget);
+                }
             }
             else
             {
@@ -148,7 +148,7 @@ namespace EOBot.Interpreter.States
                     && expressionResult.VariableValue is not UndefinedVariable)
                 {
                     // todo: surface warnings to caller and let caller decide what to do with it instead of making the interpreter write to console directly
-                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"Changing type of variable {assignmentTarget.TokenValue} from {symbols[assignmentTarget.TokenValue].Identifiable.GetType()} to {expressionResult.VariableValue.GetType()}", System.ConsoleColor.DarkYellow);
+                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"Changing type of variable {assignmentTarget.TokenValue} from {symbols[assignmentTarget.TokenValue].Identifiable.GetType()} to {expressionResult.VariableValue.GetType()} (at: {assignmentTarget.LineNumber}:{assignmentTarget.Column})", ConsoleColor.DarkYellow);
                 }
 
                 IVariable lhsVar = null;

@@ -28,7 +28,7 @@ namespace EOBot.Interpreter.States
                 return (result, reason, token);
 
             var targetVariable = (IdentifierBotToken)token;
-            if (targetVariable.Member != null || targetVariable.ArrayIndex != null || targetVariable.DictKey != null)
+            if (targetVariable.Member != null || targetVariable.Indexer != null)
                 return (EvalResult.Failed, "foreach iteration must be assigned to simple identifier", targetVariable);
 
             if (!input.Current().Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_IN))
