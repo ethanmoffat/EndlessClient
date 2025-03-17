@@ -126,14 +126,21 @@ namespace EOBot.Interpreter
                             ? BotTokenType.Literal
                             : BotTokenType.Identifier;
 
-                return Token(type, identifier);
+                if (type == BotTokenType.Literal)
+                {
+                    return Literal(identifier, identifier == KEYWORD_UNDEFINED ? null : bool.Parse(identifier));
+                }
+                else
+                {
+                    return Token(type, identifier);
+                }
             }
             else if (char.IsDigit(inputChar))
             {
                 var number = inputChar.ToString();
                 while (char.IsDigit(Peek()) && !_inputStream.EndOfStream)
                     number += Read();
-                return Token(BotTokenType.Literal, number);
+                return Literal(number, int.Parse(number));
             }
             else
             {
@@ -157,7 +164,7 @@ namespace EOBot.Interpreter
                                 return Token(BotTokenType.Error, string.Empty);
 
                             Read();
-                            return Token(BotTokenType.Literal, stringLiteral);
+                            return Literal(stringLiteral, stringLiteral);
                         }
                     case '=':
                         {
@@ -309,6 +316,11 @@ namespace EOBot.Interpreter
         private BotToken Token(BotTokenType tokenType, string tokenValue)
         {
             return new BotToken(tokenType, tokenValue, LineNumber, Column);
+        }
+
+        private LiteralBotToken Literal(string tokenValue, object literalValue)
+        {
+            return new LiteralBotToken(BotTokenType.Literal, tokenValue, literalValue, LineNumber, Column);
         }
 
         public void Dispose()
