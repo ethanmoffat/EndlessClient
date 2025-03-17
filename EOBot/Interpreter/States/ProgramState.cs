@@ -123,6 +123,7 @@ namespace EOBot.Interpreter.States
         /// <param name="parentState">The parent program.</param>
         public void InheritFrom(ProgramState parentState)
         {
+            ExecutionIndex = 0;
             OperationStack.Clear();
             SymbolTable = parentState.SymbolTable;
             CallStack = parentState.CallStack;
