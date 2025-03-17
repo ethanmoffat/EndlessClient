@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -52,10 +53,13 @@ namespace EOBot.Interpreter
         public void SetupBuiltInFunctions(ProgramState programState)
         {
             programState.SymbolTable[PredefinedIdentifiers.PRINT_FUNC] = Readonly(new VoidFunction<object>(PredefinedIdentifiers.PRINT_FUNC, param1 => ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, param1.ToString())));
-            programState.SymbolTable[PredefinedIdentifiers.LEN_FUNC] = Readonly(new Function<ArrayVariable, int>(PredefinedIdentifiers.LEN_FUNC, param1 => param1.Value.Count));
+            programState.SymbolTable[PredefinedIdentifiers.LEN_FUNC] = Readonly(new Function<IVariable, int>(PredefinedIdentifiers.LEN_FUNC, Len));
             programState.SymbolTable[PredefinedIdentifiers.ARRAY_FUNC] = Readonly(new Function<int, List<IVariable>>(PredefinedIdentifiers.ARRAY_FUNC, param1 => Enumerable.Repeat(UndefinedVariable.Instance, param1).Cast<IVariable>().ToList()));
             programState.SymbolTable[PredefinedIdentifiers.DICT_FUNC] = Readonly(new Function<Dictionary<string, IVariable>>(PredefinedIdentifiers.DICT_FUNC, () => []));
             programState.SymbolTable[PredefinedIdentifiers.APPEND_FUNC] = Readonly(new VoidFunction<ArrayVariable, IVariable>(PredefinedIdentifiers.APPEND_FUNC, (array, var) => array.Value.Add(var)));
+            programState.SymbolTable[PredefinedIdentifiers.REMOVE_FUNC] = Readonly(new VoidFunction<ArrayVariable, IVariable>(PredefinedIdentifiers.REMOVE_FUNC, (array, var) => array.Value.Remove(var)));
+            programState.SymbolTable[PredefinedIdentifiers.REMOVEAT_FUNC] = Readonly(new VoidFunction<ArrayVariable, int>(PredefinedIdentifiers.REMOVEAT_FUNC, (array, index) => array.Value.RemoveAt(index)));
+            programState.SymbolTable[PredefinedIdentifiers.INSERT_FUNC] = Readonly(new VoidFunction<ArrayVariable, int, IVariable>(PredefinedIdentifiers.INSERT_FUNC, (array, index, value) => array.Value.Insert(index, value)));
             programState.SymbolTable[PredefinedIdentifiers.CLEAR_FUNC] = Readonly(new VoidFunction<ArrayVariable>(PredefinedIdentifiers.CLEAR_FUNC, array => array.Value.Clear()));
             programState.SymbolTable[PredefinedIdentifiers.SLEEP_FUNC] = Readonly(new AsyncVoidFunction<int>(PredefinedIdentifiers.SLEEP_FUNC, Task.Delay));
             programState.SymbolTable[PredefinedIdentifiers.TIME_FUNC] = Readonly(new Function<string>(PredefinedIdentifiers.TIME_FUNC, DateTime.Now.ToLongTimeString));
@@ -71,11 +75,25 @@ namespace EOBot.Interpreter
             programState.SymbolTable[PredefinedIdentifiers.PARSE_FUNC] = Readonly(new Function<string, int>(PredefinedIdentifiers.PARSE_FUNC, Parse));
             programState.SymbolTable[PredefinedIdentifiers.MAX_FUNC] = Readonly(new Function<int, int, int>(PredefinedIdentifiers.MAX_FUNC, Math.Max));
             programState.SymbolTable[PredefinedIdentifiers.MIN_FUNC] = Readonly(new Function<int, int, int>(PredefinedIdentifiers.MIN_FUNC, Math.Min));
+            programState.SymbolTable[PredefinedIdentifiers.TRIM_FUNC] = Readonly(new Function<string, string>(PredefinedIdentifiers.TRIM_FUNC, str => str.Trim()));
+            programState.SymbolTable[PredefinedIdentifiers.SPLIT_FUNC] = Readonly(
+                new Function<string, string, List<IVariable>>(
+                    PredefinedIdentifiers.SPLIT_FUNC,
+                    (str, delim) => new List<IVariable>(str.Split(delim).Select(x => new StringVariable(x)))
+                )
+            );
 
             if (OperatingSystem.IsWindows())
                 programState.SymbolTable[PredefinedIdentifiers.BEEP_FUNC] = Readonly(new VoidFunction<int, int>(PredefinedIdentifiers.BEEP_FUNC, Console.Beep));
             else
                 programState.SymbolTable[PredefinedIdentifiers.BEEP_FUNC] = Readonly(new VoidFunction<int, int>(PredefinedIdentifiers.BEEP_FUNC, (_, _) => { }));
+
+            programState.SymbolTable[PredefinedIdentifiers.READALL_FUNC] = Readonly(
+                new Function<string, List<IVariable>>(
+                    PredefinedIdentifiers.READALL_FUNC,
+                    path => new List<IVariable>(File.ReadAllLines(path).Select(x => new StringVariable(x)))
+                )
+            );
 
             BotDependencySetup();
 
@@ -137,6 +155,18 @@ namespace EOBot.Interpreter
         private static (bool, IIdentifiable) Readonly(IIdentifiable identifiable)
         {
             return (true, identifiable);
+        }
+
+        private static int Len(IVariable variable)
+        {
+            if (variable is ArrayVariable av)
+                return av.Value.Count;
+            if (variable is StringVariable sv)
+                return sv.Value.Length;
+            if (variable is DictVariable dv)
+                return dv.Value.Count;
+
+            return -1;
         }
 
         private static bool Contains(IVariable haystack, IVariable needle)
