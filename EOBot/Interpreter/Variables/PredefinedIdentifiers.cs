@@ -28,6 +28,9 @@
         public const string ARRAY_FUNC = "array";
         public const string DICT_FUNC = "dict";
         public const string APPEND_FUNC = "append";
+        public const string REMOVE_FUNC = "remove";
+        public const string REMOVEAT_FUNC = "removeat";
+        public const string INSERT_FUNC = "insert";
         public const string CLEAR_FUNC = "clear";
         public const string OBJECT_FUNC = "object";
         public const string SLEEP_FUNC = "sleep";
@@ -41,6 +44,14 @@
         public const string ABS_FUNC = "abs";
         public const string CONTAINS_FUNC = "contains";
         public const string PARSE_FUNC = "parse";
+        public const string BEEP_FUNC = "beep";
+        public const string MAX_FUNC = "max";
+        public const string MIN_FUNC = "min";
+        public const string TRIM_FUNC = "trim";
+        public const string SPLIT_FUNC = "split";
+
+        // io (todo: syntax to map .net types/functions to be referenced by the interpreter)
+        public const string READALL_FUNC = "readall";
 
         // game functions
         public const string CONNECT_FUNC = "Connect";
@@ -65,6 +76,7 @@
         public const string WALK = "Walk";
         public const string ATTACK = "Attack";
         public const string SIT = "Sit";
+        public const string CAST = "Cast";
 
         public const string USEITEM = "UseItem";
         public const string DROP = "Drop";

@@ -257,12 +257,14 @@ namespace EOBot.Interpreter.States
         {
             if (nextToken is not VariableBotToken operand)
             {
-                if (nextToken.TokenType == BotTokenType.Literal)
+                if (nextToken is LiteralBotToken lbt)
                 {
-                    if (int.TryParse(nextToken.TokenValue, out var intValue))
-                        return Success(new VariableBotToken(BotTokenType.Literal, nextToken.TokenValue, new IntVariable(intValue)));
-                    else if (bool.TryParse(nextToken.TokenValue, out var boolValue))
-                        return Success(new VariableBotToken(BotTokenType.Literal, nextToken.TokenValue, new BoolVariable(boolValue)));
+                    if (nextToken.TokenValue == "undefined")
+                        return Success(new VariableBotToken(BotTokenType.Literal, nextToken.TokenValue, UndefinedVariable.Instance));
+                    else if (lbt.LiteralValue is int iv)
+                        return Success(new VariableBotToken(BotTokenType.Literal, nextToken.TokenValue, new IntVariable(iv)));
+                    else if (lbt.LiteralValue is bool bv)
+                        return Success(new VariableBotToken(BotTokenType.Literal, nextToken.TokenValue, new BoolVariable(bv)));
                     else
                         return Success(new VariableBotToken(BotTokenType.Literal, nextToken.TokenValue, new StringVariable(nextToken.TokenValue)));
                 }
@@ -304,10 +306,10 @@ namespace EOBot.Interpreter.States
         }
 
         private static (IVariable, string) Add(IntVariable a, IntVariable b) => (new IntVariable(a.Value + b.Value), string.Empty);
-        private static (IVariable, string) Add(IntVariable a, StringVariable b) => (new StringVariable(a.Value + b.Value), string.Empty);
-        private static (IVariable, string) Add(StringVariable a, IntVariable b) => (new StringVariable(a.Value + b.Value), string.Empty);
         private static (IVariable, string) Add(StringVariable a, StringVariable b) => (new StringVariable(a.Value + b.Value), string.Empty);
-        private static (IVariable, string) Add(object a, object b) => (null, $"Objects {a} and {b} could not be added (currently the operands must be int or string)");
+        private static (IVariable, string) Add(IVariable a, StringVariable b) => (new StringVariable(a.StringValue + b.Value), string.Empty);
+        private static (IVariable, string) Add(StringVariable a, IVariable b) => (new StringVariable(a.Value + b.StringValue), string.Empty);
+        private static (IVariable, string) Add(object a, object b) => (null, $"Objects {a} and {b} could not be added (currently the operands must be int or convertable to variable)");
 
         private static (IVariable, string) Subtract(IntVariable a, IntVariable b) => (new IntVariable(a.Value - b.Value), string.Empty);
         private static (IVariable, string) Subtract(object a, object b) => (null, $"Objects {a} and {b} could not be subtracted (currently the operands must be int)");

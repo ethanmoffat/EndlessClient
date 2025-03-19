@@ -28,7 +28,7 @@ namespace EOBot.Interpreter.States
                 return (result, reason, token);
 
             var targetVariable = (IdentifierBotToken)token;
-            if (targetVariable.Member != null || targetVariable.ArrayIndex != null || targetVariable.DictKey != null)
+            if (targetVariable.Member != null || targetVariable.Indexer != null)
                 return (EvalResult.Failed, "foreach iteration must be assigned to simple identifier", targetVariable);
 
             if (!input.Current().Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_IN))
@@ -68,14 +68,18 @@ namespace EOBot.Interpreter.States
                 return Error(input.Current(), BotTokenType.RParen);
 
             var blockStartIndex = input.ExecutionIndex;
-
-            for (int i = 0; i < arrayVariable.Value.Count; i++)
+            var hasPreviousValue = input.SymbolTable.TryGetValue(targetVariable.TokenValue, out var previousValue);
+            try
             {
-                input.Goto(blockStartIndex);
-
-                try
+                if (hasPreviousValue)
                 {
-                    input.SymbolTable[targetVariable.TokenValue] = (true, arrayVariable.Value[i]);
+                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"Foreach iteration variable {targetVariable.TokenValue}({targetVariable.LineNumber}{targetVariable.Column}) hides existing variable", System.ConsoleColor.DarkYellow);
+                }
+
+                for (int i = 0; i < arrayVariable.Value.Count; i++)
+                {
+                    input.Goto(blockStartIndex);
+                    input.SymbolTable[targetVariable.TokenValue] = (false, arrayVariable.Value[i]);
 
                     var blockEval = await EvaluateBlockAsync(input, ct);
                     if (blockEval.Item1 == EvalResult.ControlFlow)
@@ -87,10 +91,13 @@ namespace EOBot.Interpreter.States
                         return blockEval;
                     }
                 }
-                finally
-                {
+            }
+            finally
+            {
+                if (hasPreviousValue)
+                    input.SymbolTable[targetVariable.TokenValue] = previousValue;
+                else
                     input.SymbolTable.Remove(targetVariable.TokenValue);
-                }
             }
 
             if (result == EvalResult.Ok)

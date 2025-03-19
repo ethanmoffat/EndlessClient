@@ -12,8 +12,15 @@ namespace EOBot.Interpreter.States
 
         public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input, CancellationToken ct)
         {
+            var hasNewLines = false;
             while (input.Current().TokenType == BotTokenType.NewLine)
+            {
+                hasNewLines = true;
                 input.Expect(BotTokenType.NewLine);
+            }
+
+            if (hasNewLines && input.Expect(BotTokenType.EOF))
+                return Success();
 
             var (result, reason, token) = await Evaluator<AssignmentEvaluator>().EvaluateAsync(input, ct);
             if (result == EvalResult.NotMatch)

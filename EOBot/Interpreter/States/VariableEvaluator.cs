@@ -19,8 +19,7 @@ namespace EOBot.Interpreter.States
             if (!input.Match(BotTokenType.Variable))
                 return (EvalResult.NotMatch, string.Empty, input.Current());
 
-            int? arrayIndex = null;
-            string dictKey = null;
+            IVariable indexer = null;
             if (input.Match(BotTokenType.LBracket))
             {
                 var expressionEval = await Evaluator<ExpressionEvaluator>().EvaluateAsync(input, ct);
@@ -40,18 +39,7 @@ namespace EOBot.Interpreter.States
                 if (!lBracket.Is(BotTokenType.LBracket))
                     return StackTokenError(BotTokenType.LBracket, lBracket);
 
-                if (expressionResult.VariableValue is IntVariable iv)
-                {
-                    arrayIndex = iv.Value;
-                }
-                else if (expressionResult.VariableValue is StringVariable sv)
-                {
-                    dictKey = sv.Value;
-                }
-                else
-                {
-                    return (EvalResult.Failed, $"Expected index expression to be int or string, but it was {expressionResult.VariableValue.GetType().Name}", expressionResult);
-                }
+                indexer = expressionResult.VariableValue;
             }
 
             IdentifierBotToken nestedIdentifier = null;
@@ -78,7 +66,7 @@ namespace EOBot.Interpreter.States
                 return StackEmptyError(input.Current());
             var identifier = input.OperationStack.Pop();
 
-            input.OperationStack.Push(new IdentifierBotToken(identifier, arrayIndex, dictKey, nestedIdentifier));
+            input.OperationStack.Push(new IdentifierBotToken(identifier, indexer, nestedIdentifier));
 
             return Success();
         }

@@ -1,18 +1,17 @@
-﻿namespace EOBot.Interpreter
+﻿using EOBot.Interpreter.Variables;
+
+namespace EOBot.Interpreter
 {
     public class IdentifierBotToken : BotToken
     {
-        public int? ArrayIndex { get; }
-
-        public string DictKey { get; }
+        public IVariable Indexer { get; }
 
         public IdentifierBotToken Member { get; }
 
-        public IdentifierBotToken(BotToken identifier, int? arrayIndex = null, string dictKey = null, IdentifierBotToken member = null)
+        public IdentifierBotToken(BotToken identifier, IVariable indexer = null, IdentifierBotToken member = null)
             : base(identifier.TokenType, identifier.TokenValue, identifier.LineNumber, identifier.Column)
         {
-            ArrayIndex = arrayIndex;
-            DictKey = dictKey;
+            Indexer = indexer;
             Member = member;
         }
     }

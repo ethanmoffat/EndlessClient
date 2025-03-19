@@ -48,6 +48,8 @@ namespace EOBot.Interpreter.States
                     await CallAsync(input, ct, (dynamic)function, parameters.Select(x => x.VariableValue).ToArray()).ConfigureAwait(false);
                 else if (function is IFunction)
                     Call(input, (dynamic)function, parameters.Select(x => x.VariableValue).ToArray());
+                else if (function is IUserDefinedFunction udf)
+                    return await udf.CallAsync(input, ct, parameters.Select(x => x.VariableValue).ToArray());
                 else
                     return (EvalResult.Failed, $"Expected identifier {functionToken.TokenValue} to be a function, but it was {function.GetType().Name}", functionToken);
             }
@@ -55,7 +57,7 @@ namespace EOBot.Interpreter.States
             {
                 // stack information isn't really important since this is only used to signal to the framework that a bot failed
                 // recreate the exception so it prints line number/column info with the error
-                throw new BotScriptErrorException(bse.Message, functionToken);
+                throw new BotScriptErrorException(bse.Message, functionToken, input.CallStack);
             }
             catch (ArgumentException ae)
             {
