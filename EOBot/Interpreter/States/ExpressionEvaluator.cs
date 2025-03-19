@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,6 +35,11 @@ namespace EOBot.Interpreter.States
                         var arrayVariable = new ArrayVariable(arrayParams.Select(x => x.VariableValue).ToList());
                         input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, arrayVariable.StringValue, arrayVariable));
 
+                        // check for an expression tail after array literal
+                        res = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input, ct);
+                        if (res.Result != EvalResult.Ok && res.Result != EvalResult.NotMatch)
+                            return res;
+
                         return Success();
                     }
                 }
@@ -55,6 +61,12 @@ namespace EOBot.Interpreter.States
                             )
                         );
                         input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, objectVariable.StringValue, objectVariable));
+
+                        // check for an expression tail after object literal
+                        res = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input, ct);
+                        if (res.Result != EvalResult.Ok && res.Result != EvalResult.NotMatch)
+                            return res;
+
                         return Success();
                     }
                     else if (res.Result != EvalResult.NotMatch)
@@ -165,7 +177,7 @@ namespace EOBot.Interpreter.States
                         : (EvalResult.Failed, "Error evaluating expression: no operands for operator", node.Token);
                 if (res == EvalResult.Failed)
                     return (res, reason, operand);
-                if (operand is not VariableBotToken variable)
+                if (operand is not VariableBotToken variable || operand.TokenType == BotTokenType.TypeSpecifier)
                     return (EvalResult.Failed, $"Error evaluating expression: expected operand but got {operand.TokenType}", operand);
 
                 return HandleUnaryOperator(input, node.Token, variable);
@@ -175,7 +187,7 @@ namespace EOBot.Interpreter.States
                 var (result, reason, resolved) = EvaluateTree(input, node.Right);
                 if (result == EvalResult.Failed)
                     return (result, reason, node.Right.Token);
-                if (resolved is not VariableBotToken lhs)
+                if (resolved is not VariableBotToken lhs || resolved.TokenType == BotTokenType.TypeSpecifier)
                     return (EvalResult.Failed, $"Error evaluating expression: expected operand but got {resolved.TokenType}", resolved);
 
                 (result, reason, resolved) = EvaluateTree(input, node.Left);
@@ -183,6 +195,13 @@ namespace EOBot.Interpreter.States
                     return (result, reason, node.Left.Token);
                 if (resolved is not VariableBotToken rhs)
                     return (EvalResult.Failed, $"Error evaluating expression: expected operand but got {resolved.TokenType}", resolved);
+
+                // special case: check that 'is' operator is comparing against type specifier tokens (and that anything else has no type specifiers)
+                if (node.Token.TokenType == BotTokenType.IsOperator && resolved.TokenType != BotTokenType.TypeSpecifier
+                 || node.Token.TokenType != BotTokenType.IsOperator && resolved.TokenType == BotTokenType.TypeSpecifier)
+                {
+                    return (EvalResult.Failed, $"Error evaluating expression: expected valid operand for {node.Token.TokenType} operator, but got {resolved.TokenType}", resolved);
+                }
 
                 return HandleBinaryOperator(input, node.Token, lhs, rhs);
             }
@@ -243,6 +262,9 @@ namespace EOBot.Interpreter.States
                 case BotTokenType.MultiplyOperator: res = Multiply((dynamic)lhs.VariableValue, (dynamic)rhs.VariableValue); break;
                 case BotTokenType.DivideOperator: res = Divide((dynamic)lhs.VariableValue, (dynamic)rhs.VariableValue); break;
                 case BotTokenType.ModuloOperator: res = Modulo((dynamic)lhs.VariableValue, (dynamic)rhs.VariableValue); break;
+                case BotTokenType.IsOperator: res.Result = new BoolVariable(lhs.VariableValue.GetType().Equals(rhs.VariableValue.GetType())); break;
+                case BotTokenType.StrictEqualOperator:
+                case BotTokenType.StrictNotEqualOperator: res = StrictCompare(lhs.VariableValue, rhs.VariableValue, operatorToken.TokenType == BotTokenType.StrictEqualOperator); break;
                 default: return UnsupportedOperatorError(operatorToken);
             }
 
@@ -252,7 +274,6 @@ namespace EOBot.Interpreter.States
             return Success(new VariableBotToken(BotTokenType.Literal, res.Result.StringValue, res.Result));
         }
 
-        // todo: a lot of this code is the same as what's in AssignmentEvaluator::Assign, see if it can be split out/shared
         private static (EvalResult, string, BotToken) GetOperand(Dictionary<string, (bool, IIdentifiable)> symbols, BotToken nextToken)
         {
             if (nextToken is not VariableBotToken operand)
@@ -267,6 +288,22 @@ namespace EOBot.Interpreter.States
                         return Success(new VariableBotToken(BotTokenType.Literal, nextToken.TokenValue, new BoolVariable(bv)));
                     else
                         return Success(new VariableBotToken(BotTokenType.Literal, nextToken.TokenValue, new StringVariable(nextToken.TokenValue)));
+                }
+                else if (nextToken.TokenType == BotTokenType.TypeSpecifier)
+                {
+                    // convert type specifier to a variable of that type with the default value
+                    // the variable value doesn't matter because type specifiers should only be used in `is` comparisons
+                    IVariable variableValue = nextToken.TokenValue switch
+                    {
+                        BotTokenParser.KEYWORD_INT => new IntVariable(default),
+                        BotTokenParser.KEYWORD_STRING => new StringVariable(default),
+                        BotTokenParser.KEYWORD_BOOL => new BoolVariable(default),
+                        BotTokenParser.KEYWORD_OBJECT => new ObjectVariable(default),
+                        BotTokenParser.KEYWORD_ARRAY => new ArrayVariable(default),
+                        BotTokenParser.KEYWORD_DICT => new DictVariable(default),
+                        _ => throw new InvalidOperationException($"Type specifier token {nextToken} had unexpected value: {nextToken.TokenValue} (not a recognized type specifier)."),
+                    };
+                    return Success(new VariableBotToken(nextToken.TokenType, nextToken.TokenValue, variableValue));
                 }
 
                 return symbols.ResolveIdentifier(nextToken);
@@ -322,5 +359,15 @@ namespace EOBot.Interpreter.States
 
         private static (IVariable, string) Modulo(IntVariable a, IntVariable b) => (new IntVariable(a.Value % b.Value), string.Empty);
         private static (IVariable, string) Modulo(object a, object b) => (null, $"Objects {a} and {b} could not be modulo'd (currently the operands must be int)");
+
+        private static (IVariable, string) StrictCompare(IVariable lhs, IVariable rhs, bool expectEqual)
+        {
+            if (!lhs.GetType().Equals(rhs.GetType()))
+            {
+                return (new BoolVariable(!expectEqual), string.Empty);
+            }
+
+            return (new BoolVariable(expectEqual == lhs.Equals(rhs)), string.Empty);
+        }
     }
 }

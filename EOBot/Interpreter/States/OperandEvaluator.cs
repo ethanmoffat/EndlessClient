@@ -21,7 +21,7 @@ namespace EOBot.Interpreter.States
             if (evalRes.Result == EvalResult.Ok)
                 return evalRes;
 
-            var matchRes = input.Match(BotTokenType.Literal);
+            var matchRes = input.MatchOneOf(BotTokenType.Literal, BotTokenType.TypeSpecifier);
             return matchRes ? Success() : (EvalResult.NotMatch, string.Empty, input.Current());
         }
     }

@@ -39,6 +39,10 @@
         MinusEquals,
         MultiplyEquals,
         DivideEquals,
+        StrictEqualOperator,
+        StrictNotEqualOperator,
+        IsOperator,
+        TypeSpecifier,
         Error,
     }
 }

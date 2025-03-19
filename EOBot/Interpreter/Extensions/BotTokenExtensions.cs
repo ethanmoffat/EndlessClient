@@ -33,7 +33,8 @@ namespace EOBot.Interpreter.Extensions
                 BotTokenType.LogicalAndOperator, BotTokenType.LogicalOrOperator,
                 BotTokenType.PlusOperator, BotTokenType.MinusOperator,
                 BotTokenType.MultiplyOperator, BotTokenType.DivideOperator,
-                BotTokenType.ModuloOperator
+                BotTokenType.ModuloOperator, BotTokenType.IsOperator,
+                BotTokenType.StrictEqualOperator, BotTokenType.StrictNotEqualOperator
             );
         }
     }
