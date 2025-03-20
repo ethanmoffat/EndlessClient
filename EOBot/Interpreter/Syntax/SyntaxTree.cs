@@ -17,6 +17,7 @@ namespace EOBot.Interpreter.Syntax
         {
             [BotTokenType.Literal] = 9,
             [BotTokenType.Variable] = 9,
+            [BotTokenType.TypeSpecifier] = 9,
             [BotTokenType.NotOperator] = 8,
             [BotTokenType.MultiplyOperator] = 6,
             [BotTokenType.DivideOperator] = 6,
@@ -29,6 +30,9 @@ namespace EOBot.Interpreter.Syntax
             [BotTokenType.GreaterThanEqOperator] = 4,
             [BotTokenType.EqualOperator] = 3,
             [BotTokenType.NotEqualOperator] = 3,
+            [BotTokenType.StrictEqualOperator] = 3,
+            [BotTokenType.StrictNotEqualOperator] = 3,
+            [BotTokenType.IsOperator] = 3,
             [BotTokenType.LogicalAndOperator] = 2,
             [BotTokenType.LogicalOrOperator] = 1
         };

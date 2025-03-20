@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace EOBot.Interpreter
 {
@@ -18,9 +19,18 @@ namespace EOBot.Interpreter
         public const string KEYWORD_FUNC = "func";
         public const string KEYWORD_RETURN = "return";
 
+        public const string KEYWORD_IS = "is";
+
         public const string KEYWORD_UNDEFINED = "undefined";
         public const string KEYWORD_TRUE = "true";
         public const string KEYWORD_FALSE = "false";
+
+        public const string KEYWORD_BOOL = "bool";
+        public const string KEYWORD_INT = "int";
+        public const string KEYWORD_STRING = "string";
+        public const string KEYWORD_OBJECT = "Object";
+        public const string KEYWORD_ARRAY = "Array";
+        public const string KEYWORD_DICT = "Dict";
 
         private static readonly HashSet<string> Keywords =
         [
@@ -37,7 +47,9 @@ namespace EOBot.Interpreter
             KEYWORD_RETURN,
         ];
 
+        private static readonly HashSet<string> Operators = [KEYWORD_IS];
         private static readonly HashSet<string> Literals = [KEYWORD_TRUE, KEYWORD_FALSE, KEYWORD_UNDEFINED];
+        private static readonly HashSet<string> Types = [KEYWORD_BOOL, KEYWORD_INT, KEYWORD_STRING, KEYWORD_OBJECT, KEYWORD_ARRAY, KEYWORD_DICT];
 
         private readonly StreamReader _inputStream;
         private readonly bool _streamNeedsDispose;
@@ -120,11 +132,25 @@ namespace EOBot.Interpreter
                 while ((char.IsLetterOrDigit(Peek()) || Peek() == '_') && !_inputStream.EndOfStream)
                     identifier += Read();
 
-                var type = Keywords.Contains(identifier)
+                BotTokenType type;
+                if (Operators.Contains(identifier))
+                {
+                    type = identifier switch
+                    {
+                        KEYWORD_IS => BotTokenType.IsOperator,
+                        _ => throw new ArgumentOutOfRangeException("You added a new text operator, didn't you."),
+                    };
+                }
+                else
+                {
+                    type = Keywords.Contains(identifier)
                         ? BotTokenType.Keyword
                         : Literals.Contains(identifier)
                             ? BotTokenType.Literal
-                            : BotTokenType.Identifier;
+                            : Types.Contains(identifier)
+                                ? BotTokenType.TypeSpecifier
+                                : BotTokenType.Identifier;
+                }
 
                 if (type == BotTokenType.Literal)
                 {
@@ -172,7 +198,14 @@ namespace EOBot.Interpreter
                             {
                                 case '=':
                                     var nextChar = Read();
-                                    return Token(BotTokenType.EqualOperator, inputChar.ToString() + nextChar);
+                                    switch (Peek())
+                                    {
+                                        case '=':
+                                            var nextNextChar = Read();
+                                            return Token(BotTokenType.StrictEqualOperator, inputChar.ToString() + nextChar + nextNextChar);
+                                        default:
+                                            return Token(BotTokenType.EqualOperator, inputChar.ToString() + nextChar);
+                                    }
                                 default:
                                     return Token(BotTokenType.AssignOperator, inputChar.ToString());
                             }
@@ -183,7 +216,14 @@ namespace EOBot.Interpreter
                             {
                                 case '=':
                                     var nextChar = Read();
-                                    return Token(BotTokenType.NotEqualOperator, inputChar.ToString() + nextChar);
+                                    switch (Peek())
+                                    {
+                                        case '=':
+                                            var nextNextChar = Read();
+                                            return Token(BotTokenType.StrictNotEqualOperator, inputChar.ToString() + nextChar + nextNextChar);
+                                        default:
+                                            return Token(BotTokenType.NotEqualOperator, inputChar.ToString() + nextChar);
+                                    }
                                 default:
                                     return Token(BotTokenType.NotOperator, inputChar.ToString());
                             }

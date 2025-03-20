@@ -20,7 +20,8 @@ namespace EOBot.Interpreter.States
                 BotTokenType.EqualOperator, BotTokenType.NotEqualOperator, BotTokenType.GreaterThanOperator,
                 BotTokenType.LessThanOperator, BotTokenType.GreaterThanEqOperator, BotTokenType.LessThanEqOperator,
                 BotTokenType.LogicalAndOperator, BotTokenType.LogicalOrOperator,
-                BotTokenType.PlusOperator, BotTokenType.MinusOperator, BotTokenType.MultiplyOperator, BotTokenType.DivideOperator, BotTokenType.ModuloOperator
+                BotTokenType.PlusOperator, BotTokenType.MinusOperator, BotTokenType.MultiplyOperator, BotTokenType.DivideOperator, BotTokenType.ModuloOperator,
+                BotTokenType.StrictEqualOperator, BotTokenType.StrictNotEqualOperator, BotTokenType.IsOperator,
             };
 
             if (!input.MatchOneOf(expectedTokens))
