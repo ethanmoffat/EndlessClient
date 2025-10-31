@@ -12,6 +12,9 @@ namespace EOLib.Domain.Notifiers
         void NotifyPartyMemberAdd(string name);
 
         void NotifyPartyMemberRemove(string name);
+        void NotifyPartyFull();
+        void NotifyAlreadyInAnotherParty(string playerName);
+        void NotifyAlreadyInYourParty(string playerName);
     }
 
     [AutoMappedType]
@@ -24,5 +27,8 @@ namespace EOLib.Domain.Notifiers
         public void NotifyPartyMemberAdd(string name) { }
 
         public void NotifyPartyMemberRemove(string name) { }
+        public void NotifyPartyFull() { }
+        public void NotifyAlreadyInAnotherParty(string playerName) { }
+        public void NotifyAlreadyInYourParty(string playerName) { }
     }
 }

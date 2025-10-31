@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using AutomaticTypeMapper;
-using EOLib.Domain.Interact.Quest;
 using EOLib.Domain.Login;
-using EOLib.Localization;
+using EOLib.Domain.Notifiers;
 using EOLib.Net.Handlers;
 using Moffat.EndlessOnline.SDK.Protocol.Net;
 using Moffat.EndlessOnline.SDK.Protocol.Net.Server;
@@ -15,38 +14,34 @@ namespace EOLib.PacketHandlers.Party
     [AutoMappedType]
     public class PartyReplyHandler : InGameOnlyPacketHandler<PartyReplyServerPacket>
     {
-        private readonly IEnumerable<IStatusLabelNotifier> _statusLabelNotifiers;
-        private readonly ILocalizedStringFinder _localizedStringFinder;
+        private readonly IEnumerable<IPartyEventNotifier> _partyEventNotifiers;
 
         public override PacketFamily Family => PacketFamily.Party;
 
         public override PacketAction Action => PacketAction.Reply;
 
         public PartyReplyHandler(IPlayerInfoProvider playerInfoProvider,
-                                   IEnumerable<IStatusLabelNotifier> statusLabelNotifiers,
-                                   ILocalizedStringFinder localizedStringFinder)
-            : base(playerInfoProvider)
+                                   IEnumerable<IPartyEventNotifier> partyEventNotifiers) : base(playerInfoProvider)
         {
-            _statusLabelNotifiers = statusLabelNotifiers;
-            _localizedStringFinder = localizedStringFinder;
+            _partyEventNotifiers = partyEventNotifiers;
         }
 
         public override bool HandlePacket(PartyReplyServerPacket packet)
         {
-            foreach (var notifier in _statusLabelNotifiers)
+            foreach (var notifier in _partyEventNotifiers)
             {
                 switch (packet.ReplyCode)
                 {
                     case PartyReplyCode.PartyIsFull:
-                        notifier.ShowWarning(_localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_PARTY_THE_PARTY_IS_FULL));
+                        notifier.NotifyPartyFull();
                         break;
                     case PartyReplyCode.AlreadyInAnotherParty:
                         var anotherPartyData = (PartyReplyServerPacket.ReplyCodeDataAlreadyInAnotherParty)packet.ReplyCodeData;
-                        notifier.ShowWarning($"${anotherPartyData.PlayerName} ${_localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_PARTY_IS_ALREADY_IN_ANOTHER_PARTY)}");
+                        notifier.NotifyAlreadyInAnotherParty(anotherPartyData.PlayerName);
                         break;
                     case PartyReplyCode.AlreadyInYourParty:
                         var yourPartyData = (PartyReplyServerPacket.ReplyCodeDataAlreadyInYourParty)packet.ReplyCodeData;
-                        notifier.ShowWarning($"${yourPartyData.PlayerName} ${_localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_PARTY_IS_ALREADY_MEMBER)}");
+                        notifier.NotifyAlreadyInYourParty(yourPartyData.PlayerName);
                         break;
                 }
             }
