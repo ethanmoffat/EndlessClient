@@ -87,19 +87,19 @@ namespace EndlessClient.Dialogs.Actions
         public void NotifyPartyFull()
         {
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_PARTY_THE_PARTY_IS_FULL);
-            _chatRepository.AllChat[ChatTab.System].Add(new ChatData(ChatTab.System, string.Empty, _localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_PARTY_THE_PARTY_IS_FULL), ChatIcon.PlayerPartyDark, ChatColor.PM));
+            _chatRepository.AllChat[ChatTab.System].Add(new ChatData(ChatTab.System, string.Empty, _localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_PARTY_THE_PARTY_IS_FULL), ChatIcon.Error, ChatColor.Error));
         }
 
         public void NotifyAlreadyInAnotherParty(string playerName)
         {
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, $"{playerName.Capitalize()} {_localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_PARTY_IS_ALREADY_IN_ANOTHER_PARTY)}");
-            _chatRepository.AllChat[ChatTab.System].Add(new ChatData(ChatTab.System, string.Empty, $"{playerName.Capitalize()} {_localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_PARTY_IS_ALREADY_IN_ANOTHER_PARTY)}", ChatIcon.PlayerPartyDark, ChatColor.PM));
+            _chatRepository.AllChat[ChatTab.System].Add(new ChatData(ChatTab.System, string.Empty, $"{playerName.Capitalize()} {_localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_PARTY_IS_ALREADY_IN_ANOTHER_PARTY)}", ChatIcon.Error, ChatColor.Error));
         }
 
         public void NotifyAlreadyInYourParty(string playerName)
         {
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, $"{playerName.Capitalize()} {_localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_PARTY_IS_ALREADY_MEMBER)}");
-            _chatRepository.AllChat[ChatTab.System].Add(new ChatData(ChatTab.System, string.Empty, $"{playerName.Capitalize()} {_localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_PARTY_IS_ALREADY_MEMBER)}", ChatIcon.PlayerPartyDark, ChatColor.PM));
+            _chatRepository.AllChat[ChatTab.System].Add(new ChatData(ChatTab.System, string.Empty, $"{playerName.Capitalize()} {_localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_PARTY_IS_ALREADY_MEMBER)}", ChatIcon.Error, ChatColor.Error));
         }
     }
 }
