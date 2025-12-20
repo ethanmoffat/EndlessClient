@@ -21,18 +21,18 @@ strategy:
     linux:
       imageName: "ubuntu-22.04"
       friendlyPlatform: "Linux"
-      dropDir: net8.0
-      dotnetVersion: 8.0.x
+      dropDir: net10.0
+      dotnetVersion: 10.0.x
     windows:
       imageName: "windows-2022"
       friendlyPlatform: "Windows"
-      dropDir: net8.0-windows
-      dotnetVersion: 8.0.x
+      dropDir: net10.0-windows
+      dotnetVersion: 10.0.x
     macos:
       imageName: "macos-15"
       friendlyPlatform: "macOS"
-      dropDir: net8.0-macos
-      dotnetVersion: "8.0.204"
+      dropDir: net10.0-macos
+      dotnetVersion: "10.0.100"
 
 pool:
   vmImage: $(imageName)
@@ -44,7 +44,7 @@ steps:
 - checkout: self
   persistCredentials: true
 - task: UseDotNet@2
-  displayName: 'Install .Net 8 runtime/sdk'
+  displayName: 'Install .Net 10 runtime/sdk'
   inputs:
     version: $(dotnetVersion)
 - script: |
@@ -154,7 +154,7 @@ steps:
 - task: ArchiveFiles@2
   displayName: 'ZIP EOBot'
   inputs:
-    rootFolderOrFile: $(Build.SourcesDirectory)/bin/$(buildConfiguration)/utils/EOBot/net8.0/
+    rootFolderOrFile: $(Build.SourcesDirectory)/bin/$(buildConfiguration)/utils/EOBot/net10.0/
     archiveFile: $(Build.ArtifactStagingDirectory)/zip/EOBot.$(friendlyPlatform).zip
 # EndlessClient archive (macOS multi-target)
 - task: ArchiveFiles@2

@@ -450,7 +450,7 @@ namespace EndlessClient.HUD.Panels
                                 break;
                             case TradeDialog: _inventoryController.TradeItem(item.Data, item.InventoryItem); break;
                             default: return false;
-                        };
+                        }
 
                         return true;
                     },
