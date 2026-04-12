@@ -12,6 +12,7 @@ namespace EndlessClient.Rendering.Sprites
         ISpriteSheet GetWeaponSlash(CharacterRenderProperties characterRenderProperties);
 
         ISpriteSheet GetSkinTexture(CharacterRenderProperties characterRenderProperties);
+        ISpriteSheet GetBackHairTexture(CharacterRenderProperties characterRenderProperties);
         ISpriteSheet GetHairTexture(CharacterRenderProperties characterRenderProperties);
         ISpriteSheet GetFaceTexture(CharacterRenderProperties characterRenderProperties);
         ISpriteSheet GetEmoteTexture(CharacterRenderProperties characterRenderProperties);

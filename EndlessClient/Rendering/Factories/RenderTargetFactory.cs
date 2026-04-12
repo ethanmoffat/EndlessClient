@@ -22,7 +22,17 @@ namespace EndlessClient.Rendering.Factories
             return CreateRenderTarget(_clientWindowSizeProvider.Width, _clientWindowSizeProvider.Height);
         }
 
+        public RenderTarget2D CreateRenderTarget(RenderTargetUsage renderTargetUsage)
+        {
+            return CreateRenderTarget(_clientWindowSizeProvider.Width, _clientWindowSizeProvider.Height, renderTargetUsage);
+        }
+
         public RenderTarget2D CreateRenderTarget(int width, int height)
+        {
+            return CreateRenderTarget(width, height, RenderTargetUsage.DiscardContents);
+        }
+
+        public RenderTarget2D CreateRenderTarget(int width, int height, RenderTargetUsage renderTargetUsage)
         {
             return new RenderTarget2D(
                 _graphicsDeviceProvider.GraphicsDevice,
@@ -30,7 +40,9 @@ namespace EndlessClient.Rendering.Factories
                 height,
                 false,
                 SurfaceFormat.Color,
-                DepthFormat.None);
+                DepthFormat.None,
+                0,
+                renderTargetUsage);
         }
     }
 }

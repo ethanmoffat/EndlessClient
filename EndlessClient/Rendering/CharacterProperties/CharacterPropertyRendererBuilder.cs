@@ -29,42 +29,66 @@ namespace EndlessClient.Rendering.CharacterProperties
             _shieldMetadataProvider = shieldMetadataProvider;
         }
 
-        public IEnumerable<ICharacterPropertyRenderer> BuildList(ICharacterTextures textures,
-                                                                 CharacterRenderProperties renderProperties)
+        public CharacterRenderLayers BuildLayers(ICharacterTextures textures,
+                                                 CharacterRenderProperties renderProperties)
         {
             const float BaseLayer = 0.00001f;
+            var hatMaskType = GetHatMaskType(renderProperties.HatGraphic);
+            var shieldIsBehindCharacter = IsShieldBehindCharacter(renderProperties);
+            var weaponIsBehindCharacter = IsWeaponBehindCharacter(renderProperties);
+            var behind = new List<ICharacterPropertyRenderer>();
+            var main = new List<ICharacterPropertyRenderer>();
 
             // Melee weapons render extra behind the character
-            yield return new WeaponRenderer(renderProperties, textures.WeaponExtra) { LayerDepth = BaseLayer };
-            yield return new ShieldRenderer(renderProperties, textures.Shield, IsShieldOnBack(renderProperties.ShieldGraphic))
-            {
-                LayerDepth = BaseLayer * (IsShieldBehindCharacter(renderProperties) ? 2 : 13)
-            };
-            yield return new WeaponRenderer(renderProperties, textures.Weapon)
-            {
-                LayerDepth = BaseLayer * (IsWeaponBehindCharacter(renderProperties) ? 3 : 12)
-            };
-
-            yield return new SkinRenderer(renderProperties, textures.Skin) { LayerDepth = BaseLayer * 4 };
-            yield return new FaceRenderer(renderProperties, textures.Face, textures.Skin) { LayerDepth = BaseLayer * 5 };
-            yield return new EmoteRenderer(renderProperties, textures.Emote, textures.Skin) { LayerDepth = BaseLayer * 6 };
-
-            yield return new BootsRenderer(renderProperties, textures.Boots) { LayerDepth = BaseLayer * 7 };
-            yield return new ArmorRenderer(renderProperties, textures.Armor) { LayerDepth = BaseLayer * 8 };
-
-            var hatMaskType = GetHatMaskType(renderProperties.HatGraphic);
-            yield return new HatRenderer(renderProperties, textures.Hat, textures.Hair)
-            {
-                LayerDepth = BaseLayer * (hatMaskType == HatMaskType.FaceMask ? 10 : 11)
-            };
+            behind.Add(new WeaponRenderer(renderProperties, textures.WeaponExtra) { LayerDepth = BaseLayer });
+            AddRenderer(
+                new ShieldRenderer(renderProperties, textures.Shield, IsShieldOnBack(renderProperties.ShieldGraphic))
+                {
+                    LayerDepth = BaseLayer * (shieldIsBehindCharacter ? 2 : 13)
+                },
+                shieldIsBehindCharacter);
+            AddRenderer(
+                new WeaponRenderer(renderProperties, textures.Weapon)
+                {
+                    LayerDepth = BaseLayer * (weaponIsBehindCharacter ? 3 : 12)
+                },
+                weaponIsBehindCharacter);
 
             if (hatMaskType != HatMaskType.HideHair)
-                yield return new HairRenderer(renderProperties, textures.Hair)
+                behind.Add(new BackHairRenderer(renderProperties, textures.BackHair)
+                {
+                    LayerDepth = BaseLayer * 3.5f
+                });
+
+            main.Add(new SkinRenderer(renderProperties, textures.Skin) { LayerDepth = BaseLayer * 4 });
+            main.Add(new FaceRenderer(renderProperties, textures.Face, textures.Skin) { LayerDepth = BaseLayer * 5 });
+            main.Add(new EmoteRenderer(renderProperties, textures.Emote, textures.Skin) { LayerDepth = BaseLayer * 6 });
+
+            main.Add(new BootsRenderer(renderProperties, textures.Boots) { LayerDepth = BaseLayer * 7 });
+            main.Add(new ArmorRenderer(renderProperties, textures.Armor) { LayerDepth = BaseLayer * 8 });
+
+            main.Add(new HatRenderer(renderProperties, textures.Hat, textures.Hair)
+            {
+                LayerDepth = BaseLayer * (hatMaskType == HatMaskType.FaceMask ? 10 : 11)
+            });
+
+            if (hatMaskType != HatMaskType.HideHair)
+                main.Add(new HairRenderer(renderProperties, textures.Hair)
                 {
                     LayerDepth = BaseLayer * (hatMaskType == HatMaskType.FaceMask ? 11 : 10)
-                };
+                });
 
-            yield return new WeaponSlashRenderer(renderProperties, textures.WeaponSlash) { LayerDepth = BaseLayer * 14 };
+            main.Add(new WeaponSlashRenderer(renderProperties, textures.WeaponSlash) { LayerDepth = BaseLayer * 14 });
+
+            return new CharacterRenderLayers(behind, main);
+
+            void AddRenderer(ICharacterPropertyRenderer renderer, bool renderBehind)
+            {
+                if (renderBehind)
+                    behind.Add(renderer);
+                else
+                    main.Add(renderer);
+            }
         }
 
         private bool IsShieldBehindCharacter(CharacterRenderProperties renderProperties)

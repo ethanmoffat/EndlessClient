@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using EndlessClient.Audio;
 using EndlessClient.Input;
@@ -48,6 +49,7 @@ namespace EndlessClient.Rendering.Character
 
         private SpriteBatch _sb;
         private RenderTarget2D _charRenderTarget;
+        private RenderTarget2D _charForegroundRenderTarget;
         private Texture2D _outline;
 
         private BlinkingLabel _nameLabel;
@@ -269,33 +271,29 @@ namespace EndlessClient.Rendering.Character
         private void DrawToRenderTarget()
         {
             var weaponMetadata = _weaponMetadataProvider.GetValueOrDefault(Character.RenderProperties.WeaponGraphic);
+            var characterRenderLayers = _characterPropertyRendererBuilder.BuildLayers(_characterTextures, _character.RenderProperties);
+            var behindRenderers = characterRenderLayers.Behind.Where(x => x.CanRender).ToList();
+            var mainRenderers = characterRenderLayers.Main.Where(x => x.CanRender).ToList();
 
             lock (_rt_locker_)
             {
-                GraphicsDevice.SetRenderTarget(_charRenderTarget);
-                GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
-                _sb.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend);
+                // Standard hat clipping uses black pixels in the front pass as a mask.
+                // Behind layers have to be composed separately so the hat mask does not erase them too.
+                if (ShouldUseForegroundRenderTarget(behindRenderers))
+                {
+                    EnsureForegroundRenderTarget();
 
-                var characterPropertyRenderers = _characterPropertyRendererBuilder
-                    .BuildList(_characterTextures, _character.RenderProperties)
-                    .Where(x => x.CanRender);
-                foreach (var renderer in characterPropertyRenderers)
-                    renderer.Render(_sb, DrawArea, weaponMetadata);
+                    DrawRenderersToTarget(_charRenderTarget, behindRenderers, weaponMetadata);
+                    DrawRenderersToTarget(_charForegroundRenderTarget, mainRenderers, weaponMetadata);
 
-                //if (_gameStateProvider.CurrentState == GameStates.None)
-                //{
-                //    _sb.Draw(_outline, DrawArea.WithSize(DrawArea.Width, 1), Color.Black);
-                //    _sb.Draw(_outline, DrawArea.WithPosition(new Vector2(DrawArea.X + DrawArea.Width, DrawArea.Y)).WithSize(1, DrawArea.Height), Color.Black);
-                //    _sb.Draw(_outline, DrawArea.WithPosition(new Vector2(DrawArea.X, DrawArea.Y + DrawArea.Height)).WithSize(DrawArea.Width, 1), Color.Black);
-                //    _sb.Draw(_outline, DrawArea.WithSize(1, DrawArea.Height), Color.Black);
-
-                //    _sb.Draw(_outline, DrawArea, Color.FromNonPremultiplied(255, 0, 0, 64));
-                //}
-
-                _sb.End();
-                GraphicsDevice.SetRenderTarget(null);
-
-                ClipHair();
+                    ClipHair(_charForegroundRenderTarget);
+                    DrawForegroundRenderTarget();
+                }
+                else
+                {
+                    DrawRenderersToTarget(_charRenderTarget, behindRenderers.Concat(mainRenderers), weaponMetadata);
+                    ClipHair(_charRenderTarget);
+                }
             }
         }
 
@@ -422,10 +420,65 @@ namespace EndlessClient.Rendering.Character
             }
         }
 
-        private void ClipHair()
+        private void DrawRenderersToTarget(RenderTarget2D renderTarget, IEnumerable<ICharacterPropertyRenderer> renderers, WeaponMetadata weaponMetadata)
         {
-            if (Character.RenderProperties.HatGraphic == 0 ||
-                _hatMetadataProvider.GetValueOrDefault(Character.RenderProperties.HatGraphic).ClipMode != HatMaskType.Standard)
+            GraphicsDevice.SetRenderTarget(renderTarget);
+            GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
+            _sb.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend);
+
+            foreach (var renderer in renderers)
+                renderer.Render(_sb, DrawArea, weaponMetadata);
+
+            //if (_gameStateProvider.CurrentState == GameStates.None)
+            //{
+            //    _sb.Draw(_outline, DrawArea.WithSize(DrawArea.Width, 1), Color.Black);
+            //    _sb.Draw(_outline, DrawArea.WithPosition(new Vector2(DrawArea.X + DrawArea.Width, DrawArea.Y)).WithSize(1, DrawArea.Height), Color.Black);
+            //    _sb.Draw(_outline, DrawArea.WithPosition(new Vector2(DrawArea.X, DrawArea.Y + DrawArea.Height)).WithSize(DrawArea.Width, 1), Color.Black);
+            //    _sb.Draw(_outline, DrawArea.WithSize(1, DrawArea.Height), Color.Black);
+
+            //    _sb.Draw(_outline, DrawArea, Color.FromNonPremultiplied(255, 0, 0, 64));
+            //}
+
+            _sb.End();
+            GraphicsDevice.SetRenderTarget(null);
+        }
+
+        private void DrawForegroundRenderTarget()
+        {
+            GraphicsDevice.SetRenderTarget(_charRenderTarget);
+            _sb.Begin();
+            _sb.Draw(_charForegroundRenderTarget, Vector2.Zero, Color.White);
+            _sb.End();
+            GraphicsDevice.SetRenderTarget(null);
+        }
+
+        private bool HasStandardHatClip()
+        {
+            return Character.RenderProperties.HatGraphic != 0 &&
+                   _hatMetadataProvider.GetValueOrDefault(Character.RenderProperties.HatGraphic).ClipMode == HatMaskType.Standard;
+        }
+
+        private bool ShouldUseForegroundRenderTarget(IReadOnlyCollection<ICharacterPropertyRenderer> behindRenderers)
+        {
+            return HasStandardHatClip() && behindRenderers.Count > 0;
+        }
+
+        private void EnsureForegroundRenderTarget()
+        {
+            if (_charForegroundRenderTarget == null)
+                _charForegroundRenderTarget = _renderTargetFactory.CreateRenderTarget();
+        }
+
+        private RenderTarget2D CreateCharacterRenderTarget()
+        {
+            // The main character target is rebound during standard hat clipping composition.
+            // PreserveContents keeps the behind pass intact when the foreground pass is drawn over it.
+            return _renderTargetFactory.CreateRenderTarget(RenderTargetUsage.PreserveContents);
+        }
+
+        private void ClipHair(RenderTarget2D renderTarget)
+        {
+            if (!HasStandardHatClip())
                 return;
 
             lock (_rt_locker_)
@@ -434,13 +487,13 @@ namespace EndlessClient.Rendering.Character
                 // https://gamedev.stackexchange.com/questions/38118/best-way-to-mask-2d-sprites-in-xna/38150#38150
 
                 // note: this operation causes a high number of GC events as the character's frame changes (walking/attacking)
-                _charRenderTarget.GetData(_rtColorData);
+                renderTarget.GetData(_rtColorData);
                 for (int i = 0; i < _rtColorData.Length; i++)
                 {
                     if (_rtColorData[i] == Color.Black)
                         _rtColorData[i].A = 0;
                 }
-                _charRenderTarget.SetData(_rtColorData);
+                renderTarget.SetData(_rtColorData);
             }
         }
 
@@ -507,7 +560,9 @@ namespace EndlessClient.Rendering.Character
             lock (_rt_locker_)
             {
                 _charRenderTarget?.Dispose();
-                _charRenderTarget = _renderTargetFactory.CreateRenderTarget();
+                _charForegroundRenderTarget?.Dispose();
+                _charRenderTarget = CreateCharacterRenderTarget();
+                _charForegroundRenderTarget = null;
 
                 _rtColorData = new Color[_charRenderTarget.Width * _charRenderTarget.Height];
             }
@@ -526,6 +581,7 @@ namespace EndlessClient.Rendering.Character
             if (disposing)
             {
                 _outline?.Dispose();
+                _charForegroundRenderTarget?.Dispose();
 
                 if (Game != null && Game.Components != null)
                 {

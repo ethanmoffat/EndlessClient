@@ -377,6 +377,18 @@ namespace EndlessClient.Rendering.Sprites
             return new SpriteSheet(texture, sourceArea);
         }
 
+        public ISpriteSheet GetBackHairTexture(CharacterRenderProperties characterRenderProperties)
+        {
+            if (characterRenderProperties.HairStyle == 0)
+                return new EmptySpriteSheet();
+
+            var gfxFile = characterRenderProperties.Gender == 0 ? GFXTypes.FemaleHair : GFXTypes.MaleHair;
+            var offset = 2 * GetBaseOffsetFromDirection(characterRenderProperties.Direction);
+            var gfxNumber = GetBaseHairGraphic(characterRenderProperties.HairStyle, characterRenderProperties.HairColor) + 1 + offset;
+
+            return new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, true));
+        }
+
         public ISpriteSheet GetHairTexture(CharacterRenderProperties characterRenderProperties)
         {
             // Use dummy rectangle for no hair so hats are still correctly aligned
