@@ -142,15 +142,6 @@ namespace EOBot.Interpreter.States
                 if (symbols.ContainsKey(assignmentTarget.TokenValue) && symbols[assignmentTarget.TokenValue].ReadOnly)
                     return ReadOnlyVariableError(assignmentTarget);
 
-                if (symbols.ContainsKey(assignmentTarget.TokenValue) &&
-                    symbols[assignmentTarget.TokenValue].Identifiable.GetType() != expressionResult.VariableValue.GetType()
-                    && symbols[assignmentTarget.TokenValue].Identifiable is not UndefinedVariable
-                    && expressionResult.VariableValue is not UndefinedVariable)
-                {
-                    // todo: surface warnings to caller and let caller decide what to do with it instead of making the interpreter write to console directly
-                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"Changing type of variable {assignmentTarget.TokenValue} from {symbols[assignmentTarget.TokenValue].Identifiable.GetType()} to {expressionResult.VariableValue.GetType()} (at: {assignmentTarget.LineNumber}:{assignmentTarget.Column})", ConsoleColor.DarkYellow);
-                }
-
                 IVariable lhsVar = null;
                 if (assignOp.TokenType != BotTokenType.AssignOperator)
                 {
@@ -163,7 +154,18 @@ namespace EOBot.Interpreter.States
                     lhsVar = v;
                 }
 
-                symbols[assignmentTarget.TokenValue] = (false, ApplyOp(assignOp, lhsVar, expressionResult.VariableValue));
+                var newValue = ApplyOp(assignOp, lhsVar, expressionResult.VariableValue);
+
+                if (symbols.ContainsKey(assignmentTarget.TokenValue) &&
+                    symbols[assignmentTarget.TokenValue].Identifiable.GetType() != newValue.GetType()
+                    && symbols[assignmentTarget.TokenValue].Identifiable is not UndefinedVariable
+                    && newValue is not UndefinedVariable)
+                {
+                    // todo: surface warnings to caller and let caller decide what to do with it instead of making the interpreter write to console directly
+                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"Changing type of variable {assignmentTarget.TokenValue} from {symbols[assignmentTarget.TokenValue].Identifiable.GetType()} to {newValue.GetType()} (at: {assignmentTarget.LineNumber}:{assignmentTarget.Column})", ConsoleColor.DarkYellow);
+                }
+
+                symbols[assignmentTarget.TokenValue] = (false, newValue);
             }
 
             return Success();
@@ -173,6 +175,9 @@ namespace EOBot.Interpreter.States
         {
             return assignToken.TokenType switch
             {
+                BotTokenType.PlusEquals when lhs is StringVariable || rhs is StringVariable =>
+                    new StringVariable(lhs?.StringValue + rhs.StringValue),
+
                 BotTokenType.AssignOperator => rhs,
                 BotTokenType.PlusEquals => new IntVariable(CoerceToInt(lhs) + CoerceToInt(rhs)),
                 BotTokenType.MinusEquals => new IntVariable(CoerceToInt(lhs) - CoerceToInt(rhs)),

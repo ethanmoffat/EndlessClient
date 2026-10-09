@@ -1,8 +1,10 @@
-﻿using System.IO;
+using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using EOBot.Interpreter;
+using EOBot.Interpreter.Variables;
 using NUnit.Framework;
 
 namespace EOBot.Test.Interpreter.States
@@ -74,6 +76,15 @@ namespace EOBot.Test.Interpreter.States
         [TestCase("$test_res = true && false || true && true", "true")]
         [TestCase("$test_res = true || false && false", "true")]
         [TestCase("$test_res = -1 < 0 && !false", "true")]
+        [TestCase("$s = \"a\"\n$s += \"b\"\n$test_res = $s", "ab")]
+        [TestCase("$s = \"a\"\n$s += 1\n$test_res = $s", "a1")]
+        [TestCase("$s = 1\n$s += \"a\"\n$test_res = $s", "1a")]
+        [TestCase("$s = 1\n$s += 2\n$test_res = $s", "3")]
+        [TestCase("$a = [\"a\"]\n$a[0] += \"b\"\n$test_res = $a[0]", "ab")]
+        [TestCase("$o = { $s = \"a\" }\n$o.$s += \"b\"\n$test_res = $o.$s", "ab")]
+        [TestCase("$a = [\"b\"]\n$s = \"a\"\n$s += $a[0]\n$test_res = $s", "ab")]
+        [TestCase("$o = { $s = \"b\" }\n$s = \"a\"\n$s += $o.$s\n$test_res = $s", "ab")]
+        [TestCase("$a = [\"a\", 1]\n$a[0] += $a[1]\n$test_res = $a[0]", "a1")]
         public async Task TestScriptEvaluation(string input, string expected)
         {
 
@@ -82,6 +93,29 @@ namespace EOBot.Test.Interpreter.States
             var botInterpreter = new BotInterpreter(sr);
 
             var state = botInterpreter.Parse();
+            await botInterpreter.Run(state, CancellationToken.None);
+
+            Assert.That(state.SymbolTable["test_res"].Identifiable.StringValue, Is.EqualTo(expected).IgnoreCase);
+        }
+
+        [TestCase("$d[\"s\"] += \"b\"\n$test_res = $d[\"s\"]", "ab")]
+        [TestCase("$d[\"s\"] += 1\n$test_res = $d[\"s\"]", "a1")]
+        [TestCase("$d[\"n\"] += \"b\"\n$test_res = $d[\"n\"]", "1b")]
+        [TestCase("$s = \"x\"\n$s += $d[\"s\"]\n$test_res = $s", "xa")]
+        [TestCase("$n = 2\n$n += $d[\"s\"]\n$test_res = $n", "2a")]
+        [TestCase("$d[\"s\"] += $d[\"n\"]\n$test_res = $d[\"s\"]", "a1")]
+        public async Task TestStringConcatenationWithDictLookup(string input, string expected)
+        {
+            using var ms = new MemoryStream(Encoding.UTF8.GetBytes(input));
+            using var sr = new StreamReader(ms);
+            var botInterpreter = new BotInterpreter(sr);
+
+            var state = botInterpreter.Parse();
+            state.SymbolTable["d"] = (false, new DictVariable(new Dictionary<string, IVariable>
+            {
+                ["s"] = new StringVariable("a"),
+                ["n"] = new IntVariable(1),
+            }));
             await botInterpreter.Run(state, CancellationToken.None);
 
             Assert.That(state.SymbolTable["test_res"].Identifiable.StringValue, Is.EqualTo(expected).IgnoreCase);
