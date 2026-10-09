@@ -37,5 +37,8 @@ namespace EOBot.Interpreter.Extensions
                 BotTokenType.StrictEqualOperator, BotTokenType.StrictNotEqualOperator
             );
         }
+
+        public static bool IsBinaryLogicalOperator(this BotToken token) =>
+            token != null && token.IsOneOf(BotTokenType.LogicalAndOperator, BotTokenType.LogicalOrOperator);
     }
 }

@@ -53,13 +53,15 @@ namespace EOBot.Interpreter.Syntax
 
         private Node _root;
 
-        public SyntaxTree(Stack<BotToken> tokens)
+        public SyntaxTree(Stack<BotToken> tokens, BotToken leftOperandOf = null)
         {
             while (tokens.Count > 0)
             {
                 var next = tokens.Pop();
 
-                if (!OperatorPrecedence.ContainsKey(next.TokenType))
+                var isLowerPrecedenceOperator = leftOperandOf != null && next.IsBinary()
+                    && OperatorPrecedence[next.TokenType] < OperatorPrecedence[leftOperandOf.TokenType];
+                if (!OperatorPrecedence.ContainsKey(next.TokenType) || isLowerPrecedenceOperator)
                 {
                     tokens.Push(next);
                     break;

@@ -19,6 +19,23 @@ namespace EOBot.Interpreter.States
             if (ct.IsCancellationRequested)
                 return (EvalResult.Cancelled, string.Empty, null);
 
+            // Check for logical short-circuit condition, terminate expression evaluation early if short-circuited
+            if (input.OperationStack.TryPeek(out var previous) && previous.IsBinaryLogicalOperator())
+            {
+                var res = EvaluateLogicalLeftOperand(input, out var shortCircuited);
+                if (res.Result != EvalResult.Ok)
+                    return res;
+
+                if (shortCircuited)
+                {
+                    res = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input, ct);
+                    if (res.Result != EvalResult.Ok && res.Result != EvalResult.NotMatch)
+                        return res;
+
+                    return EvaluateStackOperands(input);
+                }
+            }
+
             if (!input.MatchUnaryOperators(out var unaryMinusCount))
             {
                 if (input.Match(BotTokenType.LBracket))
@@ -165,12 +182,69 @@ namespace EOBot.Interpreter.States
             return EvaluateStackOperands(input);
         }
 
-        private static (EvalResult, string, BotToken) EvaluateStackOperands(ProgramState input)
+        private static (EvalResult Result, string Reason, BotToken Token) EvaluateLogicalLeftOperand(ProgramState input, out bool shortCircuited)
+        {
+            shortCircuited = false;
+
+            var logicalOperator = input.OperationStack.Pop();
+            var evalRes = EvaluateStackOperands(input, logicalOperator);
+            if (evalRes.Result != EvalResult.Ok)
+                return evalRes;
+
+            var leftOperand = (VariableBotToken)input.OperationStack.Pop();
+            var boolValue = CoerceToBool(leftOperand.VariableValue);
+            if (boolValue == null)
+                return (EvalResult.Failed, $"Error evaluating expression: operand {leftOperand} of {logicalOperator.TokenType} could not be coerced to bool", leftOperand);
+
+            input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, boolValue.StringValue, boolValue));
+
+            if (!(shortCircuited = boolValue.Value == logicalOperator.Is(BotTokenType.LogicalOrOperator)))
+            {
+                input.OperationStack.Push(logicalOperator);
+            }
+            else
+            {
+                // '||' is the only binary operator with lower precedence than '&&', so it ends the right operand of '&&'
+                var isAnd = logicalOperator.Is(BotTokenType.LogicalAndOperator);
+                SkipOperand(input, current => isAnd && current.Is(BotTokenType.LogicalOrOperator));
+            }
+
+            return Success();
+        }
+
+        private static void SkipOperand(ProgramState input, Func<BotToken, bool> endsOperand)
+        {
+            var groupingDepth = 0;
+            while (input.ExecutionIndex < input.Program.Count)
+            {
+                var current = input.Current();
+                if (current.IsOneOf(BotTokenType.LParen, BotTokenType.LBracket, BotTokenType.LBrace))
+                {
+                    groupingDepth++;
+                }
+                else if (current.IsOneOf(BotTokenType.RParen, BotTokenType.RBracket, BotTokenType.RBrace))
+                {
+                    if (groupingDepth == 0)
+                        break;
+                    groupingDepth--;
+                }
+                else if (groupingDepth == 0)
+                {
+                    var expressionEnd = current.IsOneOf(BotTokenType.Comma, BotTokenType.Semicolon, BotTokenType.NewLine, BotTokenType.EOF);
+                    if (expressionEnd || endsOperand(current))
+                        break;
+                }
+
+                input.SkipToken();
+            }
+        }
+
+        private static (EvalResult Result, string Reason, BotToken Token) EvaluateStackOperands(ProgramState input, BotToken leftOperandOf = null)
         {
             if (input.OperationStack.Count == 0)
                 return StackEmptyError(input.Current());
 
-            var syntaxTree = new SyntaxTree(input.OperationStack)
+            var syntaxTree = new SyntaxTree(input.OperationStack, leftOperandOf)
             {
                 VisitOrder = SyntaxTree.Order.PostOrder
             };

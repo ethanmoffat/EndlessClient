@@ -57,6 +57,23 @@ namespace EOBot.Test.Interpreter.States
         [TestCase("$test_res = [true, !true]", "[true, false]")]
         [TestCase("func F($a, $b) {\n    return $a * 10 + $b\n}\n$test_res = F(-1, -2)", "-12")]
         [TestCase("func F($a, $b) {\n    return $a * 10 + $b\n}\n$test_res = F(1, 2 * -3)", "4")]
+        [TestCase("$o = undefined\n$test_res = $o != undefined && $o.$x", "false")]
+        [TestCase("$o = undefined\n$test_res = $o == undefined || $o.$x", "true")]
+        [TestCase("$o = { $x = 1 }\n$test_res = $o != undefined && $o.$x == 1", "true")]
+        [TestCase("func Boom() {\n    return $o.$x\n}\n$test_res = false && Boom()", "false")]
+        [TestCase("func Boom() {\n    return $o.$x\n}\n$test_res = true || Boom()", "true")]
+        [TestCase("func Boom() {\n    return $o.$x\n}\n$test_res = false && Boom() || true", "true")]
+        [TestCase("func Boom() {\n    return $o.$x\n}\n$test_res = true || Boom() && Boom()", "true")]
+        [TestCase("func Boom() {\n    return $o.$x\n}\n$test_res = false && (Boom() || Boom()) && Boom()", "false")]
+        [TestCase("func Boom() {\n    return $o.$x\n}\n$test_res = 1 + 1 == 3 && Boom() == 2", "false")]
+        [TestCase("func Boom() {\n    return $o.$x\n}\n$test_res = [false && Boom(), true || Boom(), 1]", "[false, true, 1]")]
+        [TestCase("func Boom() {\n    return $o.$x\n}\nfunc F($a, $b) {\n    return $b\n}\n$test_res = F(false && Boom(), 2)", "2")]
+        [TestCase("func Boom() {\n    return $o.$x\n}\n$test_res = 0\nif (!true && Boom()) $test_res = 1", "0")]
+        [TestCase("$test_res = 1 == 1 && 2 == 2 && 3 == 3", "true")]
+        [TestCase("$test_res = false || false || 1 < 2", "true")]
+        [TestCase("$test_res = true && false || true && true", "true")]
+        [TestCase("$test_res = true || false && false", "true")]
+        [TestCase("$test_res = -1 < 0 && !false", "true")]
         public async Task TestScriptEvaluation(string input, string expected)
         {
 
