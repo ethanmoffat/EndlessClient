@@ -43,6 +43,7 @@
         StrictNotEqualOperator,
         IsOperator,
         TypeSpecifier,
+        ScopeResolution,
         Error,
     }
 }

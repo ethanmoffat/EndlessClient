@@ -16,8 +16,14 @@ namespace EOBot.Interpreter
         public const string KEYWORD_IN = "in";
         public const string KEYWORD_CONTINUE = "continue";
         public const string KEYWORD_BREAK = "break";
+
         public const string KEYWORD_FUNC = "func";
         public const string KEYWORD_RETURN = "return";
+
+        public const string KEYWORD_ENUM = "enum";
+        public const string KEYWORD_FROM = "from";
+        public const string KEYWORD_MAP = "map";
+        public const string KEYWORD_TO = "to";
 
         public const string KEYWORD_IS = "is";
 
@@ -45,6 +51,10 @@ namespace EOBot.Interpreter
             KEYWORD_BREAK,
             KEYWORD_FUNC,
             KEYWORD_RETURN,
+            KEYWORD_ENUM,
+            KEYWORD_FROM,
+            KEYWORD_MAP,
+            KEYWORD_TO
         ];
 
         private static readonly HashSet<string> Operators = [KEYWORD_IS];
@@ -178,7 +188,13 @@ namespace EOBot.Interpreter
                     case '}': return Token(BotTokenType.RBrace, inputChar.ToString());
                     case '[': return Token(BotTokenType.LBracket, inputChar.ToString());
                     case ']': return Token(BotTokenType.RBracket, inputChar.ToString());
-                    case ':': return Token(BotTokenType.Colon, inputChar.ToString());
+                    case ':':
+                        {
+                            if (!_inputStream.EndOfStream && Peek() == ':')
+                                return Token(BotTokenType.ScopeResolution, $"{inputChar}{Read()}");
+
+                            return Token(BotTokenType.Colon, inputChar.ToString());
+                        }
                     case ',': return Token(BotTokenType.Comma, inputChar.ToString());
                     case '"':
                         {

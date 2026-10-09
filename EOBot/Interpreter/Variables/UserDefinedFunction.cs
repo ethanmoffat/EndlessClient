@@ -20,7 +20,7 @@ namespace EOBot.Interpreter.Variables
             StringValue = functionName;
 
             // constructed here so any nested functions will be created/evaluated at program state initialization time
-            _funcState = new ProgramState(functionTokens);
+            _funcState = new ProgramState(functionTokens, isFunctionBody: true);
 
             _paramSpecs = paramSpecs;
         }

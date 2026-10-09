@@ -81,21 +81,28 @@ namespace EOBot.Interpreter.Extensions
             }
             else
             {
-                var (result, _, variable) = symbols.GetVariable<ObjectVariable>(identifier.TokenValue, identifier.Indexer);
-                if (result != EvalResult.Ok)
+                var getVariableRes = symbols.GetVariable(identifier.TokenValue, identifier.Indexer);
+                if (getVariableRes.Result != EvalResult.Ok)
                 {
-                    var getRuntimeEvaluatedVariableRes = symbols.GetVariable<RuntimeEvaluatedMemberObjectVariable>(identifier.TokenValue, identifier.Indexer);
-                    if (getRuntimeEvaluatedVariableRes.Result != EvalResult.Ok)
-                        return (EvalResult.Failed, $"Identifier '{identifier.TokenValue}' is not an object", identifier);
-
-                    result = getRuntimeEvaluatedVariableRes.Result;
-                    variable = new ObjectVariable(
-                        getRuntimeEvaluatedVariableRes.Variable.SymbolTable
-                            .Select(x => (x.Key, (x.Value.ReadOnly, x.Value.Variable())))
-                            .ToDictionary(x => x.Key, x => x.Item2));
+                    return (getVariableRes.Result, getVariableRes.Reason, identifier);
                 }
 
-                return variable.SymbolTable.ResolveIdentifier(identifier.Member);
+                var variable = getVariableRes.Variable switch
+                {
+                    ObjectVariable objectVariable => objectVariable,
+                    RuntimeEvaluatedMemberObjectVariable runtimeVariable =>
+                        new ObjectVariable(
+                            runtimeVariable.SymbolTable
+                                .Select(x => (x.Key, Identifier: (x.Value.ReadOnly, x.Value.Variable())))
+                                .ToDictionary(x => x.Key, x => x.Identifier)
+                        ),
+                    EnumVariable enumVariable => enumVariable.ToObject(),
+                    _ => null,
+                };
+
+                return variable == null
+                    ? (EvalResult.Failed, $"Identifier '{identifier.TokenValue}' is not an object", identifier)
+                    : variable.SymbolTable.ResolveIdentifier(identifier.Member);
             }
         }
     }
