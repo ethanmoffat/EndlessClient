@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using EOBot.Interpreter.Extensions;
 
 namespace EOBot.Interpreter.Syntax
 {
@@ -93,7 +94,9 @@ namespace EOBot.Interpreter.Syntax
 
         private static Node InsertRecursively(Node current, BotToken token)
         {
-            if (OperatorPrecedence[token.TokenType] < OperatorPrecedence[current.Token.TokenType])
+            // tokens are inserted right-to-left, so a prefix operator applies to everything already inserted at its level (e.g. '!!$x')
+            var isStackedUnary = token.IsUnary() && current.Token.IsUnary();
+            if (OperatorPrecedence[token.TokenType] < OperatorPrecedence[current.Token.TokenType] || isStackedUnary)
             {
                 return new Node(token, current, null);
             }

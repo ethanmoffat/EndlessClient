@@ -323,26 +323,15 @@ namespace EOBot.Interpreter
                             _ => Token(BotTokenType.PlusOperator, inputChar.ToString()),
                         };
                     case '-':
+                        if (_inputStream.EndOfStream)
+                            return Token(BotTokenType.MinusOperator, inputChar.ToString());
+
+                        return Peek() switch
                         {
-                            if (_inputStream.EndOfStream)
-                                return Token(BotTokenType.MinusOperator, inputChar.ToString());
-
-                            var number = string.Empty;
-                            while (char.IsDigit(Peek()) && !_inputStream.EndOfStream)
-                                number += Read();
-
-                            if (number.Length > 0)
-                            {
-                                return Token(BotTokenType.Literal, $"{inputChar}{number}");
-                            }
-
-                            return Peek() switch
-                            {
-                                '-' => Token(BotTokenType.Decrement, $"{inputChar}{Read()}"),
-                                '=' => Token(BotTokenType.MinusEquals, $"{inputChar}{Read()}"),
-                                _ => Token(BotTokenType.MinusOperator, inputChar.ToString()),
-                            };
-                        }
+                            '-' => Token(BotTokenType.Decrement, $"{inputChar}{Read()}"),
+                            '=' => Token(BotTokenType.MinusEquals, $"{inputChar}{Read()}"),
+                            _ => Token(BotTokenType.MinusOperator, inputChar.ToString()),
+                        };
                     case '*':
                         if (_inputStream.EndOfStream)
                             return Token(BotTokenType.MultiplyOperator, inputChar.ToString());

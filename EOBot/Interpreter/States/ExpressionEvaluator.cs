@@ -19,7 +19,7 @@ namespace EOBot.Interpreter.States
             if (ct.IsCancellationRequested)
                 return (EvalResult.Cancelled, string.Empty, null);
 
-            if (!input.Match(BotTokenType.NotOperator))
+            if (!input.MatchUnaryOperators(out var unaryMinusCount))
             {
                 if (input.Match(BotTokenType.LBracket))
                 {
@@ -83,14 +83,8 @@ namespace EOBot.Interpreter.States
                     return evalRes;
 
                 // if we get an RParen, the nested expression has been evaluated
-                if (input.Expect(BotTokenType.RParen))
-                {
-                    // check for an expression tail after the close paren
-                    evalRes = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input, ct);
-                    if (evalRes.Result != EvalResult.Ok && evalRes.Result != EvalResult.NotMatch)
-                        return evalRes;
-                }
-                else
+                var closedParen = false;
+                if (!input.Expect(BotTokenType.RParen))
                 {
                     // expression_tail is optional
                     evalRes = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input, ct);
@@ -99,6 +93,10 @@ namespace EOBot.Interpreter.States
 
                     if (!input.Expect(BotTokenType.RParen))
                         return Error(input.Current(), BotTokenType.RParen);
+                }
+                else
+                {
+                    closedParen = true;
                 }
 
                 // take care of the LParen that we matched on
@@ -110,6 +108,18 @@ namespace EOBot.Interpreter.States
 
                 input.OperationStack.Pop();
                 input.OperationStack.Push(tmp);
+
+                evalRes = ApplyUnaryMinus(input, unaryMinusCount);
+                if (evalRes.Result != EvalResult.Ok)
+                    return evalRes;
+
+                // the tail after the close paren is evaluated once the parenthesized value is an operand, so precedence applies across it
+                if (closedParen)
+                {
+                    evalRes = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input, ct);
+                    if (evalRes.Result != EvalResult.Ok && evalRes.Result != EvalResult.NotMatch)
+                        return evalRes;
+                }
             }
             else
             {
@@ -117,6 +127,10 @@ namespace EOBot.Interpreter.States
                 var evalRes = await Evaluator<FunctionEvaluator>().EvaluateAsync(input, ct);
                 if (evalRes.Result == EvalResult.Ok)
                 {
+                    evalRes = ApplyUnaryMinus(input, unaryMinusCount);
+                    if (evalRes.Result != EvalResult.Ok)
+                        return evalRes;
+
                     // expression_tail is optional
                     evalRes = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input, ct);
                     if (evalRes.Result != EvalResult.Ok && evalRes.Result != EvalResult.NotMatch)
@@ -128,6 +142,10 @@ namespace EOBot.Interpreter.States
                 {
                     // if not a function, evaluate operand and expression tail (basic expression)
                     evalRes = await Evaluator<OperandEvaluator>().EvaluateAsync(input, ct);
+                    if (evalRes.Result != EvalResult.Ok)
+                        return evalRes;
+
+                    evalRes = ApplyUnaryMinus(input, unaryMinusCount);
                     if (evalRes.Result != EvalResult.Ok)
                         return evalRes;
 
@@ -170,6 +188,9 @@ namespace EOBot.Interpreter.States
         {
             if (node.Token.IsUnary())
             {
+                if (node.Left != null)
+                    RestoreToStack(input.OperationStack, node.Right);
+
                 var (res, reason, operand) = node.Left != null
                     ? EvaluateTree(input, node.Left)
                     : node.Right != null
@@ -227,13 +248,40 @@ namespace EOBot.Interpreter.States
             }
         }
 
+        // UnaryMinus is not a detected token type. The minus operations are applied prior to evaluation so the values
+        //   are processed by the tree with the correctly stacked negation.
+        private static (EvalResult, string, BotToken) ApplyUnaryMinus(ProgramState input, int unaryMinusCount)
+        {
+            if (unaryMinusCount == 0)
+                return Success();
+
+            var (result, reason, operand) = GetOperand(input.SymbolTable, input.OperationStack.Pop());
+            if (result != EvalResult.Ok)
+                return (result, reason, operand);
+
+            var value = ((VariableBotToken)operand).VariableValue;
+            for (; unaryMinusCount > 0; unaryMinusCount--)
+            {
+                input.OperationStack.Pop();
+
+                (IVariable negateResult, reason) = Negate(value);
+                if (negateResult == null)
+                    return (EvalResult.Failed, $"Error evaluating expression: {reason}", input.Current());
+
+                value = negateResult;
+            }
+
+            input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, value.StringValue, value));
+            return Success();
+        }
+
         private static (EvalResult, string, BotToken) HandleUnaryOperator(ProgramState input, BotToken operatorToken, VariableBotToken operand)
         {
             (IVariable Result, string Reason) res;
             res.Reason = string.Empty;
             switch (operatorToken.TokenType)
             {
-                case BotTokenType.NotOperator: res = Negate(operand.VariableValue); break;
+                case BotTokenType.NotOperator: res = LogicalNegate(operand.VariableValue); break;
                 default: return UnsupportedOperatorError(operatorToken);
             }
 
@@ -312,7 +360,7 @@ namespace EOBot.Interpreter.States
             return Success(operand);
         }
 
-        private static (IVariable Result, string Reason) Negate(IVariable variable)
+        private static (IVariable Result, string Reason) LogicalNegate(IVariable variable)
         {
             var boolOperand = CoerceToBool(variable);
             if (boolOperand == null)
@@ -340,6 +388,15 @@ namespace EOBot.Interpreter.States
                 return (null, $"Error evaluating logical OR expression: operands {a} and {b} could not be coerced to bool");
 
             return (new BoolVariable(aVal.Value || bVal.Value), string.Empty);
+        }
+
+        private static (IVariable, string) Negate(IVariable variable)
+        {
+            return variable switch
+            {
+                IntVariable iv => (new IntVariable(-iv.Value), string.Empty),
+                _ => (null, $"Variable of type {variable.GetType().Name} could not be negated.")
+            };
         }
 
         private static (IVariable, string) Add(IntVariable a, IntVariable b) => (new IntVariable(a.Value + b.Value), string.Empty);
