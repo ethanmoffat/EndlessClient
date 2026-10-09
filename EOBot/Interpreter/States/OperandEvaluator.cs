@@ -21,6 +21,10 @@ namespace EOBot.Interpreter.States
             if (evalRes.Result == EvalResult.Ok)
                 return evalRes;
 
+            evalRes = await Evaluator<EnumEvaluator>().EvaluateAsync(input, ct);
+            if (evalRes.Result != EvalResult.NotMatch)
+                return evalRes;
+
             var matchRes = input.MatchOneOf(BotTokenType.Literal, BotTokenType.TypeSpecifier);
             return matchRes ? Success() : (EvalResult.NotMatch, string.Empty, input.Current());
         }

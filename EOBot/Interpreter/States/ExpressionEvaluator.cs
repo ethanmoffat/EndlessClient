@@ -262,7 +262,7 @@ namespace EOBot.Interpreter.States
                 case BotTokenType.MultiplyOperator: res = Multiply((dynamic)lhs.VariableValue, (dynamic)rhs.VariableValue); break;
                 case BotTokenType.DivideOperator: res = Divide((dynamic)lhs.VariableValue, (dynamic)rhs.VariableValue); break;
                 case BotTokenType.ModuloOperator: res = Modulo((dynamic)lhs.VariableValue, (dynamic)rhs.VariableValue); break;
-                case BotTokenType.IsOperator: res.Result = new BoolVariable(lhs.VariableValue.GetType().Equals(rhs.VariableValue.GetType())); break;
+                case BotTokenType.IsOperator: res.Result = new BoolVariable(IsType(lhs.VariableValue, rhs.VariableValue)); break;
                 case BotTokenType.StrictEqualOperator:
                 case BotTokenType.StrictNotEqualOperator: res = StrictCompare(lhs.VariableValue, rhs.VariableValue, operatorToken.TokenType == BotTokenType.StrictEqualOperator); break;
                 default: return UnsupportedOperatorError(operatorToken);
@@ -359,6 +359,14 @@ namespace EOBot.Interpreter.States
 
         private static (IVariable, string) Modulo(IntVariable a, IntVariable b) => (new IntVariable(a.Value % b.Value), string.Empty);
         private static (IVariable, string) Modulo(object a, object b) => (null, $"Objects {a} and {b} could not be modulo'd (currently the operands must be int)");
+
+        private static bool IsType(IVariable variable, IVariable typeSpecifier)
+        {
+            if (typeSpecifier is EnumVariable enumTypeSpecifier)
+                return variable is EnumVariable enumVariable && enumVariable.IsInstanceOf(enumTypeSpecifier);
+
+            return variable.GetType().Equals(typeSpecifier.GetType());
+        }
 
         private static (IVariable, string) StrictCompare(IVariable lhs, IVariable rhs, bool expectEqual)
         {
