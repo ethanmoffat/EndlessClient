@@ -1,9 +1,10 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using EOBot.Interpreter;
+using EOBot.Interpreter.States;
 using EOBot.Interpreter.Variables;
 using NUnit.Framework;
 
@@ -119,6 +120,24 @@ namespace EOBot.Test.Interpreter.States
             await botInterpreter.Run(state, CancellationToken.None);
 
             Assert.That(state.SymbolTable["test_res"].Identifiable.StringValue, Is.EqualTo(expected).IgnoreCase);
+        }
+
+        [TestCase("$test_res = 5 / 0")]
+        [TestCase("$test_res = 5 % 0")]
+        [TestCase("$test_res = 1 + 5 / (1 - 1)")]
+        [TestCase("$x = 5\n$x /= 0")]
+        [TestCase("$a = [5]\n$a[0] /= 0")]
+        public async Task TestDivisionByZero(string input)
+        {
+            using var ms = new MemoryStream(Encoding.UTF8.GetBytes(input));
+            using var sr = new StreamReader(ms);
+            var botInterpreter = new BotInterpreter(sr);
+
+            var state = botInterpreter.Parse();
+            var (result, reason, _) = await ScriptEvaluator.Instance.EvaluateAsync(state, CancellationToken.None);
+
+            Assert.That(result, Is.EqualTo(EvalResult.Failed));
+            Assert.That(reason, Does.Contain("Division by zero"));
         }
     }
 }

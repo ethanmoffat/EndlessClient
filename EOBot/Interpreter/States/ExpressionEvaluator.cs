@@ -485,10 +485,10 @@ namespace EOBot.Interpreter.States
         private static (IVariable, string) Multiply(IntVariable a, IntVariable b) => (new IntVariable(a.Value * b.Value), string.Empty);
         private static (IVariable, string) Multiply(object a, object b) => (null, $"Objects {a} and {b} could not be multiplied (currently the operands must be int)");
 
-        private static (IVariable, string) Divide(IntVariable a, IntVariable b) => (new IntVariable(a.Value / b.Value), string.Empty);
+        private static (IVariable, string) Divide(IntVariable a, IntVariable b) => b.Value == 0 ? (null, "Division by zero") : (new IntVariable(a.Value / b.Value), string.Empty);
         private static (IVariable, string) Divide(object a, object b) => (null, $"Objects {a} and {b} could not be divided (currently the operands must be int)");
 
-        private static (IVariable, string) Modulo(IntVariable a, IntVariable b) => (new IntVariable(a.Value % b.Value), string.Empty);
+        private static (IVariable, string) Modulo(IntVariable a, IntVariable b) => b.Value == 0 ? (null, "Division by zero") : (new IntVariable(a.Value % b.Value), string.Empty);
         private static (IVariable, string) Modulo(object a, object b) => (null, $"Objects {a} and {b} could not be modulo'd (currently the operands must be int)");
 
         private static bool IsType(IVariable variable, IVariable typeSpecifier)

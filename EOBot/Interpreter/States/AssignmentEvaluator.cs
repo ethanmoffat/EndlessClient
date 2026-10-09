@@ -123,14 +123,22 @@ namespace EOBot.Interpreter.States
                     if (targetDict.Value.TryGetValue(assignmentTarget.Indexer.StringValue, out var v))
                         lhs = v;
 
-                    targetDict.Value[assignmentTarget.Indexer.StringValue] = ApplyOp(assignOp, lhs, expressionResult.VariableValue);
+                    var (newValue, applyReason) = ApplyOp(assignOp, lhs, expressionResult.VariableValue);
+                    if (newValue == null)
+                        return (EvalResult.Failed, applyReason, assignOp);
+
+                    targetDict.Value[assignmentTarget.Indexer.StringValue] = newValue;
                 }
                 else if (retVar is ArrayVariable targetArray)
                 {
                     if (assignmentTarget.Indexer is not IntVariable indexVar)
                         return (EvalResult.Failed, $"Expected integer for array index, but got: {assignmentTarget.Indexer} ({assignmentTarget.Indexer.GetType().Name})", assignmentTarget);
 
-                    targetArray.Value[indexVar.Value] = ApplyOp(assignOp, targetArray.Value[indexVar.Value], expressionResult.VariableValue);
+                    var (newValue, applyReason) = ApplyOp(assignOp, targetArray.Value[indexVar.Value], expressionResult.VariableValue);
+                    if (newValue == null)
+                        return (EvalResult.Failed, applyReason, assignOp);
+
+                    targetArray.Value[indexVar.Value] = newValue;
                 }
                 else
                 {
@@ -154,7 +162,9 @@ namespace EOBot.Interpreter.States
                     lhsVar = v;
                 }
 
-                var newValue = ApplyOp(assignOp, lhsVar, expressionResult.VariableValue);
+                var (newValue, reason) = ApplyOp(assignOp, lhsVar, expressionResult.VariableValue);
+                if (newValue == null)
+                    return (EvalResult.Failed, reason, assignOp);
 
                 if (symbols.ContainsKey(assignmentTarget.TokenValue) &&
                     symbols[assignmentTarget.TokenValue].Identifiable.GetType() != newValue.GetType()
@@ -171,9 +181,12 @@ namespace EOBot.Interpreter.States
             return Success();
         }
 
-        private static IVariable ApplyOp(BotToken assignToken, IVariable lhs, IVariable rhs)
+        private static (IVariable Result, string Reason) ApplyOp(BotToken assignToken, IVariable lhs, IVariable rhs)
         {
-            return assignToken.TokenType switch
+            if (assignToken.TokenType == BotTokenType.DivideEquals && CoerceToInt(rhs) == 0)
+                return (null, "Division by zero");
+
+            return (assignToken.TokenType switch
             {
                 BotTokenType.PlusEquals when lhs is StringVariable || rhs is StringVariable =>
                     new StringVariable(lhs?.StringValue + rhs.StringValue),
@@ -186,7 +199,7 @@ namespace EOBot.Interpreter.States
                 BotTokenType.Increment => new IntVariable(CoerceToInt(lhs) + 1),
                 BotTokenType.Decrement => new IntVariable(CoerceToInt(lhs) - 1),
                 _ => throw new Exception("This code should be unreachable; was a new assign operator added?")
-            };
+            }, string.Empty);
         }
 
         private static int CoerceToInt(IVariable variable)
