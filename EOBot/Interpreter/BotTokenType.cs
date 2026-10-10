@@ -39,6 +39,7 @@
         MinusEquals,
         MultiplyEquals,
         DivideEquals,
+        ModuloEquals,
         StrictEqualOperator,
         StrictNotEqualOperator,
         IsOperator,

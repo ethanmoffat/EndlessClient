@@ -16,6 +16,7 @@ namespace EOBot.Interpreter.States
             BotTokenType.MinusEquals,
             BotTokenType.MultiplyEquals,
             BotTokenType.DivideEquals,
+            BotTokenType.ModuloEquals,
             BotTokenType.Increment,
             BotTokenType.Decrement,
         ];
@@ -183,7 +184,7 @@ namespace EOBot.Interpreter.States
 
         private static (IVariable Result, string Reason) ApplyOp(BotToken assignToken, IVariable lhs, IVariable rhs)
         {
-            if (assignToken.TokenType == BotTokenType.DivideEquals && CoerceToInt(rhs) == 0)
+            if (assignToken.IsOneOf(BotTokenType.DivideEquals, BotTokenType.ModuloEquals) && CoerceToInt(rhs) == 0)
                 return (null, "Division by zero");
 
             return (assignToken.TokenType switch
@@ -196,6 +197,7 @@ namespace EOBot.Interpreter.States
                 BotTokenType.MinusEquals => new IntVariable(CoerceToInt(lhs) - CoerceToInt(rhs)),
                 BotTokenType.MultiplyEquals => new IntVariable(CoerceToInt(lhs) * CoerceToInt(rhs)),
                 BotTokenType.DivideEquals => new IntVariable(CoerceToInt(lhs) / CoerceToInt(rhs)),
+                BotTokenType.ModuloEquals => new IntVariable(CoerceToInt(lhs) % CoerceToInt(rhs)),
                 BotTokenType.Increment => new IntVariable(CoerceToInt(lhs) + 1),
                 BotTokenType.Decrement => new IntVariable(CoerceToInt(lhs) - 1),
                 _ => throw new Exception("This code should be unreachable; was a new assign operator added?")

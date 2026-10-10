@@ -350,7 +350,15 @@ namespace EOBot.Interpreter
                             '=' => Token(BotTokenType.DivideEquals, $"{inputChar}{Read()}"),
                             _ => Token(BotTokenType.DivideOperator, inputChar.ToString()),
                         };
-                    case '%': return Token(BotTokenType.ModuloOperator, inputChar.ToString());
+                    case '%':
+                        if (_inputStream.EndOfStream)
+                            return Token(BotTokenType.ModuloOperator, inputChar.ToString());
+
+                        return Peek() switch
+                        {
+                            '=' => Token(BotTokenType.ModuloEquals, $"{inputChar}{Read()}"),
+                            _ => Token(BotTokenType.ModuloOperator, inputChar.ToString()),
+                        };
                     case '.': return Token(BotTokenType.Dot, inputChar.ToString());
                     case ';': return Token(BotTokenType.Semicolon, inputChar.ToString());
                     default: return Token(BotTokenType.Error, inputChar.ToString());

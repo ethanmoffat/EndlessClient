@@ -86,6 +86,10 @@ namespace EOBot.Test.Interpreter.States
         [TestCase("$a = [\"b\"]\n$s = \"a\"\n$s += $a[0]\n$test_res = $s", "ab")]
         [TestCase("$o = { $s = \"b\" }\n$s = \"a\"\n$s += $o.$s\n$test_res = $s", "ab")]
         [TestCase("$a = [\"a\", 1]\n$a[0] += $a[1]\n$test_res = $a[0]", "a1")]
+        [TestCase("$x = 17\n$x %= 5\n$test_res = $x", "2")]
+        [TestCase("$x = -7\n$x %= 3\n$test_res = $x", "-1")]
+        [TestCase("$a = [10]\n$a[0] %= 4\n$test_res = $a[0]", "2")]
+        [TestCase("$x = 17\n$test_res = $x%5", "2")]
         public async Task TestScriptEvaluation(string input, string expected)
         {
 
@@ -126,7 +130,9 @@ namespace EOBot.Test.Interpreter.States
         [TestCase("$test_res = 5 % 0")]
         [TestCase("$test_res = 1 + 5 / (1 - 1)")]
         [TestCase("$x = 5\n$x /= 0")]
+        [TestCase("$x = 5\n$x %= 0")]
         [TestCase("$a = [5]\n$a[0] /= 0")]
+        [TestCase("$a = [5]\n$a[0] %= 0")]
         public async Task TestDivisionByZero(string input)
         {
             using var ms = new MemoryStream(Encoding.UTF8.GetBytes(input));
