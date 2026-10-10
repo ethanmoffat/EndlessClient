@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -13,19 +13,21 @@ namespace EOBot.Test.Interpreter
     [TestFixture]
     public class EnumTest
     {
-        private const string TestEnums = "enum E { A, B = 5, C, D = -2, F }\nenum G { A }\n";
+        private const string TestEnums = """
+            enum E { A, B = 5, C, D = -2, F }
+            enum G { A }
 
-        [TestCase("enum E { A, B, C }", "C", 2)]
-        [TestCase("enum E { A = 1, B, C }", "C", 3)]
-        [TestCase("enum E { A = 10, B = 5, C }", "C", 6)]
-        [TestCase("enum E { A = -5, B }", "B", -4)]
-        [TestCase("enum E { A, B, C, }", "C", 2)]
-        [TestCase("enum E\n{\n    A = 3,\n    B,\n    C\n}", "C", 5)]
-        [TestCase("enum E {\n    A,\n    B = 7,\n    C,\n}", "B", 7)]
-        [TestCase("enum E {}\nenum F { C = 1 }", "C", 1, "F")]
+            """;
+
+        [TestCaseSource(typeof(EnumScripts), nameof(EnumScripts.Declarations))]
         public async Task EnumDeclaration_AssignsExpectedValues(string declaration, string member, int expected, string enumName = "E")
         {
-            var (state, result, reason) = await RunAsync($"{declaration}\n$res = {enumName}::{member}");
+            var script = $$"""
+                {{declaration}}
+                $res = {{enumName}}::{{member}}
+                """;
+
+            var (state, result, reason) = await RunAsync(script);
 
             Assert.That(result, Is.EqualTo(EvalResult.Ok), reason);
             var res = state.SymbolTable["res"].Identifiable;
@@ -34,29 +36,7 @@ namespace EOBot.Test.Interpreter
             Assert.That(res.StringValue, Is.EqualTo($"{enumName}::{member}"));
         }
 
-        [TestCase("E::B + 1", "6")]
-        [TestCase("E::C * 2", "12")]
-        [TestCase("E::B == 5", "true")]
-        [TestCase("5 == E::B", "true")]
-        [TestCase("E::B != 5", "false")]
-        [TestCase("E::B == E::B", "true")]
-        [TestCase("E::B == E::C", "false")]
-        [TestCase("E::A == G::A", "false")]
-        [TestCase("E::A != G::A", "true")]
-        [TestCase("E::C > E::B", "true")]
-        [TestCase("E::D < 0", "true")]
-        [TestCase("E::B === 5", "false")]
-        [TestCase("E::B !== 5", "true")]
-        [TestCase("E::B === E::B", "true")]
-        [TestCase("E::A === G::A", "false")]
-        [TestCase("E::A is E", "true")]
-        [TestCase("E::A is G", "false")]
-        [TestCase("E::A is enum", "true")]
-        [TestCase("E::A is int", "false")]
-        [TestCase("5 is enum", "false")]
-        [TestCase("5 is E", "false")]
-        [TestCase("\"value: \" + E::B", "value: E::B")]
-        [TestCase("!E::A", "true")]
+        [TestCaseSource(typeof(EnumScripts), nameof(EnumScripts.Expressions))]
         public async Task EnumExpression_EvaluatesExpectedResult(string expression, string expected)
         {
             var (state, result, reason) = await RunAsync($"{TestEnums}$res = {expression}");
@@ -74,12 +54,15 @@ namespace EOBot.Test.Interpreter
             Assert.That(state.SymbolTable["res"].Identifiable.GetType(), Is.EqualTo(typeof(IntVariable)));
         }
 
-        [TestCase("name", "B")]
-        [TestCase("value", "5")]
-        [TestCase("type", "E")]
+        [TestCaseSource(typeof(EnumScripts), nameof(EnumScripts.VariableMembers))]
         public async Task EnumVariable_MembersAreAccessible(string member, string expected)
         {
-            var (state, result, reason) = await RunAsync($"{TestEnums}$e = E::B\n$res = $e.${member}");
+            var script = $$"""
+                {{TestEnums}}$e = E::B
+                $res = $e.${{member}}
+                """;
+
+            var (state, result, reason) = await RunAsync(script);
 
             Assert.That(result, Is.EqualTo(EvalResult.Ok), reason);
             Assert.That(state.SymbolTable["res"].Identifiable.StringValue, Is.EqualTo(expected));
@@ -88,7 +71,12 @@ namespace EOBot.Test.Interpreter
         [Test]
         public async Task EnumValue_CanBeUsedInsideUserDefinedFunction()
         {
-            var script = $"{TestEnums}func Get($x) {{\n    return $x + E::B\n}}\n$res = Get(E::C)";
+            const string script = $$"""
+                {{TestEnums}}func Get($x) {
+                    return $x + E::B
+                }
+                $res = Get(E::C)
+                """;
 
             var (state, result, reason) = await RunAsync(script);
 
@@ -109,7 +97,12 @@ namespace EOBot.Test.Interpreter
         [Test]
         public async Task EnumValue_DoesNotBreakLabels()
         {
-            var script = $"{TestEnums}goto skip\n$y = 1\nskip:\n$res = E::B";
+            const string script = $$"""
+                {{TestEnums}}goto skip
+                $y = 1
+                skip:
+                $res = E::B
+                """;
 
             var (state, result, reason) = await RunAsync(script);
 
@@ -121,7 +114,13 @@ namespace EOBot.Test.Interpreter
         [Test]
         public async Task Declarations_BackToBack_AreAllRegistered()
         {
-            var script = "enum E { A } enum F { B }\nfunc X() {\n}\nenum G { C }\n$res = F::B + G::C";
+            const string script = """
+                enum E { A } enum F { B }
+                func X() {
+                }
+                enum G { C }
+                $res = F::B + G::C
+                """;
 
             var (state, result, reason) = await RunAsync(script);
 
@@ -129,12 +128,15 @@ namespace EOBot.Test.Interpreter
             Assert.That(state.SymbolTable["res"].Identifiable.StringValue, Is.EqualTo("0"));
         }
 
-        [TestCase("E::Z")]
-        [TestCase("Q::A")]
-        [TestCase("$e::A")]
+        [TestCaseSource(typeof(EnumScripts), nameof(EnumScripts.InvalidReferences))]
         public async Task InvalidEnumReference_Fails(string expression)
         {
-            var (_, result, _) = await RunAsync($"{TestEnums}$e = 1\n$res = {expression}");
+            var script = $$"""
+                {{TestEnums}}$e = 1
+                $res = {{expression}}
+                """;
+
+            var (_, result, _) = await RunAsync(script);
 
             Assert.That(result, Is.EqualTo(EvalResult.Failed).Or.EqualTo(EvalResult.NotMatch));
         }
@@ -142,22 +144,19 @@ namespace EOBot.Test.Interpreter
         [Test]
         public async Task EnumReference_NonEnumIdentifier_Fails()
         {
-            var (_, result, reason) = await RunAsync("func NotEnum() {\n}\n$res = NotEnum::A");
+            const string script = """
+                func NotEnum() {
+                }
+                $res = NotEnum::A
+                """;
+
+            var (_, result, reason) = await RunAsync(script);
 
             Assert.That(result, Is.EqualTo(EvalResult.Failed));
             Assert.That(reason, Does.Contain("not an enum"));
         }
 
-        [TestCase("enum E { A, A }")]
-        [TestCase("enum E { A B }")]
-        [TestCase("enum E { A = \"x\" }")]
-        [TestCase("enum E { A = $x }")]
-        [TestCase("enum E { A")]
-        [TestCase("enum { A }")]
-        [TestCase("enum E { A }\nenum E { B }")]
-        [TestCase("func E() {\n}\nenum E { A }")]
-        [TestCase("func F() {\n    enum E { A }\n}")]
-        [TestCase("func F() {\n    map LoginReply\n}")]
+        [TestCaseSource(typeof(EnumScripts), nameof(EnumScripts.InvalidDeclarations))]
         public void InvalidDeclaration_ThrowsOnParse(string script)
         {
             Assert.ThrowsAsync<BotScriptErrorException>(() => RunAsync(script));
@@ -166,7 +165,12 @@ namespace EOBot.Test.Interpreter
         [Test]
         public async Task Map_Implicit_ResolvesDotNetEnum()
         {
-            var (state, result, reason) = await RunAsync("map LoginReply\n$res = LoginReply::Ok");
+            const string script = """
+                map LoginReply
+                $res = LoginReply::Ok
+                """;
+
+            var (state, result, reason) = await RunAsync(script);
 
             Assert.That(result, Is.EqualTo(EvalResult.Ok), reason);
             Assert.That(((EnumVariable)state.SymbolTable["res"].Identifiable).Value, Is.EqualTo(3));
@@ -176,7 +180,13 @@ namespace EOBot.Test.Interpreter
         [Test]
         public async Task Map_ExplicitWithAlias_ResolvesDotNetEnum()
         {
-            var (state, result, reason) = await RunAsync("from Moffat.EndlessOnline.SDK.Protocol.Net.Server map LoginReply to Reply\n$res = Reply::Banned\n$isReply = $res is Reply");
+            const string script = """
+                from Moffat.EndlessOnline.SDK.Protocol.Net.Server map LoginReply to Reply
+                $res = Reply::Banned
+                $isReply = $res is Reply
+                """;
+
+            var (state, result, reason) = await RunAsync(script);
 
             Assert.That(result, Is.EqualTo(EvalResult.Ok), reason);
             Assert.That(((EnumVariable)state.SymbolTable["res"].Identifiable).Value, Is.EqualTo(4));
@@ -188,7 +198,13 @@ namespace EOBot.Test.Interpreter
         [Test]
         public async Task Map_Wildcard_MapsAllEnumsInNamespace()
         {
-            var (state, result, reason) = await RunAsync("from Moffat.EndlessOnline.SDK.Protocol.Net.Server map *\n$a = AccountReply::Created\n$b = LoginReply::Ok");
+            const string script = """
+                from Moffat.EndlessOnline.SDK.Protocol.Net.Server map *
+                $a = AccountReply::Created
+                $b = LoginReply::Ok
+                """;
+
+            var (state, result, reason) = await RunAsync(script);
 
             Assert.That(result, Is.EqualTo(EvalResult.Ok), reason);
             Assert.That(state.SymbolTable["a"].Identifiable.StringValue, Is.EqualTo("AccountReply::Created"));
@@ -198,21 +214,19 @@ namespace EOBot.Test.Interpreter
         [Test]
         public async Task Map_DotNetEnumComparesWithInt()
         {
-            var (state, result, reason) = await RunAsync("map Direction\n$dir = 3\n$res = $dir == Direction::Right");
+            const string script = """
+                map Direction
+                $dir = 3
+                $res = $dir == Direction::Right
+                """;
+
+            var (state, result, reason) = await RunAsync(script);
 
             Assert.That(result, Is.EqualTo(EvalResult.Ok), reason);
             Assert.That(state.SymbolTable["res"].Identifiable.StringValue, Is.EqualTo("true").IgnoreCase);
         }
 
-        [TestCase("map NotARealEnumTypeName")]
-        [TestCase("from Not.A.Real.Namespace map LoginReply")]
-        [TestCase("map *")]
-        [TestCase("from Not.A.Real.Namespace map *")]
-        [TestCase("from Moffat.EndlessOnline.SDK.Protocol.Net.Server map * to X")]
-        [TestCase("map LoginReply to")]
-        [TestCase("map LoginReply extra")]
-        [TestCase("from Moffat.EndlessOnline.SDK.Protocol.Net.Server LoginReply")]
-        [TestCase("enum LoginReply { A }\nmap LoginReply")]
+        [TestCaseSource(typeof(EnumScripts), nameof(EnumScripts.InvalidMaps))]
         public void InvalidMap_ThrowsOnParse(string script)
         {
             Assert.ThrowsAsync<BotScriptErrorException>(() => RunAsync(script));
