@@ -29,11 +29,15 @@ namespace EOBot.Interpreter.States
             if (ct.IsCancellationRequested)
                 return (EvalResult.Cancelled, string.Empty, null);
 
+            var prefixOperator = input.MatchOneOf(BotTokenType.Increment, BotTokenType.Decrement) ? input.OperationStack.Pop() : null;
+
             var eval = await Evaluator<VariableEvaluator>().EvaluateAsync(input, ct);
             if (eval.Result != EvalResult.Ok)
-                return eval;
+                return prefixOperator != null && eval.Result == EvalResult.NotMatch ? Error(input.Current(), BotTokenType.Variable) : eval;
 
-            if (!input.MatchOneOf(AssignTokens))
+            if (prefixOperator != null)
+                input.OperationStack.Push(prefixOperator);
+            else if (!input.MatchOneOf(AssignTokens))
                 return (EvalResult.NotMatch, string.Empty, input.Current());
 
             if (input.OperationStack.Peek().IsUnary())
@@ -80,7 +84,7 @@ namespace EOBot.Interpreter.States
             return Success();
         }
 
-        private static (EvalResult, string, BotToken) Assign(Dictionary<string, (bool ReadOnly, IIdentifiable Identifiable)> symbols,
+        protected static (EvalResult, string, BotToken) Assign(Dictionary<string, (bool ReadOnly, IIdentifiable Identifiable)> symbols,
             IdentifierBotToken assignmentTarget,
             VariableBotToken expressionResult,
             BotToken assignOp)

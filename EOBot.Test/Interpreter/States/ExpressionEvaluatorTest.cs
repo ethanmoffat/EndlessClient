@@ -110,6 +110,23 @@ namespace EOBot.Test.Interpreter.States
         [TestCase("func Boom() {\n    return $o.$x\n}\n$test_res = true ? 2 : (Boom() ? Boom() : [Boom()])", "2")]
         [TestCase("enum E { A, B }\n$test_res = true ? E::A : E::B", "E::A")]
         [TestCase("enum E { A, B }\n$test_res = false ? E::A : E::B\n$test_res2 = true ? E::A : E::B", "E::B")]
+        [TestCase("$x = 1\n$test_res = $x++", "1")]
+        [TestCase("$x = 1\n$y = $x++\n$test_res = $x", "2")]
+        [TestCase("$x = 1\n$test_res = $x--", "1")]
+        [TestCase("$x = 1\n$test_res = ++$x", "2")]
+        [TestCase("$x = 1\n$test_res = --$x", "0")]
+        [TestCase("$x = 1\n++$x\n$test_res = $x", "2")]
+        [TestCase("$x = 1\n--$x\n$test_res = $x", "0")]
+        [TestCase("$test_res = 0\nfor ($i = 0; $i < 3; ++$i) $test_res += $i", "3")]
+        [TestCase("$x = 1\n$test_res = $x++ + $x", "3")]
+        [TestCase("$x = 1\n$test_res = -++$x", "-2")]
+        [TestCase("$x = 1\n$test_res = !$x--", "false")]
+        [TestCase("$x = 0\n$test_res = [$x++, $x++, $x]", "[0, 1, 2]")]
+        [TestCase("$a = [1, 2]\n$i = 0\n$test_res = $a[$i++] + $a[$i]", "3")]
+        [TestCase("$a = [5]\n$y = $a[0]++\n$test_res = [$y, $a[0]]", "[5, 6]")]
+        [TestCase("$o = { $n = 5 }\n$y = ++$o.$n\n$test_res = [$y, $o.$n]", "[6, 6]")]
+        [TestCase("func F($v) {\n    return $v\n}\n$x = 1\n$test_res = F(++$x) + $x", "4")]
+        [TestCase("$x = 0\n$y = false ? $x++ : 5\n$y = true || $x++\n$test_res = $x", "0")]
         public async Task TestScriptEvaluation(string input, string expected)
         {
 

@@ -21,7 +21,7 @@ namespace EOBot.Interpreter.States
 
         protected IScriptEvaluator Evaluator<T>() where T : IScriptEvaluator
         {
-            return _evaluators.OfType<T>().Single();
+            return _evaluators.Single(x => x.GetType() == typeof(T));
         }
 
         protected static (EvalResult, string, BotToken) Success(BotToken token = null)
