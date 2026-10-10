@@ -252,7 +252,12 @@ namespace EOBot
                 _botFramework = new BotFramework(parsedArgs);
 
                 await _botFramework.InitializeAsync(botFactory, parsedArgs.InitDelay, _cts.Token).ConfigureAwait(false);
-                await _botFramework.RunAsync(_cts.Token).ConfigureAwait(false);
+                var statusCode = await _botFramework.RunAsync(_cts.Token).ConfigureAwait(false);
+
+                if (statusCode != 0)
+                {
+                    return statusCode;
+                }
 
                 Console.WriteLine();
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, "All bots completed.");
@@ -260,12 +265,12 @@ namespace EOBot
             catch (BotException bex)
             {
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, bex.Message, ConsoleColor.DarkRed);
-                return 1;
+                return 4;
             }
             catch (BotScriptErrorException bse)
             {
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, bse.Message, ConsoleColor.DarkRed);
-                return 1;
+                return 4;
             }
             catch (AggregateException ae)
             {
@@ -278,12 +283,12 @@ namespace EOBot
                 foreach (var ie in otherExceptions.Concat(aggregateChildren))
                     ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Unhandled error ({ie.GetType().Name}): {ie.Message}\nStack Trace:\n{ie.StackTrace}", ConsoleColor.DarkRed);
 
-                return 1;
+                return 4;
             }
             catch (Exception ex)
             {
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Unhandled error ({ex.GetType().Name}): {ex.Message}\nStack Trace:\n{ex.StackTrace}", ConsoleColor.DarkRed);
-                return 1;
+                return 4;
             }
             finally
             {

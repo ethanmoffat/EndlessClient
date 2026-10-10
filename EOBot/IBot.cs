@@ -20,6 +20,7 @@ namespace EOBot
         /// Run logic for the bot instance. Called automatically by the framework.
         /// </summary>
         /// <param name="waitForTermination">True to wait until a call to Terminate() is made, false otherwise</param>
-        Task RunAsync(CancellationToken cancellationToken);
+        /// <returns>Result code</returns>
+        Task<int> RunAsync(CancellationToken cancellationToken);
     }
 }

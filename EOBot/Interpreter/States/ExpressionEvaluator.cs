@@ -19,33 +19,60 @@ namespace EOBot.Interpreter.States
             if (ct.IsCancellationRequested)
                 return (EvalResult.Cancelled, string.Empty, null);
 
-            if (!input.Match(BotTokenType.NotOperator))
+            // Check for logical short-circuit condition, terminate expression evaluation early if short-circuited
+            if (input.OperationStack.TryPeek(out var previous) && previous.IsBinaryLogicalOperator())
+            {
+                var res = EvaluateLogicalLeftOperand(input, out var shortCircuited);
+                if (res.Result != EvalResult.Ok)
+                    return res;
+
+                if (shortCircuited)
+                {
+                    res = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input, ct);
+                    if (res.Result != EvalResult.Ok && res.Result != EvalResult.NotMatch)
+                        return res;
+
+                    return await EvaluateStackOperandsAndTernaryAsync(input, ct);
+                }
+            }
+
+            if (!input.MatchUnaryOperators(out var unaryMinusCount))
             {
                 if (input.Match(BotTokenType.LBracket))
                 {
-                    var res = await EvalCommaDelimitedList<ExpressionEvaluator>(input, BotTokenType.RBracket, ct);
+                    var isEmptyDict = input.ExpectPair(BotTokenType.Colon, BotTokenType.RBracket);
+                    (EvalResult Result, string Reason, BotToken Token) res = isEmptyDict
+                        ? Success()
+                        : await EvalCommaDelimitedList<CollectionElementEvaluator>(input, BotTokenType.RBracket, ct);
                     if (res.Result == EvalResult.Ok)
                     {
-                        // Array initializer: create array from stack params
-                        var arrayParams = GetParametersFromStack(input, BotTokenType.LBracket);
+                        // Array or dictionary initializer: create collection from stack params
+                        var elements = GetCollectionElementsFromStack(input, BotTokenType.LBracket);
                         var lbracket = input.OperationStack.Pop();
                         if (lbracket.TokenType != BotTokenType.LBracket)
                             return StackTokenError(BotTokenType.LBracket, lbracket);
 
-                        var arrayVariable = new ArrayVariable(arrayParams.Select(x => x.VariableValue).ToList());
-                        input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, arrayVariable.StringValue, arrayVariable));
+                        res = CreateCollection(elements, isEmptyDict);
+                        if (res.Result != EvalResult.Ok)
+                            return res;
 
-                        // check for an expression tail after array literal
+                        input.OperationStack.Push(res.Token);
+
+                        // check for an expression tail after collection literal
                         res = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input, ct);
                         if (res.Result != EvalResult.Ok && res.Result != EvalResult.NotMatch)
                             return res;
 
                         return Success();
                     }
+                    else if (res.Result != EvalResult.NotMatch)
+                    {
+                        return res;
+                    }
                 }
                 else if (input.Match(BotTokenType.LBrace))
                 {
-                    var res = await EvalCommaDelimitedList<AssignmentEvaluator>(input, BotTokenType.RBrace, ct);
+                    var res = await EvalCommaDelimitedList<ObjectInitializerEvaluator>(input, BotTokenType.RBrace, ct);
                     if (res.Result == EvalResult.Ok)
                     {
                         // Object initializer: create object from stack params
@@ -53,6 +80,12 @@ namespace EOBot.Interpreter.States
                         var lBrace = input.OperationStack.Pop();
                         if (lBrace.TokenType != BotTokenType.LBrace)
                             return StackTokenError(BotTokenType.LBrace, lBrace);
+
+                        var duplicateMember = assignmentPairs
+                            .GroupBy(p => p.Item1.TokenValue)
+                            .FirstOrDefault(g => g.Count() > 1);
+                        if (duplicateMember != null)
+                            return (EvalResult.Failed, $"Duplicate member {duplicateMember.Key} in object initializer", duplicateMember.Last().Item1);
 
                         var objectVariable = new ObjectVariable(
                             assignmentPairs.ToDictionary(
@@ -83,14 +116,8 @@ namespace EOBot.Interpreter.States
                     return evalRes;
 
                 // if we get an RParen, the nested expression has been evaluated
-                if (input.Expect(BotTokenType.RParen))
-                {
-                    // check for an expression tail after the close paren
-                    evalRes = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input, ct);
-                    if (evalRes.Result != EvalResult.Ok && evalRes.Result != EvalResult.NotMatch)
-                        return evalRes;
-                }
-                else
+                var closedParen = false;
+                if (!input.Expect(BotTokenType.RParen))
                 {
                     // expression_tail is optional
                     evalRes = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input, ct);
@@ -99,6 +126,10 @@ namespace EOBot.Interpreter.States
 
                     if (!input.Expect(BotTokenType.RParen))
                         return Error(input.Current(), BotTokenType.RParen);
+                }
+                else
+                {
+                    closedParen = true;
                 }
 
                 // take care of the LParen that we matched on
@@ -110,6 +141,18 @@ namespace EOBot.Interpreter.States
 
                 input.OperationStack.Pop();
                 input.OperationStack.Push(tmp);
+
+                evalRes = ApplyUnaryMinus(input, unaryMinusCount);
+                if (evalRes.Result != EvalResult.Ok)
+                    return evalRes;
+
+                // the tail after the close paren is evaluated once the parenthesized value is an operand, so precedence applies across it
+                if (closedParen)
+                {
+                    evalRes = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input, ct);
+                    if (evalRes.Result != EvalResult.Ok && evalRes.Result != EvalResult.NotMatch)
+                        return evalRes;
+                }
             }
             else
             {
@@ -117,6 +160,10 @@ namespace EOBot.Interpreter.States
                 var evalRes = await Evaluator<FunctionEvaluator>().EvaluateAsync(input, ct);
                 if (evalRes.Result == EvalResult.Ok)
                 {
+                    evalRes = ApplyUnaryMinus(input, unaryMinusCount);
+                    if (evalRes.Result != EvalResult.Ok)
+                        return evalRes;
+
                     // expression_tail is optional
                     evalRes = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input, ct);
                     if (evalRes.Result != EvalResult.Ok && evalRes.Result != EvalResult.NotMatch)
@@ -128,6 +175,10 @@ namespace EOBot.Interpreter.States
                 {
                     // if not a function, evaluate operand and expression tail (basic expression)
                     evalRes = await Evaluator<OperandEvaluator>().EvaluateAsync(input, ct);
+                    if (evalRes.Result != EvalResult.Ok)
+                        return evalRes;
+
+                    evalRes = ApplyUnaryMinus(input, unaryMinusCount);
                     if (evalRes.Result != EvalResult.Ok)
                         return evalRes;
 
@@ -144,15 +195,147 @@ namespace EOBot.Interpreter.States
                 }
             }
 
-            return EvaluateStackOperands(input);
+            return await EvaluateStackOperandsAndTernaryAsync(input, ct);
         }
 
-        private static (EvalResult, string, BotToken) EvaluateStackOperands(ProgramState input)
+        private async Task<(EvalResult, string, BotToken)> EvaluateStackOperandsAndTernaryAsync(ProgramState input, CancellationToken ct)
+        {
+            var res = EvaluateStackOperands(input);
+            if (res.Result != EvalResult.Ok || !input.Expect(BotTokenType.QuestionMark))
+                return res;
+
+            // We have a ? token so the top of the stack is the evaluated condition.
+            var condition = (VariableBotToken)input.OperationStack.Pop();
+            var boolValue = CoerceToBool(condition.VariableValue);
+            if (boolValue == null)
+                return (EvalResult.Failed, $"Error evaluating expression: ternary condition {condition} could not be coerced to bool", condition);
+
+            if (boolValue.Value) // condition true: evaluate expression following '?' and skip ':' expression
+            {
+                res = await Evaluator<ExpressionEvaluator>().EvaluateAsync(input, ct);
+                if (res.Result != EvalResult.Ok)
+                    return res;
+
+                if (!input.Expect(BotTokenType.Colon))
+                    return Error(input.Current(), BotTokenType.Colon);
+
+                SkipOperand(input);
+                return Success();
+            }
+            else // condition false: skip expression following '?' and evaluate ':' expression
+            {
+                SkipOperand(input);
+
+                if (!input.Expect(BotTokenType.Colon))
+                    return Error(input.Current(), BotTokenType.Colon);
+
+                return await Evaluator<ExpressionEvaluator>().EvaluateAsync(input, ct);
+            }
+        }
+
+        private static (EvalResult Result, string Reason, BotToken Token) EvaluateLogicalLeftOperand(ProgramState input, out bool shortCircuited)
+        {
+            shortCircuited = false;
+
+            var logicalOperator = input.OperationStack.Pop();
+            var evalRes = EvaluateStackOperands(input, logicalOperator);
+            if (evalRes.Result != EvalResult.Ok)
+                return evalRes;
+
+            var leftOperand = (VariableBotToken)input.OperationStack.Pop();
+            var boolValue = CoerceToBool(leftOperand.VariableValue);
+            if (boolValue == null)
+                return (EvalResult.Failed, $"Error evaluating expression: operand {leftOperand} of {logicalOperator.TokenType} could not be coerced to bool", leftOperand);
+
+            input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, boolValue.StringValue, boolValue));
+
+            if (!(shortCircuited = boolValue.Value == logicalOperator.Is(BotTokenType.LogicalOrOperator)))
+            {
+                input.OperationStack.Push(logicalOperator);
+            }
+            else
+            {
+                // '||' is the only binary operator with lower precedence than '&&', so it ends the right operand of '&&'
+                var isAnd = logicalOperator.Is(BotTokenType.LogicalAndOperator);
+                SkipOperand(input, current => current.Is(BotTokenType.QuestionMark) || (isAnd && current.Is(BotTokenType.LogicalOrOperator)));
+            }
+
+            return Success();
+        }
+
+        private static (EvalResult Result, string Reason, BotToken Token) CreateCollection(List<(VariableBotToken Key, VariableBotToken Value)> elements, bool isEmptyDict)
+        {
+            var isDict = isEmptyDict || elements.Any(x => x.Key != null);
+            foreach (var (key, value) in elements)
+            {
+                if ((key != null) != isDict)
+                    return (EvalResult.Failed, "Array elements and dictionary entries cannot be mixed in a collection initializer", key ?? value);
+            }
+
+            if (!isDict)
+            {
+                var arrayVariable = new ArrayVariable(elements.Select(x => x.Value.VariableValue).ToList());
+                return (EvalResult.Ok, string.Empty, new VariableBotToken(BotTokenType.Literal, arrayVariable.StringValue, arrayVariable));
+            }
+
+            var dict = new Dictionary<string, IVariable>();
+            foreach (var (key, value) in elements)
+            {
+                if (!dict.TryAdd(key.VariableValue.StringValue, value.VariableValue))
+                    return (EvalResult.Failed, $"Duplicate key {key.VariableValue.StringValue} in dictionary initializer", key);
+            }
+
+            var dictVariable = new DictVariable(dict);
+            return (EvalResult.Ok, string.Empty, new VariableBotToken(BotTokenType.Literal, dictVariable.StringValue, dictVariable));
+        }
+
+        private static void SkipOperand(ProgramState input, Func<BotToken, bool> endsOperand = null)
+        {
+            endsOperand ??= _ => false;
+
+            var groupingDepth = 0;
+            var ternaryDepth = 0;
+            while (input.ExecutionIndex < input.Program.Count)
+            {
+                var current = input.Current();
+                if (current.IsOneOf(BotTokenType.LParen, BotTokenType.LBracket, BotTokenType.LBrace))
+                {
+                    groupingDepth++;
+                }
+                else if (current.IsOneOf(BotTokenType.RParen, BotTokenType.RBracket, BotTokenType.RBrace))
+                {
+                    if (groupingDepth == 0)
+                        break;
+                    groupingDepth--;
+                }
+                else if (groupingDepth == 0)
+                {
+                    var expressionEnd = current.IsOneOf(BotTokenType.Comma, BotTokenType.Semicolon, BotTokenType.NewLine, BotTokenType.EOF);
+                    if (expressionEnd || endsOperand(current))
+                        break;
+
+                    if (current.Is(BotTokenType.QuestionMark))
+                    {
+                        ternaryDepth++;
+                    }
+                    else if (current.Is(BotTokenType.Colon))
+                    {
+                        if (ternaryDepth == 0)
+                            break;
+                        ternaryDepth--;
+                    }
+                }
+
+                input.SkipToken();
+            }
+        }
+
+        private static (EvalResult Result, string Reason, BotToken Token) EvaluateStackOperands(ProgramState input, BotToken leftOperandOf = null)
         {
             if (input.OperationStack.Count == 0)
                 return StackEmptyError(input.Current());
 
-            var syntaxTree = new SyntaxTree(input.OperationStack)
+            var syntaxTree = new SyntaxTree(input.OperationStack, leftOperandOf)
             {
                 VisitOrder = SyntaxTree.Order.PostOrder
             };
@@ -170,6 +353,9 @@ namespace EOBot.Interpreter.States
         {
             if (node.Token.IsUnary())
             {
+                if (node.Left != null)
+                    RestoreToStack(input.OperationStack, node.Right);
+
                 var (res, reason, operand) = node.Left != null
                     ? EvaluateTree(input, node.Left)
                     : node.Right != null
@@ -227,13 +413,40 @@ namespace EOBot.Interpreter.States
             }
         }
 
+        // UnaryMinus is not a detected token type. The minus operations are applied prior to evaluation so the values
+        //   are processed by the tree with the correctly stacked negation.
+        private static (EvalResult, string, BotToken) ApplyUnaryMinus(ProgramState input, int unaryMinusCount)
+        {
+            if (unaryMinusCount == 0)
+                return Success();
+
+            var (result, reason, operand) = GetOperand(input.SymbolTable, input.OperationStack.Pop());
+            if (result != EvalResult.Ok)
+                return (result, reason, operand);
+
+            var value = ((VariableBotToken)operand).VariableValue;
+            for (; unaryMinusCount > 0; unaryMinusCount--)
+            {
+                input.OperationStack.Pop();
+
+                (IVariable negateResult, reason) = Negate(value);
+                if (negateResult == null)
+                    return (EvalResult.Failed, $"Error evaluating expression: {reason}", input.Current());
+
+                value = negateResult;
+            }
+
+            input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, value.StringValue, value));
+            return Success();
+        }
+
         private static (EvalResult, string, BotToken) HandleUnaryOperator(ProgramState input, BotToken operatorToken, VariableBotToken operand)
         {
             (IVariable Result, string Reason) res;
             res.Reason = string.Empty;
             switch (operatorToken.TokenType)
             {
-                case BotTokenType.NotOperator: res = Negate(operand.VariableValue); break;
+                case BotTokenType.NotOperator: res = LogicalNegate(operand.VariableValue); break;
                 default: return UnsupportedOperatorError(operatorToken);
             }
 
@@ -312,7 +525,7 @@ namespace EOBot.Interpreter.States
             return Success(operand);
         }
 
-        private static (IVariable Result, string Reason) Negate(IVariable variable)
+        private static (IVariable Result, string Reason) LogicalNegate(IVariable variable)
         {
             var boolOperand = CoerceToBool(variable);
             if (boolOperand == null)
@@ -342,6 +555,15 @@ namespace EOBot.Interpreter.States
             return (new BoolVariable(aVal.Value || bVal.Value), string.Empty);
         }
 
+        private static (IVariable, string) Negate(IVariable variable)
+        {
+            return variable switch
+            {
+                IntVariable iv => (new IntVariable(-iv.Value), string.Empty),
+                _ => (null, $"Variable of type {variable.GetType().Name} could not be negated.")
+            };
+        }
+
         private static (IVariable, string) Add(IntVariable a, IntVariable b) => (new IntVariable(a.Value + b.Value), string.Empty);
         private static (IVariable, string) Add(StringVariable a, StringVariable b) => (new StringVariable(a.Value + b.Value), string.Empty);
         private static (IVariable, string) Add(IVariable a, StringVariable b) => (new StringVariable(a.StringValue + b.Value), string.Empty);
@@ -354,10 +576,10 @@ namespace EOBot.Interpreter.States
         private static (IVariable, string) Multiply(IntVariable a, IntVariable b) => (new IntVariable(a.Value * b.Value), string.Empty);
         private static (IVariable, string) Multiply(object a, object b) => (null, $"Objects {a} and {b} could not be multiplied (currently the operands must be int)");
 
-        private static (IVariable, string) Divide(IntVariable a, IntVariable b) => (new IntVariable(a.Value / b.Value), string.Empty);
+        private static (IVariable, string) Divide(IntVariable a, IntVariable b) => b.Value == 0 ? (null, "Division by zero") : (new IntVariable(a.Value / b.Value), string.Empty);
         private static (IVariable, string) Divide(object a, object b) => (null, $"Objects {a} and {b} could not be divided (currently the operands must be int)");
 
-        private static (IVariable, string) Modulo(IntVariable a, IntVariable b) => (new IntVariable(a.Value % b.Value), string.Empty);
+        private static (IVariable, string) Modulo(IntVariable a, IntVariable b) => b.Value == 0 ? (null, "Division by zero") : (new IntVariable(a.Value % b.Value), string.Empty);
         private static (IVariable, string) Modulo(object a, object b) => (null, $"Objects {a} and {b} could not be modulo'd (currently the operands must be int)");
 
         private static bool IsType(IVariable variable, IVariable typeSpecifier)

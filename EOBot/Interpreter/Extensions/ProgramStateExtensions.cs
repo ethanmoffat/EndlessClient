@@ -17,6 +17,19 @@ namespace EOBot.Interpreter.Extensions
             return false;
         }
 
+        public static bool MatchUnaryOperators(this ProgramState input, out int unaryMinusCount)
+        {
+            var matched = false;
+            unaryMinusCount = 0;
+            while (input.MatchOneOf(BotTokenType.NotOperator, BotTokenType.MinusOperator))
+            {
+                matched = true;
+                unaryMinusCount = input.OperationStack.Peek().Is(BotTokenType.MinusOperator) ? unaryMinusCount + 1 : 0;
+            }
+
+            return matched;
+        }
+
         public static BotToken Current(this ProgramState input)
         {
             if (input.ExecutionIndex >= input.Program.Count)

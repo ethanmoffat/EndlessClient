@@ -16,6 +16,7 @@ namespace EOBot.Interpreter.States
             BotTokenType.MinusEquals,
             BotTokenType.MultiplyEquals,
             BotTokenType.DivideEquals,
+            BotTokenType.ModuloEquals,
             BotTokenType.Increment,
             BotTokenType.Decrement,
         ];
@@ -28,11 +29,15 @@ namespace EOBot.Interpreter.States
             if (ct.IsCancellationRequested)
                 return (EvalResult.Cancelled, string.Empty, null);
 
+            var prefixOperator = input.MatchOneOf(BotTokenType.Increment, BotTokenType.Decrement) ? input.OperationStack.Pop() : null;
+
             var eval = await Evaluator<VariableEvaluator>().EvaluateAsync(input, ct);
             if (eval.Result != EvalResult.Ok)
-                return eval;
+                return prefixOperator != null && eval.Result == EvalResult.NotMatch ? Error(input.Current(), BotTokenType.Variable) : eval;
 
-            if (!input.MatchOneOf(AssignTokens))
+            if (prefixOperator != null)
+                input.OperationStack.Push(prefixOperator);
+            else if (!input.MatchOneOf(AssignTokens))
                 return (EvalResult.NotMatch, string.Empty, input.Current());
 
             if (input.OperationStack.Peek().IsUnary())
@@ -52,34 +57,25 @@ namespace EOBot.Interpreter.States
                     return eval;
             }
 
-            // object initializers should keep the operands on the stack so that they can be assigned into the new object later
-            // an object initializer is determined to be when an LBrace is on the stack (usually these are not stored on the stack when evaluating blocks)
-            // todo: see if it's worth creating a separate assignment evaluator type that does this logic instead of branching based on presence of stack token
-            var isObjectInitializer = input.OperationStack.Any(x => x.TokenType == BotTokenType.LBrace);
-            if (!isObjectInitializer)
-            {
-                if (input.OperationStack.Count == 0)
-                    return StackEmptyError(input.Current());
+            if (input.OperationStack.Count == 0)
+                return StackEmptyError(input.Current());
 
-                var expressionResult = (VariableBotToken)input.OperationStack.Pop();
+            var expressionResult = (VariableBotToken)input.OperationStack.Pop();
 
-                if (input.OperationStack.Count == 0)
-                    return StackEmptyError(input.Current());
-                var assignOp = input.OperationStack.Pop();
-                if (!AssignTokens.Contains(assignOp.TokenType))
-                    return StackTokenError(BotTokenType.AssignOperator, assignOp);
+            if (input.OperationStack.Count == 0)
+                return StackEmptyError(input.Current());
+            var assignOp = input.OperationStack.Pop();
+            if (!AssignTokens.Contains(assignOp.TokenType))
+                return StackTokenError(BotTokenType.AssignOperator, assignOp);
 
-                if (input.OperationStack.Count == 0)
-                    return StackEmptyError(input.Current());
-                var assignmentTarget = (IdentifierBotToken)input.OperationStack.Pop();
+            if (input.OperationStack.Count == 0)
+                return StackEmptyError(input.Current());
+            var assignmentTarget = (IdentifierBotToken)input.OperationStack.Pop();
 
-                return Assign(input.SymbolTable, assignmentTarget, expressionResult, assignOp);
-            }
-
-            return Success();
+            return Assign(input.SymbolTable, assignmentTarget, expressionResult, assignOp);
         }
 
-        private static (EvalResult, string, BotToken) Assign(Dictionary<string, (bool ReadOnly, IIdentifiable Identifiable)> symbols,
+        protected static (EvalResult, string, BotToken) Assign(Dictionary<string, (bool ReadOnly, IIdentifiable Identifiable)> symbols,
             IdentifierBotToken assignmentTarget,
             VariableBotToken expressionResult,
             BotToken assignOp)
@@ -123,14 +119,22 @@ namespace EOBot.Interpreter.States
                     if (targetDict.Value.TryGetValue(assignmentTarget.Indexer.StringValue, out var v))
                         lhs = v;
 
-                    targetDict.Value[assignmentTarget.Indexer.StringValue] = ApplyOp(assignOp, lhs, expressionResult.VariableValue);
+                    var (newValue, applyReason) = ApplyOp(assignOp, lhs, expressionResult.VariableValue);
+                    if (newValue == null)
+                        return (EvalResult.Failed, applyReason, assignOp);
+
+                    targetDict.Value[assignmentTarget.Indexer.StringValue] = newValue;
                 }
                 else if (retVar is ArrayVariable targetArray)
                 {
                     if (assignmentTarget.Indexer is not IntVariable indexVar)
                         return (EvalResult.Failed, $"Expected integer for array index, but got: {assignmentTarget.Indexer} ({assignmentTarget.Indexer.GetType().Name})", assignmentTarget);
 
-                    targetArray.Value[indexVar.Value] = ApplyOp(assignOp, targetArray.Value[indexVar.Value], expressionResult.VariableValue);
+                    var (newValue, applyReason) = ApplyOp(assignOp, targetArray.Value[indexVar.Value], expressionResult.VariableValue);
+                    if (newValue == null)
+                        return (EvalResult.Failed, applyReason, assignOp);
+
+                    targetArray.Value[indexVar.Value] = newValue;
                 }
                 else
                 {
@@ -141,15 +145,6 @@ namespace EOBot.Interpreter.States
             {
                 if (symbols.ContainsKey(assignmentTarget.TokenValue) && symbols[assignmentTarget.TokenValue].ReadOnly)
                     return ReadOnlyVariableError(assignmentTarget);
-
-                if (symbols.ContainsKey(assignmentTarget.TokenValue) &&
-                    symbols[assignmentTarget.TokenValue].Identifiable.GetType() != expressionResult.VariableValue.GetType()
-                    && symbols[assignmentTarget.TokenValue].Identifiable is not UndefinedVariable
-                    && expressionResult.VariableValue is not UndefinedVariable)
-                {
-                    // todo: surface warnings to caller and let caller decide what to do with it instead of making the interpreter write to console directly
-                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"Changing type of variable {assignmentTarget.TokenValue} from {symbols[assignmentTarget.TokenValue].Identifiable.GetType()} to {expressionResult.VariableValue.GetType()} (at: {assignmentTarget.LineNumber}:{assignmentTarget.Column})", ConsoleColor.DarkYellow);
-                }
 
                 IVariable lhsVar = null;
                 if (assignOp.TokenType != BotTokenType.AssignOperator)
@@ -163,25 +158,45 @@ namespace EOBot.Interpreter.States
                     lhsVar = v;
                 }
 
-                symbols[assignmentTarget.TokenValue] = (false, ApplyOp(assignOp, lhsVar, expressionResult.VariableValue));
+                var (newValue, reason) = ApplyOp(assignOp, lhsVar, expressionResult.VariableValue);
+                if (newValue == null)
+                    return (EvalResult.Failed, reason, assignOp);
+
+                if (symbols.ContainsKey(assignmentTarget.TokenValue) &&
+                    symbols[assignmentTarget.TokenValue].Identifiable.GetType() != newValue.GetType()
+                    && symbols[assignmentTarget.TokenValue].Identifiable is not UndefinedVariable
+                    && newValue is not UndefinedVariable)
+                {
+                    // todo: surface warnings to caller and let caller decide what to do with it instead of making the interpreter write to console directly
+                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"Changing type of variable {assignmentTarget.TokenValue} from {symbols[assignmentTarget.TokenValue].Identifiable.GetType()} to {newValue.GetType()} (at: {assignmentTarget.LineNumber}:{assignmentTarget.Column})", ConsoleColor.DarkYellow);
+                }
+
+                symbols[assignmentTarget.TokenValue] = (false, newValue);
             }
 
             return Success();
         }
 
-        private static IVariable ApplyOp(BotToken assignToken, IVariable lhs, IVariable rhs)
+        private static (IVariable Result, string Reason) ApplyOp(BotToken assignToken, IVariable lhs, IVariable rhs)
         {
-            return assignToken.TokenType switch
+            if (assignToken.IsOneOf(BotTokenType.DivideEquals, BotTokenType.ModuloEquals) && CoerceToInt(rhs) == 0)
+                return (null, "Division by zero");
+
+            return (assignToken.TokenType switch
             {
+                BotTokenType.PlusEquals when lhs is StringVariable || rhs is StringVariable =>
+                    new StringVariable(lhs?.StringValue + rhs.StringValue),
+
                 BotTokenType.AssignOperator => rhs,
                 BotTokenType.PlusEquals => new IntVariable(CoerceToInt(lhs) + CoerceToInt(rhs)),
                 BotTokenType.MinusEquals => new IntVariable(CoerceToInt(lhs) - CoerceToInt(rhs)),
                 BotTokenType.MultiplyEquals => new IntVariable(CoerceToInt(lhs) * CoerceToInt(rhs)),
                 BotTokenType.DivideEquals => new IntVariable(CoerceToInt(lhs) / CoerceToInt(rhs)),
+                BotTokenType.ModuloEquals => new IntVariable(CoerceToInt(lhs) % CoerceToInt(rhs)),
                 BotTokenType.Increment => new IntVariable(CoerceToInt(lhs) + 1),
                 BotTokenType.Decrement => new IntVariable(CoerceToInt(lhs) - 1),
                 _ => throw new Exception("This code should be unreachable; was a new assign operator added?")
-            };
+            }, string.Empty);
         }
 
         private static int CoerceToInt(IVariable variable)

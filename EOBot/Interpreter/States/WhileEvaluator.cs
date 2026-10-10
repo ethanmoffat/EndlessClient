@@ -26,6 +26,7 @@ namespace EOBot.Interpreter.States
                 var blockEval = await EvaluateBlockAsync(input, ct);
                 if (blockEval.Item1 == EvalResult.ControlFlow)
                 {
+                    if (IsReturn(input)) return blockEval;
                     if (IsBreak(input)) break;
                 }
                 else if (blockEval.Item1 != EvalResult.Ok)
@@ -40,6 +41,7 @@ namespace EOBot.Interpreter.States
             {
                 input.Goto(blockStartIndex);
                 SkipBlock(input);
+                RestoreLastNewline(input);
             }
 
             return (result, reason, token);

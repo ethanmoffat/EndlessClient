@@ -59,7 +59,7 @@ namespace EOBot
             _character = character;
         }
 
-        protected override async Task DoWorkAsync(CancellationToken ct)
+        protected override async Task<int> DoWorkAsync(CancellationToken ct)
         {
             var helper = new BotHelper(_index);
 
@@ -260,6 +260,8 @@ namespace EOBot
 
                 await Delay(120);
             }
+
+            return 0;
         }
 
         private async Task Attack(IMapCellState cellState)

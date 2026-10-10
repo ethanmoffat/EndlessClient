@@ -45,6 +45,14 @@ namespace EOBot.Interpreter.Variables
             _funcState.CallStack.Push((StringValue, _funcState.Program[0], programState.ExecutionIndex));
             var (evalResult, reason, token) = await ScriptEvaluator.Instance.EvaluateAsync(_funcState, ct);
 
+            if (evalResult == EvalResult.ControlFlow)
+            {
+                if (!_funcState.OperationStack.TryPop(out var controlToken) || !controlToken.Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_RETURN))
+                    return (EvalResult.Failed, $"'{controlToken?.TokenValue}' is not valid outside of a loop", controlToken ?? token);
+
+                evalResult = EvalResult.Ok;
+            }
+
             if (evalResult != EvalResult.Failed)
             {
                 if (_funcState.SymbolTable.TryGetValue(PredefinedIdentifiers.RESULT, out var resultVar))

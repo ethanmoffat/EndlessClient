@@ -50,12 +50,12 @@ namespace EOBot
             _initialized = true;
         }
 
-        protected override async Task DoWorkAsync(CancellationToken ct)
+        protected override async Task<int> DoWorkAsync(CancellationToken ct)
         {
             if (_programState == null)
                 throw new InvalidOperationException("Scripted bot must be initialized before it is run");
 
-            await _interpreter.Run(_programState, ct).ConfigureAwait(false);
+            return await _interpreter.Run(_programState, ct).ConfigureAwait(false);
         }
     }
 }

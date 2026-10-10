@@ -135,6 +135,7 @@ namespace EOBot.Interpreter.States
             return program
                 .Select((token, ndx) => (token, ndx))
                 .Where(x => x.token.TokenType == BotTokenType.Identifier && program[x.ndx + 1].TokenType == BotTokenType.Colon)
+                .Where(x => x.ndx == 0 || program[x.ndx - 1].TokenType != BotTokenType.ScopeResolution)
                 .ToDictionary(x => x.token.TokenValue, y => y.ndx + 2);
         }
 
@@ -274,11 +275,12 @@ namespace EOBot.Interpreter.States
                     SkipNewLines(program, ref i);
 
                     var valueToken = NextToken(program, ref i, memberName);
+                    var negate = valueToken.Is(BotTokenType.MinusOperator);
+                    if (negate)
+                        valueToken = NextToken(program, ref i, valueToken);
+
                     if (valueToken is LiteralBotToken { LiteralValue: int literalValue })
-                        nextValue = literalValue;
-                    // negative numbers are tokenized as a basic literal token without a parsed value
-                    else if (valueToken is not LiteralBotToken && valueToken.Is(BotTokenType.Literal) && int.TryParse(valueToken.TokenValue, out var negativeValue))
-                        nextValue = negativeValue;
+                        nextValue = negate ? -literalValue : literalValue;
                     else
                         throw new BotScriptErrorException("Expected integer literal for enum member value", valueToken);
 

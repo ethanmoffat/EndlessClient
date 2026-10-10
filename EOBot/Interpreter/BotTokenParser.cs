@@ -195,6 +195,7 @@ namespace EOBot.Interpreter
 
                             return Token(BotTokenType.Colon, inputChar.ToString());
                         }
+                    case '?': return Token(BotTokenType.QuestionMark, inputChar.ToString());
                     case ',': return Token(BotTokenType.Comma, inputChar.ToString());
                     case '"':
                         {
@@ -323,26 +324,15 @@ namespace EOBot.Interpreter
                             _ => Token(BotTokenType.PlusOperator, inputChar.ToString()),
                         };
                     case '-':
+                        if (_inputStream.EndOfStream)
+                            return Token(BotTokenType.MinusOperator, inputChar.ToString());
+
+                        return Peek() switch
                         {
-                            if (_inputStream.EndOfStream)
-                                return Token(BotTokenType.MinusOperator, inputChar.ToString());
-
-                            var number = string.Empty;
-                            while (char.IsDigit(Peek()) && !_inputStream.EndOfStream)
-                                number += Read();
-
-                            if (number.Length > 0)
-                            {
-                                return Token(BotTokenType.Literal, $"{inputChar}{number}");
-                            }
-
-                            return Peek() switch
-                            {
-                                '-' => Token(BotTokenType.Decrement, $"{inputChar}{Read()}"),
-                                '=' => Token(BotTokenType.MinusEquals, $"{inputChar}{Read()}"),
-                                _ => Token(BotTokenType.MinusOperator, inputChar.ToString()),
-                            };
-                        }
+                            '-' => Token(BotTokenType.Decrement, $"{inputChar}{Read()}"),
+                            '=' => Token(BotTokenType.MinusEquals, $"{inputChar}{Read()}"),
+                            _ => Token(BotTokenType.MinusOperator, inputChar.ToString()),
+                        };
                     case '*':
                         if (_inputStream.EndOfStream)
                             return Token(BotTokenType.MultiplyOperator, inputChar.ToString());
@@ -361,7 +351,15 @@ namespace EOBot.Interpreter
                             '=' => Token(BotTokenType.DivideEquals, $"{inputChar}{Read()}"),
                             _ => Token(BotTokenType.DivideOperator, inputChar.ToString()),
                         };
-                    case '%': return Token(BotTokenType.ModuloOperator, inputChar.ToString());
+                    case '%':
+                        if (_inputStream.EndOfStream)
+                            return Token(BotTokenType.ModuloOperator, inputChar.ToString());
+
+                        return Peek() switch
+                        {
+                            '=' => Token(BotTokenType.ModuloEquals, $"{inputChar}{Read()}"),
+                            _ => Token(BotTokenType.ModuloOperator, inputChar.ToString()),
+                        };
                     case '.': return Token(BotTokenType.Dot, inputChar.ToString());
                     case ';': return Token(BotTokenType.Semicolon, inputChar.ToString());
                     default: return Token(BotTokenType.Error, inputChar.ToString());

@@ -43,7 +43,7 @@ namespace EOBot.Interpreter
             return new ProgramState(retList);
         }
 
-        public async Task Run(ProgramState programState, CancellationToken ct)
+        public async Task<int> Run(ProgramState programState, CancellationToken ct)
         {
             var (result, reason, token) = await ScriptEvaluator.Instance.EvaluateAsync(programState, ct).ConfigureAwait(false);
 
@@ -58,6 +58,8 @@ namespace EOBot.Interpreter
                 {
                     ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, $"{item} ({item.LineNumber}:{item.Column})");
                 }
+
+                return 3;
             }
             else if (result == EvalResult.NotMatch)
             {
@@ -66,11 +68,16 @@ namespace EOBot.Interpreter
                 {
                     ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, reason, ConsoleColor.DarkRed);
                 }
+
+                return 2;
             }
             else if (result == EvalResult.Cancelled)
             {
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, "Execution was cancelled");
+                return 130;
             }
+
+            return 0;
         }
     }
 }

@@ -65,6 +65,12 @@ namespace EOBot.Interpreter.States
             return evalResult;
         }
 
+        protected static bool IsReturn(ProgramState input)
+        {
+            return input.OperationStack.TryPeek(out var controlToken)
+                && controlToken.Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_RETURN);
+        }
+
         protected static bool IsBreak(ProgramState input)
         {
             var res = false;

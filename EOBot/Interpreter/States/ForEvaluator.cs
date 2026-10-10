@@ -43,6 +43,7 @@ namespace EOBot.Interpreter.States
                 var blockEval = await EvaluateBlockAsync(input, ct);
                 if (blockEval.Item1 == EvalResult.ControlFlow)
                 {
+                    if (IsReturn(input)) return blockEval;
                     if (IsBreak(input)) break;
                 }
                 else if (blockEval.Item1 != EvalResult.Ok)
