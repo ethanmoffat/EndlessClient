@@ -1,9 +1,11 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using EOBot.Interpreter;
 using EOBot.Interpreter.States;
+using EOBot.Interpreter.Variables;
 using NUnit.Framework;
 
 namespace EOBot.Test.Interpreter
@@ -109,13 +111,51 @@ namespace EOBot.Test.Interpreter
             Assert.That(state.SymbolTable["res"].Identifiable.StringValue, Is.EqualTo(expected));
         }
 
-        private static async Task<(ProgramState State, EvalResult Result, string Reason)> RunAsync(string script)
+        [TestCaseSource(typeof(ControlFlowScripts), nameof(ControlFlowScripts.Truthiness))]
+        public async Task Condition_CoercesValueToBool(string value, string expected)
+        {
+            var script = $$"""
+                $c = {{value}}
+                $res = ""
+                if ($c) $res += "if"
+                while ($c) {
+                    $res += "while"
+                    break
+                }
+                for ($i = 0; $c; $i++) {
+                    $res += "for"
+                    break
+                }
+                """;
+
+            var (state, result, reason) = await RunAsync(script);
+
+            Assert.That(result, Is.EqualTo(EvalResult.Ok), reason);
+            Assert.That(state.SymbolTable["res"].Identifiable.StringValue, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public async Task Condition_StateObject_IsTruthy()
+        {
+            const string script = """
+                $res = 0
+                if ($obj) $res = 1
+                """;
+
+            var (state, result, reason) = await RunAsync(script, s => s.SymbolTable["obj"] = (true, new RuntimeEvaluatedMemberObjectVariable()));
+
+            Assert.That(result, Is.EqualTo(EvalResult.Ok), reason);
+            Assert.That(state.SymbolTable["res"].Identifiable.StringValue, Is.EqualTo("1"));
+        }
+
+        private static async Task<(ProgramState State, EvalResult Result, string Reason)> RunAsync(string script, Action<ProgramState> setup = null)
         {
             using var ms = new MemoryStream(Encoding.UTF8.GetBytes(script));
             using var sr = new StreamReader(ms);
             var botInterpreter = new BotInterpreter(sr);
 
             var state = botInterpreter.Parse();
+            setup?.Invoke(state);
             var (result, reason, _) = await ScriptEvaluator.Instance.EvaluateAsync(state, CancellationToken.None);
             return (state, result, reason);
         }

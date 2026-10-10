@@ -30,14 +30,19 @@ namespace EOBot.Interpreter.States
             if (input.OperationStack.Count == 0)
                 return StackEmptyError(input.Current());
 
-            var retToken = input.OperationStack.Pop();
-            if (retToken is VariableBotToken vbt)
-            {
-                var boolValue = CoerceToBool(vbt.VariableValue);
-                retToken = new VariableBotToken(BotTokenType.Literal, boolValue.StringValue, boolValue);
-            }
+            return ConvertConditionToBool(input.OperationStack.Pop());
+        }
 
-            return Success(retToken);
+        protected static (EvalResult, string, BotToken) ConvertConditionToBool(BotToken conditionToken)
+        {
+            if (conditionToken is not VariableBotToken vbt)
+                return Success(conditionToken);
+
+            var boolValue = CoerceToBool(vbt.VariableValue);
+            if (boolValue == null)
+                return (EvalResult.Failed, $"Condition {vbt.TokenValue} could not be coerced to bool", vbt);
+
+            return Success(new VariableBotToken(BotTokenType.Literal, boolValue.StringValue, boolValue));
         }
 
         protected async Task<(EvalResult, string, BotToken)> EvaluateBlockAsync(ProgramState input, CancellationToken ct)

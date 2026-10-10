@@ -98,7 +98,7 @@ namespace EOBot.Interpreter.States
             if (input.OperationStack.Count == 0)
                 return StackEmptyError(input.Current());
 
-            return Success(input.OperationStack.Pop());
+            return ConvertConditionToBool(input.OperationStack.Pop());
         }
 
         private async Task<(EvalResult, string, BotToken)> EvaluateIteration(int iterateOperationIndex, ProgramState input, CancellationToken ct)

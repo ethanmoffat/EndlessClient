@@ -91,10 +91,12 @@ namespace EOBot.Interpreter.States
                 return new BoolVariable(intVar.Value != 0);
             else if (variable is StringVariable stringVar)
                 return new BoolVariable(!string.IsNullOrEmpty(stringVar.Value));
-            else if (variable is ObjectVariable)
+            else if (variable is ObjectVariable or RuntimeEvaluatedMemberObjectVariable)
                 return new BoolVariable(true);
             else if (variable is ArrayVariable arrayVar)
                 return new BoolVariable(arrayVar.Value.Count > 0);
+            else if (variable is DictVariable dictVar)
+                return new BoolVariable(dictVar.Value.Count > 0);
             else if (variable is UndefinedVariable)
                 return new BoolVariable(false);
             else

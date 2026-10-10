@@ -119,5 +119,20 @@ namespace EOBot.Test.Interpreter
                 $res = 5
                 """, "5").SetArgDisplayNames("ForeachEmpty"),
         ];
+
+        public static IEnumerable<TestCaseData> Truthiness() =>
+        [
+            new TestCaseData("true", "ifwhilefor").SetArgDisplayNames("True"),
+            new TestCaseData("false", "").SetArgDisplayNames("False"),
+            new TestCaseData("1", "ifwhilefor").SetArgDisplayNames("NonZeroInt"),
+            new TestCaseData("0", "").SetArgDisplayNames("ZeroInt"),
+            new TestCaseData("\"a\"", "ifwhilefor").SetArgDisplayNames("NonEmptyString"),
+            new TestCaseData("\"\"", "").SetArgDisplayNames("EmptyString"),
+            new TestCaseData("[1]", "ifwhilefor").SetArgDisplayNames("NonEmptyArray"),
+            new TestCaseData("[]", "").SetArgDisplayNames("EmptyArray"),
+            new TestCaseData("""["a": 1]""", "ifwhilefor").SetArgDisplayNames("NonEmptyDict"),
+            new TestCaseData("[:]", "").SetArgDisplayNames("EmptyDict"),
+            new TestCaseData("{}", "ifwhilefor").SetArgDisplayNames("Object"),
+        ];
     }
 }
