@@ -11,5 +11,16 @@ namespace EOBot.Interpreter
         {
             VariableValue = variableValue;
         }
+
+        private VariableBotToken(VariableBotToken source, BotToken position)
+            : base(source.TokenType, source.TokenValue, position.LineNumber, position.Column)
+        {
+            VariableValue = source.VariableValue;
+        }
+
+        public VariableBotToken WithPosition(BotToken position)
+        {
+            return new VariableBotToken(this, position);
+        }
     }
 }

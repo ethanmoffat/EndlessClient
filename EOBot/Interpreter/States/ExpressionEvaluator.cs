@@ -63,7 +63,7 @@ namespace EOBot.Interpreter.States
                         if (res.Result != EvalResult.Ok && res.Result != EvalResult.NotMatch)
                             return res;
 
-                        return Success();
+                        return await EvaluateStackOperandsAndTernaryAsync(input, ct);
                     }
                     else if (res.Result != EvalResult.NotMatch)
                     {
@@ -100,7 +100,7 @@ namespace EOBot.Interpreter.States
                         if (res.Result != EvalResult.Ok && res.Result != EvalResult.NotMatch)
                             return res;
 
-                        return Success();
+                        return await EvaluateStackOperandsAndTernaryAsync(input, ct);
                     }
                     else if (res.Result != EvalResult.NotMatch)
                     {

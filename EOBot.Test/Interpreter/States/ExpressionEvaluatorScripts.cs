@@ -104,6 +104,21 @@ namespace EOBot.Test.Interpreter.States
             new TestCaseData("$test_res = [true, !true]", "[true, false]").SetArgDisplayNames("NotElement"),
         ];
 
+        public static IEnumerable<TestCaseData> CollectionLiteralOperands() =>
+        [
+            new TestCaseData("$test_res = [1] === [1]", "false").SetArgDisplayNames("ArrayBothSides"),
+            new TestCaseData("$test_res = [\"a\": 1] ? 1 : 0", "1").SetArgDisplayNames("DictTernaryCondition"),
+            new TestCaseData("$test_res = [] ? 1 : 0", "0").SetArgDisplayNames("EmptyArrayTernaryCondition"),
+            new TestCaseData("$test_res = { $x = 1 } === { $x = 1 }", "false").SetArgDisplayNames("ObjectLeftOperand"),
+            new TestCaseData("$test_res = [1, 2] is Array", "true").SetArgDisplayNames("IsOperator"),
+            new TestCaseData("""
+                func F($v) {
+                    return $v
+                }
+                $test_res = F([1] === [1])
+                """, "false").SetArgDisplayNames("FunctionArgument"),
+        ];
+
         public static IEnumerable<TestCaseData> ShortCircuit() =>
         [
             new TestCaseData("$test_res = 1 == 1 && 2 == 2 && 3 == 3", "true").SetArgDisplayNames("AndChain"),
@@ -557,10 +572,16 @@ namespace EOBot.Test.Interpreter.States
 
         public static IEnumerable<TestCaseData> DictInitializerErrors() =>
         [
-            new TestCaseData("""$d = [1, "a": 2]""", "cannot be mixed").SetArgDisplayNames("ListThenKeyed"),
-            new TestCaseData("""$d = ["a": 1, 2]""", "cannot be mixed").SetArgDisplayNames("KeyedThenList"),
-            new TestCaseData("""$d = ["a": 1, "a": 2]""", "Duplicate key").SetArgDisplayNames("DuplicateStringKey"),
-            new TestCaseData("""$d = [1: 1, "1": 2]""", "Duplicate key").SetArgDisplayNames("DuplicateIntAndStringKey"),
+            new TestCaseData("""$d = [1, "a": 2]""", "cannot be mixed", "1", 1).SetArgDisplayNames("ListThenKeyed"),
+            new TestCaseData("""$d = ["a": 1, 2]""", "cannot be mixed", "2", 1).SetArgDisplayNames("KeyedThenList"),
+            new TestCaseData("""$d = ["a": 1, "a": 2]""", "Duplicate key", "a", 1).SetArgDisplayNames("DuplicateStringKey"),
+            new TestCaseData("""$d = [1: 1, "1": 2]""", "Duplicate key", "1", 1).SetArgDisplayNames("DuplicateIntAndStringKey"),
+            new TestCaseData("""
+                $d = [
+                    "a": 1,
+                    "a": 2
+                ]
+                """, "Duplicate key", "a", 3).SetArgDisplayNames("MultiLine"),
         ];
 
         public static IEnumerable<TestCaseData> DictMissingKeyWrite() =>

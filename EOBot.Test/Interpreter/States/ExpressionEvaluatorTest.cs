@@ -31,6 +31,7 @@ namespace EOBot.Test.Interpreter.States
         [TestCaseSource(typeof(ExpressionEvaluatorScripts), nameof(ExpressionEvaluatorScripts.DictInitializer))]
         [TestCaseSource(typeof(ExpressionEvaluatorScripts), nameof(ExpressionEvaluatorScripts.Foreach))]
         [TestCaseSource(typeof(ExpressionEvaluatorScripts), nameof(ExpressionEvaluatorScripts.ArrayLiterals))]
+        [TestCaseSource(typeof(ExpressionEvaluatorScripts), nameof(ExpressionEvaluatorScripts.CollectionLiteralOperands))]
         public async Task TestScriptEvaluation(string input, string expected)
         {
 
@@ -105,17 +106,19 @@ namespace EOBot.Test.Interpreter.States
         }
 
         [TestCaseSource(typeof(ExpressionEvaluatorScripts), nameof(ExpressionEvaluatorScripts.DictInitializerErrors))]
-        public async Task TestDictInitializerErrors(string input, string expectedReason)
+        public async Task TestDictInitializerErrors(string input, string expectedReason, string expectedToken, int expectedLine)
         {
             using var ms = new MemoryStream(Encoding.UTF8.GetBytes(input));
             using var sr = new StreamReader(ms);
             var botInterpreter = new BotInterpreter(sr);
 
             var state = botInterpreter.Parse();
-            var (result, reason, _) = await ScriptEvaluator.Instance.EvaluateAsync(state, CancellationToken.None);
+            var (result, reason, token) = await ScriptEvaluator.Instance.EvaluateAsync(state, CancellationToken.None);
 
             Assert.That(result, Is.EqualTo(EvalResult.Failed));
             Assert.That(reason, Does.Contain(expectedReason));
+            Assert.That(token.TokenValue, Is.EqualTo(expectedToken));
+            Assert.That(token.LineNumber, Is.EqualTo(expectedLine));
         }
 
         [Test]
