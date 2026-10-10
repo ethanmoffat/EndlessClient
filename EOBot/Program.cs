@@ -351,6 +351,9 @@ namespace EOBot
                 case ArgsError.InvalidInitRetryAttempts:
                     Console.WriteLine("Invalid: Retry attempts must be >= 1.");
                     break;
+                case ArgsError.InvalidAutoConnect:
+                    Console.WriteLine("Invalid: autoconnect must be true or false.");
+                    break;
             }
 
             Console.WriteLine("\n\nUsage: (enter arguments in any order) (angle brackets is entry) (square brackets is optional)");

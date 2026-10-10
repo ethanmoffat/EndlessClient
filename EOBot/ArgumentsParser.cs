@@ -20,6 +20,7 @@ namespace EOBot
         InvalidScriptArgs,
         AutoConnectRequired,
         InvalidInitRetryAttempts,
+        InvalidAutoConnect,
     }
 
     public class ArgumentsParser
@@ -95,7 +96,8 @@ namespace EOBot
                             ScriptFile = pair[1];
                             break;
                         case "autoconnect":
-                            AutoConnect = bool.Parse(pair[1]);
+                            if (!ParseAutoConnect(pair[1]))
+                                return;
                             break;
                         case "host":
                             ParseHost(pair[1]);
@@ -152,6 +154,18 @@ namespace EOBot
         private void ParseHost(string hostStr)
         {
             Host = hostStr;
+        }
+
+        private bool ParseAutoConnect(string autoConnectStr)
+        {
+            if (!bool.TryParse(autoConnectStr, out var autoConnect))
+            {
+                Error = ArgsError.InvalidAutoConnect;
+                return false;
+            }
+
+            AutoConnect = autoConnect;
+            return true;
         }
 
         private bool ParsePort(string portStr)
