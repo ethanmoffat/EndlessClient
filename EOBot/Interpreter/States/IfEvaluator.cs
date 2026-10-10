@@ -41,13 +41,10 @@ namespace EOBot.Interpreter.States
                     input.Expect(BotTokenType.Keyword);
 
                     var elseIfRes = await Evaluator<IfEvaluator>().EvaluateAsync(input, ct);
-                    if (elseIfRes.Result == EvalResult.Failed)
+                    if (elseIfRes.Result != EvalResult.NotMatch)
                     {
-                        return elseIfRes;
-                    }
-                    else if (elseIfRes.Result == EvalResult.Ok)
-                    {
-                        SkipElseBlocks(input);
+                        if (elseIfRes.Result == EvalResult.Ok)
+                            SkipElseBlocks(input);
                         return elseIfRes;
                     }
 

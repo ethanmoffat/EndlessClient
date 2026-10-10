@@ -19,6 +19,7 @@ namespace EOBot.Interpreter.States
             if (input.CallStack.Count == 0)
                 return (EvalResult.Failed, "Call stack is empty. return can only be used within the context of a user-defined function.", input.Current());
 
+            var returnToken = input.Current();
             input.Expect(BotTokenType.Keyword);
 
             var result = await Evaluator<ExpressionEvaluator>().EvaluateAsync(input, ct);
@@ -34,7 +35,8 @@ namespace EOBot.Interpreter.States
                 input.SymbolTable[PredefinedIdentifiers.RESULT] = (true, resultVar.VariableValue);
             }
 
-            return result;
+            input.OperationStack.Push(returnToken);
+            return (EvalResult.ControlFlow, string.Empty, returnToken);
         }
     }
 }
