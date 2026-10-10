@@ -135,6 +135,7 @@ namespace EOBot.Interpreter.States
             return program
                 .Select((token, ndx) => (token, ndx))
                 .Where(x => x.token.TokenType == BotTokenType.Identifier && program[x.ndx + 1].TokenType == BotTokenType.Colon)
+                .Where(x => x.ndx == 0 || program[x.ndx - 1].TokenType != BotTokenType.ScopeResolution)
                 .ToDictionary(x => x.token.TokenValue, y => y.ndx + 2);
         }
 

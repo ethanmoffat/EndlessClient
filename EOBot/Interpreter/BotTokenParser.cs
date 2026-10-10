@@ -195,6 +195,7 @@ namespace EOBot.Interpreter
 
                             return Token(BotTokenType.Colon, inputChar.ToString());
                         }
+                    case '?': return Token(BotTokenType.QuestionMark, inputChar.ToString());
                     case ',': return Token(BotTokenType.Comma, inputChar.ToString());
                     case '"':
                         {

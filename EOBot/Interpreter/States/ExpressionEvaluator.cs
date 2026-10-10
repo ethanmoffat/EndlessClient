@@ -32,7 +32,7 @@ namespace EOBot.Interpreter.States
                     if (res.Result != EvalResult.Ok && res.Result != EvalResult.NotMatch)
                         return res;
 
-                    return EvaluateStackOperands(input);
+                    return await EvaluateStackOperandsAndTernaryAsync(input, ct);
                 }
             }
 
@@ -179,7 +179,42 @@ namespace EOBot.Interpreter.States
                 }
             }
 
-            return EvaluateStackOperands(input);
+            return await EvaluateStackOperandsAndTernaryAsync(input, ct);
+        }
+
+        private async Task<(EvalResult, string, BotToken)> EvaluateStackOperandsAndTernaryAsync(ProgramState input, CancellationToken ct)
+        {
+            var res = EvaluateStackOperands(input);
+            if (res.Result != EvalResult.Ok || !input.Expect(BotTokenType.QuestionMark))
+                return res;
+
+            // We have a ? token so the top of the stack is the evaluated condition.
+            var condition = (VariableBotToken)input.OperationStack.Pop();
+            var boolValue = CoerceToBool(condition.VariableValue);
+            if (boolValue == null)
+                return (EvalResult.Failed, $"Error evaluating expression: ternary condition {condition} could not be coerced to bool", condition);
+
+            if (boolValue.Value) // condition true: evaluate expression following '?' and skip ':' expression
+            {
+                res = await Evaluator<ExpressionEvaluator>().EvaluateAsync(input, ct);
+                if (res.Result != EvalResult.Ok)
+                    return res;
+
+                if (!input.Expect(BotTokenType.Colon))
+                    return Error(input.Current(), BotTokenType.Colon);
+
+                SkipOperand(input);
+                return Success();
+            }
+            else // condition false: skip expression following '?' and evaluate ':' expression
+            {
+                SkipOperand(input);
+
+                if (!input.Expect(BotTokenType.Colon))
+                    return Error(input.Current(), BotTokenType.Colon);
+
+                return await Evaluator<ExpressionEvaluator>().EvaluateAsync(input, ct);
+            }
         }
 
         private static (EvalResult Result, string Reason, BotToken Token) EvaluateLogicalLeftOperand(ProgramState input, out bool shortCircuited)
@@ -206,15 +241,18 @@ namespace EOBot.Interpreter.States
             {
                 // '||' is the only binary operator with lower precedence than '&&', so it ends the right operand of '&&'
                 var isAnd = logicalOperator.Is(BotTokenType.LogicalAndOperator);
-                SkipOperand(input, current => isAnd && current.Is(BotTokenType.LogicalOrOperator));
+                SkipOperand(input, current => current.Is(BotTokenType.QuestionMark) || (isAnd && current.Is(BotTokenType.LogicalOrOperator)));
             }
 
             return Success();
         }
 
-        private static void SkipOperand(ProgramState input, Func<BotToken, bool> endsOperand)
+        private static void SkipOperand(ProgramState input, Func<BotToken, bool> endsOperand = null)
         {
+            endsOperand ??= _ => false;
+
             var groupingDepth = 0;
+            var ternaryDepth = 0;
             while (input.ExecutionIndex < input.Program.Count)
             {
                 var current = input.Current();
@@ -233,6 +271,17 @@ namespace EOBot.Interpreter.States
                     var expressionEnd = current.IsOneOf(BotTokenType.Comma, BotTokenType.Semicolon, BotTokenType.NewLine, BotTokenType.EOF);
                     if (expressionEnd || endsOperand(current))
                         break;
+
+                    if (current.Is(BotTokenType.QuestionMark))
+                    {
+                        ternaryDepth++;
+                    }
+                    else if (current.Is(BotTokenType.Colon))
+                    {
+                        if (ternaryDepth == 0)
+                            break;
+                        ternaryDepth--;
+                    }
                 }
 
                 input.SkipToken();
