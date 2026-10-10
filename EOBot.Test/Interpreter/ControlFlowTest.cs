@@ -78,6 +78,23 @@ namespace EOBot.Test.Interpreter
             Assert.That(reason, Does.Contain("outside of a loop"));
         }
 
+        [TestCase("break")]
+        [TestCase("continue")]
+        public async Task LoopControl_OutsideLoopAtTopLevel_Fails(string keyword)
+        {
+            var script = $$"""
+                $res = 1
+                if (true) {{keyword}}
+                $res = 2
+                """;
+
+            var (state, result, reason) = await RunAsync(script);
+
+            Assert.That(result, Is.EqualTo(EvalResult.Failed));
+            Assert.That(reason, Does.Contain("outside of a loop"));
+            Assert.That(state.SymbolTable["res"].Identifiable.StringValue, Is.EqualTo("1"));
+        }
+
         [Test]
         public async Task Break_InElseIf_SkipsElseBlock()
         {
