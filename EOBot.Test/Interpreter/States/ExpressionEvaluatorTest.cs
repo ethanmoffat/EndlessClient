@@ -121,6 +121,20 @@ namespace EOBot.Test.Interpreter.States
             Assert.That(token.LineNumber, Is.EqualTo(expectedLine));
         }
 
+        [TestCaseSource(typeof(ExpressionEvaluatorScripts), nameof(ExpressionEvaluatorScripts.MissingOperandErrors))]
+        public async Task TestMissingOperandErrors(string input, string expectedReason)
+        {
+            using var ms = new MemoryStream(Encoding.UTF8.GetBytes(input));
+            using var sr = new StreamReader(ms);
+            var botInterpreter = new BotInterpreter(sr);
+
+            var state = botInterpreter.Parse();
+            var (result, reason, _) = await ScriptEvaluator.Instance.EvaluateAsync(state, CancellationToken.None);
+
+            Assert.That(result, Is.EqualTo(EvalResult.Failed));
+            Assert.That(reason, Does.Contain(expectedReason));
+        }
+
         [Test]
         public async Task TestDictMissingKeyReadDoesNotInsert()
         {

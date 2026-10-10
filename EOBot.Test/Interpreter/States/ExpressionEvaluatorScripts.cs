@@ -584,6 +584,16 @@ namespace EOBot.Test.Interpreter.States
                 """, "Duplicate key", "a", 3).SetArgDisplayNames("MultiLine"),
         ];
 
+        public static IEnumerable<TestCaseData> MissingOperandErrors() =>
+        [
+            new TestCaseData("$r = 1 is foo", "Expected operand after is operator, got Identifier foo").SetArgDisplayNames("UnknownTypeName"),
+            new TestCaseData("$r = [] is array", "Expected operand after is operator, got Identifier array").SetArgDisplayNames("LowercaseTypeName"),
+            new TestCaseData("$r = 1 == foo", "Expected operand after == operator, got Identifier foo").SetArgDisplayNames("BareIdentifier"),
+            new TestCaseData("$r = 1 + if", "Expected operand after + operator, got Keyword if").SetArgDisplayNames("Keyword"),
+            new TestCaseData("$r = (1 ==)", "Expected operand after == operator, got RParen )").SetArgDisplayNames("ClosingParen"),
+            new TestCaseData("$r = 1 +", "Expected operand after + operator, got EOF").SetArgDisplayNames("EndOfScript"),
+        ];
+
         public static IEnumerable<TestCaseData> DictMissingKeyWrite() =>
         [
             new TestCaseData("""$d["b"] = 2""", "2").SetArgDisplayNames("Assign"),
