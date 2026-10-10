@@ -137,6 +137,11 @@ namespace EOBot.Test.Interpreter.States
         [TestCase("$d = [\n    \"a\": [1, 2],\n    \"b\": [\"c\": 3]\n]\n$test_res = $d[\"a\"]", "[1, 2]")]
         [TestCase("$c = true\n$d = [$c ? \"a\" : \"b\": $c ? 1 : 2]\n$test_res = $d[\"a\"]", "1")]
         [TestCase("$c = false\n$d = [$c ? \"a\" : \"b\": $c ? 1 : 2]\n$test_res = $d[\"b\"]", "2")]
+        [TestCase("$test_res = 0\nforeach ($v in [1, 2, 3]) {\n    $test_res += $v\n}", "6")]
+        [TestCase("$a = [1, 2]\n$test_res = 0\nforeach ($v in $a) {\n    $test_res += $v\n}", "3")]
+        [TestCase("$a = [[1, 2], [3]]\n$test_res = 0\nforeach ($v in $a[0]) {\n    $test_res += $v\n}", "3")]
+        [TestCase("func F() {\n    return [4, 5]\n}\n$test_res = 0\nforeach ($v in F()) {\n    $test_res += $v\n}", "9")]
+        [TestCase("$test_res = \"\"\nforeach ($kv in [\"a\": 1, \"b\": 2]) {\n    $test_res += $kv.$key + $kv.$value\n}", "a1b2")]
         public async Task TestScriptEvaluation(string input, string expected)
         {
 

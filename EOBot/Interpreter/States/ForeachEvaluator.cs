@@ -35,13 +35,13 @@ namespace EOBot.Interpreter.States
                 return Error(input.Current(), BotTokenType.Keyword);
             input.Expect(BotTokenType.Keyword);
 
-            (result, reason, token) = await GetVariableToken(input, ct);
+            (result, reason, token) = await Evaluator<ExpressionEvaluator>().EvaluateAsync(input, ct);
             if (result != EvalResult.Ok)
                 return (result, reason, token);
 
-            (result, reason, token) = input.SymbolTable.ResolveIdentifier((IdentifierBotToken)token);
-            if (result != EvalResult.Ok)
-                return (result, reason, token);
+            if (input.OperationStack.Count == 0)
+                return StackEmptyError(input.Current());
+            token = input.OperationStack.Pop();
 
             if (token is not VariableBotToken collectionVariable)
             {
