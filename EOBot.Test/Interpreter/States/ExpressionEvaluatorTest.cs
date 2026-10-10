@@ -245,5 +245,36 @@ namespace EOBot.Test.Interpreter.States
             Assert.That(result, Is.EqualTo(EvalResult.Failed));
             Assert.That(reason, Does.Contain(expectedReason));
         }
+
+        [Test]
+        public async Task TestDictMissingKeyReadDoesNotInsert()
+        {
+            using var ms = new MemoryStream(Encoding.UTF8.GetBytes("$d = [\"a\": 1]\n$x = $d[\"b\"]\n$y = $d[\"c\"] + \"\""));
+            using var sr = new StreamReader(ms);
+            var botInterpreter = new BotInterpreter(sr);
+
+            var state = botInterpreter.Parse();
+            var (result, reason, _) = await ScriptEvaluator.Instance.EvaluateAsync(state, CancellationToken.None);
+
+            Assert.That(result, Is.EqualTo(EvalResult.Ok), reason);
+            Assert.That(state.SymbolTable["x"].Identifiable, Is.InstanceOf<UndefinedVariable>());
+            Assert.That(((DictVariable)state.SymbolTable["d"].Identifiable).Value.Keys, Is.EquivalentTo(new[] { "a" }));
+        }
+
+        [TestCase("$d[\"b\"] = 2", "2")]
+        [TestCase("$d[\"b\"] += 2", "2")]
+        [TestCase("$d[\"b\"]++", "1")]
+        public async Task TestDictMissingKeyWriteInserts(string statement, string expected)
+        {
+            using var ms = new MemoryStream(Encoding.UTF8.GetBytes($"$d = [\"a\": 1]\n{statement}"));
+            using var sr = new StreamReader(ms);
+            var botInterpreter = new BotInterpreter(sr);
+
+            var state = botInterpreter.Parse();
+            var (result, reason, _) = await ScriptEvaluator.Instance.EvaluateAsync(state, CancellationToken.None);
+
+            Assert.That(result, Is.EqualTo(EvalResult.Ok), reason);
+            Assert.That(((DictVariable)state.SymbolTable["d"].Identifiable).Value["b"].StringValue, Is.EqualTo(expected));
+        }
     }
 }

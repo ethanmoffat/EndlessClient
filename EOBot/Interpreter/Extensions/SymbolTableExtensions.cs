@@ -36,12 +36,9 @@ namespace EOBot.Interpreter.Extensions
                 }
                 else if (variableValue is DictVariable dictVariable)
                 {
-                    if (!dictVariable.Value.ContainsKey(indexer.StringValue))
-                    {
-                        dictVariable.Value[indexer.StringValue] = UndefinedVariable.Instance;
-                    }
-
-                    variableValue = dictVariable.Value[indexer.StringValue];
+                    variableValue = dictVariable.Value.TryGetValue(indexer.StringValue, out var entry)
+                        ? entry
+                        : UndefinedVariable.Instance;
                 }
             }
 
