@@ -130,6 +130,13 @@ namespace EOBot.Test.Interpreter.States
         [TestCase("$o = { $a = 1, $b = { $c = 2 } }\n$test_res = $o.$a + $o.$b.$c", "3")]
         [TestCase("$o = {}\n$test_res = $o", "Object: []")]
         [TestCase("$test_res = 0\nfunc F() {\n    $test_res = 5\n    return 1\n}\n$o = { $a = F() }", "5")]
+        [TestCase("$d = [\"a\": 1, \"b\": 2]\n$test_res = $d[\"a\"] + $d[\"b\"]", "3")]
+        [TestCase("$test_res = [\"a\": 1]", "[a, 1]")]
+        [TestCase("$d = [:]\n$d[\"x\"] = 1\n$test_res = $d", "[x, 1]")]
+        [TestCase("$k = \"x\"\n$d = [$k: 1, 1 + 1: 2]\n$test_res = $d[\"x\"] + $d[\"2\"]", "3")]
+        [TestCase("$d = [\n    \"a\": [1, 2],\n    \"b\": [\"c\": 3]\n]\n$test_res = $d[\"a\"]", "[1, 2]")]
+        [TestCase("$c = true\n$d = [$c ? \"a\" : \"b\": $c ? 1 : 2]\n$test_res = $d[\"a\"]", "1")]
+        [TestCase("$c = false\n$d = [$c ? \"a\" : \"b\": $c ? 1 : 2]\n$test_res = $d[\"b\"]", "2")]
         public async Task TestScriptEvaluation(string input, string expected)
         {
 
@@ -215,6 +222,23 @@ namespace EOBot.Test.Interpreter.States
 
             Assert.That(result, Is.EqualTo(EvalResult.Failed));
             Assert.That(reason, Does.Contain("Duplicate member"));
+        }
+
+        [TestCase("$d = [1, \"a\": 2]", "cannot be mixed")]
+        [TestCase("$d = [\"a\": 1, 2]", "cannot be mixed")]
+        [TestCase("$d = [\"a\": 1, \"a\": 2]", "Duplicate key")]
+        [TestCase("$d = [1: 1, \"1\": 2]", "Duplicate key")]
+        public async Task TestDictInitializerErrors(string input, string expectedReason)
+        {
+            using var ms = new MemoryStream(Encoding.UTF8.GetBytes(input));
+            using var sr = new StreamReader(ms);
+            var botInterpreter = new BotInterpreter(sr);
+
+            var state = botInterpreter.Parse();
+            var (result, reason, _) = await ScriptEvaluator.Instance.EvaluateAsync(state, CancellationToken.None);
+
+            Assert.That(result, Is.EqualTo(EvalResult.Failed));
+            Assert.That(reason, Does.Contain(expectedReason));
         }
     }
 }

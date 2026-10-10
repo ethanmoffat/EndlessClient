@@ -40,24 +40,34 @@ namespace EOBot.Interpreter.States
             {
                 if (input.Match(BotTokenType.LBracket))
                 {
-                    var res = await EvalCommaDelimitedList<ExpressionEvaluator>(input, BotTokenType.RBracket, ct);
+                    var isEmptyDict = input.ExpectPair(BotTokenType.Colon, BotTokenType.RBracket);
+                    (EvalResult Result, string Reason, BotToken Token) res = isEmptyDict
+                        ? Success()
+                        : await EvalCommaDelimitedList<CollectionElementEvaluator>(input, BotTokenType.RBracket, ct);
                     if (res.Result == EvalResult.Ok)
                     {
-                        // Array initializer: create array from stack params
-                        var arrayParams = GetParametersFromStack(input, BotTokenType.LBracket);
+                        // Array or dictionary initializer: create collection from stack params
+                        var elements = GetCollectionElementsFromStack(input, BotTokenType.LBracket);
                         var lbracket = input.OperationStack.Pop();
                         if (lbracket.TokenType != BotTokenType.LBracket)
                             return StackTokenError(BotTokenType.LBracket, lbracket);
 
-                        var arrayVariable = new ArrayVariable(arrayParams.Select(x => x.VariableValue).ToList());
-                        input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, arrayVariable.StringValue, arrayVariable));
+                        res = CreateCollection(elements, isEmptyDict);
+                        if (res.Result != EvalResult.Ok)
+                            return res;
 
-                        // check for an expression tail after array literal
+                        input.OperationStack.Push(res.Token);
+
+                        // check for an expression tail after collection literal
                         res = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input, ct);
                         if (res.Result != EvalResult.Ok && res.Result != EvalResult.NotMatch)
                             return res;
 
                         return Success();
+                    }
+                    else if (res.Result != EvalResult.NotMatch)
+                    {
+                        return res;
                     }
                 }
                 else if (input.Match(BotTokenType.LBrace))
@@ -251,6 +261,32 @@ namespace EOBot.Interpreter.States
             }
 
             return Success();
+        }
+
+        private static (EvalResult Result, string Reason, BotToken Token) CreateCollection(List<(VariableBotToken Key, VariableBotToken Value)> elements, bool isEmptyDict)
+        {
+            var isDict = isEmptyDict || elements.Any(x => x.Key != null);
+            foreach (var (key, value) in elements)
+            {
+                if ((key != null) != isDict)
+                    return (EvalResult.Failed, "Array elements and dictionary entries cannot be mixed in a collection initializer", key ?? value);
+            }
+
+            if (!isDict)
+            {
+                var arrayVariable = new ArrayVariable(elements.Select(x => x.Value.VariableValue).ToList());
+                return (EvalResult.Ok, string.Empty, new VariableBotToken(BotTokenType.Literal, arrayVariable.StringValue, arrayVariable));
+            }
+
+            var dict = new Dictionary<string, IVariable>();
+            foreach (var (key, value) in elements)
+            {
+                if (!dict.TryAdd(key.VariableValue.StringValue, value.VariableValue))
+                    return (EvalResult.Failed, $"Duplicate key {key.VariableValue.StringValue} in dictionary initializer", key);
+            }
+
+            var dictVariable = new DictVariable(dict);
+            return (EvalResult.Ok, string.Empty, new VariableBotToken(BotTokenType.Literal, dictVariable.StringValue, dictVariable));
         }
 
         private static void SkipOperand(ProgramState input, Func<BotToken, bool> endsOperand = null)
