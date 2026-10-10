@@ -111,6 +111,15 @@ namespace EOBot.Test.Interpreter
             Assert.That(state.SymbolTable["res"].Identifiable.StringValue, Is.EqualTo(expected));
         }
 
+        [TestCaseSource(typeof(ControlFlowScripts), nameof(ControlFlowScripts.Blocks))]
+        public async Task Block_EmptyOrOneLine_Evaluates(string script, string expected)
+        {
+            var (state, result, reason) = await RunAsync(script);
+
+            Assert.That(result, Is.EqualTo(EvalResult.Ok), reason);
+            Assert.That(state.SymbolTable["res"].Identifiable.StringValue, Is.EqualTo(expected));
+        }
+
         [TestCaseSource(typeof(ControlFlowScripts), nameof(ControlFlowScripts.Truthiness))]
         public async Task Condition_CoercesValueToBool(string value, string expected)
         {

@@ -39,8 +39,9 @@ namespace EOBot.Interpreter.States
             if (result != EvalResult.Ok)
                 return (result, reason, token);
 
-            if (!input.Expect(BotTokenType.NewLine) && !input.Expect(BotTokenType.EOF))
-                return Error(input.Current(), BotTokenType.NewLine, BotTokenType.EOF);
+            // a closing brace ends a one-line block and is consumed by the enclosing statement list
+            if (!input.Expect(BotTokenType.NewLine) && !input.Expect(BotTokenType.EOF) && !input.Current().Is(BotTokenType.RBrace))
+                return Error(input.Current(), BotTokenType.NewLine, BotTokenType.EOF, BotTokenType.RBrace);
 
             return (result, reason, token);
         }

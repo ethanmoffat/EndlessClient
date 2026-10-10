@@ -134,9 +134,18 @@ namespace EOBot.Interpreter.States
                 while (input.Current().TokenType == BotTokenType.NewLine && input.Current().TokenType != BotTokenType.EOF)
                     input.SkipToken();
 
-                // 'statement' will be everything before the next newline
-                while (input.Current().TokenType != BotTokenType.NewLine && input.Current().TokenType != BotTokenType.EOF)
+                // 'statement' will be everything before the next newline, or before the brace closing a one-line enclosing block
+                var braceDepth = 0;
+                while (!input.Current().IsOneOf(BotTokenType.NewLine, BotTokenType.EOF) &&
+                    (braceDepth != 0 || !input.Current().Is(BotTokenType.RBrace)))
+                {
+                    if (input.Current().Is(BotTokenType.LBrace))
+                        braceDepth++;
+                    else if (input.Current().Is(BotTokenType.RBrace))
+                        braceDepth--;
+
                     input.SkipToken();
+                }
 
                 // optional newline after statement
                 input.Expect(BotTokenType.NewLine);

@@ -120,6 +120,69 @@ namespace EOBot.Test.Interpreter
                 """, "5").SetArgDisplayNames("ForeachEmpty"),
         ];
 
+        public static IEnumerable<TestCaseData> Blocks() =>
+        [
+            new TestCaseData("""
+                $res = 1
+                if (true) {}
+                """, "1").SetArgDisplayNames("EmptyIf"),
+            new TestCaseData("""
+                $res = 1
+                if (true) {
+                }
+                """, "1").SetArgDisplayNames("EmptyMultiLine"),
+            new TestCaseData("""
+                if (true) { $res = 1 } else {}
+                """, "1").SetArgDisplayNames("EmptyElse"),
+            new TestCaseData("""
+                func F() {}
+                F()
+                $res = 1
+                """, "1").SetArgDisplayNames("EmptyFunc"),
+            new TestCaseData("""
+                if (true) { $res = 1 }
+                """, "1").SetArgDisplayNames("OneLineIf"),
+            new TestCaseData("""
+                if (false) { $res = 1 } else { $res = 2 }
+                """, "2").SetArgDisplayNames("OneLineElse"),
+            new TestCaseData("""
+                if (false) { $res = 1 } else if (true) { $res = 3 }
+                """, "3").SetArgDisplayNames("OneLineElseIf"),
+            new TestCaseData("""
+                $res = 0
+                while ($res < 3) { $res++ }
+                """, "3").SetArgDisplayNames("OneLineWhile"),
+            new TestCaseData("""
+                $res = 0
+                for ($i = 0; $i < 3; $i++) { $res += $i }
+                """, "3").SetArgDisplayNames("OneLineFor"),
+            new TestCaseData("""
+                $res = 0
+                foreach ($v in [1, 2]) { $res += $v }
+                """, "3").SetArgDisplayNames("OneLineForeach"),
+            new TestCaseData("""
+                func F() { return 5 }
+                $res = F()
+                """, "5").SetArgDisplayNames("OneLineFunc"),
+            new TestCaseData("""
+                if (true) { if (true) { $res = 4 } }
+                """, "4").SetArgDisplayNames("NestedOneLine"),
+            new TestCaseData("""
+                $res = 0
+                if (true) { if (false) $res = 1 }
+                $res += 10
+                """, "10").SetArgDisplayNames("SkippedBracelessInOneLine"),
+            new TestCaseData("""
+                $res = 0
+                if (true) { if (false) $d = {a: 1} }
+                $res += 10
+                """, "10").SetArgDisplayNames("SkippedObjectLiteralInOneLine"),
+            new TestCaseData("""
+                if (true) { $res = 1
+                $res++ }
+                """, "2").SetArgDisplayNames("ClosingBraceAfterStatement"),
+        ];
+
         public static IEnumerable<TestCaseData> Truthiness() =>
         [
             new TestCaseData("true", "ifwhilefor").SetArgDisplayNames("True"),
