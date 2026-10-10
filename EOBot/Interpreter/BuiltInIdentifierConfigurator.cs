@@ -145,7 +145,6 @@ namespace EOBot.Interpreter
             // default to version 0.0.28
             programState.SymbolTable[PredefinedIdentifiers.VERSION] = (false, new IntVariable(28));
 
-            programState.SymbolTable[PredefinedIdentifiers.RESULT] = (false, UndefinedVariable.Instance);
             programState.SymbolTable[PredefinedIdentifiers.ACCOUNT] = SetupAccountObject();
             programState.SymbolTable[PredefinedIdentifiers.CHARACTER] = SetupCharacterObject();
             programState.SymbolTable[PredefinedIdentifiers.MAPSTATE] = SetupMapStateObject();

@@ -157,9 +157,14 @@ namespace EOBot.Interpreter.States
             else
             {
                 // an expression can be a function call
+                var stackDepth = input.OperationStack.Count;
+                var functionToken = input.Current();
                 var evalRes = await Evaluator<FunctionEvaluator>().EvaluateAsync(input, ct);
                 if (evalRes.Result == EvalResult.Ok)
                 {
+                    if (input.OperationStack.Count == stackDepth)
+                        return (EvalResult.Failed, $"Function '{functionToken.TokenValue}' must return a value when used in an expression", functionToken);
+
                     evalRes = ApplyUnaryMinus(input, unaryMinusCount);
                     if (evalRes.Result != EvalResult.Ok)
                         return evalRes;

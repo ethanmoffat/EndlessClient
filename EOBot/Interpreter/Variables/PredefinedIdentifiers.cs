@@ -3,7 +3,6 @@
     public static class PredefinedIdentifiers
     {
         // variables
-        public const string RESULT = "result";
         public const string HOST = "host";
         public const string PORT = "port";
         public const string USER = "user";
