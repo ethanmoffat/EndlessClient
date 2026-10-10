@@ -99,6 +99,8 @@ namespace EOBot.Interpreter.States
 
         private static void Call(ProgramState input, ICallable<ObjectVariable> function, params IVariable[] variables) => Push(input, function.Call(variables));
 
+        private static void Call(ProgramState input, ICallable<IVariable> function, params IVariable[] variables) => Push(input, function.Call(variables));
+
         private static async Task CallAsync(ProgramState input, CancellationToken ct, IAsyncCallable function, params IVariable[] variables) => await function.CallAsync(ct, variables).ConfigureAwait(false);
 
         private static async Task CallAsync(ProgramState input, CancellationToken ct, IAsyncCallable<int> function, params IVariable[] variables) => Push(input, new IntVariable(await function.CallAsync(ct, variables).ConfigureAwait(false)));

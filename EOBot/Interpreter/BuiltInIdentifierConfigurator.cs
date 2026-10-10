@@ -64,12 +64,12 @@ namespace EOBot.Interpreter
             programState.SymbolTable[PredefinedIdentifiers.SLEEP_FUNC] = Readonly(new AsyncVoidFunction<int>(PredefinedIdentifiers.SLEEP_FUNC, Task.Delay));
             programState.SymbolTable[PredefinedIdentifiers.TIME_FUNC] = Readonly(new Function<string>(PredefinedIdentifiers.TIME_FUNC, DateTime.Now.ToLongTimeString));
             programState.SymbolTable[PredefinedIdentifiers.OBJECT_FUNC] = Readonly(new Function<ObjectVariable>(PredefinedIdentifiers.OBJECT_FUNC, () => new ObjectVariable()));
-            programState.SymbolTable[PredefinedIdentifiers.SETENV_FUNC] = Readonly(new VoidFunction<string, string>(PredefinedIdentifiers.SETENV_FUNC, (varName, varValue) => Environment.SetEnvironmentVariable(varName, varValue, EnvironmentVariableTarget.User)));
-            programState.SymbolTable[PredefinedIdentifiers.GETENV_FUNC] = Readonly(new Function<string, string>(PredefinedIdentifiers.GETENV_FUNC, varName => Environment.GetEnvironmentVariable(varName, EnvironmentVariableTarget.User)));
+            programState.SymbolTable[PredefinedIdentifiers.SETENV_FUNC] = Readonly(new VoidFunction<string, string>(PredefinedIdentifiers.SETENV_FUNC, (varName, varValue) => Environment.SetEnvironmentVariable(varName, varValue, EnvironmentVariableTarget.Process)));
+            programState.SymbolTable[PredefinedIdentifiers.GETENV_FUNC] = Readonly(new Function<string, IVariable>(PredefinedIdentifiers.GETENV_FUNC, GetEnv));
             programState.SymbolTable[PredefinedIdentifiers.ERROR_FUNC] = Readonly(new VoidFunction<string>(PredefinedIdentifiers.ERROR_FUNC, message => throw new BotScriptErrorException(message)));
             programState.SymbolTable[PredefinedIdentifiers.LOWER_FUNC] = Readonly(new Function<string, string>(PredefinedIdentifiers.LOWER_FUNC, s => s.ToLower()));
             programState.SymbolTable[PredefinedIdentifiers.UPPER_FUNC] = Readonly(new Function<string, string>(PredefinedIdentifiers.UPPER_FUNC, s => s.ToUpper()));
-            programState.SymbolTable[PredefinedIdentifiers.RAND_FUNC] = Readonly(new Function<int, int, int>(PredefinedIdentifiers.RAND_FUNC, (min, max) => min + _random.Next(max) % (max - min)));
+            programState.SymbolTable[PredefinedIdentifiers.RAND_FUNC] = Readonly(new Function<int, int, int>(PredefinedIdentifiers.RAND_FUNC, Rand));
             programState.SymbolTable[PredefinedIdentifiers.ABS_FUNC] = Readonly(new Function<int, int>(PredefinedIdentifiers.ABS_FUNC, Math.Abs));
             programState.SymbolTable[PredefinedIdentifiers.CONTAINS_FUNC] = Readonly(new Function<IVariable, IVariable, bool>(PredefinedIdentifiers.CONTAINS_FUNC, Contains));
             programState.SymbolTable[PredefinedIdentifiers.PARSE_FUNC] = Readonly(new Function<string, int>(PredefinedIdentifiers.PARSE_FUNC, Parse));
@@ -181,6 +181,20 @@ namespace EOBot.Interpreter
         private static int Parse(string input)
         {
             return int.TryParse(input, out var res) ? res : 0;
+        }
+
+        private int Rand(int min, int max)
+        {
+            if (max < min)
+                throw new BotScriptErrorException($"rand max ({max}) must not be less than min ({min})");
+
+            return _random.Next(min, max);
+        }
+
+        private static IVariable GetEnv(string varName)
+        {
+            var value = Environment.GetEnvironmentVariable(varName, EnvironmentVariableTarget.Process);
+            return value == null ? UndefinedVariable.Instance : new StringVariable(value);
         }
 
         private void BotDependencySetup()
