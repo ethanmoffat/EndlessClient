@@ -29,6 +29,6 @@ namespace EOBot.Interpreter.Variables
 
     public interface IUserDefinedFunction : IIdentifiable
     {
-        Task<(EvalResult Result, string Reason, BotToken Token)> CallAsync(ProgramState programState, CancellationToken ct, params IIdentifiable[] parameters);
+        Task<(EvalResult Result, string Reason, BotToken Token)> CallAsync(ProgramState programState, BotToken callSite, CancellationToken ct, params IIdentifiable[] parameters);
     }
 }

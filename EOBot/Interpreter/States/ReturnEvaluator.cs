@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using EOBot.Interpreter.Extensions;
-using EOBot.Interpreter.Variables;
 
 namespace EOBot.Interpreter.States
 {
@@ -26,15 +25,7 @@ namespace EOBot.Interpreter.States
             if (result.Result != EvalResult.Ok)
                 return result;
 
-            // check for value-returning function
-            if (input.OperationStack.Count > 0)
-            {
-                var resultToken = input.OperationStack.Pop();
-                if (resultToken is not VariableBotToken resultVar)
-                    return StackTokenError(BotTokenType.Variable, resultToken);
-                input.SymbolTable[PredefinedIdentifiers.RESULT] = (true, resultVar.VariableValue);
-            }
-
+            // the return value stays on the stack beneath the return token
             input.OperationStack.Push(returnToken);
             return (EvalResult.ControlFlow, string.Empty, returnToken);
         }

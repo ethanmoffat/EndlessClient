@@ -40,7 +40,7 @@ namespace EOBot.Interpreter
                 retList.Add(nextToken);
             } while (nextToken.TokenType != BotTokenType.EOF);
 
-            return new ProgramState(retList);
+            return new ProgramState(ProgramParser.Parse(retList));
         }
 
         public async Task<int> Run(ProgramState programState, CancellationToken ct)

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using EOBot.Interpreter.Extensions;
@@ -10,80 +10,62 @@ namespace EOBot.Interpreter.Variables
 {
     public class UserDefinedFunction : IUserDefinedFunction
     {
-        private readonly ProgramState _funcState;
+        public const int MaxCallDepth = 1000;
+
+        private readonly ProgramDefinition _definition;
         private readonly List<BotToken> _paramSpecs;
 
         public string StringValue { get; }
 
-        public UserDefinedFunction(string functionName, List<BotToken> functionTokens, List<BotToken> paramSpecs)
+        public UserDefinedFunction(string functionName, ProgramDefinition definition, List<BotToken> paramSpecs)
         {
             StringValue = functionName;
-
-            // constructed here so any nested functions will be created/evaluated at program state initialization time
-            _funcState = new ProgramState(functionTokens, isFunctionBody: true);
-
+            _definition = definition;
             _paramSpecs = paramSpecs;
         }
 
-        public virtual async Task<(EvalResult, string, BotToken)> CallAsync(ProgramState programState, CancellationToken ct, params IIdentifiable[] parameters)
+        public virtual async Task<(EvalResult, string, BotToken)> CallAsync(ProgramState programState, BotToken callSite, CancellationToken ct, params IIdentifiable[] parameters)
         {
             if (parameters.Length != _paramSpecs.Count)
                 throw new ArgumentException($"Calling function '{StringValue}' with wrong number of parameters");
 
-            var originalSymbols = new Dictionary<string, (bool, IIdentifiable)>(programState.SymbolTable);
-            _funcState.InheritFrom(programState);
-            var readOnlyItems = _funcState.SymbolTable.Where(x => x.Value.ReadOnly);
+            using var scope = new FunctionScope(_definition, programState, functionName: StringValue, callSite);
 
-            for (int i = 0; i < parameters.Length; i++)
-            {
-                if (readOnlyItems.Any(x => x.Key == _paramSpecs[i].TokenValue))
-                    return ParameterOverwritesBuiltinError(_paramSpecs[i]);
+            var bindResult = scope.BindParameters(_paramSpecs, parameters);
+            if (bindResult.Result != EvalResult.Ok)
+                return bindResult;
 
-                _funcState.SymbolTable[_paramSpecs[i].TokenValue] = (false, parameters[i]);
-            }
+            // Evaluator awaits mostly complete synchronously, so nested script calls accumulate real stack frames on one thread
+            //   and deep recursion would overflow it (uncatchable). When the stack runs low, Task.Yield always suspends; every
+            //   caller up the chain unwinds and execution resumes on a thread pool thread (or the host's synchronization context)
+            //   with a fresh stack. The logical call chain continues as async state machines on the heap.
+            if (!RuntimeHelpers.TryEnsureSufficientExecutionStack())
+                await Task.Yield();
 
-            _funcState.CallStack.Push((StringValue, _funcState.Program[0], programState.ExecutionIndex));
-            var (evalResult, reason, token) = await ScriptEvaluator.Instance.EvaluateAsync(_funcState, ct);
+            var (evalResult, reason, token) = await ScriptEvaluator.Instance.EvaluateAsync(scope.State, ct);
 
+            IVariable returnValue = UndefinedVariable.Instance;
             if (evalResult == EvalResult.ControlFlow)
             {
-                if (!_funcState.OperationStack.TryPop(out var controlToken) || !controlToken.Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_RETURN))
+                if (!scope.State.OperationStack.TryPop(out var controlToken) || !controlToken.Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_RETURN))
                     return (EvalResult.Failed, $"'{controlToken?.TokenValue}' is not valid outside of a loop", controlToken ?? token);
+
+                if (scope.State.OperationStack.TryPop(out var valueToken))
+                {
+                    if (valueToken is not VariableBotToken returnVar)
+                        return (EvalResult.Failed, $"Expected return value to be a variable, but got {valueToken}", valueToken);
+                    returnValue = returnVar.VariableValue;
+                }
 
                 evalResult = EvalResult.Ok;
             }
 
             if (evalResult != EvalResult.Failed)
             {
-                if (_funcState.SymbolTable.TryGetValue(PredefinedIdentifiers.RESULT, out var resultVar))
-                {
-                    programState.SymbolTable[PredefinedIdentifiers.RESULT] = resultVar;
-                    if (resultVar.Identifiable is not IVariable iv)
-                        return (EvalResult.Failed, $"Expected result to be a variable, but got {resultVar.Identifiable.GetType()}", programState.Current());
-                    programState.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, iv.StringValue, iv));
-                }
-
-                // restore symbol table to state it was previously in prior to the function invocation
-                //   - this method of restoration allows for variables in the parent scope to be overwritten
-                //   - also want to restore the values of any parameters so that original values in outer
-                //     scope are preserved
-                var removeKeys = programState.SymbolTable.Keys.Where(x => !originalSymbols.ContainsKey(x));
-                foreach (var key in removeKeys)
-                    programState.SymbolTable.Remove(key);
-
-                foreach (var param in _paramSpecs)
-                    if (programState.SymbolTable.ContainsKey(param.TokenValue))
-                        programState.SymbolTable[param.TokenValue] = originalSymbols[param.TokenValue];
-
-                _funcState.CallStack.Pop();
+                programState.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, returnValue.StringValue, returnValue));
             }
 
             return (evalResult, reason, token);
-        }
-
-        private static (EvalResult, string, BotToken) ParameterOverwritesBuiltinError(BotToken paramSpec)
-        {
-            return (EvalResult.Failed, $"Parameter {paramSpec.TokenValue} overrides built-in variable or function.", paramSpec);
         }
     }
 }
