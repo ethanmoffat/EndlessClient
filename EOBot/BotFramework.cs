@@ -88,20 +88,20 @@ namespace EOBot
                 }
             }
 
-            if (numFailed > 0)
+            if (numFailed == _numBots)
+            {
+                throw new BotException("All bots failed to initialize. No bots will run.");
+            }
+            else if (numFailed > 0)
             {
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, "Some bot instances failed to initialize. These bot instances will not be run.", ConsoleColor.DarkYellow);
                 _numBots -= numFailed;
-            }
-            else if (numFailed == _numBots)
-            {
-                throw new BotException("All bots failed to initialize. No bots will run.");
             }
 
             _initialized = true;
         }
 
-        public async Task RunAsync(CancellationToken cancellationToken)
+        public async Task<int> RunAsync(CancellationToken cancellationToken)
         {
             if (!_initialized)
                 throw new InvalidOperationException("Must call Initialize() before running!");
@@ -123,15 +123,17 @@ namespace EOBot
             {
                 throw continuation.Exception;
             }
+
+            return (await continuation).Max();
         }
 
-        private async Task RunBot(IBot bot, CancellationToken cancellationToken)
+        private async Task<int> RunBot(IBot bot, CancellationToken cancellationToken)
         {
             //acquire mutex for bot
             //semaphore limits number of concurrently running bots based on cmd-line param
             _doneSignal.WaitOne();
 
-            await bot.RunAsync(cancellationToken).ConfigureAwait(false);
+            return await bot.RunAsync(cancellationToken).ConfigureAwait(false);
         }
 
         public void Dispose()

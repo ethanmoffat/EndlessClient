@@ -73,19 +73,25 @@ namespace EOBot
             _initialized = true;
         }
 
-        public async Task RunAsync(CancellationToken ct)
+        public async Task<int> RunAsync(CancellationToken ct)
         {
             if (!_initialized)
                 throw new InvalidOperationException("Initialize must be called before calling RunAsync");
 
-            await DoWorkAsync(ct);
-            WorkCompleted?.Invoke();
+            try
+            {
+                return await DoWorkAsync(ct);
+            }
+            finally
+            {
+                WorkCompleted?.Invoke();
+            }
         }
 
         /// <summary>
         /// Abstract worker method. Override with custom work logic for the bot to execute
         /// </summary>
         /// <param name="ct">A cancellation token that will be signalled when Terminate() is called</param>
-        protected abstract Task DoWorkAsync(CancellationToken ct);
+        protected abstract Task<int> DoWorkAsync(CancellationToken ct);
     }
 }
