@@ -127,6 +127,9 @@ namespace EOBot.Test.Interpreter.States
         [TestCase("$o = { $n = 5 }\n$y = ++$o.$n\n$test_res = [$y, $o.$n]", "[6, 6]")]
         [TestCase("func F($v) {\n    return $v\n}\n$x = 1\n$test_res = F(++$x) + $x", "4")]
         [TestCase("$x = 0\n$y = false ? $x++ : 5\n$y = true || $x++\n$test_res = $x", "0")]
+        [TestCase("$o = { $a = 1, $b = { $c = 2 } }\n$test_res = $o.$a + $o.$b.$c", "3")]
+        [TestCase("$o = {}\n$test_res = $o", "Object: []")]
+        [TestCase("$test_res = 0\nfunc F() {\n    $test_res = 5\n    return 1\n}\n$o = { $a = F() }", "5")]
         public async Task TestScriptEvaluation(string input, string expected)
         {
 
@@ -181,6 +184,37 @@ namespace EOBot.Test.Interpreter.States
 
             Assert.That(result, Is.EqualTo(EvalResult.Failed));
             Assert.That(reason, Does.Contain("Division by zero"));
+        }
+
+        [TestCase("$o = { $a += 1 }")]
+        [TestCase("$o = { $a++ }")]
+        [TestCase("$o = { $a }")]
+        public async Task TestObjectInitializerRequiresAssignment(string input)
+        {
+            using var ms = new MemoryStream(Encoding.UTF8.GetBytes(input));
+            using var sr = new StreamReader(ms);
+            var botInterpreter = new BotInterpreter(sr);
+
+            var state = botInterpreter.Parse();
+            var (result, reason, _) = await ScriptEvaluator.Instance.EvaluateAsync(state, CancellationToken.None);
+
+            Assert.That(result, Is.EqualTo(EvalResult.Failed));
+            Assert.That(reason, Does.Contain(nameof(BotTokenType.AssignOperator)));
+        }
+
+        [TestCase("$o = { $a = 1, $a = 2 }")]
+        [TestCase("$o = { $a = 1, $b = 2, $a = 3 }")]
+        public async Task TestObjectInitializerDuplicateMember(string input)
+        {
+            using var ms = new MemoryStream(Encoding.UTF8.GetBytes(input));
+            using var sr = new StreamReader(ms);
+            var botInterpreter = new BotInterpreter(sr);
+
+            var state = botInterpreter.Parse();
+            var (result, reason, _) = await ScriptEvaluator.Instance.EvaluateAsync(state, CancellationToken.None);
+
+            Assert.That(result, Is.EqualTo(EvalResult.Failed));
+            Assert.That(reason, Does.Contain("Duplicate member"));
         }
     }
 }

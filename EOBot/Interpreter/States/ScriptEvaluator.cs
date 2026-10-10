@@ -14,6 +14,7 @@ namespace EOBot.Interpreter.States
             evaluators.Add(new StatementEvaluator(evaluators));
             evaluators.Add(new AssignmentEvaluator(evaluators));
             evaluators.Add(new IncrementEvaluator(evaluators));
+            evaluators.Add(new ObjectInitializerEvaluator(evaluators));
             evaluators.Add(new KeywordEvaluator(evaluators));
             evaluators.Add(new LabelEvaluator());
             evaluators.Add(new FunctionEvaluator(evaluators));

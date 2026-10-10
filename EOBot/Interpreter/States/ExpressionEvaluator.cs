@@ -62,7 +62,7 @@ namespace EOBot.Interpreter.States
                 }
                 else if (input.Match(BotTokenType.LBrace))
                 {
-                    var res = await EvalCommaDelimitedList<AssignmentEvaluator>(input, BotTokenType.RBrace, ct);
+                    var res = await EvalCommaDelimitedList<ObjectInitializerEvaluator>(input, BotTokenType.RBrace, ct);
                     if (res.Result == EvalResult.Ok)
                     {
                         // Object initializer: create object from stack params
@@ -70,6 +70,12 @@ namespace EOBot.Interpreter.States
                         var lBrace = input.OperationStack.Pop();
                         if (lBrace.TokenType != BotTokenType.LBrace)
                             return StackTokenError(BotTokenType.LBrace, lBrace);
+
+                        var duplicateMember = assignmentPairs
+                            .GroupBy(p => p.Item1.TokenValue)
+                            .FirstOrDefault(g => g.Count() > 1);
+                        if (duplicateMember != null)
+                            return (EvalResult.Failed, $"Duplicate member {duplicateMember.Key} in object initializer", duplicateMember.Last().Item1);
 
                         var objectVariable = new ObjectVariable(
                             assignmentPairs.ToDictionary(
