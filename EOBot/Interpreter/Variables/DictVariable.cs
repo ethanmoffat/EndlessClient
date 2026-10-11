@@ -3,11 +3,15 @@ using System.Linq;
 
 namespace EOBot.Interpreter.Variables
 {
-    public class DictVariable : IVariable<Dictionary<string, IVariable>>
+    public sealed class DictVariable : CollectionVariable, IVariable<Dictionary<string, IVariable>>
     {
         public Dictionary<string, IVariable> Value { get; }
 
-        public string StringValue => "[" + string.Join(", ", Value.Select(x => $"{x.Key}, {x.Value.StringValue}")) + "]";
+        public override string StringValue => "[" + string.Join(", ", Value.Select(x => $"{x.Key}, {x.Value.StringValue}")) + "]";
+
+        public override string TypeName => BotTokenParser.KEYWORD_DICT;
+
+        protected override object Contents => Value;
 
         public DictVariable(Dictionary<string, IVariable> value)
         {
@@ -15,7 +19,10 @@ namespace EOBot.Interpreter.Variables
         }
 
         // todo: should dicts be comparable?
-        public int CompareTo(object obj) => -1;
+        public override int CompareTo(object obj) => -1;
+
+        protected override IReadOnlyDictionary<object, IIdentifiable> Members =>
+            Value.ToDictionary(x => (object)x.Key, x => (IIdentifiable)x.Value);
 
         public static IVariable<Dictionary<string, IVariable>> WithNewValue(Dictionary<string, IVariable> value)
         {

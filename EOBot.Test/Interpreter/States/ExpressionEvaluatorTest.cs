@@ -31,6 +31,8 @@ namespace EOBot.Test.Interpreter.States
         [TestCaseSource(typeof(ExpressionEvaluatorScripts), nameof(ExpressionEvaluatorScripts.DictInitializer))]
         [TestCaseSource(typeof(ExpressionEvaluatorScripts), nameof(ExpressionEvaluatorScripts.Foreach))]
         [TestCaseSource(typeof(ExpressionEvaluatorScripts), nameof(ExpressionEvaluatorScripts.ArrayLiterals))]
+        [TestCaseSource(typeof(ExpressionEvaluatorScripts), nameof(ExpressionEvaluatorScripts.CollectionLiteralOperands))]
+        [TestCaseSource(typeof(ExpressionEvaluatorScripts), nameof(ExpressionEvaluatorScripts.DeepEquality))]
         public async Task TestScriptEvaluation(string input, string expected)
         {
 
@@ -60,6 +62,29 @@ namespace EOBot.Test.Interpreter.States
             await botInterpreter.Run(state, CancellationToken.None);
 
             Assert.That(state.SymbolTable["test_res"].Identifiable.StringValue, Is.EqualTo(expected).IgnoreCase);
+        }
+
+        [Test]
+        public async Task TestRuntimeEvaluatedObjectEqualityIsIdentity()
+        {
+            const string script = """
+                $o = { $x = 1 }
+                $test_res = [$s == $s, $s === $s, $s == $t, $s === $t, $s == $o]
+                """;
+            using var ms = new MemoryStream(Encoding.UTF8.GetBytes(script));
+            using var sr = new StreamReader(ms);
+            var botInterpreter = new BotInterpreter(sr);
+
+            var state = botInterpreter.Parse();
+            foreach (var name in new[] { "s", "t" })
+            {
+                var obj = new RuntimeEvaluatedMemberObjectVariable();
+                obj.SymbolTable["x"] = (true, () => new IntVariable(1));
+                state.SymbolTable[name] = (true, obj);
+            }
+            await botInterpreter.Run(state, CancellationToken.None);
+
+            Assert.That(state.SymbolTable["test_res"].Identifiable.StringValue, Is.EqualTo("[true, true, false, false, false]").IgnoreCase);
         }
 
         [TestCaseSource(typeof(ExpressionEvaluatorScripts), nameof(ExpressionEvaluatorScripts.DivisionByZero))]
@@ -105,7 +130,24 @@ namespace EOBot.Test.Interpreter.States
         }
 
         [TestCaseSource(typeof(ExpressionEvaluatorScripts), nameof(ExpressionEvaluatorScripts.DictInitializerErrors))]
-        public async Task TestDictInitializerErrors(string input, string expectedReason)
+        public async Task TestDictInitializerErrors(string input, string expectedReason, string expectedToken, int expectedLine)
+        {
+            using var ms = new MemoryStream(Encoding.UTF8.GetBytes(input));
+            using var sr = new StreamReader(ms);
+            var botInterpreter = new BotInterpreter(sr);
+
+            var state = botInterpreter.Parse();
+            var (result, reason, token) = await ScriptEvaluator.Instance.EvaluateAsync(state, CancellationToken.None);
+
+            Assert.That(result, Is.EqualTo(EvalResult.Failed));
+            Assert.That(reason, Does.Contain(expectedReason));
+            Assert.That(token.TokenValue, Is.EqualTo(expectedToken));
+            Assert.That(token.LineNumber, Is.EqualTo(expectedLine));
+        }
+
+        [TestCaseSource(typeof(ExpressionEvaluatorScripts), nameof(ExpressionEvaluatorScripts.MissingOperandErrors))]
+        [TestCaseSource(typeof(ExpressionEvaluatorScripts), nameof(ExpressionEvaluatorScripts.EqualityErrors))]
+        public async Task TestEvaluationErrors(string input, string expectedReason)
         {
             using var ms = new MemoryStream(Encoding.UTF8.GetBytes(input));
             using var sr = new StreamReader(ms);

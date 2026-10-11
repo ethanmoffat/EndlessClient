@@ -38,7 +38,7 @@ namespace EOBot.Interpreter.States
             if (!enumDefinition.TryGetMember(memberToken.TokenValue, out var enumValue))
                 return (EvalResult.Failed, $"Enum {enumToken.TokenValue} does not have a member named {memberToken.TokenValue}", memberToken);
 
-            input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, enumValue.StringValue, enumValue));
+            input.OperationStack.Push(VariableBotToken.FromComputedValue(BotTokenType.Literal, enumValue));
 
             return Success();
         }
@@ -69,7 +69,7 @@ namespace EOBot.Interpreter.States
             }
 
             input.SkipToken();
-            input.OperationStack.Push(new VariableBotToken(BotTokenType.TypeSpecifier, current.TokenValue, EnumVariable.TypeSpecifier(enumName)));
+            input.OperationStack.Push(VariableBotToken.Create(BotTokenType.TypeSpecifier, current.TokenValue, EnumVariable.TypeSpecifier(enumName)));
 
             return Success();
         }

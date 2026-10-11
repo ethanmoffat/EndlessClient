@@ -131,6 +131,21 @@ namespace EOBot.Test.Interpreter
         }
 
         [Test]
+        public async Task VariableReturn_PushesReturnedVariable()
+        {
+            const string script = """
+                $res1 = Maybe(true)
+                $res2 = Maybe(false)
+                """;
+
+            var (state, result, reason) = await RunAsync(script, Setup);
+
+            Assert.That(result, Is.EqualTo(EvalResult.Ok), reason);
+            Assert.That(state.SymbolTable["res1"].Identifiable, Is.EqualTo(new IntVariable(1)));
+            Assert.That(state.SymbolTable["res2"].Identifiable, Is.SameAs(UndefinedVariable.Instance));
+        }
+
+        [Test]
         public async Task InvalidArgumentType_Fails()
         {
             var (_, result, reason) = await RunAsync("$res = Upper(undefined)", Setup);
@@ -144,6 +159,7 @@ namespace EOBot.Test.Interpreter
             state.SymbolTable["Void"] = (true, new VoidFunction("Void", () => { }));
             state.SymbolTable["Echo"] = (true, new Function<object, string>("Echo", x => x.ToString()));
             state.SymbolTable["Upper"] = (true, new Function<string, string>("Upper", x => x.ToUpper()));
+            state.SymbolTable["Maybe"] = (true, new Function<bool, IVariable>("Maybe", x => x ? new IntVariable(1) : UndefinedVariable.Instance));
         }
 
         private static async Task<(ProgramState State, EvalResult Result, string Reason)> RunAsync(string script, Action<ProgramState> setup = null)

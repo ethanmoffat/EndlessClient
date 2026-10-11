@@ -74,7 +74,7 @@ namespace EOBot.Interpreter.Extensions
                 if (getVariableRes.Result != EvalResult.Ok)
                     return (getVariableRes.Result, getVariableRes.Reason, identifier);
 
-                return (EvalResult.Ok, string.Empty, new VariableBotToken(BotTokenType.Literal, getVariableRes.Variable.ToString(), getVariableRes.Variable));
+                return (EvalResult.Ok, string.Empty, VariableBotToken.FromComputedValue(BotTokenType.Literal, getVariableRes.Variable));
             }
             else
             {

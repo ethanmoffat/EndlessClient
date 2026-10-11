@@ -4,7 +4,7 @@
     {
         public BotTokenType TokenType { get; }
 
-        public string TokenValue { get; }
+        public virtual string TokenValue { get; }
 
         public int LineNumber { get; }
 

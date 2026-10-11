@@ -87,30 +87,32 @@ namespace EOBot.Interpreter.States
 
         private static void Call(ProgramState input, ICallable function, params IVariable[] variables) => function.Call(variables);
 
-        private static void Call(ProgramState input, ICallable<int> function, params IVariable[] variables) => Push(input, new IntVariable(function.Call(variables)));
+        private static void Call(ProgramState input, ICallable<int> function, params IVariable[] variables) => PushResultToOperationStack(input, new IntVariable(function.Call(variables)));
 
-        private static void Call(ProgramState input, ICallable<string> function, params IVariable[] variables) => Push(input, new StringVariable(function.Call(variables)));
+        private static void Call(ProgramState input, ICallable<string> function, params IVariable[] variables) => PushResultToOperationStack(input, new StringVariable(function.Call(variables)));
 
-        private static void Call(ProgramState input, ICallable<List<IVariable>> function, params IVariable[] variables) => Push(input, new ArrayVariable(function.Call(variables)));
+        private static void Call(ProgramState input, ICallable<List<IVariable>> function, params IVariable[] variables) => PushResultToOperationStack(input, new ArrayVariable(function.Call(variables)));
 
-        private static void Call(ProgramState input, ICallable<Dictionary<string, IVariable>> function, params IVariable[] variables) => Push(input, new DictVariable(function.Call(variables)));
+        private static void Call(ProgramState input, ICallable<Dictionary<string, IVariable>> function, params IVariable[] variables) => PushResultToOperationStack(input, new DictVariable(function.Call(variables)));
 
-        private static void Call(ProgramState input, ICallable<bool> function, params IVariable[] variables) => Push(input, new BoolVariable(function.Call(variables)));
+        private static void Call(ProgramState input, ICallable<bool> function, params IVariable[] variables) => PushResultToOperationStack(input, new BoolVariable(function.Call(variables)));
 
-        private static void Call(ProgramState input, ICallable<ObjectVariable> function, params IVariable[] variables) => Push(input, function.Call(variables));
+        private static void Call(ProgramState input, ICallable<ObjectVariable> function, params IVariable[] variables) => PushResultToOperationStack(input, function.Call(variables));
+
+        private static void Call(ProgramState input, ICallable<IVariable> function, params IVariable[] variables) => PushResultToOperationStack(input, function.Call(variables));
 
         private static async Task CallAsync(ProgramState input, CancellationToken ct, IAsyncCallable function, params IVariable[] variables) => await function.CallAsync(ct, variables).ConfigureAwait(false);
 
-        private static async Task CallAsync(ProgramState input, CancellationToken ct, IAsyncCallable<int> function, params IVariable[] variables) => Push(input, new IntVariable(await function.CallAsync(ct, variables).ConfigureAwait(false)));
+        private static async Task CallAsync(ProgramState input, CancellationToken ct, IAsyncCallable<int> function, params IVariable[] variables) => PushResultToOperationStack(input, new IntVariable(await function.CallAsync(ct, variables).ConfigureAwait(false)));
 
-        private static async Task CallAsync(ProgramState input, CancellationToken ct, IAsyncCallable<string> function, params IVariable[] variables) => Push(input, new StringVariable(await function.CallAsync(ct, variables).ConfigureAwait(false)));
+        private static async Task CallAsync(ProgramState input, CancellationToken ct, IAsyncCallable<string> function, params IVariable[] variables) => PushResultToOperationStack(input, new StringVariable(await function.CallAsync(ct, variables).ConfigureAwait(false)));
 
-        private static async Task CallAsync(ProgramState input, CancellationToken ct, IAsyncCallable<List<IVariable>> function, params IVariable[] variables) => Push(input, new ArrayVariable(await function.CallAsync(ct, variables).ConfigureAwait(false)));
+        private static async Task CallAsync(ProgramState input, CancellationToken ct, IAsyncCallable<List<IVariable>> function, params IVariable[] variables) => PushResultToOperationStack(input, new ArrayVariable(await function.CallAsync(ct, variables).ConfigureAwait(false)));
 
-        private static async Task CallAsync(ProgramState input, CancellationToken ct, IAsyncCallable<bool> function, params IVariable[] variables) => Push(input, new BoolVariable(await function.CallAsync(ct, variables).ConfigureAwait(false)));
+        private static async Task CallAsync(ProgramState input, CancellationToken ct, IAsyncCallable<bool> function, params IVariable[] variables) => PushResultToOperationStack(input, new BoolVariable(await function.CallAsync(ct, variables).ConfigureAwait(false)));
 
-        private static async Task CallAsync(ProgramState input, CancellationToken ct, IAsyncCallable<ObjectVariable> function, params IVariable[] variables) => Push(input, await function.CallAsync(ct, variables).ConfigureAwait(false));
+        private static async Task CallAsync(ProgramState input, CancellationToken ct, IAsyncCallable<ObjectVariable> function, params IVariable[] variables) => PushResultToOperationStack(input, await function.CallAsync(ct, variables).ConfigureAwait(false));
 
-        private static void Push(ProgramState input, IVariable result) => input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, result.StringValue, result));
+        private static void PushResultToOperationStack(ProgramState input, IVariable result) => input.OperationStack.Push(VariableBotToken.FromComputedValue(BotTokenType.Literal, result));
     }
 }

@@ -30,14 +30,19 @@ namespace EOBot.Interpreter.States
             if (input.OperationStack.Count == 0)
                 return StackEmptyError(input.Current());
 
-            var retToken = input.OperationStack.Pop();
-            if (retToken is VariableBotToken vbt)
-            {
-                var boolValue = CoerceToBool(vbt.VariableValue);
-                retToken = new VariableBotToken(BotTokenType.Literal, boolValue.StringValue, boolValue);
-            }
+            return ConvertConditionToBool(input.OperationStack.Pop());
+        }
 
-            return Success(retToken);
+        protected static (EvalResult, string, BotToken) ConvertConditionToBool(BotToken conditionToken)
+        {
+            if (conditionToken is not VariableBotToken vbt)
+                return Success(conditionToken);
+
+            var boolValue = CoerceToBool(vbt.VariableValue);
+            if (boolValue == null)
+                return (EvalResult.Failed, $"Condition {vbt.TokenValue} could not be coerced to bool", vbt);
+
+            return Success(VariableBotToken.FromComputedValue(BotTokenType.Literal, boolValue));
         }
 
         protected async Task<(EvalResult, string, BotToken)> EvaluateBlockAsync(ProgramState input, CancellationToken ct)
@@ -129,9 +134,18 @@ namespace EOBot.Interpreter.States
                 while (input.Current().TokenType == BotTokenType.NewLine && input.Current().TokenType != BotTokenType.EOF)
                     input.SkipToken();
 
-                // 'statement' will be everything before the next newline
-                while (input.Current().TokenType != BotTokenType.NewLine && input.Current().TokenType != BotTokenType.EOF)
+                // 'statement' will be everything before the next newline, or before the brace closing a one-line enclosing block
+                var braceDepth = 0;
+                while (!input.Current().IsOneOf(BotTokenType.NewLine, BotTokenType.EOF) &&
+                    (braceDepth != 0 || !input.Current().Is(BotTokenType.RBrace)))
+                {
+                    if (input.Current().Is(BotTokenType.LBrace))
+                        braceDepth++;
+                    else if (input.Current().Is(BotTokenType.RBrace))
+                        braceDepth--;
+
                     input.SkipToken();
+                }
 
                 // optional newline after statement
                 input.Expect(BotTokenType.NewLine);

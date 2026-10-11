@@ -44,6 +44,12 @@ namespace EOBot.Interpreter.States
                 return (EvalResult.Cancelled, string.Empty, null);
 
             var evalResult = await Evaluator<StatementListEvaluator>().EvaluateAsync(input, ct);
+            if (evalResult.Result == EvalResult.ControlFlow && input.CallStack.Count == 0)
+            {
+                var controlToken = input.OperationStack.Pop();
+                return (EvalResult.Failed, $"'{controlToken.TokenValue}' is not valid outside of a loop", controlToken);
+            }
+
             if (evalResult.Result != EvalResult.Ok)
                 return evalResult;
 

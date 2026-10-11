@@ -62,7 +62,7 @@ namespace EOBot.Interpreter.Variables
 
             if (evalResult != EvalResult.Failed)
             {
-                programState.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, returnValue.StringValue, returnValue));
+                programState.OperationStack.Push(VariableBotToken.FromComputedValue(BotTokenType.Literal, returnValue));
             }
 
             return (evalResult, reason, token);

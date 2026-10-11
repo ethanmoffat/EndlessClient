@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace EOBot.Interpreter.Variables
 {
-    public class EnumVariable : IntVariable
+    public sealed class EnumVariable : IntVariable
     {
         public const string NAME_MEMBER = "name";
         public const string VALUE_MEMBER = "value";
@@ -13,6 +13,8 @@ namespace EOBot.Interpreter.Variables
         public string MemberName { get; }
 
         public override string StringValue => $"{EnumName}::{MemberName}";
+
+        public override string TypeName => EnumName;
 
         public EnumVariable(string enumName, string memberName, int value)
             : base(value)

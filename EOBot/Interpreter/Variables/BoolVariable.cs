@@ -1,12 +1,19 @@
 ﻿namespace EOBot.Interpreter.Variables
 {
-    public class BoolVariable : IVariable<bool>
+    public sealed class BoolVariable : IVariable<bool>
     {
         public bool Value { get; }
 
         public BoolVariable(bool value) => Value = value;
 
         public string StringValue => Value.ToString();
+
+        public string TypeName => BotTokenParser.KEYWORD_BOOL;
+
+        public EqualityResult LooseEquals(IVariable other) =>
+            other is ICollectionVariable ? EqualityResult.IncompatibleComparison(this, other) : EqualityResult.Create(Equals(other));
+
+        public bool StrictEquals(IVariable other) => other is BoolVariable && Equals(other);
 
         public override bool Equals(object obj) => CompareTo(obj) == 0;
 

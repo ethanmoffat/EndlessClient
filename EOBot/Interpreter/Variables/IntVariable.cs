@@ -8,6 +8,13 @@
 
         public virtual string StringValue => Value.ToString();
 
+        public virtual string TypeName => BotTokenParser.KEYWORD_INT;
+
+        public EqualityResult LooseEquals(IVariable other) =>
+            other is ICollectionVariable ? EqualityResult.IncompatibleComparison(this, other) : EqualityResult.Create(Equals(other));
+
+        public bool StrictEquals(IVariable other) => other.GetType() == GetType() && Equals(other);
+
         public override bool Equals(object obj) => CompareTo(obj) == 0;
 
         public override int GetHashCode() => Value.GetHashCode();

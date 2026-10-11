@@ -11,14 +11,23 @@ namespace EOBot.Interpreter.States
 
         public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input, CancellationToken ct)
         {
-            (EvalResult Result, string, BotToken) result;
+            if (ExpectEndOfList(input))
+                return Success();
 
+            (EvalResult Result, string, BotToken) result;
             do
             {
                 result = await Evaluator<StatementEvaluator>().EvaluateAsync(input, ct);
-            } while (result.Result == EvalResult.Ok && !input.Expect(BotTokenType.EOF) && !input.Expect(BotTokenType.RBrace));
+            }
+            while (result.Result == EvalResult.Ok && !ExpectEndOfList(input));
 
             return result;
+        }
+
+        private static bool ExpectEndOfList(ProgramState input)
+        {
+            while (input.Expect(BotTokenType.NewLine)) ;
+            return input.Expect(BotTokenType.EOF) || input.Expect(BotTokenType.RBrace);
         }
     }
 }
