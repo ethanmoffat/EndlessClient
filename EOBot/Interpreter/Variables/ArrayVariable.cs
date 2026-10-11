@@ -19,9 +19,6 @@ namespace EOBot.Interpreter.Variables
             Value = value;
         }
 
-        // todo: should arrays be comparable?
-        public override int CompareTo(object obj) => -1;
-
         protected override IReadOnlyDictionary<object, IIdentifiable> Members =>
             Value
                 .Select((element, index) => (element, index))

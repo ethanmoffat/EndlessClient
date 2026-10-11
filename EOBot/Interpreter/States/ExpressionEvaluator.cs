@@ -469,10 +469,10 @@ namespace EOBot.Interpreter.States
             {
                 case BotTokenType.EqualOperator: res.Result = ToBoolVariable(LooseCompare(lhs.VariableValue, rhs.VariableValue, out res.Reason)); break;
                 case BotTokenType.NotEqualOperator: res.Result = ToBoolVariable(!LooseCompare(lhs.VariableValue, rhs.VariableValue, out res.Reason)); break;
-                case BotTokenType.LessThanOperator: res.Result = new BoolVariable(lhs.VariableValue.CompareTo(rhs.VariableValue) < 0); break;
-                case BotTokenType.GreaterThanOperator: res.Result = new BoolVariable(lhs.VariableValue.CompareTo(rhs.VariableValue) > 0); break;
-                case BotTokenType.LessThanEqOperator: res.Result = new BoolVariable(lhs.VariableValue.CompareTo(rhs.VariableValue) <= 0); break;
-                case BotTokenType.GreaterThanEqOperator: res.Result = new BoolVariable(lhs.VariableValue.CompareTo(rhs.VariableValue) >= 0); break;
+                case BotTokenType.LessThanOperator:
+                case BotTokenType.GreaterThanOperator:
+                case BotTokenType.LessThanEqOperator:
+                case BotTokenType.GreaterThanEqOperator: res = RelationalCompare(operatorToken, lhs.VariableValue, rhs.VariableValue); break;
                 case BotTokenType.LogicalAndOperator: res = LogicalAnd(lhs.VariableValue, rhs.VariableValue); break;
                 case BotTokenType.LogicalOrOperator: res = LogicalOr(lhs.VariableValue, rhs.VariableValue); break;
                 case BotTokenType.PlusOperator: res = Add((dynamic)lhs.VariableValue, (dynamic)rhs.VariableValue); break;
@@ -603,5 +603,31 @@ namespace EOBot.Interpreter.States
         }
 
         private static IVariable ToBoolVariable(bool? value) => value.HasValue ? new BoolVariable(value.Value) : null;
+
+        private static (IVariable, string) RelationalCompare(BotToken operatorToken, IVariable lhs, IVariable rhs)
+        {
+            var orderable = (lhs, rhs) switch
+            {
+                (EnumVariable lhsEnum, EnumVariable rhsEnum) => lhsEnum.EnumName == rhsEnum.EnumName,
+                (IntVariable, IntVariable)
+                or (BoolVariable, BoolVariable)
+                or (StringVariable, StringVariable)
+                or (UndefinedVariable, UndefinedVariable) => true,
+                _ => false,
+            };
+
+            if (!orderable)
+                return (null, $"{lhs.TypeName} and {rhs.TypeName} cannot be compared with {operatorToken.TokenValue}");
+
+            var comparison = lhs.CompareTo(rhs);
+            return (new BoolVariable(operatorToken.TokenType switch
+            {
+                BotTokenType.LessThanOperator => comparison < 0,
+                BotTokenType.GreaterThanOperator => comparison > 0,
+                BotTokenType.LessThanEqOperator => comparison <= 0,
+                BotTokenType.GreaterThanEqOperator => comparison >= 0,
+                _ => throw new InvalidOperationException("This code should be unreachable; was a new relational operator added?"),
+            }), string.Empty);
+        }
     }
 }

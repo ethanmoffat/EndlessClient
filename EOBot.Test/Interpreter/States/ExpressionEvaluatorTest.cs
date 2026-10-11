@@ -33,6 +33,7 @@ namespace EOBot.Test.Interpreter.States
         [TestCaseSource(typeof(ExpressionEvaluatorScripts), nameof(ExpressionEvaluatorScripts.ArrayLiterals))]
         [TestCaseSource(typeof(ExpressionEvaluatorScripts), nameof(ExpressionEvaluatorScripts.CollectionLiteralOperands))]
         [TestCaseSource(typeof(ExpressionEvaluatorScripts), nameof(ExpressionEvaluatorScripts.DeepEquality))]
+        [TestCaseSource(typeof(ExpressionEvaluatorScripts), nameof(ExpressionEvaluatorScripts.RelationalComparison))]
         public async Task TestScriptEvaluation(string input, string expected)
         {
 
@@ -147,6 +148,7 @@ namespace EOBot.Test.Interpreter.States
 
         [TestCaseSource(typeof(ExpressionEvaluatorScripts), nameof(ExpressionEvaluatorScripts.MissingOperandErrors))]
         [TestCaseSource(typeof(ExpressionEvaluatorScripts), nameof(ExpressionEvaluatorScripts.EqualityErrors))]
+        [TestCaseSource(typeof(ExpressionEvaluatorScripts), nameof(ExpressionEvaluatorScripts.RelationalErrors))]
         public async Task TestEvaluationErrors(string input, string expectedReason)
         {
             using var ms = new MemoryStream(Encoding.UTF8.GetBytes(input));

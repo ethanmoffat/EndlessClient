@@ -19,7 +19,7 @@
 
         public override int GetHashCode() => Value.GetHashCode();
 
-        public int CompareTo(object obj) => obj is StringVariable ? Value.CompareTo(((StringVariable)obj).Value) : -1;
+        public int CompareTo(object obj) => obj is StringVariable ? string.CompareOrdinal(Value, ((StringVariable)obj).Value) : -1;
 
         public static explicit operator string(StringVariable variable) => variable.Value;
 

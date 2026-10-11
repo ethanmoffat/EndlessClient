@@ -669,5 +669,47 @@ namespace EOBot.Test.Interpreter.States
                 $r = $d == $d
                 """, "Dict contains itself and cannot be compared with ==").SetArgDisplayNames("SelfContainingDict"),
         ];
+
+        public static IEnumerable<TestCaseData> RelationalComparison() =>
+        [
+            new TestCaseData("$test_res = 1 < 2", "true").SetArgDisplayNames("IntLessThan"),
+            new TestCaseData("$test_res = 2 <= 2", "true").SetArgDisplayNames("IntLessThanEq"),
+            new TestCaseData("$test_res = 1 > 2", "false").SetArgDisplayNames("IntGreaterThan"),
+            new TestCaseData("$test_res = 1 >= 2", "false").SetArgDisplayNames("IntGreaterThanEq"),
+            new TestCaseData("""$test_res = "a" < "b" """, "true").SetArgDisplayNames("StringLessThan"),
+            new TestCaseData("""$test_res = "B" < "a" """, "true").SetArgDisplayNames("StringOrdinal"),
+            new TestCaseData("$test_res = false < true", "true").SetArgDisplayNames("BoolLessThan"),
+            new TestCaseData("$test_res = undefined <= undefined", "true").SetArgDisplayNames("UndefinedLessThanEq"),
+            new TestCaseData("$test_res = undefined < undefined", "false").SetArgDisplayNames("UndefinedLessThan"),
+            new TestCaseData("""
+                enum E { A, B }
+                $test_res = E::A < E::B
+                """, "true").SetArgDisplayNames("SameEnum"),
+            new TestCaseData("""
+                enum E { A, B }
+                $test_res = E::B > 0
+                """, "true").SetArgDisplayNames("EnumAndInt"),
+            new TestCaseData("""
+                enum E { A, B }
+                $test_res = 1 <= E::A
+                """, "false").SetArgDisplayNames("IntAndEnum"),
+        ];
+
+        public static IEnumerable<TestCaseData> RelationalErrors() =>
+        [
+            new TestCaseData("""$r = 1 < "a" """, "int and string cannot be compared with <").SetArgDisplayNames("IntAndString"),
+            new TestCaseData("""$r = "a" > 1""", "string and int cannot be compared with >").SetArgDisplayNames("StringAndInt"),
+            new TestCaseData("$r = true <= 1", "bool and int cannot be compared with <=").SetArgDisplayNames("BoolAndInt"),
+            new TestCaseData("$r = undefined >= 1", "undefined and int cannot be compared with >=").SetArgDisplayNames("UndefinedAndInt"),
+            new TestCaseData("$r = [1] < [2]", "Array and Array cannot be compared with <").SetArgDisplayNames("Arrays"),
+            new TestCaseData("$r = [:] < [:]", "Dict and Dict cannot be compared with <").SetArgDisplayNames("Dicts"),
+            new TestCaseData("$r = { $x = 1 } < { $x = 2 }", "Object and Object cannot be compared with <").SetArgDisplayNames("Objects"),
+            new TestCaseData("$r = [1] < 1", "Array and int cannot be compared with <").SetArgDisplayNames("ArrayAndInt"),
+            new TestCaseData("""
+                enum E { A }
+                enum G { A }
+                $r = E::A < G::A
+                """, "E and G cannot be compared with <").SetArgDisplayNames("DifferentEnums"),
+        ];
     }
 }
