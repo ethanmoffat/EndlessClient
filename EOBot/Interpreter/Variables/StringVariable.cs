@@ -8,7 +8,7 @@
 
         public string StringValue => Value;
 
-        public string TypeName => BotTokenParser.KEYWORD_STRING;
+        public string TypeName => Keywords.String;
 
         public EqualityResult LooseEquals(IVariable other) =>
             other is ICollectionVariable ? EqualityResult.IncompatibleComparison(this, other) : EqualityResult.Create(Equals(other));

@@ -15,7 +15,7 @@ namespace EOBot.Interpreter.States
             if (ct.IsCancellationRequested)
                 return (EvalResult.Cancelled, string.Empty, null);
 
-            if (!input.Current().Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_IF))
+            if (!input.Current().Is(BotTokenType.Keyword, Keywords.If))
                 return (EvalResult.NotMatch, string.Empty, input.Current());
 
             var ifStartIndex = input.ExecutionIndex;
@@ -36,7 +36,7 @@ namespace EOBot.Interpreter.States
 
                 while (input.Expect(BotTokenType.NewLine)) ;
 
-                if (input.Current().Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_ELSE))
+                if (input.Current().Is(BotTokenType.Keyword, Keywords.Else))
                 {
                     input.Expect(BotTokenType.Keyword);
 
@@ -62,7 +62,7 @@ namespace EOBot.Interpreter.States
             while (input.Expect(BotTokenType.NewLine)) ;
 
             // skip the rest of the following blocks if evaluated
-            while (input.Current().Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_ELSE))
+            while (input.Current().Is(BotTokenType.Keyword, Keywords.Else))
             {
                 input.Expect(BotTokenType.Keyword);
                 SkipBlock(input);

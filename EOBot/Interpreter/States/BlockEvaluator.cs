@@ -73,7 +73,7 @@ namespace EOBot.Interpreter.States
         protected static bool IsReturn(ProgramState input)
         {
             return input.OperationStack.TryPeek(out var controlToken)
-                && controlToken.Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_RETURN);
+                && controlToken.Is(BotTokenType.Keyword, Keywords.Return);
         }
 
         protected static bool IsBreak(ProgramState input)
@@ -82,11 +82,11 @@ namespace EOBot.Interpreter.States
 
             if (input.OperationStack.TryPeek(out var controlToken))
             {
-                if (controlToken.Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_CONTINUE))
+                if (controlToken.Is(BotTokenType.Keyword, Keywords.Continue))
                 {
                     input.OperationStack.Clear();
                 }
-                else if (controlToken.Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_BREAK))
+                else if (controlToken.Is(BotTokenType.Keyword, Keywords.Break))
                 {
                     res = true;
                     input.OperationStack.Clear();
@@ -113,7 +113,7 @@ namespace EOBot.Interpreter.States
         protected static void SkipBlock(ProgramState input)
         {
             // ensure that for 'else if' the if condition is skipped as well
-            if (input.Current().Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_IF))
+            if (input.Current().Is(BotTokenType.Keyword, Keywords.If))
             {
                 input.Expect(BotTokenType.Keyword);
                 input.Expect(BotTokenType.LParen);

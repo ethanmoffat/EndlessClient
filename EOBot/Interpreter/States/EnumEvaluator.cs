@@ -53,7 +53,7 @@ namespace EOBot.Interpreter.States
                 return (EvalResult.NotMatch, string.Empty, current);
 
             string enumName;
-            if (current.Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_ENUM))
+            if (current.Is(BotTokenType.Keyword, Keywords.Enum))
             {
                 enumName = null;
             }

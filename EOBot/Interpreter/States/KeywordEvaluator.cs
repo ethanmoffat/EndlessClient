@@ -33,8 +33,8 @@ namespace EOBot.Interpreter.States
                     return res;
             }
 
-            if (input.Current().Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_CONTINUE) ||
-                input.Current().Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_BREAK))
+            if (input.Current().Is(BotTokenType.Keyword, Keywords.Continue) ||
+                input.Current().Is(BotTokenType.Keyword, Keywords.Break))
             {
                 input.OperationStack.Push(input.Current());
                 res.Result = EvalResult.ControlFlow;

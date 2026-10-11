@@ -10,7 +10,7 @@ namespace EOBot.Interpreter.Variables
 
         public override string StringValue => "[" + string.Join(", ", Value.Select(x => x.StringValue)) + "]";
 
-        public override string TypeName => BotTokenParser.KEYWORD_ARRAY;
+        public override string TypeName => Keywords.Array;
 
         protected override object Contents => Value;
 
