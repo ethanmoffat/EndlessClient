@@ -42,7 +42,7 @@ namespace EOBot.Interpreter.States
             if (boolValue == null)
                 return (EvalResult.Failed, $"Condition {vbt.TokenValue} could not be coerced to bool", vbt);
 
-            return Success(new VariableBotToken(BotTokenType.Literal, boolValue.StringValue, boolValue));
+            return Success(VariableBotToken.FromComputedValue(BotTokenType.Literal, boolValue));
         }
 
         protected async Task<(EvalResult, string, BotToken)> EvaluateBlockAsync(ProgramState input, CancellationToken ct)

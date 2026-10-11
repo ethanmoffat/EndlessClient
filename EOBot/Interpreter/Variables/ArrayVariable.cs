@@ -4,11 +4,15 @@ using System.Linq;
 
 namespace EOBot.Interpreter.Variables
 {
-    public class ArrayVariable : IVariable<List<IVariable>>
+    public sealed class ArrayVariable : CollectionVariable, IVariable<List<IVariable>>
     {
         public List<IVariable> Value { get; }
 
-        public string StringValue => "[" + string.Join(", ", Value.Select(x => x.StringValue)) + "]";
+        public override string StringValue => "[" + string.Join(", ", Value.Select(x => x.StringValue)) + "]";
+
+        public override string TypeName => BotTokenParser.KEYWORD_ARRAY;
+
+        protected override object Contents => Value;
 
         public ArrayVariable(List<IVariable> value)
         {
@@ -16,7 +20,12 @@ namespace EOBot.Interpreter.Variables
         }
 
         // todo: should arrays be comparable?
-        public int CompareTo(object obj) => -1;
+        public override int CompareTo(object obj) => -1;
+
+        protected override IReadOnlyDictionary<object, IIdentifiable> Members =>
+            Value
+                .Select((element, index) => (element, index))
+                .ToDictionary(x => (object)x.index, x => (IIdentifiable)x.element);
 
         public IVariable<List<IVariable>> WithNewValue(List<IVariable> value)
         {

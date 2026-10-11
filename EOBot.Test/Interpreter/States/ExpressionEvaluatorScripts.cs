@@ -600,5 +600,74 @@ namespace EOBot.Test.Interpreter.States
             new TestCaseData("""$d["b"] += 2""", "2").SetArgDisplayNames("CompoundAssign"),
             new TestCaseData("""$d["b"]++""", "1").SetArgDisplayNames("Increment"),
         ];
+
+        public static IEnumerable<TestCaseData> DeepEquality() =>
+        [
+            new TestCaseData("$test_res = [1, 2] == [1, 2]", "true").SetArgDisplayNames("ArrayEqual"),
+            new TestCaseData("$test_res = [1, 2] == [2, 1]", "false").SetArgDisplayNames("ArrayOrderMatters"),
+            new TestCaseData("$test_res = [1] == [1, 2]", "false").SetArgDisplayNames("ArrayLengthDiffers"),
+            new TestCaseData("$test_res = [1, 2] != [1, 3]", "true").SetArgDisplayNames("ArrayNotEqual"),
+            new TestCaseData("$test_res = [] == []", "true").SetArgDisplayNames("EmptyArrays"),
+            new TestCaseData("$test_res = [[1, [2]], 3] == [[1, [2]], 3]", "true").SetArgDisplayNames("NestedArrays"),
+            new TestCaseData("$test_res = [[1, [2]], 3] == [[1, [4]], 3]", "false").SetArgDisplayNames("NestedArraysDiffer"),
+            new TestCaseData("""$test_res = ["a": 1, "b": 2] == ["b": 2, "a": 1]""", "true").SetArgDisplayNames("DictKeyOrderIgnored"),
+            new TestCaseData("""$test_res = ["a": 1] == ["a": 1, "b": 2]""", "false").SetArgDisplayNames("DictExtraKey"),
+            new TestCaseData("""$test_res = ["a": 1] == ["b": 1]""", "false").SetArgDisplayNames("DictDifferentKey"),
+            new TestCaseData("""$test_res = ["a": [1]] == ["a": [1]]""", "true").SetArgDisplayNames("DictNestedArray"),
+            new TestCaseData("$test_res = { $x = 1, $y = [2] } == { $y = [2], $x = 1 }", "true").SetArgDisplayNames("ObjectEqual"),
+            new TestCaseData("$test_res = { $x = 1 } == { $x = 2 }", "false").SetArgDisplayNames("ObjectMemberDiffers"),
+            new TestCaseData("$test_res = { $x = 1 } == { $x = 1, $y = 2 }", "false").SetArgDisplayNames("ObjectExtraMember"),
+            new TestCaseData("""
+                enum E { A }
+                $test_res = [E::A] == [0]
+                """, "true").SetArgDisplayNames("ElementsUseLooseEquality"),
+            new TestCaseData("$test_res = [1] == undefined", "false").SetArgDisplayNames("ArrayEqualsUndefined"),
+            new TestCaseData("""$test_res = undefined != ["a": 1]""", "true").SetArgDisplayNames("UndefinedNotEqualsDict"),
+            new TestCaseData("$test_res = undefined == undefined", "true").SetArgDisplayNames("UndefinedEqualsUndefined"),
+            new TestCaseData("""
+                $a = [1]
+                $b = [$a, $a]
+                $test_res = $b == [[1], [1]]
+                """, "true").SetArgDisplayNames("SharedReferenceIsNotCycle"),
+            new TestCaseData("""
+                $a = [1]
+                $b = $a
+                $test_res = $a === $b
+                """, "true").SetArgDisplayNames("StrictSameArray"),
+            new TestCaseData("$test_res = [1] !== [1]", "true").SetArgDisplayNames("StrictDifferentArrays"),
+            new TestCaseData("""
+                $d = ["a": 1]
+                $e = $d
+                $test_res = $d === $e
+                """, "true").SetArgDisplayNames("StrictSameDict"),
+            new TestCaseData("""
+                $o = { $x = 1 }
+                $p = $o
+                $test_res = $o === $p
+                """, "true").SetArgDisplayNames("StrictSameObject"),
+            new TestCaseData("$test_res = [] === [:]", "false").SetArgDisplayNames("StrictArrayAndDict"),
+            new TestCaseData("$test_res = [] === 1", "false").SetArgDisplayNames("StrictArrayAndInt"),
+            new TestCaseData("$test_res = { $x = 1 } !== [:]", "true").SetArgDisplayNames("StrictObjectAndDict"),
+        ];
+
+        public static IEnumerable<TestCaseData> EqualityErrors() =>
+        [
+            new TestCaseData("$r = [] == [:]", "Array and Dict cannot be compared with ==").SetArgDisplayNames("ArrayAndDict"),
+            new TestCaseData("$r = [:] != { $x = 1 }", "Dict and Object cannot be compared with ==").SetArgDisplayNames("DictAndObject"),
+            new TestCaseData("$r = { $x = 1 } == []", "Object and Array cannot be compared with ==").SetArgDisplayNames("ObjectAndArray"),
+            new TestCaseData("$r = [1] == 1", "Array and int cannot be compared with ==").SetArgDisplayNames("ArrayAndInt"),
+            new TestCaseData("""$r = "a" == ["a": 1]""", "string and Dict cannot be compared with ==").SetArgDisplayNames("StringAndDict"),
+            new TestCaseData("$r = [[1]] == [1]", "Array and int cannot be compared with ==").SetArgDisplayNames("NestedMismatch"),
+            new TestCaseData("""
+                $a = [0]
+                $a[0] = $a
+                $r = $a == [[0]]
+                """, "Array contains itself and cannot be compared with ==").SetArgDisplayNames("SelfContainingArray"),
+            new TestCaseData("""
+                $d = [:]
+                $d["self"] = $d
+                $r = $d == $d
+                """, "Dict contains itself and cannot be compared with ==").SetArgDisplayNames("SelfContainingDict"),
+        ];
     }
 }

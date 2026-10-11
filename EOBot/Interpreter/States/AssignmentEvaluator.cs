@@ -42,11 +42,12 @@ namespace EOBot.Interpreter.States
 
             if (input.OperationStack.Peek().IsUnary())
             {
-                // hack the unary assignment operators by 
+                // ++/-- have no right-hand expression; push a placeholder so the stack matches the
+                //    target/operator/value pattern of other assignments
                 input.OperationStack.Push(input.OperationStack.Peek().TokenType switch
                 {
-                    BotTokenType.Increment => new VariableBotToken(BotTokenType.Literal, "1", new IntVariable(1)),
-                    BotTokenType.Decrement => new VariableBotToken(BotTokenType.Literal, "-1", new IntVariable(-1)),
+                    BotTokenType.Increment => VariableBotToken.Create(BotTokenType.Literal, "1", new IntVariable(1)),
+                    BotTokenType.Decrement => VariableBotToken.Create(BotTokenType.Literal, "-1", new IntVariable(-1)),
                     _ => throw new BotScriptErrorException("Execution should never reach here - was a unary assignment operator added?"),
                 });
             }

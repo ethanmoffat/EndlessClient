@@ -7,14 +7,14 @@ namespace EOBot.Interpreter.States
 {
     public class ExpressionTailEvaluator : BaseEvaluator
     {
-        private static BotTokenType[] ExpectedTokens { get; } = new[]
-        {
+        private static BotTokenType[] ExpectedTokens { get; } =
+        [
             BotTokenType.EqualOperator, BotTokenType.NotEqualOperator, BotTokenType.GreaterThanOperator,
             BotTokenType.LessThanOperator, BotTokenType.GreaterThanEqOperator, BotTokenType.LessThanEqOperator,
             BotTokenType.LogicalAndOperator, BotTokenType.LogicalOrOperator,
             BotTokenType.PlusOperator, BotTokenType.MinusOperator, BotTokenType.MultiplyOperator, BotTokenType.DivideOperator, BotTokenType.ModuloOperator,
             BotTokenType.StrictEqualOperator, BotTokenType.StrictNotEqualOperator, BotTokenType.IsOperator,
-        };
+        ];
 
         public ExpressionTailEvaluator(IEnumerable<IScriptEvaluator> evaluators)
             : base(evaluators) { }

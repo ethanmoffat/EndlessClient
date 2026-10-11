@@ -93,7 +93,7 @@ namespace EOBot.Interpreter.States
                                 v => (false, (IIdentifiable)v.Item2.VariableValue)
                             )
                         );
-                        input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, objectVariable.StringValue, objectVariable));
+                        input.OperationStack.Push(VariableBotToken.FromComputedValue(BotTokenType.Literal, objectVariable));
 
                         // check for an expression tail after object literal
                         res = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input, ct);
@@ -252,7 +252,7 @@ namespace EOBot.Interpreter.States
             if (boolValue == null)
                 return (EvalResult.Failed, $"Error evaluating expression: operand {leftOperand} of {logicalOperator.TokenType} could not be coerced to bool", leftOperand);
 
-            input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, boolValue.StringValue, boolValue));
+            input.OperationStack.Push(VariableBotToken.FromComputedValue(BotTokenType.Literal, boolValue));
 
             if (!(shortCircuited = boolValue.Value == logicalOperator.Is(BotTokenType.LogicalOrOperator)))
             {
@@ -280,7 +280,7 @@ namespace EOBot.Interpreter.States
             if (!isDict)
             {
                 var arrayVariable = new ArrayVariable(elements.Select(x => x.Value.VariableValue).ToList());
-                return (EvalResult.Ok, string.Empty, new VariableBotToken(BotTokenType.Literal, arrayVariable.StringValue, arrayVariable));
+                return (EvalResult.Ok, string.Empty, VariableBotToken.FromComputedValue(BotTokenType.Literal, arrayVariable));
             }
 
             var dict = new Dictionary<string, IVariable>();
@@ -291,7 +291,7 @@ namespace EOBot.Interpreter.States
             }
 
             var dictVariable = new DictVariable(dict);
-            return (EvalResult.Ok, string.Empty, new VariableBotToken(BotTokenType.Literal, dictVariable.StringValue, dictVariable));
+            return (EvalResult.Ok, string.Empty, VariableBotToken.FromComputedValue(BotTokenType.Literal, dictVariable));
         }
 
         private static void SkipOperand(ProgramState input, Func<BotToken, bool> endsOperand = null)
@@ -441,7 +441,7 @@ namespace EOBot.Interpreter.States
                 value = negateResult;
             }
 
-            input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, value.StringValue, value));
+            input.OperationStack.Push(VariableBotToken.FromComputedValue(BotTokenType.Literal, value));
             return Success();
         }
 
@@ -458,7 +458,7 @@ namespace EOBot.Interpreter.States
             if (res.Result == null)
                 return (EvalResult.Failed, $"Error evaluating expression: {res.Reason}", input.Current());
 
-            return Success(new VariableBotToken(BotTokenType.Literal, res.Result.StringValue, res.Result));
+            return Success(VariableBotToken.FromComputedValue(BotTokenType.Literal, res.Result));
         }
 
         private static (EvalResult, string, BotToken) HandleBinaryOperator(ProgramState input, BotToken operatorToken, VariableBotToken lhs, VariableBotToken rhs)
@@ -467,8 +467,8 @@ namespace EOBot.Interpreter.States
             res.Reason = string.Empty;
             switch (operatorToken.TokenType)
             {
-                case BotTokenType.EqualOperator: res.Result = new BoolVariable(lhs.VariableValue.Equals(rhs.VariableValue)); break;
-                case BotTokenType.NotEqualOperator: res.Result = new BoolVariable(!lhs.VariableValue.Equals(rhs.VariableValue)); break;
+                case BotTokenType.EqualOperator: res.Result = ToBoolVariable(LooseCompare(lhs.VariableValue, rhs.VariableValue, out res.Reason)); break;
+                case BotTokenType.NotEqualOperator: res.Result = ToBoolVariable(!LooseCompare(lhs.VariableValue, rhs.VariableValue, out res.Reason)); break;
                 case BotTokenType.LessThanOperator: res.Result = new BoolVariable(lhs.VariableValue.CompareTo(rhs.VariableValue) < 0); break;
                 case BotTokenType.GreaterThanOperator: res.Result = new BoolVariable(lhs.VariableValue.CompareTo(rhs.VariableValue) > 0); break;
                 case BotTokenType.LessThanEqOperator: res.Result = new BoolVariable(lhs.VariableValue.CompareTo(rhs.VariableValue) <= 0); break;
@@ -481,15 +481,15 @@ namespace EOBot.Interpreter.States
                 case BotTokenType.DivideOperator: res = Divide((dynamic)lhs.VariableValue, (dynamic)rhs.VariableValue); break;
                 case BotTokenType.ModuloOperator: res = Modulo((dynamic)lhs.VariableValue, (dynamic)rhs.VariableValue); break;
                 case BotTokenType.IsOperator: res.Result = new BoolVariable(IsType(lhs.VariableValue, rhs.VariableValue)); break;
-                case BotTokenType.StrictEqualOperator:
-                case BotTokenType.StrictNotEqualOperator: res = StrictCompare(lhs.VariableValue, rhs.VariableValue, operatorToken.TokenType == BotTokenType.StrictEqualOperator); break;
+                case BotTokenType.StrictEqualOperator: res.Result = new BoolVariable(lhs.VariableValue.StrictEquals(rhs.VariableValue)); break;
+                case BotTokenType.StrictNotEqualOperator: res.Result = new BoolVariable(!lhs.VariableValue.StrictEquals(rhs.VariableValue)); break;
                 default: return UnsupportedOperatorError(operatorToken);
             }
 
             if (res.Result == null)
                 return (EvalResult.Failed, $"Error evaluating expression: {res.Reason}", input.Current());
 
-            return Success(new VariableBotToken(BotTokenType.Literal, res.Result.StringValue, res.Result));
+            return Success(VariableBotToken.FromComputedValue(BotTokenType.Literal, res.Result));
         }
 
         private static (EvalResult, string, BotToken) GetOperand(Dictionary<string, (bool, IIdentifiable)> symbols, BotToken nextToken)
@@ -499,13 +499,13 @@ namespace EOBot.Interpreter.States
                 if (nextToken is LiteralBotToken lbt)
                 {
                     if (nextToken.TokenValue == "undefined")
-                        return Success(new VariableBotToken(BotTokenType.Literal, nextToken.TokenValue, UndefinedVariable.Instance));
+                        return Success(VariableBotToken.Create(BotTokenType.Literal, nextToken.TokenValue, UndefinedVariable.Instance));
                     else if (lbt.LiteralValue is int iv)
-                        return Success(new VariableBotToken(BotTokenType.Literal, nextToken.TokenValue, new IntVariable(iv)));
+                        return Success(VariableBotToken.Create(BotTokenType.Literal, nextToken.TokenValue, new IntVariable(iv)));
                     else if (lbt.LiteralValue is bool bv)
-                        return Success(new VariableBotToken(BotTokenType.Literal, nextToken.TokenValue, new BoolVariable(bv)));
+                        return Success(VariableBotToken.Create(BotTokenType.Literal, nextToken.TokenValue, new BoolVariable(bv)));
                     else
-                        return Success(new VariableBotToken(BotTokenType.Literal, nextToken.TokenValue, new StringVariable(nextToken.TokenValue)));
+                        return Success(VariableBotToken.Create(BotTokenType.Literal, nextToken.TokenValue, new StringVariable(nextToken.TokenValue)));
                 }
                 else if (nextToken.TokenType == BotTokenType.TypeSpecifier)
                 {
@@ -521,7 +521,7 @@ namespace EOBot.Interpreter.States
                         BotTokenParser.KEYWORD_DICT => new DictVariable(default),
                         _ => throw new InvalidOperationException($"Type specifier token {nextToken} had unexpected value: {nextToken.TokenValue} (not a recognized type specifier)."),
                     };
-                    return Success(new VariableBotToken(nextToken.TokenType, nextToken.TokenValue, variableValue));
+                    return Success(VariableBotToken.Create(nextToken.TokenType, nextToken.TokenValue, variableValue));
                 }
 
                 return symbols.ResolveIdentifier(nextToken);
@@ -595,14 +595,13 @@ namespace EOBot.Interpreter.States
             return variable.GetType().Equals(typeSpecifier.GetType());
         }
 
-        private static (IVariable, string) StrictCompare(IVariable lhs, IVariable rhs, bool expectEqual)
+        private static bool? LooseCompare(IVariable lhs, IVariable rhs, out string reason)
         {
-            if (!lhs.GetType().Equals(rhs.GetType()))
-            {
-                return (new BoolVariable(!expectEqual), string.Empty);
-            }
-
-            return (new BoolVariable(expectEqual == lhs.Equals(rhs)), string.Empty);
+            var res = lhs.LooseEquals(rhs);
+            reason = res.Reason;
+            return res.Ok ? res.Equal : null;
         }
+
+        private static IVariable ToBoolVariable(bool? value) => value.HasValue ? new BoolVariable(value.Value) : null;
     }
 }
