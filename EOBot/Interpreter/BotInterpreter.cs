@@ -9,7 +9,7 @@ namespace EOBot.Interpreter
 {
     public class BotInterpreter
     {
-        private readonly BotTokenParser _parser;
+        private readonly BotTokenizer _tokenizer;
 
         public BotInterpreter(string filePath)
             : this(File.OpenText(filePath))
@@ -18,22 +18,22 @@ namespace EOBot.Interpreter
 
         public BotInterpreter(StreamReader inputStream)
         {
-            _parser = new BotTokenParser(inputStream);
+            _tokenizer = new BotTokenizer(inputStream);
         }
 
         public ProgramState Parse()
         {
-            _parser.Reset();
+            _tokenizer.Reset();
 
             var retList = new List<BotToken>();
 
             BotToken nextToken;
             do
             {
-                nextToken = _parser.GetNextToken();
+                nextToken = _tokenizer.GetNextToken();
                 if (nextToken.TokenType == BotTokenType.Error)
                 {
-                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Error at line {_parser.LineNumber} column {_parser.Column}: token value {nextToken.TokenValue}", ConsoleColor.Red);
+                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Error at line {_tokenizer.LineNumber} column {_tokenizer.Column}: token value {nextToken.TokenValue}", ConsoleColor.Red);
                     throw new InvalidOperationException("Unable to parse input");
                 }
 

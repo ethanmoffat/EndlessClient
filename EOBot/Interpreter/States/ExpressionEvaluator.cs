@@ -513,12 +513,12 @@ namespace EOBot.Interpreter.States
                     // the variable value doesn't matter because type specifiers should only be used in `is` comparisons
                     IVariable variableValue = nextToken.TokenValue switch
                     {
-                        BotTokenParser.KEYWORD_INT => new IntVariable(default),
-                        BotTokenParser.KEYWORD_STRING => new StringVariable(default),
-                        BotTokenParser.KEYWORD_BOOL => new BoolVariable(default),
-                        BotTokenParser.KEYWORD_OBJECT => new ObjectVariable(default),
-                        BotTokenParser.KEYWORD_ARRAY => new ArrayVariable(default),
-                        BotTokenParser.KEYWORD_DICT => new DictVariable(default),
+                        Keywords.Int => new IntVariable(default),
+                        Keywords.String => new StringVariable(default),
+                        Keywords.Bool => new BoolVariable(default),
+                        Keywords.Object => new ObjectVariable(default),
+                        Keywords.Array => new ArrayVariable(default),
+                        Keywords.Dict => new DictVariable(default),
                         _ => throw new InvalidOperationException($"Type specifier token {nextToken} had unexpected value: {nextToken.TokenValue} (not a recognized type specifier)."),
                     };
                     return Success(VariableBotToken.Create(nextToken.TokenType, nextToken.TokenValue, variableValue));

@@ -8,7 +8,7 @@ using NUnit.Framework;
 namespace EOBot.Test.Interpreter
 {
     [TestFixture]
-    public class BotTokenParserTest
+    public class BotTokenizerTest
     {
         [TestCase("$x = 1 ", "Variable Assign Literal EOF")]
         [TestCase("$x = 1\n  ", "Variable Assign Literal NewLine EOF")]
@@ -39,13 +39,13 @@ namespace EOBot.Test.Interpreter
 
         private static List<BotToken> Tokenize(string input)
         {
-            using var parser = new BotTokenParser(new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(input))));
+            using var tokenizer = new BotTokenizer(new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(input))));
 
             var tokens = new List<BotToken>();
             BotToken token;
             do
             {
-                token = parser.GetNextToken();
+                token = tokenizer.GetNextToken();
                 tokens.Add(token);
             } while (token.TokenType != BotTokenType.EOF && token.TokenType != BotTokenType.Error);
 

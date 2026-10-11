@@ -47,7 +47,7 @@ namespace EOBot.Interpreter.Variables
             IVariable returnValue = UndefinedVariable.Instance;
             if (evalResult == EvalResult.ControlFlow)
             {
-                if (!scope.State.OperationStack.TryPop(out var controlToken) || !controlToken.Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_RETURN))
+                if (!scope.State.OperationStack.TryPop(out var controlToken) || !controlToken.Is(BotTokenType.Keyword, Keywords.Return))
                     return (EvalResult.Failed, $"'{controlToken?.TokenValue}' is not valid outside of a loop", controlToken ?? token);
 
                 if (scope.State.OperationStack.TryPop(out var valueToken))

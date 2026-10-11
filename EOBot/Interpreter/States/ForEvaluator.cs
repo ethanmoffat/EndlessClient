@@ -15,7 +15,7 @@ namespace EOBot.Interpreter.States
             if (ct.IsCancellationRequested)
                 return (EvalResult.Cancelled, string.Empty, null);
 
-            if (!input.Current().Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_FOR))
+            if (!input.Current().Is(BotTokenType.Keyword, Keywords.For))
                 return (EvalResult.NotMatch, string.Empty, input.Current());
 
             var assignmentEval = await EvaluateAssignmentAsync(input, ct);

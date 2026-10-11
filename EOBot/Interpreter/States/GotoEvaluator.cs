@@ -11,7 +11,7 @@ namespace EOBot.Interpreter.States
             if (ct.IsCancellationRequested)
                 return Task.FromResult((EvalResult.Cancelled, string.Empty, (BotToken)null));
 
-            if (!input.Current().Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_GOTO))
+            if (!input.Current().Is(BotTokenType.Keyword, Keywords.Goto))
                 return Task.FromResult((EvalResult.NotMatch, string.Empty, input.Current()));
 
             input.Expect(BotTokenType.Keyword);

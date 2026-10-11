@@ -33,19 +33,19 @@ namespace EOBot.Interpreter.States
 
             for (int i = 0; i < program.Count; i++)
             {
-                if (program[i].Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_FUNC))
+                if (program[i].Is(BotTokenType.Keyword, Keywords.Func))
                 {
                     GetFunction(retDict, program, ref i);
                 }
                 // 'enum' following 'is' is a type specifier, not a declaration
-                else if ((program[i].Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_ENUM) && (i == 0 || !program[i - 1].Is(BotTokenType.IsOperator)))
-                    || program[i].Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_MAP)
-                    || program[i].Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_FROM))
+                else if ((program[i].Is(BotTokenType.Keyword, Keywords.Enum) && (i == 0 || !program[i - 1].Is(BotTokenType.IsOperator)))
+                    || program[i].Is(BotTokenType.Keyword, Keywords.Map)
+                    || program[i].Is(BotTokenType.Keyword, Keywords.From))
                 {
                     if (isFunctionBody)
                         throw new BotScriptErrorException($"'{program[i].TokenValue}' declarations are only allowed at the top level of a script", program[i]);
 
-                    if (program[i].Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_ENUM))
+                    if (program[i].Is(BotTokenType.Keyword, Keywords.Enum))
                         GetEnum(retDict, program, ref i);
                     else
                         GetEnumMapping(retDict, program, ref i);
@@ -105,7 +105,7 @@ namespace EOBot.Interpreter.States
             }
 
             BotToken errorToken;
-            if (!(errorToken = funcToken).Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_FUNC) ||
+            if (!(errorToken = funcToken).Is(BotTokenType.Keyword, Keywords.Func) ||
                 !(errorToken = funcName).Is(BotTokenType.Identifier) || !(errorToken = lparen).Is(BotTokenType.LParen) ||
                 !paramSpecs.All(x => (errorToken = x).Is(BotTokenType.Variable)) ||
                 !commas.All(x => (errorToken = x).Is(BotTokenType.Comma)) ||
@@ -205,7 +205,7 @@ namespace EOBot.Interpreter.States
             int mapStartIndex = i;
 
             string ns = null;
-            if (program[i].Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_FROM))
+            if (program[i].Is(BotTokenType.Keyword, Keywords.From))
             {
                 var previous = program[i++];
                 var parts = new List<string>();
@@ -227,7 +227,7 @@ namespace EOBot.Interpreter.States
             }
 
             var mapToken = NextToken(program, ref i, program[mapStartIndex]);
-            if (!mapToken.Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_MAP))
+            if (!mapToken.Is(BotTokenType.Keyword, Keywords.Map))
                 throw new BotScriptErrorException("Expected 'map' keyword", mapToken);
 
             var typeToken = NextToken(program, ref i, mapToken);
@@ -236,7 +236,7 @@ namespace EOBot.Interpreter.States
                 throw new BotScriptErrorException("Expected type name or '*' after 'map'", typeToken);
 
             BotToken aliasToken = null;
-            if (program[i].Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_TO))
+            if (program[i].Is(BotTokenType.Keyword, Keywords.To))
             {
                 var toToken = program[i++];
                 aliasToken = NextToken(program, ref i, toToken);

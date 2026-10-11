@@ -16,7 +16,7 @@ namespace EOBot.Interpreter.Variables
 
         public override string StringValue => $"Object: [{string.Join(", ", SymbolTable.Select(x => $"({x.Key}, {x.Value.Variable})"))}]";
 
-        public override string TypeName => BotTokenParser.KEYWORD_OBJECT;
+        public override string TypeName => Keywords.Object;
 
         protected override object Contents => SymbolTable;
 
@@ -47,7 +47,7 @@ namespace EOBot.Interpreter.Variables
 
         public string StringValue => $"Object: [{string.Join(", ", SymbolTable.Select(x => $"({x.Key}, {x.Value.Variable()})"))}]";
 
-        public string TypeName => BotTokenParser.KEYWORD_OBJECT;
+        public string TypeName => Keywords.Object;
 
         public override bool Equals(object obj) => CompareTo(obj) == 0;
 

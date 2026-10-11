@@ -12,7 +12,7 @@ namespace EOBot.Interpreter.States
 
         public override async Task<(EvalResult Result, string Reason, BotToken Token)> EvaluateAsync(ProgramState input, CancellationToken ct)
         {
-            if (!input.Current().Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_RETURN))
+            if (!input.Current().Is(BotTokenType.Keyword, Keywords.Return))
                 return (EvalResult.NotMatch, string.Empty, input.Current());
 
             if (input.CallStack.Count == 0)

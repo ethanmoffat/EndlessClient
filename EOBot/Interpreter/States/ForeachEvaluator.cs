@@ -17,7 +17,7 @@ namespace EOBot.Interpreter.States
             if (ct.IsCancellationRequested)
                 return (EvalResult.Cancelled, string.Empty, null);
 
-            if (!input.Current().Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_FOREACH))
+            if (!input.Current().Is(BotTokenType.Keyword, Keywords.Foreach))
                 return (EvalResult.NotMatch, string.Empty, input.Current());
 
             if (!input.ExpectPair(BotTokenType.Keyword, BotTokenType.LParen))
@@ -31,7 +31,7 @@ namespace EOBot.Interpreter.States
             if (targetVariable.Member != null || targetVariable.Indexer != null)
                 return (EvalResult.Failed, "foreach iteration must be assigned to simple identifier", targetVariable);
 
-            if (!input.Current().Is(BotTokenType.Keyword, BotTokenParser.KEYWORD_IN))
+            if (!input.Current().Is(BotTokenType.Keyword, Keywords.In))
                 return Error(input.Current(), BotTokenType.Keyword);
             input.Expect(BotTokenType.Keyword);
 

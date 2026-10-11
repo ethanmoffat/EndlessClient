@@ -1,66 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.IO;
-using System.Linq;
 
 namespace EOBot.Interpreter
 {
-    public sealed class BotTokenParser : IDisposable
+    public sealed class BotTokenizer : IDisposable
     {
-        public const string KEYWORD_IF = "if";
-        public const string KEYWORD_WHILE = "while";
-        public const string KEYWORD_GOTO = "goto";
-        public const string KEYWORD_ELSE = "else";
-        public const string KEYWORD_FOR = "for";
-        public const string KEYWORD_FOREACH = "foreach";
-        public const string KEYWORD_IN = "in";
-        public const string KEYWORD_CONTINUE = "continue";
-        public const string KEYWORD_BREAK = "break";
-
-        public const string KEYWORD_FUNC = "func";
-        public const string KEYWORD_RETURN = "return";
-
-        public const string KEYWORD_ENUM = "enum";
-        public const string KEYWORD_FROM = "from";
-        public const string KEYWORD_MAP = "map";
-        public const string KEYWORD_TO = "to";
-
-        public const string KEYWORD_IS = "is";
-
-        public const string KEYWORD_UNDEFINED = "undefined";
-        public const string KEYWORD_TRUE = "true";
-        public const string KEYWORD_FALSE = "false";
-
-        public const string KEYWORD_BOOL = "bool";
-        public const string KEYWORD_INT = "int";
-        public const string KEYWORD_STRING = "string";
-        public const string KEYWORD_OBJECT = "Object";
-        public const string KEYWORD_ARRAY = "Array";
-        public const string KEYWORD_DICT = "Dict";
-
-        private static readonly HashSet<string> Keywords =
-        [
-            KEYWORD_IF,
-            KEYWORD_WHILE,
-            KEYWORD_GOTO,
-            KEYWORD_ELSE,
-            KEYWORD_FOR,
-            KEYWORD_FOREACH,
-            KEYWORD_IN,
-            KEYWORD_CONTINUE,
-            KEYWORD_BREAK,
-            KEYWORD_FUNC,
-            KEYWORD_RETURN,
-            KEYWORD_ENUM,
-            KEYWORD_FROM,
-            KEYWORD_MAP,
-            KEYWORD_TO
-        ];
-
-        private static readonly HashSet<string> Operators = [KEYWORD_IS];
-        private static readonly HashSet<string> Literals = [KEYWORD_TRUE, KEYWORD_FALSE, KEYWORD_UNDEFINED];
-        private static readonly HashSet<string> Types = [KEYWORD_BOOL, KEYWORD_INT, KEYWORD_STRING, KEYWORD_OBJECT, KEYWORD_ARRAY, KEYWORD_DICT];
-
         private readonly StreamReader _inputStream;
         private readonly bool _streamNeedsDispose;
 
@@ -68,13 +12,13 @@ namespace EOBot.Interpreter
 
         public int Column { get; private set; }
 
-        public BotTokenParser(string filePath)
+        public BotTokenizer(string filePath)
             : this(File.OpenText(filePath))
         {
             _streamNeedsDispose = true;
         }
 
-        public BotTokenParser(StreamReader inputStream)
+        public BotTokenizer(StreamReader inputStream)
         {
             _inputStream = inputStream;
             LineNumber = 1;
@@ -117,29 +61,11 @@ namespace EOBot.Interpreter
                 while ((char.IsLetterOrDigit(Peek()) || Peek() == '_') && !_inputStream.EndOfStream)
                     identifier += Read();
 
-                BotTokenType type;
-                if (Operators.Contains(identifier))
-                {
-                    type = identifier switch
-                    {
-                        KEYWORD_IS => BotTokenType.IsOperator,
-                        _ => throw new ArgumentOutOfRangeException("You added a new text operator, didn't you."),
-                    };
-                }
-                else
-                {
-                    type = Keywords.Contains(identifier)
-                        ? BotTokenType.Keyword
-                        : Literals.Contains(identifier)
-                            ? BotTokenType.Literal
-                            : Types.Contains(identifier)
-                                ? BotTokenType.TypeSpecifier
-                                : BotTokenType.Identifier;
-                }
+                var type = Keywords.GetTokenType(identifier);
 
                 if (type == BotTokenType.Literal)
                 {
-                    return Literal(identifier, identifier == KEYWORD_UNDEFINED ? null : bool.Parse(identifier));
+                    return Literal(identifier, identifier == Keywords.Undefined ? null : bool.Parse(identifier));
                 }
                 else
                 {

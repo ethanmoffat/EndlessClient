@@ -8,7 +8,7 @@
 
         public virtual string StringValue => Value.ToString();
 
-        public virtual string TypeName => BotTokenParser.KEYWORD_INT;
+        public virtual string TypeName => Keywords.Int;
 
         public EqualityResult LooseEquals(IVariable other) =>
             other is ICollectionVariable ? EqualityResult.IncompatibleComparison(this, other) : EqualityResult.Create(Equals(other));

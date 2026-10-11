@@ -6,7 +6,7 @@
 
         public string StringValue => "Undefined";
 
-        public string TypeName => BotTokenParser.KEYWORD_UNDEFINED;
+        public string TypeName => Keywords.Undefined;
 
         private UndefinedVariable() { }
 
