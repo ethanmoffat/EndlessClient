@@ -18,9 +18,6 @@ namespace EOBot.Interpreter.Variables
             Value = value;
         }
 
-        // todo: should dicts be comparable?
-        public override int CompareTo(object obj) => -1;
-
         protected override IReadOnlyDictionary<object, IIdentifiable> Members =>
             Value.ToDictionary(x => (object)x.Key, x => (IIdentifiable)x.Value);
 

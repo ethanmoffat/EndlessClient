@@ -19,7 +19,7 @@ namespace EOBot.Interpreter.Variables
         /// </summary>
         protected abstract IReadOnlyDictionary<object, IIdentifiable> Members { get; }
 
-        public abstract int CompareTo(object obj);
+        public virtual int CompareTo(object obj) => throw new NotSupportedException($"{TypeName} values are not ordered");
 
         public EqualityResult LooseEquals(IVariable other) => LooseEquals(other, new ComparisonPath());
 

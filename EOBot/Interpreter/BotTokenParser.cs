@@ -90,12 +90,13 @@ namespace EOBot.Interpreter
 
         public BotToken GetNextToken()
         {
-            if (_inputStream.EndOfStream)
-                return Token(BotTokenType.EOF, string.Empty);
-
             char inputChar;
+            bool isComment;
             do
             {
+                if (_inputStream.EndOfStream)
+                    return Token(BotTokenType.EOF, string.Empty);
+
                 inputChar = Read();
 
                 if (inputChar == '\n')
@@ -105,36 +106,10 @@ namespace EOBot.Interpreter
                     return Token(BotTokenType.NewLine, inputChar.ToString());
                 }
 
-                if (inputChar == '/' && !_inputStream.EndOfStream && Peek() == '*')
-                {
-                    // skip the comment: block format
-                    do
-                    {
-                        inputChar = Read();
-                        if (inputChar == '\n')
-                        {
-                            LineNumber++;
-                            Column = 1;
-                        }
-                    } while (!(inputChar == '*' && !_inputStream.EndOfStream && Peek() == '/'));
-
-                    // skip the slash ending the comment and set input char to the character after the comment
-                    Read();
-                    inputChar = Read();
-                }
-                else if (inputChar == '/' && !_inputStream.EndOfStream && Peek() == '/')
-                {
-                    // skip the comment: line format
-                    do
-                    {
-                        inputChar = Read();
-                    } while (inputChar != '\n' && !_inputStream.EndOfStream);
-
-                    LineNumber++;
-                    Column = 1;
-                    return Token(BotTokenType.NewLine, inputChar.ToString());
-                }
-            } while (!_inputStream.EndOfStream && char.IsWhiteSpace(inputChar));
+                isComment = inputChar == '/' && (Peek() == '*' || Peek() == '/');
+                if (isComment && !SkipComment())
+                    return Token(BotTokenType.Error, "/*");
+            } while (isComment || char.IsWhiteSpace(inputChar));
 
             if (char.IsLetter(inputChar))
             {
@@ -383,6 +358,37 @@ namespace EOBot.Interpreter
                 _inputStream.Dispose();
 
             GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Skips a comment whose leading '/' has already been read. Returns false if a block comment is unterminated.
+        /// </summary>
+        private bool SkipComment()
+        {
+            if (Read() == '/')
+            {
+                // leave the newline in the stream so it is returned as a NewLine token
+                while (!_inputStream.EndOfStream && Peek() != '\n')
+                    Read();
+                return true;
+            }
+
+            char inputChar;
+            do
+            {
+                if (_inputStream.EndOfStream)
+                    return false;
+
+                inputChar = Read();
+                if (inputChar == '\n')
+                {
+                    LineNumber++;
+                    Column = 1;
+                }
+            } while (!(inputChar == '*' && Peek() == '/'));
+
+            Read();
+            return true;
         }
 
         private char Peek()
