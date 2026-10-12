@@ -47,7 +47,7 @@ namespace EOBot
 
         public List<string> UserArgs { get; internal set; }
 
-        public bool ExtendedHelp { get; private set; }
+        public bool Help { get; private set; }
 
 
         public ArgumentsParser(string[] args)
@@ -59,7 +59,7 @@ namespace EOBot
             if ((!args.Contains("--") && args.Select(x => x.ToLower()).Contains("help")) ||
                 (args.Contains("--") && args.TakeWhile(x => x != "--").Select(x => x.ToLower()).Contains("help")))
             {
-                ExtendedHelp = true;
+                Help = true;
             }
             else
             {

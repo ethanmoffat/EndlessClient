@@ -46,6 +46,7 @@
         IsOperator,
         TypeSpecifier,
         ScopeResolution,
+        Indexers,
         Error,
     }
 }

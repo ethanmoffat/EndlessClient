@@ -1,17 +1,18 @@
-﻿using EOBot.Interpreter.Variables;
+using System.Collections.Generic;
+using EOBot.Interpreter.Variables;
 
 namespace EOBot.Interpreter
 {
     public class IdentifierBotToken : BotToken
     {
-        public IVariable Indexer { get; }
+        public IReadOnlyList<IVariable> Indexers { get; }
 
         public IdentifierBotToken Member { get; }
 
-        public IdentifierBotToken(BotToken identifier, IVariable indexer = null, IdentifierBotToken member = null)
+        public IdentifierBotToken(BotToken identifier, IReadOnlyList<IVariable> indexers = null, IdentifierBotToken member = null)
             : base(identifier.TokenType, identifier.TokenValue, identifier.LineNumber, identifier.Column)
         {
-            Indexer = indexer;
+            Indexers = indexers ?? [];
             Member = member;
         }
     }

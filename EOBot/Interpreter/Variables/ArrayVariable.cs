@@ -24,6 +24,11 @@ namespace EOBot.Interpreter.Variables
                 .Select((element, index) => (element, index))
                 .ToDictionary(x => (object)x.index, x => (IIdentifiable)x.element);
 
+        /// <summary>
+        /// The index of the first element equal to value with ==, or -1. Elements that cannot be compared with value are not a match.
+        /// </summary>
+        public int IndexOf(IVariable value) => Value.FindIndex(x => x.LooseEquals(value) is { Ok: true, Equal: true });
+
         public IVariable<List<IVariable>> WithNewValue(List<IVariable> value)
         {
             return new ArrayVariable(value);

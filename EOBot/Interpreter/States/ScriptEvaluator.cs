@@ -20,6 +20,7 @@ namespace EOBot.Interpreter.States
             evaluators.Add(new LabelEvaluator());
             evaluators.Add(new FunctionEvaluator(evaluators));
             evaluators.Add(new VariableEvaluator(evaluators));
+            evaluators.Add(new IndexerChainEvaluator(evaluators));
             evaluators.Add(new ExpressionEvaluator(evaluators));
             evaluators.Add(new ExpressionTailEvaluator(evaluators));
             evaluators.Add(new OperandEvaluator(evaluators));

@@ -58,6 +58,10 @@ namespace EOBot.Interpreter.States
 
                         input.OperationStack.Push(res.Token);
 
+                        res = await EvaluateIndexersAsync(input, ct);
+                        if (res.Result != EvalResult.Ok)
+                            return res;
+
                         // check for an expression tail after collection literal
                         res = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input, ct);
                         if (res.Result != EvalResult.Ok && res.Result != EvalResult.NotMatch)
@@ -142,6 +146,10 @@ namespace EOBot.Interpreter.States
                 input.OperationStack.Pop();
                 input.OperationStack.Push(tmp);
 
+                evalRes = await EvaluateIndexersAsync(input, ct);
+                if (evalRes.Result != EvalResult.Ok)
+                    return evalRes;
+
                 evalRes = ApplyUnaryMinus(input, unaryMinusCount);
                 if (evalRes.Result != EvalResult.Ok)
                     return evalRes;
@@ -165,6 +173,10 @@ namespace EOBot.Interpreter.States
                     if (input.OperationStack.Count == stackDepth)
                         return (EvalResult.Failed, $"Function '{functionToken.TokenValue}' must return a value when used in an expression", functionToken);
 
+                    evalRes = await EvaluateIndexersAsync(input, ct);
+                    if (evalRes.Result != EvalResult.Ok)
+                        return evalRes;
+
                     evalRes = ApplyUnaryMinus(input, unaryMinusCount);
                     if (evalRes.Result != EvalResult.Ok)
                         return evalRes;
@@ -180,6 +192,10 @@ namespace EOBot.Interpreter.States
                 {
                     // if not a function, evaluate operand and expression tail (basic expression)
                     evalRes = await Evaluator<OperandEvaluator>().EvaluateAsync(input, ct);
+                    if (evalRes.Result != EvalResult.Ok)
+                        return evalRes;
+
+                    evalRes = await EvaluateIndexersAsync(input, ct);
                     if (evalRes.Result != EvalResult.Ok)
                         return evalRes;
 
@@ -439,6 +455,36 @@ namespace EOBot.Interpreter.States
                     return (EvalResult.Failed, $"Error evaluating expression: {reason}", input.Current());
 
                 value = negateResult;
+            }
+
+            input.OperationStack.Push(VariableBotToken.FromComputedValue(BotTokenType.Literal, value));
+            return Success();
+        }
+
+        private async Task<(EvalResult, string, BotToken)> EvaluateIndexersAsync(ProgramState input, CancellationToken ct)
+        {
+            var evalRes = await Evaluator<IndexerChainEvaluator>().EvaluateAsync(input, ct);
+            if (evalRes.Result == EvalResult.NotMatch)
+                return Success();
+            if (evalRes.Result != EvalResult.Ok)
+                return evalRes;
+
+            var indexersToken = input.OperationStack.Pop();
+            if (indexersToken is not IndexersBotToken indexersBotToken)
+                return StackTokenError(BotTokenType.Indexers, indexersToken);
+
+            var (result, reason, container) = GetOperand(input.SymbolTable, input.OperationStack.Pop());
+            if (result != EvalResult.Ok)
+                return (result, reason, container);
+
+            var value = ((VariableBotToken)container).VariableValue;
+            foreach (var indexer in indexersBotToken.Indexers)
+            {
+                var indexRes = value.Index(indexer);
+                if (indexRes.Result != EvalResult.Ok)
+                    return (indexRes.Result, indexRes.Reason, container);
+
+                value = indexRes.Variable;
             }
 
             input.OperationStack.Push(VariableBotToken.FromComputedValue(BotTokenType.Literal, value));

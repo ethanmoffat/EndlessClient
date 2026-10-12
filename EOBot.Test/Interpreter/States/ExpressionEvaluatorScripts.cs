@@ -431,7 +431,9 @@ namespace EOBot.Test.Interpreter.States
 
         public static IEnumerable<TestCaseData> DictInitializer() =>
         [
-            new TestCaseData("""$test_res = ["a": 1]""", "[a, 1]").SetArgDisplayNames("SingleEntry"),
+            new TestCaseData("""$test_res = ["a": 1]""", "[a: 1]").SetArgDisplayNames("SingleEntry"),
+            new TestCaseData("""$test_res = ["a": 1, "b": ["c": [2, 3]]]""", "[a: 1, b: [c: [2, 3]]]").SetArgDisplayNames("MultipleNestedEntries"),
+            new TestCaseData("""$test_res = [:]""", "[:]").SetArgDisplayNames("Empty"),
             new TestCaseData("""
                 $d = ["a": 1, "b": 2]
                 $test_res = $d["a"] + $d["b"]
@@ -440,7 +442,7 @@ namespace EOBot.Test.Interpreter.States
                 $d = [:]
                 $d["x"] = 1
                 $test_res = $d
-                """, "[x, 1]").SetArgDisplayNames("EmptyDictAssign"),
+                """, "[x: 1]").SetArgDisplayNames("EmptyDictAssign"),
             new TestCaseData("""
                 $k = "x"
                 $d = [$k: 1, 1 + 1: 2]
@@ -710,6 +712,151 @@ namespace EOBot.Test.Interpreter.States
                 enum G { A }
                 $r = E::A < G::A
                 """, "E and G cannot be compared with <").SetArgDisplayNames("DifferentEnums"),
+        ];
+
+        public static IEnumerable<TestCaseData> ChainedIndexing() =>
+        [
+            new TestCaseData("""
+                $a = [[1, 2], [3, 4]]
+                $test_res = $a[1][0]
+                """, "3").SetArgDisplayNames("ArrayOfArrays"),
+            new TestCaseData("""
+                $a = [[[5]]]
+                $test_res = $a[0][0][0]
+                """, "5").SetArgDisplayNames("ThreeLevels"),
+            new TestCaseData("""
+                $a = [["k": 5]]
+                $test_res = $a[0]["k"]
+                """, "5").SetArgDisplayNames("DictInArray"),
+            new TestCaseData("""
+                $d = ["k": [1, 2]]
+                $test_res = $d["k"][1]
+                """, "2").SetArgDisplayNames("ArrayInDict"),
+            new TestCaseData("""
+                $a = [[1, 2]]
+                $i = [0, 1]
+                $test_res = $a[$i[0]][$i[1]]
+                """, "2").SetArgDisplayNames("IndexedIndexers"),
+            new TestCaseData("""
+                $a = [[1, 2]]
+                $a[0][1] = 9
+                $test_res = $a
+                """, "[[1, 9]]").SetArgDisplayNames("Assign"),
+            new TestCaseData("""
+                $a = [[1]]
+                $a[0][0] += 5
+                $test_res = $a[0][0]
+                """, "6").SetArgDisplayNames("CompoundAssign"),
+            new TestCaseData("""
+                $a = [[1]]
+                $a[0][0]++
+                $test_res = $a[0][0]
+                """, "2").SetArgDisplayNames("Increment"),
+            new TestCaseData("""
+                $d = ["k": [:]]
+                $d["k"]["n"] = 1
+                $test_res = $d["k"]["n"]
+                """, "1").SetArgDisplayNames("AssignNewDictKey"),
+            new TestCaseData("""
+                $o = { $x = [[1]] }
+                $test_res = $o.$x[0][0]
+                """, "1").SetArgDisplayNames("MemberThenIndexes"),
+            new TestCaseData("""
+                $a = [[{ $x = 7 }]]
+                $a[0][0].$x = 8
+                $test_res = $a[0][0].$x
+                """, "8").SetArgDisplayNames("IndexesThenMember"),
+            new TestCaseData("""
+                $test_res = [1, 2][1]
+                """, "2").SetArgDisplayNames("ArrayLiteral"),
+            new TestCaseData("""
+                $test_res = ["k": [1, 2]]["k"][0]
+                """, "1").SetArgDisplayNames("DictLiteralChained"),
+            new TestCaseData("""
+                $a = [[1, 2]]
+                $test_res = ($a)[0][1]
+                """, "2").SetArgDisplayNames("Parenthesized"),
+            new TestCaseData("""
+                $a = [1]
+                $b = [2]
+                $test_res = (false ? $a : $b)[0]
+                """, "2").SetArgDisplayNames("ParenthesizedExpression"),
+            new TestCaseData("""
+                func f($x) { return [$x, $x * 2] }
+                $test_res = f(3)[1]
+                """, "6").SetArgDisplayNames("FunctionResult"),
+            new TestCaseData("""
+                func f() { return [[1, 2], [3, 4]] }
+                $test_res = f()[1][0]
+                """, "3").SetArgDisplayNames("FunctionResultChained"),
+            new TestCaseData("""
+                func f() { return [5] }
+                $test_res = -f()[0]
+                """, "-5").SetArgDisplayNames("UnaryMinusAppliesAfterIndex"),
+            new TestCaseData("""
+                func f() { return [1, 2] }
+                $test_res = f()[0] + f()[1] * 3
+                """, "7").SetArgDisplayNames("IndexedOperandsInExpression"),
+            new TestCaseData("""
+                $test_res = [[1, 2][1]][0]
+                """, "2").SetArgDisplayNames("IndexedLiteralInLiteral"),
+        ];
+
+        public static IEnumerable<TestCaseData> IndexingErrors() =>
+        [
+            new TestCaseData("""
+                $a = [1]
+                $r = $a[-1]
+                """, "Index -1 is out of range of the array a (size 1)").SetArgDisplayNames("NegativeRead"),
+            new TestCaseData("""
+                $a = [1]
+                $a[-1] = 2
+                """, "Index -1 is out of range of the array a (size 1)").SetArgDisplayNames("NegativeWrite"),
+            new TestCaseData("""
+                $a = [1]
+                $a[1] = 2
+                """, "Index 1 is out of range of the array a (size 1)").SetArgDisplayNames("WritePastEnd"),
+            new TestCaseData("""
+                $a = [[1]]
+                $a[0][1] = 2
+                """, "Index 1 is out of range of the array a (size 1)").SetArgDisplayNames("NestedWritePastEnd"),
+            new TestCaseData("""
+                $s = "abc"
+                $r = $s[0]
+                """, "Identifier s cannot be indexed: string is not an array or dictionary").SetArgDisplayNames("String"),
+            new TestCaseData("""
+                $a = [1]
+                $r = $a[0][0]
+                """, "Identifier a cannot be indexed: int is not an array or dictionary").SetArgDisplayNames("NestedInt"),
+            new TestCaseData("""
+                $a = [1]
+                $a[0][0] = 2
+                """, "Identifier a cannot be indexed: int is not an array or dictionary").SetArgDisplayNames("NestedIntWrite"),
+            new TestCaseData("""
+                $d = [:]
+                $r = $d["a"][0]
+                """, "Identifier d cannot be indexed: undefined is not an array or dictionary").SetArgDisplayNames("MissingDictKey"),
+            new TestCaseData("""
+                $a = [[1]]
+                $r = $a[0]["x"]
+                """, "Expected array indexer x to be an integer").SetArgDisplayNames("NestedNonIntIndexer"),
+            new TestCaseData("""
+                $r = [1][1]
+                """, "Index 1 is out of range of the array (size 1)").SetArgDisplayNames("LiteralOutOfRange"),
+            new TestCaseData("""
+                $r = "abc"[0]
+                """, "Value cannot be indexed: string is not an array or dictionary").SetArgDisplayNames("StringLiteral"),
+            new TestCaseData("""
+                func f() { return 1 }
+                $r = f()[0]
+                """, "Value cannot be indexed: int is not an array or dictionary").SetArgDisplayNames("FunctionResultInt"),
+            new TestCaseData("""
+                $a = 1
+                $r = ($a)[0]
+                """, "Value cannot be indexed: int is not an array or dictionary").SetArgDisplayNames("ParenthesizedInt"),
+            new TestCaseData("""
+                $r = [1]["x"]
+                """, "Expected array indexer x to be an integer").SetArgDisplayNames("LiteralNonIntIndexer"),
         ];
     }
 }

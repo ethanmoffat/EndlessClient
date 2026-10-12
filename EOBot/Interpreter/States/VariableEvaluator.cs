@@ -19,27 +19,19 @@ namespace EOBot.Interpreter.States
             if (!input.Match(BotTokenType.Variable))
                 return (EvalResult.NotMatch, string.Empty, input.Current());
 
-            IVariable indexer = null;
-            if (input.Match(BotTokenType.LBracket))
+            IReadOnlyList<IVariable> indexers = [];
+            var indexerEval = await Evaluator<IndexerChainEvaluator>().EvaluateAsync(input, ct);
+            if (indexerEval.Result == EvalResult.Ok)
             {
-                var expressionEval = await Evaluator<ExpressionEvaluator>().EvaluateAsync(input, ct);
-                if (expressionEval.Result != EvalResult.Ok)
-                    return expressionEval;
+                var indexersToken = input.OperationStack.Pop();
+                if (indexersToken is not IndexersBotToken indexersBotToken)
+                    return StackTokenError(BotTokenType.Indexers, indexersToken);
 
-                if (!input.Expect(BotTokenType.RBracket))
-                    return Error(input.Current(), BotTokenType.RBracket);
-
-                if (input.OperationStack.Count == 0)
-                    return StackEmptyError(input.Current());
-                var expressionResult = (VariableBotToken)input.OperationStack.Pop();
-
-                if (input.OperationStack.Count == 0)
-                    return StackEmptyError(input.Current());
-                var lBracket = input.OperationStack.Pop();
-                if (!lBracket.Is(BotTokenType.LBracket))
-                    return StackTokenError(BotTokenType.LBracket, lBracket);
-
-                indexer = expressionResult.VariableValue;
+                indexers = indexersBotToken.Indexers;
+            }
+            else if (indexerEval.Result != EvalResult.NotMatch)
+            {
+                return indexerEval;
             }
 
             IdentifierBotToken nestedIdentifier = null;
@@ -66,7 +58,7 @@ namespace EOBot.Interpreter.States
                 return StackEmptyError(input.Current());
             var identifier = input.OperationStack.Pop();
 
-            input.OperationStack.Push(new IdentifierBotToken(identifier, indexer, nestedIdentifier));
+            input.OperationStack.Push(new IdentifierBotToken(identifier, indexers, nestedIdentifier));
 
             return Success();
         }
