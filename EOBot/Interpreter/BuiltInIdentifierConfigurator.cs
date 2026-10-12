@@ -57,7 +57,7 @@ namespace EOBot.Interpreter
             programState.SymbolTable[PredefinedIdentifiers.ARRAY_FUNC] = Readonly(new Function<int, List<IVariable>>(PredefinedIdentifiers.ARRAY_FUNC, param1 => Enumerable.Repeat(UndefinedVariable.Instance, param1).Cast<IVariable>().ToList()));
             programState.SymbolTable[PredefinedIdentifiers.DICT_FUNC] = Readonly(new Function<Dictionary<string, IVariable>>(PredefinedIdentifiers.DICT_FUNC, () => []));
             programState.SymbolTable[PredefinedIdentifiers.APPEND_FUNC] = Readonly(new VoidFunction<ArrayVariable, IVariable>(PredefinedIdentifiers.APPEND_FUNC, (array, var) => array.Value.Add(var)));
-            programState.SymbolTable[PredefinedIdentifiers.REMOVE_FUNC] = Readonly(new VoidFunction<ArrayVariable, IVariable>(PredefinedIdentifiers.REMOVE_FUNC, (array, var) => array.Value.Remove(var)));
+            programState.SymbolTable[PredefinedIdentifiers.REMOVE_FUNC] = Readonly(new Function<ArrayVariable, IVariable, bool>(PredefinedIdentifiers.REMOVE_FUNC, Remove));
             programState.SymbolTable[PredefinedIdentifiers.REMOVEAT_FUNC] = Readonly(new VoidFunction<ArrayVariable, int>(PredefinedIdentifiers.REMOVEAT_FUNC, (array, index) => array.Value.RemoveAt(index)));
             programState.SymbolTable[PredefinedIdentifiers.INSERT_FUNC] = Readonly(new VoidFunction<ArrayVariable, int, IVariable>(PredefinedIdentifiers.INSERT_FUNC, (array, index, value) => array.Value.Insert(index, value)));
             programState.SymbolTable[PredefinedIdentifiers.CLEAR_FUNC] = Readonly(new VoidFunction<ArrayVariable>(PredefinedIdentifiers.CLEAR_FUNC, array => array.Value.Clear()));
@@ -168,12 +168,22 @@ namespace EOBot.Interpreter
             return -1;
         }
 
+        private static bool Remove(ArrayVariable array, IVariable value)
+        {
+            var index = array.IndexOf(value);
+            if (index < 0)
+                return false;
+
+            array.Value.RemoveAt(index);
+            return true;
+        }
+
         private static bool Contains(IVariable haystack, IVariable needle)
         {
             if (haystack is ArrayVariable av)
-                return av.Value.Contains(needle);
-            if (haystack is DictVariable dv && needle is StringVariable sv)
-                return dv.Value.ContainsKey(sv.Value);
+                return av.IndexOf(needle) >= 0;
+            if (haystack is DictVariable dv)
+                return dv.Value.ContainsKey(needle.StringValue);
 
             return haystack.StringValue.Contains(needle.StringValue);
         }
