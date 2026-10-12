@@ -20,25 +20,11 @@ namespace EOBot.Interpreter.Extensions
 
             foreach (var indexer in indexers ?? [])
             {
-                switch (variableValue)
-                {
-                    case ArrayVariable arrayVariable:
-                        if (indexer is not IntVariable iv)
-                            return (EvalResult.Failed, $"Expected array indexer {indexer} to be an integer", null);
+                var indexRes = variableValue.Index(indexer, identifier);
+                if (indexRes.Result != EvalResult.Ok)
+                    return indexRes;
 
-                        if (iv.Value < 0 || iv.Value >= arrayVariable.Value.Count)
-                            return (EvalResult.Failed, $"Index {iv.Value} is out of range of the array {identifier} (size {arrayVariable.Value.Count})", null);
-
-                        variableValue = arrayVariable.Value[iv.Value];
-                        break;
-                    case DictVariable dictVariable:
-                        variableValue = dictVariable.Value.TryGetValue(indexer.StringValue, out var entry)
-                            ? entry
-                            : UndefinedVariable.Instance;
-                        break;
-                    default:
-                        return (EvalResult.Failed, $"Identifier {identifier} cannot be indexed: {variableValue.TypeName} is not an array or dictionary", null);
-                }
+                variableValue = indexRes.Variable;
             }
 
             return (EvalResult.Ok, string.Empty, variableValue);

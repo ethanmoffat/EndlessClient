@@ -19,27 +19,19 @@ namespace EOBot.Interpreter.States
             if (!input.Match(BotTokenType.Variable))
                 return (EvalResult.NotMatch, string.Empty, input.Current());
 
-            var indexers = new List<IVariable>();
-            while (input.Match(BotTokenType.LBracket))
+            IReadOnlyList<IVariable> indexers = [];
+            var indexerEval = await Evaluator<IndexerChainEvaluator>().EvaluateAsync(input, ct);
+            if (indexerEval.Result == EvalResult.Ok)
             {
-                var expressionEval = await Evaluator<ExpressionEvaluator>().EvaluateAsync(input, ct);
-                if (expressionEval.Result != EvalResult.Ok)
-                    return expressionEval;
+                var indexersToken = input.OperationStack.Pop();
+                if (indexersToken is not IndexersBotToken indexersBotToken)
+                    return StackTokenError(BotTokenType.Indexers, indexersToken);
 
-                if (!input.Expect(BotTokenType.RBracket))
-                    return Error(input.Current(), BotTokenType.RBracket);
-
-                if (input.OperationStack.Count == 0)
-                    return StackEmptyError(input.Current());
-                var expressionResult = (VariableBotToken)input.OperationStack.Pop();
-
-                if (input.OperationStack.Count == 0)
-                    return StackEmptyError(input.Current());
-                var lBracket = input.OperationStack.Pop();
-                if (!lBracket.Is(BotTokenType.LBracket))
-                    return StackTokenError(BotTokenType.LBracket, lBracket);
-
-                indexers.Add(expressionResult.VariableValue);
+                indexers = indexersBotToken.Indexers;
+            }
+            else if (indexerEval.Result != EvalResult.NotMatch)
+            {
+                return indexerEval;
             }
 
             IdentifierBotToken nestedIdentifier = null;
