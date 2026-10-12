@@ -8,7 +8,7 @@ namespace EOBot.Interpreter.Extensions
     public static class SymbolTableExtensions
     {
 
-        public static (EvalResult Result, string Reason, IVariable Variable) GetVariable(this Dictionary<string, (bool, IIdentifiable Identifiable)> symbols, string identifier, IVariable indexer = null)
+        public static (EvalResult Result, string Reason, IVariable Variable) GetVariable(this Dictionary<string, (bool, IIdentifiable Identifiable)> symbols, string identifier, IEnumerable<IVariable> indexers = null)
         {
             if (!symbols.ContainsKey(identifier))
                 symbols[identifier] = (false, UndefinedVariable.Instance);
@@ -18,37 +18,36 @@ namespace EOBot.Interpreter.Extensions
                 return (EvalResult.Failed, $"Identifier {identifier} is not a variable", null);
             }
 
-            if (indexer != null)
+            foreach (var indexer in indexers ?? [])
             {
-                if (variableValue is ArrayVariable arrayVariable)
+                switch (variableValue)
                 {
-                    if (indexer is not IntVariable iv)
-                    {
-                        return (EvalResult.Failed, $"Expected array indexer {indexer} to be an integer", null);
-                    }
+                    case ArrayVariable arrayVariable:
+                        if (indexer is not IntVariable iv)
+                            return (EvalResult.Failed, $"Expected array indexer {indexer} to be an integer", null);
 
-                    if (arrayVariable.Value.Count <= iv.Value)
-                    {
-                        return (EvalResult.Failed, $"Index {iv.Value} is out of range of the array {identifier} (size {arrayVariable.Value.Count})", null);
-                    }
+                        if (iv.Value < 0 || iv.Value >= arrayVariable.Value.Count)
+                            return (EvalResult.Failed, $"Index {iv.Value} is out of range of the array {identifier} (size {arrayVariable.Value.Count})", null);
 
-                    variableValue = arrayVariable.Value[iv.Value];
-                }
-                else if (variableValue is DictVariable dictVariable)
-                {
-                    variableValue = dictVariable.Value.TryGetValue(indexer.StringValue, out var entry)
-                        ? entry
-                        : UndefinedVariable.Instance;
+                        variableValue = arrayVariable.Value[iv.Value];
+                        break;
+                    case DictVariable dictVariable:
+                        variableValue = dictVariable.Value.TryGetValue(indexer.StringValue, out var entry)
+                            ? entry
+                            : UndefinedVariable.Instance;
+                        break;
+                    default:
+                        return (EvalResult.Failed, $"Identifier {identifier} cannot be indexed: {variableValue.TypeName} is not an array or dictionary", null);
                 }
             }
 
             return (EvalResult.Ok, string.Empty, variableValue);
         }
 
-        public static (EvalResult Result, string Reason, T Variable) GetVariable<T>(this Dictionary<string, (bool, IIdentifiable)> symbols, string identifier, IVariable indexer = null)
+        public static (EvalResult Result, string Reason, T Variable) GetVariable<T>(this Dictionary<string, (bool, IIdentifiable)> symbols, string identifier, IEnumerable<IVariable> indexers = null)
             where T : class, IVariable
         {
-            var getResult = GetVariable(symbols, identifier, indexer);
+            var getResult = GetVariable(symbols, identifier, indexers);
 
             if (getResult.Result != EvalResult.Ok)
                 return (getResult.Result, getResult.Reason, null);
@@ -70,7 +69,7 @@ namespace EOBot.Interpreter.Extensions
 
             if (identifier.Member == null)
             {
-                var getVariableRes = symbols.GetVariable(identifier.TokenValue, identifier.Indexer);
+                var getVariableRes = symbols.GetVariable(identifier.TokenValue, identifier.Indexers);
                 if (getVariableRes.Result != EvalResult.Ok)
                     return (getVariableRes.Result, getVariableRes.Reason, identifier);
 
@@ -78,7 +77,7 @@ namespace EOBot.Interpreter.Extensions
             }
             else
             {
-                var getVariableRes = symbols.GetVariable(identifier.TokenValue, identifier.Indexer);
+                var getVariableRes = symbols.GetVariable(identifier.TokenValue, identifier.Indexers);
                 if (getVariableRes.Result != EvalResult.Ok)
                 {
                     return (getVariableRes.Result, getVariableRes.Reason, identifier);

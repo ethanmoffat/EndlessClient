@@ -19,8 +19,8 @@ namespace EOBot.Interpreter.States
             if (!input.Match(BotTokenType.Variable))
                 return (EvalResult.NotMatch, string.Empty, input.Current());
 
-            IVariable indexer = null;
-            if (input.Match(BotTokenType.LBracket))
+            var indexers = new List<IVariable>();
+            while (input.Match(BotTokenType.LBracket))
             {
                 var expressionEval = await Evaluator<ExpressionEvaluator>().EvaluateAsync(input, ct);
                 if (expressionEval.Result != EvalResult.Ok)
@@ -39,7 +39,7 @@ namespace EOBot.Interpreter.States
                 if (!lBracket.Is(BotTokenType.LBracket))
                     return StackTokenError(BotTokenType.LBracket, lBracket);
 
-                indexer = expressionResult.VariableValue;
+                indexers.Add(expressionResult.VariableValue);
             }
 
             IdentifierBotToken nestedIdentifier = null;
@@ -66,7 +66,7 @@ namespace EOBot.Interpreter.States
                 return StackEmptyError(input.Current());
             var identifier = input.OperationStack.Pop();
 
-            input.OperationStack.Push(new IdentifierBotToken(identifier, indexer, nestedIdentifier));
+            input.OperationStack.Push(new IdentifierBotToken(identifier, indexers, nestedIdentifier));
 
             return Success();
         }

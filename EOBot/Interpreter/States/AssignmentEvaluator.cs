@@ -86,10 +86,10 @@ namespace EOBot.Interpreter.States
                 if (!symbols.ContainsKey(assignmentTarget.TokenValue))
                     return IdentifierNotFoundError(assignmentTarget);
 
-                var getVariableRes = symbols.GetVariable<ObjectVariable>(assignmentTarget.TokenValue, assignmentTarget.Indexer);
+                var getVariableRes = symbols.GetVariable<ObjectVariable>(assignmentTarget.TokenValue, assignmentTarget.Indexers);
                 if (getVariableRes.Result != EvalResult.Ok)
                 {
-                    var getRuntimeEvaluatedVariableRes = symbols.GetVariable<RuntimeEvaluatedMemberObjectVariable>(assignmentTarget.TokenValue, assignmentTarget.Indexer);
+                    var getRuntimeEvaluatedVariableRes = symbols.GetVariable<RuntimeEvaluatedMemberObjectVariable>(assignmentTarget.TokenValue, assignmentTarget.Indexers);
                     if (getRuntimeEvaluatedVariableRes.Result != EvalResult.Ok)
                         return (EvalResult.Failed, $"Identifier '{assignmentTarget.TokenValue}' is not an object", assignmentTarget);
 
@@ -105,31 +105,35 @@ namespace EOBot.Interpreter.States
                 return Assign(targetObject.SymbolTable, assignmentTarget.Member, expressionResult, assignOp);
             }
 
-            if (assignmentTarget.Indexer != null)
+            if (assignmentTarget.Indexers.Count > 0)
             {
                 if (!symbols.ContainsKey(assignmentTarget.TokenValue))
                     return IdentifierNotFoundError(assignmentTarget);
 
-                var (result, reason, retVar) = symbols.GetVariable(assignmentTarget.TokenValue);
+                var (result, reason, retVar) = symbols.GetVariable(assignmentTarget.TokenValue, assignmentTarget.Indexers.SkipLast(1));
                 if (result != EvalResult.Ok)
                     return (result, reason, assignmentTarget);
 
+                var indexer = assignmentTarget.Indexers[^1];
                 if (retVar is DictVariable targetDict)
                 {
                     IVariable lhs = null;
-                    if (targetDict.Value.TryGetValue(assignmentTarget.Indexer.StringValue, out var v))
+                    if (targetDict.Value.TryGetValue(indexer.StringValue, out var v))
                         lhs = v;
 
                     var (newValue, applyReason) = ApplyOp(assignOp, lhs, expressionResult.VariableValue);
                     if (newValue == null)
                         return (EvalResult.Failed, applyReason, assignOp);
 
-                    targetDict.Value[assignmentTarget.Indexer.StringValue] = newValue;
+                    targetDict.Value[indexer.StringValue] = newValue;
                 }
                 else if (retVar is ArrayVariable targetArray)
                 {
-                    if (assignmentTarget.Indexer is not IntVariable indexVar)
-                        return (EvalResult.Failed, $"Expected integer for array index, but got: {assignmentTarget.Indexer} ({assignmentTarget.Indexer.GetType().Name})", assignmentTarget);
+                    if (indexer is not IntVariable indexVar)
+                        return (EvalResult.Failed, $"Expected integer for array index, but got: {indexer} ({indexer.GetType().Name})", assignmentTarget);
+
+                    if (indexVar.Value < 0 || indexVar.Value >= targetArray.Value.Count)
+                        return (EvalResult.Failed, $"Index {indexVar.Value} is out of range of the array {assignmentTarget.TokenValue} (size {targetArray.Value.Count})", assignmentTarget);
 
                     var (newValue, applyReason) = ApplyOp(assignOp, targetArray.Value[indexVar.Value], expressionResult.VariableValue);
                     if (newValue == null)
@@ -139,7 +143,7 @@ namespace EOBot.Interpreter.States
                 }
                 else
                 {
-                    return (EvalResult.Failed, $"Indexer operation on non-indexable value: {retVar} ({retVar.GetType().Name})", assignmentTarget);
+                    return (EvalResult.Failed, $"Identifier {assignmentTarget.TokenValue} cannot be indexed: {retVar.TypeName} is not an array or dictionary", assignmentTarget);
                 }
             }
             else
