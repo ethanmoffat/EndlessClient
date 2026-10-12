@@ -49,7 +49,7 @@ Variables are created by assignment and do not need to be declared. Reading a va
 | string | `"text"` | `string` | `text` |
 | bool | `true`, `false` | `bool` | `True`, `False` |
 | array | `[1, "a", true]` | `Array` | `[1, a, True]` |
-| dictionary | `["a": 1, "b": 2]` | `Dict` | `[a, 1, b, 2]` |
+| dictionary | `["a": 1, "b": 2]` | `Dict` | `[a: 1, b: 2]` (empty: `[:]`) |
 | object | `{ $a = 1, $b = { $c = 2 } }` | `Object` | `Object: [(a, 1), (b, Object: [(c, 2)])]` |
 | enum value | `Color::Red` | `enum` or the enum name | `Color::Red` |
 | undefined | `undefined` | | `Undefined` |

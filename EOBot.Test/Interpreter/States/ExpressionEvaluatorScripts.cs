@@ -431,7 +431,9 @@ namespace EOBot.Test.Interpreter.States
 
         public static IEnumerable<TestCaseData> DictInitializer() =>
         [
-            new TestCaseData("""$test_res = ["a": 1]""", "[a, 1]").SetArgDisplayNames("SingleEntry"),
+            new TestCaseData("""$test_res = ["a": 1]""", "[a: 1]").SetArgDisplayNames("SingleEntry"),
+            new TestCaseData("""$test_res = ["a": 1, "b": ["c": [2, 3]]]""", "[a: 1, b: [c: [2, 3]]]").SetArgDisplayNames("MultipleNestedEntries"),
+            new TestCaseData("""$test_res = [:]""", "[:]").SetArgDisplayNames("Empty"),
             new TestCaseData("""
                 $d = ["a": 1, "b": 2]
                 $test_res = $d["a"] + $d["b"]
@@ -440,7 +442,7 @@ namespace EOBot.Test.Interpreter.States
                 $d = [:]
                 $d["x"] = 1
                 $test_res = $d
-                """, "[x, 1]").SetArgDisplayNames("EmptyDictAssign"),
+                """, "[x: 1]").SetArgDisplayNames("EmptyDictAssign"),
             new TestCaseData("""
                 $k = "x"
                 $d = [$k: 1, 1 + 1: 2]

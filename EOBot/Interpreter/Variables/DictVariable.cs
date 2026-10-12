@@ -7,7 +7,7 @@ namespace EOBot.Interpreter.Variables
     {
         public Dictionary<string, IVariable> Value { get; }
 
-        public override string StringValue => "[" + string.Join(", ", Value.Select(x => $"{x.Key}, {x.Value.StringValue}")) + "]";
+        public override string StringValue => Value.Count == 0 ? "[:]" : "[" + string.Join(", ", Value.Select(x => $"{x.Key}: {x.Value.StringValue}")) + "]";
 
         public override string TypeName => Keywords.Dict;
 
