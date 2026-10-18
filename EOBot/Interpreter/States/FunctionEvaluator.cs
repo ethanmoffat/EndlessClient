@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EOBot.Interpreter.Extensions;
+using EOBot.Interpreter.Mapping;
 using EOBot.Interpreter.Variables;
 
 namespace EOBot.Interpreter.States
@@ -49,6 +50,14 @@ namespace EOBot.Interpreter.States
                 else if (function is IFunction)
                 {
                     Call(input, (dynamic)function, parameters.Select(x => x.VariableValue).ToArray());
+                }
+                else if (function is DotNetFunction dotNetFunction)
+                {
+                    var result = await dotNetFunction.CallAsync(parameters.Select(x => x.VariableValue).ToArray(), ct).ConfigureAwait(false);
+                    if (result is IntVariable { Truncated: true })
+                        ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"Return value of {functionToken.TokenValue} does not fit in a script integer and was truncated to {result.StringValue} (at: {functionToken.LineNumber}:{functionToken.Column})", ConsoleColor.DarkYellow);
+                    if (result != null)
+                        PushResultToOperationStack(input, result);
                 }
                 else if (function is IUserDefinedFunction udf)
                 {

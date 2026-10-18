@@ -32,6 +32,7 @@ With the default `autoconnect=true`, the bot connects to the server before the s
 | [Comparisons](docs/comparisons.md) | Results of `==`, `===`, and ordering operators for each combination of types. |
 | [Control flow and functions](docs/control-flow.md) | `if`/`else`, loops, `break`/`continue`, labels and `goto`, and user-defined functions. |
 | [Enums](docs/enums.md) | Declaring enums and mapping .NET enums such as server reply codes. |
+| [Mapping .NET methods](docs/mapping.md) | Calling static .NET methods from scripts, supported types, and overload resolution. |
 | [Built-in functions](docs/builtins.md) | Core, collection, string, environment, and game functions. |
 | [Built-in variables and state objects](docs/state.md) | Command-line variables and the live `$account`, `$character`, `$mapstate`, and `$map` objects. |
 | [Errors and known limitations](docs/errors.md) | Error reporting and current interpreter limitations. |

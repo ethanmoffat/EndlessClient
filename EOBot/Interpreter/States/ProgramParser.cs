@@ -1,23 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using EOBot.Interpreter.Extensions;
+using EOBot.Interpreter.Hosting;
+using EOBot.Interpreter.Mapping;
 using EOBot.Interpreter.Variables;
 
 namespace EOBot.Interpreter.States
 {
-    public static class ProgramParser
+    public class ProgramParser
     {
+        private readonly ScriptHost _host;
+
+        /// <param name="host">The session that provides .NET types for map statements, or null if mapping is not available.</param>
+        public ProgramParser(ScriptHost host)
+        {
+            _host = host;
+        }
+
         /// <summary>
         /// Hoists function, enum, and map declarations out of the program tokens and indexes its labels.
         /// </summary>
-        public static ProgramDefinition Parse(List<BotToken> program, bool isFunctionBody = false)
+        public ProgramDefinition Parse(List<BotToken> program, bool isFunctionBody = false)
         {
             var declaredSymbols = GetDeclaredSymbols(program, isFunctionBody);
             return new ProgramDefinition(program, declaredSymbols, GetLabels(program));
         }
 
-        private static Dictionary<string, int> GetLabels(IReadOnlyList<BotToken> program)
+        private Dictionary<string, int> GetLabels(IReadOnlyList<BotToken> program)
         {
             return program
                 .Select((token, ndx) => (token, ndx))
@@ -27,7 +38,7 @@ namespace EOBot.Interpreter.States
         }
 
         // m o m ' s   s p a g h e t t i
-        private static Dictionary<string, (bool, IIdentifiable)> GetDeclaredSymbols(List<BotToken> program, bool isFunctionBody)
+        private Dictionary<string, (bool, IIdentifiable)> GetDeclaredSymbols(List<BotToken> program, bool isFunctionBody)
         {
             var retDict = new Dictionary<string, (bool, IIdentifiable)>();
 
@@ -48,14 +59,14 @@ namespace EOBot.Interpreter.States
                     if (program[i].Is(BotTokenType.Keyword, Keywords.Enum))
                         GetEnum(retDict, program, ref i);
                     else
-                        GetEnumMapping(retDict, program, ref i);
+                        GetMapping(retDict, program, ref i);
                 }
             }
 
             return retDict;
         }
 
-        private static void GetFunction(Dictionary<string, (bool, IIdentifiable)> retDict, List<BotToken> program, ref int i)
+        private void GetFunction(Dictionary<string, (bool, IIdentifiable)> retDict, List<BotToken> program, ref int i)
         {
             int funcStartIndex = i;
 
@@ -126,7 +137,7 @@ namespace EOBot.Interpreter.States
             i = funcStartIndex - 1;
         }
 
-        private static void GetEnum(Dictionary<string, (bool, IIdentifiable)> retDict, List<BotToken> program, ref int i)
+        private void GetEnum(Dictionary<string, (bool, IIdentifiable)> retDict, List<BotToken> program, ref int i)
         {
             int enumStartIndex = i;
 
@@ -198,9 +209,9 @@ namespace EOBot.Interpreter.States
         }
 
         /// <summary>
-        /// Parses: [from Namespace.Path] map (TypeName | *) [to Alias]
+        /// Parses: [from Namespace.Path] map (TypeName | TypeName.MethodName | *) [to Alias]
         /// </summary>
-        private static void GetEnumMapping(Dictionary<string, (bool, IIdentifiable)> retDict, List<BotToken> program, ref int i)
+        private void GetMapping(Dictionary<string, (bool, IIdentifiable)> retDict, List<BotToken> program, ref int i)
         {
             int mapStartIndex = i;
 
@@ -235,6 +246,15 @@ namespace EOBot.Interpreter.States
             if (!isWildcard && !typeToken.Is(BotTokenType.Identifier))
                 throw new BotScriptErrorException("Expected type name or '*' after 'map'", typeToken);
 
+            BotToken methodToken = null;
+            if (!isWildcard && program[i].Is(BotTokenType.Dot))
+            {
+                var dotToken = program[i++];
+                methodToken = NextToken(program, ref i, dotToken);
+                if (!methodToken.Is(BotTokenType.Identifier))
+                    throw new BotScriptErrorException("Expected method name after '.'", methodToken);
+            }
+
             BotToken aliasToken = null;
             if (program[i].Is(BotTokenType.Keyword, Keywords.To))
             {
@@ -247,7 +267,34 @@ namespace EOBot.Interpreter.States
             if (!program[i].IsOneOf(BotTokenType.NewLine, BotTokenType.EOF))
                 throw new BotScriptErrorException("Unexpected token after map statement", program[i]);
 
-            List<EnumDefinition> definitions;
+            if (_host == null)
+                throw new BotScriptErrorException("Mapping .NET types is not supported without a script host", mapToken);
+
+            if (methodToken != null)
+            {
+                var function = GetMappedFunction(ns, typeToken, methodToken, aliasToken);
+                if (retDict.ContainsKey(function.Name))
+                    throw new BotScriptErrorException($"Symbol {function.Name} is already defined", aliasToken ?? methodToken);
+
+                retDict[function.Name] = (true, function);
+            }
+            else
+            {
+                foreach (var definition in GetMappedEnums(ns, typeToken, aliasToken, isWildcard))
+                {
+                    if (retDict.ContainsKey(definition.Name))
+                        throw new BotScriptErrorException($"Symbol {definition.Name} is already defined", aliasToken ?? typeToken);
+
+                    retDict[definition.Name] = (true, definition);
+                }
+            }
+
+            program.RemoveRange(mapStartIndex, i - mapStartIndex);
+            i = mapStartIndex - 1;
+        }
+
+        private List<EnumDefinition> GetMappedEnums(string ns, BotToken typeToken, BotToken aliasToken, bool isWildcard)
+        {
             if (isWildcard)
             {
                 if (ns == null)
@@ -255,33 +302,41 @@ namespace EOBot.Interpreter.States
                 if (aliasToken != null)
                     throw new BotScriptErrorException("An alias cannot be specified when mapping all types with '*'", aliasToken);
 
-                var types = EnumTypeCatalog.FindByNamespace(ns);
+                var types = _host.TypeCatalog.FindEnumsByNamespace(ns);
                 if (types.Count == 0)
                     throw new BotScriptErrorException($"No enum types found in namespace {ns}", typeToken);
 
-                definitions = types.Select(x => EnumDefinition.FromType(x)).ToList();
-            }
-            else
-            {
-                var types = EnumTypeCatalog.FindByName(typeToken.TokenValue, ns);
-                if (types.Count == 0)
-                    throw new BotScriptErrorException($"No enum type {typeToken.TokenValue} found{(ns == null ? string.Empty : $" in namespace {ns}")}", typeToken);
-                if (types.Count > 1)
-                    throw new BotScriptErrorException($"Enum type {typeToken.TokenValue} is ambiguous between: {string.Join(", ", types.Select(x => x.FullName))}. Use 'from <namespace> map {typeToken.TokenValue}'", typeToken);
-
-                definitions = [EnumDefinition.FromType(types[0], aliasToken?.TokenValue)];
+                return [.. types.Select(x => EnumDefinition.FromType(x))];
             }
 
-            foreach (var definition in definitions)
-            {
-                if (retDict.ContainsKey(definition.Name))
-                    throw new BotScriptErrorException($"Symbol {definition.Name} is already defined", aliasToken ?? typeToken);
+            var namedTypes = _host.TypeCatalog.FindEnumsByName(typeToken.TokenValue, ns);
+            if (namedTypes.Count == 0)
+                throw new BotScriptErrorException($"No enum type {typeToken.TokenValue} found{(ns == null ? string.Empty : $" in namespace {ns}")}", typeToken);
+            if (namedTypes.Count > 1)
+                throw new BotScriptErrorException($"Enum type {typeToken.TokenValue} is ambiguous between: {string.Join(", ", namedTypes.Select(x => x.FullName))}. Use 'from <namespace> map {typeToken.TokenValue}'", typeToken);
 
-                retDict[definition.Name] = (true, definition);
-            }
+            return [EnumDefinition.FromType(namedTypes[0], aliasToken?.TokenValue)];
+        }
 
-            program.RemoveRange(mapStartIndex, i - mapStartIndex);
-            i = mapStartIndex - 1;
+        private DotNetFunction GetMappedFunction(string ns, BotToken typeToken, BotToken methodToken, BotToken aliasToken)
+        {
+            if (ns == null)
+                throw new BotScriptErrorException($"Mapping a method requires a namespace ('from <namespace> map {typeToken.TokenValue}.{methodToken.TokenValue}')", typeToken);
+
+            var type = _host.TypeCatalog.FindClass(ns, typeToken.TokenValue)
+                ?? throw new BotScriptErrorException($"No class {typeToken.TokenValue} found in namespace {ns}", typeToken);
+
+            var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .Where(x => x.Name == methodToken.TokenValue)
+                .ToList();
+            if (methods.Count == 0)
+                throw new BotScriptErrorException($"No public static method {methodToken.TokenValue} found on type {type.FullName}", methodToken);
+
+            var overloads = methods.Where(_host.Converter.IsSupported).ToList();
+            if (overloads.Count == 0)
+                throw new BotScriptErrorException($"Method {type.FullName}.{methodToken.TokenValue} has no overloads with parameter and return types that can be used in scripts", methodToken);
+
+            return new DotNetFunction(aliasToken?.TokenValue ?? methodToken.TokenValue, overloads, _host.Converter);
         }
 
         private static BotToken NextToken(List<BotToken> program, ref int i, BotToken previous)

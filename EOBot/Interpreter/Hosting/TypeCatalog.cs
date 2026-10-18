@@ -1,37 +1,38 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using EOBot.Interpreter.States;
 
-namespace EOBot.Interpreter
+namespace EOBot.Interpreter.Hosting
 {
-    public static class EnumTypeCatalog
+    /// <summary>
+    /// The public .NET types (classes and enums) that scripts can map.
+    /// </summary>
+    public class TypeCatalog
     {
-        private static readonly Lazy<IReadOnlyList<Type>> _enumTypes = new(LoadEnumTypes);
+        public IReadOnlyList<Type> Types { get; }
 
-        public static IReadOnlyList<Type> EnumTypes => _enumTypes.Value;
-
-        public static IReadOnlyList<Type> FindByName(string typeName, string ns = null)
+        private TypeCatalog(IEnumerable<Assembly> assemblies)
         {
-            return EnumTypes
-                .Where(x => x.Name == typeName && (ns == null || x.Namespace == ns))
+            Types = assemblies
+                .Where(x => !x.IsDynamic)
+                .SelectMany(GetLoadableTypes)
+                .Where(x => x.IsPublic && (x.IsEnum || x.IsClass))
+                .Distinct()
                 .ToList();
         }
 
-        public static IReadOnlyList<Type> FindByNamespace(string ns)
-        {
-            return EnumTypes.Where(x => x.Namespace == ns).ToList();
-        }
-
-        private static IReadOnlyList<Type> LoadEnumTypes()
+        /// <summary>
+        /// Creates a catalog of the AppDomain's loaded assemblies plus the transitive references of the root assemblies.
+        /// </summary>
+        public static TypeCatalog FromRootAssemblies(params Assembly[] roots)
         {
             var assemblies = new Dictionary<string, Assembly>();
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
                 assemblies.TryAdd(assembly.FullName, assembly);
 
-            var pending = new Queue<Assembly>([typeof(ProgramState).Assembly]);
+            var pending = new Queue<Assembly>(roots);
             var visited = new HashSet<string>();
             while (pending.Count > 0)
             {
@@ -59,15 +60,27 @@ namespace EOBot.Interpreter
                 }
             }
 
-            return assemblies.Values
-                .Where(x => !x.IsDynamic)
-                .SelectMany(GetLoadableTypes)
-                .Where(x => x.IsEnum && x.IsPublic)
-                .Distinct()
+            return new TypeCatalog(assemblies.Values);
+        }
+
+        public IReadOnlyList<Type> FindEnumsByName(string typeName, string ns = null)
+        {
+            return Types
+                .Where(x => x.IsEnum && x.Name == typeName && (ns == null || x.Namespace == ns))
                 .ToList();
         }
 
-        private static IEnumerable<Type> GetLoadableTypes(Assembly assembly)
+        public IReadOnlyList<Type> FindEnumsByNamespace(string ns)
+        {
+            return Types.Where(x => x.IsEnum && x.Namespace == ns).ToList();
+        }
+
+        public Type FindClass(string ns, string typeName)
+        {
+            return Types.FirstOrDefault(x => x.IsClass && x.Namespace == ns && x.Name == typeName);
+        }
+
+        private IEnumerable<Type> GetLoadableTypes(Assembly assembly)
         {
             try
             {

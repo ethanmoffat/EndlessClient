@@ -4,7 +4,13 @@
     {
         public int Value { get; }
 
-        public IntVariable(int value) => Value = value;
+        public bool Truncated { get; }
+
+        public IntVariable(int value, bool truncated = false)
+        {
+            Value = value;
+            Truncated = truncated;
+        }
 
         public virtual string StringValue => Value.ToString();
 
