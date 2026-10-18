@@ -52,16 +52,16 @@ namespace EOBot.Interpreter.States
             if (input.OperationStack.Count == 0 || !input.OperationStack.Peek().Is(BotTokenType.IsOperator))
                 return (EvalResult.NotMatch, string.Empty, current);
 
-            string enumName;
+            EnumDefinition enumDefinition;
             if (current.Is(BotTokenType.Keyword, Keywords.Enum))
             {
-                enumName = null;
+                enumDefinition = null;
             }
             else if (current.Is(BotTokenType.Identifier)
                 && input.SymbolTable.TryGetValue(current.TokenValue, out var symbol)
-                && symbol.Identifiable is EnumDefinition enumDefinition)
+                && symbol.Identifiable is EnumDefinition definition)
             {
-                enumName = enumDefinition.Name;
+                enumDefinition = definition;
             }
             else
             {
@@ -69,7 +69,7 @@ namespace EOBot.Interpreter.States
             }
 
             input.SkipToken();
-            input.OperationStack.Push(VariableBotToken.Create(BotTokenType.TypeSpecifier, current.TokenValue, EnumVariable.TypeSpecifier(enumName)));
+            input.OperationStack.Push(VariableBotToken.Create(BotTokenType.TypeSpecifier, current.TokenValue, EnumVariable.TypeSpecifier(enumDefinition)));
 
             return Success();
         }

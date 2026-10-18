@@ -8,7 +8,9 @@ namespace EOBot.Interpreter.Variables
         public const string VALUE_MEMBER = "value";
         public const string TYPE_MEMBER = "type";
 
-        public string EnumName { get; }
+        public EnumDefinition Definition { get; }
+
+        public string EnumName => Definition?.Name;
 
         public string MemberName { get; }
 
@@ -16,25 +18,21 @@ namespace EOBot.Interpreter.Variables
 
         public override string TypeName => EnumName;
 
-        public EnumVariable(string enumName, string memberName, int value)
+        public EnumVariable(EnumDefinition definition, string memberName, int value)
             : base(value)
         {
-            EnumName = enumName;
+            Definition = definition;
             MemberName = memberName;
         }
 
         /// <summary>
-        /// Creates a variable representing an enum type (used as the right-hand side of an 'is' expression). A null enum name matches any enum.
+        /// Creates a variable representing an enum type (used as the right-hand side of an 'is' expression). A null definition matches any enum.
         /// </summary>
-        public static EnumVariable TypeSpecifier(string enumName) => new(enumName, null, default);
+        public static EnumVariable TypeSpecifier(EnumDefinition definition) => new(definition, null, default);
 
-        public bool IsInstanceOf(EnumVariable typeSpecifier) => typeSpecifier.EnumName == null || typeSpecifier.EnumName == EnumName;
+        public bool IsInstanceOf(EnumVariable typeSpecifier) => typeSpecifier.Definition == null || Definition.IsSameType(typeSpecifier.Definition);
 
-        public override int CompareTo(object obj) => obj is EnumVariable other && other.EnumName != EnumName ? -1 : base.CompareTo(obj);
-
-        public override bool Equals(object obj) => CompareTo(obj) == 0;
-
-        public override int GetHashCode() => base.GetHashCode();
+        public override bool StrictEquals(IVariable other) => other is EnumVariable otherEnum && Definition.IsSameType(otherEnum.Definition) && Equals(other);
 
         public ObjectVariable ToObject() => new(new Dictionary<string, (bool, IIdentifiable)>
         {
