@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using EOBot.Interpreter;
+using EOBot.Interpreter.Hosting;
 using EOBot.Interpreter.States;
 using EOBot.Interpreter.Variables;
 using NUnit.Framework;
@@ -13,6 +14,8 @@ namespace EOBot.Test.Interpreter
     [TestFixture]
     public class EnumTest
     {
+        private readonly TypeCatalog _typeCatalog = TypeCatalog.FromRootAssemblies(typeof(EnumTest).Assembly);
+
         private const string TestEnums = """
             enum E { A, B = 5, C, D = -2, F }
             enum G { A }
@@ -253,17 +256,17 @@ namespace EOBot.Test.Interpreter
         [Test]
         public void Map_AmbiguousName_ThrowsOnParse()
         {
-            var ambiguousName = EnumTypeCatalog.EnumTypes.GroupBy(x => x.Name).First(x => x.Count() > 1).Key;
+            var ambiguousName = _typeCatalog.Types.Where(x => x.IsEnum).GroupBy(x => x.Name).First(x => x.Count() > 1).Key;
 
             var ex = Assert.ThrowsAsync<BotScriptErrorException>(() => RunAsync($"map {ambiguousName}"));
             Assert.That(ex.Message, Does.Contain("ambiguous"));
         }
 
-        private static async Task<(ProgramState State, EvalResult Result, string Reason)> RunAsync(string script, System.Action<ProgramState> setup = null)
+        private async Task<(ProgramState State, EvalResult Result, string Reason)> RunAsync(string script, System.Action<ProgramState> setup = null)
         {
             using var ms = new MemoryStream(Encoding.UTF8.GetBytes(script));
             using var sr = new StreamReader(ms);
-            var botInterpreter = new BotInterpreter(sr);
+            var botInterpreter = new BotInterpreter(sr, new ScriptHost(_typeCatalog));
 
             var state = botInterpreter.Parse();
             setup?.Invoke(state);

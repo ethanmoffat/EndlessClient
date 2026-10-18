@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using EOBot.Interpreter.Hosting;
 using EOBot.Interpreter.States;
 
 namespace EOBot.Interpreter
@@ -10,15 +11,17 @@ namespace EOBot.Interpreter
     public class BotInterpreter
     {
         private readonly BotTokenizer _tokenizer;
+        private readonly ProgramParser _parser;
 
-        public BotInterpreter(string filePath)
-            : this(File.OpenText(filePath))
+        public BotInterpreter(string filePath, ScriptHost host = null)
+            : this(File.OpenText(filePath), host)
         {
         }
 
-        public BotInterpreter(StreamReader inputStream)
+        public BotInterpreter(StreamReader inputStream, ScriptHost host = null)
         {
             _tokenizer = new BotTokenizer(inputStream);
+            _parser = new ProgramParser(host);
         }
 
         public ProgramState Parse()
@@ -40,7 +43,7 @@ namespace EOBot.Interpreter
                 retList.Add(nextToken);
             } while (nextToken.TokenType != BotTokenType.EOF);
 
-            return new ProgramState(ProgramParser.Parse(retList));
+            return new ProgramState(_parser.Parse(retList));
         }
 
         public async Task<int> Run(ProgramState programState, CancellationToken ct)

@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using EOBot.Interpreter;
+using EOBot.Interpreter.Hosting;
 using EOBot.Interpreter.States;
 using EOBot.Interpreter.Variables;
 
@@ -13,10 +14,10 @@ namespace EOBot
         private readonly ArgumentsParser _parsedArgs;
         private ProgramState _programState;
 
-        public ScriptedBot(int index, ArgumentsParser parsedArgs)
+        public ScriptedBot(int index, ArgumentsParser parsedArgs, ScriptHost host)
             : base(index)
         {
-            _interpreter = new BotInterpreter(parsedArgs.ScriptFile);
+            _interpreter = new BotInterpreter(parsedArgs.ScriptFile, host);
             _parsedArgs = parsedArgs;
         }
 
