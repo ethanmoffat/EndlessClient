@@ -191,7 +191,7 @@ namespace EOBot.Interpreter.States
             if (retDict.ContainsKey(enumName.TokenValue))
                 throw new BotScriptErrorException($"Symbol {enumName.TokenValue} is already defined", enumName);
 
-            retDict[enumName.TokenValue] = (true, new EnumDefinition(enumName.TokenValue, members));
+            retDict[enumName.TokenValue] = (true, EnumDefinition.FromScriptDefinition(enumName.TokenValue, members));
 
             program.RemoveRange(enumStartIndex, i - enumStartIndex);
             i = enumStartIndex - 1;

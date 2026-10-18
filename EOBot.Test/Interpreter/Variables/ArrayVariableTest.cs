@@ -19,10 +19,11 @@ namespace EOBot.Test.Interpreter.Variables
         [Test]
         public void IndexOf_EnumAndInt_MatchByValue()
         {
-            var array = Array(new IntVariable(0), new EnumVariable("E", "B", 1));
+            var e = EnumDefinition.FromScriptDefinition("E", [("A", 0), ("B", 1)]);
+            var array = Array(new IntVariable(0), new EnumVariable(e, "B", 1));
 
             Assert.That(array.IndexOf(new IntVariable(1)), Is.EqualTo(1));
-            Assert.That(array.IndexOf(new EnumVariable("E", "A", 0)), Is.EqualTo(0));
+            Assert.That(array.IndexOf(new EnumVariable(e, "A", 0)), Is.EqualTo(0));
         }
 
         [Test]

@@ -707,11 +707,6 @@ namespace EOBot.Test.Interpreter.States
             new TestCaseData("$r = [:] < [:]", "Dict and Dict cannot be compared with <").SetArgDisplayNames("Dicts"),
             new TestCaseData("$r = { $x = 1 } < { $x = 2 }", "Object and Object cannot be compared with <").SetArgDisplayNames("Objects"),
             new TestCaseData("$r = [1] < 1", "Array and int cannot be compared with <").SetArgDisplayNames("ArrayAndInt"),
-            new TestCaseData("""
-                enum E { A }
-                enum G { A }
-                $r = E::A < G::A
-                """, "E and G cannot be compared with <").SetArgDisplayNames("DifferentEnums"),
         ];
 
         public static IEnumerable<TestCaseData> ChainedIndexing() =>

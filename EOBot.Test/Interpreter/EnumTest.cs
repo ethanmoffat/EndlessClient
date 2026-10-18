@@ -226,6 +226,24 @@ namespace EOBot.Test.Interpreter
             Assert.That(state.SymbolTable["res"].Identifiable.StringValue, Is.EqualTo("true").IgnoreCase);
         }
 
+        [Test]
+        public async Task Map_SameTypeWithDifferentAliases_IsSameEnumType()
+        {
+            const string script = """
+                map LoginReply
+                from Moffat.EndlessOnline.SDK.Protocol.Net.Server map LoginReply to Reply
+                $res = Reply::Ok
+                $is = $res is LoginReply
+                $strict = $res === LoginReply::Ok
+                """;
+
+            var (state, result, reason) = await RunAsync(script);
+
+            Assert.That(result, Is.EqualTo(EvalResult.Ok), reason);
+            Assert.That(state.SymbolTable["is"].Identifiable.StringValue, Is.EqualTo("true").IgnoreCase);
+            Assert.That(state.SymbolTable["strict"].Identifiable.StringValue, Is.EqualTo("true").IgnoreCase);
+        }
+
         [TestCaseSource(typeof(EnumScripts), nameof(EnumScripts.InvalidMaps))]
         public void InvalidMap_ThrowsOnParse(string script)
         {

@@ -7,7 +7,7 @@ The result of comparing two values depends on the types of both operands. The or
 | int and int | By value | By value | Numerically |
 | int and enum value | By value (`E::A == 0` is `true`) | `false` | By value |
 | enum values of the same enum | By value | By value | By value |
-| enum values of different enums | `false` | `false` | Error |
+| enum values of different enums | By value | `false` | By value |
 | bool and bool | By value | By value | `false < true` |
 | string and string | By value (case-sensitive) | By value | Ordinally by character code (`"B" < "a"`) |
 | `undefined` and `undefined` | `true` | `true` | Equal (`<=` and `>=` are `true`) |

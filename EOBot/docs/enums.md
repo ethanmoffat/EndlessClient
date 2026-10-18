@@ -27,8 +27,9 @@ print(Color::Blue + 1)        // 7
 - Enum declarations are processed at load time and must be at the top level. Duplicate member names or reusing an existing enum or alias name is an error.
 - Reference members with `EnumName::Member`.
 - Enum values have the members `$name` (string), `$value` (int), and `$type` (string). Members can only be accessed on a variable, not directly on a `Name::Member` expression.
-- Enum values can be dictionary keys (stored as the string `"Name::Member"`), compared to ints with `==`, and passed to functions that take ints (for example `Face(Direction::Up)`).
-- Enum values can be ordered with `<`, `<=`, `>`, `>=` against values of the same enum or against ints. Ordering values of two different enums is an error.
+- Enum values can be dictionary keys (stored as the string `"Name::Member"`), compared to ints and to values of other enums with `==`, and passed to functions that take ints (for example `Face(Direction::Up)`).
+- Enum values can be ordered with `<`, `<=`, `>`, `>=` against ints and values of any enum, by value.
+- `$x is Name` and `===` compare enum types: mapped .NET enums match by .NET type (so after `map LoginReply` and `map LoginReply to Reply`, `Reply::Ok is LoginReply` is `true`), and script-declared enums match by name.
 
 ## Mapping .NET enums
 

@@ -654,7 +654,6 @@ namespace EOBot.Interpreter.States
         {
             var orderable = (lhs, rhs) switch
             {
-                (EnumVariable lhsEnum, EnumVariable rhsEnum) => lhsEnum.EnumName == rhsEnum.EnumName,
                 (IntVariable, IntVariable)
                 or (BoolVariable, BoolVariable)
                 or (StringVariable, StringVariable)
