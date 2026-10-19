@@ -209,7 +209,7 @@ namespace EOBot.Interpreter.States
         }
 
         /// <summary>
-        /// Parses: [from Namespace.Path] map (TypeName | TypeName.MethodName | *) [to Alias]
+        /// Parses: [from Namespace.Path] map [object] (Type[.Nested...][.MethodName | .*] | *) [to Alias]
         /// </summary>
         private void GetMapping(Dictionary<string, (bool, IIdentifiable)> retDict, List<BotToken> program, ref int i)
         {
@@ -241,19 +241,22 @@ namespace EOBot.Interpreter.States
             if (!mapToken.Is(BotTokenType.Keyword, Keywords.Map))
                 throw new BotScriptErrorException("Expected 'map' keyword", mapToken);
 
-            var typeToken = NextToken(program, ref i, mapToken);
-            var isWildcard = typeToken.Is(BotTokenType.MultiplyOperator);
-            if (!isWildcard && !typeToken.Is(BotTokenType.Identifier))
-                throw new BotScriptErrorException("Expected type name or '*' after 'map'", typeToken);
+            var objectToken = program[i].Is(BotTokenType.Identifier, Keywords.MapObject) && program[i + 1].Is(BotTokenType.Identifier)
+                ? program[i++]
+                : null;
 
-            BotToken methodToken = null;
-            if (!isWildcard && program[i].Is(BotTokenType.Dot))
+            var path = new List<BotToken>();
+            BotToken segment;
+            do
             {
-                var dotToken = program[i++];
-                methodToken = NextToken(program, ref i, dotToken);
-                if (!methodToken.Is(BotTokenType.Identifier))
-                    throw new BotScriptErrorException("Expected method name after '.'", methodToken);
+                var previous = path.Count == 0 ? objectToken ?? mapToken : program[i++];
+                segment = NextToken(program, ref i, previous);
+                if (!segment.IsOneOf(BotTokenType.Identifier, BotTokenType.MultiplyOperator))
+                    throw new BotScriptErrorException(path.Count == 0 ? "Expected type name or '*' after 'map'" : "Expected member name or '*' after '.'", segment);
+
+                path.Add(segment);
             }
+            while (!segment.Is(BotTokenType.MultiplyOperator) && program[i].Is(BotTokenType.Dot));
 
             BotToken aliasToken = null;
             if (program[i].Is(BotTokenType.Keyword, Keywords.To))
@@ -270,32 +273,28 @@ namespace EOBot.Interpreter.States
             if (_host == null)
                 throw new BotScriptErrorException("Mapping .NET types is not supported without a script host", mapToken);
 
-            if (methodToken != null)
-            {
-                var function = GetMappedFunction(ns, typeToken, methodToken, aliasToken);
-                if (retDict.ContainsKey(function.Name))
-                    throw new BotScriptErrorException($"Symbol {function.Name} is already defined", aliasToken ?? methodToken);
+            List<(string Name, IIdentifiable Symbol)> symbols =
+                objectToken != null
+                    ? [GetMappedObject(ns, path, aliasToken)]
+                    : path.Count == 1
+                        ? GetMappedEnums(ns, path[0], aliasToken)
+                        : GetMappedMembers(ns, path, aliasToken);
 
-                retDict[function.Name] = (true, function);
-            }
-            else
+            foreach (var (name, symbol) in symbols)
             {
-                foreach (var definition in GetMappedEnums(ns, typeToken, aliasToken, isWildcard))
-                {
-                    if (retDict.ContainsKey(definition.Name))
-                        throw new BotScriptErrorException($"Symbol {definition.Name} is already defined", aliasToken ?? typeToken);
+                if (retDict.ContainsKey(name))
+                    throw new BotScriptErrorException($"Symbol {name} is already defined", aliasToken ?? path[^1]);
 
-                    retDict[definition.Name] = (true, definition);
-                }
+                retDict[name] = (true, symbol);
             }
 
             program.RemoveRange(mapStartIndex, i - mapStartIndex);
             i = mapStartIndex - 1;
         }
 
-        private List<EnumDefinition> GetMappedEnums(string ns, BotToken typeToken, BotToken aliasToken, bool isWildcard)
+        private List<(string, IIdentifiable)> GetMappedEnums(string ns, BotToken typeToken, BotToken aliasToken)
         {
-            if (isWildcard)
+            if (typeToken.Is(BotTokenType.MultiplyOperator))
             {
                 if (ns == null)
                     throw new BotScriptErrorException("Mapping all types with '*' requires a namespace ('from <namespace> map *')", typeToken);
@@ -306,7 +305,7 @@ namespace EOBot.Interpreter.States
                 if (types.Count == 0)
                     throw new BotScriptErrorException($"No enum types found in namespace {ns}", typeToken);
 
-                return [.. types.Select(x => EnumDefinition.FromType(x))];
+                return [.. types.Select(x => EnumDefinition.FromType(x)).Select(x => (x.Name, (IIdentifiable)x))];
             }
 
             var namedTypes = _host.TypeCatalog.FindEnumsByName(typeToken.TokenValue, ns);
@@ -315,17 +314,94 @@ namespace EOBot.Interpreter.States
             if (namedTypes.Count > 1)
                 throw new BotScriptErrorException($"Enum type {typeToken.TokenValue} is ambiguous between: {string.Join(", ", namedTypes.Select(x => x.FullName))}. Use 'from <namespace> map {typeToken.TokenValue}'", typeToken);
 
-            return [EnumDefinition.FromType(namedTypes[0], aliasToken?.TokenValue)];
+            var definition = EnumDefinition.FromType(namedTypes[0], aliasToken?.TokenValue);
+            return [(definition.Name, definition)];
         }
 
-        private DotNetFunction GetMappedFunction(string ns, BotToken typeToken, BotToken methodToken, BotToken aliasToken)
+        /// <summary>
+        /// Maps Class.Method, Class.*, or a nested type (Class.Nested.Enum, Class.Nested.Method)
+        /// </summary>
+        private List<(string, IIdentifiable)> GetMappedMembers(string ns, List<BotToken> path, BotToken aliasToken)
         {
             if (ns == null)
-                throw new BotScriptErrorException($"Mapping a method requires a namespace ('from <namespace> map {typeToken.TokenValue}.{methodToken.TokenValue}')", typeToken);
+                throw new BotScriptErrorException($"Mapping a class member requires a namespace ('from <namespace> map {string.Join(".", path.Select(x => x.TokenValue))}')", path[0]);
 
-            var type = _host.TypeCatalog.FindClass(ns, typeToken.TokenValue)
-                ?? throw new BotScriptErrorException($"No class {typeToken.TokenValue} found in namespace {ns}", typeToken);
+            var (type, typeLength) = FindNestedType(ns, path);
+            if (typeLength == path.Count)
+            {
+                if (!type.IsEnum)
+                    throw new BotScriptErrorException($"Type {type.FullName} is not an enum", path[^1]);
 
+                var definition = EnumDefinition.FromType(type, aliasToken?.TokenValue);
+                return [(definition.Name, definition)];
+            }
+
+            if (typeLength < path.Count - 1)
+                throw new BotScriptErrorException($"No nested type {path[typeLength].TokenValue} found in type {type.FullName}", path[typeLength]);
+
+            var memberToken = path[^1];
+            if (memberToken.Is(BotTokenType.MultiplyOperator))
+                return GetAllMappedFunctions(type, memberToken, aliasToken);
+
+            var function = GetMappedFunction(type, memberToken, aliasToken);
+            return [(function.Name, function)];
+        }
+
+        private (string, IIdentifiable) GetMappedObject(string ns, List<BotToken> path, BotToken aliasToken)
+        {
+            if (ns == null)
+                throw new BotScriptErrorException($"Mapping an object requires a namespace ('from <namespace> map object {string.Join(".", path.Select(x => x.TokenValue))}')", path[0]);
+            if (path[^1].Is(BotTokenType.MultiplyOperator))
+                throw new BotScriptErrorException("Expected class name after 'object'", path[^1]);
+
+            var (type, typeLength) = FindNestedType(ns, path);
+            if (typeLength < path.Count)
+                throw new BotScriptErrorException($"No nested type {path[typeLength].TokenValue} found in type {type.FullName}", path[typeLength]);
+
+            var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Static)
+                .Where(_host.Converter.IsSupported)
+                .ToList();
+            if (properties.Count == 0)
+                throw new BotScriptErrorException($"Type {type.FullName} has no public static properties with types that can be used in scripts", path[^1]);
+
+            return (aliasToken?.TokenValue ?? type.Name, _host.Converter.ToObject(properties));
+        }
+
+        private (Type Type, int Length) FindNestedType(string ns, List<BotToken> path)
+        {
+            var type = _host.TypeCatalog.FindClass(ns, path[0].TokenValue)
+                ?? throw new BotScriptErrorException($"No class {path[0].TokenValue} found in namespace {ns}", path[0]);
+
+            var length = 1;
+            while (length < path.Count && type.GetNestedType(path[length].TokenValue) is { } nested)
+            {
+                type = nested;
+                length++;
+            }
+
+            return (type, length);
+        }
+
+        private List<(string, IIdentifiable)> GetAllMappedFunctions(Type type, BotToken wildcardToken, BotToken aliasToken)
+        {
+            if (aliasToken != null)
+                throw new BotScriptErrorException("An alias cannot be specified when mapping all methods with '*'", aliasToken);
+
+            var functions = type.GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .Where(x => !x.IsSpecialName)
+                .GroupBy(x => x.Name)
+                .Select(x => (x.Key, Overloads: x.Where(_host.Converter.IsSupported).ToList()))
+                .Where(x => x.Overloads.Count > 0)
+                .Select(x => (x.Key, (IIdentifiable)new DotNetFunction(x.Key, x.Overloads, _host.Converter)))
+                .ToList();
+            if (functions.Count == 0)
+                throw new BotScriptErrorException($"Type {type.FullName} has no public static methods with parameter and return types that can be used in scripts", wildcardToken);
+
+            return functions;
+        }
+
+        private DotNetFunction GetMappedFunction(Type type, BotToken methodToken, BotToken aliasToken)
+        {
             var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .Where(x => x.Name == methodToken.TokenValue)
                 .ToList();

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using EOBot.Interpreter.Variables;
@@ -35,6 +36,16 @@ namespace EOBot.Interpreter.Mapping
             return !method.ContainsGenericParameters
                 && method.GetParameters().All(x => IsSupportedParameterType(x.ParameterType) || x.ParameterType == typeof(CancellationToken))
                 && IsSupportedReturnType(method.ReturnType);
+        }
+
+        /// <summary>
+        /// Whether a property has a public getter whose type can be converted to a script value.
+        /// </summary>
+        public bool IsSupported(PropertyInfo property)
+        {
+            return property.GetMethod is { IsPublic: true }
+                && property.GetIndexParameters().Length == 0
+                && IsSupportedResultType(property.PropertyType);
         }
 
         /// <summary>
@@ -81,6 +92,18 @@ namespace EOBot.Interpreter.Mapping
             }
         }
 
+        /// <summary>
+        /// Converts .NET static properties to a read-only script object whose members are read on each access.
+        /// </summary>
+        public RuntimeEvaluatedMemberObjectVariable ToObject(IEnumerable<PropertyInfo> properties)
+        {
+            var result = new RuntimeEvaluatedMemberObjectVariable();
+            foreach (var property in properties)
+                result.SymbolTable[property.Name] = (true, () => ToVariable(GetStaticValue(property)));
+
+            return result;
+        }
+
         public string GetScriptTypeName(Type type)
         {
             if (type == typeof(string)) return Keywords.String;
@@ -99,6 +122,19 @@ namespace EOBot.Interpreter.Mapping
                 _enumDefinitions[enumType] = definition = EnumDefinition.FromType(enumType);
 
             return new EnumVariable(definition, Enum.GetName(enumType, value) ?? value.ToString(), Convert.ToInt32(value));
+        }
+
+        private static object GetStaticValue(PropertyInfo property)
+        {
+            try
+            {
+                return property.GetValue(null);
+            }
+            catch (TargetInvocationException tie) when (tie.InnerException != null)
+            {
+                ExceptionDispatchInfo.Capture(tie.InnerException).Throw();
+                throw;
+            }
         }
 
         private static (int Score, object Result) ConvertVariable(IVariable value, Type target)

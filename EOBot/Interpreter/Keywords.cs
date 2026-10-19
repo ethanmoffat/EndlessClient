@@ -35,6 +35,9 @@ namespace EOBot.Interpreter
         public const string Array = "Array";
         public const string Dict = "Dict";
 
+        // contextual: only a keyword between 'map' and a class name, otherwise the object() function
+        public const string MapObject = "object";
+
         private static readonly Dictionary<string, BotTokenType> TokenTypes = new()
         {
             [If] = BotTokenType.Keyword,

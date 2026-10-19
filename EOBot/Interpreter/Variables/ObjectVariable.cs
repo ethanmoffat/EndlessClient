@@ -45,6 +45,18 @@ namespace EOBot.Interpreter.Variables
 
         public RuntimeEvaluatedMemberObjectVariable() => SymbolTable = new Dictionary<string, (bool, Func<IIdentifiable>)>();
 
+        /// <summary>
+        /// Evaluates only the named member, so that accessing one member does not evaluate the others.
+        /// </summary>
+        public ObjectVariable EvaluateMember(string name)
+        {
+            var symbols = new Dictionary<string, (bool, IIdentifiable)>();
+            if (SymbolTable.TryGetValue(name, out var member))
+                symbols[name] = (member.ReadOnly, member.Variable.Invoke());
+
+            return new ObjectVariable(symbols);
+        }
+
         public string StringValue => $"Object: [{string.Join(", ", SymbolTable.Select(x => $"({x.Key}, {x.Value.Variable()})"))}]";
 
         public string TypeName => Keywords.Object;

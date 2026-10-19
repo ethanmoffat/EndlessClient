@@ -95,10 +95,7 @@ namespace EOBot.Interpreter.States
 
                     getVariableRes.Result = getRuntimeEvaluatedVariableRes.Result;
                     getVariableRes.Reason = getRuntimeEvaluatedVariableRes.Reason;
-                    getVariableRes.Variable = new ObjectVariable(
-                        getRuntimeEvaluatedVariableRes.Variable.SymbolTable
-                            .Select(x => (x.Key, (x.Value.ReadOnly, x.Value.Variable())))
-                            .ToDictionary(x => x.Key, x => x.Item2));
+                    getVariableRes.Variable = getRuntimeEvaluatedVariableRes.Variable.EvaluateMember(assignmentTarget.Member.TokenValue);
                 }
 
                 var targetObject = getVariableRes.Variable;

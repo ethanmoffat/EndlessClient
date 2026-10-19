@@ -121,6 +121,45 @@ namespace EOBot.Test.Interpreter.TestApi
         public int Increment() => ++Count;
     }
 
+    public static class Settings
+    {
+        private static int _reads;
+
+        public static string Name => "test";
+
+        public static TestColor Color => TestColor.Blue;
+
+        public static int Reads => ++_reads;
+
+        public static int WriteOnly { private get; set; }
+
+        public static DateTime Started => DateTime.MinValue;
+
+        public static string Throws => throw new BotScriptErrorException("property failed");
+    }
+
+    public static class Outer
+    {
+        public enum Inner
+        {
+            A,
+            B,
+        }
+
+        public static class Nested
+        {
+            public enum Deeper
+            {
+                X,
+                Y,
+            }
+
+            public static int Triple(int value) => value * 3;
+
+            public static int Quadruple(int value) => value * 4;
+        }
+    }
+
     public static class Unsupported
     {
         public static DateTime Now() => DateTime.Now;
