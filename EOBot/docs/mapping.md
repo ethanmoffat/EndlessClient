@@ -9,12 +9,14 @@ Public static methods and properties of public .NET classes in the loaded assemb
 | `from Name.Space map Type.Method` | Imports all overloads of `Type.Method` as the function `Method`. |
 | `from Name.Space map Type.Method to name` | Imports them as the function `name`. |
 | `from Name.Space map Type.*` | Imports each public static method of `Type` as a function with the method's name. Methods without any overloads that use supported types are skipped. |
+| `from Name.Space map Type` | Imports the class `Type` as a namespace: `Type::Method()`. See [Namespaces](#namespaces). |
+| `from Name.Space map Type to name` | Imports the class as the namespace `name`: `name::Method()`. |
 | `from Name.Space map object Type` | Imports the public static properties of `Type` as the read-only object `$Type`. See [Objects](#objects). |
 | `from Name.Space map object Type to name` | Imports them as the read-only object `$name`. |
 
 The namespace is required. Map statements are processed at load time and must be at the top level. Mapping fails if the class or method does not exist, the method is not public and static, none of its overloads use supported types, or the name is already defined. An alias cannot be used with `*`.
 
-Nested public types are named by their path from the outer class: `from Name.Space map Outer.Inner` maps the nested enum `Outer.Inner` as `Inner`, and `from Name.Space map Outer.Nested.Method` maps a method of the nested class `Outer.Nested`.
+Nested public types are named by their path from the outer class: `from Name.Space map Outer.Inner` maps the nested enum `Outer.Inner` as `Inner` (or the nested class as a namespace), and `from Name.Space map Outer.Nested.Method` maps a method of the nested class `Outer.Nested`.
 
 ```
 from System map Math.Max
@@ -22,6 +24,22 @@ from System map Math.Abs to abs
 
 $res = abs(Max(-5, -3))
 ```
+
+## Namespaces
+
+Mapping a class without a method creates a namespace containing the class's public static methods (each with all of its supported overloads), its public nested enums, and its public nested classes as nested namespaces. Members are accessed with `::`. Mapping fails if the class has no members that can be used in scripts.
+
+```
+from System map Math
+from System map Environment to env
+
+$res = Math::Max(1, Math::Abs(-3))
+$folder = env::SpecialFolder::Desktop
+$dir = env::GetFolderPath($folder)
+$isFolder = $folder is env::SpecialFolder    // true
+```
+
+A namespace is not a value: it cannot be assigned, printed, or called, and `Math::Max` without a call is an error.
 
 ## Objects
 

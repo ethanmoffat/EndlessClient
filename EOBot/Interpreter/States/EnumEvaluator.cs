@@ -12,32 +12,59 @@ namespace EOBot.Interpreter.States
             if (ct.IsCancellationRequested)
                 return Task.FromResult<(EvalResult, string, BotToken)>((EvalResult.Cancelled, string.Empty, null));
 
-            (EvalResult Result, string Reason, BotToken Token) evalRes = EvaluateEnumMember(input);
-            if (evalRes.Result == EvalResult.NotMatch)
-                evalRes = EvaluateEnumTypeSpecifier(input);
+            var (result, reason, token) = EvaluateEnumMember(input, out var typeHint);
+            if (result == EvalResult.NotMatch)
+                (result, reason, token) = EvaluateEnumTypeSpecifier(input, typeHint);
 
-            return Task.FromResult(evalRes);
+            return Task.FromResult((result, reason, token));
         }
 
-        private static (EvalResult, string, BotToken) EvaluateEnumMember(ProgramState input)
+        private static (EvalResult, string, BotToken) EvaluateEnumMember(ProgramState input, out EnumDefinition typeHint)
         {
-            var enumToken = input.Current();
-            if (!input.ExpectPair(BotTokenType.Identifier, BotTokenType.ScopeResolution))
-                return (EvalResult.NotMatch, string.Empty, enumToken);
+            typeHint = null;
 
-            var memberToken = input.Current();
-            if (!input.Expect(BotTokenType.Identifier))
-                return Error(memberToken, BotTokenType.Identifier);
+            var name = input.PeekQualifiedName();
+            var nextIndex = input.ExecutionIndex + name.TokenLength;
 
-            if (!input.SymbolTable.TryGetValue(enumToken.TokenValue, out var symbol))
-                return IdentifierNotFoundError(new IdentifierBotToken(enumToken));
+            if (name.DanglingToken is { } danglingToken)
+                return Error(danglingToken, BotTokenType.Identifier);
 
-            if (symbol.Identifiable is not EnumDefinition enumDefinition)
-                return (EvalResult.Failed, $"Identifier {enumToken.TokenValue} is not an enum", enumToken);
+            if (!name.IsEmpty)
+            {
+                // a name that resolves to an enum (e.g. 'Outer::Inner') is a type specifier, not a member
+                // NotMatch result here allows EvaluateAsync to fall through to type specifier evaluation
+                var (result, _, _) = input.SymbolTable.TryResolveQualifiedName(name, out var nameSymbol);
+                if (result == EvalResult.Ok && nameSymbol is EnumDefinition enumType)
+                {
+                    typeHint = enumType;
+                    return (EvalResult.NotMatch, string.Empty, input.Current());
+                }
+            }
 
+            if (!name.IsQualified)
+                return (EvalResult.NotMatch, string.Empty, input.Current());
+
+            var enumName = name.Qualifier;
+            if (input.SymbolTable.TryResolveQualifiedName(enumName, out var symbol) is { Result: not EvalResult.Ok } res)
+                return res;
+
+            if (symbol is ModuleDefinition)
+            {
+                // the name is a module member (e.g. 'Outer::Nested'), so report on the full name rather than the module
+                if (input.SymbolTable.TryResolveQualifiedName(name, out _) is { Result: not EvalResult.Ok } nameRes)
+                    return nameRes;
+
+                return (EvalResult.Failed, $"Identifier {name} is not an enum", name.Identifier);
+            }
+
+            if (symbol is not EnumDefinition enumDefinition)
+                return (EvalResult.Failed, $"Identifier {enumName} is not an enum", enumName.Identifier);
+
+            var memberToken = name.Identifier;
             if (!enumDefinition.TryGetMember(memberToken.TokenValue, out var enumValue))
-                return (EvalResult.Failed, $"Enum {enumToken.TokenValue} does not have a member named {memberToken.TokenValue}", memberToken);
+                return (EvalResult.Failed, $"Enum {enumName} does not have a member named {memberToken.TokenValue}", memberToken);
 
+            input.Goto(nextIndex);
             input.OperationStack.Push(VariableBotToken.FromComputedValue(BotTokenType.Literal, enumValue));
 
             return Success();
@@ -45,31 +72,32 @@ namespace EOBot.Interpreter.States
 
         /// <summary>
         /// Enum names and the 'enum' keyword are treated as type specifiers when they are the right-hand operand of the 'is' operator.
+        /// The type hint is the enum the name resolved to, or null for the 'enum' keyword.
         /// </summary>
-        private static (EvalResult, string, BotToken) EvaluateEnumTypeSpecifier(ProgramState input)
+        private static (EvalResult, string, BotToken) EvaluateEnumTypeSpecifier(ProgramState input, EnumDefinition typeHint)
         {
             var current = input.Current();
             if (input.OperationStack.Count == 0 || !input.OperationStack.Peek().Is(BotTokenType.IsOperator))
                 return (EvalResult.NotMatch, string.Empty, current);
 
-            EnumDefinition enumDefinition;
+            string typeName;
             if (current.Is(BotTokenType.Keyword, Keywords.Enum))
             {
-                enumDefinition = null;
+                typeName = current.TokenValue;
+                input.SkipToken();
             }
-            else if (current.Is(BotTokenType.Identifier)
-                && input.SymbolTable.TryGetValue(current.TokenValue, out var symbol)
-                && symbol.Identifiable is EnumDefinition definition)
+            else if (typeHint != null)
             {
-                enumDefinition = definition;
+                var name = input.PeekQualifiedName();
+                typeName = name;
+                input.Goto(input.ExecutionIndex + name.TokenLength);
             }
             else
             {
                 return (EvalResult.NotMatch, string.Empty, current);
             }
 
-            input.SkipToken();
-            input.OperationStack.Push(VariableBotToken.Create(BotTokenType.TypeSpecifier, current.TokenValue, EnumVariable.TypeSpecifier(enumDefinition)));
+            input.OperationStack.Push(VariableBotToken.Create(BotTokenType.TypeSpecifier, typeName, EnumVariable.TypeSpecifier(typeHint)));
 
             return Success();
         }
