@@ -71,7 +71,8 @@ namespace EOBot.Test.Interpreter
 
             Assert.That(result, Is.EqualTo(EvalResult.Ok), reason);
             Assert.That(state.SymbolTable["name"].Identifiable.StringValue, Is.EqualTo(System.Environment.MachineName));
-            Assert.That(state.SymbolTable["count"].Identifiable.StringValue, Is.EqualTo(System.Environment.ProcessorCount.ToString()));
+            Assert.That(state.SymbolTable["count"].Identifiable, Is.AssignableFrom<IntVariable>());
+            Assert.That((state.SymbolTable["count"].Identifiable as IntVariable).Value, Is.EqualTo(System.Environment.ProcessorCount));
         }
 
         [TestCase("Describe", "Describe(1)", "int 1")]
