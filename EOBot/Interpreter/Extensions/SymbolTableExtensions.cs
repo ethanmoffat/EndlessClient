@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using EOBot.Interpreter.States;
 using EOBot.Interpreter.Variables;
 
@@ -72,12 +71,7 @@ namespace EOBot.Interpreter.Extensions
                 var variable = getVariableRes.Variable switch
                 {
                     ObjectVariable objectVariable => objectVariable,
-                    RuntimeEvaluatedMemberObjectVariable runtimeVariable =>
-                        new ObjectVariable(
-                            runtimeVariable.SymbolTable
-                                .Select(x => (x.Key, Identifier: (x.Value.ReadOnly, x.Value.Variable())))
-                                .ToDictionary(x => x.Key, x => x.Identifier)
-                        ),
+                    RuntimeEvaluatedMemberObjectVariable runtimeVariable => runtimeVariable.EvaluateMember(identifier.Member.TokenValue),
                     EnumVariable enumVariable => enumVariable.ToObject(),
                     _ => null,
                 };

@@ -58,6 +58,23 @@ namespace EOBot.Test.Interpreter
             Assert.That(state.SymbolTable["b"].Identifiable.StringValue, Is.EqualTo("x-y"));
         }
 
+        [Test]
+        public async Task Map_FrameworkObject_ReadsProperties()
+        {
+            const string script = """
+                from System map object Environment
+                $name = $Environment.$MachineName
+                $count = $Environment.$ProcessorCount
+                """;
+
+            var (state, result, reason) = await RunAsync(script);
+
+            Assert.That(result, Is.EqualTo(EvalResult.Ok), reason);
+            Assert.That(state.SymbolTable["name"].Identifiable.StringValue, Is.EqualTo(System.Environment.MachineName));
+            Assert.That(state.SymbolTable["count"].Identifiable, Is.AssignableFrom<IntVariable>());
+            Assert.That((state.SymbolTable["count"].Identifiable as IntVariable).Value, Is.EqualTo(System.Environment.ProcessorCount));
+        }
+
         [TestCase("Describe", "Describe(1)", "int 1")]
         [TestCase("Describe", "Describe(\"x\")", "string x")]
         [TestCase("Describe", "Describe(1, 2)", "ints 1 2")]
@@ -186,6 +203,91 @@ namespace EOBot.Test.Interpreter
             Assert.That(state.SymbolTable["loose"].Identifiable.StringValue, Is.EqualTo("Red"));
         }
 
+        [Test]
+        public async Task Map_AllMethods_MapsEachMethodName()
+        {
+            const string script = $"""
+                {From} map StaticMath.*
+                from System map Math.*
+                $a = Add(1, 2)
+                $b = Describe("x")
+                $c = Max(1, Abs(-4))
+                """;
+
+            var (state, result, reason) = await RunAsync(script);
+
+            Assert.That(result, Is.EqualTo(EvalResult.Ok), reason);
+            Assert.That(state.SymbolTable["a"].Identifiable.StringValue, Is.EqualTo("3"));
+            Assert.That(state.SymbolTable["b"].Identifiable.StringValue, Is.EqualTo("string x"));
+            Assert.That(state.SymbolTable["c"].Identifiable.StringValue, Is.EqualTo("4"));
+        }
+
+        [Test]
+        public async Task Map_NestedTypes_MapsEnumsAndMethods()
+        {
+            const string script = $"""
+                {From} map Outer.Inner
+                {From} map Outer.Nested.Deeper to D
+                {From} map Outer.Nested.Triple to triple
+                {From} map Outer.Nested.*
+                $a = Inner::B
+                $b = D::Y
+                $c = triple(2)
+                $d = Quadruple(2)
+                """;
+
+            var (state, result, reason) = await RunAsync(script);
+
+            Assert.That(result, Is.EqualTo(EvalResult.Ok), reason);
+            Assert.That(state.SymbolTable["a"].Identifiable.StringValue, Is.EqualTo("Inner::B"));
+            Assert.That(state.SymbolTable["b"].Identifiable.StringValue, Is.EqualTo("D::Y"));
+            Assert.That(state.SymbolTable["c"].Identifiable.StringValue, Is.EqualTo("6"));
+            Assert.That(state.SymbolTable["d"].Identifiable.StringValue, Is.EqualTo("8"));
+        }
+
+        [Test]
+        public async Task Map_Object_ReadsStaticPropertiesOnAccess()
+        {
+            const string script = $"""
+                {From} map object Settings
+                {From} map object Settings to s
+                $name = $Settings.$Name
+                $color = $s.$Color
+                $first = $Settings.$Reads
+                $second = $Settings.$Reads
+                """;
+
+            var (state, result, reason) = await RunAsync(script);
+
+            Assert.That(result, Is.EqualTo(EvalResult.Ok), reason);
+            Assert.That(state.SymbolTable["name"].Identifiable.StringValue, Is.EqualTo("test"));
+            Assert.That(state.SymbolTable["color"].Identifiable, Is.InstanceOf<EnumVariable>());
+            Assert.That(state.SymbolTable["color"].Identifiable.StringValue, Is.EqualTo("TestColor::Blue"));
+
+            var first = ((IntVariable)state.SymbolTable["first"].Identifiable).Value;
+            Assert.That(((IntVariable)state.SymbolTable["second"].Identifiable).Value, Is.EqualTo(first + 1));
+
+            string[] expectedMembers = ["Name", "Color", "Reads", "Throws"];
+            var members = ((RuntimeEvaluatedMemberObjectVariable)state.SymbolTable["Settings"].Identifiable).SymbolTable;
+            Assert.That(members.Keys, Is.EquivalentTo(expectedMembers));
+        }
+
+        [TestCase("$Settings = 1")]
+        [TestCase("$Settings.$Name = \"x\"")]
+        public async Task Map_Object_IsReadOnly(string statement)
+        {
+            var (_, result, reason) = await RunAsync($"{From} map object Settings\n{statement}");
+
+            Assert.That(result, Is.EqualTo(EvalResult.Failed), reason);
+            Assert.That(reason, Does.Contain("read-only"));
+        }
+
+        [Test]
+        public void Map_ObjectPropertyException_Throws()
+        {
+            Assert.ThrowsAsync<BotScriptErrorException>(() => RunAsync($"{From} map object Settings\n$x = $Settings.$Throws"));
+        }
+
         [TestCase(From + " map Unsupported.Now")]
         [TestCase(From + " map Unsupported.Take")]
         [TestCase(From + " map Unsupported.TakeImmutable")]
@@ -194,7 +296,18 @@ namespace EOBot.Test.Interpreter
         [TestCase(From + " map StaticMath.NotAMethod")]
         [TestCase(From + " map NotAType.Add")]
         [TestCase(From + " map Counter.Increment")]
-        [TestCase(From + " map StaticMath.*")]
+        [TestCase(From + " map StaticMath.* to all")]
+        [TestCase(From + " map Unsupported.*")]
+        [TestCase(From + " map StaticMath.Add\n" + From + " map StaticMath.*")]
+        [TestCase(From + " map Outer.Missing.Deeper")]
+        [TestCase(From + " map Outer.Nested")]
+        [TestCase(From + " map Outer.Inner.A")]
+        [TestCase("map Outer.Inner")]
+        [TestCase(From + " map object Counter")]
+        [TestCase(From + " map object NotAType")]
+        [TestCase(From + " map object Settings.Name")]
+        [TestCase(From + " map object Settings\n" + From + " map object Settings")]
+        [TestCase("map object Settings")]
         [TestCase(From + " map StaticMath.Add\n" + From + " map StaticMath.Add")]
         [TestCase("map StaticMath.Add")]
         [TestCase("from Not.A.Namespace map StaticMath.Add")]

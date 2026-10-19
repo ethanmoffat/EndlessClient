@@ -42,6 +42,7 @@ Public .NET enums from the loaded assemblies (EOLib and the Endless Online SDK) 
 | `from Name.Space map Type` | Imports `Type` from a specific namespace. |
 | `from Name.Space map Type to Alias` | Imports `Type` from a namespace under the name `Alias`. |
 | `from Name.Space map *` | Imports every enum in the namespace. An alias is not allowed. |
+| `from Name.Space map Outer.Type` | Imports the enum `Type` nested in the class `Outer` (any depth: `Outer.Inner.Type`), optionally with `to Alias`. Nested enums are not included by `map Type` or `map *`. |
 
 Map statements are processed at load time and must be at the top level.
 
