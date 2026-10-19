@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -22,6 +23,7 @@ namespace EOBot.Interpreter.Mapping
         private const int TruncatingMatch = 0;
 
         private static readonly HashSet<Type> IntegerTypes = [typeof(int), typeof(long), typeof(short), typeof(byte), typeof(sbyte), typeof(uint), typeof(ushort), typeof(ulong)];
+        private static readonly Type[] CollectionParameterTypes = [typeof(IEnumerable<>), typeof(IList<>), typeof(ICollection<>)];
 
         private readonly Dictionary<Type, EnumDefinition> _enumDefinitions = [];
 
@@ -31,7 +33,7 @@ namespace EOBot.Interpreter.Mapping
         public bool IsSupported(MethodInfo method)
         {
             return !method.ContainsGenericParameters
-                && method.GetParameters().All(x => IsSupportedType(x.ParameterType) || x.ParameterType == typeof(CancellationToken))
+                && method.GetParameters().All(x => IsSupportedParameterType(x.ParameterType) || x.ParameterType == typeof(CancellationToken))
                 && IsSupportedReturnType(method.ReturnType);
         }
 
@@ -47,7 +49,7 @@ namespace EOBot.Interpreter.Mapping
                 _ when target == typeof(bool) => ConvertBool(value),
                 { IsEnum: true } => ConvertEnum(value, target),
                 _ when IntegerTypes.Contains(target) => ConvertInteger(value, target),
-                _ when target == typeof(List<IVariable>) => ConvertList(value),
+                _ when GetElementType(target) is { } elementType => ConvertCollection(value, target, elementType),
                 _ when target == typeof(Dictionary<string, IVariable>) => ConvertDictionary(value),
                 _ => (NoMatch, null),
             };
@@ -72,6 +74,8 @@ namespace EOBot.Interpreter.Mapping
                 case IConvertible when IntegerTypes.Contains(value.GetType()):
                     var truncated = value is ulong ul ? unchecked((int)ul) : unchecked((int)Convert.ToInt64(value));
                     return new IntVariable(truncated, truncated: Convert.ToDecimal(value) != truncated);
+                case IEnumerable enumerable when GetElementType(value.GetType()) != null:
+                    return new ArrayVariable([.. enumerable.Cast<object>().Select(ToVariable)]);
                 default:
                     throw new BotScriptErrorException($"Values of type {value.GetType().FullName} cannot be used in scripts");
             }
@@ -83,7 +87,7 @@ namespace EOBot.Interpreter.Mapping
             if (type == typeof(bool)) return Keywords.Bool;
             if (type.IsEnum) return type.Name;
             if (IntegerTypes.Contains(type)) return Keywords.Int;
-            if (type == typeof(List<IVariable>)) return Keywords.Array;
+            if (GetElementType(type) != null) return Keywords.Array;
             if (type == typeof(Dictionary<string, IVariable>)) return Keywords.Dict;
             return type.Name;
         }
@@ -144,11 +148,72 @@ namespace EOBot.Interpreter.Mapping
             _ => throw new ArgumentException($"{target} is not an integer type", nameof(target)),
         };
 
-        private static (int Score, object Result) ConvertList(IVariable value) =>
-            value is ArrayVariable av ? (ExactMatch, av.Value) : (NoMatch, null);
-
         private static (int Score, object Result) ConvertDictionary(IVariable value) =>
             value is DictVariable dv ? (ExactMatch, dv.Value) : (NoMatch, null);
+
+        private (int Score, object Result) ConvertCollection(IVariable value, Type target, Type elementType)
+        {
+            if (value is not ArrayVariable av)
+                return (NoMatch, null);
+
+            if (target.IsAssignableFrom(typeof(List<IVariable>)))
+                return (ExactMatch, av.Value);
+
+            var items = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(elementType));
+            var score = ExactMatch;
+            foreach (var element in av.Value)
+            {
+                var elementScore = TryConvert(element, elementType, out var converted);
+                if (elementScore == NoMatch)
+                    return (NoMatch, null);
+
+                score = Math.Min(score, elementScore);
+                items.Add(converted);
+            }
+
+            return (score, CreateCollection(target, elementType, items));
+        }
+
+        private static object CreateCollection(Type target, Type elementType, IList items)
+        {
+            if (target.IsArray)
+            {
+                var array = Array.CreateInstance(elementType, items.Count);
+                items.CopyTo(array, 0);
+                return array;
+            }
+
+            if (target.IsAssignableFrom(typeof(List<>).MakeGenericType(elementType)))
+                return items;
+
+            if (target.IsAssignableFrom(typeof(HashSet<>).MakeGenericType(elementType)))
+                return Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(elementType), items);
+
+            return FindConstructorWithCollectionParameter(target, elementType).Invoke([items]);
+        }
+
+        private static ConstructorInfo FindConstructorWithCollectionParameter(Type target, Type elementType)
+        {
+            if (target.IsInterface || target.IsAbstract)
+                return null;
+
+            return CollectionParameterTypes
+                .Select(x => target.GetConstructor([x.MakeGenericType(elementType)]))
+                .FirstOrDefault(x => x != null);
+        }
+
+        /// <summary>
+        /// The element type T of a type that is or implements exactly one IEnumerable&lt;T&gt;, or null.
+        /// </summary>
+        private static Type GetElementType(Type type)
+        {
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                return type.GetGenericArguments()[0];
+
+            var enumerable = type.GetInterfaces()
+                .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+            return enumerable?.GetGenericArguments()[0];
+        }
 
         private static bool IsSupportedReturnType(Type type)
         {
@@ -156,17 +221,30 @@ namespace EOBot.Interpreter.Mapping
                 return true;
 
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Task<>))
-                return IsSupportedType(type.GetGenericArguments()[0]);
+                return IsSupportedResultType(type.GetGenericArguments()[0]);
 
-            return IsSupportedType(type);
+            return IsSupportedResultType(type);
         }
 
-        private static bool IsSupportedType(Type type) =>
+        private static bool IsSupportedParameterType(Type type) =>
+            IsSupportedValueType(type)
+            || (GetElementType(type) is { } elementType && IsSupportedParameterType(elementType) && CanCreateCollection(type, elementType));
+
+        private static bool CanCreateCollection(Type target, Type elementType) =>
+            target.IsArray
+            || target.IsAssignableFrom(typeof(List<>).MakeGenericType(elementType))
+            || target.IsAssignableFrom(typeof(HashSet<>).MakeGenericType(elementType))
+            || FindConstructorWithCollectionParameter(target, elementType) != null;
+
+        private static bool IsSupportedResultType(Type type) =>
+            IsSupportedValueType(type)
+            || (GetElementType(type) is { } elementType && IsSupportedResultType(elementType));
+
+        private static bool IsSupportedValueType(Type type) =>
             type == typeof(string)
             || type == typeof(bool)
             || type.IsEnum
             || IntegerTypes.Contains(type)
-            || type == typeof(List<IVariable>)
             || type == typeof(Dictionary<string, IVariable>)
             || typeof(IVariable).IsAssignableFrom(type);
     }

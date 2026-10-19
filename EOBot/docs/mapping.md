@@ -28,7 +28,8 @@ Overloads that use any other type are ignored.
 | `string` | string |
 | `bool` | bool |
 | enum | Arguments accept an int or an enum value mapped from the same .NET enum. Return values are enum values that are the same type (`is`, `===`) as values of any mapping of that .NET enum, even if it is not mapped. |
-| `List<IVariable>` | array (the same array, not a copy) |
+| `List<IVariable>` and the interfaces it implements (`IList<IVariable>`, `IEnumerable<IVariable>`, ...) | array (the same array, not a copy) |
+| other collections of a supported element type (`T[]`, `List<T>`, `IReadOnlyList<T>`, `ISet<T>`, `Queue<T>`, ...) | array. See [Collections](#collections). |
 | `Dictionary<string, IVariable>` | dictionary (the same dictionary, not a copy) |
 | `IVariable` or a specific variable type | any value of that type, passed through unchanged |
 | `void`, `Task` | nothing (cannot be used as a value) |
@@ -36,6 +37,33 @@ Overloads that use any other type are ignored.
 
 A `CancellationToken` parameter (in any position) is supplied by the interpreter and is cancelled when the script stops; it is not passed by the script. Optional parameters may be omitted.
 
+## Collections
+
+Scripts have a single array type; .NET collection types never appear in scripts. Any parameter or return type that implements `IEnumerable<T>` for a single supported element type `T` is an array in scripts, including nested collections such as `List<int[]>`.
+
+An array argument is converted element by element into a new collection:
+
+- `T[]` is created directly.
+- An interface parameter (`IEnumerable<T>`, `IList<T>`, `IReadOnlyList<T>`, `ICollection<T>`, ...) receives a `List<T>`, or a `HashSet<T>` for set interfaces (`ISet<T>`, `IReadOnlySet<T>`).
+- A class parameter (`HashSet<T>`, `Queue<T>`, `Stack<T>`, `Collection<T>`, ...) is created with its public constructor that takes an `IEnumerable<T>`, `IList<T>` or `ICollection<T>`. Collections without one, such as immutable collections, are not supported.
+
+Only `List<IVariable>` and its interfaces receive the script's array itself; all other collections are copies, so changes made by the method are not visible to the script. Sets drop duplicate values, and a `Stack<T>` is filled in array order, so the last element is on top.
+
+A returned collection becomes a new script array.
+
+## params
+
+A `params T[]` parameter accepts either the remaining arguments or a single array:
+
+```
+from System map String.Join
+
+$a = Join("-", "x", "y")      // x-y
+$b = Join("-", ["x", "y"])    // x-y
+```
+
+As in C#, a single array argument is passed as the array itself when it matches the parameter; otherwise the arguments are collected into an array. Signatures in error messages show a params parameter as `type... name`.
+
 ## Overloads
 
-The overload is chosen on each call. Overloads that accept the number of arguments and whose parameter types all accept the argument values are candidates. An exact match (an int to `int`, a string to `string`) is preferred over a widening one (an int to `long`, or an enum value to an integer parameter), which is preferred over a loose one (an int to an enum parameter), which is preferred over a truncating one (an int outside the parameter's range). If there is no candidate, or several candidates are equally good, the call is a script error that lists the available signatures.
+The overload is chosen on each call. Overloads that accept the number of arguments and whose parameter types all accept the argument values are candidates. An exact match (an int to `int`, a string to `string`) is preferred over a widening one (an int to `long`, or an enum value to an integer parameter), which is preferred over a loose one (an int to an enum parameter), which is preferred over a truncating one (an int outside the parameter's range). An array argument matches a collection parameter as well as its worst element matches the element type. If there is no candidate, or several candidates are equally good, the call is a script error that lists the available signatures. Ties are broken as in C#: an overload whose parameter types are all the same as or more specific than another's (`string[]` over `IEnumerable<string>`, `List<int>` over `IList<int>`) is chosen, then an overload that does not collect arguments into a params array. Unrelated types such as `int[]` and `List<int>` remain ambiguous.
