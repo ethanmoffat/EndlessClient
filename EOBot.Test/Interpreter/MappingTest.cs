@@ -42,6 +42,22 @@ namespace EOBot.Test.Interpreter
             Assert.That(state.SymbolTable["res"].Identifiable.StringValue, Is.EqualTo("3"));
         }
 
+        [Test]
+        public async Task Map_FrameworkParamsMethod_AcceptsArgumentsOrArray()
+        {
+            const string script = """
+                from System map String.Join
+                $a = Join("-", "x", "y")
+                $b = Join("-", ["x", "y"])
+                """;
+
+            var (state, result, reason) = await RunAsync(script);
+
+            Assert.That(result, Is.EqualTo(EvalResult.Ok), reason);
+            Assert.That(state.SymbolTable["a"].Identifiable.StringValue, Is.EqualTo("x-y"));
+            Assert.That(state.SymbolTable["b"].Identifiable.StringValue, Is.EqualTo("x-y"));
+        }
+
         [TestCase("Describe", "Describe(1)", "int 1")]
         [TestCase("Describe", "Describe(\"x\")", "string x")]
         [TestCase("Describe", "Describe(1, 2)", "ints 1 2")]
@@ -92,6 +108,55 @@ namespace EOBot.Test.Interpreter
             Assert.ThrowsAsync<BotScriptErrorException>(() => RunAsync($"{From} map StaticMath.{method}\n$res = {call}"));
         }
 
+        [TestCase("Sum", "Sum()", "0")]
+        [TestCase("Sum", "Sum(1, 2, 3)", "6")]
+        [TestCase("Sum", "Sum([1, 2, 3])", "6")]
+        [TestCase("Join", "Join(\"-\", \"a\", \"b\")", "a-b")]
+        [TestCase("Join", "Join(\"-\", [\"a\", \"b\"])", "a-b")]
+        [TestCase("Join", "Join(\"-\")", "")]
+        [TestCase("Choose", "Choose(1, 2)", "fixed")]
+        [TestCase("Choose", "Choose(1)", "params 1")]
+        [TestCase("Choose", "Choose([1, 2])", "params 2")]
+        [TestCase("CountAll", "CountAll([1, 2])", "2")]
+        [TestCase("CountAll", "CountAll(1, [1, 2])", "2")]
+        [TestCase("Specific", "Specific([1])", "array")]
+        [TestCase("SumList", "SumList([1, 2, 3])", "6")]
+        [TestCase("SumReadOnly", "SumReadOnly([1, 2, 3])", "6")]
+        [TestCase("CountDistinct", "CountDistinct([1, 1, 2])", "2")]
+        [TestCase("QueueFirst", "QueueFirst([\"a\", \"b\"])", "a")]
+        [TestCase("StackTop", "StackTop([\"a\", \"b\"])", "b")]
+        [TestCase("SumCollection", "SumCollection([1, 2])", "3")]
+        [TestCase("SumNested", "SumNested([[1, 2], [3]])", "6")]
+        [TestCase("Range", "Range(3)", "[0, 1, 2]")]
+        [TestCase("Letters", "Letters()", "[a, b]")]
+        [TestCase("Grid", "Grid()", "[[1, 2], [3]]")]
+        public async Task Map_Collections_Convert(string method, string call, string expected)
+        {
+            var (state, result, reason) = await RunAsync($"{From} map Collections.{method}\n$res = {call}");
+
+            Assert.That(result, Is.EqualTo(EvalResult.Ok), reason);
+            Assert.That(state.SymbolTable["res"].Identifiable.StringValue, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public async Task Map_ScriptArrayToIVariableList_SharesInstance()
+        {
+            var (state, result, reason) = await RunAsync($"{From} map Collections.Append\n$arr = [1]\nAppend($arr, 2)");
+
+            Assert.That(result, Is.EqualTo(EvalResult.Ok), reason);
+            Assert.That(state.SymbolTable["arr"].Identifiable.StringValue, Is.EqualTo("[1, 2]"));
+        }
+
+        [TestCase("Sum", "Sum(\"a\")")]
+        [TestCase("Sum", "Sum([1, \"a\"])")]
+        [TestCase("SumList", "SumList(1)")]
+        [TestCase("SumNested", "SumNested([1, 2])")]
+        [TestCase("Unrelated", "Unrelated([1])")]
+        public void Map_InvalidCollectionCall_Throws(string method, string call)
+        {
+            Assert.ThrowsAsync<BotScriptErrorException>(() => RunAsync($"{From} map Collections.{method}\n$res = {call}"));
+        }
+
         [Test]
         public async Task Map_EnumReturn_IsEnumVariable()
         {
@@ -123,6 +188,9 @@ namespace EOBot.Test.Interpreter
 
         [TestCase(From + " map Unsupported.Now")]
         [TestCase(From + " map Unsupported.Take")]
+        [TestCase(From + " map Unsupported.TakeImmutable")]
+        [TestCase(From + " map Unsupported.TakeChars")]
+        [TestCase(From + " map Unsupported.ReturnDictionary")]
         [TestCase(From + " map StaticMath.NotAMethod")]
         [TestCase(From + " map NotAType.Add")]
         [TestCase(From + " map Counter.Increment")]
