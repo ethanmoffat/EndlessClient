@@ -246,6 +246,95 @@ namespace EOBot.Test.Interpreter
         }
 
         [Test]
+        public async Task Map_Class_IsNamespace()
+        {
+            const string script = """
+                from System map Math
+                from System map Math to m
+                $a = Math::Max(1, 2)
+                $b = m::Abs(-3)
+                """;
+
+            var (state, result, reason) = await RunAsync(script);
+
+            Assert.That(result, Is.EqualTo(EvalResult.Ok), reason);
+            Assert.That(state.SymbolTable["a"].Identifiable.StringValue, Is.EqualTo("2"));
+            Assert.That(state.SymbolTable["b"].Identifiable.StringValue, Is.EqualTo("3"));
+        }
+
+        [Test]
+        public async Task Map_FrameworkClass_IncludesNestedEnums()
+        {
+            const string script = """
+                from System map Math
+                from System map Environment to env
+                $res = Math::Max(1, Math::Abs(-3))
+                $folder = env::SpecialFolder::Desktop
+                $dir = env::GetFolderPath($folder)
+                $isFolder = $folder is env::SpecialFolder
+                """;
+
+            var (state, result, reason) = await RunAsync(script);
+
+            Assert.That(result, Is.EqualTo(EvalResult.Ok), reason);
+            Assert.That(state.SymbolTable["res"].Identifiable.StringValue, Is.EqualTo("3"));
+            Assert.That(state.SymbolTable["dir"].Identifiable.StringValue, Is.EqualTo(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop)));
+            Assert.That(state.SymbolTable["isFolder"].Identifiable.StringValue, Is.EqualTo("true").IgnoreCase);
+        }
+
+        [Test]
+        public async Task Map_Class_IncludesNestedTypes()
+        {
+            const string script = $"""
+                {From} map Outer
+                {From} map Outer.Nested to n
+                {From} map StaticMath
+                StaticMath::Noop()
+                $a = Outer::Inner::B
+                $b = Outer::Nested::Deeper::Y
+                $c = Outer::Nested::Triple(2)
+                $d = n::Quadruple(2)
+                $e = $a is Outer::Inner
+                $f = $b is n::Deeper
+                $g = $b === n::Deeper::Y
+                """;
+
+            var (state, result, reason) = await RunAsync(script);
+
+            Assert.That(result, Is.EqualTo(EvalResult.Ok), reason);
+            Assert.That(state.SymbolTable["a"].Identifiable.StringValue, Is.EqualTo("Inner::B"));
+            Assert.That(state.SymbolTable["b"].Identifiable.StringValue, Is.EqualTo("Deeper::Y"));
+            Assert.That(state.SymbolTable["c"].Identifiable.StringValue, Is.EqualTo("6"));
+            Assert.That(state.SymbolTable["d"].Identifiable.StringValue, Is.EqualTo("8"));
+            Assert.That(state.SymbolTable["e"].Identifiable.StringValue, Is.EqualTo("true").IgnoreCase);
+            Assert.That(state.SymbolTable["f"].Identifiable.StringValue, Is.EqualTo("true").IgnoreCase);
+            Assert.That(state.SymbolTable["g"].Identifiable.StringValue, Is.EqualTo("true").IgnoreCase);
+        }
+
+        [TestCase("$x = Outer::Missing()", "Identifier Outer::Missing is not defined")]
+        [TestCase("$x = Outer::Nested::Missing::A", "Identifier Outer::Nested::Missing is not defined")]
+        [TestCase("$x = StaticMath::Add::Foo()", "Identifier StaticMath::Add is not a module")]
+        [TestCase("$x = Outer()", "Expected identifier Outer to be a function")]
+        [TestCase("$x = Outer::Nested", "Identifier Outer::Nested is not an enum")]
+        [TestCase("$x = 1 is Outer::Nested", "Identifier Outer::Nested is not an enum")]
+        [TestCase("$x = Outer::Missing", "Identifier Outer::Missing is not defined")]
+        [TestCase("$x = Missing::Foo()", "Identifier Missing is not defined")]
+        [TestCase("$x = Missing::A", "Identifier Missing is not defined")]
+        [TestCase("$x = Outer::Inner()", "Expected identifier Outer::Inner to be a function, but it was EnumDefinition")]
+        [TestCase("$x = StaticMath::Noop()", "Function 'StaticMath::Noop' must return a value when used in an expression")]
+        [TestCase("$x = 1 is Outer::", "Expected Identifier, got EOF")]
+        [TestCase("$x = 1 is Outer", "Expected operand after is operator, got Identifier Outer")]
+        [TestCase("$x = Outer::Inner::1", "Expected Identifier, got Literal (1)")]
+        [TestCase("$x = Outer::Inner::C", "Enum Outer::Inner does not have a member named C")]
+        public async Task Map_Class_InvalidUse_Fails(string statement, string expectedReason)
+        {
+            var (_, result, reason) = await RunAsync($"{From} map Outer\n{From} map StaticMath\n{statement}");
+
+            Assert.That(result, Is.EqualTo(EvalResult.Failed), reason);
+            Assert.That(reason, Does.Contain(expectedReason));
+        }
+
+        [Test]
         public async Task Map_Object_ReadsStaticPropertiesOnAccess()
         {
             const string script = $"""
@@ -300,7 +389,9 @@ namespace EOBot.Test.Interpreter
         [TestCase(From + " map Unsupported.*")]
         [TestCase(From + " map StaticMath.Add\n" + From + " map StaticMath.*")]
         [TestCase(From + " map Outer.Missing.Deeper")]
-        [TestCase(From + " map Outer.Nested")]
+        [TestCase(From + " map Unsupported")]
+        [TestCase(From + " map Outer\n" + From + " map Outer")]
+        [TestCase("map Outer")]
         [TestCase(From + " map Outer.Inner.A")]
         [TestCase("map Outer.Inner")]
         [TestCase(From + " map object Counter")]

@@ -167,11 +167,12 @@ namespace EOBot.Interpreter.States
                 // an expression can be a function call
                 var stackDepth = input.OperationStack.Count;
                 var functionToken = input.Current();
+                var functionName = input.PeekQualifiedName();
                 var evalRes = await Evaluator<FunctionEvaluator>().EvaluateAsync(input, ct);
                 if (evalRes.Result == EvalResult.Ok)
                 {
                     if (input.OperationStack.Count == stackDepth)
-                        return (EvalResult.Failed, $"Function '{functionToken.TokenValue}' must return a value when used in an expression", functionToken);
+                        return (EvalResult.Failed, $"Function '{functionName}' must return a value when used in an expression", functionToken);
 
                     evalRes = await EvaluateIndexersAsync(input, ct);
                     if (evalRes.Result != EvalResult.Ok)

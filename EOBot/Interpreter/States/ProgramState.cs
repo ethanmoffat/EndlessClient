@@ -82,36 +82,63 @@ namespace EOBot.Interpreter.States
             return false;
         }
 
-        public bool ExpectPair(BotTokenType first, BotTokenType second)
+        /// <summary>
+        /// Get the identifiers of a name qualified with '::' (e.g. 'Math::Max') at the program's execution index, without changing the execution index.
+        /// </summary>
+        public SymbolName PeekQualifiedName()
         {
-            if (ExecutionIndex >= Program.Count - 1)
-                return false;
-
-            if (Program[ExecutionIndex].TokenType == first &&
-                Program[ExecutionIndex + 1].TokenType == second)
+            var name = new List<BotToken>();
+            BotToken danglingToken = null;
+            for (var i = ExecutionIndex; i < Program.Count && Program[i].TokenType == BotTokenType.Identifier; i += 2)
             {
-                ExecutionIndex += 2;
-                return true;
+                name.Add(Program[i]);
+
+                if (i + 1 >= Program.Count || Program[i + 1].TokenType != BotTokenType.ScopeResolution)
+                    break;
+
+                if (i + 2 < Program.Count && Program[i + 2].TokenType != BotTokenType.Identifier)
+                    danglingToken = Program[i + 2];
             }
 
-            return false;
+            return new SymbolName(name, danglingToken);
         }
 
         /// <summary>
-        /// Matches a pair of tokens in order at the program's execution index.
+        /// Checks for a pair of tokens. Advances the program index by 2 if they match.
+        /// </summary>
+        public bool ExpectPair(BotTokenType first, BotTokenType second)
+        {
+            var pairMatches = PeekPair(first, second);
+            if (pairMatches)
+            {
+                ExecutionIndex += 2;
+            }
+            return pairMatches;
+        }
+
+        /// <summary>
+        /// Checks for a pair of tokens. Places them on the operation stack and advances the program index by 2 if they match.
         /// </summary>
         public bool MatchPair(BotTokenType first, BotTokenType second)
         {
-            if (ExecutionIndex >= Program.Count - 1)
-                return false;
-
-            if (Program[ExecutionIndex].TokenType == first &&
-                Program[ExecutionIndex + 1].TokenType == second)
+            var pairMatches = PeekPair(first, second);
+            if (pairMatches)
             {
                 OperationStack.Push(Program[ExecutionIndex]);
                 OperationStack.Push(Program[ExecutionIndex + 1]);
                 ExecutionIndex += 2;
+            }
+            return pairMatches;
+        }
 
+        private bool PeekPair(BotTokenType first, BotTokenType second)
+        {
+            if (ExecutionIndex >= Program.Count - 1)
+                return false;
+
+            if (Program[ExecutionIndex].TokenType == first &&
+                Program[ExecutionIndex + 1].TokenType == second)
+            {
                 return true;
             }
 

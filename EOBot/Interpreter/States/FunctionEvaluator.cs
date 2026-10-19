@@ -19,6 +19,13 @@ namespace EOBot.Interpreter.States
             if (ct.IsCancellationRequested)
                 return (EvalResult.Cancelled, string.Empty, null);
 
+            var name = input.PeekQualifiedName();
+            var lParenIndex = input.ExecutionIndex + name.TokenLength;
+            if (name.IsEmpty || lParenIndex >= input.Program.Count || !input.Program[lParenIndex].Is(BotTokenType.LParen))
+                return (EvalResult.NotMatch, string.Empty, input.Current());
+
+            // modules are resolved from the qualified name; only the function name and paren are pushed
+            input.Goto(lParenIndex - 1);
             if (!input.MatchPair(BotTokenType.Identifier, BotTokenType.LParen))
                 return (EvalResult.NotMatch, string.Empty, input.Current());
 
@@ -36,10 +43,11 @@ namespace EOBot.Interpreter.States
                 return StackEmptyError(input.Current());
             var functionToken = input.OperationStack.Pop();
 
-            if (!input.SymbolTable.ContainsKey(functionToken.TokenValue))
-                return IdentifierNotFoundError(new IdentifierBotToken(functionToken));
+            res = input.SymbolTable.TryResolveQualifiedName(name, out var function);
+            if (res.Result != EvalResult.Ok)
+                return res;
 
-            var function = input.SymbolTable[functionToken.TokenValue].Identifiable;
+            string functionName = name;
 
             try
             {
@@ -55,7 +63,7 @@ namespace EOBot.Interpreter.States
                 {
                     var result = await dotNetFunction.CallAsync(parameters.Select(x => x.VariableValue).ToArray(), ct).ConfigureAwait(false);
                     if (result is IntVariable { Truncated: true })
-                        ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"Return value of {functionToken.TokenValue} does not fit in a script integer and was truncated to {result.StringValue} (at: {functionToken.LineNumber}:{functionToken.Column})", ConsoleColor.DarkYellow);
+                        ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"Return value of {functionName} does not fit in a script integer and was truncated to {result.StringValue} (at: {functionToken.LineNumber}:{functionToken.Column})", ConsoleColor.DarkYellow);
                     if (result != null)
                         PushResultToOperationStack(input, result);
                 }
@@ -63,14 +71,14 @@ namespace EOBot.Interpreter.States
                 {
                     if (input.CallStack.Count >= UserDefinedFunction.MaxCallDepth)
                     {
-                        return (EvalResult.Failed, $"Maximum call depth of {UserDefinedFunction.MaxCallDepth} exceeded calling function '{functionToken.TokenValue}'", functionToken);
+                        return (EvalResult.Failed, $"Maximum call depth of {UserDefinedFunction.MaxCallDepth} exceeded calling function '{functionName}'", functionToken);
                     }
 
                     return await udf.CallAsync(input, functionToken, ct, parameters.Select(x => x.VariableValue).ToArray());
                 }
                 else
                 {
-                    return (EvalResult.Failed, $"Expected identifier {functionToken.TokenValue} to be a function, but it was {function.GetType().Name}", functionToken);
+                    return (EvalResult.Failed, $"Expected identifier {functionName} to be a function, but it was {function.GetType().Name}", functionToken);
                 }
             }
             catch (BotScriptErrorException bse) when (!bse.HasLocation)
@@ -84,7 +92,7 @@ namespace EOBot.Interpreter.States
             }
             catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException)
             {
-                return (EvalResult.Failed, $"Invalid argument type calling function '{functionToken.TokenValue}'", functionToken);
+                return (EvalResult.Failed, $"Invalid argument type calling function '{functionName}'", functionToken);
             }
             catch (TaskCanceledException)
             {

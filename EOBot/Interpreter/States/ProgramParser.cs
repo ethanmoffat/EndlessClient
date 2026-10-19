@@ -276,7 +276,7 @@ namespace EOBot.Interpreter.States
             List<(string Name, IIdentifiable Symbol)> symbols =
                 objectToken != null
                     ? [GetMappedObject(ns, path, aliasToken)]
-                    : path.Count == 1
+                    : path.Count == 1 && !IsClass(ns, path[0])
                         ? GetMappedEnums(ns, path[0], aliasToken)
                         : GetMappedMembers(ns, path, aliasToken);
 
@@ -319,7 +319,7 @@ namespace EOBot.Interpreter.States
         }
 
         /// <summary>
-        /// Maps Class.Method, Class.*, or a nested type (Class.Nested.Enum, Class.Nested.Method)
+        /// Maps a class or nested type (Class, Class.Nested.Enum), Class.Method, or Class.*
         /// </summary>
         private List<(string, IIdentifiable)> GetMappedMembers(string ns, List<BotToken> path, BotToken aliasToken)
         {
@@ -329,11 +329,20 @@ namespace EOBot.Interpreter.States
             var (type, typeLength) = FindNestedType(ns, path);
             if (typeLength == path.Count)
             {
-                if (!type.IsEnum)
-                    throw new BotScriptErrorException($"Type {type.FullName} is not an enum", path[^1]);
+                if (type.IsEnum)
+                {
+                    var definition = EnumDefinition.FromType(type, aliasToken?.TokenValue);
+                    return [(definition.Name, definition)];
+                }
 
-                var definition = EnumDefinition.FromType(type, aliasToken?.TokenValue);
-                return [(definition.Name, definition)];
+                var module = GetModule(aliasToken?.TokenValue ?? type.Name, type);
+
+                if (module.Members.Count == 0)
+                {
+                    throw new BotScriptErrorException($"Type {type.FullName} has no public static methods or nested types that can be used in scripts", path[^1]);
+                }
+
+                return [(module.Name, module)];
             }
 
             if (typeLength < path.Count - 1)
@@ -382,22 +391,49 @@ namespace EOBot.Interpreter.States
             return (type, length);
         }
 
+        private bool IsClass(string ns, BotToken typeToken) => ns != null && _host.TypeCatalog.FindClass(ns, typeToken.TokenValue) != null;
+
+        /// <summary>
+        /// Creates a module of a class's public static methods, nested enums, and nested classes. The module has no members if the class has none that can be used in scripts.
+        /// </summary>
+        private ModuleDefinition GetModule(string name, Type type)
+        {
+            var members = new Dictionary<string, IIdentifiable>();
+            foreach (var function in GetStaticFunctions(type))
+                members[function.Name] = function;
+
+            foreach (var nested in type.GetNestedTypes(BindingFlags.Public).Where(x => !x.ContainsGenericParameters))
+            {
+                if (nested.IsEnum)
+                    members[nested.Name] = EnumDefinition.FromType(nested);
+                else if (nested.IsClass && GetModule(nested.Name, nested) is { Members.Count: > 0 } module)
+                    members[nested.Name] = module;
+            }
+
+            return new ModuleDefinition(name, members);
+        }
+
         private List<(string, IIdentifiable)> GetAllMappedFunctions(Type type, BotToken wildcardToken, BotToken aliasToken)
         {
             if (aliasToken != null)
                 throw new BotScriptErrorException("An alias cannot be specified when mapping all methods with '*'", aliasToken);
 
-            var functions = type.GetMethods(BindingFlags.Public | BindingFlags.Static)
+            var functions = GetStaticFunctions(type);
+            if (functions.Count == 0)
+                throw new BotScriptErrorException($"Type {type.FullName} has no public static methods with parameter and return types that can be used in scripts", wildcardToken);
+
+            return [.. functions.Select(x => (x.Name, (IIdentifiable)x))];
+        }
+
+        private List<DotNetFunction> GetStaticFunctions(Type type)
+        {
+            return type.GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .Where(x => !x.IsSpecialName)
                 .GroupBy(x => x.Name)
                 .Select(x => (x.Key, Overloads: x.Where(_host.Converter.IsSupported).ToList()))
                 .Where(x => x.Overloads.Count > 0)
-                .Select(x => (x.Key, (IIdentifiable)new DotNetFunction(x.Key, x.Overloads, _host.Converter)))
+                .Select(x => new DotNetFunction(x.Key, x.Overloads, _host.Converter))
                 .ToList();
-            if (functions.Count == 0)
-                throw new BotScriptErrorException($"Type {type.FullName} has no public static methods with parameter and return types that can be used in scripts", wildcardToken);
-
-            return functions;
         }
 
         private DotNetFunction GetMappedFunction(Type type, BotToken methodToken, BotToken aliasToken)

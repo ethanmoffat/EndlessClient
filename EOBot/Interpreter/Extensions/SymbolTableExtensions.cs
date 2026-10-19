@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using EOBot.Interpreter.States;
 using EOBot.Interpreter.Variables;
 
@@ -29,7 +29,10 @@ namespace EOBot.Interpreter.Extensions
             return (EvalResult.Ok, string.Empty, variableValue);
         }
 
-        public static (EvalResult Result, string Reason, T Variable) GetVariable<T>(this Dictionary<string, (bool, IIdentifiable)> symbols, string identifier, IEnumerable<IVariable> indexers = null)
+        public static (EvalResult Result, string Reason, T Variable) GetVariable<T>(
+            this Dictionary<string, (bool, IIdentifiable)> symbols,
+            string identifier,
+            IEnumerable<IVariable> indexers = null)
             where T : class, IVariable
         {
             var getResult = GetVariable(symbols, identifier, indexers);
@@ -42,6 +45,38 @@ namespace EOBot.Interpreter.Extensions
                 return (EvalResult.Failed, $"Identifier {identifier} is not a {typeof(T).Name}", null);
 
             return (EvalResult.Ok, string.Empty, variable);
+        }
+
+        /// <summary>
+        /// Resolve a name qualified by modules (e.g. [Math, Max] for 'Math::Max') out of the symbol table
+        /// </summary>
+        public static (EvalResult Result, string Reason, BotToken Token) TryResolveQualifiedName(
+            this Dictionary<string, (bool, IIdentifiable Identifiable)> symbols,
+            SymbolName name,
+            out IIdentifiable symbol)
+        {
+            symbol = null;
+
+            if (!name.IsQualified)
+            {
+                if (!symbols.TryGetValue(name.Identifier.TokenValue, out var root))
+                    return (EvalResult.Failed, $"Identifier {name} is not defined", name.Identifier);
+
+                symbol = root.Identifiable;
+                return (EvalResult.Ok, string.Empty, name.Identifier);
+            }
+
+            var res = symbols.TryResolveQualifiedName(name.Qualifier, out var qualifier);
+            if (res.Result != EvalResult.Ok)
+                return res;
+
+            if (qualifier is not ModuleDefinition module)
+                return (EvalResult.Failed, $"Identifier {name.Qualifier} is not a module", name.Qualifier.Identifier);
+
+            if (!module.Members.TryGetValue(name.Identifier.TokenValue, out symbol))
+                return (EvalResult.Failed, $"Identifier {name} is not defined", name.Identifier);
+
+            return (EvalResult.Ok, string.Empty, name.Identifier);
         }
 
         /// <summary>
